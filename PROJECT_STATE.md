@@ -31,6 +31,15 @@ The mature deliverable is conceived as a universal computational medium unifying
 
 ## Open questions
 
+### Representation & Ontology
+- `[[question-model-node-ast-and-schema-representation]]`: What unified schema or AST representation can formally express discrete equations, continuous ODEs/PDEs, stochastic processes, and black-box oracles?
+- `[[question-dimensional-and-unit-type-system]]`: How should Connected Models represent physical/economic dimensions, unit systems, state-dependent conversions, and higher-order tensor/distribution shapes?
+- `[[question-semantic-variable-disambiguation]]`: How can the ontology prevent "type-safe nonsense" across identical units (e.g., trailing GAAP revenue vs forward ARR) without requiring centralized manual curation for every edge?
+- `[[question-temporal-and-spatial-data-alignment]]`: How should the graph reconcile mismatching temporal and spatial resolutions when connecting continuous time-series, periodic averages, and static projections?
+- `[[question-uncertainty-and-epistemic-bounds-serialization]]`: How should error bounds, probability distributions, sensitivity gradients, and validity domains be serialized and propagated across heterogeneous graph nodes?
+- `[[question-graph-topology-and-feedback-cycles]]`: Should Connected Models permit cyclic dependency graphs (feedback loops and market equilibria), and what mathematical resolution mechanics should govern them?
+
+### Runtime, Strategy & Agents
 - `[[question-execution-runtime-for-heterogeneous-models]]`: What architecture can orchestrate and execute heterogeneous, polyglot models (spanning algebra, ODEs/PDEs, scientific Python/R, and external APIs)?
 - `[[question-initial-domain-beachhead]]`: Which initial vertical (e.g., corporate valuation, FX forecasting, prediction markets) offers the best combination of commercial traction and benchmark clarity?
 - `[[question-agent-interaction-patterns]]`: What protocols, schemas, and division of labor should govern how parallel autonomous agents discover, compose, and execute model graphs?
@@ -42,8 +51,8 @@ The mature deliverable is conceived as a universal computational medium unifying
 
 ## Next useful moves
 
-1. **Research representation, ontology, and runtime**: Identify and articulate the fundamental questions we need to ask regarding mathematical representation, type safety, dimensional compatibility, and polyglot execution.
-2. **Explore representation candidates**: Survey existing scientific ASTs, ontology standards (e.g., QUDT, MathML, CellML, SBML), and graph execution engines against the requirements in `[[concept-end-state-vision]]`.
+1. **Research node AST and unit type system**: Deep-dive into `[[question-model-node-ast-and-schema-representation]]` and `[[question-dimensional-and-unit-type-system]]`, surveying candidate AST and unit schemas (SymPy, MathML, QUDT, UCUM).
+2. **Prototype semantic disambiguation**: Evaluate the compositional semantic typing model (`[[question-semantic-variable-disambiguation]]`) against the Intrinsic Valuation benchmark to formalize how "type-safe nonsense" is prevented.
 
 ## Last material update
 

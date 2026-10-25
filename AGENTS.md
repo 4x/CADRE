@@ -27,9 +27,17 @@ After substantial work:
 7. Update `PROJECT_STATE.md` only when the project's current intellectual state materially changes.
 8. Run `pmem validate` after edits and `pmem doctor` periodically. The derived index auto-refreshes on retrieval; `pmem index` can rebuild it explicitly.
 
-## Status vocabulary
+## Vocabulary
 
-Use canonical lowercase statuses: `provisional`, `active`, `accepted`, `paused`, `resolved`, `completed`, `rejected`, `superseded`, `archived`.
+Use canonical lowercase **status**: `provisional`, `active`, `accepted`, `paused`, `resolved`, `completed`, `rejected`, `superseded`, `archived`.
+
+When creating a new **question**, reuse existing topics where possible. Prefer 2–4 topics: one broad domain, one subdomain, and optionally one or two specific subjects. Do not create synonyms for existing topics. Make topics:
+
+- lowercase
+- singular where natural
+- kebab-case
+- conceptual, not procedural
+- reused before creating new ones.
 
 ## External sources
 

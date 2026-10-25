@@ -7,11 +7,12 @@
 
 To make high-stakes decisions, we must model their consequences and impacts. However, individual quantitative models are bounded by their assumptions and domain scope: when modelers expand their models to include more parameters, they risk venturing far outside their expertise. Because *one model's input is another model's output, and one model's assumption is another model's projection*, composing models into an open dependency graph replaces arbitrary assumptions with verified upstream outputs ([[concept-connected-models-thesis]]).
 
-Furthermore, the system serves as an external deterministic **quantitative reasoning layer** for autonomous AI agents and LLMs ([[concept-agent-quantitative-reasoning-layer]]). Rather than performing multi-step arithmetic, numerical simulations, and sensitivity sweeps in-context—which consumes massive prompt tokens, increases latency, and risks arithmetic hallucinations—agents delegate quantitative evaluation to the model graph.
+The mature deliverable is conceived as a universal computational medium unifying an interactive analyst workbench, an epistemic ledger of model components with full provenance and badging, and a polyglot dependency operating system ([[concept-end-state-vision]]). Furthermore, the system serves as an external deterministic **quantitative reasoning layer** for autonomous AI agents and LLMs ([[concept-agent-quantitative-reasoning-layer]]). Rather than performing multi-step arithmetic, numerical simulations, and sensitivity sweeps in-context—which consumes massive prompt tokens, increases latency, and risks arithmetic hallucinations—agents delegate quantitative evaluation to the model graph.
 
 ## Where things stand
 
-- Historical legacy materials (spanning the 2020 conceptual pitch and 2025 prototype notes) have been reconciled and migrated into a lean, 16-artifact Project Memory corpus.
+- Historical legacy materials (spanning the 2020 conceptual pitch and 2025 prototype notes) have been reconciled and migrated into Project Memory.
+- A comprehensive end-state vision has been established ([[concept-end-state-vision]]), detailing the three-tier lifecycle (Querying, Authoring, Stress-Testing), the flagship physical-to-financial cross-domain cascade, transparency badging (white-box to proprietary black-box oracles), and the capability delta.
 - The 2025 prototype proved the viability of hierarchical graph composition (e.g. nested DuPont ROI financial models) and established that graphs require explicit compilation phases and dirty-state tracking ([[investigation-prototype-2025-mathjs-supabase]], [[finding-graph-compilation-caching-requirement]]).
 - The unified relational graph schema used in the 2025 prototype is classified as **provisional** ([[concept-unified-computational-graph]], [[decision-unify-equations-and-graphs]]); it solved concrete database redundancy in the prototype, but is not accepted as a universal architectural truth pending deeper research into representation and ontology.
 - The standalone browser/RPC Math.js architecture is retired as the primary execution engine ([[decision-retire-standalone-mathjs-implementation]]), while remaining a candidate sub-engine for lightweight scalar algebra in a future multi-engine runtime.
@@ -41,8 +42,8 @@ Furthermore, the system serves as an external deterministic **quantitative reaso
 
 ## Next useful moves
 
-1. **Research representation, ontology, and runtime**: First of all, identify and articulate the fundamental questions we need to ask regarding mathematical representation, type safety, dimensional compatibility, and polyglot execution.
-2. **Vision for end state**: Start constructing a concrete, vivid picture of what the final deliverable looks like. What could one do with it? What are some real-world problems that could be solved? What might get cheaper, faster, more accurate, or fundamentally possible that isn't today?
+1. **Research representation, ontology, and runtime**: Identify and articulate the fundamental questions we need to ask regarding mathematical representation, type safety, dimensional compatibility, and polyglot execution.
+2. **Explore representation candidates**: Survey existing scientific ASTs, ontology standards (e.g., QUDT, MathML, CellML, SBML), and graph execution engines against the requirements in `[[concept-end-state-vision]]`.
 
 ## Last material update
 

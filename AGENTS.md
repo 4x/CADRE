@@ -1,4 +1,5 @@
 <!-- PROJECT_MEMORY:BEGIN MANAGED PROTOCOL -->
+
 # Project Memory agent protocol
 
 This repository's durable project state lives in the repository, not in the current chat or agent session.
@@ -37,4 +38,21 @@ External evidence belongs in `knowledge/sources/`. Sources support or challenge 
 ## Cold-start standard
 
 A human or new agent returning after roughly three months should be able to recover where the project stands, why it got there, what was tried/rejected, what remains unresolved, and what to do next from `PROJECT_STATE.md` plus bounded retrieval—not by replaying the whole project history.
+
 <!-- PROJECT_MEMORY:END MANAGED PROTOCOL -->
+
+# Repository Agent Guidelines
+
+## Prohibited Tooling & Conventions
+
+- **Do NOT use Superpowers**: Do not invoke Superpowers skills, workflows, or templates in this repository.
+- **No Superpowers Directories**: Never create, write to, or reference `docs/superpowers/` or any other superpowers directories.
+
+## Project Memory is the Sole Knowledge Base
+
+- All durable project knowledge, specifications, designs, findings, decisions, and hypotheses must strictly follow the **Project Memory** protocol (`knowledge/` directory, `PROJECT_STATE.md`, and the `pmem` CLI).
+- Preserve uncertainty, maintain provenance, link objects with typed relations and `[[wikilinks]]`, and validate with `pmem validate` and `pmem doctor`.
+
+## Source Code
+
+In the future, when implementation starts, Source code and Project Memory may coexist in this repository. Before substantial design or architectural work, consult Project Memory. After implementation, update Project Memory only when the project's durable understanding, decisions, hypotheses, or open questions changed.

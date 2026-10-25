@@ -13,6 +13,8 @@ topics:
 confidence: high
 relations:
   - type: relates-to
+    target: concept-end-state-vision
+  - type: relates-to
     target: concept-agent-quantitative-reasoning-layer
   - type: relates-to
     target: concept-unified-computational-graph

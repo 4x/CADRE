@@ -23,7 +23,7 @@ class RegistryTests(unittest.TestCase):
         model = catalog()["uniform-present-value@1"]
         symbols = {"annual": "A0", "rate": "d", "years": "t", "output": "PV"}
         return {"content": {"expression": model.expression, "guards": list(model.guards),
-            "assumptions": list(model.assumptions), "unresolved": [],
+            "assumptions": list(model.assumptions), "unresolved": [], "limitations": ["No zero-rate execution in this profile."],
             "source_map": [{"symbol": name, "source_symbol": source, "location": packet["location"]}
                            for name, source in symbols.items()]}, "audit": {"model": "test-double", "call_id": "offline-test"}}
 
@@ -83,6 +83,17 @@ class RegistryTests(unittest.TestCase):
             with self.assertRaisesRegex(ModelError, "blocking diagnostics"):
                 registry.review(candidate, "owner", "Must not admit a wrong reference.")
 
+    def test_in_scope_ambiguity_stays_blocking(self) -> None:
+        """A separate limitations field must never erase true unresolved semantics."""
+        response = self.extraction()
+        response["content"]["unresolved"] = ["Cannot identify the source discount rate convention."]
+        with scratch_directory() as folder, patch("connected_models.workflows.live_request", return_value=response):
+            registry = Registry(Path(folder) / "registry.sqlite3")
+            candidate = registry.candidate(curate(registry))
+            self.assertTrue(candidate["diagnostics"])
+            self.assertTrue(candidate["evidence"]["extraction"]["unresolved"])
+            self.assertEqual(registry.snapshot(), ({}, {}))
+
     def test_immutable_revision_and_forged_status(self) -> None:
         """A label cannot replace reviewed admission; changed definitions need a new revision."""
         with scratch_directory() as folder:
@@ -118,7 +129,7 @@ class RegistryTests(unittest.TestCase):
                 for node in graph.nodes:
                     raw = asdict(node)
                     if node.model == "uniform-present-value@1":
-                        raw["model"] = "uniform-present-value@source-1"
+                        raw["model"] = "uniform-present-value@" + load_packet(PACKET_PATH)["profile"]["version"]
                     for name, binding in node.bindings.items():
                         if isinstance(binding, Value):
                             raw["bindings"][name] = values[f"{node.id}.{name}"]

@@ -11,6 +11,7 @@ from .demo import DEFAULT_CAPEX, DEFAULT_COP, DEFAULT_TARIFF, catalog, compositi
 from .inference import BudgetLedger, InferenceSettings, smoke_test
 from .runtime import execute, save_run
 from .registry import Registry
+from .reports import read_run, write_report
 from .workflows import REGISTRY_PATH, answer, curate, review_bundle, seed_candidates
 
 
@@ -24,6 +25,7 @@ def main() -> int:
     demo.add_argument("--tariff", type=float, default=DEFAULT_TARIFF)
     demo.add_argument("--question", choices=("operating-cost", "investment"), default="investment")
     commands.add_parser("meta-smoke", help="One paid structured-output check using META_API_KEY")
+    commands.add_parser("usage", help="Report application inference spending and reservations")
     commands.add_parser("seed-candidates", help="Stage four supporting manual candidates; does not publish")
     commands.add_parser("curate", help="Offline Meta extraction from the bundled NIST source packet")
     commands.add_parser("registry-list", help="List eligible stored versions")
@@ -42,18 +44,22 @@ def main() -> int:
     query.add_argument("--tariff", type=float, default=DEFAULT_TARIFF)
     inspect = commands.add_parser("inspect", help="Inspect a saved run's result and actual lineage")
     inspect.add_argument("run_id")
+    report = commands.add_parser("report", help="Export saved runs to a readable standalone HTML report")
+    report.add_argument("run_ids", nargs="+")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     try:
         if args.command == "inspect":
-            from uuid import UUID
-            run_id = str(UUID(args.run_id))
-            record = json.loads((Path(".runs") / f"{run_id}.json").read_text(encoding="utf-8"))
+            record = read_run(args.run_id)
             print(json.dumps(record, indent=2))
             return 0
-        if args.command == "meta-smoke":
+        if args.command == "report":
+            print(f"Report: {write_report(args.run_ids)}")
+            return 0
+        if args.command in {"meta-smoke", "usage"}:
             settings = InferenceSettings.load(Path("inference.toml"))
-            result = smoke_test(settings, BudgetLedger(Path(".usage/meta.sqlite3"), settings))
+            ledger = BudgetLedger(Path(".usage/meta.sqlite3"), settings)
+            result = ledger.summary() if args.command == "usage" else smoke_test(settings, ledger)
             print(json.dumps(result, indent=2))
             return 0
         if args.command in {"seed-candidates", "curate", "candidate", "review", "registry-list", "answer", "review-bundle"}:

@@ -5,7 +5,7 @@ title: Curation Evidence, Review, and Publication Authority
 summary: What evidence makes a model eligible for a stated use, who can publish or withdraw versions, and how are source fidelity, reproducibility, disagreement, licensing, and AI authorship tracked?
 status: active
 created: '2026-10-27'
-updated: '2026-10-28'
+updated: '2026-10-29'
 topics:
   - agents
   - epistemology
@@ -42,6 +42,12 @@ What evidence makes a candidate model eligible for a particular use, and who may
 - How are review decisions scoped and versioned so that a later source/model change cannot inherit approval silently? How are affected consumers notified without rewriting old runs?
 
 ## Current partial answer
+
+### Local prototype review boundary — 2026-10-29
+
+The earlier owner-only review default was an assistant recommendation, not an accepted permanent human-only governance requirement. Under the user's instruction to build/test autonomously, the development agent separately checked and admitted four project-derived supporting candidates and one real Muse-extracted NIST candidate for local conditional experiments, with reviewer `codex-prototype-review`. Source, symbol mapping, interpretation/limitations, declared context, algebra and independent references were inspected; the exact review notes and revision digests are preserved in the registry/run manifests. This is attributed agent technical review, not human domain-expert approval or empirical model validation. Curator/composer inference roles have no publication tools; they cannot self-admit their outputs. Local trusted review commands hold authority. The universal approval policy remains open.
+
+The first two source candidates were not admitted: inadequate evidence and conflated out-of-scope limitations remained explicit. A revised source packet and extraction retained limitations separately from true in-scope ambiguities, with no weakening of the blocking rule for unresolved semantics. Candidate history was preserved; a numerically passing result alone did not establish source fidelity.
 
 The user clarified on 2026-10-28 that dedicated agents curate primarily/exclusively offline: extract models from scientific papers, textbooks, and other sources into canonical form, including equations, variables, constants, parameters, and provenance, and store reusable versions in the repository. Query-time agents consume that collection. Routine inline curation is excluded; a total ban versus last-resort-only policy remains open. If an exception is permitted later, it must not bypass evidence/review requirements or automatically publish a run-specific fallback.
 

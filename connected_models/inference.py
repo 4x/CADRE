@@ -41,6 +41,7 @@ class InferenceSettings:
     timeout_seconds: int
     input_usd_per_million: Decimal
     output_usd_per_million: Decimal
+    reasoning_effort: str = "low"
 
     @classmethod
     def load(cls, path: Path) -> "InferenceSettings":
@@ -52,6 +53,7 @@ class InferenceSettings:
                 data["model"], Decimal(str(data["total_budget_usd"])),
                 data["max_completion_tokens"], data["timeout_seconds"],
                 Decimal(str(data["input_usd_per_million"])), Decimal(str(data["output_usd_per_million"])),
+                data.get("reasoning_effort", "low"),
             )
             settings.validate()
             return settings
@@ -62,6 +64,8 @@ class InferenceSettings:
         """Reject unknown pricing and accidental budget/limit expansion."""
         if self.model != "muse-spark-1.3":
             raise ModelError("Verify pricing and token limits before enabling another model.")
+        if self.reasoning_effort not in {"minimal", "low", "medium", "high"}:
+            raise ModelError("Unsupported reasoning effort setting.")
         if not self.total_budget_usd.is_finite() or not Decimal(0) < self.total_budget_usd <= APPROVED_BUDGET_USD:
             raise ModelError("Inference budget must be positive and at most $150.")
         if type(self.max_completion_tokens) is not int or not 0 < self.max_completion_tokens <= MAX_COMPLETION_TOKENS:
@@ -114,6 +118,13 @@ class BudgetLedger:
                 raise ModelError("Unknown or already settled inference call.")
         return amount
 
+    def summary(self) -> dict[str, Any]:
+        """Report only charges/reservations and counts, never prompts or credentials."""
+        with closing(sqlite3.connect(self.path)) as connection:
+            rows = connection.execute("SELECT state, COUNT(*), SUM(amount) FROM calls GROUP BY state").fetchall()
+        return {"budget_usd": float(self.settings.total_budget_usd), "groups": {
+            state: {"calls": count, "conservative_usd": amount / MINOR_UNITS_PER_USD} for state, count, amount in rows}}
+
 
 def structured_request(settings: InferenceSettings, ledger: BudgetLedger, messages: list[dict[str, str]],
                        schema: dict[str, Any], name: str) -> dict[str, Any]:
@@ -126,6 +137,7 @@ def structured_request(settings: InferenceSettings, ledger: BudgetLedger, messag
         "model": settings.model,
         "messages": messages,
         "max_completion_tokens": settings.max_completion_tokens,
+        "reasoning_effort": settings.reasoning_effort,
         "response_format": {"type": "json_schema", "json_schema": {"name": name, "schema": schema}},
     }
     body = json.dumps(payload).encode()
@@ -144,14 +156,20 @@ def structured_request(settings: InferenceSettings, ledger: BudgetLedger, messag
         result = json.loads(raw)
         amount = ledger.settle(call_id, result["usage"])
         choice = result["choices"][0]
-        content = json.loads(choice["message"]["content"])
-        if choice["finish_reason"] != "stop" or not isinstance(content, dict):
+        if choice["finish_reason"] != "stop":
+            raise ModelError(f"Meta generation ended with {choice['finish_reason']}; usage recorded. Reasoning and visible output share the token limit.")
+        raw_content = choice["message"]["content"]
+        try:
+            content = json.loads(raw_content)
+        except (ValueError, TypeError):
+            raise ModelError("Meta returned invalid JSON content despite a completed generation; usage recorded.") from None
+        if not isinstance(content, dict):
             raise ModelError("Meta responded but failed the structured-output check; usage recorded.")
         LOGGER.info(f"Meta structured-output check completed: {call_id}.")
         return {"content": content, "audit": {"model": settings.model, "call_id": call_id,
                 "conservative_cost_usd": amount / MINOR_UNITS_PER_USD}}
     except ModelError:
-        LOGGER.warning(f"Meta smoke test did not complete: {call_id}. Check its ledger entry before retrying.")
+        LOGGER.warning(f"Meta structured request did not complete: {call_id}. Check its ledger entry before retrying.")
         raise
     except (OSError, http.client.HTTPException, ValueError, KeyError, IndexError, TypeError) as exc:
         # Do not log arbitrary exception bodies: a transport can include request data.

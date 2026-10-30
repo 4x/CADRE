@@ -69,3 +69,34 @@ class InferenceTests(unittest.TestCase):
         self.assertEqual(result["status"], "ok")
         self.assertNotIn("test-placeholder", json.dumps(result))
         transport.return_value.close.assert_called_once()
+
+    @patch("connected_models.inference.http.client.HTTPSConnection")
+    @patch.dict("os.environ", {"META_API_KEY": "test-placeholder-not-a-key"})
+    def test_truncation_reports_reason_and_keeps_charge(self, transport: MagicMock) -> None:
+        """Reasoning-budget truncation must not be misreported as a transport/JSON failure."""
+        response = transport.return_value.getresponse.return_value
+        response.status = 200
+        response.read.return_value = json.dumps({"usage": {"prompt_tokens": 100, "completion_tokens": 4096},
+            "choices": [{"finish_reason": "length", "message": {"content": ""}}]}).encode()
+        with scratch_directory() as folder:
+            settings = self.settings()
+            ledger = BudgetLedger(Path(folder) / "usage.sqlite3", settings)
+            with self.assertRaisesRegex(ModelError, "ended with length; usage recorded"):
+                smoke_test(settings, ledger)
+            self.assertEqual(ledger.summary()["groups"]["settled"]["calls"], 1)
+        transport.return_value.request.assert_called_once()
+
+    @patch("connected_models.inference.http.client.HTTPSConnection")
+    @patch.dict("os.environ", {"META_API_KEY": "test-placeholder-not-a-key"})
+    def test_bad_completed_json_keeps_charge(self, transport: MagicMock) -> None:
+        """Malformed output is rejected after valid billing evidence is retained."""
+        response = transport.return_value.getresponse.return_value
+        response.status = 200
+        response.read.return_value = json.dumps({"usage": {"prompt_tokens": 100, "completion_tokens": 10},
+            "choices": [{"finish_reason": "stop", "message": {"content": "broken-json"}}]}).encode()
+        with scratch_directory() as folder:
+            settings = self.settings()
+            ledger = BudgetLedger(Path(folder) / "usage.sqlite3", settings)
+            with self.assertRaisesRegex(ModelError, "invalid JSON content"):
+                smoke_test(settings, ledger)
+            self.assertEqual(ledger.summary()["groups"]["settled"]["calls"], 1)

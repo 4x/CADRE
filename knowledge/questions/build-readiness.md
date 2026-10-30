@@ -5,7 +5,7 @@ title: 'Build Readiness: Which Decisions Must Precede Implementation?'
 summary: Decision map separating the minimum answers needed for a first Connected Models build from contract-level gates and later universal-platform research.
 status: active
 created: '2026-10-27'
-updated: '2026-10-27'
+updated: '2026-10-29'
 topics:
   - strategy
   - architecture
@@ -70,6 +70,8 @@ This is a proposed decision agenda, not a list of choices already made. It adds 
 **C — Not universal prerequisites.** [[question-initial-domain-beachhead]] remains a strategic question, not a requirement to identify three paying customers before a technical prototype. Likewise, full federation, marketplace incentives, exhaustive ontologies, arbitrary polyglot execution, all cycle solvers, probabilistic inference across every model family, and an autonomous agent fleet can wait. For each, declare what is excluded and what extension boundary is preserved. An omission becomes a blocker only if the chosen first workflow requires it.
 
 ## Suggested resolution order and dependencies
+
+**Delivery update, 2026-10-29:** [[note-mvp-build-sequence-and-extension-triggers]] is now the active M0–M6 build plan. The user confirmed build ASAP, test/adjust, and hackathon submission as the immediate milestone. Use this question map to resolve affected implementation contracts, not to require all 17 substantive questions to be closed before coding. Domain-neutral fixture work can proceed while workflow/access inputs are pending; real curation and composition still require actual access and source evidence.
 
 1. Bound the first workflow and evaluation evidence together. Do not reopen the end-state question gallery as a substitute for selecting a build contract.
 2. Verify Meta access and the execution/security boundary early; they can invalidate an otherwise attractive technology choice. Vendor/library comparisons are future research, not recommendations made here.

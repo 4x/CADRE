@@ -1,11 +1,11 @@
 ---
 id: note-mvp-build-sequence-and-extension-triggers
 type: note
-title: MVP Build Sequence and Extension Triggers
-summary: Provisional implementation sequence and expansion triggers for a small complete Connected Models loop; preserve durable contracts while deferring infrastructure and unsupported model classes.
-status: provisional
+title: MVP Delivery Plan, Milestones, and Extension Triggers
+summary: Active delivery plan for a runnable core, complete offline-curation/query loop, user testing, and hackathon release; records urgent inputs, working defaults, exit gates, scope cuts, and later expansion triggers.
+status: active
 created: '2026-10-28'
-updated: '2026-10-28'
+updated: '2026-10-29'
 topics:
   - architecture
   - strategy
@@ -22,17 +22,89 @@ relations:
     target: question-execution-runtime-for-heterogeneous-models
   - type: relates-to
     target: decision-representation-contract-v0
+  - type: relates-to
+    target: question-evaluation-and-reference-evidence
+  - type: relates-to
+    target: question-technology-stack-and-meta-access
+  - type: relates-to
+    target: source-meta-hackathon-and-model-api-2026
   - type: derived-from
     target: finding-graph-compilation-caching-requirement
 ---
 
-# MVP Build Sequence and Extension Triggers
+# MVP Delivery Plan, Milestones, and Extension Triggers
 
 ## Scope and status
 
-Proposal in response to the user's 2026-10-28 request for a quickly working, extensible MVP. The canonical product scope and acceptance contract remain in [[question-first-build-scope-and-success]]; this note adds implementation sequencing and reasons to revisit deferred capabilities. No domain, stack, deadline, spending limit, or architecture is accepted by this note. No application has been implemented or scalability measured.
+This is the active delivery plan following the user's 2026-10-29 instruction: resolve urgent issues, build an MVP as soon as possible, test it, adjust, then add features and scale. It updates the 2026-10-28 sequencing proposal in place. The user confirmed the hackathon as the immediate milestone, six days away; milestone outcomes take precedence over optional calendar targets. Technical defaults below are agent recommendations for implementation, not falsely attributed user decisions. No application has been implemented or scalability measured.
 
-The established offline-curation/query-time separation and explicit model-first assumption resolution remain in force. Social features remain paused; the standalone Math.js runtime remains retired. The first workflow, access, resource constraints, and implementation contracts remain unresolved. Historical schema choices remain provisional. The earlier hackathon plan now has a detailed body in this working tree, unlike the earlier inspection reported in PROJECT_STATE.md; its content does not establish present API access, event rules, or user acceptance.
+This note owns delivery order, milestone status and scope trade-offs. [[question-first-build-scope-and-success]] owns detailed product acceptance; [[decision-representation-contract-v0]] owns the representation draft and critical review. Avoid creating parallel plans. The earlier hydropower hackathon plan remains historical/provisional input, not the selected domain or current delivery schedule.
+
+Established: offline curation, query-time reuse, model-first resolution, explicit assumptions, and now build-first delivery with iteration before submission. Paused/retired: social features and the standalone Math.js universal runtime. Unresolved: anchor workflow, available inference access/spending, source-specific references, and implementation feasibility. Historical schema and imported solution proposals remain provisional. Event timing was rechecked on 2026-10-29; detailed submission rules and authenticated access remain unverified. No universal ontology or complete platform-design review blocks a bounded implementation.
+
+## Immediate decision queue
+
+| Issue | Working answer / next action | Owner and blocking boundary |
+| --- | --- | --- |
+| Immediate objective | Working local prototype, user exercise and fixes, then hackathon release. Resolved by the user's 2026-10-29 instruction. | Agent maintains plan; no further milestone-preference question needed. |
+| Anchor workflow | User may name a workflow or delegate selection. Evaluate a small connected scenario question against accessible source equations, independent answers, reusable components and available data. Existing finance/market questions are candidates, not prescribed pipelines. | User choice/delegation pending; agent selects exact sources and models. Does not block domain-neutral fixture work. |
+| Inference access and total spend | Obtain provider/access route and total ceiling without requesting secrets; verify one real structured response and record cost/latency before relying on it. No paid calls until the budget/access boundary is established. | User supplies access facts/ceiling; agent handles setup and bounded smoke test within authorization. Blocks live integration, not deterministic core. |
+| Runtime and persistence | Default to one local uv-managed Python core, one numerical evaluator, serial execution, versioned serializable records and local persistence behind a small registry interface. Choose concrete packages/storage/UI in a short M1 feasibility check; do not start a broad stack survey. | Agent implementation responsibility, not a technology questionnaire for the user. |
+| Executable profile | Bootstrap with explicit scalar algebra and acyclic composition. Inventory the anchor's actual operators/shapes before fixing the complete MVP profile; add only indispensable supported operations with checks. | Agent; before the affected models are implemented. |
+| Representation blockers | Replace universal node-context equality with explicit per-port requirements/bindings; constrain meanings to allowed unit dimensions. Use the anchor's finite set of context relationships. | Agent revises and exercises the relevant v0 sections during M1. Do not implement the known-broken rules first. |
+| Curation and execution authority | Separate candidate extraction from executable eligibility; one owner review/publication step; reviewed declarative payloads, no arbitrary generated-code execution. Disable inline model curation for this milestone. | Working default. The permanent exception policy can remain open. |
+| Missing data and assumptions | Existing model/data first; explicit user scenarios or permitted, disclosed provisional estimates next; otherwise conditional/unresolved. Estimates cannot introduce unreviewed model relationships. | Agent implements bounded resolution; user controls use of generated estimates. |
+| Event requirements | Check participant rules, required Meta usage, allowed prior work, final submission fields and asset limits early. Public details retrieval still exposes only Loading. | Agent checks accessible material; user supplies account-only facts if necessary. Blocks event-specific claims/submission, not core work. |
+
+User input was requested on 2026-10-29 for workflow/delegation and access/spending (plus optional review availability). Until answered, keep these explicitly pending. Silence is not permission to spend or a domain selection. Prepare the core and conditional plan meanwhile.
+
+## Milestones and completion evidence
+
+Dates are planning targets, not elapsed-work estimates or completion promises. Rebaseline after M0 access/source checks. The organizer's public page still lists November 4, 9 PM ET (6 PM Los Angeles time) as the submission deadline; aim to have the package ready the preceding day. Evidence and limitations are recorded with each milestone rather than inferred from its date.
+
+| Milestone | Target | Deliverable and exit gate | Dependencies / current state |
+| --- | --- | --- | --- |
+| M0 — Unblock the first build | Oct 29; first working session | One bounded workflow, small source/model inventory, reference cases and tolerances; access/spend facts; one verified API smoke test when authorized; event requirement checklist. Identify exactly which items remain external blockers. | Active. Milestone confirmed; workflow/access questions pending. Core fixtures may start before all external checks finish. |
+| M1 — Runnable deterministic core | Oct 30 | A documented local command loads versioned models/inputs, validates and executes a multi-model graph, and saves results or actionable rejection diagnostics. Independent arithmetic cases pass; wrong meaning/unit, missing inputs, domain violations and cycles are rejected. Include a mixed-context case and independent instances. | Provisional, not started. Needs minimum contract fixes; can use clearly labeled fixtures. No API dependency. |
+| M2 — Complete product loop | Oct 31 | Real offline agent extraction from source → owner review → stored eligible version → separate query-time retrieval/composition → deterministic execution → human-readable inspection and revision. A second composition reuses a stored model without source re-extraction or executor edits. | Provisional, not started. Depends on M1, usable sources, authorized live inference. Fixtures/mocks alone do not pass. |
+| M3 — Kick the tires and repair | Nov 1–2 | User exercises a fresh question, changes assumptions, swaps a compatible model, inspects evidence, and encounters deliberate bad/missing input. Record friction and defects, fix release blockers, rerun affected checks and the complete loop. | Provisional, not started. Depends on M2. If user unavailable, agent rehearses and records user validation as pending. |
+| M4 — Release candidate and demo package | Nov 3 | Freeze features; reproducible setup and saved example runs; reference/negative-case checks pass; no known wrong-answer or lineage blockers; prepare walkthrough/recording and submission materials to verified rules. Label live versus recorded evidence. | Provisional, not started. Depends on M3's critical repairs and event-field verification. |
+| M5 — Submit | Nov 4, with buffer | Final check of required fields/assets, approved sharing/submission action, and saved submission receipt. Until a receipt exists, submission is not complete. | Provisional, not started. Depends on M4 and participant access. Creating this plan does not itself publish or submit anything. |
+| M6 — Extend from observed needs | After submission | Select the highest-value limitation revealed by use; add a model/question family through the same contracts; measure before adding infrastructure. | Provisional. Driven by the M3 issue log and later usage, not a fixed feature list. |
+
+M1 is the first runnable prototype; M2 is the first complete MVP. Start user inspection as soon as M1 is runnable, while protecting M3 for testing the complete loop. Preserve the test/fix window if dates slip: cut breadth before consuming it.
+
+### First implementation tickets
+
+1. Create the uv project/package, focused tests under `tests/`, and `readme.md` setup/run instructions. Add a deterministic local entry point; preserve the repository prohibition on accessing `.env` files.
+2. Implement the smallest revised model/value/composition/run records and versioned local persistence. Separate mutable drafts from immutable eligible versions and saved runs. Save rejected proposals plus diagnostics without pretending they are executable graphs.
+3. Implement explicit port/context, meaning/dimension, reference/domain and topology checks; compile dependencies once and evaluate each node once per run. Recompile/recompute after changes; no cross-run cache.
+4. Add independent fixtures and source-specific references, then offline extraction/review/publication against the same records. At M2, retain partial candidates and allow reviewed additive vocabulary growth without invalidating unrelated entries.
+5. Add bounded query composition and a minimal local inspector: result, dependency list/diagram, sources, assumptions, error explanation, scenario controls and model substitution. Share observations across scenarios through explicit reuse bindings while preserving their original provenance.
+
+Use one explicit sequential agent workflow initially; do not build a multi-agent orchestration framework. Inference stays behind a replaceable adapter, and the deterministic core must run without it. Agent retries, graph size, expression size, run time and API use need named configurable limits and visible failure states before the corresponding capability is enabled. Exact paid-call limits follow the approved ceiling; do not invent authorization.
+
+## MVP acceptance and testing loop
+
+The detailed gates remain in [[question-evaluation-and-reference-evidence]] and [[question-first-build-scope-and-success]]. Minimum release evidence:
+
+- Real source-faithful offline extraction with exact evidence locations, variables, units and assumptions; owner review for declared use; stored versions later reused at query time.
+- Multi-model computation agrees with an independent reference within declared tolerances. Tolerances and reference provenance precede implementation of the selected case.
+- A second composition reuses a model; input edits and compatible substitutions create new runs while old versions/results remain inspectable.
+- Wrong meaning despite matching units, wrong dimensions, invalid context/domain, missing input, unsupported cycles and malformed agent output are rejected with useful diagnostics. Inference failures cannot be reported as successful answers.
+- Model-first resolution is demonstrated; a permitted provisional parameter estimate is visibly labeled with downstream reliance; an unsuitable gap remains conditional/unresolved. Source-reported uncertainty is retained even if not propagated.
+- Results distinguish calculation, scenario assumptions and empirical claims. Record inference usage, failures and timing separately for curation and answering; make no unmeasured reliability/token-saving claims.
+
+During M3, record each issue with reproduction, expected/actual behavior, severity, disposition and retest evidence. Wrong answers, invalid accepted bindings, lost provenance, unsafe execution and inability to complete the supported loop block release. Confusing UI and recoverable rough edges are prioritized by whether the user can perform that loop; cosmetic enhancements go to M6. A small regression case should accompany a substantive correctness fix, not every reversible text/style change.
+
+## Scope control and contingencies
+
+- If an anchor needs inaccessible data or an unsupported solver, first narrow to a useful scenario with pinned inputs; otherwise choose another source-backed workflow with the user or under delegated selection. Never disguise a fixture or scenario as a real forecast.
+- If API access is delayed, complete M1 and prepare the same adapter boundary with explicit test doubles. M2 stays incomplete until real curation and composition execute; preserve this distinction in any recording.
+- If behind schedule, cut extra models, extra question families, live feeds, automatic source discovery, graph-editor polish and nonessential visualizations. Keep one complete workflow, reuse, source evidence, checks and revisions.
+- If the core loop is incomplete near freeze, stop adding features and repair it. Report the gap honestly rather than relabeling a deterministic-only demo as the complete MVP.
+- Keep public hosting, accounts, collaboration, distributed workers, arbitrary code, general uncertainty propagation, universal ontology, advanced solvers, social features and marketplace work outside this release unless a verified essential requirement forces explicit reprioritization.
+- No broad comparative research, new question gallery or full representation rewrite is a prerequisite. Resolve technical choices with the smallest relevant spike and move to implementation.
 
 ## Small implementation, durable boundaries
 
@@ -56,7 +128,7 @@ The user-requested desk review in §10 of [[decision-representation-contract-v0]
 
 Keep step 2's fixed-fixture skeleton small: simple local admission and pinned evidence are enough; concurrent review reconciliation, repeated revocation monitoring and custom low-level floating-point/conversion-trace machinery should not all become prerequisites. Determine the complete MVP's operators/shapes from the chosen useful workflow and actual sources rather than selecting the workflow solely to fit the scalar grammar. The review retains offline curation, honest unsupported outcomes, explicit provenance and the staged loop below.
 
-## Incremental sequence
+## Sequence rationale retained from the initial proposal
 
 1. Bound one question family and its independent reference cases. Choose scope and tolerances together. Verify inference access and source availability early, with resource limits established before paid integration.
 2. Build a deterministic walking skeleton: a small manually prepared fixture catalog, explicit graph, compatibility checks, compilation, execution, and saved run manifest. The fixture is a bootstrap tool, not evidence that offline curation works.
@@ -85,4 +157,4 @@ The immediate extensibility test is whether adding a compatible model and a seco
 
 ## Provenance
 
-Derived from repository state and the existing first-build contract, with implementation sequencing and expansion triggers proposed by the assistant. No external technology comparison or new empirical evidence was used. Earlier user edits were left intact; this note does not resolve the linked open questions.
+Originally derived from repository state and the existing first-build contract on 2026-10-28. Updated on 2026-10-29 at the user's request into the active delivery plan, incorporating the representation critical review and confirmed build-first/hackathon priority. The schedule recheck is recorded in [[source-meta-hackathon-and-model-api-2026]]; no external technology comparison, live inference or application test was performed. Milestone targets and technical working defaults are assistant recommendations, not completed work or blanket acceptance of the v0 schema. Linked universal questions remain open.

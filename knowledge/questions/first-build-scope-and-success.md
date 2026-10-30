@@ -5,7 +5,7 @@ title: First-Build Scope and Success Contract
 summary: Provisional first-build contract with separate offline agent curation into a model repository and query-time composition/execution; inline curation forbidden or last-resort only, with exact policy open.
 status: active
 created: '2026-10-27'
-updated: '2026-10-28'
+updated: '2026-10-29'
 topics:
   - strategy
   - product
@@ -121,10 +121,10 @@ Exclusions apply to this milestone only. If the chosen problem requires an exclu
 ### Choices requiring the user's input
 
 1. **Anchor problem/domain and ownership:** Recommend using an existing problem the user can judge, with accessible quantitative sources. Intrinsic valuation is a repository-backed candidate, not a selection or assumption of the user's expertise. The user may name an existing alternative or delegate selection against these criteria. We do not need a long-term commercial beachhead now.
-2. **Milestone and trade-off:** Is the immediate target still the original hackathon deadline, or a local foundation-first prototype? If the event remains binding, rules/access must be confirmed and scope reconsidered against actual remaining time. Recommend the same end-to-end loop either way, cutting catalog/UI breadth before replacing curation with a prebuilt answer. No completion estimate is defensible until access, anchor, and available time are known.
+2. **Milestone and trade-off — answered 2026-10-29:** The user wants urgent issues resolved and an MVP built ASAP, followed by hands-on testing, adjustment, features and scaling. Hackathon submission in six days is the immediate milestone; the plan and milestone outcomes matter more than dates. [[note-mvp-build-sequence-and-extension-triggers]] now owns the active M0–M6 schedule and scope cuts. Do not ask this preference again. Exact feasibility still depends on access, anchor and resources; planned dates are targets rather than completion promises.
 3. **Resources and spending:** What build-time/ongoing inference and other external spending ceiling is acceptable, and what resources/access can be relied upon? Do not assume access, authorize purchases, invent a dollar cap, or promise a latency target. Recommend local-first operation, metering, explicit stopping limits, and no unapproved provisioning; set actual numeric limits before resource-consuming integration.
 
-The user may also reject or adjust any technical/product default above; these three are singled out as first-build framing choices that cannot be inferred responsibly from the knowledge base. The separate permanent policy choice—no inline curation versus last-resort exceptions—also remains open; disabling it initially avoids blocking the first build on exception design. After agreement, record an accepted scoped decision and update this question's unresolved parts rather than marking all architectural dependencies solved.
+The user may adjust technical/product defaults above. Workflow choice/delegation and access/spending were requested on 2026-10-29 and remain pending; the milestone preference is answered. The permanent no-inline-curation versus last-resort policy may remain open while the initial implementation disables inline curation. The active delivery plan supplies bounded technical working defaults; do not wait for universal architectural answers or claim all defaults are user-accepted. This question remains active for the unresolved scope/evidence details.
 
 ### Evidence-dependent choices, not questions of user preference
 

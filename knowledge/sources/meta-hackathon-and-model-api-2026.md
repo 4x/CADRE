@@ -2,10 +2,10 @@
 id: source-meta-hackathon-and-model-api-2026
 type: source
 title: Meta Hackathon and Model API Evidence — October 2026
-summary: Official event and Meta API documentation retrieved on 2026-10-26; judging weights and bonus details remain secondary-only because the official details page was not text-readable.
+summary: Official event deadline rechecked on 2026-10-29; detailed rules remain unreadable via text retrieval. API evidence remains from 2026-10-26 and does not establish authenticated access.
 status: active
 created: '2026-10-26'
-updated: '2026-10-26'
+updated: '2026-10-29'
 topics:
   - hackathon
   - llm
@@ -16,6 +16,10 @@ relations:
 ---
 
 # Meta Hackathon and Model API Evidence — October 2026
+
+## Schedule recheck — 2026-10-29
+
+For the active MVP plan, directly reopened the [organizer landing page](https://cerebralvalley.ai/e/meta-ai-developer-hackathon) and [event details](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details). The landing page still lists submissions due November 4 at 9 PM ET, which is 6 PM in Los Angeles on that date. The details page again exposes only Loading through text retrieval. Exact submission assets/fields, model-use rules, prior-work eligibility and participant access remain unverified. The user independently identified submission as six days away on 2026-10-29. API documentation and account capability were not reverified during this schedule check; the earlier evidence below retains its original date.
 
 ## Scope and provenance
 

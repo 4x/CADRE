@@ -1,0 +1,161 @@
+"""A bounded Meta smoke-test adapter with persistent, conservative spend accounting.
+
+Credentials come only from the process environment. This module never loads dotenv
+files. The ledger covers this application, not other tools sharing the account.
+"""
+
+from dataclasses import dataclass
+from contextlib import closing
+from decimal import Decimal
+import http.client
+import json
+import logging
+import os
+from pathlib import Path
+import sqlite3
+import tomllib
+from typing import Any
+from uuid import uuid4
+
+from .contracts import ModelError
+
+APPROVED_BUDGET_USD = Decimal("150")
+MAX_CONTEXT_TOKENS = 1_048_576
+MAX_COMPLETION_TOKENS = 4096
+MAX_RESPONSE_BYTES = 1_048_576
+MAX_PROMPT_BYTES = 32_768
+MINOR_UNITS_PER_USD = 1_000_000
+API_HOST = "api.meta.ai"
+API_PATH = "/v1/chat/completions"
+KEY_VARIABLE = "MODEL_API_KEY"
+LOGGER = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class InferenceSettings:
+    """Public settings with a ceiling bounded by the user's authorization."""
+
+    model: str
+    total_budget_usd: Decimal
+    max_completion_tokens: int
+    timeout_seconds: int
+    input_usd_per_million: Decimal
+    output_usd_per_million: Decimal
+
+    @classmethod
+    def load(cls, path: Path) -> "InferenceSettings":
+        """Load public TOML settings; accept only the researched priced model."""
+        with path.open("rb") as handle:
+            data = tomllib.load(handle)
+        try:
+            settings = cls(
+                data["model"], Decimal(str(data["total_budget_usd"])),
+                data["max_completion_tokens"], data["timeout_seconds"],
+                Decimal(str(data["input_usd_per_million"])), Decimal(str(data["output_usd_per_million"])),
+            )
+            settings.validate()
+            return settings
+        except (KeyError, TypeError, ValueError, ArithmeticError) as exc:
+            raise ModelError("Invalid public inference configuration.") from exc
+
+    def validate(self) -> None:
+        """Reject unknown pricing and accidental budget/limit expansion."""
+        if self.model != "muse-spark-1.3":
+            raise ModelError("Verify pricing and token limits before enabling another model.")
+        if not self.total_budget_usd.is_finite() or not Decimal(0) < self.total_budget_usd <= APPROVED_BUDGET_USD:
+            raise ModelError("Inference budget must be positive and at most $150.")
+        if type(self.max_completion_tokens) is not int or not 0 < self.max_completion_tokens <= MAX_COMPLETION_TOKENS:
+            raise ModelError("Unsupported completion token limit.")
+        if type(self.timeout_seconds) is not int or not 0 < self.timeout_seconds <= 120:
+            raise ModelError("Timeout must be between 1 and 120 seconds.")
+        if self.input_usd_per_million != Decimal("1.25") or self.output_usd_per_million != Decimal("4.25"):
+            raise ModelError("Rates differ from the verified Spark Standard price; reverify before sending.")
+
+    def cost(self, input_tokens: int, output_tokens: int) -> int:
+        """Return conservatively rounded microdollars, ignoring cache discounts."""
+        amount = (input_tokens * self.input_usd_per_million + output_tokens * self.output_usd_per_million)
+        return int(amount.to_integral_value(rounding="ROUND_CEILING"))
+
+
+class BudgetLedger:
+    """Reserve worst-case cost before requests; retain it on ambiguous failures."""
+
+    def __init__(self, path: Path, settings: InferenceSettings) -> None:
+        """Initialize one local ledger, shared by all application inference roles."""
+        settings.validate()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self.path, self.settings = path, settings
+        with closing(sqlite3.connect(path)) as connection, connection:
+            connection.execute("CREATE TABLE IF NOT EXISTS calls (id TEXT PRIMARY KEY, amount INTEGER NOT NULL, state TEXT NOT NULL)")
+
+    def reserve(self) -> str:
+        """Atomically reserve the maximum context plus allowed completion cost."""
+        amount = self.settings.cost(MAX_CONTEXT_TOKENS, self.settings.max_completion_tokens)
+        ceiling = int(self.settings.total_budget_usd * MINOR_UNITS_PER_USD)
+        call_id = str(uuid4())
+        with closing(sqlite3.connect(self.path)) as connection, connection:
+            connection.execute("BEGIN IMMEDIATE")
+            spent = connection.execute("SELECT COALESCE(SUM(amount), 0) FROM calls").fetchone()[0]
+            if spent + amount > ceiling:
+                raise ModelError("Inference budget cannot cover the next request; no request was sent.")
+            connection.execute("INSERT INTO calls VALUES (?, ?, ?)", (call_id, amount, "reserved"))
+        return call_id
+
+    def settle(self, call_id: str, usage: dict[str, Any]) -> int:
+        """Charge trustworthy usage; leave reservations intact on invalid evidence."""
+        incoming, outgoing = usage.get("prompt_tokens"), usage.get("completion_tokens")
+        if (type(incoming) is not int or type(outgoing) is not int or
+                not 0 <= incoming <= MAX_CONTEXT_TOKENS or not 0 <= outgoing <= self.settings.max_completion_tokens):
+            raise ModelError("Usage is missing or exceeds configured limits; reservation retained.")
+        amount = self.settings.cost(incoming, outgoing)
+        with closing(sqlite3.connect(self.path)) as connection, connection:
+            cursor = connection.execute("UPDATE calls SET amount = ?, state = 'settled' WHERE id = ? AND state = 'reserved'", (amount, call_id))
+            if cursor.rowcount != 1:
+                raise ModelError("Unknown or already settled inference call.")
+        return amount
+
+
+def smoke_test(settings: InferenceSettings, ledger: BudgetLedger) -> dict[str, Any]:
+    """Send one bounded structured-output request without printing keys or HTTP bodies."""
+    settings.validate()
+    key = os.environ.get(KEY_VARIABLE)
+    if not key:
+        raise ModelError("MODEL_API_KEY is not available to this process. Set it in your launch environment.")
+    payload = {
+        "model": settings.model,
+        "messages": [{"role": "user", "content": "Return status ok to confirm a structured-output connection."}],
+        "max_completion_tokens": settings.max_completion_tokens,
+        "response_format": {"type": "json_schema", "json_schema": {"name": "ConnectionCheck", "schema": {
+            "type": "object", "properties": {"status": {"type": "string", "enum": ["ok"]}},
+            "required": ["status"], "additionalProperties": False}}},
+    }
+    body = json.dumps(payload).encode()
+    if len(body) > MAX_PROMPT_BYTES:
+        raise ModelError("Prompt exceeds the configured byte limit.")
+    call_id = ledger.reserve()
+    connection = http.client.HTTPSConnection(API_HOST, timeout=settings.timeout_seconds)
+    try:
+        connection.request("POST", API_PATH, body=body, headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
+        response = connection.getresponse()
+        if response.status != 200:
+            raise ModelError(f"Meta returned HTTP {response.status}; request {call_id} reservation retained. No automatic retry.")
+        raw = response.read(MAX_RESPONSE_BYTES + 1)
+        if len(raw) > MAX_RESPONSE_BYTES:
+            raise ModelError("Meta response exceeded the size limit; reservation retained.")
+        result = json.loads(raw)
+        amount = ledger.settle(call_id, result["usage"])
+        choice = result["choices"][0]
+        content = json.loads(choice["message"]["content"])
+        if choice["finish_reason"] != "stop" or content != {"status": "ok"}:
+            raise ModelError("Meta responded but failed the structured-output check; usage recorded.")
+        LOGGER.info(f"Meta structured-output check completed: {call_id}.")
+        return {"status": "ok", "model": settings.model, "call_id": call_id, "conservative_cost_usd": amount / MINOR_UNITS_PER_USD}
+    except ModelError:
+        LOGGER.warning(f"Meta smoke test did not complete: {call_id}. Check its ledger entry before retrying.")
+        raise
+    except (OSError, http.client.HTTPException, ValueError, KeyError, IndexError, TypeError) as exc:
+        # Do not log arbitrary exception bodies: a transport can include request data.
+        LOGGER.error(f"Meta request {call_id} failed with {type(exc).__name__}; no automatic retry.")
+        raise ModelError("Meta connection or response failed. Inspect the usage ledger before retrying; unverified charges remain reserved.") from None
+    finally:
+        connection.close()

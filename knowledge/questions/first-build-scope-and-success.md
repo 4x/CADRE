@@ -42,6 +42,10 @@ What exactly should the first runnable Connected Models build let its first oper
 
 ## Current partial answer
 
+### Delegated selection and resources — 2026-10-29
+
+The user delegated first-workflow selection and authorized a $150 total inference ceiling, pointing to https://dev.meta.ai/docs/coding-agents and stating they will supply the key in their own `.env`. The agent selected a conditional electric-resistance-to-heat-pump upgrade comparison, connecting delivered heat, electricity, operating cost and discounted savings. The active delivery plan records rationale, exact synthetic fixtures, reference evidence and current implementation. Workflow/delegation and the spending-ceiling questions below are therefore answered; technical access remains unverified until a real bounded exchange succeeds. The application consumes MODEL_API_KEY from its process environment; agents do not load or inspect `.env`. No live call has been made.
+
 The universal vision, model-first assumption policy, and desired specialized curation agents are established directions. Neither hydropower nor a technology stack is selected. The end-state examples are sufficient for now; this question asks for a build boundary, not more examples. Long-term commercial domain choice belongs to [[question-initial-domain-beachhead]].
 
 ## Proposed first-build contract — awaiting agreement

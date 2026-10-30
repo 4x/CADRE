@@ -5,7 +5,7 @@ title: Implementation Stack, Deployment Boundary, and Meta Access
 summary: Which verified Meta model access and capabilities, application languages, execution host, persistence, and agent orchestration choices fit the first build's actual constraints?
 status: active
 created: '2026-10-27'
-updated: '2026-10-27'
+updated: '2026-10-29'
 topics:
   - architecture
   - runtime
@@ -54,6 +54,10 @@ Which concrete technology choices satisfy the first build's contracts, and what 
 - What package/version constraints, reproducible environment, local test setup, and logging/redaction baseline are required? What latency/cost and representative payload measurements would invalidate the choice?
 
 ## Current partial answer
+
+### Implementation delta — 2026-10-29
+
+The user selected the Meta API route by linking its coding-agent guide and authorized $150 total inference spend. Documentation was checked directly; [[source-mvp-heating-and-meta-evidence]] records endpoint, Spark Standard pricing, structured responses and evidence limits. The application now has a dependency-free uv-managed Python scalar core and a bounded Chat Completions smoke adapter with a persistent conservative cost ledger. Ten offline tests pass, including mocked transport and spend controls. Credentials are runtime process variables; no `.env` was accessed. No coding-agent provider outside this repository was changed. A live exchange, durable registry/admission and interface selection still remain; the following original inventory is historical context rather than a claim that no application code exists now.
 
 No application stack or authenticated Meta integration exists in this checkout. Historical React/Supabase/Math.js choices and the later Python/TypeScript proposal are not accepted defaults. A distributed scheduler, graph database, vector service, or multi-agent framework is not required merely by the vision. Earlier saved model/event source records have incomplete bodies and must be rechecked before relying on access/API claims.
 

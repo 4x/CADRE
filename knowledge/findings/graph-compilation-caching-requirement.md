@@ -18,6 +18,8 @@ relations:
     target: concept-unified-computational-graph
   - type: relates-to
     target: question-execution-runtime-for-heterogeneous-models
+  - type: derived-from
+    target: source-historical-mathjs-prototype-architecture
 ---
 
 # Computational Graphs Require Explicit Compilation and Invalidation
@@ -49,4 +51,4 @@ This reduced graph evaluation from an unpredictable recursive search to a determ
 
 ## Legacy provenance
 
-Reconstructed from architectural mechanisms documented in `Legacy/mathJSArchitectureStructureOverview.md` (database functions `compile_graph`, `auto_compile_parent_graphs`, and component `RunGraphModal.tsx`).
+Reconstructed from architectural mechanisms documented in [[source-historical-mathjs-prototype-architecture]] (database functions `compile_graph`, `auto_compile_parent_graphs`, and component `RunGraphModal.tsx`).

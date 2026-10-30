@@ -5,7 +5,7 @@ title: Temporal and Spatial Data Alignment Across Models
 summary: How should the graph reconcile mismatching temporal and spatial resolutions when connecting continuous time-series, periodic averages, and static projections?
 status: active
 created: '2026-10-24'
-updated: '2026-10-24'
+updated: '2026-10-28'
 topics:
   - ontology
   - representation
@@ -18,6 +18,8 @@ relations:
     target: question-semantic-variable-disambiguation
   - type: relates-to
     target: question-model-node-ast-and-schema-representation
+  - type: relates-to
+    target: investigation-model-variable-quantity-representation
 ---
 
 # Temporal and Spatial Data Alignment Across Models
@@ -43,6 +45,20 @@ If edge connections cannot natively express temporal aggregation, resampling, an
   - *Temporal transforms*: `AggregateMean(window)`, `CumulativeSum(season)`, `Resample(frequency, method=spline)`, `DiscountToPresent(rate)`.
   - *Spatial transforms*: `AreaWeightedSum(boundary_polygon)`, `PointExtract(lat, lon)`, `ZonalStatistics(raster, zones)`.
 - If an edge attempts to bind a daily time-series to an annualized input without an explicit or inferrable aggregation operator, the graph compiler flags a compile-time resolution error.
+
+## Representation investigation — 2026-10-28
+
+[[investigation-model-variable-quantity-representation]] recommends named axes/coordinates with bounds/support, aggregation method, calendar/time zone where relevant, spatial grid/CRS, entity boundary, and separate phenomenon/availability/retrieval times. CF's standard names and cell methods, xarray's labeled-array model, and XBRL's instant/duration contexts provide precedents (linked source digests in the investigation). Equal shapes or shared broad concepts do not imply compatible support. Frequency alone cannot distinguish mean rates from accumulated amounts.
+
+Time/space adaptation is an explicit scientific transformation with provenance and missingness/coverage rules, not automatic unit normalization. A first profile can require matching support and reject adaptation it cannot justify. Hand-analyzed wrong-axis, precipitation aggregation and financial-context cases are in the report; no executable alignment/import trial was performed. This question remains active.
+
+## Minimum answer for the first build
+
+**B — before binding inputs across time/place/entity scopes** ([[question-build-readiness]]). Declare supported time indexes, intervals/calendars/time zones, frequencies, geographic/entity identifiers, and aggregation semantics. What is an observation timestamp versus publication/retrieval time versus the information available as of a historical decision? Define missing, stale, revised, and projected-data behavior and prevent future-information leakage in historical evaluations.
+
+Choose which transformations are supported and who approves them. A mean, cumulative sum, interpolation, spatial weighting, and entity consolidation are not interchangeable; aggregation before a nonlinear model may differ materially from aggregating its outputs. Any loss of resolution or added assumption must be visible and source data/snapshots attributable.
+
+The adapter list above is illustrative, not an accepted automatic-conversion policy. Matching scopes and explicitly rejecting mismatches may suffice for the first slice. State whether unsupported adaptation leads to review, a labeled generated proxy under [[question-assumption-resolution-and-fallback-policy]], or failure. [[question-registry-storage-and-versioning]] owns snapshot retention and [[question-semantic-variable-disambiguation]] owns meaning.
 
 ## What would resolve it?
 

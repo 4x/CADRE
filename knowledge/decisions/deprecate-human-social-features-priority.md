@@ -16,6 +16,10 @@ relations:
     target: concept-agent-quantitative-reasoning-layer
   - type: relates-to
     target: investigation-prototype-2025-mathjs-supabase
+  - type: derived-from
+    target: source-historical-problem-statement-and-initial-thoughts
+  - type: derived-from
+    target: source-historical-mathjs-prototype-architecture
 ---
 
 # Deprecate Human Social Features Priority
@@ -49,4 +53,4 @@ The core computational graph engine is mature, trusted, and adopted, and human c
 
 ## Legacy provenance
 
-Reconstructed by contrasting social features in `Legacy/mathJSArchitectureStructureOverview.md` with priority shifts in `Legacy/ProblemStatementInitialThoughts.md`.
+Reconstructed by contrasting social features in [[source-historical-mathjs-prototype-architecture]] with priority shifts in [[source-historical-problem-statement-and-initial-thoughts]].

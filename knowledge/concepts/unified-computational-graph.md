@@ -5,7 +5,7 @@ title: Unified Computational Graph (Prototype Model)
 summary: A polymorphic graph abstraction where equations and composite models share a single schema. Pertained specifically to the 2025 Math.js prototype; provisional pending deeper research on representation and ontology.
 status: provisional
 created: '2026-10-24'
-updated: '2026-10-24'
+updated: '2026-10-28'
 topics:
   - representation
   - computational-graphs
@@ -20,6 +20,14 @@ relations:
     target: investigation-prototype-2025-mathjs-supabase
   - type: relates-to
     target: finding-graph-compilation-caching-requirement
+  - type: relates-to
+    target: concept-layered-model-representation
+  - type: relates-to
+    target: investigation-model-variable-quantity-representation
+  - type: derived-from
+    target: source-historical-mathjs-prototype-overview-2025
+  - type: derived-from
+    target: source-historical-mathjs-prototype-architecture
 ---
 
 # Unified Computational Graph (Prototype Model)
@@ -41,6 +49,12 @@ This concept is maintained as **provisional**. It pertained specifically to the 
 
 Reclassified from accepted to provisional. While the unified table design simplified the 2025 relational database prototype, future architectures may require distinct ontological representations for equations, pipelines, empirical datasets, and simulation containers.
 
+## Representation investigation — 2026-10-28
+
+[[investigation-model-variable-quantity-representation]] recommends [[concept-layered-model-representation]]: shared identity/interface/evidence contracts with distinct mathematical payloads, local symbol declarations, contextual quantities/values, instances, implementations and runs. This is a provisional new design recommendation, not a rewrite of what the historical prototype did or an accepted replacement schema.
+
+Atomic and composite definitions can still share a common envelope without declaring all mathematical models to be pure function DAGs or putting every entity in one table. Keep semantic/provenance graphs, mathematical structure, model composition and compiled execution plans distinct. A first DAG-only executor can coexist with non-executable catalog records for richer formalisms. No import/export/schema trial has been run.
+
 ## Uncertainties
 
 - Can a single graph abstraction cleanly represent both deterministic closed-form equations and iterative/stochastic numerical simulations?
@@ -49,4 +63,4 @@ Reclassified from accepted to provisional. While the unified table design simpli
 
 ## Legacy provenance
 
-Reconstructed from `Legacy/Simple mathJS implementation attempt [2025].md` and `Legacy/mathJSArchitectureStructureOverview.md` (migration `20250620024514_fierce_wave.sql`).
+Reconstructed from [[source-historical-mathjs-prototype-overview-2025]] and [[source-historical-mathjs-prototype-architecture]] (migration `20250620024514_fierce_wave.sql`).

@@ -1,3 +1,40 @@
+---
+id: source-historical-mathjs-prototype-architecture
+type: source
+title: "Historical Math.js Prototype Architecture"
+summary: "Preserved prototype architecture and embedded DuPont JSON, including compilation/RPC mechanisms; no current source code or universal schema acceptance implied."
+status: archived
+created: '2026-10-29'
+updated: '2026-10-29'
+topics:
+  - architecture
+  - runtime
+  - representation
+confidence: null
+relations:
+  - type: relates-to
+    target: investigation-prototype-2025-mathjs-supabase
+  - type: relates-to
+    target: concept-unified-computational-graph
+  - type: relates-to
+    target: finding-graph-compilation-caching-requirement
+---
+
+# Historical Math.js Prototype Architecture
+
+## Provenance and interpretation
+
+Historical project documentation associated with the 2025 prototype in the existing corpus; exact authorship/date are not supplied. Described files and migrations are not present as application source. Claims of security, scalability or generality in the original prose are historical claims, not verified guarantees. Preserve the original DuPont JSON, including any inconsistencies, rather than silently repairing historical evidence.
+
+- Imported on 2026-10-29 from `Legacy/mathJSArchitectureStructureOverview.md`.
+- Created/updated metadata dates describe this source record, not the original document.
+- Original payload SHA-256 (including original line endings): `d9dccf160f5b59b21d1d88d51a26f40d1659e0ccfc727f5f27d57cbb2fd8a8f8`.
+- The original payload follows unchanged after the marker; line references to the original are relative to that payload.
+
+## Original document (verbatim)
+
+<!-- ORIGINAL DOCUMENT:BEGIN -->
+
 This project is a mathematical modeling platform that allows users to discover, create, and share mathematical equations and computational graphs. It's built with a React frontend, styled with Tailwind CSS, and uses Supabase for its backend (database, authentication, and server-side logic).
 
 Here's a comprehensive walkthrough of the project's architecture and its components:

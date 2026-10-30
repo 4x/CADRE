@@ -5,7 +5,7 @@ title: Dimensional and Unit Type System
 summary: How should Connected Models represent physical/economic dimensions, unit systems, state-dependent conversions, and higher-order tensor/distribution shapes?
 status: active
 created: '2026-10-24'
-updated: '2026-10-24'
+updated: '2026-10-28'
 topics:
   - representation
   - typing
@@ -18,6 +18,8 @@ relations:
     target: hypothesis-global-variable-namespace-compatibility
   - type: relates-to
     target: question-model-node-ast-and-schema-representation
+  - type: relates-to
+    target: investigation-model-variable-quantity-representation
 ---
 
 # Dimensional and Unit Type System
@@ -37,7 +39,7 @@ The system requires a formal dimensional type system that catches errors at grap
 
 ## Current partial answer
 
-- **Dimensional Algebra**: Quantities can be decomposed into integer powers of fundamental base dimensions:
+- **Dimensional Algebra**: A useful physical-unit subset uses powers of base dimensions (with a declared dimension system; some derived-unit systems need rational exponents). The earlier illustrative formula below adds currency as a project-level modeling convenience, **not a claim that all money has a fixed SI-like conversion or that dimensions determine semantic kinds**:
   $$[Q] = [L]^\alpha \cdot [M]^\beta \cdot [T]^\gamma \cdot [I]^\delta \cdot [\Theta]^\epsilon \cdot [N]^\zeta \cdot [J]^\eta \cdot [\text{Currency}]^\theta$$
 - **Unit Standards**:
   - **QUDT (Quantity, Unit, Dimension, and Type)**: Comprehensive RDF-based ontology defining units, dimensions, and conversion multipliers.
@@ -46,6 +48,22 @@ The system requires a formal dimensional type system that catches errors at grap
   1. *Linear conversions*: $y = k \cdot x$ (e.g., $m \to km$, $MW \to kW$).
   2. *Affine conversions*: $y = k \cdot x + c$ (e.g., $^\circ\text{C} \to \text{K}$).
   3. *State-dependent / Dynamic conversions*: Non-static conversions that require an intermediate model or empirical feed (e.g., converting $USD \to EUR$ via an FX rate node, or converting barrels of oil to $GJ$ via a crude density and caloric model).
+
+## Investigation result — 2026-10-28
+
+[[investigation-model-variable-quantity-representation]] and [[source-quantity-semantics-and-unit-standards]] distinguish dimensions, units/scales, quantity kinds, contextual quantities, and values. QUDT supplies kind/unit vocabulary; UCUM supplies machine-readable unit syntax/semantics. They are complementary, not interchangeable encodings; a bounded crosswalk and actual engine behavior still need tests. Energy and torque share dimensions but not meaning. Dimensionless probability, angle, count, ratio, and rate convention must not collapse into one interchangeable type.
+
+Recommend explicit ratio/point/delta/log/arbitrary/contextual treatment, with tested linear/appropriate affine conversions only where meaning is preserved. FX, price-year rebasing, density-dependent conversions and time aggregation require declared data/model transforms. Shape requires named axes/support, not just lengths; numeric dtype/precision and source lexical values need explicit policy. Static checks and checks of actual bound values are separate; no universal compile-time safety claim is established by this desk investigation.
+
+No unit library, ontology subset, conversion implementation, or complete numeric/shape schema is selected. The report proposes temperature point/delta, energy/torque, wrong-axis, finance-context and unknown-unit trials; none was run. [[concept-layered-model-representation]] summarizes the provisional contract.
+
+## Minimum answer for the first build
+
+**B — before automatic edge binding/conversion** ([[question-build-readiness]]). Choose a supported quantity/unit encoding and shape system, a canonical serialization for numbers, and clear compile-time versus bound-input runtime checks. Which conversions are safe linear/affine adapters, and which require an explicit model/data dependency (e.g., FX and price-year conversion)? Distinguish a temperature level from a temperature difference, percentage from fraction, scalar from series/ensemble, and currency/date scope where relevant.
+
+Existing standards and libraries are candidates for research, not selected dependencies. A small declared unit subset may suffice; unsupported units/shapes/conversions must fail explicitly rather than be guessed by Meta. Define conversion provenance and precision/tolerance behavior, and cover one valid conversion plus incompatible dimensions, affine misuse, and shape mismatch in acceptance examples.
+
+This question owns physical/numeric compatibility; [[question-semantic-variable-disambiguation]] owns meaning and [[question-temporal-and-spatial-data-alignment]] owns scope transforms. The universal unit ontology is not a prerequisite for an initial supported contract.
 
 ## What would resolve it?
 

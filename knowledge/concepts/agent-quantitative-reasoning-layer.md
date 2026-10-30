@@ -5,7 +5,7 @@ title: Agent Quantitative Reasoning Layer
 summary: Using connected model graphs as an external deterministic calculation and simulation engine for AI agents, saving turns, time, and tokens while eliminating arithmetic hallucinations.
 status: active
 created: '2026-10-24'
-updated: '2026-10-24'
+updated: '2026-10-28'
 topics:
   - agents
   - llm
@@ -16,8 +16,12 @@ relations:
     target: concept-connected-models-thesis
   - type: relates-to
     target: hypothesis-graph-grounded-agent-reliability
+  - type: relates-to
+    target: concept-specialized-model-curation-agents
   - type: addresses
     target: question-agent-interaction-patterns
+  - type: derived-from
+    target: source-historical-problem-statement-and-initial-thoughts
 ---
 
 # Agent Quantitative Reasoning Layer
@@ -28,21 +32,24 @@ Large language models and autonomous agents are exceptionally capable at context
 
 Connected Models serves as an external, deterministic **quantitative reasoning layer** for autonomous agents. Instead of calculating in natural language prompts:
 1. The agent identifies the quantitative decision problem.
-2. The agent queries Connected Models to discover or compose an appropriate computational dependency graph.
-3. The agent parameterizes the inputs with verified real-world facts or data sources.
-4. Connected Models executes the graph deterministically and returns verified results, sensitivity breakdowns, and variance metrics.
+2. The agent queries the existing curated model repository to select or compose an appropriate computational dependency graph; it does not routinely discover and formalize new source models while answering.
+3. The agent resolves inputs through suitable existing upstream models and empirical sources. If a suitable binding is unavailable, permitted Meta-generated fallbacks remain clearly labeled, following [[concept-connected-models-thesis]]. New relationships/submodels must not bypass the offline-curation boundary; whether inline curation is forbidden or last-resort-only remains open. Unsupported gaps may remain conditional/unresolved and inform separate offline curation.
+4. Connected Models executes the declared graph and returns traced results, sensitivity breakdowns, and variance metrics where supported, preserving the status of each input and any unresolved dependencies.
 
-This saves agent reasoning turns, reduces wall-clock execution time, eliminates prompt token bloat, and provides provable mathematical guarantees.
+Token, latency, and reliability benefits remain hypotheses to measure ([[hypothesis-graph-grounded-agent-reliability]]). Deterministic execution does not establish the truth of a model, a generated estimate, or an agent-proposed connection; stochastic simulations additionally require reproducibility controls.
 
 ## Key points
 
 - **Deterministic delegation**: LLMs decide *what* needs to be calculated and interpret the results; the model graph executes *how* the calculation is evaluated.
 - **Token and latency efficiency**: Replaces multi-step chain-of-thought calculation prompts with concise API/tool invocations.
-- **Bi-directional agent role**: Agents can act both as **consumers** of model graphs (fetching quantitative answers) and as **assemblers** of new graphs (discovering and chaining existing models to answer novel queries).
+- **Expanded agent role**: Agents act as **consumers**, **assemblers**, **curators**, and **maintainers**. Dedicated Meta/Muse agents primarily or exclusively curate offline, outside individual answer requests: discover source models in papers/textbooks, canonicalize them, extract variables/constants/parameters, test, connect, compare, and maintain reusable repository versions ([[concept-specialized-model-curation-agents]]); query-time agents use that collection and surface coverage gaps rather than assuming it is complete.
+- **Visible gap-filling**: Meta-generated parameters, relationships, and submodels remain separately attributable in both the graph and the answer. Do not present deterministic arithmetic over provisional assumptions as an empirically verified conclusion.
 
 ## What changed recently
 
-Emerged as a primary value proposition in 2026 notes (`Legacy/ProblemStatementInitialThoughts.md`), pivoting the project from an interactive human-only web community to an agent-first infrastructure.
+On 2026-10-27, the user extended agent responsibilities to model curation and requested model-first assumption resolution with explicit Meta gap-filling. The detailed role split is proposed, not implemented.
+
+Emerged as a primary value proposition in 2026 notes ([[source-historical-problem-statement-and-initial-thoughts]]), pivoting the project from an interactive human-only web community to an agent-first infrastructure.
 
 ## Uncertainties
 
@@ -51,4 +58,4 @@ Emerged as a primary value proposition in 2026 notes (`Legacy/ProblemStatementIn
 
 ## Legacy provenance
 
-Reconstructed from `Legacy/ProblemStatementInitialThoughts.md` ("Potential users: Agents, and more generally LLMs (this will save turns, time, and tokens)").
+Reconstructed from [[source-historical-problem-statement-and-initial-thoughts]] ("Potential users: Agents, and more generally LLMs (this will save turns, time, and tokens)").

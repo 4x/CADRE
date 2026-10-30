@@ -1,3 +1,40 @@
+---
+id: source-historical-connected-models-slides-2020
+type: source
+title: "Historical Connected Models Slides \u2014 2020"
+summary: "Preserved 2020 pitch covering the connected-model thesis, potential uses, challenges, revenue ideas and EUR/USD example."
+status: archived
+created: '2026-10-29'
+updated: '2026-10-29'
+topics:
+  - vision
+  - exemplars
+  - finance
+confidence: null
+relations:
+  - type: relates-to
+    target: concept-connected-models-thesis
+  - type: relates-to
+    target: concept-end-state-vision
+  - type: relates-to
+    target: idea-domain-exemplars-intrinsic-value-and-fx
+---
+
+# Historical Connected Models Slides — 2020
+
+## Provenance and interpretation
+
+Historical project-origin pitch. The year 2020 comes from the original filename and existing project attribution; exact authorship/date are not independently established. It supplies historical context, not validation of all aspirational claims or a current implementation plan.
+
+- Imported on 2026-10-29 from `Legacy/Slides2020.md`.
+- Created/updated metadata dates describe this source record, not the original document.
+- Original payload SHA-256 (including original line endings): `04a6dab636af635566799e660961c275eba979df8790a00fe1bde04033f19b45`.
+- The original payload follows unchanged after the marker; line references to the original are relative to that payload.
+
+## Original document (verbatim)
+
+<!-- ORIGINAL DOCUMENT:BEGIN -->
+
 ## Connected Models
 
 ## Problem

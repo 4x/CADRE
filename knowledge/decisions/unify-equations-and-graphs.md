@@ -16,6 +16,10 @@ relations:
     target: concept-unified-computational-graph
   - type: relates-to
     target: investigation-prototype-2025-mathjs-supabase
+  - type: derived-from
+    target: source-historical-mathjs-prototype-overview-2025
+  - type: derived-from
+    target: source-historical-mathjs-prototype-architecture
 ---
 
 # Unify Equations and Graphs (Prototype Schema)
@@ -54,4 +58,4 @@ Comprehensive groundwork on mathematical representation and ontology demonstrate
 
 ## Legacy provenance
 
-Reconstructed from `Legacy/mathJSArchitectureStructureOverview.md` (migration `20250620024514_fierce_wave.sql`) and `Legacy/Simple mathJS implementation attempt [2025].md`.
+Reconstructed from [[source-historical-mathjs-prototype-architecture]] (migration `20250620024514_fierce_wave.sql`) and [[source-historical-mathjs-prototype-overview-2025]].

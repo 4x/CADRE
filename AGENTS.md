@@ -1,3 +1,29 @@
+# Connected Models
+
+Connected Models connects reusable quantitative models across domains: one model's output can supply another's input, replacing arbitrary assumptions with explicit, traceable dependencies. It enables people and AI agents to compose and execute models to answer quantitative questions, explore scenarios, and support decisions.
+
+**Current priority: build a working MVP.** Focus on a bounded end-to-end workflow with inspectable inputs, model connections, execution, and results.
+
+Project Memory (`pmem`) is supporting tooling for structure, continuity, and decisions—not the product or the main deliverable. Use it to support implementation, not as a substitute for delivering the MVP.
+
+# Agent conduct
+
+## Make life easy for human developer and user
+
+**Save the humans time.** Human monitoring, inspection, and intervention are important, but should be invoked only when necessary.
+
+To the extent possible, the agent should do all activities needed to achieve the goal, including research, coding, scripting, documentation, and the work around what the human must do. For example, while the agent is not allowed to read or write `.env` files, it can prepare perhaps 80% in a file such as `draft.profile`, where the human only fills in actual secrets.
+
+## Ask
+
+The agent is encouraged to bring up questions for discussion **when direction is not clear or obvious**. Concisely present the options, pros, cons, expected consequences, implications, and recommendation as appropriate. If there is a strong recommendation, proceed with it rather than unnecessarily deferring the decision.
+
+# Safety and permissions
+
+- Access to `.env` files, account numbers, API tokens, and other secrets is normally off-limits unless the human explicitly grants permission.
+- Do not touch anything outside this repository without explicit permission.
+- Make sure you have permission before destructive actions.
+
 <!-- PROJECT_MEMORY:BEGIN MANAGED PROTOCOL -->
 
 # Project Memory agent protocol
@@ -63,4 +89,4 @@ A human or new agent returning after roughly three months should be able to reco
 
 ## Source Code
 
-In the future, when implementation starts, Source code and Project Memory may coexist in this repository. Before substantial design or architectural work, consult Project Memory. After implementation, update Project Memory only when the project's durable understanding, decisions, hypotheses, or open questions changed.
+Source code and Project Memory belong together in this repository; implementation is the current priority. Before substantial design or architectural work, consult Project Memory. After implementation, update Project Memory only when the project's durable understanding, decisions, hypotheses, or open questions changed.

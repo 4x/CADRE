@@ -20,6 +20,8 @@ relations:
     target: question-registry-storage-and-versioning
   - type: relates-to
     target: question-execution-runtime-for-heterogeneous-models
+  - type: relates-to
+    target: decision-representation-contract-v0
   - type: derived-from
     target: finding-graph-compilation-caching-requirement
 ---
@@ -41,6 +43,18 @@ Prioritize contracts that are expensive to reconstruct after data accumulates: s
 Keep dependency compilation separate from evaluation. Initially, conservatively recompile and recompute on graph/input/version changes; evaluate each node once per run in dependency order. Cross-run caching and selective invalidation can wait. If caching is introduced, its keys must include every dependency affecting results; old results cannot be silently reused after edits.
 
 Registry access and execution should have small explicit interfaces, initially implemented in-process. Avoid a generic plugin framework until an additional implementation demonstrates what needs to vary. Preserve portability through serializable definitions, graph/run manifests, and explicit schema versions; no claim of migration-free future expansion is warranted.
+
+## Concrete representation draft
+
+[[decision-representation-contract-v0]] proposes `cm-repr/0.1` as the concrete review draft for this sequence: six logical record kinds (vocabulary, model, value, composition, review, run), embedded local declarations/source maps/algebra implementation, scalar-only deterministic execution, exact semantic/context matching, pinned ratio-unit conversions, owner review and saved manifests. It is **provisional**, not an implemented schema or accepted architecture. The scalar-only restriction narrows the earlier optional short-array scope; extend it only if the selected workflow requires arrays.
+
+The draft explicitly keeps one local app/backend/evaluator, full recompilation/recomputation, offline publication and query-time consumption. Its fixture catalog can bootstrap step 2 without being mistaken for step 3's real source curation. Per-increment responsibilities, extension triggers and proposed acceptance cases are in the draft; this note continues to own sequencing rather than duplicating field definitions. No generic registry/plugin framework, distributed authority, cross-run cache or universal ontology is a prerequisite.
+
+### Critical-review caveat
+
+The user-requested desk review in §10 of [[decision-representation-contract-v0]] recommends **revision before acceptance**, not discarding the layered approach. The original draft's one-Context-for-all-symbols rule blocks ordinary mixed-support/entity scalar models, and meaning definitions do not explicitly constrain permissible unit dimensions. Whole-vocabulary revision identity, incomplete candidate handling and exact scenario equality also need attention for continuing offline curation and scenario reuse. These are proposed revisions, not implemented failures or an accepted replacement schema.
+
+Keep step 2's fixed-fixture skeleton small: simple local admission and pinned evidence are enough; concurrent review reconciliation, repeated revocation monitoring and custom low-level floating-point/conversion-trace machinery should not all become prerequisites. Determine the complete MVP's operators/shapes from the chosen useful workflow and actual sources rather than selecting the workflow solely to fit the scalar grammar. The review retains offline curation, honest unsupported outcomes, explicit provenance and the staged loop below.
 
 ## Incremental sequence
 

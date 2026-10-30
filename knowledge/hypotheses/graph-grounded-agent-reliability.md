@@ -17,6 +17,8 @@ relations:
     target: concept-agent-quantitative-reasoning-layer
   - type: relates-to
     target: question-agent-interaction-patterns
+  - type: derived-from
+    target: source-historical-problem-statement-and-initial-thoughts
 ---
 
 # Graph-Grounded Agent Reliability
@@ -49,4 +51,4 @@ Delegating multi-step mathematical calculations, sensitivity sweeps, and cross-d
 
 ## Legacy provenance
 
-Reconstructed from `Legacy/ProblemStatementInitialThoughts.md` ("Agents, and more generally LLMs (this will save turns, time, and tokens)").
+Reconstructed from [[source-historical-problem-statement-and-initial-thoughts]] ("Agents, and more generally LLMs (this will save turns, time, and tokens)").

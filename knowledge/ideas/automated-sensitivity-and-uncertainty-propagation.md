@@ -16,6 +16,10 @@ relations:
     target: concept-connected-models-thesis
   - type: relates-to
     target: concept-agent-quantitative-reasoning-layer
+  - type: derived-from
+    target: source-historical-problem-statement-and-initial-thoughts
+  - type: derived-from
+    target: source-historical-connected-models-slides-2020
 ---
 
 # Automated Sensitivity and Uncertainty Propagation
@@ -39,4 +43,4 @@ Equip the Connected Models runtime with native capabilities to perform automated
 
 ## Legacy provenance
 
-Identified in `Legacy/ProblemStatementInitialThoughts.md` and `Legacy/Slides2020.md` ("Automatic (?) sensitivity analyses, variance explanation, and uncertainty interpretation").
+Identified in [[source-historical-problem-statement-and-initial-thoughts]] and [[source-historical-connected-models-slides-2020]] ("Automatic (?) sensitivity analyses, variance explanation, and uncertainty interpretation").

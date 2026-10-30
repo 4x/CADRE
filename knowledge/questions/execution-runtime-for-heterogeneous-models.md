@@ -5,7 +5,7 @@ title: Execution Runtime for Heterogeneous Models
 summary: How should Connected Models orchestrate and execute heterogeneous models spanning symbolic algebra, numerical ODEs/PDEs, scientific Python/R, and external black-box APIs?
 status: active
 created: '2026-10-24'
-updated: '2026-10-24'
+updated: '2026-10-27'
 topics:
   - runtime
   - orchestration
@@ -16,6 +16,8 @@ relations:
     target: decision-retire-standalone-mathjs-implementation
   - type: relates-to
     target: finding-graph-compilation-caching-requirement
+  - type: derived-from
+    target: source-historical-problem-statement-and-initial-thoughts
 ---
 
 # Execution Runtime for Heterogeneous Models
@@ -33,8 +35,16 @@ To fulfill the [[concept-connected-models-thesis]], the runtime must safely orch
 ## Current partial answer
 
 - Standalone browser execution has been retired ([[decision-retire-standalone-mathjs-implementation]]).
-- The runtime will likely require a distributed DAG scheduler with pluggable execution adapters (e.g., containerized execution workers, Wasm runtimes, and lightweight expression evaluators like Math.js or SymPy for closed-form formulas).
+- Pluggable execution adapters are a candidate extension boundary (e.g., isolated workers, WebAssembly, or lightweight expression evaluators). A distributed scheduler is a possible later solution, not an established prerequisite; a bounded first build may use one engine and local scheduling.
 - Intermediate caching and execution plan compilation are strictly required to avoid recomputation overhead ([[finding-graph-compilation-caching-requirement]]).
+
+## Minimum answer for the first build
+
+**B — before implementing the compiler/executor** ([[question-build-readiness]]). Which first model classes and backends must execute, and which are explicitly unsupported? Define the adapter input/output/error contract, data transport, numeric precision, environment/dependency capture, randomness/seeds, and pre/postcondition enforcement. Model state and external reads/writes must not be hidden inside ostensibly pure reusable nodes.
+
+Decide synchronous versus job-based runs; compilation boundaries and cache keys; cancellation/timeouts; retries and idempotency; failed/partial-run behavior; artifact/log capture; and result-versus-plan invalidation. A retry must not duplicate external side effects or return a different data version without recording it. Who schedules independent nodes, and what concurrency/resource limits apply?
+
+Security/isolation belongs to [[question-execution-security-and-access]], pinned version/data references to [[question-registry-storage-and-versioning]], topology to [[question-graph-topology-and-feedback-cycles]], and stack/host feasibility to [[question-technology-stack-and-meta-access]]. Specify a minimal runnable contract now, not every polyglot adapter. A two-backend prototype would inform the broader question but is not mandatory unless the selected first workflow needs it.
 
 ## What would resolve it?
 
@@ -44,4 +54,4 @@ To fulfill the [[concept-connected-models-thesis]], the runtime must safely orch
 
 ## Legacy provenance
 
-Identified in `Legacy/ProblemStatementInitialThoughts.md` ("Challenges: How would this run? each model needs its own platform, many if not most might need external input... Specialty hardware").
+Identified in [[source-historical-problem-statement-and-initial-thoughts]] ("Challenges: How would this run? each model needs its own platform, many if not most might need external input... Specialty hardware").

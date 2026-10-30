@@ -1,3 +1,40 @@
+---
+id: source-historical-problem-statement-and-initial-thoughts
+type: source
+title: "Historical Problem Statement and Initial Thoughts"
+summary: "Preserved project-origin thesis, use-case and revenue notes, intrinsic-value diagram, and DuPont sketch; historical context rather than current architecture."
+status: archived
+created: '2026-10-29'
+updated: '2026-10-29'
+topics:
+  - vision
+  - finance
+  - architecture
+confidence: null
+relations:
+  - type: relates-to
+    target: concept-connected-models-thesis
+  - type: relates-to
+    target: concept-agent-quantitative-reasoning-layer
+  - type: relates-to
+    target: idea-domain-exemplars-intrinsic-value-and-fx
+---
+
+# Historical Problem Statement and Initial Thoughts
+
+## Provenance and interpretation
+
+Historical project-origin material, not outsider commentary. Authorship and exact composition date are not supplied. The prior corpus describes these as 2026 notes; no exact original date is established here. Original ambitions and component/revenue suggestions are preserved as historical statements, not newly accepted requirements.
+
+- Imported on 2026-10-29 from `Legacy/ProblemStatementInitialThoughts.md`.
+- Created/updated metadata dates describe this source record, not the original document.
+- Original payload SHA-256 (including original line endings): `9cfb0d0f9331027a6e5fe764ce6c723f382fb878dfb7da354ac82a3ab309f91e`.
+- The original payload follows unchanged after the marker; line references to the original are relative to that payload.
+
+## Original document (verbatim)
+
+<!-- ORIGINAL DOCUMENT:BEGIN -->
+
 # Problem
 
 To make better decisions, we must model their consequences and impacts.

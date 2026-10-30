@@ -5,7 +5,7 @@ title: 2025 Math.js and Supabase Prototype Retrospective
 summary: Retrospective investigation of the 2025 React/Supabase/Math.js prototype, evaluating what worked (DuPont composition, unified graph schema) and its expressiveness limits.
 status: completed
 created: '2026-10-24'
-updated: '2026-10-24'
+updated: '2026-10-28'
 topics:
   - prototype
   - architecture
@@ -19,6 +19,12 @@ relations:
     target: decision-retire-standalone-mathjs-implementation
   - type: produces
     target: finding-graph-compilation-caching-requirement
+  - type: derived-from
+    target: source-historical-connected-models-slides-2020
+  - type: derived-from
+    target: source-historical-mathjs-prototype-overview-2025
+  - type: derived-from
+    target: source-historical-mathjs-prototype-architecture
 ---
 
 # 2025 Math.js and Supabase Prototype Retrospective
@@ -29,7 +35,7 @@ Evaluate the technical achievements, architectural lessons, and functional limit
 
 ## What we already knew
 
-Prior to 2025, Connected Models existed only as a high-level pitch and set of conceptual slide decks dating to 2020 (`Legacy/Slides2020.md`). No running software or formal data model had been created.
+Prior to 2025, Connected Models existed only as a high-level pitch and set of conceptual slide decks dating to 2020 ([[source-historical-connected-models-slides-2020]]). No running software or formal data model had been created.
 
 ## Work performed
 
@@ -46,7 +52,7 @@ Prior to 2025, Connected Models existed only as a high-level pitch and set of co
 3. **LaTeX / Code Dual Representation**: Allowing users to view equations in KaTeX while evaluating them via executable code strings provided a strong mental model for mathematical tools.
 
 ### What failed / bottlenecks
-1. **Math.js Expressiveness Ceiling**: Restricted strictly to basic algebraic evaluation. Could not express differential equations, numerical optimization, stochastic simulations (Monte Carlo), or matrix operations.
+1. **Implemented scope limitation**: The documented prototype demonstrated algebraic evaluation, not a general ODE/optimization/stochastic runtime. **Correction from 2026-10-28 primary-document research:** Math.js itself supports matrices and a symbolic derivative API. The earlier claim that the library could not perform matrix operations was incorrect. Prototype limits do not establish universal library/language impossibilities; the retired sole-engine architecture decision rests on broader semantics, safety, runtime and interoperability needs. See [[investigation-model-variable-quantity-representation]] and [[source-mathematical-model-representation-standards]].
 2. **Client-Centric Execution Bottlenecks**: Performing evaluation in the browser while maintaining compilation states in PostgreSQL created synchronization complexity and prevented server-side agentic automation.
 3. **Premature Social Feature Surface**: Sizable engineering hours were spent on user profiles, starring, voting, and comment tables before the core computational and ontological mechanics were proven.
 
@@ -63,4 +69,4 @@ Prior to 2025, Connected Models existed only as a high-level pitch and set of co
 
 ## Legacy provenance
 
-Reconstructed from `Legacy/Simple mathJS implementation attempt [2025].md` and `Legacy/mathJSArchitectureStructureOverview.md`.
+Reconstructed from [[source-historical-mathjs-prototype-overview-2025]] and [[source-historical-mathjs-prototype-architecture]].

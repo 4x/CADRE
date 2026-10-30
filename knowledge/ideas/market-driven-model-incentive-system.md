@@ -16,6 +16,10 @@ relations:
     target: concept-connected-models-thesis
   - type: relates-to
     target: question-initial-domain-beachhead
+  - type: derived-from
+    target: source-historical-problem-statement-and-initial-thoughts
+  - type: derived-from
+    target: source-historical-connected-models-slides-2020
 ---
 
 # Market-Driven Model Incentive and Royalty System
@@ -38,4 +42,4 @@ The more foundational and reliable a model is—and the more frequently it is em
 
 ## Legacy provenance
 
-Reconstructed from monetization thoughts in `Legacy/ProblemStatementInitialThoughts.md` ("credit system, e.g. the more your model is used/accessed, the more points/credits/$ you gain; Charge per API call") and `Legacy/Slides2020.md`.
+Reconstructed from monetization thoughts in [[source-historical-problem-statement-and-initial-thoughts]] ("credit system, e.g. the more your model is used/accessed, the more points/credits/$ you gain; Charge per API call") and [[source-historical-connected-models-slides-2020]].

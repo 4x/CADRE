@@ -5,7 +5,7 @@ title: Initial Domain Beachhead
 summary: Which initial quantitative vertical (e.g., financial valuation, FX prediction, climate risk, prediction markets) offers the best balance of traction, viability, and benchmark clarity?
 status: active
 created: '2026-10-24'
-updated: '2026-10-24'
+updated: '2026-10-27'
 topics:
   - strategy
   - commercialization
@@ -16,6 +16,8 @@ relations:
     target: concept-connected-models-thesis
   - type: relates-to
     target: idea-domain-exemplars-intrinsic-value-and-fx
+  - type: derived-from
+    target: source-historical-problem-statement-and-initial-thoughts
 ---
 
 # Initial Domain Beachhead
@@ -36,6 +38,12 @@ Legacy notes explore several candidate verticals:
 - **Prediction Markets / Autonomous Trading**: Direct economic payoff for bias-free quantitative estimates.
 - **Climate & Physical Risk**: Immense societal value, but data pipelines and model runtimes are extraordinarily complex.
 
+## Relationship to build readiness
+
+**C — strategic choice, not a requirement to resolve the whole business before a technical build** ([[question-build-readiness]]). Select a bounded first workflow through [[question-first-build-scope-and-success]]; it need not settle the long-term commercial vertical or first three paying customers. Existing finance examples and the question gallery are candidate material, not selected markets.
+
+The user questioned whether hydropower was the best demonstration and said the end-state question examples are sufficient for now. Do not default to that example or generate another gallery to avoid the build-scope decision. Revisit the commercial beachhead when evidence about source/model availability, curation burden, technical capability, user usefulness, and distribution makes comparison meaningful.
+
 ## What would resolve it?
 
 1. Constructing a concrete end-state vision: what does the deliverable look like in the candidate domain?
@@ -44,4 +52,4 @@ Legacy notes explore several candidate verticals:
 
 ## Legacy provenance
 
-Reconstructed from `Legacy/ProblemStatementInitialThoughts.md` ("Where do we start? How do we get our first three paying clients? Who do we sell this to?").
+Reconstructed from [[source-historical-problem-statement-and-initial-thoughts]] ("Where do we start? How do we get our first three paying clients? Who do we sell this to?").

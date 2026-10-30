@@ -5,7 +5,7 @@ title: Vision for the End-State Deliverable
 summary: The mature vision for Connected Models as an open computational medium unifying interactive exploration, an epistemic ledger of verified components, and a polyglot dependency operating system.
 status: active
 created: '2026-10-24'
-updated: '2026-10-24'
+updated: '2026-10-27'
 topics:
   - vision
   - architecture
@@ -17,6 +17,10 @@ relations:
     target: concept-connected-models-thesis
   - type: relates-to
     target: concept-agent-quantitative-reasoning-layer
+  - type: relates-to
+    target: concept-specialized-model-curation-agents
+  - type: relates-to
+    target: idea-end-state-question-gallery
   - type: relates-to
     target: concept-unified-computational-graph
   - type: relates-to
@@ -90,7 +94,21 @@ The system provides a unified operational surface for both humans and autonomous
 
 ---
 
+## How the model collection is built and maintained
+
+The ledger must not be assumed to arrive pre-populated. The user clarified on 2026-10-27 that this knowledge base is only an early seed and that **specialized Meta/Muse agents should curate the models themselves**. [[concept-specialized-model-curation-agents]] develops this capability: domain-specialized discovery, source-faithful formalization, qualified connections, reproduction/challenge, and continuing maintenance. Agents are not only consumers and assemblers, but builders and stewards of reusable quantitative knowledge.
+
+The model-first resolution principle in [[concept-connected-models-thesis]] governs missing inputs: seek suitable upstream models and resolve their dependencies; where unavailable or impractical, Meta may contribute a clearly labeled provisional estimate, proxy, or submodel. The label must remain visible in dependent answers and the contribution replaceable. Using a model structures assumptions rather than abolishing uncertainty. Genuine unknowns, private facts, preferences, and hypothetical interventions must not be silently invented or "resolved" as if they were observations.
+
+The current Project Memory graph records this design; a populated, executable model registry remains future product work. Agent capability, review policy, and source quality are not established by documenting the idea.
+
+## Questions for the fully realized platform
+
+[[idea-end-state-question-gallery]] contains twelve intentionally varied questions spanning everyday decisions, life planning, industry, valuation, geopolitical shocks, public health, ecology, engineering, experimental design, systemic counterfactuals, and model blind spots. These explore the full vision without choosing implementation components or a hackathon scope.
+
 ## The Flagship Cross-Domain Cascade
+
+**Scope note (2026-10-27):** The physical-to-financial chain below remains an illustrative end-state cascade, not a selected first demonstration. The user questioned the proposed hydropower example; the best initial example remains unresolved. The platform should support many kinds of question, not be defined by this cascade.
 
 The power of Connected Models is best illustrated by a multi-tier cross-domain cascade where physical, infrastructure, operational, and financial models interconnect seamlessly:
 

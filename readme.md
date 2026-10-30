@@ -20,7 +20,7 @@ The operating-cost and investment questions reuse the same component models and 
 
 The public settings in `inference.toml` select `muse-spark-1.3` in Standard mode and a $150 application-wide ceiling. The adapter uses the [Meta API route documented for coding agents](https://dev.meta.ai/docs/coding-agents). It does not change the coding agent running this session.
 
-The application accepts `MODEL_API_KEY` from its process environment. You can place that variable in your own `.env` and launch the following command yourself; repository agents must not inspect or load that file:
+The application accepts `META_API_KEY` from its process environment. You can place that variable in your own `.env` and launch the following command yourself; repository agents must not inspect or load that file:
 
 ```powershell
 uv --cache-dir .uv-cache run --env-file .env -m connected_models meta-smoke
@@ -42,6 +42,42 @@ Tests compare execution with a separately summed Decimal cash flow and NIST Hand
 
 Implemented: bounded scalar algebra, explicit per-port context and meaning checks, ratio-unit conversions, graph compilation, deterministic evaluation, immutable run snapshots, two fixture compositions and a budgeted Meta connection-check adapter. Expressions are interpreted through an allowlisted AST; arbitrary Python code is not executed.
 
-The catalog is currently handwritten fixture code. Real offline agent extraction, owner review/publication, durable registry loading, query-time agent composition and an interactive inspector are still required for the complete MVP. Only fixture execution is enabled until admission is implemented. The current contracts implement a small subset of the representation draft; they do not claim full v0 conformance.
+The `demo` command uses handwritten fixtures. The separate registry workflow now supports offline source extraction, candidate storage, explicit owner review/publication, withdrawal and query-time composition against eligible stored versions. Eighteen offline tests pass, including fake curator/composer responses. Live extraction and composition remain unverified until credential access and owner review complete. The inspector currently prints saved run evidence; a graphical workbench remains future work. The contracts implement a bounded subset of the representation draft, not full v0 conformance.
+
+## Curate, review and reuse models
+
+The application credential variable is **META_API_KEY**. This overrides the variable name shown in Meta's generic documentation. Agents do not access `.env` unless the owner explicitly permits a runtime-loading exception. The following live commands are intended for an owner launch, or for an explicitly authorized runtime launch by the agent.
+
+```powershell
+# Stage four supporting project-derived candidates, without publishing them.
+uv --cache-dir .uv-cache run --no-env-file -m connected_models seed-candidates
+# Make a paid offline extraction from the bundled public NIST source packet.
+uv --cache-dir .uv-cache run --env-file .env -m connected_models curate
+# Produce a readable report of sources, extracted algebra, assumptions and checks.
+uv --cache-dir .uv-cache run --no-env-file -m connected_models review-bundle
+```
+
+The curator receives the NIST equation with its source notation and a canonical interface, then extracts executable algebra and a symbol/source map. It does not receive the fixture's program expression. The published numerical example is checked independently before review. Incomplete or failing extractions remain candidates with diagnostics. Supporting accounting definitions are explicitly marked manual project derivations; they are not misrepresented as agent extractions.
+
+Inspect a candidate with `candidate CANDIDATE_ID`. After checking source fidelity, applicability, interface meanings and assumptions, the owner records a scoped review:
+
+```powershell
+uv --cache-dir .uv-cache run --no-env-file -m connected_models review CANDIDATE_ID --decision accepted --reviewer owner --notes 'Describe the checked source and permitted scenario use'
+uv --cache-dir .uv-cache run --no-env-file -m connected_models registry-list
+```
+
+Each model revision is immutable. A replacement definition needs a new version. A `withdrawn` review prevents new snapshots from using that candidate; saved runs keep their original evidence. Eligibility is snapshotted at the start of a short local run rather than revoked mid-calculation. This is a single-operator trust boundary: commands run by the owner carry review authority. Agent extraction or composition cannot publish its own models.
+
+Once all necessary versions are eligible, ask a question using the supplied illustrative scenario inputs:
+
+```powershell
+uv --cache-dir .uv-cache run --env-file .env -m connected_models answer 'Compare annual heating costs and the discounted value of the upgrade'
+uv --cache-dir .uv-cache run --env-file .env -m connected_models answer 'Compare annual operating costs only' --performance 2 --tariff 0.25
+uv --cache-dir .uv-cache run --no-env-file -m connected_models inspect RUN_ID
+```
+
+The composer sees only eligible stored definitions and explicit scenario values. It proposes bindings; the deterministic compiler validates and executes them. It cannot invent numeric inputs or curate a missing model during answering. Unsupported questions and invalid proposals are saved with actionable blocked/rejected diagnostics. Generated estimates remain disabled until a scoped consent flow exists; inputs missing from this bounded scenario remain unresolved. Old results retain pinned definitions, vocabulary, review identifiers, input origins and dependency traces.
+
+Local runtime artifacts are stored in `.registry/`, `.runs/` and `.usage/`, all excluded from version control. Preserve the registry and spend ledger when continuing the prototype.
 
 The canonical delivery plan is [MVP milestones](knowledge/notes/mvp-build-sequence-and-extension-triggers.md); current project context is in [PROJECT_STATE.md](PROJECT_STATE.md). Source/evidence records and design decisions live in Project Memory under `knowledge/`.

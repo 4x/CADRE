@@ -27,7 +27,7 @@ MAX_PROMPT_BYTES = 32_768
 MINOR_UNITS_PER_USD = 1_000_000
 API_HOST = "api.meta.ai"
 API_PATH = "/v1/chat/completions"
-KEY_VARIABLE = "MODEL_API_KEY"
+KEY_VARIABLE = "META_API_KEY"
 LOGGER = logging.getLogger(__name__)
 
 
@@ -115,19 +115,18 @@ class BudgetLedger:
         return amount
 
 
-def smoke_test(settings: InferenceSettings, ledger: BudgetLedger) -> dict[str, Any]:
-    """Send one bounded structured-output request without printing keys or HTTP bodies."""
+def structured_request(settings: InferenceSettings, ledger: BudgetLedger, messages: list[dict[str, str]],
+                       schema: dict[str, Any], name: str) -> dict[str, Any]:
+    """Send a bounded JSON request; callers validate domain semantics separately."""
     settings.validate()
     key = os.environ.get(KEY_VARIABLE)
     if not key:
-        raise ModelError("MODEL_API_KEY is not available to this process. Set it in your launch environment.")
+        raise ModelError("META_API_KEY is not available to this process. Set it in your launch environment.")
     payload = {
         "model": settings.model,
-        "messages": [{"role": "user", "content": "Return status ok to confirm a structured-output connection."}],
+        "messages": messages,
         "max_completion_tokens": settings.max_completion_tokens,
-        "response_format": {"type": "json_schema", "json_schema": {"name": "ConnectionCheck", "schema": {
-            "type": "object", "properties": {"status": {"type": "string", "enum": ["ok"]}},
-            "required": ["status"], "additionalProperties": False}}},
+        "response_format": {"type": "json_schema", "json_schema": {"name": name, "schema": schema}},
     }
     body = json.dumps(payload).encode()
     if len(body) > MAX_PROMPT_BYTES:
@@ -146,10 +145,11 @@ def smoke_test(settings: InferenceSettings, ledger: BudgetLedger) -> dict[str, A
         amount = ledger.settle(call_id, result["usage"])
         choice = result["choices"][0]
         content = json.loads(choice["message"]["content"])
-        if choice["finish_reason"] != "stop" or content != {"status": "ok"}:
+        if choice["finish_reason"] != "stop" or not isinstance(content, dict):
             raise ModelError("Meta responded but failed the structured-output check; usage recorded.")
         LOGGER.info(f"Meta structured-output check completed: {call_id}.")
-        return {"status": "ok", "model": settings.model, "call_id": call_id, "conservative_cost_usd": amount / MINOR_UNITS_PER_USD}
+        return {"content": content, "audit": {"model": settings.model, "call_id": call_id,
+                "conservative_cost_usd": amount / MINOR_UNITS_PER_USD}}
     except ModelError:
         LOGGER.warning(f"Meta smoke test did not complete: {call_id}. Check its ledger entry before retrying.")
         raise
@@ -159,3 +159,14 @@ def smoke_test(settings: InferenceSettings, ledger: BudgetLedger) -> dict[str, A
         raise ModelError("Meta connection or response failed. Inspect the usage ledger before retrying; unverified charges remain reserved.") from None
     finally:
         connection.close()
+
+
+def smoke_test(settings: InferenceSettings, ledger: BudgetLedger) -> dict[str, Any]:
+    """Check one strict response without storing or exposing credential material."""
+    response = structured_request(settings, ledger,
+        [{"role": "user", "content": "Return status ok to confirm a structured-output connection."}],
+        {"type": "object", "properties": {"status": {"type": "string", "enum": ["ok"]}},
+         "required": ["status"], "additionalProperties": False}, "ConnectionCheck")
+    if response["content"] != {"status": "ok"}:
+        raise ModelError("Meta responded but failed the structured-output check; usage recorded.")
+    return {"status": "ok", **response["audit"]}

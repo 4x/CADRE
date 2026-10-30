@@ -14,8 +14,9 @@ from typing import Any
 from uuid import uuid4
 
 from . import __version__
-from .contracts import Composition, Model, ModelError, Node, Reference, UNITS, Value, finite
+from .contracts import Composition, MEANINGS, Model, ModelError, Node, Reference, UNITS, Value, finite
 from .expressions import check_guard, dimensions, evaluate, guard_dimensions, parse
+from .serialization import model_digest
 
 MAX_GRAPH_NODES = 64
 MAX_MODEL_INPUTS = 16
@@ -32,7 +33,24 @@ class CompiledNode:
     guards: tuple[ast.Compare, ...]
 
 
-def compile_graph(composition: Composition, catalog: dict[str, Model]) -> tuple[CompiledNode, ...]:
+def validate_model(model: Model) -> tuple[ast.AST, tuple[ast.Compare, ...]]:
+    """Check a complete model's executable interface without granting admission."""
+    if not model.source or not model.assumptions or len(model.inputs) > MAX_MODEL_INPUTS:
+        raise ModelError("Model needs source, assumptions and a bounded input interface.")
+    for port in (*model.inputs.values(), model.output):
+        port.validate()
+    names = {name: UNITS[port.unit].dimensions for name, port in model.inputs.items()}
+    expression = parse(model.expression)
+    if dimensions(expression, names) != UNITS[model.output.unit].dimensions:
+        raise ModelError("Expression/output dimensions differ.")
+    guards = tuple(parse(guard) for guard in model.guards)
+    for guard in guards:
+        guard_dimensions(guard, names)
+    return expression, guards
+
+
+def compile_graph(composition: Composition, catalog: dict[str, Model],
+                  admissions: dict[str, dict[str, Any]] | None = None) -> tuple[CompiledNode, ...]:
     """Validate the complete graph before executing it in dependency order."""
     if composition.purpose not in {"fixture", "scenario"}:
         raise ModelError("Only fixture evaluation and conditional scenarios are supported.")
@@ -51,20 +69,15 @@ def compile_graph(composition: Composition, catalog: dict[str, Model]) -> tuple[
         model = catalog[node.model]
         if node.model != model.key or not model.source or not model.assumptions:
             raise ModelError(f"{node.id}: model identity/source/assumptions are incomplete.")
-        # Publication authority is deliberately not implemented in the M1 skeleton.
-        if composition.purpose != "fixture" or model.status != "fixture":
-            raise ModelError("Only labeled fixture models execute until reviewed publication is implemented.")
+        if composition.purpose == "scenario":
+            admission = (admissions or {}).get(model.key, {})
+            if model.status != "eligible" or admission.get("digest") != model_digest(model):
+                raise ModelError(f"{node.id}: model lacks a matching reviewed registry admission.")
+        elif model.status != "fixture":
+            raise ModelError("Fixture runs require fixture definitions.")
         if len(model.inputs) > MAX_MODEL_INPUTS or set(node.bindings) != set(model.inputs):
             raise ModelError(f"{node.id}: missing/extra inputs or too many inputs.")
-        for port in (*model.inputs.values(), model.output):
-            port.validate()
-        names = {name: UNITS[port.unit].dimensions for name, port in model.inputs.items()}
-        expression = parse(model.expression)
-        if dimensions(expression, names) != UNITS[model.output.unit].dimensions:
-            raise ModelError(f"{node.id}: expression/output dimensions differ.")
-        guards = tuple(parse(guard) for guard in model.guards)
-        for guard in guards:
-            guard_dimensions(guard, names)
+        expression, guards = validate_model(model)
         dependencies[node.id] = set()
         for name, binding in node.bindings.items():
             if isinstance(binding, Reference):
@@ -76,6 +89,8 @@ def compile_graph(composition: Composition, catalog: dict[str, Model]) -> tuple[
                 Value(1.0, upstream.output, "derived", binding.node).bind(model.inputs[name])
                 dependencies[node.id].add(binding.node)
             elif isinstance(binding, Value):
+                if composition.purpose == "scenario" and binding.origin in {"fixture", "generated", "derived"}:
+                    raise ModelError("Scenario inputs must be sourced observations or explicit user scenarios; generated estimates need owner consent.")
                 binding.bind(model.inputs[name])
             else:
                 raise ModelError(f"{node.id}.{name}: unsupported binding type.")
@@ -87,7 +102,8 @@ def compile_graph(composition: Composition, catalog: dict[str, Model]) -> tuple[
     return tuple(compiled[name] for name in order)
 
 
-def execute(composition: Composition, catalog: dict[str, Model]) -> dict[str, Any]:
+def execute(composition: Composition, catalog: dict[str, Model],
+            admissions: dict[str, dict[str, Any]] | None = None) -> dict[str, Any]:
     """Return a self-contained successful or rejected run, without mutating definitions."""
     definitions = {key: asdict(catalog[key]) for key in sorted({node.model for node in composition.nodes}) if key in catalog}
     snapshot = json.dumps(definitions, sort_keys=True, allow_nan=False)
@@ -96,12 +112,14 @@ def execute(composition: Composition, catalog: dict[str, Model]) -> dict[str, An
         "engine": f"connected-models/{__version__}", "python": platform.python_version(),
         "composition": asdict(composition), "models": definitions,
         "model_snapshot_sha256": hashlib.sha256(snapshot.encode()).hexdigest(),
+        "admissions": admissions or {},
+        "vocabulary": {"units": {name: asdict(unit) for name, unit in UNITS.items()}, "meanings": MEANINGS},
         "status": "rejected", "steps": [], "outputs": {},
-        "limitations": ["Fixture execution, not live curation or a validated household forecast.",
+        "limitations": ["Fixture execution." if composition.purpose == "fixture" else "Conditional scenario; no empirical household validation.",
                         "Input uncertainty is not propagated; scenario assumptions are conditional."],
     }
     try:
-        plan = compile_graph(composition, catalog)
+        plan = compile_graph(composition, catalog, admissions)
         values: dict[str, Value] = {}
         reliance: dict[str, list[dict[str, Any]]] = {}
         for compiled in plan:

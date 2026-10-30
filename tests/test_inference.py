@@ -19,6 +19,16 @@ class InferenceTests(unittest.TestCase):
         """Return the verified public configuration."""
         return InferenceSettings.load(Path("inference.toml"))
 
+    @patch.dict("os.environ", {"MODEL_API_KEY": "obsolete-placeholder"}, clear=True)
+    @patch("connected_models.inference.http.client.HTTPSConnection")
+    def test_meta_key_is_required(self, transport: MagicMock) -> None:
+        """The renamed credential is required; the obsolete variable is not consumed."""
+        with scratch_directory() as folder:
+            settings = self.settings()
+            with self.assertRaisesRegex(ModelError, "META_API_KEY"):
+                smoke_test(settings, BudgetLedger(Path(folder) / "usage.sqlite3", settings))
+        transport.assert_not_called()
+
     def test_budget_persists_and_failed_requests_remain_reserved(self) -> None:
         """Independent ledger instances cannot bypass an existing reservation."""
         with scratch_directory() as folder:
@@ -46,7 +56,7 @@ class InferenceTests(unittest.TestCase):
                 ledger.reserve()
 
     @patch("connected_models.inference.http.client.HTTPSConnection")
-    @patch.dict("os.environ", {"MODEL_API_KEY": "test-placeholder-not-a-key"})
+    @patch.dict("os.environ", {"META_API_KEY": "test-placeholder-not-a-key"})
     def test_response_check(self, transport: MagicMock) -> None:
         """Validate structured content and settle returned usage without printing content."""
         response = transport.return_value.getresponse.return_value

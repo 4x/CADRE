@@ -50,9 +50,9 @@ For multiple offline research agents, use the [owner/operator guide](knowledge/n
 
 ```powershell
 # Build a portable snapshot; the output must not already exist.
-uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-generic-2026-10-31.2.zip
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-generic-2026-10-31.3.zip
 # Or include only the chosen worker's assignment:
-uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-building-energy-2026-10-31.2.zip --domain building-energy
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-building-energy-2026-10-31.3.zip --domain building-energy
 # Check and stage a returned batch on the integration PC; this does not publish.
 uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation validate incoming/building-energy-a01-b01-return.zip
 uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation import incoming/building-energy-a01-b01-return.zip
@@ -62,7 +62,17 @@ The kit pins its own version and JSON schema. It carries no credentials, inferen
 
 The original `.1` worker returns remain compatible with the revised tools. The [first building-energy return review](knowledge/sources/building-energy-first-curation-review.md) distinguishes passing numerical checks from outstanding scientific/interface/provenance corrections; the submitted archive was preserved and was not admitted.
 
-The [first mechanics intake](knowledge/sources/classical-mechanics-first-intake.md) checks packaging, schema and declared numerical cases only. All five records pass those checks and require runtime extensions; missing retrieval provenance and scientific/source auditing remain separate review work. The [M2 closeout plan](knowledge/notes/mvp-build-sequence-and-extension-triggers.md#m2-closeout-assessment--2026-10-31) tracks the reviewer handoff, a small vocabulary extension, revision controls and acceptance exercise. The working heating loop does not yet establish completion of these broader MVP gates.
+M2-A/B are complete. The [separate mechanics audit](knowledge/sources/mechanics-independent-audit.md) recommends two constant-acceleration records for bounded local execution; three require corrections. Runtime 0.3 adds a bounded mechanics vocabulary, dimensional integer powers and physical-unit aliases, preserving the legacy kWh/USD numerical scales. Two independently reviewed runtime projections are eligible locally. Seventy-six tests pass, including fresh-registry reproduction; three saved heating runs replay with unchanged results and original files. Full report, unchanged research data and integration receipt are in `data/curation/reviews/`. The [M2 plan](knowledge/notes/mvp-build-sequence-and-extension-triggers.md#m2-closeout-assessment--2026-10-31) retains revision controls and the broader acceptance exercise as M2-C/D.
+
+Create a separate reviewer packet, then validate the returned report and stage a supported recommended record:
+
+```powershell
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.auditing packet incoming/return.zip reviewer-packet.zip
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.auditing validate incoming/return.zip incoming/review.json
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.integration incoming/return.zip incoming/review.json MODEL_ID --version r1.runtime1
+```
+
+Give only the extracted packet to a different reviewer agent with `Read @AGENTS.md and complete @assignment.json`. See the [operator guide](knowledge/notes/offline-curation-agent-kit.md#separate-auditor-handoff-and-technical-integration) for review criteria, projection evidence and the separate attributed admission command. Neither report validation nor projection publishes a model. To reproduce the committed example without the original ZIP, the validator and integrator also accept `data/curation/reviews/classical-mechanics-a-b01-bundle.json` with its corresponding review JSON.
 
 The application credential variable is **META_API_KEY**. This overrides the variable name shown in Meta's generic documentation. Agents do not access `.env` unless the owner explicitly permits a runtime-loading exception. The following live commands are intended for an owner launch, or for an explicitly authorized runtime launch by the agent.
 

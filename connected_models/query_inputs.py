@@ -19,9 +19,16 @@ UNIT_ALIASES = {
     "usd": "USD", "$": "USD", "dollar": "USD", "dollars": "USD",
     "usd/kwh": "USD/kWh", "$/kwh": "USD/kWh", "dollar/kwh": "USD/kWh", "dollars/kwh": "USD/kWh",
     "kwh": "kWh", "wh": "Wh",
+    "kg": "kg", "kilogram": "kg", "kilograms": "kg", "g": "g", "grams": "g",
+    "m": "m", "metre": "m", "metres": "m", "meter": "m", "meters": "m",
+    "cm": "cm", "km": "km", "s": "s", "second": "s", "seconds": "s",
+    "min": "min", "minute": "min", "minutes": "min", "h": "h", "hour": "h", "hours": "h",
+    "m/s": "m/s", "km/h": "km/h", "m/s^2": "m/s^2", "m/s²": "m/s^2",
+    "n": "N", "newton": "N", "newtons": "N", "j": "J", "joule": "J", "joules": "J", "kj": "kJ",
 }
 YEAR_UNITS = frozenset({"year", "years", "annual-period", "annual-periods"})
-UNIT_PATTERN = re.compile(r"\s*((?:USD|dollars?)\s*(?:/|per)\s*kWh|USD|dollars?|kWh|Wh|percent|%|years?)(?!\w)", re.IGNORECASE)
+LEXICAL_UNITS = "|".join(re.escape(name) for name in sorted(UNIT_ALIASES, key=len, reverse=True) if name != "1")
+UNIT_PATTERN = re.compile(r"\s*((?:USD|dollars?)\s*(?:/|per)\s*kWh|" + LEXICAL_UNITS + r"|years?)(?![\w/^²])", re.IGNORECASE)
 
 
 def unit_identity(unit: str) -> str:

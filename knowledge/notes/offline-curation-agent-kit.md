@@ -24,7 +24,7 @@ relations:
 
 # Owner/operator guide: offline model curation
 
-Kit version `2026-10-31.2`; return schema `cm-curation-batch/1`. This document is for the owner/integrator and is excluded from worker ZIPs. The complete curator protocol is [[note-offline-curator-instructions]], exported directly as each kit's `AGENTS.md`. It contains the actual instructions, not a redirect to this guide.
+Kit version `2026-10-31.3`; return schema `cm-curation-batch/1`; earlier .1/.2 data returns remain readable. This document is for the owner/integrator and is excluded from worker ZIPs. The complete curator protocol is [[note-offline-curator-instructions]], exported directly as each kit's `AGENTS.md`. It contains the actual instructions, not a redirect to this guide.
 
 ## Corrected scope and packaging
 
@@ -70,9 +70,9 @@ Run from the central repository. Each destination must be new; no existing ZIP i
 
 ```powershell
 # Generic kit for the owner's inline JSON assignment prompt:
-uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-generic-2026-10-31.2.zip
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-generic-2026-10-31.3.zip
 # A worker-specific kit containing only one assignment:
-uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-building-energy-2026-10-31.2.zip --domain building-energy
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-building-energy-2026-10-31.3.zip --domain building-energy
 ```
 
 Copy/extract each kit into a new worker folder, such as `C:\Curation\worker-a`. Provide the short prompt and optionally an agent label/batch ID. There is no API key to distribute; these tools make no inference requests. External agent-service spending is outside the central application's ledger. Do not copy the inference ledger or run independent paid application-curation loops on several PCs under the assumption that their local limits add up to a global budget.
@@ -129,6 +129,20 @@ uv --cache-dir .uv-cache run --no-env-file -m connected_models review CANDIDATE_
 
 Workers do not self-admit. An independent agent technical review is not automatically human expert validation. Extension candidates remain blocked until a separately tested integration produces a new checked projection/revision. Scientific uncertainties remain blockers even after code supports the units. Subsequent application query tests validate integration; they are not a curation requirement for every atomic model.
 
+## Separate auditor handoff and technical integration
+
+Create one reviewer-only packet for a returned ZIP. Give the extracted packet to a different agent with `Read @AGENTS.md and complete @assignment.json`. The full protocol is [[note-offline-auditor-instructions]]; no owner instructions or other assignments are in the packet. It contains the unchanged return, exact batch/archive/record identities, JSON Schema and an unfinished report template. The auditor returns `review.json`; central tools validate it. The worker does not need the application or API credentials to investigate sources and write JSON.
+
+```powershell
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.auditing packet incoming/return.zip reviewer-packet.zip
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.auditing validate incoming/return.zip incoming/review.json
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.integration incoming/return.zip incoming/review.json MODEL_ID --version r1.runtime1
+```
+
+The versioned review covers every original record, binding ID/revision and canonical content hashes. Each of six criteria records passed/failed/not-checked with evidence, actual source locations, blockers, permitted use and recommendation. Not-checked/failed criteria, absent accessed sources, curator self-review and stale hashes prevent an admission recommendation. A report can validly recommend revisions or block every record. This is structural enforcement, not automatic verification of the auditor's scientific claims or identity.
+
+Integration stages only a `recommend-admit` record whose unchanged quantities/units/expression/guards fit the runtime and reproduce its references. It preserves the full original record, reviewer report/digest and profile in a separately versioned projection. The explicit attributed `review CANDIDATE_ID ...` operation above still grants executable eligibility. Neither packet creation, report validation nor projection publishes models. Reviewers must accurately qualify rights/access rather than invent clearance; current-site terms and a historical edition's license must not be conflated.
+
 ## Lessons from the first return
 
 [[source-building-energy-first-curation-review]] records the review of `from-offline-curation-workers/building-energy-muse-b01-return.zip`. Its four records pass mechanical checks and preserve unsupported physical units. Source review found useful formula extraction alongside incorrect current-license attribution, a claimed connection with no destination port, a single-event/seasonal example mismatch, overbroad inverse exclusions and reference-oracle wording that needs correction. The original artifact remains untouched and unadmitted.
@@ -143,7 +157,7 @@ The new curator instructions explicitly address faithful source versus profile s
 4. Reconcile meanings, context requirements and model identities centrally. Domain-prefixed record IDs are provisional provenance keys, not permanent parallel ontologies. Do not make every worker design universal semantics or all possible future connections.
 5. Prioritize runtime extensions from the actual returned corpus and product needs. The research catalog can grow independently. Add query/composition tests when integrating selected models, without turning those examples into catalog-wide scope restrictions.
 
-Automated semantic deduplication, scalable retrieval, structured scientific review and universal vocabulary governance remain future work. They are explicit scaling needs; this task corrects the worker contract and packaging first. The working MVP and hackathon submission track remain separate milestones.
+Automated semantic deduplication, scalable retrieval, broad review governance and universal vocabulary governance remain future work. A bounded structured review handoff now exists as described above; it does not solve scientific review at catalog scale. The working MVP and hackathon submission track remain separate milestones.
 
 ## Optional Git workflow for code integration
 

@@ -11,7 +11,7 @@ from typing import Any
 from urllib.parse import urlsplit
 import zipfile
 
-from .contracts import DIMENSIONLESS, MEANINGS, UNITS, ModelError, NumericalError
+from .contracts import DIMENSIONLESS, DIMENSION_AXES, MEANINGS, NUMERICAL_BASIS, UNITS, VOCABULARY_PROFILE, ModelError, NumericalError
 from .curation_schema import DOMAINS, KIT_VERSION, MAX_BATCH_BYTES, SCHEMA, SCHEMA_VERSION, SUPPORTED_KIT_VERSIONS, validate_schema
 from .expressions import check_guard, dimensions, evaluate, guard_dimensions, parse
 from .registry import Registry
@@ -270,9 +270,10 @@ def build_kit(destination: Path, domain: str | None = None) -> dict[str, Any]:
     contents["AGENTS.md"] = guide.split("\n---\n", 2)[-1].encode("utf-8")
     contents["data/curation/batch.schema.json"] = encoded(SCHEMA)
     contents["data/curation/runtime-vocabulary.json"] = encoded({"kit_version": KIT_VERSION, "meanings": MEANINGS,
+        "profile": VOCABULARY_PROFILE, "dimension_axes": DIMENSION_AXES, "numerical_basis": NUMERICAL_BASIS,
         "units": {name: {"dimensions": unit.dimensions, "scale": unit.scale} for name, unit in UNITS.items()},
         "known_model_ids": ["heat-to-electricity", "electricity-cost", "annual-saving", "uniform-present-value", "net-present-value"],
-        "limits": "Energy/currency dimensions only. Contexts must match exactly. No automatic vocabulary extension. See guide for known source revisions."})
+        "limits": "Bounded mechanics and energy/currency vocabulary. Contexts must match exactly. No automatic vocabulary extension. See guide for known source revisions."})
     if domain is not None:
         assignments = decode((ASSETS / "assignments.json").read_bytes())
         assignment = next(item for item in assignments if item["domain"] == domain)

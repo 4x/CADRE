@@ -3,11 +3,21 @@
 from dataclasses import dataclass
 import math
 
-Dimensions = tuple[int, int]  # Energy, currency; annual totals carry time in context.
-DIMENSIONLESS: Dimensions = (0, 0)
-ENERGY: Dimensions = (1, 0)
-MONEY: Dimensions = (0, 1)
-PRICE: Dimensions = (-1, 1)
+Dimensions = tuple[int, int, int, int]  # Mass, length, time, currency.
+DIMENSIONLESS: Dimensions = (0, 0, 0, 0)
+MASS: Dimensions = (1, 0, 0, 0)
+LENGTH: Dimensions = (0, 1, 0, 0)
+TIME: Dimensions = (0, 0, 1, 0)
+VELOCITY: Dimensions = (0, 1, -1, 0)
+ACCELERATION: Dimensions = (0, 1, -2, 0)
+FORCE: Dimensions = (1, 1, -2, 0)
+ENERGY: Dimensions = (1, 2, -2, 0)
+MONEY: Dimensions = (0, 0, 0, 1)
+PRICE: Dimensions = (-1, -2, 2, 1)
+JOULES_PER_KWH = 3_600_000
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1"
+DIMENSION_AXES = ("mass", "length", "time", "currency")
+NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
 
 class ModelError(ValueError):
@@ -20,7 +30,11 @@ class NumericalError(ModelError):
 
 @dataclass(frozen=True)
 class Unit:
-    """A pinned ratio unit and its scale to kWh/USD base units."""
+    """A ratio unit in the kWh, metre, second, USD numerical basis.
+
+    Mass is measured internally in 3,600,000 kg so that energy remains in kWh.
+    This preserves all legacy energy/currency scales while closing SI algebra.
+    """
 
     dimensions: Dimensions
     scale: float
@@ -33,6 +47,20 @@ UNITS = {
     "Wh": Unit(ENERGY, 0.001),
     "USD": Unit(MONEY, 1.0),
     "USD/kWh": Unit(PRICE, 1.0),
+    "kg": Unit(MASS, 1 / JOULES_PER_KWH),
+    "g": Unit(MASS, 0.001 / JOULES_PER_KWH),
+    "m": Unit(LENGTH, 1.0),
+    "cm": Unit(LENGTH, 0.01),
+    "km": Unit(LENGTH, 1000.0),
+    "s": Unit(TIME, 1.0),
+    "min": Unit(TIME, 60.0),
+    "h": Unit(TIME, 3600.0),
+    "m/s": Unit(VELOCITY, 1.0),
+    "km/h": Unit(VELOCITY, 1000 / 3600),
+    "m/s^2": Unit(ACCELERATION, 1.0),
+    "N": Unit(FORCE, 1 / JOULES_PER_KWH),
+    "J": Unit(ENERGY, 1 / JOULES_PER_KWH),
+    "kJ": Unit(ENERGY, 1000 / JOULES_PER_KWH),
 }
 
 # Meaning is independent of dimension: heat and electricity cannot bind implicitly.
@@ -48,6 +76,19 @@ MEANINGS = {
     "present_value": MONEY,
     "upfront_cost": MONEY,
     "net_present_value": MONEY,
+    "mass": MASS,
+    "position": LENGTH,
+    "displacement": LENGTH,
+    "vertical_displacement": LENGTH,
+    "duration": TIME,
+    "speed": VELOCITY,
+    "velocity": VELOCITY,
+    "acceleration": ACCELERATION,
+    "gravitational_field_strength": ACCELERATION,
+    "force": FORCE,
+    "translational_kinetic_energy": ENERGY,
+    "gravitational_potential_energy_change": ENERGY,
+    "mechanical_work": ENERGY,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

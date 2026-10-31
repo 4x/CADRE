@@ -5,7 +5,7 @@ title: Dimensional and Unit Type System
 summary: How should Connected Models represent physical/economic dimensions, unit systems, state-dependent conversions, and higher-order tensor/distribution shapes?
 status: active
 created: '2026-10-24'
-updated: '2026-10-28'
+updated: '2026-10-31'
 topics:
   - representation
   - typing
@@ -38,6 +38,14 @@ A foundational value proposition of Connected Models is eliminating error-prone 
 The system requires a formal dimensional type system that catches errors at graph compilation time while automatically synthesizing valid unit conversion adapters.
 
 ## Current partial answer
+
+### Bounded mechanics extension — 2026-10-31
+
+Runtime 0.3 uses four physical/currency dimension axes (mass, length, time, currency) and profile `cm-vocabulary/mechanics-1`. It retains all previous kWh/Wh/USD/tariff numerical scales. The numerical basis is kWh, metre, second and USD; its derived mass base is 3,600,000 kg, so a kg has scale 1/3,600,000 and a joule also has scale 1/3,600,000. Thus mass × velocity² and force × displacement close dimensionally and numerically without rewriting old expressions or conversion constants. Dimension vectors changed representation; this is explicitly versioned rather than interpreting historical two-axis manifests as the new profile.
+
+The finite built-in vocabulary adds mass, position/displacement, duration, speed/velocity, acceleration, force and qualified mechanical energies, with a small set of ratio units/lexical aliases. Exact quantity and per-port context checks still prevent automatic speed/velocity, frame, work/heat/electricity bindings. Dimensionful powers require bounded literal integer exponents; general roots, affine temperatures and new physical dimensions remain unsupported. Vocabulary additions are code-reviewed, tested profile releases, not arbitrary query-time mutations or a universal ontology.
+
+Separately reviewed constant-acceleration records are projected through generic `connected_models.integration` into distinct `r1.runtime1` versions, preserving original research, full review, guards, expression, contexts and profile/digests. [[source-mechanics-independent-audit]] records scientific dispositions and integration evidence. Three legacy saved heating runs replay with unchanged outputs and unchanged original bytes. This demonstrates a bounded additive extension; it does not resolve the general type-system question.
 
 - **Dimensional Algebra**: A useful physical-unit subset uses powers of base dimensions (with a declared dimension system; some derived-unit systems need rational exponents). The earlier illustrative formula below adds currency as a project-level modeling convenience, **not a claim that all money has a fixed SI-like conversion or that dimensions determine semantic kinds**:
   $$[Q] = [L]^\alpha \cdot [M]^\beta \cdot [T]^\gamma \cdot [I]^\delta \cdot [\Theta]^\epsilon \cdot [N]^\zeta \cdot [J]^\eta \cdot [\text{Currency}]^\theta$$

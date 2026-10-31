@@ -40,11 +40,22 @@ def dimensions(node: ast.AST, names: Mapping[str, Dimensions]) -> Dimensions:
         if isinstance(node.op, (ast.Add, ast.Sub)) and left == right:
             return left
         if isinstance(node.op, ast.Mult):
-            return (left[0] + right[0], left[1] + right[1])
+            return tuple(a + b for a, b in zip(left, right, strict=True))
         if isinstance(node.op, ast.Div):
-            return (left[0] - right[0], left[1] - right[1])
+            return tuple(a - b for a, b in zip(left, right, strict=True))
         if isinstance(node.op, ast.Pow) and left == right == DIMENSIONLESS:
             return DIMENSIONLESS
+        if isinstance(node.op, ast.Pow) and right == DIMENSIONLESS:
+            exponent_node = node.right
+            sign = 1
+            if isinstance(exponent_node, ast.UnaryOp) and isinstance(exponent_node.op, (ast.USub, ast.UAdd)):
+                sign = -1 if isinstance(exponent_node.op, ast.USub) else 1
+                exponent_node = exponent_node.operand
+            if isinstance(exponent_node, ast.Constant):
+                exponent = finite(exponent_node.value, "Dimensional exponent") * sign
+                if exponent.is_integer() and abs(exponent) <= MAX_ABS_EXPONENT:
+                    return tuple(int(exponent) * power for power in left)
+            raise ModelError("Dimensional powers require a bounded literal integer exponent.")
         raise ModelError("Expression has incompatible dimensions or an unsupported operator.")
     raise ModelError("Only declared names, numbers and scalar arithmetic are executable.")
 

@@ -14,7 +14,8 @@ from typing import Any
 from uuid import uuid4
 
 from . import __version__
-from .contracts import Composition, MEANINGS, Model, ModelError, Node, Port, Reference, UNITS, Value, finite
+from .contracts import (Composition, DIMENSION_AXES, MEANINGS, NUMERICAL_BASIS, Model, ModelError,
+                        Node, Port, Reference, UNITS, VOCABULARY_PROFILE, Value, finite)
 from .expressions import check_guard, dimensions, evaluate, guard_dimensions, parse
 from .serialization import model_digest
 from .solving import SolveError, node_ports, solve
@@ -118,9 +119,11 @@ def execute(composition: Composition, catalog: dict[str, Model],
         "composition": asdict(composition), "models": definitions,
         "model_snapshot_sha256": hashlib.sha256(snapshot.encode()).hexdigest(),
         "admissions": admissions or {},
-        "vocabulary": {"units": {name: asdict(unit) for name, unit in UNITS.items()}, "meanings": MEANINGS},
+        "vocabulary": {"profile": VOCABULARY_PROFILE, "dimension_axes": DIMENSION_AXES,
+                       "numerical_basis": NUMERICAL_BASIS,
+                       "units": {name: asdict(unit) for name, unit in UNITS.items()}, "meanings": MEANINGS},
         "status": "rejected", "steps": [], "outputs": {},
-        "limitations": ["Fixture execution." if composition.purpose == "fixture" else "Conditional scenario; no empirical household validation.",
+        "limitations": ["Fixture execution." if composition.purpose == "fixture" else "Conditional scenario; no empirical validation of the supplied case.",
                         "Input uncertainty is not propagated; scenario assumptions are conditional."],
     }
     try:

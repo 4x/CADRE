@@ -12,6 +12,7 @@ from .inference import BudgetLedger, InferenceSettings, smoke_test
 from .runtime import execute, save_run
 from .registry import Registry
 from .reports import read_run, write_report
+from .revisions import revise_run
 from .workflows import REGISTRY_PATH, answer, curate, review_bundle, seed_candidates
 
 
@@ -43,6 +44,12 @@ def main() -> int:
     inspect.add_argument("run_id")
     report = commands.add_parser("report", help="Export saved runs to a readable standalone HTML report")
     report.add_argument("run_ids", nargs="+")
+    revise = commands.add_parser("revise", help="Revise a saved run's inputs or model revisions and rerun; preserves the original")
+    revise.add_argument("run_id")
+    revise.add_argument("--set", dest="sets", action="append", default=[],
+                        help="Revise a direct input: node.input=amount in the model's declared unit")
+    revise.add_argument("--model", dest="models", action="append", default=[],
+                        help="Substitute a node model: node=model@version")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     try:
@@ -59,7 +66,7 @@ def main() -> int:
             result = ledger.summary() if args.command == "usage" else smoke_test(settings, ledger)
             print(json.dumps(result, indent=2))
             return 0
-        if args.command in {"seed-candidates", "curate", "candidate", "review", "registry-list", "answer", "review-bundle"}:
+        if args.command in {"seed-candidates", "curate", "candidate", "review", "registry-list", "answer", "review-bundle", "revise"}:
             registry = Registry(REGISTRY_PATH)
             if args.command == "seed-candidates":
                 print(json.dumps({"candidate_ids": seed_candidates(registry), "status": "awaiting-owner-review"}, indent=2))
@@ -75,6 +82,10 @@ def main() -> int:
                 print(json.dumps(admissions, indent=2))
             elif args.command == "review-bundle":
                 print(f"Review report: {review_bundle(registry)}")
+            elif args.command == "revise":
+                record = revise_run(args.run_id, args.sets, args.models, registry)
+                print(json.dumps({key: record.get(key) for key in ("run_id", "status", "revised_from", "revision", "outputs", "diff", "error", "saved_path")}, indent=2))
+                return 0 if record["status"] == "completed" else 1
             else:
                 record = answer(registry, args.question)
                 print(json.dumps({key: record.get(key) for key in ("run_id", "status", "outputs", "clarifications", "solve_diagnostic", "error", "saved_path")}, indent=2))

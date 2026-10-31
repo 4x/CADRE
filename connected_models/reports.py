@@ -37,6 +37,92 @@ def source_link(source: str) -> str:
     return label(source)
 
 
+def value_bindings(run: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]]:
+    """Index direct value bindings by node and input; upstream references are excluded."""
+    bindings: dict[tuple[str, str], dict[str, Any]] = {}
+    for node in run.get("composition", {}).get("nodes", []) or []:
+        if not isinstance(node, dict):
+            continue
+        for name, binding in (node.get("bindings", {}) or {}).items():
+            if isinstance(binding, dict) and "amount" in binding:
+                bindings[(node.get("id", "?"), name)] = binding
+    return bindings
+
+
+def diff_runs(old: dict[str, Any], new: dict[str, Any]) -> dict[str, Any]:
+    """Compare status, outputs, value bindings and node models between two saved runs."""
+    old_outputs = old.get("outputs", {}) or {}
+    new_outputs = new.get("outputs", {}) or {}
+    outputs: dict[str, Any] = {}
+    for name in sorted(set(old_outputs) | set(new_outputs)):
+        before = old_outputs.get(name)
+        after = new_outputs.get(name)
+        delta = None
+        if (isinstance(before, dict) and isinstance(after, dict)
+                and before.get("port", {}).get("unit") == after.get("port", {}).get("unit")
+                and isinstance(before.get("amount"), (int, float)) and isinstance(after.get("amount"), (int, float))):
+            delta = after["amount"] - before["amount"]
+        outputs[name] = {"old": before, "new": after, "delta": delta}
+    old_bindings, new_bindings = value_bindings(old), value_bindings(new)
+    inputs = []
+    for key in sorted(set(old_bindings) | set(new_bindings)):
+        before, after = old_bindings.get(key), new_bindings.get(key)
+        if before == after:
+            continue
+        node_id, name = key
+        inputs.append({"node": node_id, "input": name,
+                       "old": {"amount": before.get("amount"), "unit": before.get("port", {}).get("unit")} if before else None,
+                       "new": {"amount": after.get("amount"), "unit": after.get("port", {}).get("unit")} if after else None})
+    old_models = {node.get("id"): node.get("model") for node in old.get("composition", {}).get("nodes", []) or [] if isinstance(node, dict)}
+    new_models = {node.get("id"): node.get("model") for node in new.get("composition", {}).get("nodes", []) or [] if isinstance(node, dict)}
+    models = [{"node": node_id, "old": old_models.get(node_id), "new": new_models.get(node_id)}
+              for node_id in sorted(set(old_models) | set(new_models)) if old_models.get(node_id) != new_models.get(node_id)]
+    return {"base_run": old.get("run_id"), "new_run": new.get("run_id"),
+            "status": {"old": old.get("status"), "new": new.get("status")},
+            "outputs": outputs, "inputs": inputs, "models": models}
+
+
+def comparison_section(runs: list[dict[str, Any]]) -> str:
+    """Render what changed in each listed run relative to the first listed run."""
+    blocks = []
+    for run in runs[1:]:
+        diff = diff_runs(runs[0], run)
+        status = diff["status"]
+        rows = []
+        for name, change in diff["outputs"].items():
+            before = amount(change["old"]) if change["old"] else "—"
+            after = amount(change["new"]) if change["new"] else "—"
+            delta = f'{change["delta"]:+,.2f}' if change["delta"] is not None else "—"
+            rows.append(f"<tr><td>{label(name)}</td><td>{before}</td><td>{after}</td><td>{label(delta)}</td></tr>")
+        output_table = ("<table><thead><tr><th>Output</th><th>Before</th><th>After</th><th>Change</th></tr></thead>"
+                        f"<tbody>{''.join(rows)}</tbody></table>") if rows else "<p>No outputs in either run.</p>"
+        def recorded(entry: dict[str, Any] | None) -> str:
+            """Format a recorded input amount and unit without recalculating it."""
+            if not entry:
+                return "—"
+            return f"{label(entry.get('amount'))} {label(entry.get('unit'))}"
+
+        input_rows = "".join(
+            f"<tr><td>{label(change['node'])}.{label(change['input'])}</td>"
+            f"<td>{recorded(change['old'])}</td>"
+            f"<td>{recorded(change['new'])}</td></tr>" for change in diff["inputs"])
+        input_table = ("<h4>Changed inputs</h4><table><thead><tr><th>Binding</th><th>Before</th><th>After</th></tr></thead>"
+                       f"<tbody>{input_rows}</tbody></table>") if input_rows else ""
+        model_rows = "".join(
+            f"<tr><td>{label(change['node'])}</td><td>{label(change['old'])}</td><td>{label(change['new'])}</td></tr>"
+            for change in diff["models"])
+        model_table = ("<h4>Changed models</h4><table><thead><tr><th>Node</th><th>Before</th><th>After</th></tr></thead>"
+                       f"<tbody>{model_rows}</tbody></table>") if model_rows else ""
+        blocks.append(
+            f"<h3>{label(run.get('run_id', '?'))} versus {label(runs[0].get('run_id', '?'))}</h3>"
+            f"<p class=\"muted\">Status: {label(status['old'])} → {label(status['new'])}."
+            + (f" Revised from {label(run['revised_from'])}." if run.get("revised_from") else "")
+            + f"</p>{output_table}{input_table}{model_table}")
+    return (f"<section><div class=\"eyebrow\">Comparison · {len(runs)} runs</div><h2>What changed</h2>"
+            f"<p class=\"muted\">Each run below is compared with the first listed run. Amounts use executed units; inputs show raw recorded values.</p>"
+            f"{''.join(blocks)}</section>")
+
+
 def run_section(run: dict[str, Any]) -> str:
     """Show requested results, actual dependencies, model evidence and input origins."""
     outputs = "".join(f'<div class="metric"><span>{label(name)}</span><strong>{amount(value)}</strong>'
@@ -80,9 +166,11 @@ def run_section(run: dict[str, Any]) -> str:
                         for fact in run.get("query_inputs", {}).get("facts", []))
     input_section = ('<h3>Inputs read from your question</h3><table><thead><tr><th>Input</th><th>Value</th><th>Type</th><th>Exact source text</th></tr></thead>'
                      f'<tbody>{fact_rows}</tbody></table>') if fact_rows else ""
+    revised = (f'<p class="muted">Revised from {label(run["revised_from"])}; the original run is preserved.</p>'
+               if run.get("revised_from") else "")
     return (f'<section><div class="eyebrow">{label(run.get("status", "unknown"))} · {label(run["run_id"])}</div>'
             f'<h2>{label(run.get("question", run.get("composition", {}).get("id", "Saved run")))}</h2>'
-            f'<p class="muted">{label(run.get("created", ""))}</p>{error}{clarification_section}<div class="metrics">{outputs}</div>{input_section}'
+            f'<p class="muted">{label(run.get("created", ""))}</p>{revised}{error}{clarification_section}<div class="metrics">{outputs}</div>{input_section}'
             f'<h3>What this answer assumes</h3><ul>{limits}</ul>'
             f'<h3>Follow the calculation</h3><p class="muted">Expand a step to inspect its inputs, model, sources and review.</p>{"".join(cards)}'
             f'<details><summary>Full saved evidence</summary><pre>{label(json.dumps(run, indent=2))}</pre></details></section>')
@@ -93,6 +181,7 @@ def write_report(run_ids: list[str], directory: Path = Path(".runs")) -> Path:
     if not 0 < len(run_ids) <= 8:
         raise ModelError("Choose between one and eight saved runs for a report.")
     runs = [read_run(identifier, directory) for identifier in run_ids]
+    comparison = comparison_section(runs) if len(runs) > 1 else ""
     style = """
     :root { color-scheme: light; font-family: Segoe UI,system-ui,sans-serif; color:#152c37; background:#edf2f3 }
     * { box-sizing:border-box } body { margin:0 } header { padding:36px max(5vw,20px); background:#143744; color:#fff }
@@ -113,7 +202,7 @@ def write_report(run_ids: list[str], directory: Path = Path(".runs")) -> Path:
             '<title>Connected Models — run evidence</title>'
             f'<style>{style}</style><header><div class="eyebrow">Connected Models / Prototype</div><h1>Inspect the answer</h1>'
             '<p>Inspect the inputs and assumptions recorded with each question, then expand the calculations to see what each answer relies on. No inference or calculation runs when opening this report.</p></header>'
-            f'<main>{"".join(run_section(run) for run in runs)}</main></html>')
+            f'<main>{comparison}{"".join(run_section(run) for run in runs)}</main></html>')
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / f"report-{uuid4()}.html"
     with path.open("x", encoding="utf-8") as handle:

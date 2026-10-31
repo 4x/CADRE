@@ -2,7 +2,7 @@
 
 Compose reusable quantitative models and inspect their inputs, assumptions, dependencies and results. The first runnable slice compares electric resistance heating with a heat pump, then connects operating savings to discounted investment value.
 
-Returning agents: start with the session handoff in [PROJECT_STATE.md](PROJECT_STATE.md), then the [active MVP plan](knowledge/notes/mvp-build-sequence-and-extension-triggers.md). M2-A/B are complete; revision controls and the broader acceptance exercise (M2-C/D) are next. Current worker release files are directly in `.runs/curation-kits-2026-10-31.4/`; build/test artifacts are archived separately. The full offline suite has 78 passing tests. Incoming ZIPs and the live registry/runs are local state; migration details are in the handoff.
+Returning agents: start with the session handoff in [PROJECT_STATE.md](PROJECT_STATE.md), then the [active MVP plan](knowledge/notes/mvp-build-sequence-and-extension-triggers.md). M2-A/B/C are complete; the broader acceptance exercise (M2-D) is next. Current worker release files are directly in `.runs/curation-kits-2026-10-31.4/`; build/test artifacts are archived separately. The full offline suite has 85 passing tests. Incoming ZIPs and the live registry/runs are local state; migration details are in the handoff.
 
 ## Run the current prototype
 
@@ -123,6 +123,18 @@ The first query-time step extracts a domain-independent list of typed facts (num
 If the question omits required inputs, the result is `needs-input` with specific clarification questions and no calculated answer. Asking only for annual operating costs does not require an investment amount, horizon or discount rate. Unsupported model coverage remains `blocked`, with parsed inputs retained. This currently uses a self-contained follow-up question rather than persistent conversational state. Generated estimates remain disabled until a scoped consent flow exists; source curation never runs inline.
 
 The parser is not tied to heating names: it can retain a number of apples, a birth date, or a person's name. Executing date/text operations or a new domain still requires suitable stored models and runtime support; the current engine is scalar numeric and the catalog remains small. Executable numbers currently require explicit digit literals (commas and decimal/exponent forms are supported). Percentages remain in percent until the unit layer converts them. Exact quotes and numeric checks do not prove perfect semantic interpretation; the report exposes the selected fact-to-port assignments for inspection.
+
+## Revise a saved run and compare results
+
+Any saved run with an executable graph can be revised without inference: change direct inputs, substitute a model revision on a node, or both. The original run file is never modified; the revision is saved as a new run linked with `revised_from`. Scenario (`answer`) runs re-execute against the registry's current eligible snapshot, so `--model` selects among reviewed revisions. Amounts use the model's declared port unit, shown by `inspect`.
+
+```powershell
+uv --cache-dir .uv-cache run --no-env-file -m connected_models revise RUN_ID --set upgrade-energy.performance=2 --set investment-npv.investment=12000
+uv --cache-dir .uv-cache run --no-env-file -m connected_models revise RUN_ID --model upgrade-energy=heat-to-electricity@2
+uv --cache-dir .uv-cache run --no-env-file -m connected_models report RUN_ID REVISED_RUN_ID
+```
+
+Only direct value inputs can be revised; calculated upstream bindings are rejected with an explanation, as are unknown nodes, undeclared inputs and unavailable model revisions (the error lists what is available). A revision that violates model guards or interface checks is saved as a rejected run with diagnostics, preserving the failure evidence. Listing two or more runs in `report` adds a "What changed" comparison of outputs with deltas, changed inputs and changed models, each run compared against the first listed.
 
 ## Solve for another quantity in an existing relationship
 

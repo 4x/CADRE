@@ -24,7 +24,32 @@ relations:
 
 # Owner/operator guide: offline model curation
 
-Kit version `2026-10-31.3`; return schema `cm-curation-batch/1`; earlier .1/.2 data returns remain readable. This document is for the owner/integrator and is excluded from worker ZIPs. The complete curator protocol is [[note-offline-curator-instructions]], exported directly as each kit's `AGENTS.md`. It contains the actual instructions, not a redirect to this guide.
+Kit version `2026-10-31.4`; return schema `cm-curation-batch/1`; earlier .1/.2/.3 data returns remain readable. This document is for the owner/integrator and is excluded from worker ZIPs. The complete curator protocol is [[note-offline-curator-instructions]], exported directly as each kit's `AGENTS.md`. It contains the actual instructions, not a redirect to this guide.
+
+## Sustained sessions and fleet dispatch
+
+The owner now requests at least an hour of useful work per session. The previous first-batch stop rule caused short 3–5 minute turns even though 3–5 models was intended as a review checkpoint. Instruction release .4 makes session completion independent of batch completion: default minimum 60 minutes, checkpoints about every 15 minutes or four defensible records, successive batches at most 12 records each, immediate continuation without owner acknowledgement, and a final consolidated report. Quality and scope remain unchanged. Sources/records that block one candidate go to a backlog while the worker advances to another in-scope candidate. There is no model-count quota for an hour.
+
+For existing workers, replace only the extracted worker's `AGENTS.md` with the generated .4 instructions and add the current inventory under `data/curation/catalog-inventory.json`. Preserve its prior returns, toolkit and actual version metadata. Do not replace this repository's root AGENTS.md. Then send:
+
+Ready-made files are under `.runs/curation-kits-2026-10-31.4/ready/`. For existing workers, extract `existing-worker-update.zip` into their isolated kit workspace to put those two files in place; it contains no assignment or toolkit replacement. For new workers choose the corresponding `curation-DOMAIN.zip` from that folder, or `curation-generic.zip` for an inline task. Keep this owner guide out of the worker workspace.
+
+> Read the updated @AGENTS.md and @data/curation/catalog-inventory.json. Continue your current assignment for a sustained session of at least 60 minutes of useful work. Save, validate and pack checkpoints, then continue automatically; do not stop after a batch or await my acknowledgement. Preserve earlier returns, record SESSION.json, and provide one consolidated report at the end. Follow the interruption/resume rules if the host forces you to stop early.
+
+For new workers, hand over the updated domain ZIP and say `Read @AGENTS.md and complete @assignment.json`. Each assignment carries the session defaults. A generic kit still takes the inline assignment JSON; the protocol supplies defaults when older JSON lacks `session`. Explicit smaller correction tasks override this default.
+
+The worker keeps `SESSION.json` and its next research queue outside the data-only ZIPs. On a forced early stop use `Resume the unfinished session from SESSION.json; continue useful work to its time target and then consolidate`. A prompt cannot override a provider's turn/tool limit. If a host repeatedly terminates it, use that host's persistent-task mechanism or an operator-controlled continuation loop that inspects session status and remaining time; do not assume a background worker is running because a file says running. No scheduler or cross-PC orchestration was installed by this change.
+
+Give each concurrent curator a distinct source-family/subtopic lane. Domain boundaries should constrain scientific scope and conventions, while priorities remain seeds. For example, thermal-material/steady heat-transfer relationships and thermodynamic performance/phase-change relationships can be separate building-energy lanes. Do not issue the same broad domain and seed list to multiple workers without a partition. Keep canonical model identities independent of worker names; a worker label belongs in batch IDs and provenance. Changing prefixes would hide, rather than resolve, duplicate science. Additional agents can serve the distinct reviewer role using the auditor kit; curation throughput alone is not reviewed catalog growth.
+
+Refresh a shared scientific inventory at dispatch and between sessions. It contains equations, quantity definitions, source links and immutable record hashes, not other workers' tasks. Frozen snapshots reduce duplicates but cannot prevent simultaneous discovery; record their date/coverage. Before consolidation, reconcile conflicting IDs and review likely equivalent equations under different IDs. Do not silently rename, overwrite or bump someone else's revision to bypass a conflict. Assign a deliberate reconciliation/correction task and preserve originals.
+
+```powershell
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation inventory from-offline-curation-workers fleet-inventory.json
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit building-energy-worker.zip --domain building-energy --inventory fleet-inventory.json
+```
+
+Inventory scans public top-level return ZIPs only, validates each independently, reports malformed submissions without losing the rest, and detects changed content under the same model or batch identity. It performs no imports or scientific audit. Identical retransfers are distinguishable from conflicting revisions. Its distinct-ID count is not a count of scientifically distinct models. [[source-curation-fleet-intake-2026-10-31]] records the first fleet inspection and collision.
 
 ## Corrected scope and packaging
 
@@ -70,9 +95,9 @@ Run from the central repository. Each destination must be new; no existing ZIP i
 
 ```powershell
 # Generic kit for the owner's inline JSON assignment prompt:
-uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-generic-2026-10-31.3.zip
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-generic-2026-10-31.4.zip
 # A worker-specific kit containing only one assignment:
-uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-building-energy-2026-10-31.3.zip --domain building-energy
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-building-energy-2026-10-31.4.zip --domain building-energy
 ```
 
 Copy/extract each kit into a new worker folder, such as `C:\Curation\worker-a`. Provide the short prompt and optionally an agent label/batch ID. There is no API key to distribute; these tools make no inference requests. External agent-service spending is outside the central application's ledger. Do not copy the inference ledger or run independent paid application-curation loops on several PCs under the assumption that their local limits add up to a global budget.
@@ -85,10 +110,10 @@ The toolkit is a frozen task snapshot. Standalone workers do not need the centra
 
 Keep its return ZIP and validation summary. Review an early batch before scaling the same worker's output, so systematic mistakes are corrected once. Publication/import is independent of assigning more research: you can queue useful new work while central review continues. The worker does not need a fresh clone or a repeated setup ceremony; reuse its isolated kit workspace with a new batch directory. If the shared protocol/validator changed, distribute the updated kit once in a fresh folder and carry over only public prior return artifacts for duplicate checking.
 
-For another batch in the same domain:
+For another sustained session in the same domain (no message is needed between checkpoints of a running session):
 
 ```text
-Thank you. Continue with the next batch in the same domain, using your prioritized backlog. Follow AGENTS.md, preserve previous returns and avoid resubmitting models already covered. Return the next validated batch.
+Continue the current domain from SESSION.json and your prioritized backlog for another session of at least 60 minutes. Follow AGENTS.md, preserve prior returns, avoid duplicates, and save multiple validated batches without waiting for my acknowledgement. Return one consolidated session report.
 ```
 
 For a different domain, the owner's short form is sufficient:

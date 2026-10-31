@@ -9,7 +9,7 @@ import zipfile
 
 from connected_models.contracts import ModelError
 from connected_models.curation import (ASSETS, build_kit, decode, digest, encoded, import_bundle,
-                                      init_batch, load_bundle, pack_bundle, validate_bundle)
+                                      init_batch, inventory_returns, load_bundle, pack_bundle, validate_bundle)
 from connected_models.curation_schema import DOMAINS, KIT_VERSION, SCHEMA
 from connected_models.registry import Registry
 from connected_models.workflows import review_bundle
@@ -44,6 +44,8 @@ class CurationTests(unittest.TestCase):
         assignments = decode((ASSETS / "assignments.json").read_bytes())
         self.assertEqual({entry["domain"] for entry in assignments}, set(DOMAINS))
         self.assertTrue(all(len(entry["priorities"]) >= 3 for entry in assignments))
+        self.assertTrue(all(entry["session"]["minimum_work_minutes"] >= 60 for entry in assignments))
+        self.assertTrue(all("Start with" not in entry["mission"] for entry in assignments))
 
     def test_example_cannot_be_imported(self) -> None:
         """A valid teaching artifact does not become a candidate submission."""
@@ -230,6 +232,48 @@ class CurationTests(unittest.TestCase):
                     self.assertNotIn("connection_targets", task)
                     self.assertNotIn("data/curation/assignments.json", archive.namelist())
                     self.assertFalse(any(name.startswith("assignments/") for name in archive.namelist()))
+
+    def test_inventory_reports_identity_conflicts_before_import(self) -> None:
+        """Individually valid returns may still collide under one immutable revision."""
+        with scratch_directory() as folder:
+            first = self.research()
+            pack_bundle(self.write(folder, first), Path(folder) / "first.zip")
+            second = deepcopy(first)
+            second["batch_id"] = "synthetic-next-batch"
+            second["models"][0]["summary"] = "Different evidence under the same revision."
+            pack_bundle(self.write(folder, second, "second.json"), Path(folder) / "second.zip")
+            (Path(folder) / "broken.zip").write_bytes(b"Not a ZIP.")
+            result = inventory_returns(Path(folder))
+            self.assertEqual(result["summary"]["valid_files"], 2)
+            self.assertEqual(result["summary"]["files"], 3)
+            self.assertEqual(len(result["identity_conflicts"]), 1)
+            self.assertEqual(len(result["records"]), 2)
+            self.assertEqual(result["summary"]["unique_identities"], 1)
+            self.assertTrue(any("error" in item for item in result["files"]))
+            self.assertTrue(all(item["scientific_review"] == "not-inferred" for item in result["records"]))
+
+    def test_identical_returns_and_inventory_kit_remain_data_only(self) -> None:
+        """Duplicate transfer is distinguishable from conflicting evidence, and snapshots ship safely."""
+        with scratch_directory() as folder:
+            source = self.write(folder, self.research())
+            for name in ("first.zip", "second.zip"):
+                pack_bundle(source, Path(folder) / name)
+            snapshot = inventory_returns(Path(folder))
+            self.assertEqual(snapshot["identity_conflicts"], [])
+            self.assertEqual(snapshot["batch_conflicts"], [])
+            inventory = Path(folder) / "inventory.json"
+            inventory.write_bytes(encoded(snapshot))
+            kit = Path(folder) / "kit.zip"
+            build_kit(kit, "building-energy", inventory)
+            with zipfile.ZipFile(kit) as archive:
+                exported = decode(archive.read("data/curation/catalog-inventory.json"))
+                self.assertEqual(exported["records"], snapshot["records"])
+                self.assertNotIn("files", exported)
+                self.assertNotIn("data/curation/assignments.json", archive.namelist())
+                task = decode(archive.read("assignment.json"))
+                self.assertGreaterEqual(task["session"]["minimum_work_minutes"], 60)
+                self.assertEqual(task["session"]["on_batch_complete"], "save-validate-pack-and-continue")
+                self.assertIn("## Autonomous session contract", archive.read("AGENTS.md").decode())
 
     def test_atomic_batch_needs_no_chain_or_sample_queries(self) -> None:
         """A qualified standalone relationship can be returned without a proposed use."""

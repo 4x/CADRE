@@ -50,9 +50,9 @@ For multiple offline research agents, use the [owner/operator guide](knowledge/n
 
 ```powershell
 # Build a portable snapshot; the output must not already exist.
-uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-generic-2026-10-31.3.zip
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-generic-2026-10-31.4.zip
 # Or include only the chosen worker's assignment:
-uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-building-energy-2026-10-31.3.zip --domain building-energy
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-building-energy-2026-10-31.4.zip --domain building-energy
 # Check and stage a returned batch on the integration PC; this does not publish.
 uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation validate incoming/building-energy-a01-b01-return.zip
 uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation import incoming/building-energy-a01-b01-return.zip
@@ -60,7 +60,14 @@ uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation import i
 
 The kit pins its own version and JSON schema. It carries no credentials, inference adapter/configuration, local databases or third-party dependencies. The validator checks scalar arithmetic and optional current-runtime projections; scientific source review and physical-dimensional validation of new-domain research remain explicit integration work. See the guide for source restrictions, version conflicts, repeat imports, review commands and the optional Git workflow for agents assigned code integration.
 
-The original `.1` worker returns remain compatible with the revised tools. The [first building-energy return review](knowledge/sources/building-energy-first-curation-review.md) distinguishes passing numerical checks from outstanding scientific/interface/provenance corrections; the submitted archive was preserved and was not admitted.
+Earlier `.1`–`.3` worker returns remain compatible with the revised tools. Release `.4` authorizes sustained sessions of at least 60 minutes, multiple saved batches, `SESSION.json` checkpoints and automatic continuation between batches. The [operator guide](knowledge/notes/offline-curation-agent-kit.md#sustained-sessions-and-fleet-dispatch) contains the existing-worker update prompt, domain partitioning and interruption handling; actual host execution limits still apply. The [fleet intake](knowledge/sources/curation-fleet-intake-2026-10-31.md) reports eight new mechanically valid returns and one cross-worker identity conflict. Scientific review remains separate.
+
+Generate a dated catalog snapshot before dispatch to reduce duplicates and catch conflicting immutable IDs before import:
+
+```powershell
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation inventory from-offline-curation-workers fleet-inventory.json
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit building-energy-worker.zip --domain building-energy --inventory fleet-inventory.json
+```
 
 M2-A/B are complete. The [separate mechanics audit](knowledge/sources/mechanics-independent-audit.md) recommends two constant-acceleration records for bounded local execution; three require corrections. Runtime 0.3 adds a bounded mechanics vocabulary, dimensional integer powers and physical-unit aliases, preserving the legacy kWh/USD numerical scales. Two independently reviewed runtime projections are eligible locally. Seventy-six tests pass, including fresh-registry reproduction; three saved heating runs replay with unchanged results and original files. Full report, unchanged research data and integration receipt are in `data/curation/reviews/`. The [M2 plan](knowledge/notes/mvp-build-sequence-and-extension-triggers.md#m2-closeout-assessment--2026-10-31) retains revision controls and the broader acceptance exercise as M2-C/D.
 

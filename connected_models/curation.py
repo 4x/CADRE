@@ -257,7 +257,48 @@ def init_batch(domain: str, agent: str, batch_id: str, destination: Path) -> dic
     return {"path": str(destination), "note": "Template intentionally fails final validation until research is supplied."}
 
 
-def build_kit(destination: Path, domain: str | None = None) -> dict[str, Any]:
+def inventory_returns(directory: Path) -> dict[str, Any]:
+    """Inspect public return ZIPs without import; expose immutable-ID conflicts and reusable inventory."""
+    require(directory.is_dir() and not directory.is_symlink(), "Use an existing public returns directory.")
+    require(not any(part.lower().startswith(".env") for part in directory.resolve().parts), "Secret directories are not supported.")
+    files: list[dict[str, Any]] = []
+    records: list[dict[str, Any]] = []
+    identities: dict[str, list[dict[str, Any]]] = {}
+    batch_ids: dict[str, list[dict[str, str]]] = {}
+    for path in sorted(directory.glob("*.zip")):
+        try:
+            bundle = load_bundle(path)
+            validation = validate_bundle(bundle)
+            batch_hash = digest(encoded(bundle))
+            batch_ids.setdefault(bundle["batch_id"], []).append({"file": path.name, "sha256": batch_hash})
+            files.append({"file": path.name, "archive_sha256": digest(path.read_bytes()), "batch_id": bundle["batch_id"],
+                "kit_version": bundle["kit_version"], "curator": bundle["curator"], "validation": validation})
+            for item in bundle["models"]:
+                identity = f"{item['id']}@{item['revision']}"
+                entry = {"identity": identity, "file": path.name, "domain": bundle["domain"],
+                    "record_sha256": digest(encoded(item)), "title": item["title"],
+                    "expression": item["relationship"]["expression"], "variables": item["variables"],
+                    "source_urls": [source["url"] for source in item["sources"]],
+                    "integration_status": item["integration"]["status"], "scientific_review": "not-inferred"}
+                records.append(entry)
+                identities.setdefault(identity, []).append({"file": path.name, "sha256": entry["record_sha256"]})
+        except (ModelError, OSError, ValueError, zipfile.BadZipFile, RuntimeError) as exc:
+            files.append({"file": path.name, "error": f"{type(exc).__name__}: {exc}"})
+    conflicts = [{"identity": key, "occurrences": values} for key, values in identities.items()
+                 if len({item["sha256"] for item in values}) > 1]
+    batch_conflicts = [{"batch_id": key, "occurrences": values} for key, values in batch_ids.items()
+                       if len({item["sha256"] for item in values}) > 1]
+    return {"schema_version": "cm-curation-inventory/1", "created": date.today().isoformat(),
+        "status": "invalid-returns" if any("error" in item for item in files) else "identity-conflicts" if conflicts or batch_conflicts else "valid-mechanical-inventory",
+        "files": files, "records": records, "identity_conflicts": conflicts, "batch_conflicts": batch_conflicts,
+        "summary": {"files": len(files), "valid_files": sum("error" not in item for item in files),
+                    "records": len(records), "unique_identities": len(identities),
+                    "reference_checks": sum(check["arithmetic_checks"] for item in files if "validation" in item for check in item["validation"]["checks"]),
+                    "rejection_checks": sum(check["rejection_checks"] for item in files if "validation" in item for check in item["validation"]["checks"])},
+        "limits": "Mechanical intake only; identity conflicts block safe consolidation. Different IDs may still describe equivalent relationships. No scientific approval or global uniqueness is inferred."}
+
+
+def build_kit(destination: Path, domain: str | None = None, inventory: Path | None = None) -> dict[str, Any]:
     """Build curator instructions with at most one task and no operator guidance."""
     public_path(destination, {".zip"})
     require(domain is None or domain in DOMAINS, "Unknown curation assignment domain.")
@@ -274,6 +315,13 @@ def build_kit(destination: Path, domain: str | None = None) -> dict[str, Any]:
         "units": {name: {"dimensions": unit.dimensions, "scale": unit.scale} for name, unit in UNITS.items()},
         "known_model_ids": ["heat-to-electricity", "electricity-cost", "annual-saving", "uniform-present-value", "net-present-value"],
         "limits": "Bounded mechanics and energy/currency vocabulary. Contexts must match exactly. No automatic vocabulary extension. See guide for known source revisions."})
+    if inventory is not None:
+        snapshot = load_bundle(inventory)
+        require(isinstance(snapshot, dict) and snapshot.get("schema_version") == "cm-curation-inventory/1"
+                and isinstance(snapshot.get("records"), list), "Expected a curation inventory snapshot.")
+        contents["data/curation/catalog-inventory.json"] = encoded({
+            "schema_version": snapshot["schema_version"], "created": snapshot["created"],
+            "records": snapshot["records"], "identity_conflicts": snapshot["identity_conflicts"], "limits": snapshot["limits"]})
     if domain is not None:
         assignments = decode((ASSETS / "assignments.json").read_bytes())
         assignment = next(item for item in assignments if item["domain"] == domain)
@@ -301,6 +349,10 @@ def main() -> int:
     kit = commands.add_parser("kit")
     kit.add_argument("destination", type=Path)
     kit.add_argument("--domain", choices=DOMAINS, help="Include only this task; omit when providing the assignment in the prompt")
+    kit.add_argument("--inventory", type=Path, help="Include a read-only scientific catalog snapshot, never other workers' tasks")
+    inventory = commands.add_parser("inventory")
+    inventory.add_argument("directory", type=Path)
+    inventory.add_argument("destination", type=Path)
     init = commands.add_parser("init")
     init.add_argument("domain", choices=DOMAINS)
     init.add_argument("destination", type=Path)
@@ -316,8 +368,15 @@ def main() -> int:
             result = pack_bundle(args.source, args.destination)
         elif args.command == "init":
             result = init_batch(args.domain, args.agent, args.batch_id, args.destination)
+        elif args.command == "inventory":
+            result = inventory_returns(args.directory)
+            public_path(args.destination, {".json"})
+            with args.destination.open("xb") as stream:
+                stream.write(encoded(result))
+            result = {"path": str(args.destination), "status": result["status"], **result["summary"],
+                      "identity_conflicts": result["identity_conflicts"], "batch_conflicts": result["batch_conflicts"]}
         else:
-            result = build_kit(args.destination, args.domain)
+            result = build_kit(args.destination, args.domain, args.inventory)
         print(json.dumps(result, indent=2))
         return 0
     except (ModelError, OSError, ValueError, sqlite3.Error, zipfile.BadZipFile, RuntimeError) as exc:

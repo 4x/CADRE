@@ -5,7 +5,7 @@ title: Curation Evidence, Review, and Publication Authority
 summary: What evidence makes a model eligible for a stated use, who can publish or withdraw versions, and how are source fidelity, reproducibility, disagreement, licensing, and AI authorship tracked?
 status: active
 created: '2026-10-27'
-updated: '2026-10-29'
+updated: '2026-10-31'
 topics:
   - agents
   - epistemology
@@ -42,6 +42,14 @@ What evidence makes a candidate model eligible for a particular use, and who may
 - How are review decisions scoped and versioned so that a later source/model change cannot inherit approval silently? How are affected consumers notified without rewriting old runs?
 
 ## Current partial answer
+
+### Separate scientific auditor — user clarification, 2026-10-31
+
+For incoming worker batches the owner wants the development/integration agent to check packaging, schema, field completeness and deterministic contract checks. Scientific/source-content auditing should be assigned to or designed for a separate reviewer agent. [[source-classical-mechanics-first-intake]] applies that boundary: five records pass mechanical intake, actual retrieval provenance needs completion, and no scientific approval/import was performed. Historical prototype reviews and the earlier building-energy content review remain recorded evidence; they do not override this latest role direction.
+
+A minimal reviewer handoff is the unchanged batch/hash plus per-model ID/revision and source-access disclosures. Proposed reviewer output: reviewer identity, exact evidence retrieved, each criterion's checked/failed/not-checked status, findings/blockers, and recommendation (`recommend-admit`, `needs-revision`, or `blocked`). Criteria include source fidelity, mathematical/physical scope, dimensional semantics, independent reference provenance, guards/inverse branches and source-use provenance. This is an independently assigned review role, not a claim of independent empirical evidence. The review-report schema/tooling and actual auditor assignment remain to be implemented; no automatic publication follows a recommendation.
+
+The integrator owns vocabulary/runtime projection and compatibility tests after suitable source review. Existing local admission commands preserve attributed decisions. New-domain research remains ineligible until both review and technical requirements are satisfied. Only intake validation should be called completed for an unreviewed returned ZIP.
 
 ### Local prototype review boundary — 2026-10-29
 

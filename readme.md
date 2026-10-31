@@ -62,6 +62,8 @@ The kit pins its own version and JSON schema. It carries no credentials, inferen
 
 The original `.1` worker returns remain compatible with the revised tools. The [first building-energy return review](knowledge/sources/building-energy-first-curation-review.md) distinguishes passing numerical checks from outstanding scientific/interface/provenance corrections; the submitted archive was preserved and was not admitted.
 
+The [first mechanics intake](knowledge/sources/classical-mechanics-first-intake.md) checks packaging, schema and declared numerical cases only. All five records pass those checks and require runtime extensions; missing retrieval provenance and scientific/source auditing remain separate review work. The [M2 closeout plan](knowledge/notes/mvp-build-sequence-and-extension-triggers.md#m2-closeout-assessment--2026-10-31) tracks the reviewer handoff, a small vocabulary extension, revision controls and acceptance exercise. The working heating loop does not yet establish completion of these broader MVP gates.
+
 The application credential variable is **META_API_KEY**. This overrides the variable name shown in Meta's generic documentation. Agents do not access `.env` unless the owner explicitly permits a runtime-loading exception. The following live commands are intended for an owner launch, or for an explicitly authorized runtime launch by the agent.
 
 ```powershell

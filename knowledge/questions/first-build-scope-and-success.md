@@ -5,7 +5,7 @@ title: First-Build Scope and Success Contract
 summary: Provisional first-build contract with separate offline agent curation into a model repository and query-time composition/execution; inline curation forbidden or last-resort only, with exact policy open.
 status: active
 created: '2026-10-27'
-updated: '2026-10-29'
+updated: '2026-10-31'
 topics:
   - strategy
   - product
@@ -42,9 +42,17 @@ What exactly should the first runnable Connected Models build let its first oper
 
 ## Current partial answer
 
+### Current acceptance assessment — 2026-10-31
+
+The bounded heating loop now has live offline source extraction, attributed prototype review, durable registry reuse, self-contained queries, inverse execution and saved HTML inspection. Technical access is verified and the credential name is `META_API_KEY`; the access statements in the historical checkpoint below no longer describe a blocker. The user has already exercised the system and prompted query/input and discounted-payback repairs.
+
+Full acceptance of the broader proposed contract below remains open. [[note-mvp-build-sequence-and-extension-triggers]] owns the current M2-A–D closeout work: separate scientific auditor handoff, additive vocabulary/runtime integration for a small reviewed returned subset, practical revision/substitution controls, and recorded acceptance evidence. The owner's latest direction assigns incoming scientific/source audits to another reviewer agent, while development performs mechanical intake and integration. The first mechanics batch passes only the latter checks ([[source-classical-mechanics-first-intake]]).
+
+For speed, the plan recommends keeping explicit facts/model-derived values and `needs-input`, deferring generated parameter estimates and elaborate graph authoring. That is a proposed scope reduction from the older defaults, not a completed fallback demonstration. The remaining defaults below retain their provisional status; catalog size and all-domain support are not acceptance requirements.
+
 ### Delegated selection and resources — 2026-10-29
 
-The user delegated first-workflow selection and authorized a $150 total inference ceiling, pointing to https://dev.meta.ai/docs/coding-agents and stating they will supply the key in their own `.env`. The agent selected a conditional electric-resistance-to-heat-pump upgrade comparison, connecting delivered heat, electricity, operating cost and discounted savings. The active delivery plan records rationale, exact synthetic fixtures, reference evidence and current implementation. Workflow/delegation and the spending-ceiling questions below are therefore answered; technical access remains unverified until a real bounded exchange succeeds. The application consumes MODEL_API_KEY from its process environment; agents do not load or inspect `.env`. No live call has been made.
+Historical checkpoint before live integration: the user delegated first-workflow selection and authorized a $150 total inference ceiling, pointing to https://dev.meta.ai/docs/coding-agents and stating they would supply the key. The agent selected a conditional electric-resistance-to-heat-pump upgrade comparison, connecting delivered heat, electricity, operating cost and discounted savings. Workflow/delegation and the spending ceiling were settled; technical access was then still unverified. The later live evidence and credential correction supersede those access blockers, as recorded above and in the active delivery plan.
 
 The universal vision, model-first assumption policy, and desired specialized curation agents are established directions. Neither hydropower nor a technology stack is selected. The end-state examples are sufficient for now; this question asks for a build boundary, not more examples. Long-term commercial domain choice belongs to [[question-initial-domain-beachhead]].
 

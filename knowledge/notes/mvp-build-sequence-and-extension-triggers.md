@@ -36,6 +36,10 @@ relations:
 
 ## Scope and status
 
+### Parallel curation track — 2026-10-31
+
+At the owner's request, [[note-offline-curation-agent-kit]] now prepares five primary domain agents plus an optional sixth across multiple PCs. Milestones are: ship the self-contained kit → one-model checkpoints → 3–5 qualified records per domain → central duplicate/vocabulary/source review → demonstrate newly admitted executable coverage. The kit includes a versioned research schema, six scoped assignments, zero-inference checks, data-only return ZIPs and candidate-only import. No distributed SQLite merge or automatic publication is used. New physical units remain explicit extension work; source research can proceed before that runtime work. Fleet dispatch and returned source curation have not yet happened in this session. This parallel track must not displace the working M3 demo, release candidate or submission checks.
+
 ### M3 correction — self-contained queries, 2026-10-31
 
 **Subsequent M3 increment — bounded inverse views:** at the user's request, one existing canonical relationship can now be executed in different directions through a deterministic solver facility; separate source-model copies per rearrangement were not created. Real scalar linear/quadratic rational inversion is implemented with original-domain back-checks, explicit branch ambiguity and numerical/complexity limits. Finite integer equality/earliest-threshold search uses bounds already declared by model guards and never asks the user for the requested solution. Runtime 0.2 retains source model/review identity, solved-variable units, known-output target provenance and solver evidence. Curators still supply scientific relationships, constants/roles and valid domains. See [[concept-layered-model-representation]] and [[question-execution-runtime-for-heterogeneous-models]].

@@ -5,7 +5,7 @@ title: Specialized Model Curation Agents
 summary: Dedicated Meta/Muse agents curate a canonical model repository offline from papers, textbooks, and other sources; query-time agents consume it. On-the-fly curation is forbidden or last-resort only, with the exact policy open.
 status: active
 created: '2026-10-27'
-updated: '2026-10-28'
+updated: '2026-10-31'
 topics:
   - agents
   - epistemology
@@ -34,6 +34,12 @@ relations:
 # Specialized Model Curation Agents
 
 ## Current understanding
+
+### Implemented fleet handoff — 2026-10-31
+
+The owner has five or more standby agents across three PCs and requested exact domain assignments and a return process. [[note-offline-curation-agent-kit]] is the operational handoff: a versioned self-contained ZIP with six assignments, source/formalization instructions, a research schema, independent numerical/rejection checks, a teaching fixture and offline validator/packer/importer. Each agent uses an isolated copy; the central integrator imports data-only returns as unapproved candidates, preserving source evidence and explicit blockers. No fleet research or new scientific coverage is claimed merely by shipping the kit.
+
+The v1 research record can describe physical quantities beyond the current heating/finance runtime. Numerical replay alone does not certify physical dimensions, source fidelity or empirical applicability. Unsupported vocabulary/operators are retained as requires-extension candidates; unresolved interpretation is blocked. Exact current-runtime projections receive additional contract checks but still require attributed review. One canonical equation supports multiple derived solve views; curators record domain/branch caveats rather than publishing each rearrangement. Clones/worktrees are reserved for explicitly assigned code/vocabulary integration, not required for source research. General ontology, review policy and federation remain open.
 
 Connected Models must not assume a complete registry already exists. The current knowledge base is an early seed, far from a complete account of the platform or the world's quantitative models. A central capability is therefore **specialized Meta/Muse agents that build and maintain the model collection itself**.
 

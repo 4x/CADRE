@@ -38,6 +38,10 @@ class Registry:
         if len(serialized.encode()) > MAX_RECORD_BYTES:
             raise ModelError("Candidate exceeds the storage size limit.")
         diagnostics = []
+        blockers = payload.get("intake_blockers", [])
+        if not isinstance(blockers, list) or any(not isinstance(item, str) or not item.strip() for item in blockers):
+            raise ModelError("Intake blockers must be an array of nonempty strings.")
+        diagnostics.extend(blockers)
         try:
             model = model_from_dict(payload.get("model"))
             validate_model(model)

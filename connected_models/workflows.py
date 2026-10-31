@@ -251,7 +251,14 @@ def review_bundle(registry: Registry) -> Path:
     """Create a human-readable derivative of stored candidates without approving any."""
     lines = ["# Candidate review bundle", "", "No candidate is approved by creating this report.", ""]
     for candidate in registry.candidates():
-        model = candidate.get("model", {})
+        model = candidate.get("model") or {}
+        evidence = candidate.get("evidence")
+        if not model and isinstance(evidence, dict) and isinstance(evidence.get("record"), dict):
+            research = evidence["record"]
+            model = {"id": research.get("id"), "version": research.get("revision"),
+                     "expression": research.get("relationship", {}).get("expression"),
+                     "source": "Research-only curation record; see source evidence below",
+                     "assumptions": research.get("assumptions", [])}
         lines.extend([f"## {model.get('id', 'partial')} @ {model.get('version', 'unresolved')}", "",
             f"Candidate: {candidate['id']}", "", f"Expression: `{model.get('expression', 'unresolved')}`", "",
             f"Source: {model.get('source', 'unresolved')}", "", "### Assumptions", ""])
@@ -259,8 +266,12 @@ def review_bundle(registry: Registry) -> Path:
         lines.extend(["", "### Checks and diagnostics", "", "```json", json.dumps({
             "checks": candidate.get("checks"), "diagnostics": candidate["diagnostics"]}, indent=2), "```", "",
             "### Source and extraction evidence", "", "```json", json.dumps(candidate.get("evidence"), indent=2), "```", "",
-            "Inspect full ports with the candidate command. After checking source fidelity, applicability and semantics, record an attributed review:", "",
-            "```powershell", f"uv --cache-dir .uv-cache run --no-env-file -m connected_models review {candidate['id']} --decision accepted --reviewer owner --notes 'Describe the checked scope and evidence here'", "```", ""])
+            "Inspect full ports with the candidate command.", ""])
+        if candidate["diagnostics"]:
+            lines.extend(["This candidate has blockers. Resolve them in a new candidate revision before admission.", ""])
+        else:
+            lines.extend(["After checking source fidelity, applicability and semantics, record an attributed review:", "",
+                "```powershell", f"uv --cache-dir .uv-cache run --no-env-file -m connected_models review {candidate['id']} --decision accepted --reviewer owner --notes 'Describe the checked scope and evidence here'", "```", ""])
     RUNS_PATH.mkdir(parents=True, exist_ok=True)
     path = RUNS_PATH / f"review-{uuid4()}.md"
     path.write_text("\n".join(lines), encoding="utf-8")

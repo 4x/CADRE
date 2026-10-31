@@ -42,9 +42,21 @@ Tests compare execution with a separately summed Decimal cash flow and NIST Hand
 
 Implemented: bounded scalar algebra, explicit per-port context and meaning checks, ratio-unit conversions, graph compilation, deterministic evaluation, immutable run snapshots, two fixture compositions and a budgeted Meta connection-check adapter. Expressions are interpreted through an allowlisted AST; arbitrary Python code is not executed.
 
-The `demo` command uses handwritten fixtures. The separate registry workflow supports offline source extraction, candidate storage, attributed review/publication, withdrawal and query-time composition against eligible stored versions. Fifty offline tests pass. Live question-only evaluation, inverse solving, discounted payback and missing-input clarification have been verified. The development agent recorded a scoped local prototype review under `codex-prototype-review`; it does not claim human scientific approval. The inspector prints saved evidence and can export a standalone HTML report, including inputs quoted from the question. The contracts implement a bounded subset of the representation draft, not full v0 conformance.
+The `demo` command uses handwritten fixtures. The separate registry workflow supports offline source extraction, candidate storage, attributed review/publication, withdrawal and query-time composition against eligible stored versions. Sixty-three offline tests pass, including portable curation handoff and candidate-only import. Live question-only evaluation, inverse solving, discounted payback and missing-input clarification have been verified. The development agent recorded a scoped local prototype review under `codex-prototype-review`; it does not claim human scientific approval. The inspector prints saved evidence and can export a standalone HTML report, including inputs quoted from the question. The contracts implement a bounded subset of the representation draft, not full v0 conformance.
 
 ## Curate, review and reuse models
+
+For multiple offline research agents, use the [portable curation kit and owner instructions](knowledge/notes/offline-curation-agent-kit.md). It includes six domain assignments, copy-paste dispatch prompts, a strict research schema, source/units/domain requirements, a worked example and zero-inference validation. Give each agent an isolated extracted kit; return data-only ZIPs. Research candidates with new physical units remain blocked until vocabulary/runtime integration and review. Curators do not publish models or merge databases.
+
+```powershell
+# Build a portable snapshot; the output must not already exist.
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit connected-models-curation-kit-2026-10-31.1.zip
+# Check and stage a returned batch on the integration PC; this does not publish.
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation validate incoming/building-energy-a01-b01-return.zip
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation import incoming/building-energy-a01-b01-return.zip
+```
+
+The kit pins its own version and JSON schema. It carries no credentials, inference adapter/configuration, local databases or third-party dependencies. The validator checks scalar arithmetic and optional current-runtime projections; scientific source review and physical-dimensional validation of new-domain research remain explicit integration work. See the guide for source restrictions, version conflicts, repeat imports, review commands and the optional Git workflow for agents assigned code integration.
 
 The application credential variable is **META_API_KEY**. This overrides the variable name shown in Meta's generic documentation. Agents do not access `.env` unless the owner explicitly permits a runtime-loading exception. The following live commands are intended for an owner launch, or for an explicitly authorized runtime launch by the agent.
 

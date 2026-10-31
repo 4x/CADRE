@@ -193,21 +193,80 @@ class CurationTests(unittest.TestCase):
                 load_bundle(Path(folder) / ".env")  # Rejected by name before any file access.
 
     def test_kit_is_allowlisted_and_schema_matches(self) -> None:
-        """The portable kit includes all six briefs and pinned contracts, no local state."""
+        """A generic kit contains full curator instructions and no operator/task bundle."""
         with scratch_directory() as folder:
             path = Path(folder) / "kit.zip"
             build_kit(path)
             with zipfile.ZipFile(path) as archive:
                 names = archive.namelist()
-                self.assertIn("START-HERE.md", names)
+                self.assertIn("AGENTS.md", names)
+                self.assertNotIn("START-HERE.md", names)
+                self.assertNotIn("assignment.json", names)
+                self.assertNotIn("data/curation/assignments.json", names)
+                self.assertFalse(any(name.startswith(("knowledge/", "assignments/")) for name in names))
+                instructions = archive.read("AGENTS.md").decode("utf-8")
+                self.assertIn("## Mission", instructions)
+                self.assertIn("## Exact return format", instructions)
+                self.assertIn("## Numerical and inverse checks", instructions)
+                self.assertIn("thousands of models", instructions)
+                self.assertNotIn("## Owner", instructions)
+                self.assertNotIn("-m connected_models.curation import", instructions)
                 self.assertNotIn("connected_models/inference.py", names)
                 self.assertFalse(any(".env" in name or ".sqlite" in name for name in names))
                 self.assertEqual(json.loads(archive.read("data/curation/batch.schema.json")), SCHEMA)
                 manifest = json.loads(archive.read("KIT-MANIFEST.json"))
                 for name, checksum in manifest["files"].items():
                     self.assertEqual(digest(archive.read(name)), checksum)
-                for domain in DOMAINS:
-                    self.assertIn(f"assignments/{domain}.md", names)
+
+    def test_domain_kit_includes_only_its_assignment(self) -> None:
+        """Each selected-domain ZIP isolates its assignment from the rest of the fleet."""
+        with scratch_directory() as folder:
+            for domain in DOMAINS:
+                path = Path(folder) / f"{domain}.zip"
+                build_kit(path, domain)
+                with zipfile.ZipFile(path) as archive:
+                    task = json.loads(archive.read("assignment.json"))
+                    self.assertEqual(task["domain"], domain)
+                    self.assertNotIn("connection_targets", task)
+                    self.assertNotIn("data/curation/assignments.json", archive.namelist())
+                    self.assertFalse(any(name.startswith("assignments/") for name in archive.namelist()))
+
+    def test_atomic_batch_needs_no_chain_or_sample_queries(self) -> None:
+        """A qualified standalone relationship can be returned without a proposed use."""
+        bundle = self.example()
+        bundle["handoff"].update(connections=[], queries=[])
+        self.assertEqual(validate_bundle(bundle)["status"], "valid-data-awaiting-review")
+
+    def test_legacy_return_keeps_original_version_through_repack_and_intake(self) -> None:
+        """Updated instructions must not strand already-dispatched workers or relabel evidence."""
+        bundle = self.research()
+        bundle["kit_version"] = "2026-10-31.1"
+        with scratch_directory() as folder:
+            source = self.write(folder, bundle)
+            archive_path = Path(folder) / "legacy.zip"
+            pack_bundle(source, archive_path)
+            with zipfile.ZipFile(archive_path) as archive:
+                self.assertEqual(json.loads(archive.read("manifest.json"))["kit_version"], bundle["kit_version"])
+            self.assertEqual(load_bundle(archive_path), bundle)
+            registry = Registry(Path(folder) / "registry.sqlite3")
+            import_bundle(archive_path, registry)
+            metadata = registry.candidates()[0]["evidence"]["curation_intake"]
+            self.assertEqual(metadata["kit_version"], "2026-10-31.1")
+
+    def test_bundle_and_manifest_versions_must_agree(self) -> None:
+        """A valid checksum cannot hide a relabeled or unsupported protocol version."""
+        raw = encoded(self.example())
+        with scratch_directory() as folder:
+            path = Path(folder) / "mismatch.zip"
+            with zipfile.ZipFile(path, "w") as archive:
+                archive.writestr("bundle.json", raw)
+                archive.writestr("manifest.json", encoded({"kit_version": "2026-10-31.1", "sha256": digest(raw)}))
+            with self.assertRaisesRegex(ModelError, "versions differ"):
+                load_bundle(path)
+            bundle = self.example()
+            bundle["kit_version"] = "unknown-version"
+            with self.assertRaises(ModelError):
+                validate_bundle(bundle)
 
     def test_init_is_incomplete_and_refuses_overwrite(self) -> None:
         """Initialization supplies metadata, not fabricated research."""

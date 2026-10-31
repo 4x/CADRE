@@ -35,6 +35,12 @@ relations:
 
 ## Current understanding
 
+### Atomic catalog and isolated worker instructions — user correction, 2026-10-31
+
+The intended offline output is a collection of thousands of atomic, granular, composable models, independently of their future compositions. A worker's mission is to qualify reusable relationships and interfaces; a connected batch, demonstration query or fit to the current heating workflow is not required. Meaningful multi-input relationships can be atomic; operator-by-operator splitting, inverse copies and renamed unit/profile variants should not inflate catalog counts. Domain assignments organize research and do not imply separate semantic identities for the same physical quantity.
+
+The first kit mixed owner and curator instructions. The corrected kit exports the full [[note-offline-curator-instructions]] as AGENTS.md, includes at most one assignment, and omits operator guidance/other tasks. [[note-offline-curation-agent-kit]] is now owner-only. Follow-up assignment JSON replaces the prior assignment; continuing workers preserve earlier returns, select new batch IDs/folders and consult their known inventory. The first real four-model return has been reviewed in [[source-building-energy-first-curation-review]]: mechanical checks pass, but source/interface/reference corrections remain before approval. The original artifact is retained and unadmitted. Central inventory/deduplication and wider vocabulary governance remain open scaling needs.
+
 ### Implemented fleet handoff — 2026-10-31
 
 The owner has five or more standby agents across three PCs and requested exact domain assignments and a return process. [[note-offline-curation-agent-kit]] is the operational handoff: a versioned self-contained ZIP with six assignments, source/formalization instructions, a research schema, independent numerical/rejection checks, a teaching fixture and offline validator/packer/importer. Each agent uses an isolated copy; the central integrator imports data-only returns as unapproved candidates, preserving source evidence and explicit blockers. No fleet research or new scientific coverage is claimed merely by shipping the kit.

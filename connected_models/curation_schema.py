@@ -7,7 +7,8 @@ from typing import Any
 from .contracts import ModelError
 
 SCHEMA_VERSION = "cm-curation-batch/1"
-KIT_VERSION = "2026-10-31.1"
+KIT_VERSION = "2026-10-31.2"
+SUPPORTED_KIT_VERSIONS = ("2026-10-31.1", KIT_VERSION)
 MAX_MODELS = 12
 MAX_BATCH_BYTES = 1_048_576
 DOMAINS = ("building-energy", "engineering-finance", "electric-circuits", "water-hydraulics", "classical-mechanics", "probability")
@@ -72,12 +73,12 @@ SCHEMA = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Connected Models portable offline curation batch, version 1",
     **record({
-        "schema_version": choice(SCHEMA_VERSION), "kit_version": choice(KIT_VERSION), "batch_id": IDENTIFIER,
+        "schema_version": choice(SCHEMA_VERSION), "kit_version": choice(*SUPPORTED_KIT_VERSIONS), "batch_id": IDENTIFIER,
         "domain": choice(*DOMAINS), "curator": STRING, "created": DATE, "example_only": {"type": "boolean"},
         "models": array(MODEL, 1, MAX_MODELS),
         "deferred": array(record({"title": STRING, "reason": STRING, "source_urls": array(STRING)})),
-        "handoff": record({"summary": STRING, "gaps": array(STRING), "connections": array(STRING, 1),
-                           "queries": array(STRING, 2), "review_notes": STRING}),
+        "handoff": record({"summary": STRING, "gaps": array(STRING), "connections": array(STRING),
+                           "queries": array(STRING), "review_notes": STRING}),
     }),
 }
 

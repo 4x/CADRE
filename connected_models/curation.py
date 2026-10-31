@@ -12,7 +12,7 @@ from urllib.parse import urlsplit
 import zipfile
 
 from .contracts import DIMENSIONLESS, MEANINGS, UNITS, ModelError, NumericalError
-from .curation_schema import DOMAINS, KIT_VERSION, MAX_BATCH_BYTES, SCHEMA, SCHEMA_VERSION, validate_schema
+from .curation_schema import DOMAINS, KIT_VERSION, MAX_BATCH_BYTES, SCHEMA, SCHEMA_VERSION, SUPPORTED_KIT_VERSIONS, validate_schema
 from .expressions import check_guard, dimensions, evaluate, guard_dimensions, parse
 from .registry import Registry
 from .runtime import validate_model
@@ -20,7 +20,7 @@ from .serialization import MAX_RECORD_BYTES, model_from_dict
 
 ASSETS = Path(__file__).resolve().parent.parent / "data" / "curation"
 ROOT = ASSETS.parent.parent
-GUIDE = Path("knowledge/notes/offline-curation-agent-kit.md")
+AGENT_GUIDE = Path("knowledge/notes/offline-curator-instructions.md")
 REGISTRY = Path(".registry/models.sqlite3")
 ARCHIVE_MEMBERS = {"bundle.json", "manifest.json"}
 MAX_MANIFEST_BYTES = 4096
@@ -83,9 +83,13 @@ def load_bundle(path: Path) -> dict[str, Any]:
                 raise ModelError("Return archive member exceeds its size limit.")
         raw = archive.read("bundle.json")
         manifest = decode(archive.read("manifest.json"))
-    if not isinstance(manifest, dict) or manifest != {"kit_version": KIT_VERSION, "sha256": digest(raw)}:
+    if (not isinstance(manifest, dict) or set(manifest) != {"kit_version", "sha256"}
+            or manifest["kit_version"] not in SUPPORTED_KIT_VERSIONS or manifest["sha256"] != digest(raw)):
         raise ModelError("Return manifest version or checksum mismatch.")
-    return decode(raw)
+    bundle = decode(raw)
+    require(isinstance(bundle, dict) and bundle.get("kit_version") == manifest["kit_version"],
+            "Return bundle and manifest kit versions differ.")
+    return bundle
 
 
 def require(condition: bool, message: str) -> None:
@@ -201,7 +205,7 @@ def pack_bundle(source: Path, destination: Path) -> dict[str, Any]:
     raw = encoded(bundle)
     with zipfile.ZipFile(destination, "x", compression=zipfile.ZIP_DEFLATED) as archive:
         archive.writestr("bundle.json", raw)
-        archive.writestr("manifest.json", encoded({"kit_version": KIT_VERSION, "sha256": digest(raw)}))
+        archive.writestr("manifest.json", encoded({"kit_version": bundle["kit_version"], "sha256": digest(raw)}))
     return {"path": str(destination), "sha256": digest(raw), "models": len(bundle["models"])}
 
 
@@ -227,7 +231,7 @@ def import_bundle(source: Path, registry: Registry) -> dict[str, Any]:
         payload = {
             "model": item["integration"]["runtime_model"], "intake_blockers": blockers,
             "evidence": {"curation_intake": {"identity": identity, "record_sha256": item_hash,
-                         "schema_version": SCHEMA_VERSION, "kit_version": KIT_VERSION,
+                         "schema_version": bundle["schema_version"], "kit_version": bundle["kit_version"],
                          "batch_id": bundle["batch_id"], "batch_sha256": batch_hash, "created": bundle["created"]},
                          "curator": bundle["curator"], "record": item},
             "checks": [{"reference": case} for case in item["references"]],
@@ -253,37 +257,32 @@ def init_batch(domain: str, agent: str, batch_id: str, destination: Path) -> dic
     return {"path": str(destination), "note": "Template intentionally fails final validation until research is supplied."}
 
 
-def build_kit(destination: Path) -> dict[str, Any]:
-    """Build a self-contained allowlisted snapshot without credentials or local state."""
+def build_kit(destination: Path, domain: str | None = None) -> dict[str, Any]:
+    """Build curator instructions with at most one task and no operator guidance."""
     public_path(destination, {".zip"})
-    paths = [Path("pyproject.toml"), Path("uv.lock"), GUIDE,
-             Path("knowledge/sources/offline-curation-starter-sources.md"),
-             Path("data/curation/assignments.json"), Path("data/curation/example-bundle.json")]
+    require(domain is None or domain in DOMAINS, "Unknown curation assignment domain.")
+    paths = [Path("pyproject.toml"), Path("uv.lock"), Path("data/curation/example-bundle.json")]
     # Explicit implementation allowlist: do not traverse the repository or carry inference configuration.
     for name in ("__init__", "contracts", "expressions", "serialization", "solving", "runtime", "registry", "curation_schema", "curation"):
         paths.append(Path("connected_models") / f"{name}.py")
     contents = {path.as_posix(): (ROOT / path).read_bytes() for path in paths}
-    guide = (ROOT / GUIDE).read_text(encoding="utf-8")
-    contents["START-HERE.md"] = guide.split("\n---\n", 2)[-1].encode("utf-8")
-    contents["AGENTS.md"] = b"# Curation workspace\n\nRead START-HERE.md and your assignment in data/curation/assignments.json. Only edit your own return folder. Never access .env or secrets. Python commands use uv run --no-env-file. No publication, paid API calls, source-code edits, or shared SQLite files. This standalone kit is not a Git checkout; its bundled knowledge note is the frozen project context.\n"
+    guide = (ROOT / AGENT_GUIDE).read_text(encoding="utf-8")
+    contents["AGENTS.md"] = guide.split("\n---\n", 2)[-1].encode("utf-8")
     contents["data/curation/batch.schema.json"] = encoded(SCHEMA)
     contents["data/curation/runtime-vocabulary.json"] = encoded({"kit_version": KIT_VERSION, "meanings": MEANINGS,
         "units": {name: {"dimensions": unit.dimensions, "scale": unit.scale} for name, unit in UNITS.items()},
         "known_model_ids": ["heat-to-electricity", "electricity-cost", "annual-saving", "uniform-present-value", "net-present-value"],
         "limits": "Energy/currency dimensions only. Contexts must match exactly. No automatic vocabulary extension. See guide for known source revisions."})
-    assignments = decode(contents["data/curation/assignments.json"])
-    for assignment in assignments:
-        domain = assignment["domain"]
-        brief = f"# {assignment['title']}\n\nRead START-HERE.md first. Your assigned domain is `{domain}`.\n\n"
-        brief += "\n\n".join(f"## {key.replace('_', ' ').title()}\n\n" + ("\n".join(f"- {entry}" for entry in value) if isinstance(value, list) else value)
-                             for key, value in assignment.items() if key not in {"domain", "title"})
-        contents[f"assignments/{domain}.md"] = brief.encode("utf-8")
+    if domain is not None:
+        assignments = decode((ASSETS / "assignments.json").read_bytes())
+        assignment = next(item for item in assignments if item["domain"] == domain)
+        contents["assignment.json"] = encoded(assignment)
     contents["KIT-MANIFEST.json"] = encoded({"kit_version": KIT_VERSION, "schema_version": SCHEMA_VERSION,
         "files": {path: digest(raw) for path, raw in contents.items()}})
     with zipfile.ZipFile(destination, "x", compression=zipfile.ZIP_DEFLATED) as archive:
         for path, raw in contents.items():
             archive.writestr(path, raw)
-    return {"path": str(destination), "kit_version": KIT_VERSION, "files": len(contents)}
+    return {"path": str(destination), "kit_version": KIT_VERSION, "domain": domain, "files": len(contents)}
 
 
 def main() -> int:
@@ -300,6 +299,7 @@ def main() -> int:
     pack.add_argument("destination", type=Path)
     kit = commands.add_parser("kit")
     kit.add_argument("destination", type=Path)
+    kit.add_argument("--domain", choices=DOMAINS, help="Include only this task; omit when providing the assignment in the prompt")
     init = commands.add_parser("init")
     init.add_argument("domain", choices=DOMAINS)
     init.add_argument("destination", type=Path)
@@ -316,7 +316,7 @@ def main() -> int:
         elif args.command == "init":
             result = init_batch(args.domain, args.agent, args.batch_id, args.destination)
         else:
-            result = build_kit(args.destination)
+            result = build_kit(args.destination, args.domain)
         print(json.dumps(result, indent=2))
         return 0
     except (ModelError, OSError, ValueError, sqlite3.Error, zipfile.BadZipFile, RuntimeError) as exc:

@@ -1,6 +1,6 @@
 {
   "schema_version": "cm-curation-batch/1",
-  "kit_version": "2026-10-31.1",
+  "kit_version": "2026-10-31.2",
   "batch_id": "building-energy-teaching-example",
   "domain": "building-energy",
   "curator": "kit-author; synthetic teaching fixture, not an independent curator",
@@ -22,45 +22,155 @@
         "translation_notes": "The unit price is constant over the same accounting interval as the electricity quantity. This example duplicates electricity-cost@1 to teach the format."
       },
       "variables": [
-        {"symbol": "energy", "source_symbol": "purchased electrical energy", "role": "input", "quantity_id": "electricity_consumption", "definition": "Purchased electricity in the stated representative annual interval", "unit": "kWh", "dimensions": "energy", "context": "home-A:representative-year:constant-real-prices", "domain": "Nonnegative finite energy"},
-        {"symbol": "tariff", "source_symbol": "flat unit tariff", "role": "input", "quantity_id": "electricity_tariff", "definition": "Constant real USD variable charge per purchased kWh", "unit": "USD/kWh", "dimensions": "currency / energy", "context": "home-A:representative-year:constant-real-prices", "domain": "Nonnegative finite price; excludes export and negative-price regimes"},
-        {"symbol": "cost", "source_symbol": "variable charge", "role": "output", "quantity_id": "operating_cost", "definition": "Variable electrical operating cost over the matching interval", "unit": "USD", "dimensions": "currency", "context": "home-A:representative-year:constant-real-prices", "domain": "Nonnegative finite cost"}
+        {
+          "symbol": "energy",
+          "source_symbol": "purchased electrical energy",
+          "role": "input",
+          "quantity_id": "electricity_consumption",
+          "definition": "Purchased electricity in the stated representative annual interval",
+          "unit": "kWh",
+          "dimensions": "energy",
+          "context": "home-A:representative-year:constant-real-prices",
+          "domain": "Nonnegative finite energy"
+        },
+        {
+          "symbol": "tariff",
+          "source_symbol": "flat unit tariff",
+          "role": "input",
+          "quantity_id": "electricity_tariff",
+          "definition": "Constant real USD variable charge per purchased kWh",
+          "unit": "USD/kWh",
+          "dimensions": "currency / energy",
+          "context": "home-A:representative-year:constant-real-prices",
+          "domain": "Nonnegative finite price; excludes export and negative-price regimes"
+        },
+        {
+          "symbol": "cost",
+          "source_symbol": "variable charge",
+          "role": "output",
+          "quantity_id": "operating_cost",
+          "definition": "Variable electrical operating cost over the matching interval",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "home-A:representative-year:constant-real-prices",
+          "domain": "Nonnegative finite cost"
+        }
       ],
       "constants": [],
-      "guards": ["energy >= 0", "tariff >= 0"],
-      "assumptions": ["A flat real tariff applies to all purchased electricity in the same representative annual interval."],
-      "limitations": ["Excludes fixed charges, maintenance, export compensation and negative tariffs."],
+      "guards": [
+        "energy >= 0",
+        "tariff >= 0"
+      ],
+      "assumptions": [
+        "A flat real tariff applies to all purchased electricity in the same representative annual interval."
+      ],
+      "limitations": [
+        "Excludes fixed charges, maintenance, export compensation and negative tariffs."
+      ],
       "unresolved": [],
       "sources": [
-        {"id": "project-accounting-definition", "kind": "project-derivation", "title": "Synthetic flat-tariff accounting definition for the curation kit", "url": null, "version": "kit 2026-10-31.1", "accessed": "2026-10-31", "locator": "Definition in relationship.original_equation", "evidence": "Multiplying a purchased quantity by its constant unit price defines the variable charge. This is an explicitly authored accounting identity, not an extracted empirical finding.", "license": "Project-authored teaching fixture; no external quotation", "redistribution": "Contains only this original short explanation and synthetic numerical inputs"}
+        {
+          "id": "project-accounting-definition",
+          "kind": "project-derivation",
+          "title": "Synthetic flat-tariff accounting definition for the curation kit",
+          "url": null,
+          "version": "kit 2026-10-31.1",
+          "accessed": "2026-10-31",
+          "locator": "Definition in relationship.original_equation",
+          "evidence": "Multiplying a purchased quantity by its constant unit price defines the variable charge. This is an explicitly authored accounting identity, not an extracted empirical finding.",
+          "license": "Project-authored teaching fixture; no external quotation",
+          "redistribution": "Contains only this original short explanation and synthetic numerical inputs"
+        }
       ],
       "references": [
-        {"id": "twenty-quarter-dollar-units", "inputs": {"energy": 20, "tariff": 0.25}, "expected": 5, "tolerance": 0.000000001, "method": "Count twenty quarter-dollar charges: four quarters make one dollar, so five dollars total. Inputs are synthetic.", "provenance": "Independent elementary arithmetic reasoning for this teaching fixture; no observed household data claimed"},
-        {"id": "zero-purchase", "inputs": {"energy": 0, "tariff": 0.25}, "expected": 0, "tolerance": 0.000000001, "method": "No purchased units incur zero variable charge under the stated definition.", "provenance": "Definitional boundary check; not an empirical validation"}
+        {
+          "id": "twenty-quarter-dollar-units",
+          "inputs": {
+            "energy": 20,
+            "tariff": 0.25
+          },
+          "expected": 5,
+          "tolerance": 1e-09,
+          "method": "Count twenty quarter-dollar charges: four quarters make one dollar, so five dollars total. Inputs are synthetic.",
+          "provenance": "Independent elementary arithmetic reasoning for this teaching fixture; no observed household data claimed"
+        },
+        {
+          "id": "zero-purchase",
+          "inputs": {
+            "energy": 0,
+            "tariff": 0.25
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "No purchased units incur zero variable charge under the stated definition.",
+          "provenance": "Definitional boundary check; not an empirical validation"
+        }
       ],
-      "rejection_cases": [{"kind": "domain", "inputs": {"energy": -1, "tariff": 0.25}, "reason": "The purchased-energy profile excludes negative consumption; export requires a different definition."}],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "energy": -1,
+            "tariff": 0.25
+          },
+          "reason": "The purchased-energy profile excludes negative consumption; export requires a different definition."
+        }
+      ],
       "inverse_notes": "Cost and a positive tariff determine energy. Zero tariff and zero cost leave energy underdetermined. Do not add separately published rearrangements.",
       "integration": {
         "status": "runtime-ready",
         "runtime_model": {
-          "id": "building-energy--flat-electricity-cost", "version": "r1",
-          "inputs": {"energy": {"meaning": "electricity_consumption", "unit": "kWh", "context": "home-A:representative-year:constant-real-prices"}, "tariff": {"meaning": "electricity_tariff", "unit": "USD/kWh", "context": "home-A:representative-year:constant-real-prices"}},
-          "output": {"meaning": "operating_cost", "unit": "USD", "context": "home-A:representative-year:constant-real-prices"},
-          "expression": "energy * tariff", "guards": ["energy >= 0", "tariff >= 0"],
+          "id": "building-energy--flat-electricity-cost",
+          "version": "r1",
+          "inputs": {
+            "energy": {
+              "meaning": "electricity_consumption",
+              "unit": "kWh",
+              "context": "home-A:representative-year:constant-real-prices"
+            },
+            "tariff": {
+              "meaning": "electricity_tariff",
+              "unit": "USD/kWh",
+              "context": "home-A:representative-year:constant-real-prices"
+            }
+          },
+          "output": {
+            "meaning": "operating_cost",
+            "unit": "USD",
+            "context": "home-A:representative-year:constant-real-prices"
+          },
+          "expression": "energy * tariff",
+          "guards": [
+            "energy >= 0",
+            "tariff >= 0"
+          ],
           "source": "Project-authored synthetic flat-tariff accounting definition; teaching example only",
-          "assumptions": ["A flat real tariff applies to all purchased electricity in the same representative annual interval.", "Excludes fixed charges, maintenance, export compensation and negative tariffs."]
+          "assumptions": [
+            "A flat real tariff applies to all purchased electricity in the same representative annual interval.",
+            "Excludes fixed charges, maintenance, export compensation and negative tariffs."
+          ]
         },
         "gaps": [],
-        "duplicate_of": ["electricity-cost@1"]
+        "duplicate_of": [
+          "electricity-cost@1"
+        ]
       }
     }
   ],
-  "deferred": [{"title": "Time-varying tariffs", "reason": "Requires aligned tariff/consumption time series, not the flat-tariff scalar definition", "source_urls": []}],
+  "deferred": [
+    {
+      "title": "Time-varying tariffs",
+      "reason": "Requires aligned tariff/consumption time series, not the flat-tariff scalar definition",
+      "source_urls": []
+    }
+  ],
   "handoff": {
     "summary": "One intentionally non-importable teaching example with two checks and one invalid case.",
-    "gaps": ["No new model coverage or empirical evidence is provided by this fixture."],
-    "connections": ["A matching electricity_consumption output could feed energy after exact context and compatible-unit checks."],
-    "queries": ["What is my variable electricity cost for 20 kWh at a flat 0.25 USD/kWh in the same real-price annual accounting interval, excluding fixed charges?", "How much electricity corresponds to a 5 USD variable charge at a flat 0.25 USD/kWh in that same accounting interval?"],
+    "gaps": [
+      "No new model coverage or empirical evidence is provided by this fixture."
+    ],
+    "connections": [],
+    "queries": [],
     "review_notes": "Schema/arithmetic demonstration only. The example_only flag prevents import. Do not flip it and claim research."
   }
 }

@@ -5,7 +5,7 @@ title: MVP Delivery Plan, Milestones, and Extension Triggers
 summary: Active delivery plan for a runnable core, complete offline-curation/query loop, user testing, and hackathon release; records urgent inputs, working defaults, exit gates, scope cuts, and later expansion triggers.
 status: active
 created: '2026-10-28'
-updated: '2026-10-29'
+updated: '2026-10-31'
 topics:
   - architecture
   - strategy
@@ -35,6 +35,16 @@ relations:
 # MVP Delivery Plan, Milestones, and Extension Triggers
 
 ## Scope and status
+
+### M3 correction — self-contained queries, 2026-10-31
+
+The user's first trial rejected heating-specific CLI arguments and hidden illustrative defaults: inputs/assumptions must be parsed from each self-contained question, with different questions requiring different fields and types. This is an endorsed interface requirement, not a new domain choice. The root cause was answering's reuse of the fixture composition to generate available inputs. That helper and the performance/investment/tariff arguments were removed from `answer`; developer `demo` fixtures remain explicitly separate.
+
+The live pipeline is now question → typed, cited facts → eligible-model composition using fact/upstream references → deterministic validation/execution → report. Dates/text are retained independently of current numeric execution support. Numeric literals, exact quotes/source spans and common explicit units are checked; percent conversion remains in the unit layer. There are no query-time preset values or direct numeric graph literals. In-scope missing or conflicting inputs produce `needs-input` clarification questions; missing models/types remain blocked. Multi-turn conversational state and full natural-language numerical normalization are deferred; executable numbers currently use explicit digit literals.
+
+Thirty offline tests pass. A complete question reproduced $8,532.163830043562 NPV (run `69144a1b-58f1-4aa8-bf99-6dae8fe946f9`); a separate question with performance 2.5 and tariff $0.25/kWh produced $3,000/$1,200 costs and $1,800 savings (run `786887da-b522-436c-b67e-dea5712adfe4`), without requiring investment/rate/horizon. An underspecified operating-cost request asked only for heat, performances and electricity price (run `d4500890-724c-4fa8-9910-ae20274cead6`), without filling any hidden inputs. Earlier complete live attempt `d9c132cc-8cdb-494c-b5bb-bfd3ec75e17c` preserved malformed nested graph JSON; graph output is now a directly constrained structured object, not a JSON string needing heuristic repair.
+
+Current local report: `.runs/report-33d01f44-a487-474c-9b94-12ac5939cf0c.html`, including parsed facts with exact source text and clarification questions. The conservative ledger reports 20 settled calls totaling $0.201389 across all work to this checkpoint, including earlier failed attempts. M3 remains active for user testing of the corrected interface; the earlier live-loop demonstration is not proof that hidden-default answering was an acceptable product interface.
 
 This is the active delivery plan following the user's 2026-10-29 instruction: resolve urgent issues, build an MVP as soon as possible, test it, adjust, then add features and scale. It updates the 2026-10-28 sequencing proposal in place. The user confirmed the hackathon as the immediate milestone, six days away; milestone outcomes take precedence over optional calendar targets. Technical defaults below are agent recommendations for implementation, not falsely attributed user decisions. No application has been implemented or scalability measured.
 

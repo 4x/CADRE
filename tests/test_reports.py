@@ -16,6 +16,7 @@ class ReportTests(unittest.TestCase):
         """Stored model text must remain inert even when it contains HTML or unsafe URLs."""
         run = execute(composition(), catalog())
         run["question"] = '<script>alert("injection")</script>'
+        run["query_inputs"] = {"facts": [{"name": "test input", "value": "3", "unit": "1", "value_type": "number", "quote": '<script>3</script>'}]}
         run["models"]["heat-to-electricity@1"]["source"] = "javascript:alert('bad')"
         with scratch_directory() as folder:
             directory = Path(folder)
@@ -28,6 +29,7 @@ class ReportTests(unittest.TestCase):
             self.assertNotIn('href="javascript:', html)
             self.assertIn("Follow the calculation", html)
             self.assertIn("baseline-energy", html)
+            self.assertIn("Inputs read from your question", html)
 
     def test_blocked_report_and_restricted_path(self) -> None:
         """An unresolved answer is inspectable without permitting arbitrary file reads."""

@@ -62,9 +62,16 @@ def run_section(run: dict[str, Any]) -> str:
                      f'<ul>{assumptions}</ul><p class="muted">{review_note}</p></details>')
     limits = "".join(f"<li>{label(item)}</li>" for item in run.get("limitations", []))
     error = f'<p class="error">{label(run["error"])}</p>' if run.get("error") else ""
+    questions = "".join(f"<li>{label(item)}</li>" for item in run.get("clarifications", []))
+    clarification_section = f"<h3>What needs clarification</h3><ul>{questions}</ul>" if questions else ""
+    fact_rows = "".join(f'<tr><td>{label(fact["name"])}</td><td>{label(fact["value"])} {label(fact["unit"])}</td>'
+                        f'<td>{label(fact["value_type"])}</td><td>{label(fact["quote"])}</td></tr>'
+                        for fact in run.get("query_inputs", {}).get("facts", []))
+    input_section = ('<h3>Inputs read from your question</h3><table><thead><tr><th>Input</th><th>Value</th><th>Type</th><th>Exact source text</th></tr></thead>'
+                     f'<tbody>{fact_rows}</tbody></table>') if fact_rows else ""
     return (f'<section><div class="eyebrow">{label(run.get("status", "unknown"))} · {label(run["run_id"])}</div>'
             f'<h2>{label(run.get("question", run.get("composition", {}).get("id", "Saved run")))}</h2>'
-            f'<p class="muted">{label(run.get("created", ""))}</p>{error}<div class="metrics">{outputs}</div>'
+            f'<p class="muted">{label(run.get("created", ""))}</p>{error}{clarification_section}<div class="metrics">{outputs}</div>{input_section}'
             f'<h3>What this answer assumes</h3><ul>{limits}</ul>'
             f'<h3>Follow the calculation</h3><p class="muted">Expand a step to inspect its inputs, model, sources and review.</p>{"".join(cards)}'
             f'<details><summary>Full saved evidence</summary><pre>{label(json.dumps(run, indent=2))}</pre></details></section>')
@@ -94,7 +101,7 @@ def write_report(run_ids: list[str], directory: Path = Path(".runs")) -> Path:
     html = ('<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             '<title>Connected Models — run evidence</title>'
             f'<style>{style}</style><header><div class="eyebrow">Connected Models / Prototype</div><h1>Inspect the answer</h1>'
-            '<p>These are conditional heating scenarios using illustrative inputs. Compare the saved results and expand the calculations to see what each answer relies on. No inference or calculation runs when opening this report.</p></header>'
+            '<p>Inspect the inputs and assumptions recorded with each question, then expand the calculations to see what each answer relies on. No inference or calculation runs when opening this report.</p></header>'
             f'<main>{"".join(run_section(run) for run in runs)}</main></html>')
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / f"report-{uuid4()}.html"

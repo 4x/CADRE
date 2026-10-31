@@ -5,7 +5,7 @@ title: Agent Interaction Patterns with Model Graphs
 summary: What tools, state transitions, orchestration, and authority should agents use to discover, compose, execute, curate, and maintain connected models?
 status: active
 created: '2026-10-24'
-updated: '2026-10-28'
+updated: '2026-10-31'
 topics:
   - agents
   - interfaces
@@ -33,6 +33,14 @@ How should autonomous agents discover, query, compose, and execute connected mod
 The 2026 legacy notes identify autonomous AI agents as a primary user class ([[concept-agent-quantitative-reasoning-layer]]). While human users interact through visual diagram builders and forms, agents require machine-friendly, high-density, deterministic protocols. If agents cannot efficiently navigate the model repository, discover matching inputs/outputs, or parse execution errors, the envisioned performance gains ("saving turns, time, and tokens") will be lost to orchestration friction.
 
 ## Current partial answer
+
+### Self-contained query interface — user clarification, 2026-10-31
+
+The user rejected question-specific `performance`/`investment` CLI arguments and reliance on supplied illustrative assumptions. The request must contain its actual assumptions and numbers; other questions may have entirely different inputs such as apple counts or dates of birth. Query-time input extraction is a reusable responsibility, separate from offline model curation.
+
+Implemented delta: `answer(registry, question)` and CLI `answer QUESTION` have no scenario arguments or hidden fixture defaults. A parser returns typed facts with literal values, units, exact quotes and source spans. Scalars are checked against their citations; dates/text are preserved without pretending the numerical runtime can execute them. The composer proposes a structured graph using fact or upstream-node references only. Deterministic binding retains quoted provenance and performs supported unit conversion. Missing/ambiguous required inputs produce `needs-input` and explicit questions; unavailable models/types remain blocked. Schema, unit and reference checks do not establish perfect natural-language semantic interpretation; assignments are inspectable in saved runs/reports. Conversational follow-up state and generalized date/text execution remain deferred.
+
+Root cause of the earlier interface defect: `answer` called a helper built from the heating demo composition to prepopulate available values. Its anti-fabrication check compared composer inputs with that preset list, not the user's text. The helper is removed from answering; the explicit developer-only demo retains fixtures for reproducible numerical tests. A live nested-JSON graph-string failure also prompted direct structured graph output, with no heuristic repair of malformed model responses.
 
 Parallel agent workflows suggest specialized role divisions:
 - **Retrieval / Discovery Agent**: Searches the model repository for equations or sub-graphs matching a natural-language query or quantitative goal.

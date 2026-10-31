@@ -10,7 +10,8 @@ from connected_models.contracts import ModelError, Value
 from connected_models.demo import catalog, composition
 from connected_models.registry import Registry
 from connected_models.runtime import execute
-from connected_models.workflows import answer, curate, load_packet, PACKET_PATH, seed_candidates, scenario_inputs
+from connected_models.workflows import answer, curate, load_packet, PACKET_PATH, seed_candidates
+from connected_models.query_inputs import validate_fact
 from test_support import scratch_directory
 
 
@@ -121,8 +122,12 @@ class RegistryTests(unittest.TestCase):
         with scratch_directory() as folder:
             registry = Registry(Path(folder) / "registry.sqlite3")
             self.approve_test_catalog(registry)
-            values = {item["id"]: {key: value for key, value in item.items() if key != "id"}
-                      for item in scenario_inputs(3, 10000, 0.3)}
+            values = {f"{node.id}.{name}": binding for node in composition().nodes
+                      for name, binding in node.bindings.items() if isinstance(binding, Value)}
+            question = "; ".join(f"{name} = {value.amount} {value.port.unit}" for name, value in values.items())
+            parsed = {"facts": [validate_fact({"id": name, "name": name, "value_type": "number",
+                      "value": str(value.amount), "unit": value.port.unit,
+                      "quote": f"{name} = {value.amount} {value.port.unit}"}, question) for name, value in values.items()], "issues": [], "inference": {}}
             for operation in ("operating-cost", "investment"):
                 graph = composition(operation=operation)
                 nodes = []
@@ -132,12 +137,13 @@ class RegistryTests(unittest.TestCase):
                         raw["model"] = "uniform-present-value@" + load_packet(PACKET_PATH)["profile"]["version"]
                     for name, binding in node.bindings.items():
                         if isinstance(binding, Value):
-                            raw["bindings"][name] = values[f"{node.id}.{name}"]
+                            raw["bindings"][name] = {"fact": f"{node.id}.{name}"}
+                    raw["bindings"] = [{"input": name, "source": next(iter(binding)), "ref": next(iter(binding.values()))} for name, binding in raw["bindings"].items()]
                     nodes.append(raw)
-                response = {"content": {"status": "proposed", "graph_json": json.dumps({"id": operation, "nodes": nodes,
-                            "outputs": list(graph.outputs)}), "reason": "Test-only composition."}, "audit": {"model": "test-double"}}
-                with patch("connected_models.workflows.live_request", return_value=response) as inference, patch("connected_models.workflows.RUNS_PATH", Path(folder) / "runs"):
-                    result = answer(registry, "Compare the conditional heating scenario", 3, 10000, 0.3)
+                response = {"content": {"status": "proposed", "graph": {"id": operation, "nodes": nodes,
+                            "outputs": list(graph.outputs)}, "reason": "Test-only composition.", "clarifications": []}, "audit": {"model": "test-double"}}
+                with patch("connected_models.workflows.parse_query", return_value=parsed), patch("connected_models.workflows.live_request", return_value=response) as inference, patch("connected_models.workflows.RUNS_PATH", Path(folder) / "runs"):
+                    result = answer(registry, question)
                 self.assertEqual(result["status"], "completed", result.get("error"))
                 self.assertEqual(result["outputs"]["annual-savings"]["amount"], 2400)
                 self.assertEqual(inference.call_count, 1)
@@ -148,8 +154,35 @@ class RegistryTests(unittest.TestCase):
         with scratch_directory() as folder:
             registry = Registry(Path(folder) / "registry.sqlite3")
             self.approve_test_catalog(registry)
-            response = {"content": {"status": "unresolved", "graph_json": "", "reason": "No forecast model in this registry."}, "audit": {}}
-            with patch("connected_models.workflows.live_request", return_value=response), patch("connected_models.workflows.RUNS_PATH", Path(folder) / "runs"):
-                result = answer(registry, "Forecast a market price", 3, 10000, 0.3)
+            response = {"content": {"status": "unresolved", "graph": {"id": "unresolved", "nodes": [], "outputs": []}, "reason": "No forecast model in this registry.", "clarifications": []}, "audit": {}}
+            with patch("connected_models.workflows.parse_query", return_value={"facts": [], "issues": []}), patch("connected_models.workflows.live_request", return_value=response), patch("connected_models.workflows.RUNS_PATH", Path(folder) / "runs"):
+                result = answer(registry, "Forecast a market price")
             self.assertEqual(result["status"], "blocked")
             self.assertTrue(Path(result["saved_path"]).is_file())
+
+    def test_missing_inputs_are_not_filled_from_demo(self) -> None:
+        """The query can ask for clarification even when the demo has matching preset values."""
+        with scratch_directory() as folder:
+            registry = Registry(Path(folder) / "registry.sqlite3")
+            self.approve_test_catalog(registry)
+            response = {"content": {"status": "needs-input", "graph": {"id": "missing", "nodes": [], "outputs": []},
+                        "reason": "A tariff is required.", "clarifications": ["What electricity price should be used?"]}, "audit": {}}
+            with patch("connected_models.workflows.parse_query", return_value={"facts": [], "issues": []}), patch("connected_models.workflows.live_request", return_value=response), patch("connected_models.workflows.RUNS_PATH", Path(folder) / "runs"):
+                run = answer(registry, "Compare annual heating costs.")
+            self.assertEqual(run["status"], "needs-input")
+            self.assertFalse(run["outputs"])
+            self.assertTrue(run["clarifications"])
+
+    def test_composer_cannot_invent_value_or_fact(self) -> None:
+        """Even a well-formed graph cannot introduce an unquoted number or unknown fact ID."""
+        with scratch_directory() as folder:
+            registry = Registry(Path(folder) / "registry.sqlite3")
+            self.approve_test_catalog(registry)
+            for binding in ({"input": "baseline", "source": "fact", "ref": "invented"},
+                            {"input": "baseline", "source": "literal", "ref": "3600"}):
+                proposal = {"status": "proposed", "graph": {"id": "bad", "nodes": [{"id": "saving", "model": "annual-saving@1", "bindings": [binding]}], "outputs": ["saving"]},
+                            "reason": "Test invention must fail", "clarifications": []}
+                with patch("connected_models.workflows.parse_query", return_value={"facts": [], "issues": []}), patch("connected_models.workflows.live_request", return_value={"content": proposal, "audit": {}}), patch("connected_models.workflows.RUNS_PATH", Path(folder) / "runs"):
+                    run = answer(registry, "Calculate savings.")
+                self.assertEqual(run["status"], "blocked")
+                self.assertFalse(run["outputs"])

@@ -8,6 +8,12 @@
 
 The mature vision combines an analyst workbench, provenance/badging ledger and polyglot dependency operating system ([[concept-end-state-vision]]), also serving as a deterministic quantitative reasoning layer for agents ([[concept-agent-quantitative-reasoning-layer]]). Reliability and token/turn savings are unmeasured hypotheses. Design and model coverage are early seeds; a bounded live offline-curation/registry/query loop now runs locally, with deterministic computation and an inspectable HTML report; broader coverage and user validation remain open.
 
+## Current priority — self-contained query correction (2026-10-31)
+
+The user rejected question-specific performance/investment CLI flags and hidden illustrative presets. Each actual question supplies its own assumptions, values and units; different questions can involve other subjects/types such as apple counts or birth dates. `answer QUESTION` now has no domain arguments or preset inputs. Parsing produces typed facts with exact query quotes/source spans; composition binds only fact IDs or upstream node IDs, and execution retains the assignments. Missing/conflicting inputs yield `needs-input` with explicit clarification questions, not guessed demo values. Dates/text are preserved but current numerical execution/model coverage remains limited; executable numbers currently use digit literals. Conversation continuation state remains deferred.
+
+Thirty offline tests pass. Live complete investment question `69144a1b-58f1-4aa8-bf99-6dae8fe946f9` reproduces $8,532.16. Live operating-only query `786887da-b522-436c-b67e-dea5712adfe4` produces $3,000/$1,200 costs and $1,800 savings using only its supplied inputs. Missing-input query `d4500890-724c-4fa8-9910-ae20274cead6` asks four relevant questions without demanding unused investment parameters. A malformed nested graph-string response was retained; the composer now returns a structured graph object. Current inspector: `.runs/report-33d01f44-a487-474c-9b94-12ac5939cf0c.html`. Full evidence/limits: [[source-mvp-heating-and-meta-evidence]], [[question-agent-interaction-patterns]], [[note-mvp-build-sequence-and-extension-triggers]]. Earlier preset-driven runs are historical computational evidence, not validation of the corrected query interface. Ledger checkpoint: 20 settled calls totaling $0.201389 conservatively. M3 continues with user testing of this correction.
+
 ## Current understanding and boundaries
 
 - **Offline curation — user-endorsed, 2026-10-28:** Dedicated Meta/Muse agents curate reusable models outside answering: discover papers/textbooks → extract/formalize mathematics, variables, units, assumptions and provenance → check/review → store. Query-time agents retrieve, compose and execute existing versions. Routine inline curation is ruled out; total prohibition versus last-resort exceptions remains open. “Offline” permits internet access. Roles/schema/approval/API capabilities are unsettled ([[concept-specialized-model-curation-agents]]).
@@ -88,7 +94,7 @@ Organizer landing page rechecked on 2026-10-29: November 4, 9 PM ET submission d
 
 ## Last material update
 
-2026-10-29
+2026-10-31
 
 ## Runnable prototype and next delta
 

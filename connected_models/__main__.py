@@ -37,11 +37,8 @@ def main() -> int:
     review.add_argument("--reviewer", required=True)
     review.add_argument("--notes", required=True)
     review.add_argument("--decision", required=True, choices=("accepted", "rejected", "withdrawn"))
-    query = commands.add_parser("answer", help="Compose and execute using reviewed stored models only")
+    query = commands.add_parser("answer", help="Parse a self-contained question and compose reviewed stored models")
     query.add_argument("question")
-    query.add_argument("--performance", type=float, default=DEFAULT_COP)
-    query.add_argument("--investment", type=float, default=DEFAULT_CAPEX)
-    query.add_argument("--tariff", type=float, default=DEFAULT_TARIFF)
     inspect = commands.add_parser("inspect", help="Inspect a saved run's result and actual lineage")
     inspect.add_argument("run_id")
     report = commands.add_parser("report", help="Export saved runs to a readable standalone HTML report")
@@ -79,8 +76,8 @@ def main() -> int:
             elif args.command == "review-bundle":
                 print(f"Review report: {review_bundle(registry)}")
             else:
-                record = answer(registry, args.question, args.performance, args.investment, args.tariff)
-                print(json.dumps({key: record.get(key) for key in ("run_id", "status", "outputs", "error", "saved_path")}, indent=2))
+                record = answer(registry, args.question)
+                print(json.dumps({key: record.get(key) for key in ("run_id", "status", "outputs", "clarifications", "error", "saved_path")}, indent=2))
                 return 0 if record["status"] == "completed" else 1
             return 0
         manifest = execute(composition(args.performance, args.investment, args.tariff, args.question), catalog())

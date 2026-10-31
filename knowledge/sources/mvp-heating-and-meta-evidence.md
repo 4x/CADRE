@@ -5,7 +5,7 @@ title: Heating MVP and Meta Inference Evidence
 summary: "Primary sources plus live Meta evidence: blocked initial source candidates, revised NIST extraction, registry reuse in three supported queries, one unsupported question, and independent numerical checks; limitations remain explicit."
 status: active
 created: '2026-10-29'
-updated: '2026-10-29'
+updated: '2026-10-31'
 topics:
   - runtime
   - benchmarks
@@ -40,6 +40,8 @@ Electricity cost, baseline-minus-alternative savings and net benefit-minus-inves
 
 ## Live evidence and additional source checks — 2026-10-29
 
+This section records the historical preset-driven interface. The user rejected that interface on 2026-10-31; its numerical evidence does not establish question-grounded input extraction. The corrected evidence is appended below.
+
 Owner permission explicitly allowed runtime-only uv loading of `.env`; contents were never inspected or printed. Spark Standard returned a successful structured smoke response, three real offline extraction responses (two blocked, one admitted after separate technical review), a failed generation, three supported query compositions and one unresolved forecast request. Nine calls settled at a conservative ledger total of $0.100793; no reservations remained. The ledger and response artifacts are local evidence, not a reconciled provider invoice.
 
 The NIST packet was expanded with section 3.3.1 Method 1 (printed p34/PDF66), section 4.3.1 (pp44–45/PDF76–77), Figure 3-1 (p26/PDF58), and section 6.1.1 (p78/PDF110). These support consistent real-price discounting, year-end timing and discounted operating savings. These passages were directly re-read. A section-number typo in the intermediate packet was corrected before the final `source-3` candidate; earlier candidates were not admitted. Case-specific performance, tariffs, horizons and heat demand remain scenario inputs.
@@ -49,3 +51,9 @@ Meta reasoning documentation, directly retrieved 2026-10-29: https://dev.meta.ai
 Accepted extraction: candidate `e2118546-2868-4430-922f-ba90acff1828`, `uniform-present-value@source-3`, call `912a467f-b689-4ce7-a60a-2c077699a952`; $457.9707187194535 reproduces the rounded $457.97 reference within $0.005. Review identity `codex-prototype-review` denotes development-agent technical review, not owner scientific approval.
 
 Live saved runs: default investment `8164f115-796f-48b2-9841-c7cc2540f23a`; operating costs `3ab13bce-0614-4fe7-a942-d3650956c174`; changed inputs `e49505cf-5f2a-48f6-8090-d07cbe9a30ae`; unsupported forecast `bca732eb-9214-4ef2-9fc4-34f0562592a6`. Separate Decimal year-by-year sums match the two NPVs within 1e-8. Shared models retain matching admissions across queries; curation was not rerun during answering. Verification artifact `.runs/live-verification.json` and HTML report `.runs/report-32796605-4d48-4a0a-8dcb-89d3f90633f3.html` preserve results and inspectable lineage locally.
+
+## Question-grounded interface verification — 2026-10-31
+
+No models were re-curated. Generic extraction preserves quoted numeric/date/text facts from the question; composition references those facts and eligible models only. Complete investment question `69144a1b-58f1-4aa8-bf99-6dae8fe946f9` reproduces $8,532.16 from explicitly supplied heat, both performances, tariff, investment, discount rate, horizon and timing/price assumptions. Operating-only question `786887da-b522-436c-b67e-dea5712adfe4` supplies performance 2.5 and price $0.25/kWh, yielding $3,000/$1,200 annual costs and $1,800 savings without any investment inputs. Missing-input request `d4500890-724c-4fa8-9910-ae20274cead6` returns four plain-language clarification questions and no outputs. Saved records retain extraction and composer audits, raw proposals, fact quotes/spans and fact-to-port assignments.
+
+An initial query-parsing run produced valid facts but malformed JSON inside the composer's graph string; it was blocked and retained as `d9c132cc-8cdb-494c-b5bb-bfd3ec75e17c`. Graph output now uses nested structured objects with reference-only binding records. Thirty offline tests pass, covering additional subjects/types, literal/unit grounding, omitted inputs, invented references/literals and parser ambiguity handling. Report `.runs/report-33d01f44-a487-474c-9b94-12ac5939cf0c.html` shows the corrected live workflow. Meta pricing was rechecked at https://dev.meta.ai/docs/pricing-rate-limits on 2026-10-31 and the pinned Spark Standard rates still matched. Ledger checkpoint: 20 settled calls, $0.201389 conservatively; this is not a reconciled provider invoice.

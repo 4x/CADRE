@@ -14,9 +14,10 @@ from typing import Any
 from uuid import uuid4
 
 from . import __version__
-from .contracts import Composition, MEANINGS, Model, ModelError, Node, Reference, UNITS, Value, finite
+from .contracts import Composition, MEANINGS, Model, ModelError, Node, Port, Reference, UNITS, Value, finite
 from .expressions import check_guard, dimensions, evaluate, guard_dimensions, parse
 from .serialization import model_digest
+from .solving import SolveError, node_ports, solve
 
 MAX_GRAPH_NODES = 64
 MAX_MODEL_INPUTS = 16
@@ -31,6 +32,8 @@ class CompiledNode:
     model: Model
     expression: ast.AST
     guards: tuple[ast.Compare, ...]
+    inputs: dict[str, Port]
+    output: Port
 
 
 def validate_model(model: Model) -> tuple[ast.AST, tuple[ast.Compare, ...]]:
@@ -75,7 +78,8 @@ def compile_graph(composition: Composition, catalog: dict[str, Model],
                 raise ModelError(f"{node.id}: model lacks a matching reviewed registry admission.")
         elif model.status != "fixture":
             raise ModelError("Fixture runs require fixture definitions.")
-        if len(model.inputs) > MAX_MODEL_INPUTS or set(node.bindings) != set(model.inputs):
+        inputs, output = node_ports(node, model)
+        if len(inputs) > MAX_MODEL_INPUTS + 1 or set(node.bindings) != set(inputs):
             raise ModelError(f"{node.id}: missing/extra inputs or too many inputs.")
         expression, guards = validate_model(model)
         dependencies[node.id] = set()
@@ -86,15 +90,16 @@ def compile_graph(composition: Composition, catalog: dict[str, Model],
                 upstream = catalog.get(nodes[binding.node].model)
                 if upstream is None:
                     raise ModelError(f"Missing upstream model for {binding.node}.")
-                Value(1.0, upstream.output, "derived", binding.node).bind(model.inputs[name])
+                _, upstream_output = node_ports(nodes[binding.node], upstream)
+                upstream_output.require_compatible(inputs[name])
                 dependencies[node.id].add(binding.node)
             elif isinstance(binding, Value):
                 if composition.purpose == "scenario" and binding.origin in {"fixture", "generated", "derived"}:
                     raise ModelError("Scenario inputs must be sourced observations or explicit user scenarios; generated estimates need owner consent.")
-                binding.bind(model.inputs[name])
+                binding.bind(inputs[name])
             else:
                 raise ModelError(f"{node.id}.{name}: unsupported binding type.")
-        compiled[node.id] = CompiledNode(node, model, expression, guards)
+        compiled[node.id] = CompiledNode(node, model, expression, guards, inputs, output)
     try:
         order = tuple(TopologicalSorter(dependencies).static_order())
     except CycleError as exc:
@@ -128,22 +133,29 @@ def execute(composition: Composition, catalog: dict[str, Model],
             origins: list[dict[str, Any]] = []
             for name, binding in node.bindings.items():
                 value = values[binding.node] if isinstance(binding, Reference) else binding
-                numbers[name] = finite(value.bind(model.inputs[name]) * UNITS[model.inputs[name].unit].scale, "Normalized input")
+                numbers[name] = finite(value.bind(compiled.inputs[name]) * UNITS[compiled.inputs[name].unit].scale, "Normalized input")
                 origins.extend(reliance[binding.node] if isinstance(binding, Reference) else [{"node": node.id, "input": name, **asdict(value)}])
-            for guard_text, guard in zip(model.guards, compiled.guards, strict=True):
-                if not check_guard(guard, numbers):
-                    raise ModelError(f"{node.id}: domain condition failed: {guard_text}.")
-            result = finite(evaluate(compiled.expression, numbers) / UNITS[model.output.unit].scale, "Output")
-            value = Value(result, model.output, "derived", f"{manifest['run_id']}/{node.id}")
-            value.bind(model.output)
+            solve_evidence = None
+            if node.solve_for is not None:
+                canonical_result, solve_evidence = solve(model, compiled.expression, compiled.guards, node.solve_for, numbers, node.relation)
+            else:
+                for guard_text, guard in zip(model.guards, compiled.guards, strict=True):
+                    if not check_guard(guard, numbers):
+                        raise ModelError(f"{node.id}: domain condition failed: {guard_text}.")
+                canonical_result = evaluate(compiled.expression, numbers)
+            result = finite(canonical_result / UNITS[compiled.output.unit].scale, "Output")
+            value = Value(result, compiled.output, "derived", f"{manifest['run_id']}/{node.id}")
+            value.bind(compiled.output)
             values[node.id], reliance[node.id] = value, origins
             manifest["steps"].append({"node": node.id, "model": model.key, "normalized_inputs": numbers,
-                                      "result": asdict(value), "relies_on": origins})
+                                      "result": asdict(value), "relies_on": origins, "solve": solve_evidence})
         manifest["outputs"] = {name: asdict(values[name]) for name in composition.outputs}
         manifest["status"] = "completed"
         LOGGER.info(f"Completed run {manifest['run_id']} with {len(plan)} nodes")
     except ModelError as exc:
         manifest["error"] = str(exc)
+        if isinstance(exc, SolveError):
+            manifest["solve_diagnostic"] = exc.diagnostic
         LOGGER.warning(f"Rejected run {manifest['run_id']}: {exc}")
     return manifest
 

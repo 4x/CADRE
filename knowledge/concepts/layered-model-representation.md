@@ -5,7 +5,7 @@ title: Layered Model Representation
 summary: Provisional common contract separating semantic quantities, local declarations, contextual values, model revisions, implementations, compositions, experiments/runs, and evidence; specialized mathematical payloads preserve formalisms. Not an accepted or tested schema.
 status: provisional
 created: '2026-10-28'
-updated: '2026-10-28'
+updated: '2026-10-31'
 topics:
   - representation
   - ontology
@@ -37,6 +37,14 @@ relations:
 Recommendation from [[investigation-model-variable-quantity-representation]], completed 2026-10-28 as **desk research**, not an accepted architecture, implemented schema, import/export test, or measured improvement. The report compares primary-source precedents, alternatives, worked cases, and proposed falsification trials. It does not supersede the historical prototype records: those document a different implemented context.
 
 ## Core principle
+
+### Implemented bounded inverse views — 2026-10-31
+
+At the user's request to extract different quantities from existing relationships, the local scalar runtime now keeps one canonical model revision and records a directional solve view on the run's node (`solve_for`, `relation`). This implements the operation-dependent input/output distinction below without claiming a universal acausal schema. All other declared quantities plus the known original output are bound; the result carries the solved input's original meaning, context and unit. Original model/review digests and guards remain unchanged. No duplicate scientific model or inline source curation is needed for a deterministic algebraic view.
+
+The implemented solver substitutes known values into restricted rational expressions, solves real linear/quadratic equations with exact coefficient construction and numerical root verification, and reports multiple/no/underdetermined/unsupported solutions explicitly. Original guards, singularities and integer semantics are rechecked after solving. Finite integer equality/earliest-threshold operations can enumerate a domain explicitly bounded by original guards, without monotonicity assumptions or an invented user horizon. Domains and numerical tolerances are saved in run evidence. This is algebraic equivalence within declared scope, not causal reversal or general inversion of statistical models. Curators still own scientific validity, local variable roles, constants and domain restrictions; runtime does bounded mathematical manipulation.
+
+The initial scope is deliberately narrower than arbitrary low-degree symbolic solving: one unknown, real scalar values, limited rational arithmetic, degree at most two after known-value substitution, capped intermediate complexity and finite integer search. The unitless E=m*c² fixture checks both c branches and m inversion; no physical SI vocabulary or new curated physics model is claimed. Fixed literals cannot be solve targets. The wider concept remains provisional. Evidence and actual profile limits are in [[question-execution-runtime-for-heterogeneous-models]] and [[source-mathematical-model-representation-standards]].
 
 **Canonicalize shared contracts, not all mathematics into one universal normal form.** Keep semantic identity, local mathematical syntax, values, executable artifacts, evidence, and run history distinct. Use a small common envelope and explicit mathematical/operation profiles; preserve native richer payloads without claiming executable support.
 

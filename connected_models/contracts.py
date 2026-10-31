@@ -14,6 +14,10 @@ class ModelError(ValueError):
     """A user-actionable contract, binding, or calculation error."""
 
 
+class NumericalError(ModelError):
+    """The numerical backend cannot evaluate a value within its declared limits."""
+
+
 @dataclass(frozen=True)
 class Unit:
     """A pinned ratio unit and its scale to kWh/USD base units."""
@@ -55,9 +59,9 @@ def finite(value: float, label: str) -> float:
     try:
         result = float(value)
     except (ValueError, OverflowError) as exc:
-        raise ModelError(f"{label}: number is outside the supported range.") from exc
+        raise NumericalError(f"{label}: number is outside the supported range.") from exc
     if not math.isfinite(result):
-        raise ModelError(f"{label}: expected a finite number.")
+        raise NumericalError(f"{label}: expected a finite number.")
     return result
 
 
@@ -78,6 +82,13 @@ class Port:
         if not isinstance(self.context, str) or not self.context:
             raise ModelError("Every port requires an explicit context.")
 
+    def require_compatible(self, target: "Port") -> None:
+        """Check port compatibility without inventing a numerical value during compilation."""
+        self.validate()
+        target.validate()
+        if (self.meaning, self.context) != (target.meaning, target.context):
+            raise ModelError(f"Cannot bind {self} to {target}: meaning/context mismatch.")
+
 
 @dataclass(frozen=True)
 class Value:
@@ -90,12 +101,9 @@ class Value:
 
     def bind(self, target: Port) -> float:
         """Validate meaning/context and convert compatible ratio units explicitly."""
-        self.port.validate()
-        target.validate()
+        self.port.require_compatible(target)
         if self.origin not in ORIGINS or not self.evidence:
             raise ModelError("Every value needs a supported origin and evidence.")
-        if (self.port.meaning, self.port.context) != (target.meaning, target.context):
-            raise ModelError(f"Cannot bind {self.port} to {target}: meaning/context mismatch.")
         amount = finite(self.amount, "Input value")
         converted = finite(amount * UNITS[self.port.unit].scale / UNITS[target.unit].scale, "Converted input")
         if target.meaning == "period_count" and not (converted * UNITS[target.unit].scale).is_integer():
@@ -137,6 +145,8 @@ class Node:
     id: str
     model: str
     bindings: dict[str, Value | Reference]
+    solve_for: str | None = None
+    relation: str = "equal"
 
 
 @dataclass(frozen=True)

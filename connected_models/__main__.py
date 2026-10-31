@@ -77,7 +77,7 @@ def main() -> int:
                 print(f"Review report: {review_bundle(registry)}")
             else:
                 record = answer(registry, args.question)
-                print(json.dumps({key: record.get(key) for key in ("run_id", "status", "outputs", "clarifications", "error", "saved_path")}, indent=2))
+                print(json.dumps({key: record.get(key) for key in ("run_id", "status", "outputs", "clarifications", "solve_diagnostic", "error", "saved_path")}, indent=2))
                 return 0 if record["status"] == "completed" else 1
             return 0
         manifest = execute(composition(args.performance, args.investment, args.tariff, args.question), catalog())

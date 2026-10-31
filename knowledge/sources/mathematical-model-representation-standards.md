@@ -5,7 +5,7 @@ title: Mathematical Model Languages and Execution Interfaces — Research Eviden
 summary: Primary-source evidence on MathML, OpenMath, CellML, SBML, Modelica, FMI, BMI, symbolic expressions, statistical/optimization programs, and compiler/workflow boundaries; not an interoperability test.
 status: active
 created: '2026-10-28'
-updated: '2026-10-28'
+updated: '2026-10-31'
 topics:
   - representation
   - architecture
@@ -17,6 +17,12 @@ relations:
 ---
 
 # Mathematical Model Languages and Execution Interfaces — Research Evidence
+
+## Inverse-solving documentation check — 2026-10-31
+
+Primary SymPy 1.14 documentation was inspected at https://docs.sympy.org/latest/guides/solving/solving-guidance.html, https://docs.sympy.org/latest/modules/solvers/solveset.html and https://docs.sympy.org/latest/modules/parsing.html. The guidance distinguishes different equation classes and symbolic/numeric solving. The solveset reference emphasizes domain-dependent solution sets, multiple branches and checking whether substitution is defined. The parsing reference warns that its convenience string parser uses eval on input; it is not a safe ingestion path for unrestricted agent strings.
+
+This informed the prototype's explicit real-domain/branch handling and original-expression checks. SymPy was evaluated as a future adapter option, not installed or invoked. The implemented initial facility uses the existing restricted AST, exact Fraction coefficient arithmetic, bounded linear/quadratic solving and finite integer enumeration. It does not claim SymPy's broader mathematical coverage or a standards interoperability trial. Implementation evidence/limits live in [[question-execution-runtime-for-heterogeneous-models]].
 
 ## Provenance and scope
 

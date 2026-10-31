@@ -8,6 +8,7 @@ from urllib.parse import urlsplit
 from uuid import UUID, uuid4
 
 from .contracts import ModelError
+from .solving import OUTPUT_BINDING
 
 
 def read_run(run_id: str, directory: Path = Path(".runs")) -> dict[str, Any]:
@@ -23,7 +24,10 @@ def label(value: Any) -> str:
 
 def amount(value: dict[str, Any]) -> str:
     """Format an executed value and its actual unit without changing the calculation."""
-    return f"{float(value['amount']):,.2f} {label(value['port']['unit'])}"
+    unit = value["port"]["unit"]
+    if value["port"]["meaning"] == "period_count" and value["port"]["context"] == "annual-period-count" and unit == "1":
+        unit = "years (annual periods)"
+    return f"{float(value['amount']):,.2f} {label(unit)}"
 
 
 def source_link(source: str) -> str:
@@ -51,12 +55,19 @@ def run_section(run: dict[str, Any]) -> str:
             else:
                 value = binding
                 origin = f'{label(value["origin"])} — {label(value["evidence"])}'
-            rows.append(f'<tr><td>{label(name)}</td><td>{amount(value)}</td><td>{origin}</td></tr>')
+            input_label = "Requested original-output target" if name == OUTPUT_BINDING else name
+            rows.append(f'<tr><td>{label(input_label)}</td><td>{amount(value)}</td><td>{origin}</td></tr>')
         assumptions = "".join(f"<li>{label(item)}</li>" for item in model["assumptions"])
         review = run.get("admissions", {}).get(step["model"], {})
         review_note = f'Review: {label(review.get("reviewer", "fixture / no admission"))}. {label(review.get("notes", ""))}'
+        operation = ""
+        if step.get("solve"):
+            evidence = step["solve"]
+            operation = (f'<p><b>Solved for {label(evidence["solve_for"])}</b> using {label(evidence["method"])} '
+                         f'({label(evidence["relation"])}). The original relationship and review are retained.</p>'
+                         f'<details><summary>Solver checks and domain</summary><pre>{label(json.dumps(evidence, indent=2))}</pre></details>')
         cards.append(f'<details><summary><span>{index}. {label(step["node"])}</span><b>{amount(step["result"])}</b></summary>'
-                     f'<p class="muted">{label(step["model"])}</p><code>{label(model["expression"])}</code>'
+                     f'<p class="muted">{label(step["model"])}</p><code>{label(model["expression"])}</code>{operation}'
                      '<table><thead><tr><th>Input</th><th>Value</th><th>Origin</th></tr></thead>'
                      f'<tbody>{"".join(rows)}</tbody></table><p>Source: {source_link(model["source"])}</p>'
                      f'<ul>{assumptions}</ul><p class="muted">{review_note}</p></details>')

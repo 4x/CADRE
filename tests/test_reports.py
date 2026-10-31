@@ -6,6 +6,8 @@ import unittest
 from connected_models.demo import catalog, composition
 from connected_models.reports import read_run, write_report
 from connected_models.runtime import execute, save_run
+from connected_models.contracts import Composition, Node, Value
+from connected_models.solving import OUTPUT_BINDING
 from test_support import scratch_directory
 
 
@@ -41,3 +43,20 @@ class ReportTests(unittest.TestCase):
             self.assertIn("domain condition failed", html)
             with self.assertRaises(ValueError):
                 read_run("../credential-file", directory)
+
+    def test_inverse_report_exposes_original_model_and_solver_domain(self) -> None:
+        """An inverse report must distinguish a target value from a calculated source output."""
+        model = catalog()["uniform-present-value@1"]
+        node = Node("payback", model.key, {
+            "annual": Value(2400, model.inputs["annual"], "fixture", "known annual savings"),
+            "rate": Value(0.05, model.inputs["rate"], "fixture", "known discount rate"),
+            OUTPUT_BINDING: Value(10000, model.output, "fixture", "requested threshold")}, "years", "at_least")
+        run = execute(Composition("payback-report", (node,), (node.id,)), {model.key: model})
+        with scratch_directory() as folder:
+            directory = Path(folder)
+            save_run(run, directory)
+            html = write_report([run["run_id"]], directory).read_text(encoding="utf-8")
+            self.assertIn("Solved for years", html)
+            self.assertIn("Solver checks and domain", html)
+            self.assertIn("Requested original-output target", html)
+            self.assertIn("5.00 years", html)

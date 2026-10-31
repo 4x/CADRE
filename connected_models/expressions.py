@@ -4,7 +4,7 @@ import ast
 import operator
 from collections.abc import Mapping
 
-from .contracts import DIMENSIONLESS, Dimensions, ModelError, finite
+from .contracts import DIMENSIONLESS, Dimensions, ModelError, NumericalError, finite
 
 MAX_EXPRESSION_CHARS = 2048
 MAX_EXPRESSION_NODES = 128
@@ -73,10 +73,14 @@ def evaluate(node: ast.AST, names: Mapping[str, float]) -> float:
             left, right = evaluate(node.left, names), evaluate(node.right, names)
             if isinstance(node.op, ast.Pow):
                 if abs(right) > MAX_ABS_EXPONENT:
-                    raise ModelError(f"Exponent exceeds supported magnitude {MAX_ABS_EXPONENT}.")
+                    raise NumericalError(f"Exponent exceeds supported magnitude {MAX_ABS_EXPONENT}.")
                 return finite(left**right, "Power result")
             if type(node.op) in ARITHMETIC:
                 return finite(ARITHMETIC[type(node.op)](left, right), "Arithmetic result")
+    except NumericalError:
+        raise
+    except OverflowError as exc:
+        raise NumericalError("Arithmetic overflowed the supported numerical range.") from exc
     except (ArithmeticError, ValueError) as exc:
         raise ModelError(f"Arithmetic failed: {exc}") from exc
     raise ModelError("Unsupported expression node.")

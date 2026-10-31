@@ -107,3 +107,42 @@ def revise_run(parent_id: str, sets: list[str], models: list[str],
     path = save_run(manifest, directory)
     manifest["diff"] = diff_runs(parent, manifest)
     return {**manifest, "saved_path": str(path)}
+
+
+def replay_run(run_id: str, directory: Path = RUNS_PATH) -> dict[str, Any]:
+    """Re-execute a saved graph against its pinned models and compare; saves nothing.
+
+    Unlike revision, replay uses the models and admissions recorded in the run
+    manifest rather than the registry's current snapshot, so it verifies exact
+    deterministic reproduction of that run's own evidence.
+    """
+    parent = read_run(run_id, directory)
+    composition_data = parent.get("composition")
+    if not isinstance(composition_data, dict) or not composition_data.get("nodes"):
+        raise ModelError("That run has no executable graph to replay.")
+    purpose = composition_data.get("purpose")
+    if purpose == "scenario":
+        catalog = {key: replace(model_from_dict(data), status="eligible") for key, data in parent.get("models", {}).items()}
+        admissions = parent.get("admissions", {})
+    elif purpose == "fixture":
+        catalog = {key: replace(model_from_dict(data), status="fixture") for key, data in parent.get("models", {}).items()}
+        admissions = {}
+    else:
+        raise ModelError("That run predates supported replay.")
+    graph = composition_from_dict(composition_data)
+    if purpose == "fixture":
+        graph = replace(graph, purpose="fixture")
+    repeated = execute(graph, catalog, admissions)
+    old_outputs, new_outputs = parent.get("outputs", {}) or {}, repeated.get("outputs", {}) or {}
+    mismatches = sorted(set(old_outputs) ^ set(new_outputs))
+    for name in set(old_outputs) & set(new_outputs):
+        before, after = old_outputs[name], new_outputs[name]
+        if before.get("amount") != after.get("amount") or before.get("port") != after.get("port"):
+            mismatches.append(name)
+    status_match = parent.get("status") == repeated.get("status")
+    error_match = parent.get("error") == repeated.get("error")
+    matched = status_match and error_match and not mismatches
+    return {"run_id": parent["run_id"], "replayed": True, "matched": matched,
+            "status": {"recorded": parent.get("status"), "repeated": repeated.get("status")},
+            "error_match": error_match, "output_mismatches": sorted(mismatches),
+            "outputs": repeated.get("outputs", {})}

@@ -12,7 +12,7 @@ from .inference import BudgetLedger, InferenceSettings, smoke_test
 from .runtime import execute, save_run
 from .registry import Registry
 from .reports import read_run, write_report
-from .revisions import revise_run
+from .revisions import replay_run, revise_run
 from .workflows import REGISTRY_PATH, answer, curate, review_bundle, seed_candidates
 
 
@@ -50,6 +50,8 @@ def main() -> int:
                         help="Revise a direct input: node.input=amount in the model's declared unit")
     revise.add_argument("--model", dest="models", action="append", default=[],
                         help="Substitute a node model: node=model@version")
+    replay = commands.add_parser("replay", help="Re-execute a saved run's graph against its pinned models and compare; saves nothing")
+    replay.add_argument("run_id")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     try:
@@ -60,6 +62,10 @@ def main() -> int:
         if args.command == "report":
             print(f"Report: {write_report(args.run_ids)}")
             return 0
+        if args.command == "replay":
+            result = replay_run(args.run_id)
+            print(json.dumps(result, indent=2))
+            return 0 if result["matched"] else 1
         if args.command in {"meta-smoke", "usage"}:
             settings = InferenceSettings.load(Path("inference.toml"))
             ledger = BudgetLedger(Path(".usage/meta.sqlite3"), settings)

@@ -11,7 +11,7 @@ from connected_models.contracts import ModelError, Value
 from connected_models.demo import catalog, composition
 from connected_models.registry import Registry
 from connected_models.reports import write_report
-from connected_models.revisions import revise_run
+from connected_models.revisions import replay_run, revise_run
 from connected_models.runtime import execute, save_run
 from connected_models.workflows import curate, load_packet, PACKET_PATH, reference_check, seed_candidates
 from test_support import scratch_directory
@@ -157,6 +157,56 @@ class RevisionTests(unittest.TestCase):
             save_run(record, directory)
             with self.assertRaisesRegex(ModelError, "no executable graph"):
                 revise_run(record["run_id"], ["upgrade-energy.performance=2"], [], None, directory)
+
+    def test_replay_matches_and_saves_nothing(self) -> None:
+        """Replaying a saved run reproduces it exactly without writing new files."""
+        with scratch_directory() as folder:
+            directory = Path(folder)
+            old = execute(composition(), catalog())
+            save_run(old, directory)
+            before = sorted(path.name for path in directory.iterdir())
+            result = replay_run(old["run_id"], directory)
+            self.assertTrue(result["matched"])
+            self.assertEqual(result["status"], {"recorded": "completed", "repeated": "completed"})
+            self.assertEqual(result["outputs"]["annual-savings"]["amount"], 2400)
+            self.assertEqual(sorted(path.name for path in directory.iterdir()), before)
+
+    def test_replay_detects_tampered_evidence(self) -> None:
+        """Edited outputs no longer match recomputation from the recorded graph."""
+        with scratch_directory() as folder:
+            directory = Path(folder)
+            old = execute(composition(), catalog())
+            path = save_run(old, directory)
+            tampered = json.loads(path.read_text(encoding="utf-8"))
+            tampered["outputs"]["annual-savings"]["amount"] = 999999
+            path.write_text(json.dumps(tampered, indent=2), encoding="utf-8")
+            result = replay_run(old["run_id"], directory)
+            self.assertFalse(result["matched"])
+            self.assertEqual(result["output_mismatches"], ["annual-savings"])
+
+    def test_replay_reproduces_scenario_rejection(self) -> None:
+        """A rejected run replays to the same rejection, not a silent fix."""
+        with scratch_directory() as folder:
+            registry = Registry(Path(folder) / "registry.sqlite3")
+            approve_test_catalog(registry)
+            models, admissions = registry.snapshot()
+            old = execute(scenario_graph(), models, admissions)
+            directory = Path(folder) / "runs"
+            save_run(old, directory)
+            bad = revise_run(old["run_id"], ["savings-present-value.rate=0"], [], registry, directory)
+            self.assertEqual(bad["status"], "rejected")
+            result = replay_run(bad["run_id"], directory)
+            self.assertTrue(result["matched"])
+            self.assertTrue(result["error_match"])
+
+    def test_replay_rejects_runs_without_graph(self) -> None:
+        """A needs-input run has nothing deterministic to reproduce."""
+        with scratch_directory() as folder:
+            directory = Path(folder)
+            record = {"run_id": str(uuid4()), "status": "needs-input", "clarifications": ["Which price?"]}
+            save_run(record, directory)
+            with self.assertRaisesRegex(ModelError, "no executable graph"):
+                replay_run(record["run_id"], directory)
 
     def test_report_comparison_shows_revision(self) -> None:
         """A two-run report visibly compares revised outputs, inputs and models."""

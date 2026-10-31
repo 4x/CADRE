@@ -2,7 +2,7 @@
 
 Compose reusable quantitative models and inspect their inputs, assumptions, dependencies and results. The first runnable slice compares electric resistance heating with a heat pump, then connects operating savings to discounted investment value.
 
-Returning agents: start with the session handoff in [PROJECT_STATE.md](PROJECT_STATE.md), then the [active MVP plan](knowledge/notes/mvp-build-sequence-and-extension-triggers.md). M2-A/B/C are complete; the broader acceptance exercise (M2-D) is next. Current worker release files are directly in `.runs/curation-kits-2026-10-31.4/`; build/test artifacts are archived separately. The full offline suite has 85 passing tests. Incoming ZIPs and the live registry/runs are local state; migration details are in the handoff.
+Returning agents: start with the session handoff in [PROJECT_STATE.md](PROJECT_STATE.md), then the [active MVP plan](knowledge/notes/mvp-build-sequence-and-extension-triggers.md). M2 is complete, including the recorded acceptance exercise; M3 testing continues and M4 release work can start. Current worker release files are directly in `.runs/curation-kits-2026-10-31.4/`; build/test artifacts are archived separately. The full offline suite has 89 passing tests. Incoming ZIPs and the live registry/runs are local state; migration details are in the handoff.
 
 ## Run the current prototype
 
@@ -135,6 +135,8 @@ uv --cache-dir .uv-cache run --no-env-file -m connected_models report RUN_ID REV
 ```
 
 Only direct value inputs can be revised; calculated upstream bindings are rejected with an explanation, as are unknown nodes, undeclared inputs and unavailable model revisions (the error lists what is available). A revision that violates model guards or interface checks is saved as a rejected run with diagnostics, preserving the failure evidence. Listing two or more runs in `report` adds a "What changed" comparison of outputs with deltas, changed inputs and changed models, each run compared against the first listed.
+
+To verify deterministic reproduction without creating a new run, `replay RUN_ID` re-executes the saved graph against its pinned models and admissions and reports whether status, error and outputs match exactly. It saves nothing and exits nonzero on any mismatch.
 
 ## Solve for another quantity in an existing relationship
 

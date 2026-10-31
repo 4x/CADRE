@@ -2,6 +2,8 @@
 
 Compose reusable quantitative models and inspect their inputs, assumptions, dependencies and results. The first runnable slice compares electric resistance heating with a heat pump, then connects operating savings to discounted investment value.
 
+Returning agents: start with the session handoff in [PROJECT_STATE.md](PROJECT_STATE.md), then the [active MVP plan](knowledge/notes/mvp-build-sequence-and-extension-triggers.md). M2-A/B are complete; revision controls and the broader acceptance exercise (M2-C/D) are next. Current worker release files are directly in `.runs/curation-kits-2026-10-31.4/`; build/test artifacts are archived separately. The full offline suite has 78 passing tests. Incoming ZIPs and the live registry/runs are local state; migration details are in the handoff.
+
 ## Run the current prototype
 
 Requires uv and Python 3.12 or newer. No third-party Python packages are required.

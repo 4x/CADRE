@@ -1,0 +1,430 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.5",
+  "batch_id": "computer-science-b10",
+  "domain": "computer-science",
+  "curator": "muse-spark",
+  "created": "2026-11-01",
+  "example_only": false,
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: operational scope - actual/realistic operating and support environment; includes logistics time, ready time, waiting/administrative downtime plus preventive and corrective maintenance.",
+        "MTBF and MDT in consistent time units; steady-state (limiting) availability.",
+        "MDT quantities are under logistician/mission-planner control (spares, tools, manpower proximity), unlike designer-controlled inherent terms."
+      ],
+      "constants": [],
+      "guards": [
+        "MTBF > 0",
+        "MDT >= 0"
+      ],
+      "id": "computer-science--operational-availability-mtbf-mdt",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings operational_availability/mean_downtime absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Same algebraic form as the inherent record with different quantities: bind MDT (with logistics) vs MTTR (corrective only) deliberately, never interchangeably."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "MTBF = Ao*MDT/(1-Ao) needs Ao != 1; MDT = MTBF*(1-Ao)/Ao needs Ao != 0. Check: Ao=0.99998,MDT=2 gives MTBF = 99998 (estimate scale of 100000). Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Same equation shape as inherent availability is not the same model: MDT versus MTTR scope differs; misbinding overstates fielded availability.",
+        "MDT aggregates heterogeneous delay sources; splitting them needs logistics modeling beyond this record.",
+        "MTBF/MDT are estimated inputs with uncertainty; never measured claims about real systems."
+      ],
+      "references": [
+        {
+          "expected": 0.99998,
+          "id": "low-mdt-operational",
+          "inputs": {
+            "MDT": 2,
+            "MTBF": 100000
+          },
+          "method": "Ordinary case at transducer scale: 100000/100002 = 0.99998. Same arithmetic as the inherent record but MDT-quantity scope; expected keeps computed value.",
+          "provenance": "Independent arithmetic check with source-scale inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.9090909091,
+          "id": "heavy-logistics-case",
+          "inputs": {
+            "MDT": 50,
+            "MTBF": 500
+          },
+          "method": "Materially different scale with heavy logistics share: 500/550 = 0.9090909; shows MDT dominating the quotient.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1,
+          "id": "boundary-zero-mdt",
+          "inputs": {
+            "MDT": 0,
+            "MTBF": 100000
+          },
+          "method": "Boundary: zero mean downtime collapses operational onto certain availability; admitted ideal boundary (instant support).",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "MDT": -3,
+            "MTBF": 1000
+          },
+          "kind": "domain",
+          "reason": "Negative mean downtime violates MDT >= 0."
+        },
+        {
+          "inputs": {
+            "MDT": 2
+          },
+          "kind": "missing-input",
+          "reason": "MTBF is required alongside MDT; omitting it leaves Ao undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "MTBF / (MTBF + MDT)",
+        "locator": "Definitions within systems engineering: operational availability (Ao) equals MTBF divided by MTBF plus mean downtime (MDT).",
+        "original_equation": "Ao = MTBF / (MTBF + MDT)",
+        "output_symbol": "Ao",
+        "source_id": "wikipedia-availability",
+        "translation_notes": "Source symbols MTBF, MDT, Ao -> locals MTBF, MDT, output Ao. Consistent-unit requirement as in the inherent record. Check: time/time dimensionless."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines operational availability (Ao) for realistic support environments as MTBF divided by MTBF plus mean downtime (MDT), including logistics/ready/waiting time and both preventive and corrective maintenance; contrasts with inherent (designer) scope.",
+          "id": "wikipedia-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Definitions within systems engineering (operational availability, Ao).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Availability (operational availability definition)",
+          "url": "https://en.wikipedia.org/wiki/Availability",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Operational steady-state availability from MTBF and mean downtime.",
+      "title": "Operational availability from MTBF and MDT",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same element, realistic support environment and mission profile as MDT and Ao",
+          "definition": "Mean time between failures in fielded operation",
+          "dimensions": "time",
+          "domain": "Positive finite",
+          "quantity_id": "mtbf",
+          "role": "input",
+          "source_symbol": "MTBF",
+          "symbol": "MTBF",
+          "unit": "h"
+        },
+        {
+          "context": "same element, realistic support environment and mission profile as MTBF and Ao",
+          "definition": "Mean downtime including logistics, ready, waiting/administrative time and preventive plus corrective maintenance",
+          "dimensions": "time",
+          "domain": "Nonnegative finite, same unit as MTBF",
+          "quantity_id": "mean_downtime",
+          "role": "input",
+          "source_symbol": "mean downtime (MDT)",
+          "symbol": "MDT",
+          "unit": "h"
+        },
+        {
+          "context": "same element, realistic support environment and mission profile as inputs",
+          "definition": "Operational (fielded, steady-state) availability probability",
+          "dimensions": "dimensionless",
+          "domain": "Interval (0,1]",
+          "quantity_id": "operational_availability",
+          "role": "output",
+          "source_symbol": "operational availability (Ao)",
+          "symbol": "Ao",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Binary (IEC) rate convention with the published prefix ladder extended: pebi- = 2^50 (binary prefixes section introduces kibi- through exbi- as powers of 2).",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1125899906842624,
+          "locator": "Binary prefixes section: IEC prefixes kibi- through exbi- denote successive powers of 2 (pebi- is the 2^50 step); value verified as 2^50 by exact integer arithmetic in translation notes.",
+          "meaning": "binary bits per second per pebibit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_pibps >= 0"
+      ],
+      "id": "computer-science--binary-pebibit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings pebibit_rate/bit_rate and unit Pibit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_pibps = R_bps/1125899906842624 needs R_bps. Check: 2251799813685248 gives 2. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Value derived from the published prefix ladder, not a tabulated per-unit row; independently verified 2^50 in translation notes.",
+        "Asserted rate only; excludes overhead."
+      ],
+      "references": [
+        {
+          "expected": 1125899906842624,
+          "id": "one-pebibit-rate",
+          "inputs": {
+            "R_pibps": 1
+          },
+          "method": "Prefix-ladder derivation: pebi- is the 2^50 IEC binary step; 2^50 = 1125899906842624 exactly (powers of two are exact).",
+          "provenance": "Independent derivation from published prefix definitions (Data-rate units binary prefixes).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 2251799813685248,
+          "id": "two-pebibit-rate",
+          "inputs": {
+            "R_pibps": 2
+          },
+          "method": "Ordinary case 2 x 2^50, different scale from the unit row.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-pebibit",
+          "inputs": {
+            "R_pibps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_pibps": -1
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_pibps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_pibps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_pibps * 1125899906842624",
+        "locator": "Binary prefixes (IEC 80000-13) section: pebi- denotes 2^50 within the kibi- to exbi- ladder.",
+        "original_equation": "1 Pibit/s = 2^50 = 1,125,899,906,842,624 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "2^50 verified: 2^10=1024, 2^20=1048576 (tabulated), 2^30=1073741824 (tabulated), 2^40=1099511627776 (tabulated), 2^50=1099511627776*1024=1125899906842624. Inlined as literal with constants metadata. Check: information/time preserved."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Introduces IEC binary prefixes kibi-, mebi-, gibi-, tebi-, pebi-, exbi- as binary multiples (powers of 2) with SI prefixes reserved for powers of 10; tabulated rows verify 2^10 through 2^40 steps.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Binary prefixes (IEC 80000-13) section; Variations (IEC 60027-2 Amendment 2).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (binary prefix ladder)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary pebibit-per-second rate scaled to bits per second.",
+      "title": "Binary pebibit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in binary pebibits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "pebibit_rate",
+          "role": "input",
+          "source_symbol": "pebibit per second (Pibit/s)",
+          "symbol": "R_pibps",
+          "unit": "Pibit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_pibps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Binary (IEC) rate convention with the published prefix ladder extended: exbi- = 2^60 (binary prefixes section introduces kibi- through exbi- as powers of 2).",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1152921504606846976,
+          "locator": "Binary prefixes section: IEC prefixes kibi- through exbi- denote successive powers of 2 (exbi- is the 2^60 step); value verified as 2^60 by exact integer arithmetic in translation notes.",
+          "meaning": "binary bits per second per exbibit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_eibps >= 0"
+      ],
+      "id": "computer-science--binary-exbibit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings exbibit_rate/bit_rate and unit Eibit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_eibps = R_bps/1152921504606846976 needs R_bps. Check: 1152921504606846976 gives 1. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Value derived from the published prefix ladder, not a tabulated per-unit row; independently verified 2^60 in translation notes.",
+        "Asserted rate only; excludes overhead. Largest magnitude in this collection; downstream float handling noted."
+      ],
+      "references": [
+        {
+          "expected": 1152921504606846976,
+          "id": "one-exbibit-rate",
+          "inputs": {
+            "R_eibps": 1
+          },
+          "method": "Prefix-ladder derivation: exbi- is the 2^60 IEC binary step; 2^60 = 1152921504606846976 exactly (powers of two are exact in binary floating point).",
+          "provenance": "Independent derivation from published prefix definitions (Data-rate units binary prefixes).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 2305843009213693952,
+          "id": "two-exbibit-rate",
+          "inputs": {
+            "R_eibps": 2
+          },
+          "method": "Ordinary case 2 x 2^60, different scale from the unit row; exact in binary floating point.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 2.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-exbibit",
+          "inputs": {
+            "R_eibps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_eibps": -1
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_eibps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_eibps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_eibps * 1152921504606846976",
+        "locator": "Binary prefixes (IEC 80000-13) section: exbi- denotes 2^60 within the kibi- to exbi- ladder.",
+        "original_equation": "1 Eibit/s = 2^60 = 1,152,921,504,606,846,976 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "2^60 verified: 2^50=1125899906842624 (b10 pebibit record) x 1024 = 1152921504606846976. Inlined as literal with constants metadata. Check: information/time preserved."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Introduces IEC binary prefixes kibi- through exbi- as binary multiples; tabulated rows verify 2^10 through 2^40 steps and the b10 pebibit record extends the ladder to 2^50.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Binary prefixes (IEC 80000-13) section; Variations (IEC 60027-2 Amendment 2).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (binary prefix ladder)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary exbibit-per-second rate scaled to bits per second.",
+      "title": "Binary exbibit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in binary exbibits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "exbibit_rate",
+          "role": "input",
+          "source_symbol": "exbibit per second (Eibit/s)",
+          "symbol": "R_eibps",
+          "unit": "Eibit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_eibps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    }
+  ],
+  "deferred": [
+    {
+      "title": "Achieved availability with preventive maintenance",
+      "reason": "Continuation priority: prose definition exists on the inspected page but no closed equation; formalization would require an unsupported preventive-downtime model.",
+      "source_urls": [
+        "https://en.wikipedia.org/wiki/Availability"
+      ]
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b10 curates 3 records: operational availability from MTBF/MDT, binary Pibit/s and Eibit/s to bit/s prefix-ladder extensions.",
+    "gaps": [
+      "New meanings (operational_availability, mean_downtime, pebibit_rate, exbibit_rate, bit_rate) absent from runtime-vocabulary.json; all requires-extension with null runtime_model.",
+      "Duplicate search limited to catalog-inventory.json snapshot plus b01-b10 batches; global uniqueness not claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "2026-11-01 validate: pending pack-time check; curator text review done; central review pending; terms pages not inspected; pebi/exbi values derived from the published prefix ladder, verified by exact integer arithmetic."
+  }
+}

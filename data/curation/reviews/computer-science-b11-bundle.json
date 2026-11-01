@@ -1,0 +1,516 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.5",
+  "batch_id": "computer-science-b11",
+  "domain": "computer-science",
+  "curator": "muse-spark",
+  "created": "2026-11-01",
+  "example_only": false,
+  "models": [
+    {
+      "assumptions": [
+        "Mutually independent up/down indicators at the evaluation instant, same mission/time and environment (RBD closed-form precondition, as in the two-component series record).",
+        "Combination up iff all three parts are up; Ai are steady-state availabilities."
+      ],
+      "constants": [],
+      "guards": [
+        "A1 >= 0",
+        "A1 <= 1",
+        "A2 >= 0",
+        "A2 <= 1",
+        "A3 >= 0",
+        "A3 <= 1"
+      ],
+      "id": "computer-science--series-availability-three",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings component_availability/series availability absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Generalizes the b01 two-component series record; no overlap (different arity, distinct ID)."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "A1 = A/(A2*A3) needs A2*A3 != 0. Check: A=0.989901,A2=0.9999,A3=0.99 gives A1 = 0.99. A zero leg forces A=0 (combination down). Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Needs asserted independence; common-cause or shared-repair dependence needs dynamic RBD/Markov.",
+        "Three-component closed form; N-component series products need separate records.",
+        "Steady-state only; not instantaneous/interval availability."
+      ],
+      "references": [
+        {
+          "expected": 0.989901,
+          "id": "eventhelix-series-xy",
+          "inputs": {
+            "A1": 0.99,
+            "A2": 0.9999,
+            "A3": 1
+          },
+          "method": "EventHelix series table: X at 99% with Y at 99.99% combine to 98.99%; setting the third leg perfect isolates the published pair: 0.99*0.9999*1 = 0.989901 (displayed as 98.99%).",
+          "provenance": "Published table values recombined through the source series form (EventHelix).",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.125,
+          "id": "three-half-series",
+          "inputs": {
+            "A1": 0.5,
+            "A2": 0.5,
+            "A3": 0.5
+          },
+          "method": "Ordinary case 0.5^3 = 0.125, materially different scale.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "boundary-failed-leg",
+          "inputs": {
+            "A1": 0.99,
+            "A2": 0.9999,
+            "A3": 0
+          },
+          "method": "Boundary: a failed leg fails the series combination (weakest-link limit).",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A1": 0.99,
+            "A2": 1.5,
+            "A3": 0.99
+          },
+          "kind": "domain",
+          "reason": "A2 above 1 violates the probability guard."
+        },
+        {
+          "inputs": {
+            "A3": 0.99
+          },
+          "kind": "missing-input",
+          "reason": "All three legs plus asserted independence required; omitting A1,A2 undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "A1 * A2 * A3",
+        "locator": "Series vs Parallel components section: series formula for components A, B and C as the product of the three availabilities.",
+        "original_equation": "Availability of series component = (availability of component A) x (availability of component B) x (availability of component C)",
+        "output_symbol": "A",
+        "source_id": "wikipedia-availability",
+        "translation_notes": "Three-component restriction of prod(Ai). Locals A1,A2,A3; output A. Check: probability product, dimensionless."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States the three-component series formula as the product of the three availabilities and notes combined availability is always lower than individual ones.",
+          "id": "wikipedia-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Series vs Parallel components section (series formula).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Availability (three-component series formula)",
+          "url": "https://en.wikipedia.org/wiki/Availability",
+          "version": "inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Series table: X at 99% and Y at 99.99% combine to 98.99% (0.99 x 0.9999), verifying the product form on published values.",
+          "id": "eventhelix-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Availability in Series table.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "EventHelix: System Availability (series table verification)",
+          "url": "https://www.eventhelix.com/fault-handling/system-reliability-availability/",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Three-component series availability as the product of leg availabilities.",
+      "title": "Three-component series availability",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same system, mission instant and environment as A2, A3 and A",
+          "definition": "Steady-state availability of first series leg",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "component_availability",
+          "role": "input",
+          "source_symbol": "availability of component A",
+          "symbol": "A1",
+          "unit": "1"
+        },
+        {
+          "context": "same system, mission instant and environment as A1, A3 and A",
+          "definition": "Steady-state availability of second series leg",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "component_availability",
+          "role": "input",
+          "source_symbol": "availability of component B",
+          "symbol": "A2",
+          "unit": "1"
+        },
+        {
+          "context": "same system, mission instant and environment as A1, A2 and A",
+          "definition": "Steady-state availability of third series leg",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "component_availability",
+          "role": "input",
+          "source_symbol": "availability of component C",
+          "symbol": "A3",
+          "unit": "1"
+        },
+        {
+          "context": "same system, mission instant and environment as inputs",
+          "definition": "Steady-state availability of the three-leg series combination",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]; bounded above by min(A1,A2,A3)",
+          "quantity_id": "series_availability",
+          "role": "output",
+          "source_symbol": "Availability of series component (A)",
+          "symbol": "A",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Mutually independent up/down indicators at the evaluation instant, same mission/time and environment (RBD closed-form precondition, as in the two-component parallel record).",
+        "Combination up iff at least one of the three parts is up; Ai are steady-state availabilities."
+      ],
+      "constants": [],
+      "guards": [
+        "A1 >= 0",
+        "A1 <= 1",
+        "A2 >= 0",
+        "A2 <= 1",
+        "A3 >= 0",
+        "A3 <= 1"
+      ],
+      "id": "computer-science--parallel-availability-three",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings component_availability/parallel availability absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Generalizes the b02 two-component parallel record; no overlap (different arity, distinct ID)."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "A1 = 1-(1-A)/((1-A2)*(1-A3)) needs A2,A3 != 1. Check: A=0.999999,A2=A3=0.99 gives A1 = 0.99. All-perfect legs leave A=1. Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Needs asserted independence; common-cause failures or imperfect switchover need richer models.",
+        "Three-component closed form; N-component and k-out-of-N forms need separate records.",
+        "Steady-state only; not instantaneous/interval availability."
+      ],
+      "references": [
+        {
+          "expected": 0.999999,
+          "id": "eventhelix-three-x-parallel",
+          "inputs": {
+            "A1": 0.99,
+            "A2": 0.99,
+            "A3": 0.99
+          },
+          "method": "EventHelix parallel table: three 99% legs give 99.9999%; 1-(0.01^3) = 0.999999 exactly.",
+          "provenance": "Published result from inspected source (EventHelix three-leg parallel table).",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.875,
+          "id": "three-half-parallel",
+          "inputs": {
+            "A1": 0.5,
+            "A2": 0.5,
+            "A3": 0.5
+          },
+          "method": "Ordinary case 1-(0.5^3) = 0.875, materially different scale.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 1,
+          "id": "boundary-one-perfect-leg",
+          "inputs": {
+            "A1": 1,
+            "A2": 0.3,
+            "A3": 0.4
+          },
+          "method": "Boundary: one perfect leg makes the parallel triple perfect.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A1": -0.1,
+            "A2": 0.99,
+            "A3": 0.99
+          },
+          "kind": "domain",
+          "reason": "Negative A1 violates the probability guard."
+        },
+        {
+          "inputs": {
+            "A3": 0.99
+          },
+          "kind": "missing-input",
+          "reason": "All three legs plus asserted independence required; omitting A1,A2 undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "1 - (1 - A1) * (1 - A2) * (1 - A3)",
+        "locator": "Series vs Parallel components section: parallel formula 1 - (1-A) x (1-B) x (1-C).",
+        "original_equation": "Availability of parallel components = 1 - (1 - availability of component A) X (1 - availability of component B) X (1 - availability of component C)",
+        "output_symbol": "A",
+        "source_id": "wikipedia-availability",
+        "translation_notes": "Three-component restriction of 1-prod(1-Ai). Locals A1,A2,A3; output A. Check: probability complement arithmetic, dimensionless."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States the three-component parallel formula as one minus the product of the three unavailabilities.",
+          "id": "wikipedia-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Series vs Parallel components section (parallel formula).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Availability (three-component parallel formula)",
+          "url": "https://en.wikipedia.org/wiki/Availability",
+          "version": "inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Parallel table: two 99% legs give 99.99% and three 99% legs give 99.9999% (1 s/31 s per year), verifying the product-of-unavailabilities form.",
+          "id": "eventhelix-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Availability in Parallel table.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "EventHelix: System Availability (parallel table verification)",
+          "url": "https://www.eventhelix.com/fault-handling/system-reliability-availability/",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Three-component parallel availability from the unavailability product.",
+      "title": "Three-component parallel availability",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same system, mission instant and environment as A2, A3 and A",
+          "definition": "Steady-state availability of first parallel leg",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "component_availability",
+          "role": "input",
+          "source_symbol": "availability of component A",
+          "symbol": "A1",
+          "unit": "1"
+        },
+        {
+          "context": "same system, mission instant and environment as A1, A3 and A",
+          "definition": "Steady-state availability of second parallel leg",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "component_availability",
+          "role": "input",
+          "source_symbol": "availability of component B",
+          "symbol": "A2",
+          "unit": "1"
+        },
+        {
+          "context": "same system, mission instant and environment as A1, A2 and A",
+          "definition": "Steady-state availability of third parallel leg",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "component_availability",
+          "role": "input",
+          "source_symbol": "availability of component C",
+          "symbol": "A3",
+          "unit": "1"
+        },
+        {
+          "context": "same system, mission instant and environment as inputs",
+          "definition": "Steady-state availability of the three-leg parallel combination",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]; bounded below by max(A1,A2,A3)",
+          "quantity_id": "parallel_availability",
+          "role": "output",
+          "source_symbol": "Availability of parallel components (A)",
+          "symbol": "A",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "N identical legs with common steady-state availability X, mutually independent up/down indicators at the evaluation instant and same mission/time/environment.",
+        "Combination up iff at least one leg is up (1-out-of-N:G)."
+      ],
+      "constants": [],
+      "guards": [
+        "X >= 0",
+        "X <= 1",
+        "N >= 1"
+      ],
+      "id": "computer-science--parallel-availability-n-identical",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings identical-leg availability/leg count absent from runtime vocabulary; ** with a variable count exponent needs engine support once meanings exist.",
+          "Collapses onto the b02 two-component record at N=2 by construction; kept as the distinct N-generalization the source states."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "X = 1-(1-A)**(1/N) needs N != 0 (guarded) and A <= 1; N = log(1-A)/log(1-X) needs X != 1 (log form outside scalar grammar, stated for completeness, not executed). Check: A=0.9990234375,N=10 gives X = 0.5. Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Identical independent legs only; heterogeneous legs need the distinct-leg product records; k-out-of-N voting needs binomial summation (out of format).",
+        "N is a leg count (positive); N=0 would give 0^0 form at X=1 and is guarded out.",
+        "Steady-state only; switchover coverage and common-cause failures excluded."
+      ],
+      "references": [
+        {
+          "expected": 0.9990234375,
+          "id": "ten-half-hosts",
+          "inputs": {
+            "N": 10,
+            "X": 0.5
+          },
+          "method": "Wikipedia worked example: ten 50% hosts in parallel give 99.9023%; 1-0.5^10 = 1-1/1024 = 0.9990234375 exactly (displayed as 99.9023%).",
+          "provenance": "Published result from inspected source (Availability ten-hosts example).",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.9999,
+          "id": "two-nines-pair",
+          "inputs": {
+            "N": 2,
+            "X": 0.99
+          },
+          "method": "EventHelix parallel table: two 99% legs give 99.99%; collapses onto the b02 record, cross-checking consistency.",
+          "provenance": "Published result from inspected source (EventHelix parallel table).",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.9,
+          "id": "boundary-single-leg",
+          "inputs": {
+            "N": 1,
+            "X": 0.9
+          },
+          "method": "Boundary: a single leg (N=1) returns its own availability; admitted degenerate boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "N": 0,
+            "X": 0.99
+          },
+          "kind": "domain",
+          "reason": "N below 1 violates the leg-count guard (empty combination; 0^0 form at X=1)."
+        },
+        {
+          "inputs": {
+            "N": 3
+          },
+          "kind": "missing-input",
+          "reason": "Leg availability X is required alongside N; omitting it leaves A undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "1 - (1 - X) ** N",
+        "locator": "Corollary: N parallel components each with availability X give 1-(1-X)^N, with the ten-hosts-at-50% -> 99.9023% example.",
+        "original_equation": "Availability of parallel components = 1 - (1 - X)^N",
+        "output_symbol": "A",
+        "source_id": "wikipedia-availability",
+        "translation_notes": "Source corollary with identical-leg symbol X and count N adopted directly. ** is scalar-grammar exponentiation; dimensionless base and count exponent. Check: probability complement arithmetic."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States the N-identical-component corollary 1-(1-X)^N and works ten hosts at 50% availability giving 99.9023%.",
+          "id": "wikipedia-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Series vs Parallel components section (N-component corollary and ten-hosts example).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Availability (N-identical parallel corollary)",
+          "url": "https://en.wikipedia.org/wiki/Availability",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "N-identical-leg parallel availability from the common leg availability.",
+      "title": "N-identical parallel availability",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same legs, mission instant and environment as N and A",
+          "definition": "Common steady-state availability of each identical leg",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "component_availability",
+          "role": "input",
+          "source_symbol": "availability of each component (X)",
+          "symbol": "X",
+          "unit": "1"
+        },
+        {
+          "context": "same legs, mission instant and environment as X and A",
+          "definition": "Number of identical parallel legs",
+          "dimensions": "dimensionless",
+          "domain": "Greater than or equal to 1",
+          "quantity_id": "leg_count",
+          "role": "input",
+          "source_symbol": "number of parallel components (N)",
+          "symbol": "N",
+          "unit": "1"
+        },
+        {
+          "context": "same legs, mission instant and environment as inputs",
+          "definition": "Steady-state availability of the N-leg parallel combination",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]; bounded below by X",
+          "quantity_id": "parallel_availability",
+          "role": "output",
+          "source_symbol": "Availability of parallel components (A)",
+          "symbol": "A",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "deferred": [
+    {
+      "title": "k-out-of-N voting availability (e.g. TMR 2-of-3)",
+      "reason": "Continuation priority: needs binomial summation over identical-leg terms, outside the scalar grammar; EventHelix partial-operation section states the AN,M framing without a closed scalar form.",
+      "source_urls": [
+        "https://www.eventhelix.com/fault-handling/system-reliability-availability/"
+      ]
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b11 curates 3 records: three-component series, three-component parallel, and N-identical parallel availability, lifting the b01/b02 two-component records to the arities the sources state.",
+    "gaps": [
+      "New meanings (series_availability, parallel_availability, leg_count) absent from runtime-vocabulary.json; ** with variable count exponent needs engine support; all requires-extension with null runtime_model.",
+      "Duplicate search limited to catalog-inventory.json snapshot plus b01-b11 batches; global uniqueness not claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "2026-11-01 validate: pending pack-time check; curator text review done; central review pending; terms pages not inspected."
+  }
+}

@@ -1,0 +1,656 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.5",
+  "batch_id": "computer-science-b09",
+  "domain": "computer-science",
+  "curator": "muse-spark",
+  "created": "2026-11-01",
+  "example_only": false,
+  "models": [
+    {
+      "assumptions": [
+        "Single program on a single processor; IC is the dynamic executed-instruction count for that program (source: UMN instruction-count section).",
+        "CPI is the effective average over the program's instruction mix; cycle time uniform.",
+        "IC, CPI and cycle time treated as relatively independent factors (source performance-equation framing)."
+      ],
+      "constants": [],
+      "guards": [
+        "IC >= 0",
+        "CPI >= 0",
+        "Tc >= 0"
+      ],
+      "id": "computer-science--cpu-time-performance-equation",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings instruction_count/effective_cpi/cycle_time/cpu_time absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Feeds execution-time speedup comparisons only when IC/CPI/Tc contexts match across machines (same program, stated averaging)."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "IC = T/(CPI*Tc) needs CPI*Tc != 0; CPI = T/(IC*Tc); Tc = T/(IC*CPI). Check: T=0.6,IC=1e9,CPI=1.2 gives Tc = 0.5e-9. Zero factors map back against nonnegativity guards as degenerate ideals. Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Single-processor program execution only; multiprocessor/parallel effects need the speedup-law records.",
+        "Zero IC/CPI/Tc factors are degenerate ideals (no work, no cycles, frozen clock), not operating points.",
+        "MIPS/GHz in isolation mislead across ISAs (source warns instruction complexity varies); compare with matched IC."
+      ],
+      "references": [
+        {
+          "expected": 0.6,
+          "id": "processor-b-cpu-time",
+          "inputs": {
+            "CPI": 1.2,
+            "IC": 1000000000,
+            "Tc": 5e-10
+          },
+          "method": "UVM worked example processor B: 1e9 instructions x CPI 1.2 x 0.500 ns = 600,000,000 ns = 0.600 s. Expected keeps reported value exactly.",
+          "provenance": "Published result from inspected source (UVM worked example).",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.6666666667,
+          "id": "processor-a-cpu-time",
+          "inputs": {
+            "CPI": 2.0,
+            "IC": 1000000000,
+            "Tc": 3.333333333e-10
+          },
+          "method": "UVM worked example processor A: 1e9 x 2.0 x (1/3 GHz); source rounds cycle time to 0.333 ns and reports 0.666 s. Exact quotient is 2/3 s; tolerance covers source rounding.",
+          "provenance": "Published result from inspected source (UVM worked example) with rounding allowance.",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-instructions",
+          "inputs": {
+            "CPI": 2.0,
+            "IC": 0,
+            "Tc": 5e-10
+          },
+          "method": "Boundary: zero dynamic instructions take zero CPU time; admitted degenerate boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "CPI": 1.2,
+            "IC": 1000000000,
+            "Tc": -5e-10
+          },
+          "kind": "domain",
+          "reason": "Negative cycle time violates Tc >= 0."
+        },
+        {
+          "inputs": {
+            "CPI": 1.2,
+            "IC": 1000000000
+          },
+          "kind": "missing-input",
+          "reason": "Cycle time Tc is required alongside IC and CPI; omitting it leaves T undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "IC * CPI * Tc",
+        "locator": "Performance equation statement: CPU time = instruction count x CPI x clock cycle time; completed calculation for 1,000,000,000 instructions on processors A and B.",
+        "original_equation": "CPU time = instruction count x CPI x clock cycle time",
+        "output_symbol": "T",
+        "source_id": "uvm-perf-metrics",
+        "translation_notes": "Source symbols instruction count -> IC, CPI -> CPI, clock cycle time -> Tc, CPU time -> T. Check: count x (cycles/count) x (time/cycle) = time."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States the three-factor CPU performance equation, defines IC/CPI/cycle time and their architectural determinants, and works processor A (3 GHz, CPI 2.0 -> 0.666 s) and B (2 GHz, CPI 1.2 -> 0.600 s) for one billion instructions; adapted from Patterson and Hennessy, Computer Organization, ARM edition.",
+          "id": "uvm-perf-metrics",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Performance equation; processor A/B worked example; IC/CPI/cycle-time definitions.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "UVM CS2210: Basic performance metrics (CPU time equation)",
+          "url": "https://www.uvm.edu/~cbcafier/cs2210/content/02_basics_of_architecture/basic_performance_metrics.html",
+          "version": "inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States the performance equation as seconds/program = instructions/program x clocks/instruction x seconds/clock with IC/CPI/CT sections, and works execution time 1e9 x 3.7 x 0.5e-9 s = 1.85 s.",
+          "id": "umn-perf-equation",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "The Performance Equation; Example (1.85 s solution).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "UMN Duluth: The Performance Equation (corroboration and 1.85 s example)",
+          "url": "https://www.d.umn.edu/~gshute/arch/performance-equation.html",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "CPU execution time from dynamic instruction count, effective CPI and clock cycle time.",
+      "title": "CPU time performance equation",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same program, processor, ISA/compiler and measurement as CPI, Tc and T",
+          "definition": "Dynamic number of machine instructions executed for the program",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite",
+          "quantity_id": "instruction_count",
+          "role": "input",
+          "source_symbol": "instruction count (IC)",
+          "symbol": "IC",
+          "unit": "1"
+        },
+        {
+          "context": "same program, processor, ISA/compiler and measurement as IC, Tc and T",
+          "definition": "Effective average clock cycles per instruction over the program mix",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite",
+          "quantity_id": "effective_cpi",
+          "role": "input",
+          "source_symbol": "cycles per instruction (CPI)",
+          "symbol": "CPI",
+          "unit": "1"
+        },
+        {
+          "context": "same program, processor and measurement as IC, CPI and T",
+          "definition": "Duration of one processor clock cycle (reciprocal of clock frequency)",
+          "dimensions": "time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "cycle_time",
+          "role": "input",
+          "source_symbol": "clock cycle time",
+          "symbol": "Tc",
+          "unit": "s"
+        },
+        {
+          "context": "same program, processor and measurement as inputs",
+          "definition": "CPU execution time for the program",
+          "dimensions": "time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "cpu_time",
+          "role": "output",
+          "source_symbol": "CPU time",
+          "symbol": "T",
+          "unit": "s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Same program-fixed CPI convention as the CPU-time record; clock speed is the sustained operating frequency.",
+        "MIPS here is the rate metric (millions of instructions per second), not the ISA name (source warns against the confusion)."
+      ],
+      "constants": [
+        {
+          "literal": 1000000,
+          "locator": "MIPS definition: clock speed divided by (CPI x 10^6); worked examples divide GHz figures by CPI x 10^6.",
+          "meaning": "instructions per million-instructions unit",
+          "source_id": "uvm-perf-metrics",
+          "unit": "1"
+        }
+      ],
+      "guards": [
+        "f >= 0",
+        "CPI > 0"
+      ],
+      "id": "computer-science--mips-rating",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings clock_frequency/effective_cpi/mips_rating absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "f = MIPS*CPI*1000000 needs MIPS; CPI = f/(MIPS*1000000) needs MIPS != 0. Check: MIPS=1500,CPI=2.0 gives f = 3e9. CPI=0 rejected by guard (division by zero). Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "MIPS misleads across ISAs with different instruction complexity (source limitation); valid only for same-ISA or stated-mix comparisons.",
+        "Peak-rate form; sustained throughput needs the CPU-time record with actual IC."
+      ],
+      "references": [
+        {
+          "expected": 1500,
+          "id": "processor-a-mips",
+          "inputs": {
+            "CPI": 2.0,
+            "f": 3000000000
+          },
+          "method": "UVM worked example: 3 GHz / (2.0 x 10^6) = 1500 MIPS. Expected keeps reported value.",
+          "provenance": "Published result from inspected source (UVM MIPS example).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1666.6666667,
+          "id": "processor-b-mips",
+          "inputs": {
+            "CPI": 1.2,
+            "f": 2000000000
+          },
+          "method": "UVM worked example: 2 GHz / (1.2 x 10^6) = 1666.67 MIPS; source rounds display to 1667. Expected keeps exact quotient; tolerance covers display rounding.",
+          "provenance": "Published result from inspected source (UVM MIPS example) with rounding allowance.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-stopped-clock",
+          "inputs": {
+            "CPI": 1.2,
+            "f": 0
+          },
+          "method": "Boundary: zero clock frequency yields zero instruction rate; admitted degenerate boundary (halted clock).",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "CPI": 0,
+            "f": 3000000000
+          },
+          "kind": "domain",
+          "reason": "Zero CPI violates CPI > 0 (division by zero; zero-cycle instructions unphysical)."
+        },
+        {
+          "inputs": {
+            "CPI": 2.0
+          },
+          "kind": "missing-input",
+          "reason": "Clock speed f is required alongside CPI; omitting it leaves MIPS undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "f / (CPI * 1000000)",
+        "locator": "MIPS definition and worked examples for processors A (1500 MIPS) and B (1667 MIPS).",
+        "original_equation": "MIPS = clock speed / (CPI x 10^6)",
+        "output_symbol": "MIPS",
+        "source_id": "uvm-perf-metrics",
+        "translation_notes": "Source symbols clock speed -> f (Hz), CPI -> CPI; 10^6 inlined as literal with constants metadata. Check: (1/time)/dimensionless = rate in millions of instructions per second."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines MIPS as clock speed/(CPI x 10^6), works 1500 MIPS (3 GHz, CPI 2.0) and 1667 MIPS (2 GHz, CPI 1.2), and warns MIPS misleads across architectures and must not be confused with the MIPS ISA name.",
+          "id": "uvm-perf-metrics",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "MIPS definition and worked examples; misleading-MIPS warning.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "UVM CS2210: Basic performance metrics (MIPS definition)",
+          "url": "https://www.uvm.edu/~cbcafier/cs2210/content/02_basics_of_architecture/basic_performance_metrics.html",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "MIPS instruction rate from clock speed and effective CPI.",
+      "title": "MIPS rating from clock speed and CPI",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same processor, program mix and operating point as CPI and MIPS",
+          "definition": "Sustained processor clock frequency",
+          "dimensions": "1/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "clock_frequency",
+          "role": "input",
+          "source_symbol": "clock speed",
+          "symbol": "f",
+          "unit": "Hz"
+        },
+        {
+          "context": "same processor, program mix and operating point as f and MIPS",
+          "definition": "Effective average clock cycles per instruction",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite",
+          "quantity_id": "effective_cpi",
+          "role": "input",
+          "source_symbol": "CPI",
+          "symbol": "CPI",
+          "unit": "1"
+        },
+        {
+          "context": "same processor, program mix and operating point as inputs",
+          "definition": "Millions of instructions executed per second of CPU time",
+          "dimensions": "1/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "mips_rating",
+          "role": "output",
+          "source_symbol": "MIPS",
+          "symbol": "MIPS",
+          "unit": "1/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Before/after redesign runs the same instruction set and program, so instruction count cancels (source: IC factor is 1.0, ignored).",
+        "CPI values are effective averages over the same program mix; frequencies are sustained operating points."
+      ],
+      "constants": [],
+      "guards": [
+        "CPI_before > 0",
+        "CPI_after > 0",
+        "f_before > 0",
+        "f_after >= 0"
+      ],
+      "id": "computer-science--redesign-performance-ratio",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings redesign CPI/frequency performance ratio absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Generalizes the execution-time speedup record to factorized CPI x frequency comparisons; binding needs same-program context."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "CPI_after = CPI_before*f_after/(R*f_before) needs R*f_before != 0; f_after = R*f_before*CPI_after/CPI_before. Check: R=1.0042857,f_before=2e9,CPI_before=3.7,CPI_after=3.5 gives f_after = 1.9e9. Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Same-ISA redesigns only; instruction-set changes reintroduce the IC factor the source cancels.",
+        "Ratio of rates, not a prediction for any specific machine; CPI estimates carry trace-measurement uncertainty (source IC/CPI sections)."
+      ],
+      "references": [
+        {
+          "expected": 1.0042857,
+          "id": "umn-redesign-ratio",
+          "inputs": {
+            "CPI_after": 3.5,
+            "CPI_before": 3.7,
+            "f_after": 1900000000,
+            "f_before": 2000000000
+          },
+          "method": "UMN improvement solution: (3.7/3.5) x (1.9/2.0) = 1.0042857; source rounds the ratio to 1.0043 (0.43% improvement). Tolerance covers display rounding.",
+          "provenance": "Published result from inspected source (UMN improvement solution).",
+          "tolerance": 0.0001
+        },
+        {
+          "expected": 1,
+          "id": "identity-no-change",
+          "inputs": {
+            "CPI_after": 3.7,
+            "CPI_before": 3.7,
+            "f_after": 2000000000,
+            "f_before": 2000000000
+          },
+          "method": "Identity: unchanged CPI and frequency give unit ratio (no improvement).",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.9459459459,
+          "id": "degradation-case",
+          "inputs": {
+            "CPI_after": 3.7,
+            "CPI_before": 3.5,
+            "f_after": 2000000000,
+            "f_before": 2000000000
+          },
+          "method": "Ordinary adverse case at held frequency: CPI regresses 3.5 -> 3.7, (3.5/3.7) x (2.0/2.0) = 0.9459459, below 1 as expected for a slowdown.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "CPI_after": 3.5,
+            "CPI_before": 3.7,
+            "f_after": 1900000000,
+            "f_before": 0
+          },
+          "kind": "domain",
+          "reason": "Zero baseline frequency violates f_before > 0 (ratio against a stopped clock undefined)."
+        },
+        {
+          "inputs": {
+            "CPI_before": 3.7,
+            "f_after": 1900000000,
+            "f_before": 2000000000
+          },
+          "kind": "missing-input",
+          "reason": "After-redesign CPI is required; omitting it leaves R undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "(CPI_before / CPI_after) * (f_after / f_before)",
+        "locator": "Solution Form and Solution: performance ratio as product of the CPI factor (3.7/3.5) and the frequency factor (1.9/2.0).",
+        "original_equation": "performance ratio = (CPI_before / CPI_after) x (f_after / f_before)",
+        "output_symbol": "R",
+        "source_id": "umn-perf-equation",
+        "translation_notes": "Source works the ratio from the performance equation with IC canceled; formalized with before/after subscripts. Higher CPI_after or lower f_after degrades R below 1. Check: dimensionless ratio of rates."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Derives the improvement ratio as the product of CPI factor 3.7/3.5 and frequency factor 1.9/2.0 = 1.0043 (0.43% improvement) with IC unchanged, after establishing CPI 3.7 -> 3.5 from the category-frequency table.",
+          "id": "umn-perf-equation",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Improvement problem Solution Form and Solution (0.43% improvement).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "UMN Duluth: The Performance Equation (redesign improvement ratio)",
+          "url": "https://www.d.umn.edu/~gshute/arch/performance-equation.html",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Redesign performance ratio from before/after CPI and clock frequency.",
+      "title": "Redesign performance ratio",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same program mix and ISA before and after the redesign",
+          "definition": "Effective CPI of the baseline design",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite",
+          "quantity_id": "effective_cpi",
+          "role": "input",
+          "source_symbol": "clocks per instruction before",
+          "symbol": "CPI_before",
+          "unit": "1"
+        },
+        {
+          "context": "same program mix and ISA before and after the redesign",
+          "definition": "Effective CPI of the redesigned processor",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite",
+          "quantity_id": "effective_cpi",
+          "role": "input",
+          "source_symbol": "clocks per instruction after",
+          "symbol": "CPI_after",
+          "unit": "1"
+        },
+        {
+          "context": "same program mix and operating conditions as the CPI values",
+          "definition": "Sustained clock frequency of the baseline design",
+          "dimensions": "1/time",
+          "domain": "Positive finite",
+          "quantity_id": "clock_frequency",
+          "role": "input",
+          "source_symbol": "clock frequency before",
+          "symbol": "f_before",
+          "unit": "Hz"
+        },
+        {
+          "context": "same program mix and operating conditions as the CPI values",
+          "definition": "Sustained clock frequency of the redesigned processor",
+          "dimensions": "1/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "clock_frequency",
+          "role": "input",
+          "source_symbol": "clock frequency after",
+          "symbol": "f_after",
+          "unit": "Hz"
+        },
+        {
+          "context": "same program mix and ISA as inputs",
+          "definition": "After-to-before performance ratio; above 1 is an improvement",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite",
+          "quantity_id": "redesign_performance_ratio",
+          "role": "output",
+          "source_symbol": "performance ratio",
+          "symbol": "R",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Clock frequency is the sustained rate of a periodic synchronizing clock; cycle time is its period.",
+        "Same operating point for input and output."
+      ],
+      "constants": [],
+      "guards": [
+        "f > 0"
+      ],
+      "id": "computer-science--clock-cycle-time",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings clock_frequency/cycle_time absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Feeds the CPU-time record; binding needs consistent Hz/s unit pair."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "f = 1/Tc needs Tc != 0. Check: Tc=0.5e-9 gives 2e9. Tc=0 rejected as mapped violation (zero period means no clock). Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Ideal periodic clock only; spread-spectrum, throttling and jitter need separate treatment.",
+        "Sustained operating frequency, not a boost/peak claim about any real processor."
+      ],
+      "references": [
+        {
+          "expected": 5e-10,
+          "id": "two-ghz-cycle",
+          "inputs": {
+            "f": 2000000000
+          },
+          "method": "UVM: 2 GHz processor has cycle time 0.500 ns; UMN solution: 2 GHz -> 0.5e-9 s. Expected keeps reported value.",
+          "provenance": "Published result from inspected sources (UVM definitions; UMN example solution).",
+          "tolerance": 1e-21
+        },
+        {
+          "expected": 1e-09,
+          "id": "one-ghz-cycle",
+          "inputs": {
+            "f": 1000000000
+          },
+          "method": "UMN: 1 GHz processor has cycle time 1.0 ns, different scale.",
+          "provenance": "Published result from inspected source (UMN clock-time section).",
+          "tolerance": 1e-21
+        },
+        {
+          "expected": 3.333333333e-10,
+          "id": "three-ghz-cycle",
+          "inputs": {
+            "f": 3000000000
+          },
+          "method": "UVM: 3 GHz processor has cycle time about 0.333 ns; source rounds to three digits. Exact reciprocal 1/3e9 s; tolerance covers display rounding.",
+          "provenance": "Published result from inspected source (UVM definitions) with rounding allowance.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "f": 0
+          },
+          "kind": "domain",
+          "reason": "Zero frequency violates f > 0 (reciprocal undefined; stopped clock has no cycle time)."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Frequency f is required; empty input leaves Tc undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "1 / f",
+        "locator": "UVM: clock cycle time is the reciprocal of the clock frequency (3 GHz -> 0.333 ns; 2 GHz -> 0.500 ns); UMN Clock Time section: cycle time is the reciprocal of clock frequency (1 GHz -> 1.0 ns).",
+        "original_equation": "clock cycle time = 1 / clock frequency",
+        "output_symbol": "Tc",
+        "source_id": "uvm-perf-metrics",
+        "translation_notes": "Direct reciprocal definition. Check: 1/(1/time) = time."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States cycle time is the reciprocal of clock frequency with 2 GHz -> 0.500 ns and 3 GHz -> about 0.333 ns.",
+          "id": "uvm-perf-metrics",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Clock cycle time definition paragraph.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "UVM CS2210: Basic performance metrics (cycle-time definition)",
+          "url": "https://www.uvm.edu/~cbcafier/cs2210/content/02_basics_of_architecture/basic_performance_metrics.html",
+          "version": "inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States clock time (CT) is the reciprocal of clock frequency with 1 GHz -> 1.0 ns and 4 GHz -> 0.25 ns examples.",
+          "id": "umn-perf-equation",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Clock Time section.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "UMN Duluth: The Performance Equation (clock-time definition)",
+          "url": "https://www.d.umn.edu/~gshute/arch/performance-equation.html",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Clock cycle time as the reciprocal of clock frequency.",
+      "title": "Clock cycle time from frequency",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same processor and operating point as Tc",
+          "definition": "Sustained processor clock frequency",
+          "dimensions": "1/time",
+          "domain": "Positive finite",
+          "quantity_id": "clock_frequency",
+          "role": "input",
+          "source_symbol": "clock frequency",
+          "symbol": "f",
+          "unit": "Hz"
+        },
+        {
+          "context": "same processor and operating point as f",
+          "definition": "Duration of one clock cycle",
+          "dimensions": "time",
+          "domain": "Positive finite",
+          "quantity_id": "cycle_time",
+          "role": "output",
+          "source_symbol": "clock cycle time (Tc)",
+          "symbol": "Tc",
+          "unit": "s"
+        }
+      ]
+    }
+  ],
+  "deferred": [
+    {
+      "title": "Effective CPI as category-weighted sum",
+      "reason": "Out of format: CPI averaging over instruction categories needs a summation/aggregation operator the scalar grammar lacks; UMN category-frequency table is the exact source.",
+      "source_urls": [
+        "https://www.d.umn.edu/~gshute/arch/performance-equation.html"
+      ]
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b09 curates 4 records: CPU-time performance equation, MIPS rating, redesign performance ratio, and clock cycle time from frequency.",
+    "gaps": [
+      "New meanings (instruction_count, effective_cpi, cycle_time, cpu_time, clock_frequency, mips_rating, redesign_performance_ratio) absent from runtime-vocabulary.json; all requires-extension with null runtime_model.",
+      "Duplicate search limited to catalog-inventory.json snapshot plus b01-b09 batches; global uniqueness not claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "2026-11-01 validate: pending pack-time check; curator text review done; central review pending; terms pages not inspected."
+  }
+}

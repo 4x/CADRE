@@ -16,7 +16,7 @@ MONEY: Dimensions = (0, 0, 0, 1)
 PRICE: Dimensions = (-1, -2, 2, 1)
 INVERSE_MONEY: Dimensions = (0, 0, 0, -1)
 JOULES_PER_KWH = 3_600_000
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-1"
 DIMENSION_AXES = ("mass", "length", "time", "currency")
 NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
@@ -71,6 +71,13 @@ UNITS = {
     "unit": Unit(DIMENSIONLESS, 1.0),
     "USD/unit": Unit(MONEY, 1.0),
     "unit^2/USD": Unit(INVERSE_MONEY, 1.0),
+    # Economics batch (economics-1): reference-year dollars are still currency;
+    # the base-year distinction lives in meaning/context, not dimensions. Counts
+    # (persons) and index points are dimensionless.
+    "USD_ref": Unit(MONEY, 1.0),
+    "USD_ref/person": Unit(MONEY, 1.0),
+    "person": Unit(DIMENSIONLESS, 1.0),
+    "index-point": Unit(DIMENSIONLESS, 1.0),
 }
 
 # Meaning is independent of dimension: heat and electricity cannot bind implicitly.
@@ -134,6 +141,28 @@ MEANINGS = {
     "interest_payment": MONEY,
     "principal_payment": MONEY,
     "payment_index": DIMENSIONLESS,
+    # Economics-1: national-accounts and price-index meanings for reviewed b03/b04.
+    "gross_national_product_current_price": MONEY,
+    "net_domestic_product_current_price": MONEY,
+    "consumption_fixed_capital_current_price": MONEY,
+    "income_receipts_rest_of_world": MONEY,
+    "income_payments_rest_of_world": MONEY,
+    "personal_income_current_price": MONEY,
+    "personal_outlays_current_price": MONEY,
+    "personal_current_taxes": MONEY,
+    "personal_saving_current_price": MONEY,
+    "implicit_price_deflator": DIMENSIONLESS,
+    "economic_series_current_price": MONEY,
+    "economic_series_chained_price": MONEY,
+    "fixed_basket_value_current_prices": MONEY,
+    "fixed_basket_value_reference_prices": MONEY,
+    "fixed_basket_price_relative": DIMENSIONLESS,
+    "laspeyres_price_relative": DIMENSIONLESS,
+    "paasche_price_relative": DIMENSIONLESS,
+    "fisher_price_relative": DIMENSIONLESS,
+    "gross_domestic_product_real": MONEY,
+    "midyear_resident_population": DIMENSIONLESS,
+    "real_gdp_per_capita": MONEY,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

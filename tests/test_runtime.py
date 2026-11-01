@@ -94,7 +94,11 @@ class RuntimeTests(unittest.TestCase):
                  "quantity_price_derivative": ("unit^2/USD", INVERSE_MONEY),
                  "gross_domestic_product_current_price": ("USD", MONEY),
                  "gradient_amount": ("USD", MONEY), "interest_payment": ("USD", MONEY),
-                 "principal_payment": ("USD", MONEY), "payment_index": ("periods", DIMENSIONLESS)}
+                 "principal_payment": ("USD", MONEY), "payment_index": ("periods", DIMENSIONLESS),
+                 "implicit_price_deflator": ("index-point", DIMENSIONLESS),
+                 "midyear_resident_population": ("person", DIMENSIONLESS),
+                 "gross_domestic_product_real": ("USD_ref", MONEY),
+                 "real_gdp_per_capita": ("USD_ref/person", MONEY)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)

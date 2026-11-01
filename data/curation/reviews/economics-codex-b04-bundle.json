@@ -1,0 +1,558 @@
+{
+  "batch_id": "economics-codex-b04",
+  "created": "2026-11-01",
+  "curator": "codex",
+  "deferred": [
+    {
+      "reason": "Both indices retained as explicitly distinct basket profiles of the broad fixed-basket Lowe relation, with sourced numerical cases 1.700 versus 1.500. Separate full commodity-vector algorithms remain worthwhile but need named variable-length price/quantity vectors and summation; supplied expenditure aggregates are not proof of vector-data validation. Do not mint renamed ratio clones.",
+      "source_urls": [
+        "https://data.imf.org/-/media/iData/External-Storage/Documents/094CFD9697F645FBA6B4F720A062A35D/en/Consumer-Price-Index-Manual.pdf",
+        "https://www.bea.gov/help/glossary/laspeyres-price-index",
+        "https://www.bea.gov/help/glossary/paasche-price-index"
+      ],
+      "title": "Separate Laspeyres and Paasche scalar clones"
+    },
+    {
+      "reason": "BLS CPI Handbook calculation (modified 2025-01-30) uses geometric means for most basic strata, modified Laspeyres for selected strata, plus upper-level aggregation. Requires quote/area/item vectors, time indices, weights, product/summation, quality changes and updating logic. A static Lowe ratio must not be advertised as the complete CPI.",
+      "source_urls": [
+        "https://www.bls.gov/opub/hom/cpi/calculation.htm"
+      ],
+      "title": "Actual CPI geometric strata and annually reweighted aggregation"
+    },
+    {
+      "reason": "BEA chapter 4 printed 4-26 and 4-29 to 4-30 gives normalization/scaling operations. Treat these as representation adapters and qualified directions rather than minting unit-conversion-only scientific models. Rebasing preserves proportional changes but does not change baskets or undo nonadditivity.",
+      "source_urls": [
+        "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-04.pdf"
+      ],
+      "title": "Index rebasing and chained-dollar display scaling"
+    }
+  ],
+  "domain": "economics",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "All models need economics meanings, baskets/period metadata and reference-dollar/person conventions.",
+      "General commodity vectors, basket validation, chaining and official CPI calculation remain out of scalar format.",
+      "Accessed IMF PDF states Not for Redistribution; World Bank source-specific CC BY and additional terms recorded. No generic reuse clearance claimed."
+    ],
+    "queries": [],
+    "review_notes": "Inspected original official IMF Appendix 6 text/prose, BEA index glossary definitions and numerical fruit examples, BLS CPI/IPI method text and copyright page, and World Bank metadata/license pages on 2026-11-01. PDF screenshot transport has no usable image blocks; no visual formula review claimed. Definitions supported by unambiguous prose and official examples; genuinely ambiguous full-vector algorithms deferred. Checked basket period differences, normalized scales, Fisher nonnegative-root branch and population/time supports. Toolkit JSON/ZIP validation results are saved alongside records; no source/scientific approval inferred. Duplicate comparison limited to own b01-b03, supplied inventory and runtime snapshot. Toolkit JSON validation passed: three models, 10 arithmetic references and six rejection cases, all requires-extension; final edit revalidated before packing.",
+    "summary": "Three distinct records: broad fixed-basket Lowe price relative with explicit Laspeyres/Paasche profiles, bilateral Fisher price relative, and real GDP per capita using midyear population. Three-model batch is deliberate to retain canonical relationships rather than split basket labels or scaling steps for a quota. Earlier 12 model IDs preserved."
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "assumptions": [
+        "Source convention: both expenditure sums use exactly the same quantities/qualities; basket may be hypothetical.",
+        "Application profile: nonnegative commodity prices/quantities and positive reference basket value. Quantities, prices and any quality adjustments are supplied independently.",
+        "Qualified source profiles: q_b=q_0 is Laspeyres, q_b=q_t is Paasche. Keep b,0,t and the item set explicit; never switch baskets between the two scalar input totals."
+      ],
+      "constants": [],
+      "guards": [
+        "E_tb >= 0",
+        "E_0b > 0"
+      ],
+      "id": "economics--fixed-basket-lowe-price-relative",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New fixed-basket expenditure and relative meanings; metadata needed for item support, q_b provenance and b/0/t periods. Source sums are supplied scalar inputs, not a full basket implementation."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "E_tb=B*E_0b given B>=0,E_0b>0, unique. E_0b=E_tb/B only for B>0 and recovered E_0b>0. Source check B=1.7,E_0b=5 gives E_tb=8.5, forward 1.7. If B=E_tb=0, every positive reference value fits; if B=0,E_tb>0, no solution. If B>0,E_tb=0, inferred E_0b=0 violates original domain. No scalar inverse identifies item prices, quantities or a unique basket; infinitely many baskets can have identical totals. A reversed comparison must retain the same basket to yield 1/B (B>0); changing from Laspeyres to reverse Laspeyres changes weights and requires explicit Paasche linkage.",
+      "kind": "definition",
+      "limitations": [
+        "Does not validate or construct basket totals, impute missing prices, estimate weights or make quality adjustments.",
+        "Not a cost-of-living welfare index or the complete CPI/IPI methodology. Chain links and basket replacement need additional data and operations.",
+        "A common currency unit does not establish compatible baskets; input values alone cannot verify the declared profile."
+      ],
+      "references": [
+        {
+          "expected": 1.7,
+          "id": "published-laspeyres-fruit",
+          "inputs": {
+            "E_0b": 5,
+            "E_tb": 8.5
+          },
+          "method": "Published Laspeyres relative 1.700 retained at printed scale. Source base basket 10 apples and 30 oranges, base prices .20/.10, current .25/.20. Thus E_tb=8.50,E_0b=5.00; tolerance floating only, source teaching values exact cents.",
+          "provenance": "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-04.pdf, Exhibit 4.2 Calculation 3; profile b=0, same fruit item set.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 1.5,
+          "id": "published-paasche-fruit",
+          "inputs": {
+            "E_0b": 6,
+            "E_tb": 9
+          },
+          "method": "Published Paasche relative 1.500 retained. Source current basket 20 apples and 20 oranges; same base/current price vectors as previous case. E_tb=9.00 and E_0b=6.00. Difference from 1.7 is intentional basket selection, not a conflicting definition.",
+          "provenance": "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-04.pdf, Exhibit 4.2 Calculation 4; profile b=t.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.75,
+          "id": "synthetic-weighted-price-relatives",
+          "inputs": {
+            "E_0b": 8,
+            "E_tb": 6
+          },
+          "method": "Independent weighted-relative route: basket 2 units of A and 3 of B, base prices 1 and 2, current prices 1.5 and 1. Base value shares 1/4 and 3/4, individual price relatives 1.5 and .5. Weighted relative is 3/8+3/8=3/4, whereas direct basket values are 6 and 8. This checks valuation weights by alternate decomposition.",
+          "provenance": "Curator synthetic fixed basket (neither label presumed without dates); no observed CPI data.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 1,
+          "id": "unchanged-basket-prices",
+          "inputs": {
+            "E_0b": 9.25,
+            "E_tb": 9.25
+          },
+          "method": "Limiting identity with identical item prices and fixed basket: price relative is 1, not zero.",
+          "provenance": "Curator unchanged-price boundary.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "E_0b": 0,
+            "E_tb": 8.5
+          },
+          "kind": "domain",
+          "reason": "Zero-valued reference basket does not define the relative."
+        },
+        {
+          "inputs": {
+            "E_0b": 5,
+            "E_tb": -1
+          },
+          "kind": "domain",
+          "reason": "Negative basket value is outside the nonnegative price/quantity profile."
+        }
+      ],
+      "relationship": {
+        "expression": "E_tb / E_0b",
+        "locator": "Appendix 6 paragraph 1, Eq. A6.1 and special-case bullets, printed 453 (PDF p.472); direct BEA glossary prose corroborates each profile",
+        "original_equation": "B(0,t;q_b) = sum_i[p_i,t*q_i,b] / sum_i[p_i,0*q_i,b]. Laspeyres: q_b=q_0. Paasche: q_b=q_t.",
+        "output_symbol": "B",
+        "source_id": "imf-basket-index",
+        "translation_notes": "Introduced E_tb and E_0b are the complete scalar basket-expenditure sums at t and 0 prices; no claim that the engine computes commodity sums. Each item price must be per that item's same physical unit, so each product is currency and summed amounts share USD scale. Currency/currency=1. B is a base-1 relative; multiply by 100 only as a display conversion to index points. Laspeyres fixes actual period-0 quantities, Paasche fixes actual period-t quantities within the same comparison; they generally give different results on the same dataset. An arbitrary q_b may precede period 0 and is Lowe, not necessarily Laspeyres. Original Eq. A6.1 text extraction is degraded but unambiguous complete prose and two direct glossary definitions support this formalization; no pixel inspection is claimed."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Lowe index compares the value of one specified quantity basket at current and reference prices; the basket need not be observed in either period. Base-period quantities give Laspeyres; current-period quantities give Paasche. Scalar expenditure totals introduced here name those source sums.",
+          "id": "imf-basket-index",
+          "kind": "primary",
+          "license": "Actual accessed PDF copyright page credits six agencies (2020); page footers state 'Not for Redistribution'. No permissive license established from this accessed copy; further usage terms unknown. PDF URL/Appendix 6 inspected 2026-11-01.",
+          "locator": "Appendix 6, printed p.453, PDF page 472 (zero-based 471), paragraph 1, Eq. A6.1 and Laspeyres/Paasche bullets; Glossary Basket price index",
+          "redistribution": "No manual, page image or lengthy quotation returned. Mathematical facts and concise original paraphrase retained with attribution; later redistribution requires rights review, no clearance inferred.",
+          "title": "ILO/IMF/OECD/European Union/UN/World Bank, Consumer Price Index Manual: Concepts and Methods",
+          "url": "https://data.imf.org/-/media/iData/External-Storage/Documents/094CFD9697F645FBA6B4F720A062A35D/en/Consumer-Price-Index-Manual.pdf",
+          "version": "2020 edition; 507-page PDF; publisher-hosted version inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Values base quantities at current prices and divides by the value of those same quantities at base prices.",
+          "id": "bea-laspeyres",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Definition paragraph",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA Glossary: Laspeyres price index",
+          "url": "https://www.bea.gov/help/glossary/laspeyres-price-index",
+          "version": "Modified 2018-04-13; inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Values current quantities at current prices and divides by the value of those same current quantities at base prices.",
+          "id": "bea-paasche",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Definition paragraph",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA Glossary: Paasche price index",
+          "url": "https://www.bea.gov/help/glossary/paasche-price-index",
+          "version": "Modified 2018-04-13; inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Fruit example reports Laspeyres price relative 1.700 from 8.50/5.00, Paasche 1.500 from 9.00/6.00, and Fisher price relative 1.597. Corresponding price baskets differ despite common items and comparison periods.",
+          "id": "bea-fruit-indices",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Printed 4-23 to 4-24 (PDF pp.23-24), fruit illustration and Exhibit 4.2 Calculations 3 and 4; Fisher numerical discussion on 4-24",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA NIPA Handbook Chapter 4: Estimating Methods",
+          "url": "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-04.pdf",
+          "version": "Updated December 2023; 30-page PDF"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Distinguishes a weight-reference period from a price-reference period in Lowe indices, with Laspeyres as coincident-period case; actual BLS trade index also involves chaining/reweighting, not just a static textbook basket.",
+          "id": "bls-lowe-context",
+          "kind": "primary",
+          "license": "https://www.bls.gov/opub/copyright-information.htm inspected 2026-11-01: BLS text/data public domain except previously copyrighted photos/illustrations; cite BLS. Emblem protected.",
+          "locator": "Modified Laspeyres formula, opening paragraphs and displayed fixed-quantity formula",
+          "redistribution": "Original attributed formula description; no BLS images, emblem or third-party illustrations included.",
+          "title": "BLS Handbook of Methods, International Price Program: Calculation",
+          "url": "https://www.bls.gov/opub/hom/ipp/calculation.htm",
+          "version": "Live HTML inspected 2026-11-01"
+        }
+      ],
+      "summary": "Price relative of one declared basket priced twice. A single canonical relation retains the base-basket Laspeyres and current-basket Paasche definitions as qualified profiles, rather than treating different input labels as new arithmetic models.",
+      "title": "Fixed-basket Lowe price relative, with Laspeyres and Paasche profiles",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "One fixed, explicitly specified basket q_b of matched goods/services and qualities, identical item support, geographic/population scope and USD scale at price periods 0 and t. Declare weight-reference period b or hypothetical basket provenance separately from price-reference period 0; basket remains unchanged between numerator and denominator.",
+          "definition": "Value of the declared basket quantities q_b at current comparison-period t prices, including every covered item exactly once.",
+          "dimensions": "currency",
+          "domain": "Finite nonnegative basket value under nonnegative price/quantity profile; zero admits the ideal free-current-basket boundary.",
+          "quantity_id": "fixed_basket_value_current_prices",
+          "role": "input",
+          "source_symbol": "Introduced E_tb = sum_i p_i,t*q_i,b in Eq. A6.1",
+          "symbol": "E_tb",
+          "unit": "USD"
+        },
+        {
+          "context": "One fixed, explicitly specified basket q_b of matched goods/services and qualities, identical item support, geographic/population scope and USD scale at price periods 0 and t. Declare weight-reference period b or hypothetical basket provenance separately from price-reference period 0; basket remains unchanged between numerator and denominator.",
+          "definition": "Value of those identical basket quantities q_b at price-reference period 0 prices.",
+          "dimensions": "currency",
+          "domain": "Finite strictly positive; neither empty/valueless reference basket nor an unrelated actual expenditure total.",
+          "quantity_id": "fixed_basket_value_reference_prices",
+          "role": "input",
+          "source_symbol": "Introduced E_0b = sum_i p_i,0*q_i,b in Eq. A6.1",
+          "symbol": "E_0b",
+          "unit": "USD"
+        },
+        {
+          "context": "One fixed, explicitly specified basket q_b of matched goods/services and qualities, identical item support, geographic/population scope and USD scale at price periods 0 and t. Declare weight-reference period b or hypothetical basket provenance separately from price-reference period 0; basket remains unchanged between numerator and denominator.",
+          "definition": "Current-to-reference price relative for the fixed basket, normalized to 1 when current and reference price vectors coincide.",
+          "dimensions": "1",
+          "domain": "Finite nonnegative; basket identity determines Laspeyres, Paasche or another Lowe profile.",
+          "quantity_id": "fixed_basket_price_relative",
+          "role": "output",
+          "source_symbol": "Introduced B: source basket price index on relative scale",
+          "symbol": "B",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source definition: geometric mean of corresponding Laspeyres and Paasche indices from the same comparison.",
+        "Application convention: base-1 price relatives with nonnegative basket values and positive underlying reference-valued denominators."
+      ],
+      "constants": [
+        {
+          "literal": 0.5,
+          "locator": "Definition: geometric mean; NIPA chapter 4 numerical square-root example",
+          "meaning": "Arithmetic exponent for the geometric mean of two corresponding price relatives",
+          "source_id": "bea-fisher",
+          "unit": "1"
+        }
+      ],
+      "guards": [
+        "L >= 0",
+        "P >= 0"
+      ],
+      "id": "economics--fisher-bilateral-price-relative",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New Fisher/Laspeyres/Paasche-relative meanings and explicit bilateral profiles required. Generic Lowe output needs a verified basket-period profile before binding to L or P; unit 1 alone is not a compatibility proof."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Solve P=F**2/L for known F>=0,L>0, retaining P>=0 and original constituent definitions; L=F**2/P analogously requires P>0. Example F=.8,L=.8 yields P=.8; forward .8. Forward square root uses the nonnegative branch only, never -F. At L=0 and F=0, every nonnegative P satisfies scalar equation; at L=0,F>0 there is no solution. P=0 has analogous cases. Underlying shared price/quantity data may further restrict feasible pairs; scalar inversion does not create a corresponding basket or identify individual prices.",
+      "kind": "definition",
+      "limitations": [
+        "Does not compute the constituent indices from individual commodity data, validate common support, or perform chaining/reweighting.",
+        "No unconditional ordering L>=F>=P is asserted; F lies between the two nonnegative inputs regardless of which is greater. No welfare/forecast claim."
+      ],
+      "references": [
+        {
+          "expected": 1.597,
+          "id": "published-fisher-fruit",
+          "inputs": {
+            "L": 1.7,
+            "P": 1.5
+          },
+          "method": "Published 1.597 retained, rather than substituted exact square root 1.596871942. Tolerance half a .001 printed unit; source input relatives exact in fruit example. Independent factor-reversal consistency: source nominal value relative 1.8 divided by its corresponding exact Fisher quantity relative also yields this rounded price relative.",
+          "provenance": "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-04.pdf, printed 4-24, fruit calculation sqrt(1.700*1.500).",
+          "tolerance": 0.0005
+        },
+        {
+          "expected": 0.8,
+          "id": "synthetic-uniform-price-fall",
+          "inputs": {
+            "L": 0.8,
+            "P": 0.8
+          },
+          "method": "Independent uniform-price-change property: each commodity price is four fifths its base value, with arbitrary positive compatible baskets; every price index that respects uniform scaling equals .8. This is a materially different deflation case and tests the exponent rather than just zero.",
+          "provenance": "Curator synthetic two-period uniform price decline.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "zero-current-prices-boundary",
+          "inputs": {
+            "L": 0,
+            "P": 0
+          },
+          "method": "Ideal boundary: all current prices zero for two nonempty baskets that have positive base-price values. Both price relatives and their geometric mean are zero; this is not a claim about observed CPI data.",
+          "provenance": "Curator explicitly admitted algebraic free-price boundary.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "L": -1,
+            "P": -1
+          },
+          "kind": "domain",
+          "reason": "Each constituent must be nonnegative; positive product alone is insufficient."
+        },
+        {
+          "inputs": {
+            "L": 1.7
+          },
+          "kind": "missing-input",
+          "reason": "Matching Paasche input missing."
+        }
+      ],
+      "relationship": {
+        "expression": "(L * P)**0.5",
+        "locator": "Glossary definition; NIPA Chapter 4 printed 4-19 and 4-24 (PDF pp.19 and 24)",
+        "original_equation": "P_t^F = (P_t^L * P_t^P)^(1/2)",
+        "output_symbol": "F",
+        "source_id": "bea-fisher",
+        "translation_notes": "Introduced L=source P_t^L, P=P_t^P, F=P_t^F. Literal 0.5 means positive principal square root defining the geometric mean. Both inputs dimensionless, so dimensional algebra (1*1)^(1/2)=1 and no dimensionful power is involved. Input scale is relative-to-1; using two correctly matched base-100 values would require consistent output scale, which this record does not silently mix. Nonnegative index profile retains a zero boundary when price-valued basket totals vanish but each original reference-basket denominator remains positive. Constituent-index admissibility and shared dataset must be checked before binding; product nonnegativity alone would wrongly admit two negative indices."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Fisher ideal price index is the geometric mean of the corresponding Laspeyres and Paasche price indices; identical scale, item support and periods are required by the component definitions.",
+          "id": "bea-fisher",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Definition paragraph",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA Glossary: Fisher ideal price index",
+          "url": "https://www.bea.gov/help/glossary/fisher-ideal-price-index",
+          "version": "Modified 2018-04-13; inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Fruit example reports Laspeyres price relative 1.700 from 8.50/5.00, Paasche 1.500 from 9.00/6.00, and Fisher price relative 1.597. Corresponding price baskets differ despite common items and comparison periods.",
+          "id": "bea-fruit-indices",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Printed 4-23 to 4-24 (PDF pp.23-24), fruit illustration and Exhibit 4.2 Calculations 3 and 4; Fisher numerical discussion on 4-24",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA NIPA Handbook Chapter 4: Estimating Methods",
+          "url": "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-04.pdf",
+          "version": "Updated December 2023; 30-page PDF"
+        }
+      ],
+      "summary": "Geometric mean of corresponding Laspeyres and Paasche price relatives. The component baskets differ by design but must originate in the same bilateral item/price/quantity dataset.",
+      "title": "Bilateral Fisher ideal price relative",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same bilateral comparison periods 0,t, matched good/service universe and qualities, population/geography and price basis; L uses q_0 and P uses q_t from the same two-period dataset. Both inputs are base-1 price relatives, not index levels with unrelated bases or quantity indices.",
+          "definition": "Bilateral base-period-quantity price relative sum(p_t*q_0)/sum(p_0*q_0) for the matching dataset.",
+          "dimensions": "1",
+          "domain": "Finite nonnegative, with positive Laspeyres reference basket value established upstream.",
+          "quantity_id": "laspeyres_price_relative",
+          "role": "input",
+          "source_symbol": "Introduced L = P_t^L",
+          "symbol": "L",
+          "unit": "1"
+        },
+        {
+          "context": "Same bilateral comparison periods 0,t, matched good/service universe and qualities, population/geography and price basis; L uses q_0 and P uses q_t from the same two-period dataset. Both inputs are base-1 price relatives, not index levels with unrelated bases or quantity indices.",
+          "definition": "Bilateral current-period-quantity price relative sum(p_t*q_t)/sum(p_0*q_t) for the matching dataset.",
+          "dimensions": "1",
+          "domain": "Finite nonnegative, with positive Paasche base-price/current-quantity basket value established upstream.",
+          "quantity_id": "paasche_price_relative",
+          "role": "input",
+          "source_symbol": "Introduced P = P_t^P",
+          "symbol": "P",
+          "unit": "1"
+        },
+        {
+          "context": "Same bilateral comparison periods 0,t, matched good/service universe and qualities, population/geography and price basis; L uses q_0 and P uses q_t from the same two-period dataset. Both inputs are base-1 price relatives, not index levels with unrelated bases or quantity indices.",
+          "definition": "Nonnegative geometric mean of corresponding bilateral price relatives.",
+          "dimensions": "1",
+          "domain": "Finite nonnegative; positive branch is unique when both components are positive.",
+          "quantity_id": "fisher_price_relative",
+          "role": "output",
+          "source_symbol": "Introduced F = P_t^F",
+          "symbol": "F",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source convention: annual GDP divided by corresponding midyear population.",
+        "Application profile: real (constant/reference-dollar) GDP with nonnegative gross production; keep currency reference year, population coverage and accounting year explicit."
+      ],
+      "constants": [],
+      "guards": [
+        "Y >= 0",
+        "N > 0"
+      ],
+      "id": "economics--real-gdp-per-capita",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New real-GDP/per-capita and midyear-population meanings plus reference-dollar/person units. Nominal GDP, total generic real series and population estimates require explicit compatible meaning/context binding; no automatic unit-only connection."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Y=y*N for known y>=0,N>0, unique. N=Y/y requires y>0 and recovered N>0; no integer constraint for survey population estimates. Check y=3000,N=120 recovers Y=360000 and forward 3000. At Y=y=0 every positive N fits; y=0,Y>0 incompatible. Y=0,y>0 would infer N=0 and violates domain. No inverse estimates actual population, individual income or a production response to population changes.",
+      "kind": "definition",
+      "limitations": [
+        "A per-capita aggregate does not describe distribution or a representative individual's actual income or consumption.",
+        "No deflation, purchasing-power-parity transformation or population projection supplied; cross-country amounts require additional monetary comparability review."
+      ],
+      "references": [
+        {
+          "expected": 3000,
+          "id": "synthetic-equal-output-accounting",
+          "inputs": {
+            "N": 120,
+            "Y": 360000
+          },
+          "method": "Independent population/production construction: 120 residents, each associated in a hypothetical allocation ledger with 3000 reference-dollar units of gross production, total 360000. The per-capita statistic is 3000 by construction; the allocation is a test device, not a distributional assertion.",
+          "provenance": "Curator synthetic annual constant-dollar production ledger; midyear population 120 throughout year for this oracle only.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1500,
+          "id": "synthetic-doubled-population",
+          "inputs": {
+            "N": 240,
+            "Y": 360000
+          },
+          "method": "Independent splitting: same annual 360000 production ledger shared into twice as many equal hypothetical slices as the ordinary case; each slice is 1500. This tests normalization and does not forecast how population affects output.",
+          "provenance": "Curator synthetic alternative population with independently held total output.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-production-boundary",
+          "inputs": {
+            "N": 120,
+            "Y": 0
+          },
+          "method": "Ideal zero-production interval with positive population gives zero per-capita production; no per-person amount is created by normalization.",
+          "provenance": "Curator mathematical boundary, not observed national data.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "N": 0,
+            "Y": 360000
+          },
+          "kind": "domain",
+          "reason": "Empty population does not define GDP per resident."
+        },
+        {
+          "inputs": {
+            "Y": 360000
+          },
+          "kind": "missing-input",
+          "reason": "Midyear population missing; cannot substitute workforce or year-end headcount."
+        }
+      ],
+      "relationship": {
+        "expression": "Y / N",
+        "locator": "Long definition and annual/base-period metadata rows",
+        "original_equation": "GDP per capita = annual GDP / midyear population (source constant-price USD indicator).",
+        "output_symbol": "y",
+        "source_id": "wb-real-per-capita",
+        "translation_notes": "Introduced Y,N,y label source prose quantities. Unit USD_ref denotes dollars of the explicitly declared real-GDP reference year b; dimensions currency/person. Source SDG normalization is 2015 and WITS records another 2010 normalization: generalizing b is a transparent notation/scale convention, not a claim that reference years or country methods can be mixed. Numerator remains real and gross; do not bind b01 current-price GDP directly. Annual GDP is an interval flow divided by a midyear population stock, yielding output per person during that stated year, not per instantaneous person-hour. No GDP deflation, exchange conversion or population estimation performed."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines annual GDP per capita as gross domestic product divided by midyear population on a constant-price dollar basis; numerator is gross, without capital-depreciation deductions.",
+          "id": "wb-real-per-capita",
+          "kind": "primary",
+          "license": "Metadata explicitly labels CC BY-4.0 and links https://datacatalog.worldbank.org/public-licenses#cc-by, inspected 2026-11-01. Licensing page allows copying/modifying/distributing with credit/change indication and adds mediation/arbitration terms. No blanket claim for third-party data or website branding.",
+          "locator": "Long definition, Periodicity, Base Period and Statistical concept rows",
+          "redistribution": "Original attributed relationship with synthetic examples; no country observations or branding copied. Constant-dollar reference generalized explicitly in the notation; no official series data altered or redistributed.",
+          "title": "World Bank DataBank metadata, GDP per capita (constant 2015 US$), NY.GDP.PCAP.KD",
+          "url": "https://databank.worldbank.org/metadataglossary/sustainable-development-goals-(sdgs)/series/NY.GDP.PCAP.KD",
+          "version": "SDG metadata page live 2026-11-01; annual, reference year 2015; database update displayed 2026-10-08"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Both current-price and an older constant-dollar normalization use the same GDP/midyear-population definition; changing monetary reference year changes amounts, not the per-capita division.",
+          "id": "wb-wits-per-capita",
+          "kind": "primary",
+          "license": "Specific reuse terms for WITS metadata not established from this page; unknown. World Bank dataset licensing page inspected separately but not assumed to license every WITS third-party item.",
+          "locator": "GDP per capita (constant 2010 US$) and GDP per capita (current US$) rows",
+          "redistribution": "No WITS dataset or lengthy text reproduced; only short original evidence description retained; terms beyond attributed factual formalization unresolved for owner rights review.",
+          "title": "World Bank WITS Development Indicator Metadata",
+          "url": "https://wits.worldbank.org/countryprofile/metadata/en/indicator/development",
+          "version": "Metadata rows dated DEC-12-2024; live page inspected 2026-11-01"
+        }
+      ],
+      "summary": "Real gross domestic production per resident for a specified annual interval. A population-normalized production measure; does not identify average household income, distribution, wealth or personal welfare.",
+      "title": "Annual real GDP per capita using midyear population",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same national economy/geography and annual accounting year, matched population coverage and source vintage. Y is annual real GDP in USD of an explicitly declared reference year b; N is midyear resident population for that year, not labor force, end-year population or a sum over months. Currency reference/real-GDP methodology retained unchanged in output.",
+          "definition": "Annual inflation-adjusted GDP measured in USD of reference year b, with country/series methodology identified.",
+          "dimensions": "currency",
+          "domain": "Finite nonnegative annual gross production in this profile; not nominal GDP or net product.",
+          "quantity_id": "gross_domestic_product_real",
+          "role": "input",
+          "source_symbol": "Introduced Y = annual real gross domestic product",
+          "symbol": "Y",
+          "unit": "USD_ref"
+        },
+        {
+          "context": "Same national economy/geography and annual accounting year, matched population coverage and source vintage. Y is annual real GDP in USD of an explicitly declared reference year b; N is midyear resident population for that year, not labor force, end-year population or a sum over months. Currency reference/real-GDP methodology retained unchanged in output.",
+          "definition": "Midyear resident population covering the same economy/year as annual real GDP.",
+          "dimensions": "person",
+          "domain": "Finite strictly positive estimated count; weighted estimates need not be integers; not just employed adults.",
+          "quantity_id": "midyear_resident_population",
+          "role": "input",
+          "source_symbol": "Introduced N = midyear population",
+          "symbol": "N",
+          "unit": "person"
+        },
+        {
+          "context": "Same national economy/geography and annual accounting year, matched population coverage and source vintage. Y is annual real GDP in USD of an explicitly declared reference year b; N is midyear resident population for that year, not labor force, end-year population or a sum over months. Currency reference/real-GDP methodology retained unchanged in output.",
+          "definition": "Annual real GDP per midyear resident on the numerator's same reference-dollar basis.",
+          "dimensions": "currency person^-1",
+          "domain": "Finite nonnegative amount per person for the annual interval, not household disposable income.",
+          "quantity_id": "real_gdp_per_capita",
+          "role": "output",
+          "source_symbol": "Introduced y = real GDP per capita",
+          "symbol": "y",
+          "unit": "USD_ref/person"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

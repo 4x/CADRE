@@ -109,7 +109,9 @@ class RuntimeTests(unittest.TestCase):
                  "allele_frequency": ("1", DIMENSIONLESS),
                  "effective_size": ("count", DIMENSIONLESS),
                  "selection_response": ("trait-units", DIMENSIONLESS),
-                 "mutation_rate": ("1/site/generation", DIMENSIONLESS)}
+                 "mutation_rate": ("1/site/generation", DIMENSIONLESS),
+                 "genotype_count": ("count", DIMENSIONLESS),
+                 "individual_count": ("count", DIMENSIONLESS)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)

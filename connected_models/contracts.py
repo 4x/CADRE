@@ -16,7 +16,7 @@ MONEY: Dimensions = (0, 0, 0, 1)
 PRICE: Dimensions = (-1, -2, 2, 1)
 INVERSE_MONEY: Dimensions = (0, 0, 0, -1)
 JOULES_PER_KWH = 3_600_000
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-4+biology-1"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-4+biology-2"
 DIMENSION_AXES = ("mass", "length", "time", "currency")
 NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
@@ -225,6 +225,9 @@ MEANINGS = {
     "drift_variance": DIMENSIONLESS,
     "mutation_rate": DIMENSIONLESS,
     "nucleotide_diversity": DIMENSIONLESS,
+    # Biology-2: count meanings for genotype-frequency r2.
+    "genotype_count": DIMENSIONLESS,
+    "individual_count": DIMENSIONLESS,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

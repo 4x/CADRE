@@ -1,0 +1,308 @@
+{
+  "batch_id": "engineering-finance-spark-b04",
+  "created": "2026-11-01",
+  "curator": "muse-spark",
+  "deferred": [
+    {
+      "reason": "The pension-plus-COLA composite subtracts an ordinary annuity from a growing annuity over the same term; it combines two independent laws into one scenario formula and is excluded by the atomicity rule. Its growing-annuity leg is covered by the recorded record. Continuation priority: composition support, not new scalar records.",
+      "source_urls": [
+        "https://en.wikipedia.org/wiki/Time_value_of_money"
+      ],
+      "title": "Pension cost-of-living-adjustment composite"
+    }
+  ],
+  "domain": "engineering-finance",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "Both records are requires-extension: initial_payment is a new meaning; growth_rate, periodic_rate, period_count, present_value and discount_rate reuse b01-b03 proposals (discount_rate already exists in the runtime snapshot, but no projection is attempted until the companion meanings exist).",
+      "The growing-annuity equal-rate branch (i=g) is a separate expression stated in the same source section and is noted in limitations, not recorded.",
+      "Duplicate search limited to the supplied snapshot plus b01-b03 of this session; no growing-annuity or discount-rate identities were present."
+    ],
+    "queries": [
+      "What is the present value of 10 payments starting at $1000 and growing 3 percent per period at an 8 percent discount rate?",
+      "What effective discount rate corresponds to a 12 percent effective interest rate?"
+    ],
+    "review_notes": "Arithmetic validated with the kit validator; source fidelity reviewed against the Time value of money and Annuity article passages. Not performed: visual PDF checks (none used), institutional-textbook confirmation beyond the two inspected pages, independent measurement beyond alternate-route derivations and cross-article consistency checks. The growing-annuity record is mathematically distinct from uniform-present-value (level) and Gordon (infinite-horizon) forms.",
+    "summary": "Batch b04 records the finite growing (geometric) annuity present value with the source-stated unequal-rate scope and equal-rate branch noted separately, plus the effective discount rate definition cross-checked against the due-factor identity."
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: first-period payment A1 growing geometrically at rate g per period, discounted at fixed per-period rate i over n end-of-period payments with i not equal to g.",
+        "Application profile: finite-horizon growing income or cost streams (escalating rents, stepped withdrawals); growth and discount fixed.",
+        "All amounts and rates on one price basis."
+      ],
+      "constants": [],
+      "guards": [
+        "A1 >= 0",
+        "i > g",
+        "g >= 0",
+        "n >= 1"
+      ],
+      "id": "engineering-finance--growing-annuity-present-value",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new meaning initial_payment; reuses growth_rate, periodic_rate, period_count, present_value. No current-runtime projection attempted.",
+          "Distinct from the level-annuity UPV framing (geometric growth), the gradient record (arithmetic growth) and the Gordon record (infinite horizon); the growing-annuity future value is its inverse twin, recorded as an inverse direction."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "A1=P*(i-g)/(1-((1+g)/(1+i))**n) needs i>g, g>=0, n>=1; checked 7550.13*0.05/(1-(1.03/1.08)**10)=1000.0 within rounding. Substitution check at g=0 collapses exactly to the ordinary-annuity PV form. The equal-rate branch P=A*n/(1+i) is a different expression for i=g, never a guard relaxation. Solving for i, g or n needs iteration or logarithms, unsupported and untested.",
+      "kind": "theoretical",
+      "limitations": [
+        "The equal-rate case i=g is excluded by guard; its branch P=A*n/(1+i) is a separate source-stated expression.",
+        "Beginning-of-period growing payments need the extra (1+i) timing factor (source: multiply by (1+i)), not this expression.",
+        "Solving for the rate, growth or term needs iteration or a logarithm, unsupported by the scalar grammar."
+      ],
+      "references": [
+        {
+          "expected": 7550.13,
+          "id": "termwise-growing-sum",
+          "inputs": {
+            "A1": 1000,
+            "g": 0.03,
+            "i": 0.08,
+            "n": 10
+          },
+          "method": "Expected rounded to cents (exact-form value 7550.134); independently verified by discounting each of the 10 geometrically growing cash flows individually and summing (7550.134), instead of re-evaluating the closed form.",
+          "provenance": "Independent derivation: term-by-term discounted-cash-flow summation from the source cash-flow definition",
+          "tolerance": 0.01
+        },
+        {
+          "expected": 303.7,
+          "id": "zero-growth-collapse",
+          "inputs": {
+            "A1": 100,
+            "g": 0.0,
+            "i": 0.12,
+            "n": 4
+          },
+          "method": "Zero-growth boundary collapses the form to the ordinary-annuity PV; the source UMD example values that ordinary annuity at 303.7 and recomputation gives 303.735, so tolerance covers the source $0.1 rounding.",
+          "provenance": "Consistency check against the published UMD ordinary-annuity example (100 at 12% over 4 periods = 303.7)",
+          "tolerance": 0.05
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A1": 1000,
+            "g": 0.08,
+            "i": 0.08,
+            "n": 10
+          },
+          "kind": "domain",
+          "reason": "Equal growth and discount rates need the separate branch P=A*n/(1+i) and violate i>g."
+        },
+        {
+          "inputs": {
+            "A1": 1000,
+            "i": 0.08,
+            "n": 10
+          },
+          "kind": "missing-input",
+          "reason": "Without the growth rate the geometric path is undefined."
+        }
+      ],
+      "relationship": {
+        "expression": "A1/(i-g)*(1-((1+g)/(1+i))**n)",
+        "locator": "Time value of money article: Present value of a growing annuity (Where i != g: PV=A/(i-g)*[1-((1+g)/(1+i))^n]; Where i = g: PV=A*n/(1+i); first-period payment definition; due variant is the same times (1+i)).",
+        "original_equation": "PV(A) = A/(i-g) * [1 - ((1+g)/(1+i))^n] for i != g",
+        "output_symbol": "P",
+        "source_id": "wikipedia-tvm",
+        "translation_notes": "Local first-payment symbol renamed A1 for clarity; algebra unchanged. Dimensional check: currency divided by a dimensionless rate difference, times a dimensionless bracket, stays currency. Guards i>g and g>=0 with n>=1 preserve the source unequal-rate scope and keep all divisors nonzero. Reference exponents 10 and 4 are within the tooling cap."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Article prints the growing-annuity PV with the i-g denominator and the ((1+g)/(1+i))^n term for i != g, the separate branch A*n/(1+i) for i = g, defines A as the first-period payment growing by (1+g), and notes the due variant multiplies by (1+i).",
+          "id": "wikipedia-tvm",
+          "kind": "primary",
+          "license": "Wikimedia projects carry the CC BY-SA license via the site footer as standard; the footer text was not separately archived in this record on 2026-11-01, so treat the exact license version as unverified.",
+          "locator": "Sections Present value of a growing annuity (both branches) and the formula table (exponentially increasing payment rows).",
+          "redistribution": "Only short paraphrases and standard formula symbols; no passage copied.",
+          "title": "Time value of money (Wikipedia, tertiary summary with textbook citations)",
+          "url": "https://en.wikipedia.org/wiki/Time_value_of_money",
+          "version": "Article revision as read on 2026-11-01"
+        }
+      ],
+      "summary": "Present value of a finite geometrically growing end-of-period payment series with discount above growth.",
+      "title": "Present value of a growing annuity (unequal rates)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-series:growing-end-of-period:fixed-rates",
+          "definition": "Payment in the first period, growing geometrically thereafter",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite first payment",
+          "quantity_id": "initial_payment",
+          "role": "input",
+          "source_symbol": "A (annuity payment in the first period; renamed A1 for clarity)",
+          "symbol": "A1",
+          "unit": "USD"
+        },
+        {
+          "context": "same-series:growing-end-of-period:fixed-rates",
+          "definition": "Per-period growth rate of payments as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite growth below i",
+          "quantity_id": "growth_rate",
+          "role": "input",
+          "source_symbol": "g (growing rate of payments per period)",
+          "symbol": "g",
+          "unit": "1"
+        },
+        {
+          "context": "same-series:growing-end-of-period:fixed-rates","definition":"Effective interest rate per payment period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Must exceed g under the guard",
+          "quantity_id": "periodic_rate",
+          "role": "input",
+          "source_symbol": "i (interest/discount rate per period)",
+          "symbol": "i",
+          "unit": "1"
+        },
+        {
+          "context": "same-series:growing-end-of-period:fixed-rates",
+          "definition": "Number of growing payments",
+          "dimensions": "count",
+          "domain": "At least one period; integer-valued counts in use",
+          "quantity_id": "period_count",
+          "role": "input",
+          "source_symbol": "n (number of periods)",
+          "symbol": "n",
+          "unit": "periods"
+        },
+        {
+          "context": "same-series:growing-end-of-period:fixed-rates",
+          "definition": "Present (time-0) value of the growing payment stream",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite amount",
+          "quantity_id": "present_value",
+          "role": "output",
+          "source_symbol": "P (present value of the growing annuity)",
+          "symbol": "P",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: effective per-period interest rate i with discount measured over the same one-period interval (article due-factor identity).",
+        "Definitional scope: dimensionless per-period rates; no price-basis conversion occurs here."
+      ],
+      "constants": [],
+      "guards": [
+        "i >= 0"
+      ],
+      "id": "engineering-finance--effective-discount-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Output reuses the existing runtime-vocabulary meaning discount_rate; input reuses periodic_rate. No current-runtime projection is attempted until the batch-wide finance meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "i=d/(1-d) needs d<1; checked 0.10714286/(1-0.10714286)=0.12. Admitted boundary i=0 gives d=0 (no interest, no discount). Rates at or above 100% discount are outside the tested scope.",
+      "kind": "definition",
+      "limitations": [
+        "Tested at nonnegative rates; negative-rate regimes are outside the scope.",
+        "This is the per-period discount definition, not a nominal/real conversion; inflation adjustment is the Fisher record.",
+        "Nominal discount conventions (compounded m-thly) would need their own source and are not covered."
+      ],
+      "references": [
+        {
+          "expected": 0.10714286,
+          "id": "twelve-percent-case",
+          "inputs": {
+            "i": 0.12
+          },
+          "method": "Direct transcription 0.12/1.12=0.107142857; independently cross-checked against the article identity 1/a-double-dot-1/s-double-dot with the b02 due factors at 12% over 4 periods (3.40183, 5.35285 giving 0.107143), instead of re-evaluating the definition.",
+          "provenance": "Independent derivation: due-factor identity from the Annuity article applied to batch b02 reference factors",
+          "tolerance": 1e-08
+        },
+        {
+          "expected": 0.0,
+          "id": "zero-rate-boundary",
+          "inputs": {
+            "i": 0.0
+          },
+          "method": "Boundary identity: with no interest there is no discount.",
+          "provenance": "Limiting identity of the source definition",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "i": -0.5
+          },
+          "kind": "domain",
+          "reason": "Negative per-period rate is outside the declared nonnegative scope and violates i>=0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "The interest rate is the entire input; with it missing nothing can be defined."
+        }
+      ],
+      "relationship": {
+        "expression": "i/(1+i)",
+        "locator": "Annuity article: Annuity-due section (1/a-double-dot - 1/s-double-dot = d with d = i/(1+i) the effective rate of discount).",
+        "original_equation": "d = i/(1+i)",
+        "output_symbol": "d",
+        "source_id": "wikipedia-annuity",
+        "translation_notes": "Direct transcription of the source discount definition into scalar division. Dimensional check: dimensionless throughout. Guard i>=0 keeps the divisor positive on the tested scope."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Article prints 1/a-double-dot-1/s-double-dot=d with d=i/(1+i) as the effective rate of discount.",
+          "id": "wikipedia-annuity",
+          "kind": "primary",
+          "license": "Wikimedia projects carry the CC BY-SA license via the site footer as standard; the footer text was not separately archived in this record on 2026-11-01, so treat the exact license version as unverified.",
+          "locator": "Section Annuity-due (discount-rate identity passage).",
+          "redistribution": "Only short paraphrases and standard formula symbols; no passage copied.",
+          "title": "Annuity (Wikipedia, tertiary summary with textbook citations)",
+          "url": "https://en.wikipedia.org/wiki/Annuity",
+          "version": "Article revision as read on 2026-11-01"
+        }
+      ],
+      "summary": "Definition of the effective per-period discount rate from the effective per-period interest rate.",
+      "title": "Effective discount rate from effective interest rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-period:rate-basis",
+          "definition": "Effective interest rate per period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite decimal",
+          "quantity_id": "periodic_rate",
+          "role": "input",
+          "source_symbol": "i (effective interest rate per period)",
+          "symbol": "i",
+          "unit": "1"
+        },
+        {
+          "context": "same-period:rate-basis",
+          "definition": "Effective discount rate per period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite decimal below one in use",
+          "quantity_id": "discount_rate",
+          "role": "output",
+          "source_symbol": "d (effective rate of discount)",
+          "symbol": "d",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

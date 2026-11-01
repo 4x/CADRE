@@ -1,0 +1,656 @@
+{
+  "batch_id": "economics-codex-b02",
+  "created": "2026-11-01",
+  "curator": "codex",
+  "deferred": [
+    {
+      "title": "General linear operating-income and target-profit rearrangements",
+      "reason": "Source section 3.2 gives operating income as revenue less fixed/variable expenses and target units=(fixed+target income)/(p-v). These share the break-even CVP family; avoid submitting solve directions or zero-profit specializations as multiple new relationships. A canonical generalization can be considered in an explicitly reviewed later revision, retaining p=v and negative-margin cases separately.",
+      "source_urls": [
+        "https://openstax.org/books/principles-managerial-accounting/pages/3-2-calculate-a-break-even-point-in-units-and-dollars"
+      ]
+    },
+    {
+      "title": "Step costs beyond a relevant range",
+      "reason": "Section 2.2 describes piecewise changes in fixed costs and labor/machine capacity. General stepped cost needs piecewise branches, thresholds and contextual capacities, unavailable in scalar grammar. Retain original piecewise description rather than extrapolate linear costs. Source Tony example table/graph captions also contain conflicting numbers; do not use them as numerical oracles.",
+      "source_urls": [
+        "https://openstax.org/books/principles-managerial-accounting/pages/2-2-identify-and-apply-basic-cost-behavior-patterns"
+      ]
+    }
+  ],
+  "domain": "economics",
+  "example_only": false,
+  "handoff": {
+    "summary": "Four r1 candidates: positive-margin single-product break-even, linear mixed cost, average total production cost and unit contribution margin. Independently meaningful cost quantities are retained; no separate generic-profit/target-profit rearrangement returned. b01's four IDs remain intact; no supplied-inventory equivalent found.",
+    "gaps": [
+      "Economics meanings, homogeneous-unit rates and cost-pool/cost-basis metadata require extension.",
+      "Current OpenStax NC-SA and AI-use terms need owner rights review before redistribution.",
+      "Step-cost operators and integer ceiling for indivisible break-even volumes are not represented."
+    ],
+    "review_notes": "Primary section text, source image alt-text descriptions and current attribution notices inspected 2026-11-01. No pixel-level figure verification claimed. Published numerical results retained at source precision, with independent balancing ledgers or limiting cases. Reviewed negative-margin semantics, relevant ranges and inverse zero cases. Actual JSON/ZIP validation results recorded alongside the batch and in SESSION.json; no scientific approval inferred. Duplicate comparison includes b01, all supplied inventory relationships and runtime snapshot. Toolkit JSON validation passed on 2026-11-01: four models, 13 arithmetic and eight rejection checks, all requires-extension; pending scientific review. Final edit revalidated before packing.",
+    "connections": [],
+    "queries": []
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "id": "economics--single-product-linear-break-even-quantity",
+      "revision": "r1",
+      "title": "Single-product break-even quantity with positive contribution margin",
+      "summary": "Continuous sales volume at which revenue covers fixed and proportional variable expenses in the specified interval. A conditional cost-accounting calculation; it neither predicts sales nor establishes feasible capacity.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "Q_be",
+        "expression": "F / (p - v)",
+        "original_equation": "Break-even units = total fixed costs / contribution margin per unit; unit contribution margin = unit selling price - variable cost per unit.",
+        "source_id": "openstax-break-even",
+        "locator": "Section 3.2 opening assumptions, Figure 3.4 and Hicks contribution-margin statement",
+        "translation_notes": "Introduced F,p,v,Q_be map the source prose quantities. Substitution of the source-defined per-unit margin into its break-even formula yields one atomic relation. Dimensions currency/(currency/U)=U. No rounding/ceiling operator: output is the exact continuous threshold. For indivisible units a distinct ceiling rule is needed to find the first integer reaching nonnegative income, and an exact zero-income integer may not exist. F=0 is admitted as the algebraic no-fixed-expense boundary. Price must exceed variable cost; equality or a loss per unit does not define this finite positive-margin threshold."
+      },
+      "variables": [
+        {
+          "symbol": "F",
+          "source_symbol": "Introduced F = Total Fixed Costs",
+          "role": "input",
+          "quantity_id": "fixed_cost",
+          "definition": "Total fixed expenses assigned to this product/service and accounting interval within the relevant range.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same single homogeneous product/service, enterprise and accounting interval; current USD basis and same expense scope, with constant unit selling price and variable unit cost across the stated relevant volume range; no inventory change for manufactured units. Parameters must be measured for this regime.",
+          "domain": "Finite nonnegative; zero explicitly admits no fixed expense; not a fixed cost per unit."
+        },
+        {
+          "symbol": "p",
+          "source_symbol": "Introduced p = Sales Price per Unit",
+          "role": "input",
+          "quantity_id": "unit_price",
+          "definition": "Constant sales revenue earned per homogeneous unit sold on the specified monetary basis.",
+          "unit": "USD/unit",
+          "dimensions": "currency U^-1",
+          "context": "Same single homogeneous product/service, enterprise and accounting interval; current USD basis and same expense scope, with constant unit selling price and variable unit cost across the stated relevant volume range; no inventory change for manufactured units. Parameters must be measured for this regime.",
+          "domain": "Finite; p>v>=0, so p is positive. No discounts or changing price over volume."
+        },
+        {
+          "symbol": "v",
+          "source_symbol": "Introduced v = Variable Cost per Unit",
+          "role": "input",
+          "quantity_id": "unit_variable_cost",
+          "definition": "All variable expenses per unit sold, including variable selling expenses when included in operating-income boundary.",
+          "unit": "USD/unit",
+          "dimensions": "currency U^-1",
+          "context": "Same single homogeneous product/service, enterprise and accounting interval; current USD basis and same expense scope, with constant unit selling price and variable unit cost across the stated relevant volume range; no inventory change for manufactured units. Parameters must be measured for this regime.",
+          "domain": "Finite nonnegative, constant within declared range; independently supplied, never a reusable material default."
+        },
+        {
+          "symbol": "Q_be",
+          "source_symbol": "Introduced Q_be = Break-Even Point in Units",
+          "role": "output",
+          "quantity_id": "break_even_quantity",
+          "definition": "Continuous units sold during the accounting interval at zero operating income under the source cost profile.",
+          "unit": "unit",
+          "dimensions": "U",
+          "context": "Same single homogeneous product/service, enterprise and accounting interval; current USD basis and same expense scope, with constant unit selling price and variable unit cost across the stated relevant volume range; no inventory change for manufactured units. Parameters must be measured for this regime.",
+          "domain": "Finite nonnegative; valid as feasible operating volume only if within relevant range/capacity."
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "F >= 0",
+        "v >= 0",
+        "p > v"
+      ],
+      "assumptions": [
+        "Source assumptions: costs can be separated into fixed and proportional variable components; per-unit price and variable cost are constant in the relevant range.",
+        "Source assumption: for manufacturing, units produced are sold and inventory does not change. Application profile: a single product/service; no varying sales mix.",
+        "Application boundary: operating-income break-even using the stated expense classifications, not financing cash flow or after-tax profit."
+      ],
+      "limitations": [
+        "A volume outside relevant capacity/range is not a defensible operating result; scalar guards cannot check metadata about that range.",
+        "No inference about demand, sales realizability, profit maximization, future profitability or investment desirability.",
+        "Indivisible-unit rounding and exact multi-product mix calculations are outside this scalar relation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "openstax-break-even",
+          "kind": "primary",
+          "title": "OpenStax, Principles of Accounting, Volume 2: Managerial Accounting, section 3.2",
+          "url": "https://openstax.org/books/principles-managerial-accounting/pages/3-2-calculate-a-break-even-point-in-units-and-dollars",
+          "version": "Franklin, Graybeal and Cooper; published 2019-02-14; live HTML inspected 2026-11-01, current footer CC BY-NC-SA",
+          "accessed": "2026-11-01",
+          "locator": "Opening CVP assumptions; Figure 3.4 Hicks; 'The Cost of a Haircut'; service-organization example",
+          "evidence": "Break-even is zero operating income under linear fixed/variable costs, constant unit selling price and no manufacturing inventory change. Hicks data are 18000 fixed cost, 100 price, 20 variable cost and 225 units. Haircut example gives 3000,35,20 and 200 units.",
+          "license": "Actual live section Citation/Attribution inspected 2026-11-01: CC BY-NC-SA 4.0, https://creativecommons.org/licenses/by-nc-sa/4.0/; same section also states that ingestion in LLM/generative-AI offerings requires prior written permission. Current terms are recorded, not inferred from the original publication license.",
+          "redistribution": "Only short original evidence paraphrases, formula facts and attributed example numbers returned; no pages, images or source files. This does not establish reuse clearance. Commercial, share-alike and AI-use applicability remains for owner rights review before redistribution."
+        },
+        {
+          "id": "openstax-contribution",
+          "kind": "primary",
+          "title": "OpenStax, Principles of Accounting, Volume 2: Managerial Accounting, section 3.1",
+          "url": "https://openstax.org/books/principles-managerial-accounting/pages/3-1-explain-contribution-margin-and-calculate-contribution-margin-per-unit-contribution-margin-ratio-and-total-contribution-margin",
+          "version": "Franklin, Graybeal and Cooper; published 2019-02-14; live HTML inspected 2026-11-01, current footer CC BY-NC-SA",
+          "accessed": "2026-11-01",
+          "locator": "'Unit Contribution Margin', Blue Jay and Cardinal examples; 'Margin at the Kiosk'",
+          "evidence": "Unit contribution margin is unit selling price less all per-unit variable costs. Blue Jay reports 100-20=80 and Cardinal 75-15=60; kiosk uses 25 price and 15.50 variable cost including commission, giving 9.50 per shirt. Margin contributes to fixed costs before profit.",
+          "license": "Actual live section Citation/Attribution inspected 2026-11-01: CC BY-NC-SA 4.0, https://creativecommons.org/licenses/by-nc-sa/4.0/; same section also states that ingestion in LLM/generative-AI offerings requires prior written permission. Current terms are recorded, not inferred from the original publication license.",
+          "redistribution": "Only short original evidence paraphrases, formula facts and attributed example numbers returned; no pages, images or source files. This does not establish reuse clearance. Commercial, share-alike and AI-use applicability remains for owner rights review before redistribution."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-hicks",
+          "inputs": {
+            "F": 18000,
+            "p": 100,
+            "v": 20
+          },
+          "expected": 225,
+          "tolerance": 1E-10,
+          "method": "Published result 225 units, also independently balanced by source income statement: sales 22500, variable expense 4500, fixed expense 18000, zero operating income. Tolerance covers floating arithmetic, source teaching values exact.",
+          "provenance": "https://openstax.org/books/principles-managerial-accounting/pages/3-2-calculate-a-break-even-point-in-units-and-dollars, Figure 3.4 and following contribution-margin statement."
+        },
+        {
+          "id": "published-haircuts",
+          "inputs": {
+            "F": 3000,
+            "p": 35,
+            "v": 20
+          },
+          "expected": 200,
+          "tolerance": 1E-10,
+          "method": "Published haircut threshold 200. Independent revenue-cost check: 200 haircuts generate 7000 revenue and incur 4000 variable plus 3000 fixed expenses, exactly balancing.",
+          "provenance": "https://openstax.org/books/principles-managerial-accounting/pages/3-2-calculate-a-break-even-point-in-units-and-dollars, Think It Through: The Cost of a Haircut."
+        },
+        {
+          "id": "no-fixed-cost-boundary",
+          "inputs": {
+            "F": 0,
+            "p": 12,
+            "v": 7
+          },
+          "expected": 0,
+          "tolerance": 1E-12,
+          "method": "Limiting identity: at no sales and no fixed expense, neither revenue nor variable expense arises; zero volume breaks even. Positive margin retained.",
+          "provenance": "Curator hypothetical boundary, not source business data."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "F": 100,
+            "p": 5,
+            "v": 5
+          },
+          "reason": "No positive contribution margin; positive fixed costs cannot be recovered."
+        },
+        {
+          "kind": "domain",
+          "inputs": {
+            "F": 100,
+            "p": 4,
+            "v": 5
+          },
+          "reason": "Negative contribution margin is outside the positive-margin break-even definition."
+        },
+        {
+          "kind": "domain",
+          "inputs": {
+            "F": -1,
+            "p": 10,
+            "v": 2
+          },
+          "reason": "Negative amount is not a nonnegative fixed expense in this profile."
+        }
+      ],
+      "inverse_notes": "Given Q_be,p,v, F=Q_be*(p-v), with Q_be>=0 and p>v>=0; no denominator. Given positive Q_be,F and v, p=v+F/Q_be; requires F>0 to satisfy original p>v. Similarly v=p-F/Q_be, require Q_be>0,F>0,0<=v<p. Substitution: Q_be=225,p=100,v=20 gives F=18000 and forward 225. At F=Q_be=0, any p>v>=0 is compatible, so prices/costs are not identified. With F=0 and Q_be>0 no solution under p>v. p=v,F=0 would yield zero income at every volume, but is excluded from this unique-threshold profile. Target-profit and general operating-income inversions are not returned as new clones.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "New fixed_cost, unit_variable_cost and break_even_quantity meanings; unit_price reuses b01 definition with matching sale-price scope. Homogeneous-unit arithmetic and relevant-range metadata required; USD alone does not make runtime-ready."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "economics--linear-mixed-cost",
+      "revision": "r1",
+      "title": "Linear mixed cost within a relevant activity range",
+      "summary": "Total of one defined cost pool with fixed and proportional activity components. The pool may be a component such as an occupancy tax or an entire explicitly covered expense set; no automatic equivalence to total enterprise production cost.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "C_pool",
+        "expression": "F + v * x",
+        "original_equation": "Y = a + b*x, where Y is total mixed cost, a fixed cost, b variable cost per unit and x activity level.",
+        "source_id": "openstax-linear-cost",
+        "locator": "Section 2.2, Mixed Costs and Stepped Costs, Ocean Breeze and equation following Figure 2.19",
+        "translation_notes": "Introduced C_pool=source Y, F=a, v=b; x unchanged. Activity unit A is the declared driver (e.g. occupied room-night), not necessarily product count or elapsed time. Dimensions currency + (currency/A)*A = currency. Source reference is a monthly flow of tax costs: x accumulates occupied room-nights, not rooms available or capital stock. Nonnegative-cost profile admits zero fixed/variable amounts. A generic linear model is conditional; it does not estimate a or b or license extrapolation beyond relevant range."
+      },
+      "variables": [
+        {
+          "symbol": "F",
+          "source_symbol": "Introduced F = source a",
+          "role": "input",
+          "quantity_id": "fixed_cost_pool_amount",
+          "definition": "Fixed portion of the defined cost pool over the accounting interval.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same declared cost pool, organization/component, activity driver and accounting interval on one USD/valuation basis. Fixed amount and variable cost per activity unit apply only within the supplied relevant range and cost-classification regime. Zero activity must be inside the declared range when used.",
+          "domain": "Finite nonnegative within stated range."
+        },
+        {
+          "symbol": "v",
+          "source_symbol": "Introduced v = source b",
+          "role": "input",
+          "quantity_id": "cost_per_activity_unit",
+          "definition": "Constant variable portion of this cost pool per unit of the declared driver.",
+          "unit": "USD/activity-unit",
+          "dimensions": "currency A^-1",
+          "context": "Same declared cost pool, organization/component, activity driver and accounting interval on one USD/valuation basis. Fixed amount and variable cost per activity unit apply only within the supplied relevant range and cost-classification regime. Zero activity must be inside the declared range when used.",
+          "domain": "Finite nonnegative for the specific driver and regime; not necessarily variable cost per product sold."
+        },
+        {
+          "symbol": "x",
+          "source_symbol": "x",
+          "role": "input",
+          "quantity_id": "cost_driver_quantity",
+          "definition": "Total activity units accrued in the matching accounting interval.",
+          "unit": "activity-unit",
+          "dimensions": "A",
+          "context": "Same declared cost pool, organization/component, activity driver and accounting interval on one USD/valuation basis. Fixed amount and variable cost per activity unit apply only within the supplied relevant range and cost-classification regime. Zero activity must be inside the declared range when used.",
+          "domain": "Finite nonnegative within supplied relevant range; counts may require integrality externally."
+        },
+        {
+          "symbol": "C_pool",
+          "source_symbol": "Introduced C_pool = source Y",
+          "role": "output",
+          "quantity_id": "mixed_cost_pool_amount",
+          "definition": "Total fixed plus proportional variable amount of the defined pool for the interval.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same declared cost pool, organization/component, activity driver and accounting interval on one USD/valuation basis. Fixed amount and variable cost per activity unit apply only within the supplied relevant range and cost-classification regime. Zero activity must be inside the declared range when used.",
+          "domain": "Finite nonnegative; scope follows the supplied cost pool."
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "F >= 0",
+        "v >= 0",
+        "x >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: fixed portion is constant in total and variable portion constant per activity unit within relevant range.",
+        "Application profile: nonnegative expense pool on a consistent accounting basis; no rebates or signed credits treated as expenses."
+      ],
+      "limitations": [
+        "Nonlinear, step, threshold and changing-capacity costs require a different regime or piecewise model.",
+        "Driver identity and relevant-range checks are contextual; x alone does not establish admissibility. Neither parameter is fitted or forecast here."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "openstax-linear-cost",
+          "kind": "primary",
+          "title": "OpenStax, Principles of Accounting, Volume 2: Managerial Accounting, section 2.2",
+          "url": "https://openstax.org/books/principles-managerial-accounting/pages/2-2-identify-and-apply-basic-cost-behavior-patterns",
+          "version": "Franklin, Graybeal and Cooper; published 2019-02-14; live HTML inspected 2026-11-01, current footer CC BY-NC-SA",
+          "accessed": "2026-11-01",
+          "locator": "'Mixed Costs and Stepped Costs', Ocean Breeze prose and Figure 2.19; Y=a+bx definition",
+          "evidence": "A mixed cost has a fixed amount plus constant variable cost per activity unit in a relevant range. Ocean Breeze tax: 2000 per month plus 5 per occupied room-night; table reports 2300 for 60 and 2000 for zero. Changes in capacity can create steps outside that range.",
+          "license": "Actual live section Citation/Attribution inspected 2026-11-01: CC BY-NC-SA 4.0, https://creativecommons.org/licenses/by-nc-sa/4.0/; same section also states that ingestion in LLM/generative-AI offerings requires prior written permission. Current terms are recorded, not inferred from the original publication license.",
+          "redistribution": "Only short original evidence paraphrases, formula facts and attributed example numbers returned; no pages, images or source files. This does not establish reuse clearance. Commercial, share-alike and AI-use applicability remains for owner rights review before redistribution."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-ocean-breeze-sixty",
+          "inputs": {
+            "F": 2000,
+            "v": 5,
+            "x": 60
+          },
+          "expected": 2300,
+          "tolerance": 1E-10,
+          "method": "Published Figure 2.19 amount 2300 for 60 room-nights; teaching values exact, floating tolerance only. Context is the tax pool, not all hotel costs.",
+          "provenance": "https://openstax.org/books/principles-managerial-accounting/pages/2-2-identify-and-apply-basic-cost-behavior-patterns, Ocean Breeze Figure 2.19."
+        },
+        {
+          "id": "published-zero-room-nights",
+          "inputs": {
+            "F": 2000,
+            "v": 5,
+            "x": 0
+          },
+          "expected": 2000,
+          "tolerance": 1E-10,
+          "method": "Published zero-activity cost 2000, independently explained by unavoidable monthly charge even when no room is occupied.",
+          "provenance": "https://openstax.org/books/principles-managerial-accounting/pages/2-2-identify-and-apply-basic-cost-behavior-patterns, same prose and Figure 2.19."
+        },
+        {
+          "id": "synthetic-event-ledger",
+          "inputs": {
+            "F": 23,
+            "v": 2.5,
+            "x": 6
+          },
+          "expected": 38,
+          "tolerance": 1E-10,
+          "method": "Independent ledger construction: one 23-dollar fixed bill plus six quarter-hour activities, each incurring five half-dollar tokens. Tokens sum to 15 dollars, so total cash cost 38. Different cost pool/driver from published example.",
+          "provenance": "Curator synthetic fixed bill and token ledger; activity-unit here is one completed quarter-hour activity."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "F": 2000,
+            "v": 5,
+            "x": -1
+          },
+          "reason": "Negative accumulated activity excluded by cost-driver definition."
+        },
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "F": 2000,
+            "v": 5
+          },
+          "reason": "Missing activity quantity cannot be assumed zero."
+        }
+      ],
+      "inverse_notes": "Solve F=C_pool-v*x, requiring recovered F>=0; solve v=(C_pool-F)/x only for x>0 and v>=0; solve x=(C_pool-F)/v only for v>0 and x>=0, within relevant range. Published substitution C_pool=2300,F=2000,x=60 gives v=5 and forward 2300. At x=0,C_pool=F, v is unrestricted nonnegative; unequal C_pool,F gives no solution. At v=0,C_pool=F every admissible x fits; otherwise no solution. Inverses infer arithmetic consistency, not a cost-driver causal mechanism or estimated parameters.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "New cost-pool, driver and per-driver meanings/units required; pool scope must not be coerced into total_production_cost or a product unit. Definition distinct from electricity-cost because generic mixed cost includes fixed portion and a declared activity driver."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "economics--average-total-production-cost",
+      "revision": "r1",
+      "title": "Average total production cost",
+      "summary": "Total production cost allocated per homogeneous unit produced. Applies to nonlinear as well as linear costs and is distinct from the cost of an additional unit.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "AC",
+        "expression": "TC / Q",
+        "original_equation": "AC = TC/Q",
+        "source_id": "openstax-average-cost",
+        "locator": "Section 7.3, Average and Marginal Costs, equation AC=TC/Q and Table 7.8",
+        "translation_notes": "Symbols retained. Dimensions currency/U. No assumption of linear total cost, no averaging over calendar periods, and no use of a price or marginal-cost input. The cost boundary must distinguish accounting outlays from economic opportunity costs; this record does not silently choose between them or relabel one as the other. Zero total cost is an admitted mathematical boundary of the nonnegative-cost profile for positive output; zero output has no defined per-unit average."
+      },
+      "variables": [
+        {
+          "symbol": "TC",
+          "source_symbol": "TC",
+          "role": "input",
+          "quantity_id": "total_production_cost",
+          "definition": "All production costs assigned to the same output and interval under the declared cost convention.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same enterprise, homogeneous output, production interval and cost boundary; TC covers all costs of that production under a declared accounting or economic cost convention, consistently used throughout. Q is units produced, not units sold unless independently matched.",
+          "domain": "Finite nonnegative amount; cost boundary and valuation basis supplied in context."
+        },
+        {
+          "symbol": "Q",
+          "source_symbol": "Q",
+          "role": "input",
+          "quantity_id": "produced_quantity",
+          "definition": "Homogeneous physical output produced during the cost interval.",
+          "unit": "unit",
+          "dimensions": "U",
+          "context": "Same enterprise, homogeneous output, production interval and cost boundary; TC covers all costs of that production under a declared accounting or economic cost convention, consistently used throughout. Q is units produced, not units sold unless independently matched.",
+          "domain": "Finite strictly positive, with product/service unit and quality fixed."
+        },
+        {
+          "symbol": "AC",
+          "source_symbol": "AC",
+          "role": "output",
+          "quantity_id": "average_total_production_cost",
+          "definition": "Total production cost per unit of matching output.",
+          "unit": "USD/unit",
+          "dimensions": "currency U^-1",
+          "context": "Same enterprise, homogeneous output, production interval and cost boundary; TC covers all costs of that production under a declared accounting or economic cost convention, consistently used throughout. Q is units produced, not units sold unless independently matched.",
+          "domain": "Finite nonnegative average; not marginal cost or selling price."
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "TC >= 0",
+        "Q > 0"
+      ],
+      "assumptions": [
+        "Source definition: total production cost divided by matching output quantity.",
+        "Application context: homogeneous units and a consistent total-cost convention; any joint-product allocation must be established externally."
+      ],
+      "limitations": [
+        "Does not describe marginal cost, a causal cost response or a cost function away from the supplied quantity.",
+        "Allocation can depend on the chosen total-cost boundary; no automatic matching to a mixed cost component or to cash expenditures."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "openstax-average-cost",
+          "kind": "primary",
+          "title": "Greenlaw, Shapiro and MacDonald, Principles of Economics 3e, section 7.3",
+          "url": "https://openstax.org/books/principles-economics-3e/pages/7-3-costs-in-the-short-run",
+          "version": "Published 2022-12-14; live HTML inspected 2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "'Average and Marginal Costs', AC=TC/Q and Table 7.8",
+          "evidence": "Average cost divides total production cost by the quantity produced. Table 7.8 reports two widgets, cost 44, average 22; four widgets, cost 90, average 22.50. Marginal cost is separately defined from changes rather than this average.",
+          "license": "Actual live section Citation/Attribution inspected 2026-11-01: CC BY-NC-SA 4.0, https://creativecommons.org/licenses/by-nc-sa/4.0/; same section also states that ingestion in LLM/generative-AI offerings requires prior written permission. Current terms are recorded, not inferred from the original publication license.",
+          "redistribution": "Only short original evidence paraphrases, formula facts and attributed example numbers returned; no pages, images or source files. This does not establish reuse clearance. Commercial, share-alike and AI-use applicability remains for owner rights review before redistribution."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-two-widgets",
+          "inputs": {
+            "TC": 44,
+            "Q": 2
+          },
+          "expected": 22,
+          "tolerance": 1E-10,
+          "method": "Published average 22 dollars/widget; expected retained as printed. Source teaching values exact, tolerance floating arithmetic only.",
+          "provenance": "https://openstax.org/books/principles-economics-3e/pages/7-3-costs-in-the-short-run, AC equation example and Table 7.8."
+        },
+        {
+          "id": "published-four-widgets",
+          "inputs": {
+            "TC": 90,
+            "Q": 4
+          },
+          "expected": 22.5,
+          "tolerance": 1E-10,
+          "method": "Published average 22.50 dollars/widget at four units, not an extrapolation of a linear cost. Source table exact to shown teaching precision.",
+          "provenance": "https://openstax.org/books/principles-economics-3e/pages/7-3-costs-in-the-short-run, Table 7.8."
+        },
+        {
+          "id": "synthetic-uniform-ledger",
+          "inputs": {
+            "TC": 37.5,
+            "Q": 15
+          },
+          "expected": 2.5,
+          "tolerance": 1E-10,
+          "method": "Independent per-unit resource ledger: each of fifteen identical units uses two one-dollar inputs and one half-dollar input, with no other cost. Unit cost is 2.50, aggregated cost 37.50. This checks average by known unit resources rather than re-dividing an arbitrary total.",
+          "provenance": "Curator synthetic production ledger, accounting cost basis."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "TC": 50,
+            "Q": 0
+          },
+          "reason": "No units produced, so average per unit undefined."
+        },
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "TC": 50
+          },
+          "reason": "Matching output quantity missing."
+        }
+      ],
+      "inverse_notes": "TC=AC*Q for known AC>=0,Q>0, unique. Q=TC/AC requires AC>0 and recovered Q>0. Substitution AC=22,Q=2 gives TC=44; forward average=22. If AC=TC=0 any positive Q fits; if AC=0,TC>0 there is no solution. TC=0 with AC>0 implies Q=0 and violates original domain. Algebraic recovery of Q is accounting consistency only and does not identify a production function.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "New produced_quantity, total_production_cost and average_total_production_cost meanings and homogeneous-unit support. Mixed-cost pool amounts from this batch are not automatically equivalent to total production cost."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "economics--unit-contribution-margin",
+      "revision": "r1",
+      "title": "Unit contribution margin",
+      "summary": "Per-unit sales revenue remaining after all matching variable costs, available toward fixed expenses and then operating income. Negative values retain a per-unit shortfall rather than being silently clipped.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cm",
+        "expression": "p - v",
+        "original_equation": "Unit contribution margin = per-unit sales price - variable cost per unit.",
+        "source_id": "openstax-contribution",
+        "locator": "Section 3.1, Unit Contribution Margin; Hicks examples; Margin at the Kiosk",
+        "translation_notes": "Introduced p,v,cm map source prose labels. Dimensions currency/U - currency/U = currency/U. This independently named accounting quantity is a definition, not a separate multiplication stage or a synonym for profit: fixed costs remain unpaid. Nonnegative price/cost profile permits p<v and signed cm; source calls it a difference, while positive examples do not justify silently restricting margin to positive. No assertion of volume invariance outside a declared constant-price/cost regime."
+      },
+      "variables": [
+        {
+          "symbol": "p",
+          "source_symbol": "Introduced p = Per Unit Sales Price",
+          "role": "input",
+          "quantity_id": "unit_price",
+          "definition": "Sales revenue per homogeneous unit sold.",
+          "unit": "USD/unit",
+          "dimensions": "currency U^-1",
+          "context": "Same sold product/service unit, transaction/interval, price quality/currency basis and complete variable-expense scope. Unit variable expense includes the costs triggered by that sale under the chosen contribution-income definition; fixed expenses are excluded.",
+          "domain": "Finite nonnegative; free-sale boundary p=0 admitted for the accounting difference."
+        },
+        {
+          "symbol": "v",
+          "source_symbol": "Introduced v = Variable Cost per Unit",
+          "role": "input",
+          "quantity_id": "unit_variable_cost",
+          "definition": "Complete variable expense per same unit sold.",
+          "unit": "USD/unit",
+          "dimensions": "currency U^-1",
+          "context": "Same sold product/service unit, transaction/interval, price quality/currency basis and complete variable-expense scope. Unit variable expense includes the costs triggered by that sale under the chosen contribution-income definition; fixed expenses are excluded.",
+          "domain": "Finite nonnegative; includes all applicable variable selling/production expenses."
+        },
+        {
+          "symbol": "cm",
+          "source_symbol": "Introduced cm = Contribution Margin per Unit",
+          "role": "output",
+          "quantity_id": "unit_contribution_margin",
+          "definition": "Signed selling-price excess over all per-unit variable costs, before fixed expenses.",
+          "unit": "USD/unit",
+          "dimensions": "currency U^-1",
+          "context": "Same sold product/service unit, transaction/interval, price quality/currency basis and complete variable-expense scope. Unit variable expense includes the costs triggered by that sale under the chosen contribution-income definition; fixed expenses are excluded.",
+          "domain": "Finite signed, including zero and per-unit shortfall when negative."
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "p >= 0",
+        "v >= 0"
+      ],
+      "assumptions": [
+        "Source definition: compare the revenue from one unit with its variable cost; fixed expenses are outside the unit contribution margin.",
+        "Application profile: monetary price and variable cost are nonnegative on one consistent sales/expense basis."
+      ],
+      "limitations": [
+        "Not gross margin based on absorption cost, net profit or a cash-flow return.",
+        "Does not identify demand or whether changes in price leave volume or unit costs unchanged."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "openstax-contribution",
+          "kind": "primary",
+          "title": "OpenStax, Principles of Accounting, Volume 2: Managerial Accounting, section 3.1",
+          "url": "https://openstax.org/books/principles-managerial-accounting/pages/3-1-explain-contribution-margin-and-calculate-contribution-margin-per-unit-contribution-margin-ratio-and-total-contribution-margin",
+          "version": "Franklin, Graybeal and Cooper; published 2019-02-14; live HTML inspected 2026-11-01, current footer CC BY-NC-SA",
+          "accessed": "2026-11-01",
+          "locator": "'Unit Contribution Margin', Blue Jay and Cardinal examples; 'Margin at the Kiosk'",
+          "evidence": "Unit contribution margin is unit selling price less all per-unit variable costs. Blue Jay reports 100-20=80 and Cardinal 75-15=60; kiosk uses 25 price and 15.50 variable cost including commission, giving 9.50 per shirt. Margin contributes to fixed costs before profit.",
+          "license": "Actual live section Citation/Attribution inspected 2026-11-01: CC BY-NC-SA 4.0, https://creativecommons.org/licenses/by-nc-sa/4.0/; same section also states that ingestion in LLM/generative-AI offerings requires prior written permission. Current terms are recorded, not inferred from the original publication license.",
+          "redistribution": "Only short original evidence paraphrases, formula facts and attributed example numbers returned; no pages, images or source files. This does not establish reuse clearance. Commercial, share-alike and AI-use applicability remains for owner rights review before redistribution."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-blue-jay",
+          "inputs": {
+            "p": 100,
+            "v": 20
+          },
+          "expected": 80,
+          "tolerance": 1E-10,
+          "method": "Published 80-dollar unit margin, retained exactly as source teaching example. Tolerance floating only.",
+          "provenance": "https://openstax.org/books/principles-managerial-accounting/pages/3-1-explain-contribution-margin-and-calculate-contribution-margin-per-unit-contribution-margin-ratio-and-total-contribution-margin, Unit Contribution Margin, Blue Jay."
+        },
+        {
+          "id": "published-kiosk",
+          "inputs": {
+            "p": 25,
+            "v": 15.5
+          },
+          "expected": 9.5,
+          "tolerance": 1E-10,
+          "method": "Published 9.50 unit contribution. Variable cost includes 15-dollar shirt and 0.50 commission; expected is the reported contribution rather than excluding selling commission.",
+          "provenance": "https://openstax.org/books/principles-managerial-accounting/pages/3-1-explain-contribution-margin-and-calculate-contribution-margin-per-unit-contribution-margin-ratio-and-total-contribution-margin, Your Turn: Margin at the Kiosk."
+        },
+        {
+          "id": "synthetic-zero-margin",
+          "inputs": {
+            "p": 7.25,
+            "v": 7.25
+          },
+          "expected": 0,
+          "tolerance": 1E-12,
+          "method": "Limiting identity: every sales dollar exactly pays a variable expense dollar, leaving none toward fixed expenses.",
+          "provenance": "Curator constructed accounting boundary."
+        },
+        {
+          "id": "synthetic-variable-shortfall",
+          "inputs": {
+            "p": 4,
+            "v": 6
+          },
+          "expected": -2,
+          "tolerance": 1E-12,
+          "method": "Independent ledger interpretation: customer provides four one-dollar tokens, variable suppliers require six; two-dollar shortfall remains before fixed costs.",
+          "provenance": "Curator signed-margin example, not a published firm observation."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "p": 10,
+            "v": -2
+          },
+          "reason": "Negative variable expense falls outside nonnegative expense profile; signed rebates need an explicit alternate basis."
+        }
+      ],
+      "inverse_notes": "p=cm+v given signed cm and v>=0, requiring p>=0; v=p-cm given p>=0, requiring v>=0. No denominator or root branches. Published substitution cm=80,v=20 gives p=100; forward cm=80. At cm=0, p=v and either variable uniquely follows from the other, including both zero. With only cm known, infinitely many compatible price/cost pairs exist; no pricing recommendation follows.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "New unit_contribution_margin meaning; unit_price and unit_variable_cost reused consistently. Runtime lacks homogeneous-unit monetary rates and explicit expense-boundary contexts."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

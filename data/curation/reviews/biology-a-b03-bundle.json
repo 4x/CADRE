@@ -1,0 +1,820 @@
+{
+  "batch_id": "biology-a-b03",
+  "created": "2026-11-01",
+  "curator": "buffy-curator",
+  "deferred": [
+    {
+      "reason": "The source states WBE theory predicts slightly curvilinear scaling (exact 3/4 only in the infinite-size limit; small birds/insects fit 2/3 better) but prints no closed scalar correction formula, so no atomic scalar record can be written. Priority: curate only if a citable closed-form correction appears; the 3/4 record stands as the working approximation with this caveat.",
+      "source_urls": [
+        "https://en.wikipedia.org/wiki/Kleiber%27s_law"
+      ],
+      "title": "WBE curvilinear correction to 3/4 scaling"
+    }
+  ],
+  "domain": "biology",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "All six records need new quantity meanings and units, so all are requires-extension; duplicate search covered the supplied catalog-inventory.json (no biology records) and batches b01-b02.",
+      "Absolute-rate validation of the Kleiber normalization against organism measurements is future work; the record tests encoding and the published 100x-to-32x ratio, not a new fit.",
+      "Primary WBE 1997 text still unverified (reader 404); the derivation claims rest on the inspected tertiary summary plus the Heymsfield review lineage noted in deferred b01."
+    ],
+    "queries": [],
+    "review_notes": "Validation: schema + arithmetic + guard checks to be run with the kit validator; packed ZIP to be re-validated. Source-fidelity review by curator: every equation, assumption and numerical value was read on the cited page on 2026-11-01. No review corrections were supplied.",
+    "summary": "Batch b03: six atomic biology records (finite rate of increase, one-step and projected discrete geometric growth, empirical Kleiber 3/4 metabolic scaling, sex ratio, complementary allele frequency) grounded in the inspected LibreTexts geometric-growth derivation (Donovan & Welden/Gotelli lineage), OpenStax Biology 2e sections 45.3 and 45.1/19.1, and the inspected Kleiber/allometry summaries. Each record carries two references, domain and missing-input rejections, and inverse notes. Earlier batches' deferred items (continuous models, Kleiber-1932 coefficient) stand unchanged."
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: discrete time steps with seasonal, synchronous reproduction (source: the model 'is realistic for many populations that have seasonal, synchronous reproduction').",
+        "source assumption: per-capita birth and death rates constant over the modeled period and independent of population size or density (density-independence); the page notes real rates do change and the model is a heuristic starting point valid 'under certain conditions and for limited periods of time'."
+      ],
+      "constants": [],
+      "guards": [
+        "R >= -1"
+      ],
+      "id": "biology--finite-rate-of-increase",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings geometric_rate and finite_rate are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Geometric rate is recoverable as R = L - 1. Substitution check: L = 1.1 gives R = 0.1, consistent with the published example. Boundary L = 0 (R = -1) means total loss within one interval and is admissible; R < -1 would imply a negative multiplier and is excluded by the guard.",
+      "kind": "definition",
+      "limitations": [
+        "Names the multiplier implied by a geometric rate; it does not estimate R from field data (that estimation is the separate ratio record family).",
+        "Applies only where the discrete-time, density-independent framing holds; continuous breeders need the exponential (exp) family, which is deferred."
+      ],
+      "references": [
+        {
+          "expected": 1.1,
+          "id": "ten-percent-example",
+          "inputs": {
+            "R": 0.1
+          },
+          "method": "Published example: 'Suppose R = 0.1 individuals/individual/year. Therefore, lambda = 1 + R = 1.1. This implies that the population increases by 10% per year'.",
+          "provenance": "Published result (worked example with exact decimal arithmetic).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1.0,
+          "id": "stable-multiplier-limit",
+          "inputs": {
+            "R": 0.0
+          },
+          "method": "Limiting identity: a zero geometric rate means no per-capita change, so the one-step multiplier is exactly 1 (stable population).",
+          "provenance": "Limiting identity constructed from the definition; not a field observation.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R": -1.5
+          },
+          "kind": "domain",
+          "reason": "R = -1.5 would give a negative finite rate (lambda = -0.5), which is meaningless as a population multiplier."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Geometric rate R must be supplied; the multiplier cannot be determined from no input."
+        }
+      ],
+      "relationship": {
+        "expression": "1 + R",
+        "locator": "'Geometric (Discrete-Time) Model' derivation: 'The quantity (1 + R) is often given its own symbol, l (lambda), and its own name: the finite rate of increase.' with worked R = 0.1 -> lambda = 1.1 doubling in about 7.27 years.",
+        "original_equation": "lambda = 1 + R (finite rate of increase)",
+        "output_symbol": "L",
+        "source_id": "libretexts-geometric-growth",
+        "translation_notes": "Source symbol lambda transliterated to local L (expression grammar is ASCII-only); R (geometric rate of increase, per-individual per-period) preserved. Dimensional check: pure number 1 plus dimensionless rate gives a dimensionless multiplier. This L is the quantity the assignment's special check calls the discrete per-period multiplier; it must not be confused with the continuous intrinsic rate r (the page stresses 'The parameters r and R are not equal')."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: factoring the one-step equation gives (1 + R), named lambda, the finite rate of increase; R = 0.1 gives lambda = 1.1 (10% per year, doubling about 7.27 years); lambda = 1 + R with r and R explicitly not equal.",
+          "id": "libretexts-geometric-growth",
+          "kind": "project-derivation",
+          "license": "LibreTexts Gettysburg-course pages are standardly CC BY-NC-SA with section source credit to Donovan & Welden 2002 and Gotelli 2001; the exact footer license line was not re-verified on this read and is recorded as unverified: page section 'SECTION SOURCE' and 'LITERATURE CITED'.",
+          "locator": "https://bio.libretexts.org/Courses/Gettysburg_College/02%3A_Principles_of_Ecology_-_Gettysburg_College_ES_211/07%3A_A_Quantitative_Approach_to_Population_Ecology/7.01%3A_Population_Growth/7.1.01%3A_Geometric_and_Exponential_Growth, 'Geometric (Discrete-Time) Model of Population Growth' (Donovan & Welden 2002 derivation; cites Gotelli 2001).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation beyond short attributed equation names.",
+          "title": "LibreTexts Geometric and Exponential Growth (Gettysburg ES 211, 7.1.1)",
+          "url": "https://bio.libretexts.org/Courses/Gettysburg_College/02%3A_Principles_of_Ecology_-_Gettysburg_College_ES_211/07%3A_A_Quantitative_Approach_to_Population_Ecology/7.01%3A_Population_Growth/7.1.01%3A_Geometric_and_Exponential_Growth",
+          "version": "Donovan and Welden 2002 derivation via LibreTexts; page as accessed 2026-11-01"
+        }
+      ],
+      "summary": "Definitional record naming the finite rate of increase as one plus the geometric rate of increase.",
+      "title": "Finite rate of increase from geometric rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same population and discrete time step as L",
+          "definition": "Geometric (discrete-time) rate of increase: per-capita birth minus per-capita death per period",
+          "dimensions": "dimensionless",
+          "domain": "R >= -1; -1 is the total-loss-in-one-interval boundary",
+          "quantity_id": "geometric_rate",
+          "role": "input",
+          "source_symbol": "R",
+          "symbol": "R",
+          "unit": "1"
+        },
+        {
+          "context": "same population and discrete time step as R",
+          "definition": "Finite rate of increase: one-step population multiplier",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite multiplier; 1 is the stable-population boundary",
+          "quantity_id": "finite_rate",
+          "role": "output",
+          "source_symbol": "lambda (rendered l in page extraction)",
+          "symbol": "L",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: discrete time steps with seasonal, synchronous reproduction and constant density-independent per-capita rates (same framing as the finite-rate record).",
+        "source assumption: closed to migration over the step (the derivation sets immigration and emigration aside: 'this exercise ignores immigration and emigration')."
+      ],
+      "constants": [],
+      "guards": [
+        "N1 >= 0",
+        "L >= 0"
+      ],
+      "id": "biology--geometric-growth-one-step",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings period_population and finite_rate are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Current size is recoverable as N1 = N2 / L for nonzero L. Substitution check: 2000 / 2 = 1000, consistent with the fission reference. L = 0 gives N2 = 0 (total loss in one interval) and is admissible; recovering N1 from a zero multiplier is impossible, which is expected rather than a defect.",
+      "kind": "theoretical",
+      "limitations": [
+        "Projects exactly one discrete step; multi-step projection is the separate Nt record.",
+        "The fission-series application treats each hourly doubling as one synchronous round, matching the page's presentation of the series."
+      ],
+      "references": [
+        {
+          "expected": 2000,
+          "id": "bacteria-first-doubling",
+          "inputs": {
+            "L": 2,
+            "N1": 1000
+          },
+          "method": "LibreTexts one-step equation applied to the OpenStax-published fission series: one hourly doubling round (lambda = 2) from 1000 bacteria gives 2000, the series value the page prints for the first hour.",
+          "provenance": "Value derived by combining two published sources (recurrence from one, census numbers from the other); both ends independently printed.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 500,
+          "id": "stable-step-limit",
+          "inputs": {
+            "L": 1,
+            "N1": 500
+          },
+          "method": "Limiting identity: a unit multiplier reproduces the current census exactly (500 * 1 = 500).",
+          "provenance": "Limiting identity constructed from the recurrence; not a field observation.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "L": -0.5,
+            "N1": 100
+          },
+          "kind": "domain",
+          "reason": "A negative multiplier would produce a negative population, which is biologically meaningless."
+        },
+        {
+          "inputs": {
+            "N1": 100
+          },
+          "kind": "missing-input",
+          "reason": "Finite rate L must be supplied; the current census alone does not project the next step."
+        }
+      ],
+      "relationship": {
+        "expression": "N1 * L",
+        "locator": "LibreTexts derivation Equation 5: 'Substituting l, we can write' Nt+1 = lambda Nt; census numbers from OpenStax 45.3 fission series (1000 -> 2000 -> 4000 -> 8000 per hour).",
+        "original_equation": "Nt+1 = lambda * Nt",
+        "output_symbol": "N2",
+        "source_id": "libretexts-geometric-growth",
+        "translation_notes": "Source symbols Nt+1, Nt, lambda mapped to local N2, N1, L (ASCII transliteration). Dimensional check: count times dimensionless multiplier gives a count. Equation numbering (Eq. 5) follows the page's own labels."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: substituting lambda for (1 + R) gives the one-step recurrence Nt+1 = lambda Nt (Eq. 5); lambda is the ratio of successive censuses (Eq. 6).",
+          "id": "libretexts-geometric-growth",
+          "kind": "project-derivation",
+          "license": "LibreTexts Gettysburg-course pages are standardly CC BY-NC-SA with section source credit to Donovan & Welden 2002 and Gotelli 2001; the exact footer license line was not re-verified on this read and is recorded as unverified: page section 'SECTION SOURCE' and 'LITERATURE CITED'.",
+          "locator": "https://bio.libretexts.org/Courses/Gettysburg_College/02%3A_Principles_of_Ecology_-_Gettysburg_College_ES_211/07%3A_A_Quantitative_Approach_to_Population_Ecology/7.01%3A_Population_Growth/7.1.01%3A_Geometric_and_Exponential_Growth, 'Geometric (Discrete-Time) Model of Population Growth' (Donovan & Welden 2002 derivation; cites Gotelli 2001).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation beyond short attributed equation names.",
+          "title": "LibreTexts Geometric and Exponential Growth (Gettysburg ES 211, 7.1.1)",
+          "url": "https://bio.libretexts.org/Courses/Gettysburg_College/02%3A_Principles_of_Ecology_-_Gettysburg_College_ES_211/07%3A_A_Quantitative_Approach_to_Population_Ecology/7.01%3A_Population_Growth/7.1.01%3A_Geometric_and_Exponential_Growth",
+          "version": "Donovan and Welden 2002 derivation via LibreTexts; page as accessed 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: hourly prokaryotic fission series 1000 -> 2000 (+1000), -> 4000 (+2000), -> 8000 (+4000); after 24 cycles 'more than 16 billion'.",
+          "id": "openstax-biology-2e-45-3",
+          "kind": "primary",
+          "license": "OpenStax textbooks are distributed under CC BY 4.0 per the publisher's standard licensing; the dedicated terms page rendered no extractable text on 2026-11-01, so the exact terms section is recorded as unverified: https://openstax.org/license.",
+          "locator": "https://openstax.org/books/biology-2e/pages/45-3-environmental-limits-to-population-growth, 'Exponential Growth' bacteria paragraphs (Biology 2e, Clark/Jung/Douglas, 2018-03-28).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the source.",
+          "title": "OpenStax Biology 2e, Section 45.3 Environmental Limits to Population Growth",
+          "url": "https://openstax.org/books/biology-2e/pages/45-3-environmental-limits-to-population-growth",
+          "version": "Biology 2e web edition, 2018-03-28"
+        }
+      ],
+      "summary": "One-step discrete geometric projection: next census equals current census times the finite rate of increase.",
+      "title": "One-step geometric population projection",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same population and discrete time step as N2 and L",
+          "definition": "Population size (or density) at the current census",
+          "dimensions": "count",
+          "domain": "Nonnegative finite count",
+          "quantity_id": "period_population",
+          "role": "input",
+          "source_symbol": "Nt (rendered N1 locally)",
+          "symbol": "N1",
+          "unit": "count"
+        },
+        {
+          "context": "same population and discrete time step as N1 and N2",
+          "definition": "Finite rate of increase: one-step population multiplier",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite multiplier",
+          "quantity_id": "finite_rate",
+          "role": "input",
+          "source_symbol": "lambda",
+          "symbol": "L",
+          "unit": "1"
+        },
+        {
+          "context": "same population and discrete step as inputs",
+          "definition": "Projected population size one time unit later",
+          "dimensions": "count",
+          "domain": "Nonnegative finite count",
+          "quantity_id": "period_population",
+          "role": "output",
+          "source_symbol": "Nt+1 (rendered N2 locally)",
+          "symbol": "N2",
+          "unit": "count"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: discrete time steps with seasonal, synchronous reproduction and constant density-independent per-capita rates over all t periods (same framing as the one-step record).",
+        "source assumption: the multiplier applies at whole-period steps; the page's doubling discussion ('will not quite double in 7 years, and will more than double in 8 years') supports whole-period interpretation only."
+      ],
+      "constants": [],
+      "guards": [
+        "N0 >= 0",
+        "L >= 0",
+        "t >= 0"
+      ],
+      "id": "biology--geometric-growth-projection",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings initial_population, finite_rate and period_count are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Elapsed periods are recoverable only with logarithms (t = ln(Nt/N0)/ln(L)), which the scalar profile cannot express; that inversion is therefore deferred with the continuous family. The multiplier is recoverable for known t only through t-th roots, likewise out of profile; substitution checks here run the forward direction. Zero-multiplier boundary: L = 0 with t > 0 gives Nt = 0 (extinction within the horizon).",
+      "kind": "theoretical",
+      "limitations": [
+        "Whole-period projection only; non-integer t has no within-interval meaning in this framing.",
+        "Constant-multiplier projection compounds any rate error exponentially; the source restricts the model to limited periods and heuristic use."
+      ],
+      "references": [
+        {
+          "expected": 8000,
+          "id": "bacteria-third-hour",
+          "inputs": {
+            "L": 2,
+            "N0": 1000,
+            "t": 3
+          },
+          "method": "Published fission series: 'After the third hour, there should be 8000 bacteria'; 1000 * 2^3 = 8000 exact.",
+          "provenance": "Published result (printed census of the fission series) matched by exact integer arithmetic.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 16777216000,
+          "id": "bacteria-24-cycles",
+          "inputs": {
+            "L": 2,
+            "N0": 1000,
+            "t": 24
+          },
+          "method": "Published series endpoint: 'After 1 day and 24 of these cycles, the population would have increased from 1000 to more than 16 billion'; exact recomputation 1000 * 2^24 = 16,777,216,000 (16.78 billion) is consistent with 'more than 16 billion'.",
+          "provenance": "Published result (page reports the rounded-down magnitude; expected keeps the exact recomputation with a one-individual tolerance).",
+          "tolerance": 1.0
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "L": 2,
+            "N0": 1000,
+            "t": -1
+          },
+          "kind": "domain",
+          "reason": "A negative elapsed period count has no meaning in forward projection from the initial census."
+        },
+        {
+          "inputs": {
+            "L": 2,
+            "N0": 1000
+          },
+          "kind": "missing-input",
+          "reason": "Elapsed period count t is required; the multiplier alone does not select a horizon."
+        }
+      ],
+      "relationship": {
+        "expression": "N0 * L ** t",
+        "locator": "LibreTexts derivation Equation 7: 'Population size at time 1 is lambda1N0, at time 2 it is lambda2N0, and at time 3 it is lambda3N0. In general, we can write' Nt = lambda^t N0.",
+        "original_equation": "Nt = lambda^t * N0",
+        "output_symbol": "Nt",
+        "source_id": "libretexts-geometric-growth",
+        "translation_notes": "Source symbols Nt, N0, lambda, t mapped to local Nt, N0, L, t (ASCII transliteration of lambda). The variable exponent t is a dimensionless period count, so no dimensionful power arises. Dimensional check: count times dimensionless multiplier gives a count. This L is the discrete per-period multiplier and must never be substituted for the continuous rate r (the page: 'The parameters r and R are not equal')."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: iterating the one-step recurrence gives Nt = lambda^t N0 (Eq. 7); non-integer doubling times (7.27 years at lambda = 1.1) bracket whole periods; continuous r distinguished from discrete R with lambda = e^r.",
+          "id": "libretexts-geometric-growth",
+          "kind": "project-derivation",
+          "license": "LibreTexts Gettysburg-course pages are standardly CC BY-NC-SA with section source credit to Donovan & Welden 2002 and Gotelli 2001; the exact footer license line was not re-verified on this read and is recorded as unverified: page section 'SECTION SOURCE' and 'LITERATURE CITED'.",
+          "locator": "https://bio.libretexts.org/Courses/Gettysburg_College/02%3A_Principles_of_Ecology_-_Gettysburg_College_ES_211/07%3A_A_Quantitative_Approach_to_Population_Ecology/7.01%3A_Population_Growth/7.1.01%3A_Geometric_and_Exponential_Growth, 'Geometric (Discrete-Time) Model of Population Growth' (Donovan & Welden 2002 derivation; cites Gotelli 2001).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation beyond short attributed equation names.",
+          "title": "LibreTexts Geometric and Exponential Growth (Gettysburg ES 211, 7.1.1)",
+          "url": "https://bio.libretexts.org/Courses/Gettysburg_College/02%3A_Principles_of_Ecology_-_Gettysburg_College_ES_211/07%3A_A_Quantitative_Approach_to_Population_Ecology/7.01%3A_Population_Growth/7.1.01%3A_Geometric_and_Exponential_Growth",
+          "version": "Donovan and Welden 2002 derivation via LibreTexts; page as accessed 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: hourly prokaryotic fission series 1000 -> 2000 (+1000), -> 4000 (+2000), -> 8000 (+4000); after 24 cycles 'more than 16 billion'.",
+          "id": "openstax-biology-2e-45-3",
+          "kind": "primary",
+          "license": "OpenStax textbooks are distributed under CC BY 4.0 per the publisher's standard licensing; the dedicated terms page rendered no extractable text on 2026-11-01, so the exact terms section is recorded as unverified: https://openstax.org/license.",
+          "locator": "https://openstax.org/books/biology-2e/pages/45-3-environmental-limits-to-population-growth, 'Exponential Growth' bacteria paragraphs (Biology 2e, Clark/Jung/Douglas, 2018-03-28).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the source.",
+          "title": "OpenStax Biology 2e, Section 45.3 Environmental Limits to Population Growth",
+          "url": "https://openstax.org/books/biology-2e/pages/45-3-environmental-limits-to-population-growth",
+          "version": "Biology 2e web edition, 2018-03-28"
+        }
+      ],
+      "summary": "Multi-period discrete geometric projection: initial census times the finite rate raised to the whole-period count.",
+      "title": "Discrete geometric population projection",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same population and projection horizon as Nt, L and t",
+          "definition": "Population size at the initial census (time zero)",
+          "dimensions": "count",
+          "domain": "Nonnegative finite count",
+          "quantity_id": "initial_population",
+          "role": "input",
+          "source_symbol": "N0",
+          "symbol": "N0",
+          "unit": "count"
+        },
+        {
+          "context": "same population and horizon as N0, Nt and t",
+          "definition": "Finite rate of increase: per-period population multiplier, constant over the horizon",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite multiplier",
+          "quantity_id": "finite_rate",
+          "role": "input",
+          "source_symbol": "lambda",
+          "symbol": "L",
+          "unit": "1"
+        },
+        {
+          "context": "same population and horizon as N0, Nt and L",
+          "definition": "Elapsed whole periods between the initial and projected censuses",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite period count; whole periods only",
+          "quantity_id": "period_count",
+          "role": "input",
+          "source_symbol": "t",
+          "symbol": "t",
+          "unit": "periods"
+        },
+        {
+          "context": "same population and horizon as inputs",
+          "definition": "Projected population size after t periods",
+          "dimensions": "count",
+          "domain": "Nonnegative finite count",
+          "quantity_id": "period_population",
+          "role": "output",
+          "source_symbol": "Nt",
+          "symbol": "Nt",
+          "unit": "count"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: interspecific comparison of adult resting (basal) metabolic rates across body masses; the regularity is fitted across species, not derived for one individual.",
+        "source assumption: FITTED exponent explicitly: approximately 0.75 as the working value, with reported variants 0.73 (Brody 1932), 0.749 (2004 field metabolic rates) and 2/3 fits for small birds and insects; the page states the exponent's exact value is presently unclear and the law 'lacks a single theoretical explanation that is entirely satisfactory', so 0.75 is recorded as the conventional fitted exponent, never as a law of nature.",
+        "source assumption: normalization B0 is specific to the taxon group and unit system (70 for kcal/day with mass in kg, 3.4 for watts); it is a fitted input here, not a universal constant."
+      ],
+      "constants": [],
+      "guards": [
+        "B0 > 0",
+        "M > 0"
+      ],
+      "id": "biology--kleiber-metabolic-rate-scaling",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings basal_metabolic_rate, metabolic_normalization and body_mass and the mass^0.75 unit are not in the runtime vocabulary snapshot; runtime projection omitted.",
+          "Exact Kleiber-1932 printed coefficient unverified (Hilgardia page returned 403); the 70/3.4 normalizations are conventional restatements, which is why B0 is an input rather than a constant."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Mass is recoverable only through the (1/0.75) power, which needs logarithms/roots outside the scalar profile for general inputs; no inverse case is tested. The unit-mass identity runs both ways: M = 1 gives B = B0, and B = B0 with B0 fixed implies M = 1. Zero or negative mass is excluded by the guard (a zero-mass organism has no metabolism to scale).",
+      "kind": "empirical",
+      "limitations": [
+        "An empirical regularity with a contested explanation, not a law: local fits span 2/3 to 3/4 and small species systematically deviate toward 2/3.",
+        "Basal (resting) scope only; activity, growth, thermoregulation and taxonomic order shift realized rates (page: most variation is mass-determined but temperature and order matter).",
+        "Whole-animal rate only; mass-specific rate (B/M proportional to M^-0.25) is a different quantity and not recorded here."
+      ],
+      "references": [
+        {
+          "expected": 70,
+          "id": "unit-mass-identity",
+          "inputs": {
+            "B0": 70,
+            "M": 1
+          },
+          "method": "Limiting identity: at unit body mass (1 kg) the power term is 1^0.75 = 1, so the predicted rate equals the normalization (70 kcal/day); verifies encoding of the normalization without testing the exponent.",
+          "provenance": "Limiting identity constructed from the definition; not a field observation.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 2213.59,
+          "id": "hundredfold-mass-ratio",
+          "inputs": {
+            "B0": 70,
+            "M": 100
+          },
+          "method": "Published ratio construction: 100^0.75 = 10^1.5 = 31.6228, echoing the page's 'a cat having a mass 100 times that of a mouse will consume only about 32 times the energy' (32 is the page's rounded 31.62); 70 x 31.6228 = 2213.59 in kcal/day.",
+          "provenance": "Value derived from the published 100x-to-about-32x ratio statement; the expected keeps the unrounded recomputation with a 0.01 tolerance.",
+          "tolerance": 0.01
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "B0": 70,
+            "M": 0
+          },
+          "kind": "domain",
+          "reason": "Zero body mass has no metabolism to scale and the allometric relation is undefined there."
+        },
+        {
+          "inputs": {
+            "M": 70
+          },
+          "kind": "missing-input",
+          "reason": "Normalization B0 is required; body mass alone does not determine the absolute rate."
+        }
+      ],
+      "relationship": {
+        "expression": "B0 * M ** 0.75",
+        "locator": "Kleiber's law page: 'BMR approx 70w3/4 kilocalories per day, or BMR approx 3.4w3/4 watts (w in kg)' with 'the basal metabolic rate scales to the 3/4 power'; Allometry page: power-law form 'y = k x^a' with a the scaling exponent.",
+        "original_equation": "BMR approx B0 * M^0.75",
+        "output_symbol": "B",
+        "source_id": "wikipedia-kleiber-law",
+        "translation_notes": "Conventional 0.75 exponent written as a numeric power per the page's '3/4 power' statement; w transliterated to M, BMR to B, and the normalization (70 or 3.4) generalized to input B0 for the taxon/unit system. Dimensional check: B0 carries the compensating mass^-0.75 so the product is a power (energy/time); the exponent itself is dimensionless. Fitted-vs-theoretical status is explicit in assumptions: 0.75 is the conventional fitted value, not a derived law."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: basal metabolic rate scales to the 3/4 power of mass; conventionally BMR approx 70 w^0.75 kcal/day or 3.4 w^0.75 watts (w in kg); 100x mass gives about 32x energy; exponent variants 0.73 (Brody), 0.749 (field), 2/3 for small birds/insects; no single satisfactory theoretical explanation.",
+          "id": "wikipedia-kleiber-law",
+          "kind": "project-derivation",
+          "license": "Wikipedia text is CC BY-SA 4.0; page carries the standard license footer (exact footer line not re-verified on this read). Redistribution here is limited to a short original paraphrase and independently computed numbers; no long verbatim quotation.",
+          "locator": "https://en.wikipedia.org/wiki/Kleiber%27s_law, lead and 'Kleiber contribution' sections, as accessed 2026-11-01.",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the article.",
+          "title": "Wikipedia: Kleiber's law (tertiary summary with conventional restatement)",
+          "url": "https://en.wikipedia.org/wiki/Kleiber%27s_law",
+          "version": "Page as accessed 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: the two measured quantities are 'often expressed as a power law equation (allometric equation)' y = k x^a with a the scaling exponent; isometric nulls are volume-proportional-to-mass, area-to-mass^2/3, length-to-mass^1/3.",
+          "id": "wikipedia-allometry",
+          "kind": "project-derivation",
+          "license": "Wikipedia text is CC BY-SA 4.0; page carries the standard license footer (exact footer line not re-verified on this read). Redistribution here is limited to a short original paraphrase; no long verbatim quotation.",
+          "locator": "https://en.wikipedia.org/wiki/Allometry, 'Overview' and 'Allometric scaling' sections, as accessed 2026-11-01.",
+          "redistribution": "Contains only a short original paraphrase; no verbatim quotation of the article.",
+          "title": "Wikipedia: Allometry (power-law equation form)",
+          "url": "https://en.wikipedia.org/wiki/Allometry",
+          "version": "Page as accessed 2026-11-01"
+        }
+      ],
+      "summary": "Empirical Kleiber regularity: basal metabolic rate as a fitted normalization times body mass to the conventional 3/4 exponent.",
+      "title": "Kleiber metabolic-rate scaling with fitted 3/4 exponent",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same taxon group and unit system as B and M",
+          "definition": "Fitted normalization for the taxon group and unit system (conventionally 70 in kcal/day or 3.4 in watts for mammals)",
+          "dimensions": "power / mass^0.75",
+          "domain": "Positive finite normalization",
+          "quantity_id": "metabolic_normalization",
+          "role": "input",
+          "source_symbol": "introduced B0 for the 70 / 3.4 normalization",
+          "symbol": "B0",
+          "unit": "kcal/day per kg^0.75"
+        },
+        {
+          "context": "same individual animal and measurement as B and B0",
+          "definition": "Body mass of the animal in kilograms",
+          "dimensions": "mass",
+          "domain": "Positive finite mass",
+          "quantity_id": "body_mass",
+          "role": "input",
+          "source_symbol": "w (mass in kg)",
+          "symbol": "M",
+          "unit": "kg"
+        },
+        {
+          "context": "same individual animal and measurement as inputs",
+          "definition": "Basal metabolic rate of the animal at rest",
+          "dimensions": "power",
+          "domain": "Positive finite rate",
+          "quantity_id": "basal_metabolic_rate",
+          "role": "output",
+          "source_symbol": "BMR",
+          "symbol": "B",
+          "unit": "kcal/day"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: a population consists of individuals of one species in one area, and the ratio compares the male and female members of that same population at one time.",
+        "source assumption: binary male/female classification as used on the page ('the ratio of males to females'); the record carries no model of other sex-determination systems."
+      ],
+      "constants": [],
+      "guards": [
+        "M >= 0",
+        "F > 0"
+      ],
+      "id": "biology--sex-ratio-male-to-female",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings male_count, female_count and sex_ratio are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Male count is recoverable as M = S * F. Substitution check: 1.5 * 40 = 60, consistent with the unbiased reference. F = 0 is excluded (ratio over zero females undefined); M = 0 gives S = 0 (all-female population), which is admissible.",
+      "kind": "definition",
+      "limitations": [
+        "A composition ratio only; it carries no information about total size, density or reproductive output.",
+        "Operational or effective sex ratios (breeding individuals only) are different quantities and outside this record's scope."
+      ],
+      "references": [
+        {
+          "expected": 1.5,
+          "id": "unbiased-illustration",
+          "inputs": {
+            "F": 40,
+            "M": 60
+          },
+          "method": "Constructed illustration: 60 males to 40 females gives 60/40 = 1.5 by direct division; no field value claimed.",
+          "provenance": "Independently constructed arithmetic check at a simple whole-number ratio; not a published field value.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.0,
+          "id": "all-female-boundary",
+          "inputs": {
+            "F": 50,
+            "M": 0
+          },
+          "method": "Admitted ideal boundary: zero males among 50 females gives a ratio of 0, the fully female-biased endpoint.",
+          "provenance": "Definitional boundary check with an explicit compositional meaning.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "F": 0,
+            "M": 30
+          },
+          "kind": "domain",
+          "reason": "A sex ratio over zero females is undefined."
+        },
+        {
+          "inputs": {
+            "M": 30
+          },
+          "kind": "missing-input",
+          "reason": "Female count F is required; a male count alone is not a ratio."
+        }
+      ],
+      "relationship": {
+        "expression": "M / F",
+        "locator": "Section 45.1 'Demography' paragraph: 'a female-biased sex ratio (the ratio of males to females) ... can increase birth rate'.",
+        "original_equation": "sex ratio = the ratio of males to females",
+        "output_symbol": "S",
+        "source_id": "openstax-biology-2e-45-1",
+        "translation_notes": "Prose definition formalized as males over females; M and F introduced for the two counts (the page uses prose, not symbols). Dimensional check: count over count gives a dimensionless ratio. Values below 1 are female-biased, above 1 male-biased, 1 unbiased."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: a female-biased sex ratio, defined as the ratio of males to females, can increase birth rates; listed alongside age structure among the demographic characteristics that influence growth.",
+          "id": "openstax-biology-2e-45-1",
+          "kind": "primary",
+          "license": "OpenStax textbooks are distributed under CC BY 4.0 per the publisher's standard licensing; the dedicated terms page rendered no extractable text on 2026-11-01, so the exact terms section is recorded as unverified: https://openstax.org/license.",
+          "locator": "https://openstax.org/books/biology-2e/pages/45-1-population-demography, 'Demography' paragraph (Biology 2e, Clark/Jung/Douglas, 2018-03-28).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the source.",
+          "title": "OpenStax Biology 2e, Section 45.1 Population Demography",
+          "url": "https://openstax.org/books/biology-2e/pages/45-1-population-demography",
+          "version": "Biology 2e web edition, 2018-03-28"
+        }
+      ],
+      "summary": "Accounting definition of the population sex ratio as male count over female count.",
+      "title": "Sex ratio from male and female counts",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same population census as F and S",
+          "definition": "Number of male individuals in the census",
+          "dimensions": "count",
+          "domain": "Nonnegative finite count",
+          "quantity_id": "male_count",
+          "role": "input",
+          "source_symbol": "introduced M for the male count",
+          "symbol": "M",
+          "unit": "count"
+        },
+        {
+          "context": "same population census as M and S",
+          "definition": "Number of female individuals in the census",
+          "dimensions": "count",
+          "domain": "Positive finite count",
+          "quantity_id": "female_count",
+          "role": "input",
+          "source_symbol": "introduced F for the female count",
+          "symbol": "F",
+          "unit": "count"
+        },
+        {
+          "context": "same population census as inputs",
+          "definition": "Ratio of males to females; below 1 is female-biased, above 1 male-biased",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite ratio",
+          "quantity_id": "sex_ratio",
+          "role": "output",
+          "source_symbol": "introduced S for the sex ratio",
+          "symbol": "S",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: exactly two alleles at one diploid locus, so the two frequencies exhaust the gene pool (source: 'If these are the only two possible alleles for a given locus in the population, p + q = 1')."
+      ],
+      "constants": [],
+      "guards": [
+        "p >= 0",
+        "p <= 1"
+      ],
+      "id": "biology--complementary-allele-frequency",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meaning allele_frequency is not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Symmetric with p = 1 - q; either allele can serve as the known input. Substitution check: q = 0.2 gives p = 0.8, consistent with the violet-flower pair. Endpoints p = 0 (q = 1, fixation of the second allele) and p = 1 (q = 0) are admissible.",
+      "kind": "definition",
+      "limitations": [
+        "Two-allele loci only; multi-allele systems (such as the ABO example on the same page) need the fuller summation constraint.",
+        "A bookkeeping complement, not an equilibrium prediction; it holds regardless of evolutionary forces."
+      ],
+      "references": [
+        {
+          "expected": 0.2,
+          "id": "violet-complement",
+          "inputs": {
+            "p": 0.8
+          },
+          "method": "Published self-check setup: p = 0.8 with q = 0.2; 1 - 0.8 = 0.2 exact.",
+          "provenance": "Published result (printed allele-frequency pair of the worked self-check).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.3,
+          "id": "pea-complement",
+          "inputs": {
+            "p": 0.7
+          },
+          "method": "Figure 19.2 extended description: Y frequency p = .7 with y frequency q = .3; 1 - 0.7 = 0.3 exact.",
+          "provenance": "Published result (printed allele-frequency pair of the figure).",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "p": 1.2
+          },
+          "kind": "domain",
+          "reason": "Allele frequencies are bounded by 0 and 1; p = 1.2 is outside the frequency domain."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Allele frequency p must be supplied; its complement cannot be determined from no input."
+        }
+      ],
+      "relationship": {
+        "expression": "1 - p",
+        "locator": "Section 19.1 'Hardy-Weinberg Principle of Equilibrium': 'If these are the only two possible alleles for a given locus in the population, p + q = 1.'",
+        "original_equation": "p + q = 1",
+        "output_symbol": "q",
+        "source_id": "openstax-biology-2e-19-1",
+        "translation_notes": "Normalization constraint solved for q as the single-output serialization; the rearrangement is recorded against this same canonical relationship (no separate record for p = 1 - q). Dimensional check: pure number minus dimensionless frequency gives a dimensionless frequency."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: with only two alleles at the locus, p + q = 1, comprising all alleles at that locus in the population.",
+          "id": "openstax-biology-2e-19-1",
+          "kind": "primary",
+          "license": "OpenStax textbooks are distributed under CC BY 4.0 per the publisher's standard licensing; the dedicated terms page rendered no extractable text on 2026-11-01, so the exact terms section is recorded as unverified: https://openstax.org/license.",
+          "locator": "https://openstax.org/books/biology-2e/pages/19-1-population-evolution, 'Hardy-Weinberg Principle of Equilibrium' (Biology 2e, Clark/Jung/Douglas, 2018-03-28).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the source.",
+          "title": "OpenStax Biology 2e, Section 19.1 Population Evolution",
+          "url": "https://openstax.org/books/biology-2e/pages/19-1-population-evolution",
+          "version": "Biology 2e web edition, 2018-03-28"
+        }
+      ],
+      "summary": "Complementary allele-frequency definition: the second allele frequency as one minus the first at a two-allele locus.",
+      "title": "Complementary allele frequency at a two-allele locus",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same diploid locus, gene pool and generation as q",
+          "definition": "Frequency of the first allele among all gene copies at the locus",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "allele_frequency",
+          "role": "input",
+          "source_symbol": "p",
+          "symbol": "p",
+          "unit": "1"
+        },
+        {
+          "context": "same diploid locus, gene pool and generation as p",
+          "definition": "Frequency of the second allele, completing the gene pool",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "allele_frequency",
+          "role": "output",
+          "source_symbol": "q",
+          "symbol": "q",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

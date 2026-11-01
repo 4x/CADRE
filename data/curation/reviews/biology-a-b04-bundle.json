@@ -1,0 +1,552 @@
+{
+  "batch_id": "biology-a-b04",
+  "created": "2026-11-01",
+  "curator": "buffy-curator",
+  "deferred": [
+    {
+      "reason": "The page derives doubling time via logarithms (tdouble = ln 2 / ln lambda, Eq. 8; continuous analogue ln 2 / r). Logarithms are outside the scalar (+ - * / **) profile: defer, never approximate with polynomials.",
+      "source_urls": [
+        "https://bio.libretexts.org/Courses/Gettysburg_College/02%3A_Principles_of_Ecology_-_Gettysburg_College_ES_211/07%3A_A_Quantitative_Approach_to_Population_Ecology/7.01%3A_Population_Growth/7.1.01%3A_Geometric_and_Exponential_Growth"
+      ],
+      "title": "Doubling time from finite/instantaneous rates (logarithmic)"
+    },
+    {
+      "reason": "Net reproductive rate sums age-specific survival-by-fecundity products over all age classes, which needs an unbounded summation operator the scalar profile cannot express. Additionally, Biology 2e Chapter 45 prints no lx/mx/R0/T quantities at all (verified by full-section reads), so a citable textbook equation is still to be located (candidates: AP Courses Ch. 45, Concepts of Biology). Priority: locate a printed equation first, then revisit only if aggregation support exists.",
+      "source_urls": [
+        "https://openstax.org/books/biology-2e/pages/45-2-life-histories-and-natural-selection"
+      ],
+      "title": "Net reproductive rate R0 = sum(lx*mx) and generation time"
+    }
+  ],
+  "domain": "biology",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "All four records need new quantity meanings and units, so all are requires-extension; duplicate search covered the supplied catalog-inventory.json (no biology records) and batches b01-b03.",
+      "The one-step recurrence family is now covered in all resolved directions: projection (b03), ratio estimation and rate estimation are documented as inverse uses in b03 inverse notes rather than separate records, keeping one canonical relationship per the atomicity rule.",
+      "Log-allometry form (log y = a log x + log k) needs logarithm support; carried as known out-of-profile alongside the deferred doubling-time record."
+    ],
+    "queries": [],
+    "review_notes": "Validation: schema + arithmetic + guard checks to be run with the kit validator; packed ZIP to be re-validated. Source-fidelity review by curator: every equation and numerical value was read on the cited page on 2026-11-01 (45.3 logistic paragraphs verified in full; 19.1 verified in full). No review corrections were supplied.",
+    "summary": "Batch b04: four atomic biology records (available-capacity fraction, total births from per-capita rate, three-genotype complement, three-allele complement) grounded in OpenStax Biology 2e sections 45.3 and 19.1, each with two references, domain and missing-input rejections, and inverse notes. Two out-of-format discoveries deferred with exact sources."
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: carrying capacity K is the maximum population size the environment can support over the modeled interval (source definition).",
+        "source assumption: the logistic framing in which this fraction moderates growth; at N far below K the fraction is near 1 (exponential-like growth) and near K it approaches 0 (growth 'slowed greatly or even stopped')."
+      ],
+      "constants": [],
+      "guards": [
+        "K > 0",
+        "N >= 0"
+      ],
+      "id": "biology--available-capacity-fraction",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings carrying_capacity, standing_population and available_fraction are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Standing population is recoverable as N = K*(1 - F). Substitution check: F = 0.8 with K = 1000 gives N = 200, consistent with the ordinary reference. F = 0 gives N = K (population at capacity); negative F (N above K) predicts decline rather than growth, which the page explicitly allows. K = 0 is excluded (capacity must be positive for the fraction to exist).",
+      "kind": "definition",
+      "limitations": [
+        "A bookkeeping fraction of the logistic model, not a growth prediction by itself; realized dynamics need the full logistic product, which is out of scalar profile.",
+        "Assumes a fixed K over the interval; the source notes real carrying capacities shift with conditions."
+      ],
+      "references": [
+        {
+          "expected": 0.8,
+          "id": "mostly-empty-habitat",
+          "inputs": {
+            "K": 1000,
+            "N": 200
+          },
+          "method": "Constructed check at round numbers: (1000 - 200)/1000 = 0.8, i.e. 80 percent of capacity still available; verifies encoding, no field value claimed.",
+          "provenance": "Independently constructed arithmetic check; not a published field value.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.0,
+          "id": "at-capacity-boundary",
+          "inputs": {
+            "K": 1000,
+            "N": 1000
+          },
+          "method": "Boundary with source meaning: at N = K the fraction is 0, the page's 'growth will be slowed greatly or even stopped' condition.",
+          "provenance": "Definitional boundary check tied to the source's at-capacity statement.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "K": 0,
+            "N": 100
+          },
+          "kind": "domain",
+          "reason": "Available fraction of a zero carrying capacity is undefined; K must be positive."
+        },
+        {
+          "inputs": {
+            "K": 1000
+          },
+          "kind": "missing-input",
+          "reason": "Standing population N is required; capacity alone does not determine the available fraction."
+        }
+      ],
+      "relationship": {
+        "expression": "(K - N) / K",
+        "locator": "Section 45.3 'Carrying Capacity and the Logistic Model': ''K - N' ... 'K - N' divided by 'K' is the fraction of the carrying capacity available for further growth.'",
+        "original_equation": "(K - N) / K = fraction of the carrying capacity available for further growth",
+        "output_symbol": "F",
+        "source_id": "openstax-biology-2e-45-3",
+        "translation_notes": "Source sentence formalized directly; K (carrying capacity) preserved, N (population size) mapped from the page's N, F introduced for the fraction. Dimensional check: (count minus count) over count gives a dimensionless fraction, possibly negative when N exceeds K."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: K is the maximum population size the environment can support; (K - N)/K is the fraction of carrying capacity available for further growth; near 1 when N is small, near 0 when N is large, negative when N exceeds K (decline).",
+          "id": "openstax-biology-2e-45-3",
+          "kind": "primary",
+          "license": "OpenStax textbooks are distributed under CC BY 4.0 per the publisher's standard licensing; the dedicated terms page rendered no extractable text on 2026-11-01, so the exact terms section is recorded as unverified: https://openstax.org/license.",
+          "locator": "https://openstax.org/books/biology-2e/pages/45-3-environmental-limits-to-population-growth, 'Carrying Capacity and the Logistic Model' (Biology 2e, Clark/Jung/Douglas, 2018-03-28).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the source.",
+          "title": "OpenStax Biology 2e, Section 45.3 Environmental Limits to Population Growth",
+          "url": "https://openstax.org/books/biology-2e/pages/45-3-environmental-limits-to-population-growth",
+          "version": "Biology 2e web edition, 2018-03-28"
+        }
+      ],
+      "summary": "Definitional record of the available-capacity fraction moderating logistic growth.",
+      "title": "Available carrying-capacity fraction",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same environment and interval as N and F",
+          "definition": "Carrying capacity: maximum population size the environment can support",
+          "dimensions": "count",
+          "domain": "Positive finite capacity",
+          "quantity_id": "carrying_capacity",
+          "role": "input",
+          "source_symbol": "K",
+          "symbol": "K",
+          "unit": "count"
+        },
+        {
+          "context": "same environment and interval as K and F",
+          "definition": "Current standing population size",
+          "dimensions": "count",
+          "domain": "Nonnegative finite count; may exceed K (negative fraction means decline)",
+          "quantity_id": "standing_population",
+          "role": "input",
+          "source_symbol": "N",
+          "symbol": "N",
+          "unit": "count"
+        },
+        {
+          "context": "same environment and interval as inputs",
+          "definition": "Fraction of carrying capacity still available for further growth",
+          "dimensions": "dimensionless",
+          "domain": "Finite signed fraction; 0 at capacity, negative above capacity",
+          "quantity_id": "available_fraction",
+          "role": "output",
+          "source_symbol": "introduced F for the available fraction",
+          "symbol": "F",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: per-capita birth rate b is uniform over the population and constant over the stated interval, so the total scales linearly with N (source: 'B (birth rate) = bN').",
+        "source assumption: B counts births in the same interval over which b is defined; interval bookkeeping must match for b, N and B."
+      ],
+      "constants": [],
+      "guards": [
+        "b >= 0",
+        "N >= 0"
+      ],
+      "id": "biology--total-births-from-per-capita-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings per_capita_birth_rate, standing_population and total_births are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Per-capita rate is recoverable as b = B / N for nonzero N. Substitution check: 500 / 1000 = 0.5, consistent with the ordinary reference. N = 0 gives B = 0 (no individuals, no births) and is admissible; recovering b from an empty population is impossible, which is expected. The symmetric death-rate sentence D = dN is intentionally not duplicated: it is the same scaling rule applied to deaths, noted here instead of published as a separate record.",
+      "kind": "definition",
+      "limitations": [
+        "Interval accounting only; with changing per-capita rates the product must be re-evaluated per sub-interval.",
+        "Realized recruitment additionally reflects deaths and migration, which this record excludes by construction."
+      ],
+      "references": [
+        {
+          "expected": 500,
+          "id": "ordinary-birth-total",
+          "inputs": {
+            "N": 1000,
+            "b": 0.5
+          },
+          "method": "Constructed check: per-capita rate 0.5 over 1000 individuals gives 500 births by direct multiplication; verifies encoding, no field value claimed.",
+          "provenance": "Independently constructed arithmetic check; not a published field value.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-rate-boundary",
+          "inputs": {
+            "N": 1000,
+            "b": 0.0
+          },
+          "method": "Boundary: a zero per-capita birth rate yields zero births regardless of population size.",
+          "provenance": "Definitional boundary check with explicit meaning (no reproduction in the interval).",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "N": 1000,
+            "b": -0.2
+          },
+          "kind": "domain",
+          "reason": "Per-capita birth rates cannot be negative."
+        },
+        {
+          "inputs": {
+            "b": 0.5
+          },
+          "kind": "missing-input",
+          "reason": "Population size N is required; a per-capita rate alone does not determine the birth total."
+        }
+      ],
+      "relationship": {
+        "expression": "b * N",
+        "locator": "Section 45.3 'Exponential Growth': 'B (birth rate) = bN (the per capita birth rate 'b' multiplied by the number of individuals 'N')'.",
+        "original_equation": "B = bN",
+        "output_symbol": "B",
+        "source_id": "openstax-biology-2e-45-3",
+        "translation_notes": "Source symbols B, b, N preserved exactly. Dimensional check: per-capita rate (1/time) times count gives events per time, i.e. a total rate over the interval. The symmetric D = dN sentence is documented in inverse notes rather than duplicated."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: the birth rate B equals the per-capita birth rate b times the number of individuals N (and symmetrically D = dN); births minus deaths over the interval drive the change in numbers.",
+          "id": "openstax-biology-2e-45-3",
+          "kind": "primary",
+          "license": "OpenStax textbooks are distributed under CC BY 4.0 per the publisher's standard licensing; the dedicated terms page rendered no extractable text on 2026-11-01, so the exact terms section is recorded as unverified: https://openstax.org/license.",
+          "locator": "https://openstax.org/books/biology-2e/pages/45-3-environmental-limits-to-population-growth, 'Exponential Growth' (Biology 2e, Clark/Jung/Douglas, 2018-03-28).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the source.",
+          "title": "OpenStax Biology 2e, Section 45.3 Environmental Limits to Population Growth",
+          "url": "https://openstax.org/books/biology-2e/pages/45-3-environmental-limits-to-population-growth",
+          "version": "Biology 2e web edition, 2018-03-28"
+        }
+      ],
+      "summary": "Total births over an interval from the per-capita birth rate and population size.",
+      "title": "Total births from per-capita birth rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same population and interval as N and B",
+          "definition": "Per-capita birth rate over the stated interval",
+          "dimensions": "1 / time",
+          "domain": "Nonnegative finite rate",
+          "quantity_id": "per_capita_birth_rate",
+          "role": "input",
+          "source_symbol": "b",
+          "symbol": "b",
+          "unit": "1/time"
+        },
+        {
+          "context": "same population and interval as b and B",
+          "definition": "Number of individuals exposed to the per-capita rate",
+          "dimensions": "count",
+          "domain": "Nonnegative finite count",
+          "quantity_id": "standing_population",
+          "role": "input",
+          "source_symbol": "N",
+          "symbol": "N",
+          "unit": "count"
+        },
+        {
+          "context": "same population and interval as inputs",
+          "definition": "Total number of births in the interval",
+          "dimensions": "count / time",
+          "domain": "Nonnegative finite birth total",
+          "quantity_id": "total_births",
+          "role": "output",
+          "source_symbol": "B",
+          "symbol": "B",
+          "unit": "count/time"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: exactly the three genotype classes at a two-allele diploid locus exhaust the census, so their frequencies complete the whole (source: 'these genotypes frequencies will sum to one: p2 + 2pq + q2 = 1')."
+      ],
+      "constants": [],
+      "guards": [
+        "fAa >= 0",
+        "faa >= 0",
+        "fAa + faa <= 1"
+      ],
+      "id": "biology--genotype-complement-frequency",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meaning genotype_frequency is not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Any one class frequency is recoverable given the other two (e.g. faa = 1 - fAA - fAa); the record fixes fAA as output only as the serialization choice. Substitution check: 1 - 0.42 - 0.09 = 0.49, consistent with the pea reference. Full fixation of one class (the other two zero) gives 1 and is admissible.",
+      "kind": "definition",
+      "limitations": [
+        "Two-allele, three-class censuses only; multi-allele systems need the fuller summation (separate three-allele record).",
+        "A bookkeeping complement, not an equilibrium prediction; it holds regardless of evolutionary forces."
+      ],
+      "references": [
+        {
+          "expected": 0.64,
+          "id": "violet-dominant-complement",
+          "inputs": {
+            "fAa": 0.32,
+            "faa": 0.04
+          },
+          "method": "Published self-check frequencies: heterozygotes 160/500 = 0.32 and recessives 20/500 = 0.04 leave 1 - 0.32 - 0.04 = 0.64 for dominant homozygotes, matching the keyed 320/500.",
+          "provenance": "Published result (printed class frequencies of the worked self-check) recombined through the summation constraint.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.49,
+          "id": "pea-dominant-complement",
+          "inputs": {
+            "fAa": 0.42,
+            "faa": 0.09
+          },
+          "method": "Figure 19.2 frequencies: Yy .42 and yy .09 leave 1 - 0.42 - 0.09 = 0.49 for YY, matching the printed .49.",
+          "provenance": "Published result (printed class frequencies of the figure) recombined through the summation constraint.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "fAa": 0.7,
+            "faa": 0.5
+          },
+          "kind": "domain",
+          "reason": "Class frequencies summing above 1 (0.7 + 0.5 = 1.2) cannot come from one complete census."
+        },
+        {
+          "inputs": {
+            "fAa": 0.32
+          },
+          "kind": "missing-input",
+          "reason": "Recessive frequency faa is required; one class alone does not determine the complement."
+        }
+      ],
+      "relationship": {
+        "expression": "1 - fAa - faa",
+        "locator": "Section 19.1 'Hardy-Weinberg Principle of Equilibrium': 'these genotypes frequencies will sum to one: p2 + 2pq + q2 = 1.'",
+        "original_equation": "p^2 + 2pq + q^2 = 1, solved for the first term",
+        "output_symbol": "fAA",
+        "source_id": "openstax-biology-2e-19-1",
+        "translation_notes": "Summation constraint solved for the homozygous-dominant frequency as the single-output serialization; no separate record is published for the other two solve directions. Dimensional check: pure number minus dimensionless frequencies gives a dimensionless frequency."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: under the two-allele diploid model the three genotype frequencies sum to one (p-squared + 2pq + q-squared = 1).",
+          "id": "openstax-biology-2e-19-1",
+          "kind": "primary",
+          "license": "OpenStax textbooks are distributed under CC BY 4.0 per the publisher's standard licensing; the dedicated terms page rendered no extractable text on 2026-11-01, so the exact terms section is recorded as unverified: https://openstax.org/license.",
+          "locator": "https://openstax.org/books/biology-2e/pages/19-1-population-evolution, subsection 'Hardy-Weinberg Principle of Equilibrium' (Biology 2e, Clark/Jung/Douglas, 2018-03-28).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the source.",
+          "title": "OpenStax Biology 2e, Section 19.1 Population Evolution",
+          "url": "https://openstax.org/books/biology-2e/pages/19-1-population-evolution",
+          "version": "Biology 2e web edition, 2018-03-28"
+        }
+      ],
+      "summary": "Three-class genotype complement: dominant-homozygote frequency as one minus the other two class frequencies.",
+      "title": "Dominant genotype frequency from the other two classes",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same diploid locus, gene pool and generation as fAA and faa",
+          "definition": "Frequency of heterozygous individuals",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite frequency within a consistent census",
+          "quantity_id": "genotype_frequency",
+          "role": "input",
+          "source_symbol": "introduced fAa for the pq (Yy) frequency",
+          "symbol": "fAa",
+          "unit": "1"
+        },
+        {
+          "context": "same diploid locus, gene pool and generation as fAA and fAa",
+          "definition": "Frequency of homozygous recessive individuals",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite frequency within a consistent census",
+          "quantity_id": "genotype_frequency",
+          "role": "input",
+          "source_symbol": "introduced faa for the qq (yy) frequency",
+          "symbol": "faa",
+          "unit": "1"
+        },
+        {
+          "context": "same diploid locus, gene pool and generation as inputs",
+          "definition": "Frequency of homozygous dominant individuals completing the census",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive given consistent inputs",
+          "quantity_id": "genotype_frequency",
+          "role": "output",
+          "source_symbol": "introduced fAA for the pp (YY) frequency",
+          "symbol": "fAA",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: the stated allele frequencies exhaust the gene pool at the locus (source: frequencies 'added up to 100 percent')."
+      ],
+      "constants": [],
+      "guards": [
+        "f1 >= 0",
+        "f1 <= 1",
+        "f2 >= 0",
+        "f2 <= 1",
+        "f1 + f2 <= 1"
+      ],
+      "id": "biology--third-allele-frequency",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meaning allele_frequency is not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Any one allele frequency is recoverable given all others (e.g. f1 = 1 - f2 - f3); the record fixes f3 as output only as the serialization choice. Substitution check: 1 - 0.261 - 0.134 = 0.605, consistent with the ABO reference. Fixation of one allele (the rest zero) gives 1 and is admissible.",
+      "kind": "definition",
+      "limitations": [
+        "Multi-allele loci only in the three-allele serialization; loci with more alleles need the fuller summation, not recorded here.",
+        "A bookkeeping complement, not an equilibrium prediction; it holds regardless of evolutionary forces."
+      ],
+      "references": [
+        {
+          "expected": 0.605,
+          "id": "abo-third-allele",
+          "inputs": {
+            "f1": 0.261,
+            "f2": 0.134
+          },
+          "method": "Published Jordanian ABO study figures quoted on the page: IA 26.1 percent and IB 13.4 percent leave 1 - 0.261 - 0.134 = 0.605 for I0, matching the quoted 60.5 percent.",
+          "provenance": "Published result (printed allele frequencies of the cited study) recombined through the summation constraint.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.25,
+          "id": "even-split-complement",
+          "inputs": {
+            "f1": 0.5,
+            "f2": 0.25
+          },
+          "method": "Constructed check: 1 - 0.5 - 0.25 = 0.25 by direct subtraction; verifies encoding, no field value claimed.",
+          "provenance": "Independently constructed arithmetic check; not a published field value.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "f1": 0.7,
+            "f2": 0.5
+          },
+          "kind": "domain",
+          "reason": "Allele frequencies summing above 1 (0.7 + 0.5 = 1.2) cannot come from one gene pool."
+        },
+        {
+          "inputs": {
+            "f1": 0.261
+          },
+          "kind": "missing-input",
+          "reason": "Second allele frequency f2 is required; one allele alone does not determine the complement."
+        }
+      ],
+      "relationship": {
+        "expression": "1 - f1 - f2",
+        "locator": "Section 19.1 'Population Genetics': ABO example with 'a frequency of IA to be 26.1 percent', 'IB and I0 alleles comprise 13.4 percent and 60.5 percent respectively, and all of the frequencies added up to 100 percent'.",
+        "original_equation": "f1 + f2 + f3 = 1, solved for the third frequency",
+        "output_symbol": "f3",
+        "source_id": "openstax-biology-2e-19-1",
+        "translation_notes": "Summation constraint for the three-allele case solved for the third frequency; symbols f1, f2, f3 introduced (the page uses prose and percentages). Dimensional check: pure number minus dimensionless frequencies gives a dimensionless frequency. This is a distinct relationship from the two-allele complement (different arity and scope), not a rearrangement of it."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: ABO blood-group allele frequencies IA 26.1 percent, IB 13.4 percent, I0 60.5 percent, with all frequencies adding to 100 percent (Hanania et al., Journal of Medical Sciences 7 (2007), cited on the page).",
+          "id": "openstax-biology-2e-19-1",
+          "kind": "primary",
+          "license": "OpenStax textbooks are distributed under CC BY 4.0 per the publisher's standard licensing; the dedicated terms page rendered no extractable text on 2026-11-01, so the exact terms section is recorded as unverified: https://openstax.org/license.",
+          "locator": "https://openstax.org/books/biology-2e/pages/19-1-population-evolution, 'Population Genetics' ABO paragraph (Biology 2e, Clark/Jung/Douglas, 2018-03-28).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the source.",
+          "title": "OpenStax Biology 2e, Section 19.1 Population Evolution",
+          "url": "https://openstax.org/books/biology-2e/pages/19-1-population-evolution",
+          "version": "Biology 2e web edition, 2018-03-28"
+        }
+      ],
+      "summary": "Three-allele complement: remaining allele frequency as one minus the other two.",
+      "title": "Third allele frequency from the other two",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same locus, gene pool and study as f2 and f3",
+          "definition": "Frequency of the first allele",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive within a consistent gene pool",
+          "quantity_id": "allele_frequency",
+          "role": "input",
+          "source_symbol": "introduced f1 (e.g. IA)",
+          "symbol": "f1",
+          "unit": "1"
+        },
+        {
+          "context": "same locus, gene pool and study as f1 and f3",
+          "definition": "Frequency of the second allele",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive within a consistent gene pool",
+          "quantity_id": "allele_frequency",
+          "role": "input",
+          "source_symbol": "introduced f2 (e.g. IB)",
+          "symbol": "f2",
+          "unit": "1"
+        },
+        {
+          "context": "same locus, gene pool and study as inputs",
+          "definition": "Frequency of the third allele completing the gene pool",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive given consistent inputs",
+          "quantity_id": "allele_frequency",
+          "role": "output",
+          "source_symbol": "introduced f3 (e.g. I0)",
+          "symbol": "f3",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

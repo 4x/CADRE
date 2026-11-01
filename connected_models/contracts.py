@@ -16,7 +16,7 @@ MONEY: Dimensions = (0, 0, 0, 1)
 PRICE: Dimensions = (-1, -2, 2, 1)
 INVERSE_MONEY: Dimensions = (0, 0, 0, -1)
 JOULES_PER_KWH = 3_600_000
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-4+biology-2"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-2+cs-1"
 DIMENSION_AXES = ("mass", "length", "time", "currency")
 NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
@@ -90,6 +90,13 @@ UNITS = {
     "count": Unit(DIMENSIONLESS, 1.0),
     "trait-units": Unit(DIMENSIONLESS, 1.0),
     "1/site/generation": Unit(DIMENSIONLESS, 1.0),
+    # CS batch (cs-1): byte counts with fixed decimal/binary ratios; abstract
+    # activity units are dimensionless.
+    "B": Unit(DIMENSIONLESS, 1.0),
+    "GB": Unit(DIMENSIONLESS, 1000000000.0),
+    "GiB": Unit(DIMENSIONLESS, 1073741824.0),
+    "activity-unit": Unit(DIMENSIONLESS, 1.0),
+    "USD/activity-unit": Unit(MONEY, 1.0),
 }
 
 # Meaning is independent of dimension: heat and electricity cannot bind implicitly.
@@ -228,6 +235,31 @@ MEANINGS = {
     # Biology-2: count meanings for genotype-frequency r2.
     "genotype_count": DIMENSIONLESS,
     "individual_count": DIMENSIONLESS,
+    # Economics-5: break-even, mixed-cost and average-cost meanings.
+    "break_even_quantity": DIMENSIONLESS,
+    "unit_variable_cost": MONEY,
+    "fixed_cost": MONEY,
+    "cost_driver_quantity": DIMENSIONLESS,
+    "cost_per_activity_unit": MONEY,
+    "fixed_cost_pool_amount": MONEY,
+    "mixed_cost_pool_amount": MONEY,
+    "average_total_production_cost": MONEY,
+    # Finance-3 straggler: growing-annuity initial payment.
+    "initial_payment": MONEY,
+    # CS-1: availability, speedup, execution-time and byte-count meanings.
+    "component_availability": DIMENSIONLESS,
+    "parallel_availability": DIMENSIONLESS,
+    "unavailability": DIMENSIONLESS,
+    "execution_time": TIME,
+    "overall_speedup": DIMENSIONLESS,
+    "scaled_speedup": DIMENSIONLESS,
+    "parallel_efficiency": DIMENSIONLESS,
+    "serial_fraction": DIMENSIONLESS,
+    "parallel_fraction_scaled": DIMENSIONLESS,
+    "processor_count": DIMENSIONLESS,
+    "byte_count": DIMENSIONLESS,
+    "gigabyte_count": DIMENSIONLESS,
+    "gibibyte_count": DIMENSIONLESS,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

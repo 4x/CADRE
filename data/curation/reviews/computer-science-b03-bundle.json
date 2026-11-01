@@ -1,0 +1,458 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.5",
+  "batch_id": "computer-science-b03",
+  "domain": "computer-science",
+  "curator": "muse-spark",
+  "created": "2026-11-01",
+  "example_only": false,
+  "models": [
+    {
+      "assumptions": [
+        "Scaled-workload (fixed-time) premise: problem size grows with N so the parallel part scales; serial fraction s is measured on the parallel system and stays fixed as N grows.",
+        "s + p = 1 by definition (serial plus parallel time fractions on the parallel system, normalized T = 1).",
+        "Ideal linear scaling of the parallel part; overheads excluded."
+      ],
+      "constants": [],
+      "guards": [
+        "s >= 0",
+        "s <= 1",
+        "p >= 0",
+        "p <= 1",
+        "N >= 1"
+      ],
+      "id": "computer-science--gustafson-scaled-speedup",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings scaled_speedup/serial_fraction/processor_count absent from runtime vocabulary."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "p = (S-s)/N needs N != 0 (guarded N>=1); s = S-p*N needs p,N. Check: S=9.1,p=0.9,N=10 gives s=0.1. N=1 gives S=s+p=1 under the s+p=1 premise (checked). Algebraic only; does not test the fixed-time premise.",
+      "kind": "theoretical",
+      "limitations": [
+        "Fixed-time/scaled-workload premise only; fixed-workload bounds use Amdahl (b01), not this record.",
+        "Excludes communication/synchronization overhead and serial growth with scale.",
+        "N is a processor count (positive integer); fractional N has no meaning."
+      ],
+      "references": [
+        {
+          "expected": 9.1,
+          "id": "scaled-ten-proc",
+          "inputs": {
+            "N": 10,
+            "p": 0.9,
+            "s": 0.1
+          },
+          "method": "Ordinary case: serial 0.1 plus 0.9x10 = 9.1. Synthetic, materially larger scale than the 4-processor case.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 2.5,
+          "id": "scaled-four-proc",
+          "inputs": {
+            "N": 4,
+            "p": 0.5,
+            "s": 0.5
+          },
+          "method": "Half-parallel workload on 4 processors: 0.5+2.0 = 2.5. Synthetic.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 1,
+          "id": "boundary-single-processor",
+          "inputs": {
+            "N": 1,
+            "p": 0.8,
+            "s": 0.2
+          },
+          "method": "Limiting identity: one processor gives no scaled speedup (s+p = 1).",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "N": 10,
+            "p": 0.9,
+            "s": 1.5
+          },
+          "kind": "domain",
+          "reason": "Serial fraction above 1 violates s <= 1."
+        },
+        {
+          "inputs": {
+            "N": 10,
+            "s": 0.1
+          },
+          "kind": "missing-input",
+          "reason": "Parallel fraction p is an asserted input; omitting it leaves S undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "s + p * N",
+        "locator": "Definition section: S = s + p x N with s + p = 1, normalized T = 1 derivation showing serial baseline s and scaled parallel part Np.",
+        "original_equation": "S = s + p x N = s + (1 - s) x N (scaled speedup with s + p = 1)",
+        "output_symbol": "S",
+        "source_id": "wikipedia-gustafson",
+        "translation_notes": "Locals s, p, N; output S. Dimensionless fractions times processor count give dimensionless scaled speedup."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Gives scaled speedup S = s + pN with s + p = 1, the N-processor linear model, and the T = 1 normalization derivation (serial part s, parallel part Np on the serial baseline).",
+          "id": "wikipedia-gustafson",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Definition and Derivation sections.",
+          "redistribution": "Short paraphrase only.",
+          "title": "Wikipedia: Gustafson's law (scaled speedup definition and derivation)",
+          "url": "https://en.wikipedia.org/wiki/Gustafson%27s_law",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Scaled (fixed-time) speedup from serial/parallel fractions and processor count.",
+      "title": "Gustafson scaled speedup from workload fractions",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same scaled parallel run and processor count as p, N and S",
+          "definition": "Serial time fraction on the parallel system (normalized total T = 1)",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]; complements p",
+          "quantity_id": "serial_fraction",
+          "role": "input",
+          "source_symbol": "s",
+          "symbol": "s",
+          "unit": "1"
+        },
+        {
+          "context": "same scaled parallel run and processor count as s, N and S",
+          "definition": "Parallelizable time fraction on the parallel system (normalized total T = 1)",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]; complements s",
+          "quantity_id": "parallel_fraction_scaled",
+          "role": "input",
+          "source_symbol": "p",
+          "symbol": "p",
+          "unit": "1"
+        },
+        {
+          "context": "same scaled parallel run as s, p and S",
+          "definition": "Number of processors executing the scaled workload",
+          "dimensions": "count",
+          "domain": "Positive integer count, at least 1",
+          "quantity_id": "processor_count",
+          "role": "input",
+          "source_symbol": "N",
+          "symbol": "N",
+          "unit": "1"
+        },
+        {
+          "context": "same scaled parallel run as inputs",
+          "definition": "Theoretical scaled speedup against the single-processor serial baseline",
+          "dimensions": "dimensionless",
+          "domain": "Finite speedup at least 1 under the s + p = 1 premise",
+          "quantity_id": "scaled_speedup",
+          "role": "output",
+          "source_symbol": "S",
+          "symbol": "S",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "S is a measured overall speedup at fixed workload and N the processor count that achieved it.",
+        "Same task and baseline for S and N."
+      ],
+      "constants": [],
+      "guards": [
+        "S >= 0",
+        "N > 0"
+      ],
+      "id": "computer-science--parallel-efficiency",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings parallel_efficiency/overall_speedup/processor_count absent from runtime vocabulary."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "S = E*N needs E,N; N = S/E needs E != 0. Check: E=0.91,N=10 gives S=9.1. N=0 excluded. Super-linear E>1 admissible.",
+      "kind": "definition",
+      "limitations": [
+        "Super-linear speedup (E > 1, e.g. cache effects) is admissible, not an error; typical [0,1] is descriptive.",
+        "Efficiency alone does not diagnose bottlenecks; pair with Amdahl/Gustafson fractions."
+      ],
+      "references": [
+        {
+          "expected": 0.91,
+          "id": "gustafson-linked-efficiency",
+          "inputs": {
+            "N": 10,
+            "S": 9.1
+          },
+          "method": "Links the b03 Gustafson case: 9.1/10 = 0.91. Cross-check between records.",
+          "provenance": "Independent cross-record derivation.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1,
+          "id": "linear-efficiency",
+          "inputs": {
+            "N": 4,
+            "S": 4
+          },
+          "method": "Linear speedup gives efficiency 1. Synthetic.",
+          "provenance": "Independent arithmetic check.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 1,
+          "id": "boundary-single-proc-eff",
+          "inputs": {
+            "N": 1,
+            "S": 1
+          },
+          "method": "Boundary: single-processor run has efficiency 1.",
+          "provenance": "Definitional boundary check.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "N": 0,
+            "S": 4
+          },
+          "kind": "domain",
+          "reason": "Zero processor count violates N > 0."
+        },
+        {
+          "inputs": {
+            "S": 4
+          },
+          "kind": "missing-input",
+          "reason": "Processor count N is required."
+        }
+      ],
+      "relationship": {
+        "expression": "S / N",
+        "locator": "Additional details: efficiency eta = S/s, typically in [0,1]; linear speedup gives 1.",
+        "original_equation": "efficiency eta = S / s (overall speedup over local speedup)",
+        "output_symbol": "E",
+        "source_id": "wikipedia-speedup",
+        "translation_notes": "Source s renamed N; output eta renamed E. Dimensionless ratio."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines efficiency eta = S/s with typical range 0-1, linear speedup giving 1, plus the 6.75s/4.50s = 1.5 example.",
+          "id": "wikipedia-speedup",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown.",
+          "locator": "Additional details section.",
+          "redistribution": "Short paraphrase only.",
+          "title": "Wikipedia: Speedup (efficiency)",
+          "url": "https://en.wikipedia.org/wiki/Speedup",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Parallel efficiency as overall speedup per processor.",
+      "title": "Parallel efficiency from speedup and processor count",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same task and baseline as N and E",
+          "definition": "Measured overall speedup at fixed workload",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite speedup",
+          "quantity_id": "overall_speedup",
+          "role": "input",
+          "source_symbol": "S",
+          "symbol": "S",
+          "unit": "1"
+        },
+        {
+          "context": "same task and baseline as S and E",
+          "definition": "Processor count that achieved the speedup",
+          "dimensions": "count",
+          "domain": "Positive finite count",
+          "quantity_id": "processor_count",
+          "role": "input",
+          "source_symbol": "s (local speedup / processor count)",
+          "symbol": "N",
+          "unit": "1"
+        },
+        {
+          "context": "same task and run as inputs",
+          "definition": "Fraction of ideal linear speedup achieved",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite; typically [0,1], super-linear above 1 admissible",
+          "quantity_id": "parallel_efficiency",
+          "role": "output",
+          "source_symbol": "eta",
+          "symbol": "E",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Binary (IEC) convention: 1 GiB = 2^30 B per IEC 60027-2; decimal GB is the separate b02 record.",
+        "Same convention for input and output; excludes filesystem overhead."
+      ],
+      "constants": [
+        {
+          "literal": 1073741824,
+          "locator": "Examples: 1 GiB = 2^30 B = 1,073,741,824 B; official-publication cites IEC 60027-2.",
+          "meaning": "binary bytes per gibibyte",
+          "source_id": "nist-binary",
+          "unit": "B"
+        }
+      ],
+      "guards": [
+        "N >= 0"
+      ],
+      "id": "computer-science--binary-gibibyte-to-byte",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings gibibyte_count/byte_count and units GiB/B absent from runtime vocabulary."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "N = B/1073741824 needs B. Check: B=2147483648 gives N=2. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Binary GiB only; applying to decimal-GB hardware repeats the documented confusion error.",
+        "Excludes usable-vs-advertised differences from overhead."
+      ],
+      "references": [
+        {
+          "expected": 1073741824,
+          "id": "one-gib-binary",
+          "inputs": {
+            "N": 1
+          },
+          "method": "NIST/IEC definition 1 GiB = 2^30 B.",
+          "provenance": "Published definition (NIST page).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 2147483648,
+          "id": "two-gib-bytes",
+          "inputs": {
+            "N": 2
+          },
+          "method": "Ordinary case 2 x 2^30. Synthetic.",
+          "provenance": "Independent arithmetic check.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-gib",
+          "inputs": {
+            "N": 0
+          },
+          "method": "Boundary: zero gibibytes is zero bytes.",
+          "provenance": "Definitional boundary check.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "N": -1
+          },
+          "kind": "domain",
+          "reason": "Negative count violates N >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Gibibyte count N is required."
+        }
+      ],
+      "relationship": {
+        "expression": "N * 1073741824",
+        "locator": "NIST examples (1 GiB = 2^30 B) and Gigabyte page binary section.",
+        "original_equation": "bytes = gibibytes x 2^30 (binary definition)",
+        "output_symbol": "B",
+        "source_id": "nist-binary",
+        "translation_notes": "Coefficient in constants with NIST source. count x B = B."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States 1 GiB = 2^30 B = 1,073,741,824 B vs 1 GB = 10^9 B, IEC 60027-2 Second edition 2000-11.",
+          "id": "nist-binary",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown.",
+          "locator": "Examples and official-publication sections.",
+          "redistribution": "Short paraphrase only.",
+          "title": "NIST binary prefixes (GiB values)",
+          "url": "https://physics.nist.gov/cuu/Units/binary.html",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary gibibyte to byte conversion with explicit IEC constant.",
+      "title": "Binary gibibyte to byte conversion",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same object and binary convention as B",
+          "definition": "Count of binary gibibytes",
+          "dimensions": "data",
+          "domain": "Nonnegative finite count",
+          "quantity_id": "gibibyte_count",
+          "role": "input",
+          "source_symbol": "gibibytes (GiB)",
+          "symbol": "N",
+          "unit": "GiB"
+        },
+        {
+          "context": "same object and binary convention as N",
+          "definition": "Byte equivalent of the stated gibibytes",
+          "dimensions": "data",
+          "domain": "Nonnegative finite bytes",
+          "quantity_id": "byte_count",
+          "role": "output",
+          "source_symbol": "bytes (B)",
+          "symbol": "B",
+          "unit": "B"
+        }
+      ]
+    }
+  ],
+  "deferred": [
+    {
+      "title": "Binary data-rate unit conversions",
+      "reason": "Continuation priority: Mbit/s vs Mibit/s rate conversions using the inspected data-rate table; scalar form analogous to b02/b03 conversion models.",
+      "source_urls": [
+        "https://en.wikipedia.org/wiki/Data-rate_units"
+      ]
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b03 curates 3 records: Gustafson scaled speedup, parallel efficiency, binary gibibyte-to-byte conversion.",
+    "gaps": [
+      "New meanings (scaled_speedup, serial_fraction, parallel_efficiency, processor_count, gibibyte_count, byte_count) absent from runtime-vocabulary.json; all requires-extension with null runtime_model.",
+      "Duplicate search limited to catalog-inventory.json snapshot plus b01/b02/b03 batches."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "2026-11-01 validate: pending pack-time check; curator text review done; central review pending; terms pages not inspected."
+  }
+}

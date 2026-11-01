@@ -56,7 +56,8 @@ Exact rationals keep dimensional type-checking sound (equality is exact) while f
 - Kleiber admitted (90 eligible); biology-3 ships kcal/day (thermochemical) and the fractional normalization unit.
 - Manifests and kit vocabulary encode fractional powers as [num, den] pairs; whole powers serialize exactly as before (no readers needed changes).
 - Island brief #4 requests a normalized-area r2 (`c * (A / A0) ** z`), which projects with no further engine work.
-- Stage 2 (log/exp/sqrt/sum/prod, forward-only) is scoped but unbuilt; kit curator instructions should gain the exponent-grammar rule.
+- Stage 2 shipped in 0.17.0: log/exp (natural, dimensionless-only), sqrt (halves dimensions), n-ary sum (uniform dims) and prod (adds dims), all forward-only with the solver profile unchanged.
+- Kit curator instructions should gain the exponent-grammar and function-allowlist rules; unbounded/indexed summation (age classes, generations, k-out-of-N) stays deferred by design.
 
 
 ## Revisit if

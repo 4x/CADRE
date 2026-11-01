@@ -98,7 +98,10 @@ class RuntimeTests(unittest.TestCase):
                  "implicit_price_deflator": ("index-point", DIMENSIONLESS),
                  "midyear_resident_population": ("person", DIMENSIONLESS),
                  "gross_domestic_product_real": ("USD_ref", MONEY),
-                 "real_gdp_per_capita": ("USD_ref/person", MONEY)}
+                 "real_gdp_per_capita": ("USD_ref/person", MONEY),
+                 "economic_profit": ("USD", MONEY),
+                 "produced_quantity": ("unit", DIMENSIONLESS),
+                 "finite_increment_marginal_cost": ("USD/unit", MONEY)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)

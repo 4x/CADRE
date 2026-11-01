@@ -16,7 +16,7 @@ MONEY: Dimensions = (0, 0, 0, 1)
 PRICE: Dimensions = (-1, -2, 2, 1)
 INVERSE_MONEY: Dimensions = (0, 0, 0, -1)
 JOULES_PER_KWH = 3_600_000
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-1"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-2"
 DIMENSION_AXES = ("mass", "length", "time", "currency")
 NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
@@ -163,6 +163,14 @@ MEANINGS = {
     "gross_domestic_product_real": MONEY,
     "midyear_resident_population": DIMENSIONLESS,
     "real_gdp_per_capita": MONEY,
+    # Economics-2: profit and marginal-cost meanings for reviewed b06 admittables.
+    "total_revenue": MONEY,
+    "explicit_cost_amount": MONEY,
+    "implicit_opportunity_cost_amount": MONEY,
+    "economic_profit": MONEY,
+    "total_production_cost": MONEY,
+    "produced_quantity": DIMENSIONLESS,
+    "finite_increment_marginal_cost": MONEY,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

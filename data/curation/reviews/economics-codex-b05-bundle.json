@@ -1,0 +1,718 @@
+{
+  "batch_id": "economics-codex-b05",
+  "created": "2026-11-01",
+  "curator": "codex",
+  "deferred": [
+    {
+      "reason": "Direct definitions page gives broader numerators and denominators involving discouraged/marginally attached people and part-time-for-economic-reasons workers. Valuable adjacent deterministic definitions, but require careful subset/disjointness accounting (discouraged is already part of marginally attached; part-time workers are employed). Continue this source next; do not substitute them into the unemployment numerator without changing meaning.",
+      "source_urls": [
+        "https://www.bls.gov/cps/definitions.htm"
+      ],
+      "title": "CPS broader labor-underutilization rates U-4 to U-6"
+    },
+    {
+      "reason": "Reference-week population levels are not hiring/separation flows and cannot be accumulated into unique annual persons by adding months. Annual average counts and ratio-of-averages conventions need their own source/time aggregation review; no time-series summation in current scalar format.",
+      "source_urls": [
+        "https://www.bls.gov/cps/definitions.htm",
+        "https://www.bls.gov/cps/cps_htgm.htm"
+      ],
+      "title": "CPS annual rates or repeated monthly counts as person-flows"
+    }
+  ],
+  "domain": "economics",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "CPS meanings/person count units and classification/reference-week metadata require extension; do not coerce weighted counts into arbitrary probabilities.",
+      "Published count/rate rounding handled explicitly; no survey-estimation method or uncertainty interval added.",
+      "Broader U-4/U-5/U-6 definitions remain in queue pending subset audit."
+    ],
+    "queries": [],
+    "review_notes": "Direct BLS definition/method pages (definitions modified 2026-05-22), archived 2024-11-01 Table A-1, and BLS copyright terms inspected 2026-11-01. Reviewed exactly which October column is seasonally adjusted; raw population footnote retained. All published counts converted from thousands to persons; expected rates kept as printed after percent-to-fraction conversion. Labor-force sum checks tolerate only justified rounding, not source sampling error. Independent rosters check numerator populations and zero/upper boundaries. Toolkit validation logs accompany bundle/ZIP; pending scientific review. Duplicate search includes b01-b04, supplied 37-record inventory and runtime snapshot only. Toolkit JSON validation passed: four models, 12 arithmetic references and 11 rejection cases, all requires-extension; final edit revalidated before packing.",
+    "summary": "Four CPS status definitions: civilian labor force, unemployment, participation, employment-population ratio. Named rates differ by actual numerator/denominator meaning and are not treated as interchangeable dimensionless ratios. Historical published checks use the 2024-11-01 release vintage with rounding propagation, plus independent synthetic rosters and boundaries. Earlier 15 model IDs remain intact."
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "assumptions": [
+        "Source convention: employment and unemployment are disjoint, exhaustive labor-force statuses within the CPS universe.",
+        "Application consistency: common reference week, population/subgroup, weights/vintage and adjustment basis; headcounts rather than job counts."
+      ],
+      "constants": [],
+      "guards": [
+        "E >= 0",
+        "U >= 0"
+      ],
+      "id": "economics--cps-civilian-labor-force",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New CPS person/status meanings and reference-week/vintage/adjustment metadata; persons unit not in runtime snapshot. Midyear_resident_population from b04 is not equivalent to CPS eligible population."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "E=LF-U given LF,U and require LF>=U>=0; U=LF-E given LF,E and require LF>=E>=0. No denominators, unique scalar solutions. Roster check LF=11,U=3 recovers E=8; forward LF=11. At LF=0 nonnegative inputs imply E=U=0 uniquely if either is unknown; no ambiguity. If only LF known and both E,U unknown, nonnegative partitions are underdetermined. Rounded national LF inversion may differ from a separately published component within source rounding bounds; no statistical estimation implied.",
+      "kind": "definition",
+      "limitations": [
+        "Does not classify individuals, estimate sample weights, resolve survey errors or seasonally adjust counts.",
+        "Independently rounded published totals may not exactly equal the sum of rounded components; statistical sampling error is separate from arithmetic rounding."
+      ],
+      "references": [
+        {
+          "expected": 168479000,
+          "id": "published-october-2024-labor-force",
+          "inputs": {
+            "E": 161496000,
+            "U": 6984000
+          },
+          "method": "Published LF 168479 thousand converted to expected 168479000 persons; do not replace with recomputed 168480000. Each input/output is rounded to nearest 1000, so worst-case propagated bound is 500+500+500=1500 persons. This is a rounding consistency test, not an uncertainty interval for survey estimation.",
+          "provenance": "https://www.bls.gov/news.release/archives/empsit_11012024.htm, Table A-1 TOTAL, seasonally adjusted October 2024, same archived vintage.",
+          "tolerance": 1500
+        },
+        {
+          "expected": 11,
+          "id": "synthetic-status-roster",
+          "inputs": {
+            "E": 8,
+            "U": 3
+          },
+          "method": "Independent eligible-population roster: 15 uniquely identified synthetic eligible persons, four outside labor force; enumerating persons not outside yields 11. Disjoint employed roster has eight and unemployed roster three. Checks union count against complementary status count.",
+          "provenance": "Curator synthetic CPS-status enumeration, not actual respondent data.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "empty-labor-force-boundary",
+          "inputs": {
+            "E": 0,
+            "U": 0
+          },
+          "method": "Ideal boundary: no eligible persons classified employed or unemployed yields empty labor-force union, even if some persons remain outside labor force.",
+          "provenance": "Curator empty-union identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "E": -1,
+            "U": 3
+          },
+          "kind": "domain",
+          "reason": "Negative person count not admissible."
+        },
+        {
+          "inputs": {
+            "E": 8
+          },
+          "kind": "missing-input",
+          "reason": "Unemployment count missing; no default zero."
+        }
+      ],
+      "relationship": {
+        "expression": "E + U",
+        "locator": "Civilian labor force subsection; corroborated BLS How Government Measures Unemployment, Basic concepts",
+        "original_equation": "Civilian labor force = employed persons + unemployed persons.",
+        "output_symbol": "LF",
+        "source_id": "bls-cps-definitions",
+        "translation_notes": "Introduced E,U,LF map source prose counts. Dimensions person+person=person. No percentage scaling or time integration. Mutually exclusive classifications and equal sample weights/coverage are required; duplicated persons would invalidate addition. Survey-weighted estimates can be nonintegers even though persons are individually counted once. The mathematical identity allows E=U=0; a subsequent unemployment rate would then be undefined. Published separately rounded components may miss rounded LF by 1000 persons without contradicting the definition."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "CPS civilian population is age 16+ outside institutions and active-duty armed forces. Mutually exclusive employed/unemployed classifications form labor force. Unemployment divides unemployed by labor force; participation divides labor force by eligible population; employment-population divides employed by eligible population. Counts refer to persons, not jobs.",
+          "id": "bls-cps-definitions",
+          "kind": "primary",
+          "license": "https://www.bls.gov/opub/copyright-information.htm, inspected 2026-11-01: published BLS text/data in public domain except previously copyrighted photographs/illustrations; citation requested; BLS emblem separately protected.",
+          "locator": "Civilian noninstitutional population; Labor force; Participation rate; Employed; Unemployed; Unemployment rate; Employment-population ratio; Reference week",
+          "redistribution": "Original attributed definitions and minimal historical table numerics; no photos, figures, emblem or third-party content included. No BLS endorsement implied.",
+          "title": "BLS, Concepts and Definitions: Current Population Survey",
+          "url": "https://www.bls.gov/cps/definitions.htm",
+          "version": "Last modified 2026-05-22; live HTML inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Every eligible person receives one status. Working/holding a job takes precedence over seeking work; unemployed must meet availability/search rules or qualifying temporary-layoff exception. Survey responses are weighted to population estimates; definitions do not perform that estimation.",
+          "id": "bls-cps-method",
+          "kind": "primary",
+          "license": "https://www.bls.gov/opub/copyright-information.htm, inspected 2026-11-01: published BLS text/data in public domain except previously copyrighted photographs/illustrations; citation requested; BLS emblem separately protected.",
+          "locator": "Basic concepts and cases of overlap; section 'What are the unemployment rate, labor force participation rate, and employment-population ratio?'",
+          "redistribution": "Original attributed definitions and minimal historical table numerics; no photos, figures, emblem or third-party content included. No BLS endorsement implied.",
+          "title": "BLS, How the Government Measures Unemployment",
+          "url": "https://www.bls.gov/cps/cps_htgm.htm",
+          "version": "Live HTML inspected 2026-11-01; page publication date not displayed in inspected text"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Archived table reports eligible population 269289 thousand, labor force 168479, employed 161496, unemployed 6984; participation 62.6%, employment-population 60.0%, unemployment 4.1%. Counts and rates rounded separately, so addition need not balance exactly.",
+          "id": "bls-october-2024-vintage",
+          "kind": "primary",
+          "license": "https://www.bls.gov/opub/copyright-information.htm, inspected 2026-11-01: published BLS text/data in public domain except previously copyrighted photographs/illustrations; citation requested; BLS emblem separately protected.",
+          "locator": "Household Table A-1, TOTAL, seasonally adjusted October 2024 column (rightmost); table units thousands; population footnote 1",
+          "redistribution": "Original attributed definitions and minimal historical table numerics; no photos, figures, emblem or third-party content included. No BLS endorsement implied.",
+          "title": "BLS, Employment Situation, October 2024",
+          "url": "https://www.bls.gov/news.release/archives/empsit_11012024.htm",
+          "version": "Released 2024-11-01, USDL-24-2233; archived release vintage, not a claim about current revised series"
+        }
+      ],
+      "summary": "Definition of a mutually exclusive status union within the CPS population. A person-level status count at the reference period, with no claim about hiring/separation flows or equilibrium.",
+      "title": "CPS civilian labor force from employed and unemployed persons",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same CPS civilian noninstitutional population age 16+, geography/subgroup, reference week, source vintage and consistent adjustment convention. Persons classified once as employed, unemployed or outside labor force. Weighted population estimates are counts of people, not establishment payroll jobs, job spells or monthly person-flows.",
+          "definition": "CPS employed persons: qualifying pay/profit work or temporary job absence, including qualifying unpaid family workers; a multiple-jobholder counted once.",
+          "dimensions": "person",
+          "domain": "Finite nonnegative count or compatible weighted estimate.",
+          "quantity_id": "cps_employed_persons",
+          "role": "input",
+          "source_symbol": "Introduced E = Employed",
+          "symbol": "E",
+          "unit": "person"
+        },
+        {
+          "context": "Same CPS civilian noninstitutional population age 16+, geography/subgroup, reference week, source vintage and consistent adjustment convention. Persons classified once as employed, unemployed or outside labor force. Weighted population estimates are counts of people, not establishment payroll jobs, job spells or monthly person-flows.",
+          "definition": "CPS unemployed persons: not employed, available during reference week and qualifying active search in preceding four weeks, or qualifying temporary-layoff recall exception. Receipt of insurance is not the criterion.",
+          "dimensions": "person",
+          "domain": "Finite nonnegative count or compatible weighted estimate; distinct from all jobless persons.",
+          "quantity_id": "cps_unemployed_persons",
+          "role": "input",
+          "source_symbol": "Introduced U = Unemployed",
+          "symbol": "U",
+          "unit": "person"
+        },
+        {
+          "context": "Same CPS civilian noninstitutional population age 16+, geography/subgroup, reference week, source vintage and consistent adjustment convention. Persons classified once as employed, unemployed or outside labor force. Weighted population estimates are counts of people, not establishment payroll jobs, job spells or monthly person-flows.",
+          "definition": "Persons classified employed or unemployed in the CPS universe during the reference week.",
+          "dimensions": "person",
+          "domain": "Finite nonnegative count; may be zero, unlike a valid unemployment-rate denominator.",
+          "quantity_id": "cps_civilian_labor_force",
+          "role": "output",
+          "source_symbol": "Introduced LF = Civilian labor force",
+          "symbol": "LF",
+          "unit": "person"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source convention: precise CPS numerator and denominator populations at the same reference period.",
+        "Application consistency: match population subgroup, vintage and adjustment conventions; a ratio is not the procedure used to estimate its source counts."
+      ],
+      "constants": [],
+      "guards": [
+        "U >= 0",
+        "LF > 0",
+        "U <= LF"
+      ],
+      "id": "economics--cps-unemployment-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New cps_unemployment_fraction and CPS population meanings/person unit; not the probability of a future outcome or a generic discount_rate. Context must retain status definitions and time/population supports."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "U=u*LF for 0<=u<=1,LF>0; LF=U/u for u>0,U>0, retaining U<=LF. Check u=.25,LF=12 gives U=3; forward .25. At u=U=0 every LF>0 fits; u=0,U>0 incompatible. U=0,u>0 infers LF=0, excluded. LF is not reconstructed by this inverse when both U and u zero, and no causal labor-supply response is identified.",
+      "kind": "definition",
+      "limitations": [
+        "Does not estimate survey weights, seasonal adjustment, sampling error or a labor-market behavioral relationship.",
+        "Different person denominators define different rates; no substitution between labor force and whole eligible population. Rounding tolerance below is not a survey confidence interval."
+      ],
+      "references": [
+        {
+          "expected": 0.041,
+          "id": "published-october-2024",
+          "inputs": {
+            "LF": 168479000,
+            "U": 6984000
+          },
+          "method": "Published 4.1 percent unemployment rate converted to expected fractional 0.041. Counts in source thousands converted to persons. Half of .1 percentage point is .0005 in fraction units; nearest-thousand count rounding adds less than .000004 by (500+ratio*500)/(denominator-500). Bound .000504 propagates both, rather than pretending rounded counts are exact. No statistical uncertainty estimated.",
+          "provenance": "https://www.bls.gov/news.release/archives/empsit_11012024.htm, Table A-1 TOTAL, seasonally adjusted October 2024 archived column.",
+          "tolerance": 0.000504
+        },
+        {
+          "expected": 0.25,
+          "id": "synthetic-status-roster",
+          "inputs": {
+            "LF": 12,
+            "U": 3
+          },
+          "method": "Independent grouping: twelve synthetic labor-force members form four equal groups of three; exactly one group is unemployed and three groups employed, so unemployed fraction is one fourth.",
+          "provenance": "Curator independent synthetic CPS status roster/grouping; no observed national data.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "status-boundary",
+          "inputs": {
+            "LF": 12,
+            "U": 0
+          },
+          "method": "No unemployed among a positive labor force gives zero unemployment, not an undefined ratio.",
+          "provenance": "Curator admitted classification boundary.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "LF": 0,
+            "U": 0
+          },
+          "kind": "domain",
+          "reason": "Empty denominator population makes this rate undefined, even though its count identity may be defined."
+        },
+        {
+          "inputs": {
+            "LF": 10,
+            "U": 11
+          },
+          "kind": "domain",
+          "reason": "Numerator cannot exceed the population containing it."
+        },
+        {
+          "inputs": {
+            "U": 1
+          },
+          "kind": "missing-input",
+          "reason": "Denominator population missing."
+        }
+      ],
+      "relationship": {
+        "expression": "U / LF",
+        "locator": "Unemployment rate subsection, formula (Unemployed / Labor Force)*100",
+        "original_equation": "Source percent = (U/LF)*100; local fraction u=U/LF.",
+        "output_symbol": "u",
+        "source_id": "bls-cps-definitions",
+        "translation_notes": "Introduced U,LF,u name the source prose quantities. Source percent factor 100 removed to serialize a fraction on [0,1]. Dimensions person/person=1. Numerator is a subset of denominator under the same survey concepts; preserve 0<=U<=LF and LF>0. Reference week is a classification window, not a duration input or accumulation of monthly counts. Compatible population weighting/adjustment conventions must be independently established; this ratio cannot verify them. Do not replace denominator with any other person count merely because units match."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "CPS civilian population is age 16+ outside institutions and active-duty armed forces. Mutually exclusive employed/unemployed classifications form labor force. Unemployment divides unemployed by labor force; participation divides labor force by eligible population; employment-population divides employed by eligible population. Counts refer to persons, not jobs.",
+          "id": "bls-cps-definitions",
+          "kind": "primary",
+          "license": "https://www.bls.gov/opub/copyright-information.htm, inspected 2026-11-01: published BLS text/data in public domain except previously copyrighted photographs/illustrations; citation requested; BLS emblem separately protected.",
+          "locator": "Civilian noninstitutional population; Labor force; Participation rate; Employed; Unemployed; Unemployment rate; Employment-population ratio; Reference week",
+          "redistribution": "Original attributed definitions and minimal historical table numerics; no photos, figures, emblem or third-party content included. No BLS endorsement implied.",
+          "title": "BLS, Concepts and Definitions: Current Population Survey",
+          "url": "https://www.bls.gov/cps/definitions.htm",
+          "version": "Last modified 2026-05-22; live HTML inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Every eligible person receives one status. Working/holding a job takes precedence over seeking work; unemployed must meet availability/search rules or qualifying temporary-layoff exception. Survey responses are weighted to population estimates; definitions do not perform that estimation.",
+          "id": "bls-cps-method",
+          "kind": "primary",
+          "license": "https://www.bls.gov/opub/copyright-information.htm, inspected 2026-11-01: published BLS text/data in public domain except previously copyrighted photographs/illustrations; citation requested; BLS emblem separately protected.",
+          "locator": "Basic concepts and cases of overlap; section 'What are the unemployment rate, labor force participation rate, and employment-population ratio?'",
+          "redistribution": "Original attributed definitions and minimal historical table numerics; no photos, figures, emblem or third-party content included. No BLS endorsement implied.",
+          "title": "BLS, How the Government Measures Unemployment",
+          "url": "https://www.bls.gov/cps/cps_htgm.htm",
+          "version": "Live HTML inspected 2026-11-01; page publication date not displayed in inspected text"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Archived table reports eligible population 269289 thousand, labor force 168479, employed 161496, unemployed 6984; participation 62.6%, employment-population 60.0%, unemployment 4.1%. Counts and rates rounded separately, so addition need not balance exactly.",
+          "id": "bls-october-2024-vintage",
+          "kind": "primary",
+          "license": "https://www.bls.gov/opub/copyright-information.htm, inspected 2026-11-01: published BLS text/data in public domain except previously copyrighted photographs/illustrations; citation requested; BLS emblem separately protected.",
+          "locator": "Household Table A-1, TOTAL, seasonally adjusted October 2024 column (rightmost); table units thousands; population footnote 1",
+          "redistribution": "Original attributed definitions and minimal historical table numerics; no photos, figures, emblem or third-party content included. No BLS endorsement implied.",
+          "title": "BLS, Employment Situation, October 2024",
+          "url": "https://www.bls.gov/news.release/archives/empsit_11012024.htm",
+          "version": "Released 2024-11-01, USDL-24-2233; archived release vintage, not a claim about current revised series"
+        }
+      ],
+      "summary": "Fraction of the civilian labor force classified unemployed under CPS rules. Fractional ratio retained, with source percentages divided by 100; no behavioral or forecast interpretation.",
+      "title": "CPS unemployment rate as fraction of the labor force",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same CPS civilian noninstitutional population age 16+, geography/subgroup, reference week, source vintage and consistent adjustment convention. Persons classified once as employed, unemployed or outside labor force. Weighted population estimates are counts of people, not establishment payroll jobs, job spells or monthly person-flows.",
+          "definition": "CPS unemployed persons: not employed, available during reference week and qualifying active search in preceding four weeks, or qualifying temporary-layoff recall exception. Receipt of insurance is not the criterion.",
+          "dimensions": "person",
+          "domain": "Finite nonnegative, no greater than the matching denominator count.",
+          "quantity_id": "cps_unemployed_persons",
+          "role": "input",
+          "source_symbol": "Introduced U = source numerator count",
+          "symbol": "U",
+          "unit": "person"
+        },
+        {
+          "context": "Same CPS civilian noninstitutional population age 16+, geography/subgroup, reference week, source vintage and consistent adjustment convention. Persons classified once as employed, unemployed or outside labor force. Weighted population estimates are counts of people, not establishment payroll jobs, job spells or monthly person-flows.",
+          "definition": "Persons classified employed or unemployed in the CPS universe during the reference week.",
+          "dimensions": "person",
+          "domain": "Finite strictly positive count or compatible weighted estimate.",
+          "quantity_id": "cps_civilian_labor_force",
+          "role": "input",
+          "source_symbol": "Introduced LF = source denominator count",
+          "symbol": "LF",
+          "unit": "person"
+        },
+        {
+          "context": "Same CPS civilian noninstitutional population age 16+, geography/subgroup, reference week, source vintage and consistent adjustment convention. Persons classified once as employed, unemployed or outside labor force. Weighted population estimates are counts of people, not establishment payroll jobs, job spells or monthly person-flows.",
+          "definition": "Fraction of the civilian labor force classified unemployed under CPS rules.",
+          "dimensions": "1",
+          "domain": "Finite fraction in [0,1]; percentage display is 100 times this number.",
+          "quantity_id": "cps_unemployment_fraction",
+          "role": "output",
+          "source_symbol": "Introduced u = source reported rate divided by 100",
+          "symbol": "u",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source convention: precise CPS numerator and denominator populations at the same reference period.",
+        "Application consistency: match population subgroup, vintage and adjustment conventions; a ratio is not the procedure used to estimate its source counts."
+      ],
+      "constants": [],
+      "guards": [
+        "LF >= 0",
+        "N > 0",
+        "LF <= N"
+      ],
+      "id": "economics--cps-labor-force-participation",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New cps_labor_force_participation_fraction and CPS population meanings/person unit; not the probability of a future outcome or a generic discount_rate. Context must retain status definitions and time/population supports."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "LF=a*N for 0<=a<=1,N>0; N=LF/a for a>0,LF>0, retaining LF<=N. Check a=.6,N=20 yields LF=12; forward .6. At a=LF=0 every N>0 fits; a=0,LF>0 incompatible; LF=0,a>0 would require excluded N=0. Full participation a=1 uniquely gives LF=N for known one count. Does not infer why people participate or predict future participation.",
+      "kind": "definition",
+      "limitations": [
+        "Does not estimate survey weights, seasonal adjustment, sampling error or a labor-market behavioral relationship.",
+        "Different person denominators define different rates; no substitution between labor force and whole eligible population. Rounding tolerance below is not a survey confidence interval."
+      ],
+      "references": [
+        {
+          "expected": 0.626,
+          "id": "published-october-2024",
+          "inputs": {
+            "LF": 168479000,
+            "N": 269289000
+          },
+          "method": "Published 62.6 percent participation rate converted to expected fractional 0.626. Counts in source thousands converted to persons. Half of .1 percentage point is .0005 in fraction units; nearest-thousand count rounding adds less than .000004 by (500+ratio*500)/(denominator-500). Bound .000504 propagates both, rather than pretending rounded counts are exact. No statistical uncertainty estimated.",
+          "provenance": "https://www.bls.gov/news.release/archives/empsit_11012024.htm, Table A-1 TOTAL, seasonally adjusted October 2024 archived column.",
+          "tolerance": 0.000504
+        },
+        {
+          "expected": 0.6,
+          "id": "synthetic-status-roster",
+          "inputs": {
+            "LF": 12,
+            "N": 20
+          },
+          "method": "Independent status roster: twenty eligible synthetic persons are divided into five equal four-person groups; three groups participate and two do not, so participation is three fifths.",
+          "provenance": "Curator independent synthetic CPS status roster/grouping; no observed national data.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "status-boundary",
+          "inputs": {
+            "LF": 0,
+            "N": 20
+          },
+          "method": "All eligible persons outside labor force gives zero participation with positive denominator; says nothing about unemployment rate, whose denominator is empty.",
+          "provenance": "Curator admitted classification boundary.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "LF": 0,
+            "N": 0
+          },
+          "kind": "domain",
+          "reason": "Empty denominator population makes this rate undefined, even though its count identity may be defined."
+        },
+        {
+          "inputs": {
+            "LF": 11,
+            "N": 10
+          },
+          "kind": "domain",
+          "reason": "Numerator cannot exceed the population containing it."
+        },
+        {
+          "inputs": {
+            "LF": 1
+          },
+          "kind": "missing-input",
+          "reason": "Denominator population missing."
+        }
+      ],
+      "relationship": {
+        "expression": "LF / N",
+        "locator": "Labor force participation rate subsection, formula (Labor Force / Civilian Noninstitutional Population)*100",
+        "original_equation": "Source percent = (LF/N)*100; local fraction a=LF/N.",
+        "output_symbol": "a",
+        "source_id": "bls-cps-definitions",
+        "translation_notes": "Introduced LF,N,a name the source prose quantities. Source percent factor 100 removed to serialize a fraction on [0,1]. Dimensions person/person=1. Numerator is a subset of denominator under the same survey concepts; preserve 0<=LF<=N and N>0. Reference week is a classification window, not a duration input or accumulation of monthly counts. Compatible population weighting/adjustment conventions must be independently established; this ratio cannot verify them. Do not replace denominator with any other person count merely because units match."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "CPS civilian population is age 16+ outside institutions and active-duty armed forces. Mutually exclusive employed/unemployed classifications form labor force. Unemployment divides unemployed by labor force; participation divides labor force by eligible population; employment-population divides employed by eligible population. Counts refer to persons, not jobs.",
+          "id": "bls-cps-definitions",
+          "kind": "primary",
+          "license": "https://www.bls.gov/opub/copyright-information.htm, inspected 2026-11-01: published BLS text/data in public domain except previously copyrighted photographs/illustrations; citation requested; BLS emblem separately protected.",
+          "locator": "Civilian noninstitutional population; Labor force; Participation rate; Employed; Unemployed; Unemployment rate; Employment-population ratio; Reference week",
+          "redistribution": "Original attributed definitions and minimal historical table numerics; no photos, figures, emblem or third-party content included. No BLS endorsement implied.",
+          "title": "BLS, Concepts and Definitions: Current Population Survey",
+          "url": "https://www.bls.gov/cps/definitions.htm",
+          "version": "Last modified 2026-05-22; live HTML inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Every eligible person receives one status. Working/holding a job takes precedence over seeking work; unemployed must meet availability/search rules or qualifying temporary-layoff exception. Survey responses are weighted to population estimates; definitions do not perform that estimation.",
+          "id": "bls-cps-method",
+          "kind": "primary",
+          "license": "https://www.bls.gov/opub/copyright-information.htm, inspected 2026-11-01: published BLS text/data in public domain except previously copyrighted photographs/illustrations; citation requested; BLS emblem separately protected.",
+          "locator": "Basic concepts and cases of overlap; section 'What are the unemployment rate, labor force participation rate, and employment-population ratio?'",
+          "redistribution": "Original attributed definitions and minimal historical table numerics; no photos, figures, emblem or third-party content included. No BLS endorsement implied.",
+          "title": "BLS, How the Government Measures Unemployment",
+          "url": "https://www.bls.gov/cps/cps_htgm.htm",
+          "version": "Live HTML inspected 2026-11-01; page publication date not displayed in inspected text"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Archived table reports eligible population 269289 thousand, labor force 168479, employed 161496, unemployed 6984; participation 62.6%, employment-population 60.0%, unemployment 4.1%. Counts and rates rounded separately, so addition need not balance exactly.",
+          "id": "bls-october-2024-vintage",
+          "kind": "primary",
+          "license": "https://www.bls.gov/opub/copyright-information.htm, inspected 2026-11-01: published BLS text/data in public domain except previously copyrighted photographs/illustrations; citation requested; BLS emblem separately protected.",
+          "locator": "Household Table A-1, TOTAL, seasonally adjusted October 2024 column (rightmost); table units thousands; population footnote 1",
+          "redistribution": "Original attributed definitions and minimal historical table numerics; no photos, figures, emblem or third-party content included. No BLS endorsement implied.",
+          "title": "BLS, Employment Situation, October 2024",
+          "url": "https://www.bls.gov/news.release/archives/empsit_11012024.htm",
+          "version": "Released 2024-11-01, USDL-24-2233; archived release vintage, not a claim about current revised series"
+        }
+      ],
+      "summary": "Fraction of the eligible civilian noninstitutional population in the labor force. Fractional ratio retained, with source percentages divided by 100; no behavioral or forecast interpretation.",
+      "title": "CPS labor-force participation as fraction of eligible population",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same CPS civilian noninstitutional population age 16+, geography/subgroup, reference week, source vintage and consistent adjustment convention. Persons classified once as employed, unemployed or outside labor force. Weighted population estimates are counts of people, not establishment payroll jobs, job spells or monthly person-flows.",
+          "definition": "Persons classified employed or unemployed in the CPS universe during the reference week.",
+          "dimensions": "person",
+          "domain": "Finite nonnegative, no greater than the matching denominator count.",
+          "quantity_id": "cps_civilian_labor_force",
+          "role": "input",
+          "source_symbol": "Introduced LF = source numerator count",
+          "symbol": "LF",
+          "unit": "person"
+        },
+        {
+          "context": "Same CPS civilian noninstitutional population age 16+, geography/subgroup, reference week, source vintage and consistent adjustment convention. Persons classified once as employed, unemployed or outside labor force. Weighted population estimates are counts of people, not establishment payroll jobs, job spells or monthly person-flows.",
+          "definition": "CPS civilian noninstitutional population age 16+ in the same area/subgroup; excludes active-duty armed forces and institutional residents.",
+          "dimensions": "person",
+          "domain": "Finite strictly positive count or compatible weighted estimate.",
+          "quantity_id": "cps_civilian_noninstitutional_population",
+          "role": "input",
+          "source_symbol": "Introduced N = source denominator count",
+          "symbol": "N",
+          "unit": "person"
+        },
+        {
+          "context": "Same CPS civilian noninstitutional population age 16+, geography/subgroup, reference week, source vintage and consistent adjustment convention. Persons classified once as employed, unemployed or outside labor force. Weighted population estimates are counts of people, not establishment payroll jobs, job spells or monthly person-flows.",
+          "definition": "Fraction of the eligible civilian noninstitutional population in the labor force.",
+          "dimensions": "1",
+          "domain": "Finite fraction in [0,1]; percentage display is 100 times this number.",
+          "quantity_id": "cps_labor_force_participation_fraction",
+          "role": "output",
+          "source_symbol": "Introduced a = source reported rate divided by 100",
+          "symbol": "a",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source convention: precise CPS numerator and denominator populations at the same reference period.",
+        "Application consistency: match population subgroup, vintage and adjustment conventions; a ratio is not the procedure used to estimate its source counts."
+      ],
+      "constants": [],
+      "guards": [
+        "E >= 0",
+        "N > 0",
+        "E <= N"
+      ],
+      "id": "economics--cps-employment-population-ratio",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New cps_employment_population_fraction and CPS population meanings/person unit; not the probability of a future outcome or a generic discount_rate. Context must retain status definitions and time/population supports."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "E=e*N for 0<=e<=1,N>0; N=E/e for e>0,E>0 with E<=N. Check e=.45,N=20 gives E=9, forward .45. At e=E=0 every N>0 fits; e=0,E>0 incompatible; E=0,e>0 implies excluded N=0. At e=1,E=N uniquely if one count known. Complement 1-e is all not-employed persons as share of eligible population, not the CPS unemployment rate; no causal/forecast inverse.",
+      "kind": "definition",
+      "limitations": [
+        "Does not estimate survey weights, seasonal adjustment, sampling error or a labor-market behavioral relationship.",
+        "Different person denominators define different rates; no substitution between labor force and whole eligible population. Rounding tolerance below is not a survey confidence interval."
+      ],
+      "references": [
+        {
+          "expected": 0.6,
+          "id": "published-october-2024",
+          "inputs": {
+            "E": 161496000,
+            "N": 269289000
+          },
+          "method": "Published 60.0 percent employment-population ratio converted to expected fractional 0.6. Counts in source thousands converted to persons. Half of .1 percentage point is .0005 in fraction units; nearest-thousand count rounding adds less than .000004 by (500+ratio*500)/(denominator-500). Bound .000504 propagates both, rather than pretending rounded counts are exact. No statistical uncertainty estimated.",
+          "provenance": "https://www.bls.gov/news.release/archives/empsit_11012024.htm, Table A-1 TOTAL, seasonally adjusted October 2024 archived column.",
+          "tolerance": 0.000504
+        },
+        {
+          "expected": 0.45,
+          "id": "synthetic-status-roster",
+          "inputs": {
+            "E": 9,
+            "N": 20
+          },
+          "method": "Independent status roster: twenty eligible persons, nine employed; enumerate eleven not employed (including unemployed and outside labor force). Employed fraction is complement of eleven twentieths, nine twentieths=.45, not one minus unemployment rate.",
+          "provenance": "Curator independent synthetic CPS status roster/grouping; no observed national data.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 1,
+          "id": "status-boundary",
+          "inputs": {
+            "E": 20,
+            "N": 20
+          },
+          "method": "Every eligible person employed yields fraction one; exact nonzero upper boundary.",
+          "provenance": "Curator admitted classification boundary.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "E": 0,
+            "N": 0
+          },
+          "kind": "domain",
+          "reason": "Empty denominator population makes this rate undefined, even though its count identity may be defined."
+        },
+        {
+          "inputs": {
+            "E": 11,
+            "N": 10
+          },
+          "kind": "domain",
+          "reason": "Numerator cannot exceed the population containing it."
+        },
+        {
+          "inputs": {
+            "E": 1
+          },
+          "kind": "missing-input",
+          "reason": "Denominator population missing."
+        }
+      ],
+      "relationship": {
+        "expression": "E / N",
+        "locator": "Employment-population ratio subsection, formula (Employed / Civilian Noninstitutional Population)*100",
+        "original_equation": "Source percent = (E/N)*100; local fraction e=E/N.",
+        "output_symbol": "e",
+        "source_id": "bls-cps-definitions",
+        "translation_notes": "Introduced E,N,e name the source prose quantities. Source percent factor 100 removed to serialize a fraction on [0,1]. Dimensions person/person=1. Numerator is a subset of denominator under the same survey concepts; preserve 0<=E<=N and N>0. Reference week is a classification window, not a duration input or accumulation of monthly counts. Compatible population weighting/adjustment conventions must be independently established; this ratio cannot verify them. Do not replace denominator with any other person count merely because units match."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "CPS civilian population is age 16+ outside institutions and active-duty armed forces. Mutually exclusive employed/unemployed classifications form labor force. Unemployment divides unemployed by labor force; participation divides labor force by eligible population; employment-population divides employed by eligible population. Counts refer to persons, not jobs.",
+          "id": "bls-cps-definitions",
+          "kind": "primary",
+          "license": "https://www.bls.gov/opub/copyright-information.htm, inspected 2026-11-01: published BLS text/data in public domain except previously copyrighted photographs/illustrations; citation requested; BLS emblem separately protected.",
+          "locator": "Civilian noninstitutional population; Labor force; Participation rate; Employed; Unemployed; Unemployment rate; Employment-population ratio; Reference week",
+          "redistribution": "Original attributed definitions and minimal historical table numerics; no photos, figures, emblem or third-party content included. No BLS endorsement implied.",
+          "title": "BLS, Concepts and Definitions: Current Population Survey",
+          "url": "https://www.bls.gov/cps/definitions.htm",
+          "version": "Last modified 2026-05-22; live HTML inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Every eligible person receives one status. Working/holding a job takes precedence over seeking work; unemployed must meet availability/search rules or qualifying temporary-layoff exception. Survey responses are weighted to population estimates; definitions do not perform that estimation.",
+          "id": "bls-cps-method",
+          "kind": "primary",
+          "license": "https://www.bls.gov/opub/copyright-information.htm, inspected 2026-11-01: published BLS text/data in public domain except previously copyrighted photographs/illustrations; citation requested; BLS emblem separately protected.",
+          "locator": "Basic concepts and cases of overlap; section 'What are the unemployment rate, labor force participation rate, and employment-population ratio?'",
+          "redistribution": "Original attributed definitions and minimal historical table numerics; no photos, figures, emblem or third-party content included. No BLS endorsement implied.",
+          "title": "BLS, How the Government Measures Unemployment",
+          "url": "https://www.bls.gov/cps/cps_htgm.htm",
+          "version": "Live HTML inspected 2026-11-01; page publication date not displayed in inspected text"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Archived table reports eligible population 269289 thousand, labor force 168479, employed 161496, unemployed 6984; participation 62.6%, employment-population 60.0%, unemployment 4.1%. Counts and rates rounded separately, so addition need not balance exactly.",
+          "id": "bls-october-2024-vintage",
+          "kind": "primary",
+          "license": "https://www.bls.gov/opub/copyright-information.htm, inspected 2026-11-01: published BLS text/data in public domain except previously copyrighted photographs/illustrations; citation requested; BLS emblem separately protected.",
+          "locator": "Household Table A-1, TOTAL, seasonally adjusted October 2024 column (rightmost); table units thousands; population footnote 1",
+          "redistribution": "Original attributed definitions and minimal historical table numerics; no photos, figures, emblem or third-party content included. No BLS endorsement implied.",
+          "title": "BLS, Employment Situation, October 2024",
+          "url": "https://www.bls.gov/news.release/archives/empsit_11012024.htm",
+          "version": "Released 2024-11-01, USDL-24-2233; archived release vintage, not a claim about current revised series"
+        }
+      ],
+      "summary": "Fraction of the eligible civilian noninstitutional population classified employed. Fractional ratio retained, with source percentages divided by 100; no behavioral or forecast interpretation.",
+      "title": "CPS employment-population ratio",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same CPS civilian noninstitutional population age 16+, geography/subgroup, reference week, source vintage and consistent adjustment convention. Persons classified once as employed, unemployed or outside labor force. Weighted population estimates are counts of people, not establishment payroll jobs, job spells or monthly person-flows.",
+          "definition": "CPS employed persons: qualifying pay/profit work or temporary job absence, including qualifying unpaid family workers; a multiple-jobholder counted once.",
+          "dimensions": "person",
+          "domain": "Finite nonnegative, no greater than the matching denominator count.",
+          "quantity_id": "cps_employed_persons",
+          "role": "input",
+          "source_symbol": "Introduced E = source numerator count",
+          "symbol": "E",
+          "unit": "person"
+        },
+        {
+          "context": "Same CPS civilian noninstitutional population age 16+, geography/subgroup, reference week, source vintage and consistent adjustment convention. Persons classified once as employed, unemployed or outside labor force. Weighted population estimates are counts of people, not establishment payroll jobs, job spells or monthly person-flows.",
+          "definition": "CPS civilian noninstitutional population age 16+ in the same area/subgroup; excludes active-duty armed forces and institutional residents.",
+          "dimensions": "person",
+          "domain": "Finite strictly positive count or compatible weighted estimate.",
+          "quantity_id": "cps_civilian_noninstitutional_population",
+          "role": "input",
+          "source_symbol": "Introduced N = source denominator count",
+          "symbol": "N",
+          "unit": "person"
+        },
+        {
+          "context": "Same CPS civilian noninstitutional population age 16+, geography/subgroup, reference week, source vintage and consistent adjustment convention. Persons classified once as employed, unemployed or outside labor force. Weighted population estimates are counts of people, not establishment payroll jobs, job spells or monthly person-flows.",
+          "definition": "Fraction of the eligible civilian noninstitutional population classified employed.",
+          "dimensions": "1",
+          "domain": "Finite fraction in [0,1]; percentage display is 100 times this number.",
+          "quantity_id": "cps_employment_population_fraction",
+          "role": "output",
+          "source_symbol": "Introduced e = source reported rate divided by 100",
+          "symbol": "e",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

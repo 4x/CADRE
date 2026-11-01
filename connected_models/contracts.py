@@ -1,6 +1,6 @@
 """Small scalar contracts; context belongs to each port, not to a whole node."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from fractions import Fraction
 import math
 
@@ -399,6 +399,30 @@ class Port:
                              "route through an explicit rate model instead of assuming parity.")
 
 
+MAX_FAMILY_SIZE = 256
+
+
+@dataclass(frozen=True)
+class Family:
+    """An index-family input: one shared port plus a declared maximum element count."""
+
+    meaning: str
+    unit: str
+    context: str
+    max_size: int
+
+    @property
+    def port(self) -> "Port":
+        """Return the shared element port without copying declarations."""
+        return Port(self.meaning, self.unit, self.context)
+
+    def validate(self) -> None:
+        """Check the shared element declaration and the size bound."""
+        self.port.validate()
+        if type(self.max_size) is not int or not 1 <= self.max_size <= MAX_FAMILY_SIZE:
+            raise ModelError(f"Family size bound must be an integer from 1 to {MAX_FAMILY_SIZE}.")
+
+
 @dataclass(frozen=True)
 class Value:
     """An attributed scalar value; context/evidence survive scenario reuse."""
@@ -440,6 +464,7 @@ class Model:
     source: str
     assumptions: tuple[str, ...]
     status: str = "fixture"
+    families: dict[str, Family] = field(default_factory=dict)
 
     @property
     def key(self) -> str:
@@ -453,7 +478,7 @@ class Node:
 
     id: str
     model: str
-    bindings: dict[str, Value | Reference]
+    bindings: dict[str, Value | Reference | tuple[Value | Reference, ...]]
     solve_for: str | None = None
     relation: str = "equal"
 

@@ -94,6 +94,7 @@ class MechanicsTests(unittest.TestCase):
         """Doubling time log(2)/log(lam) executes end to end; sqrt halves dimensions."""
         mass = {"M": MASS}
         self.assertEqual(dimensions(parse("log(x)"), {"x": DIMENSIONLESS}), DIMENSIONLESS)
+        self.assertEqual(dimensions(parse("log10(x)"), {"x": DIMENSIONLESS}), DIMENSIONLESS)
         self.assertEqual(dimensions(parse("exp(x)"), {"x": DIMENSIONLESS}), DIMENSIONLESS)
         self.assertEqual(dimensions(parse("sqrt(M)"), mass), (Fraction(1, 2), Fraction(0), Fraction(0), Fraction(0)))
         self.assertEqual(dimensions(parse("sum(a, b)"), {"a": MASS, "b": MASS}), MASS)
@@ -111,13 +112,15 @@ class MechanicsTests(unittest.TestCase):
 
     def test_function_domain_and_grammar_errors(self) -> None:
         """Bad domains, arities, keywords, unknown functions and dimensional logs fail closed."""
-        for bad_eval in ("log(0)", "log(-2)", "sqrt(-1)", "log(x, 2)", "sum()", "log(x=1)", "sin(x)", "x(2)"):
+        for bad_eval in ("log(0)", "log(-2)", "log10(0)", "sqrt(-1)", "log(x, 2)", "sum()", "log(x=1)", "sin(x)", "x(2)"):
             with self.assertRaises(ModelError, msg=bad_eval):
                 evaluate(parse(bad_eval), {"x": 4.0})
-        for bad_dims in ("log(M)", "exp(M)", "sum(M, t)", "log(x, y)", "sum()", "pow(x, 2)"):
+        for bad_dims in ("log(M)", "log10(M)", "exp(M)", "sum(M, t)", "log(x, y)", "sum()", "pow(x, 2)"):
             with self.assertRaises(ModelError, msg=bad_dims):
                 dimensions(parse(bad_dims), {"M": MASS, "t": TIME, "x": DIMENSIONLESS, "y": DIMENSIONLESS})
         self.assertAlmostEqual(evaluate(parse("exp(1)"), {}), 2.718281828, places=8)
+        self.assertAlmostEqual(evaluate(parse("log10(1000)"), {}), 3.0)
+        self.assertAlmostEqual(evaluate(parse("-log10(x)"), {"x": 0.001}), 3.0)
         self.assertAlmostEqual(evaluate(parse("prod(2, 3, 4)"), {}), 24.0)
         self.assertAlmostEqual(evaluate(parse("sum(2, 3, 4)"), {}), 9.0)
 

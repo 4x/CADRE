@@ -14,7 +14,7 @@ from typing import Any
 from uuid import uuid4
 
 from . import __version__
-from .contracts import (Composition, DIMENSION_AXES, MEANINGS, NUMERICAL_BASIS, Model, ModelError,
+from .contracts import (Composition, DIMENSION_AXES, Family, MEANINGS, NUMERICAL_BASIS, Model, ModelError,
                         Node, Port, Reference, UNITS, VOCABULARY_PROFILE, Value, encode_dimensions, finite, unit_json)
 from .expressions import check_guard, dimensions, evaluate, guard_dimensions, parse
 from .serialization import model_digest
@@ -35,21 +35,27 @@ class CompiledNode:
     guards: tuple[ast.Compare, ...]
     inputs: dict[str, Port]
     output: Port
+    families: dict[str, Family]
 
 
 def validate_model(model: Model) -> tuple[ast.AST, tuple[ast.Compare, ...]]:
     """Check a complete model's executable interface without granting admission."""
-    if not model.source or not model.assumptions or len(model.inputs) > MAX_MODEL_INPUTS:
+    if not model.source or not model.assumptions or len(model.inputs) + len(model.families) > MAX_MODEL_INPUTS:
         raise ModelError("Model needs source, assumptions and a bounded input interface.")
     for port in (*model.inputs.values(), model.output):
         port.validate()
+    for family in model.families.values():
+        family.validate()
+    if set(model.inputs) & set(model.families):
+        raise ModelError("Scalar inputs and families must not share a name.")
     names = {name: UNITS[port.unit].dimensions for name, port in model.inputs.items()}
+    family_dims = {name: UNITS[family.unit].dimensions for name, family in model.families.items()}
     expression = parse(model.expression)
-    if dimensions(expression, names) != UNITS[model.output.unit].dimensions:
+    if dimensions(expression, names, family_dims) != UNITS[model.output.unit].dimensions:
         raise ModelError("Expression/output dimensions differ.")
     guards = tuple(parse(guard) for guard in model.guards)
     for guard in guards:
-        guard_dimensions(guard, names)
+        guard_dimensions(guard, names, family_dims)
     return expression, guards
 
 
@@ -80,27 +86,43 @@ def compile_graph(composition: Composition, catalog: dict[str, Model],
         elif model.status != "fixture":
             raise ModelError("Fixture runs require fixture definitions.")
         inputs, output = node_ports(node, model)
-        if len(inputs) > MAX_MODEL_INPUTS + 1 or set(node.bindings) != set(inputs):
+        if len(inputs) + len(model.families) > MAX_MODEL_INPUTS + 1 or set(node.bindings) != set(inputs) | set(model.families):
             raise ModelError(f"{node.id}: missing/extra inputs or too many inputs.")
         expression, guards = validate_model(model)
         dependencies[node.id] = set()
-        for name, binding in node.bindings.items():
-            if isinstance(binding, Reference):
-                if binding.node not in nodes:
-                    raise ModelError(f"{node.id}.{name}: unknown upstream node {binding.node}.")
-                upstream = catalog.get(nodes[binding.node].model)
+
+        def check_element(element: Value | Reference, target: Port, label: str) -> None:
+            """Apply the scalar upstream/origin/compatibility checks to one element."""
+            if isinstance(element, Reference):
+                if element.node not in nodes:
+                    raise ModelError(f"{label}: unknown upstream node {element.node}.")
+                upstream = catalog.get(nodes[element.node].model)
                 if upstream is None:
-                    raise ModelError(f"Missing upstream model for {binding.node}.")
-                _, upstream_output = node_ports(nodes[binding.node], upstream)
-                upstream_output.require_compatible(inputs[name])
-                dependencies[node.id].add(binding.node)
-            elif isinstance(binding, Value):
-                if composition.purpose == "scenario" and binding.origin in {"fixture", "generated", "derived"}:
+                    raise ModelError(f"Missing upstream model for {element.node}.")
+                _, upstream_output = node_ports(nodes[element.node], upstream)
+                upstream_output.require_compatible(target)
+                dependencies[node.id].add(element.node)
+            elif isinstance(element, Value):
+                if composition.purpose == "scenario" and element.origin in {"fixture", "generated", "derived"}:
                     raise ModelError("Scenario inputs must be sourced observations or explicit user scenarios; generated estimates need owner consent.")
-                binding.bind(inputs[name])
+                element.bind(target)
             else:
-                raise ModelError(f"{node.id}.{name}: unsupported binding type.")
-        compiled[node.id] = CompiledNode(node, model, expression, guards, inputs, output)
+                raise ModelError(f"{label}: unsupported binding type.")
+
+        for name, binding in node.bindings.items():
+            if isinstance(binding, tuple):
+                family = model.families.get(name)
+                if family is None:
+                    raise ModelError(f"{node.id}.{name}: only a declared family takes a tuple binding.")
+                if not 1 <= len(binding) <= family.max_size:
+                    raise ModelError(f"{node.id}.{name}: family needs 1 to {family.max_size} elements.")
+                for index, element in enumerate(binding):
+                    check_element(element, family.port, f"{node.id}.{name}[{index}]")
+            elif name in model.families:
+                raise ModelError(f"{node.id}.{name}: a family needs a tuple binding, not one value.")
+            else:
+                check_element(binding, inputs[name], f"{node.id}.{name}")
+        compiled[node.id] = CompiledNode(node, model, expression, guards, inputs, output, model.families)
     try:
         order = tuple(TopologicalSorter(dependencies).static_order())
     except CycleError as exc:
@@ -134,8 +156,19 @@ def execute(composition: Composition, catalog: dict[str, Model],
         for compiled in plan:
             node, model = compiled.node, compiled.model
             numbers: dict[str, float] = {}
+            family_numbers: dict[str, tuple[float, ...]] = {}
             origins: list[dict[str, Any]] = []
             for name, binding in node.bindings.items():
+                if isinstance(binding, tuple):
+                    elements = []
+                    for index, element in enumerate(binding):
+                        value = values[element.node] if isinstance(element, Reference) else element
+                        port = compiled.families[name].port
+                        elements.append(finite(value.bind(port) * UNITS[port.unit].scale, "Normalized family element"))
+                        origins.extend(reliance[element.node] if isinstance(element, Reference)
+                                       else [{"node": node.id, "input": name, "element": index, **asdict(value)}])
+                    family_numbers[name] = tuple(elements)
+                    continue
                 value = values[binding.node] if isinstance(binding, Reference) else binding
                 numbers[name] = finite(value.bind(compiled.inputs[name]) * UNITS[compiled.inputs[name].unit].scale, "Normalized input")
                 origins.extend(reliance[binding.node] if isinstance(binding, Reference) else [{"node": node.id, "input": name, **asdict(value)}])
@@ -144,14 +177,15 @@ def execute(composition: Composition, catalog: dict[str, Model],
                 canonical_result, solve_evidence = solve(model, compiled.expression, compiled.guards, node.solve_for, numbers, node.relation)
             else:
                 for guard_text, guard in zip(model.guards, compiled.guards, strict=True):
-                    if not check_guard(guard, numbers):
+                    if not check_guard(guard, numbers, family_numbers):
                         raise ModelError(f"{node.id}: domain condition failed: {guard_text}.")
-                canonical_result = evaluate(compiled.expression, numbers)
+                canonical_result = evaluate(compiled.expression, numbers, family_numbers)
             result = finite(canonical_result / UNITS[compiled.output.unit].scale, "Output")
             value = Value(result, compiled.output, "derived", f"{manifest['run_id']}/{node.id}")
             value.bind(compiled.output)
             values[node.id], reliance[node.id] = value, origins
             manifest["steps"].append({"node": node.id, "model": model.key, "normalized_inputs": numbers,
+                                      "normalized_family_inputs": {name: list(values) for name, values in family_numbers.items()},
                                       "result": asdict(value), "relies_on": origins, "solve": solve_evidence})
         manifest["outputs"] = {name: asdict(values[name]) for name in composition.outputs}
         manifest["status"] = "completed"

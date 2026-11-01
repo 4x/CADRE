@@ -43,6 +43,8 @@ def node_ports(node: Node, model: Model) -> tuple[dict[str, Port], Port]:
         if node.relation != "equal":
             raise ModelError("A threshold relation needs an explicit solve target.")
         return model.inputs, model.output
+    if node.solve_for in model.families:
+        raise ModelError("Cannot solve for an index family; families are forward-only.")
     if node.solve_for not in model.inputs:
         raise ModelError("Solve target must be a declared model input, not a literal constant or invented symbol.")
     if node.relation == "at_least" and model.inputs[node.solve_for].meaning != "period_count":
@@ -183,6 +185,8 @@ def integer_bounds(target: str, guards: tuple[ast.Compare, ...], known: dict[str
 def solve(model: Model, expression: ast.AST, guards: tuple[ast.Compare, ...], target: str,
           bindings: dict[str, float], relation: str) -> tuple[float, dict[str, Any]]:
     """Solve in canonical units and verify candidates against the unmodified original equation."""
+    if model.families:
+        raise SolveError("unsupported_expression", "Indexed families are forward-only; inverse views are not supported.")
     expected = bindings[OUTPUT_BINDING]
     known = {name: value for name, value in bindings.items() if name != OUTPUT_BINDING}
     port = model.inputs[target]

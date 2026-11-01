@@ -135,14 +135,16 @@ def run_section(run: dict[str, Any]) -> str:
         model = run["models"][step["model"]]
         rows = []
         for name, binding in node_map[step["node"]]["bindings"].items():
-            if "node" in binding:
-                value = steps[binding["node"]]["result"]
-                origin = f'Calculated by {label(binding["node"])}'
-            else:
-                value = binding
-                origin = f'{label(value["origin"])} — {label(value["evidence"])}'
-            input_label = "Requested original-output target" if name == OUTPUT_BINDING else name
-            rows.append(f'<tr><td>{label(input_label)}</td><td>{amount(value)}</td><td>{origin}</td></tr>')
+            elements = [(f"{name}[{index}]", element) for index, element in enumerate(binding)] if isinstance(binding, list) else [(name, binding)]
+            for element_name, element in elements:
+                if "node" in element:
+                    value = steps[element["node"]]["result"]
+                    origin = f'Calculated by {label(element["node"])}'
+                else:
+                    value = element
+                    origin = f'{label(value["origin"])} — {label(value["evidence"])}'
+                input_label = "Requested original-output target" if element_name == OUTPUT_BINDING else element_name
+                rows.append(f'<tr><td>{label(input_label)}</td><td>{amount(value)}</td><td>{origin}</td></tr>')
         assumptions = "".join(f"<li>{label(item)}</li>" for item in model["assumptions"])
         review = run.get("admissions", {}).get(step["model"], {})
         review_note = f'Review: {label(review.get("reviewer", "fixture / no admission"))}. {label(review.get("notes", ""))}'

@@ -1,0 +1,460 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.5",
+  "batch_id": "computer-science-b12",
+  "domain": "computer-science",
+  "curator": "muse-spark",
+  "created": "2026-11-01",
+  "example_only": false,
+  "models": [
+    {
+      "assumptions": [
+        "Three identical modules with common reliability/availability Rm, independent failures at the evaluation instant and conditions.",
+        "application profile: perfect majority voter (voter failures excluded; source Section 3.3 treats the voter as a potential single point of failure needing separate modeling).",
+        "System correct iff zero or exactly one module fails (source majority condition)."
+      ],
+      "constants": [],
+      "guards": [
+        "Rm >= 0",
+        "Rm <= 1"
+      ],
+      "id": "computer-science--tmr-identical-reliability",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings module_reliability/tmr_reliability absent from runtime vocabulary; ** powers need engine support; all requires-extension with null runtime_model.",
+          "Perfect-voter scope: combining with imperfect-voter coverage needs a separate voter-reliability record."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Inverting R = 3Rm^2-2Rm^3 for Rm needs the cubic's real root in [0,1] (closed radicals outside scalar grammar; stated, not executed). Rm=1 forces R=1; Rm=0 forces R=0. Crossover: TMR underperforms simplex below Rm=0.5 (at 0.5 both give 0.5); algebraic property, not a rejection case.",
+      "kind": "theoretical",
+      "limitations": [
+        "Perfect voter assumed; single-voter failures can dominate real TMR (source Section 3.3).",
+        "Identical independent modules only; distinct or correlated modules need separate records.",
+        "Below Rm=0.5 triplication hurts (crossover); the record computes the value but does not recommend TMR there.",
+        "Steady/instantaneous scope as asserted; time-dependent R(t) forms need rate models."
+      ],
+      "references": [
+        {
+          "expected": 0.999702,
+          "id": "high-rel-modules",
+          "inputs": {
+            "Rm": 0.99
+          },
+          "method": "Ordinary case 3(0.9801)-2(0.970299) = 2.9403-1.940598 = 0.999702; high-reliability module scale.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.972,
+          "id": "mid-rel-modules",
+          "inputs": {
+            "Rm": 0.9
+          },
+          "method": "Ordinary case 3(0.81)-2(0.729) = 2.43-1.458 = 0.972, materially different scale.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 1,
+          "id": "boundary-perfect-modules",
+          "inputs": {
+            "Rm": 1
+          },
+          "method": "Boundary: perfect modules give a perfect TMR system; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Rm": 1.5
+          },
+          "kind": "domain",
+          "reason": "Module reliability above 1 violates the probability guard."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Module reliability Rm is required; empty input leaves R undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "3 * Rm ** 2 - 2 * Rm ** 3",
+        "locator": "TMR subsection: reliability R = R_M^3 + 3 R_M^2 (1-R_M) = 3 R_M^2 - 2 R_M^3 with R_M the individual module reliability, citing Lyons and Vanderkulk 1962.",
+        "original_equation": "R = R_M^3 + 3 R_M^2 (1 - R_M) = 3 R_M^2 - 2 R_M^3",
+        "output_symbol": "R",
+        "source_id": "arxiv-tmr-survey",
+        "translation_notes": "Adopted the simplified closed form; equivalence with the sum form verified by expansion 3Rm^2-3Rm^3+Rm^3 in translation notes (pure algebra, no new claim). Source symbol R_M -> Rm, output R. Check: dimensionless probability polynomial."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States the TMR system reliability as R_M^3 + 3 R_M^2 (1-R_M) = 3 R_M^2 - 2 R_M^3 for individual module reliability R_M, citing Lyons and Vanderkulk 1962; majority-vote masking condition (zero or one failure tolerated) and perfect-voter caveats in surrounding sections.",
+          "id": "arxiv-tmr-survey",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Section Triple Modular Redundancy (TMR), equation (1); Section 3.3 Voters in TMR Systems.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Flad et al.: Comprehensive Survey of Redundancy Systems with a Focus on TMR (TMR reliability equation)",
+          "url": "https://arxiv.org/html/2603.14411v1",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "TMR system reliability from identical module reliability under majority voting.",
+      "title": "TMR reliability for identical modules",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same three modules, mission instant, environment and voter as R",
+          "definition": "Common reliability (probability correct) of each identical module",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "module_reliability",
+          "role": "input",
+          "source_symbol": "reliability of an individual module (R_M)",
+          "symbol": "Rm",
+          "unit": "1"
+        },
+        {
+          "context": "same three modules, mission instant, environment and voter as Rm",
+          "definition": "TMR system reliability under majority voting with a perfect voter",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "tmr_reliability",
+          "role": "output",
+          "source_symbol": "reliability of the TMR system (R)",
+          "symbol": "R",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Three distinct modules with independent failures at the evaluation instant, same mission/time and environment.",
+        "System correct iff at least two of the three modules are correct (majority condition stated on the TMR source page).",
+        "application profile: perfect majority voter, as in the TMR-identical record."
+      ],
+      "constants": [],
+      "guards": [
+        "A1 >= 0",
+        "A1 <= 1",
+        "A2 >= 0",
+        "A2 <= 1",
+        "A3 >= 0",
+        "A3 <= 1"
+      ],
+      "id": "computer-science--two-of-three-distinct-availability",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings distinct-module availability/voted-combination availability absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Collapses onto the TMR-identical record when A1=A2=A3 (verified in references); kept distinct for heterogeneous modules."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Solving for A1 needs (A2+A3-2*A2*A3) != 0: A1 = (A-A2*A3)/(A2+A3-2*A2*A3). Check: A=0.99792,A2=0.99,A3=0.9 gives A1 = (0.99792-0.891)/(1.89-1.782) = 0.10692/0.108 = 0.99. Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Perfect voter and independence assumed; correlated failures or voter coverage need separate records.",
+        "Exactly-2-of-3 voting only; other k-out-of-N rules need binomial summation (out of format).",
+        "Steady/instantaneous scope as asserted."
+      ],
+      "references": [
+        {
+          "expected": 0.972,
+          "id": "identical-consistency",
+          "inputs": {
+            "A1": 0.9,
+            "A2": 0.9,
+            "A3": 0.9
+          },
+          "method": "Consistency case: identical 0.9 legs give 3(0.81)-2(0.729) = 0.972, matching the TMR-identical record and cross-checking both.",
+          "provenance": "Independent cross-record consistency check (TMR-identical record).",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.99792,
+          "id": "distinct-modules",
+          "inputs": {
+            "A1": 0.99,
+            "A2": 0.99,
+            "A3": 0.9
+          },
+          "method": "Ordinary distinct case: pairwise 0.9801+0.891+0.891 = 2.7621 minus 2(0.99*0.99*0.9)=1.76418 gives 0.99792, materially different scale.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.72,
+          "id": "boundary-failed-third",
+          "inputs": {
+            "A1": 0.9,
+            "A2": 0.8,
+            "A3": 0
+          },
+          "method": "Boundary: failed third module reduces majority voting to requiring both survivors: 0.9*0.8 = 0.72; admitted degenerate boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A1": 0.99,
+            "A2": 2,
+            "A3": 0.9
+          },
+          "kind": "domain",
+          "reason": "A2 above 1 violates the probability guard."
+        },
+        {
+          "inputs": {
+            "A2": 0.99,
+            "A3": 0.9
+          },
+          "kind": "missing-input",
+          "reason": "All three module availabilities required; omitting A1 undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "A1 * A2 + A1 * A3 + A2 * A3 - 2 * A1 * A2 * A3",
+        "locator": "TMR subsection majority condition (system correct iff none or exactly one module fails) combined with equation (1) sum form R_M^3 + 3 R_M^2(1-R_M); expansion of P(at least two correct) for distinct probabilities.",
+        "original_equation": "P(majority correct) = A1*A2 + A1*A3 + A2*A3 - 2*A1*A2*A3",
+        "output_symbol": "A",
+        "source_id": "arxiv-tmr-survey",
+        "translation_notes": "Source-backed derivation (not a verbatim source line): the page states the majority condition and the identical-module sum form; the distinct-probability expansion follows by inclusion-exclusion over the three exactly-two-correct plus all-correct events: A1A2(1-A3)+A1(1-A2)A3+(1-A1)A2A3+A1A2A3. Labeled derivation here. Check: dimensionless probability."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States the TMR majority condition (correct iff none or exactly one of three modules fails) and the identical-module reliability sum R_M^3 + 3 R_M^2(1-R_M), from which the distinct-probability expansion is derived.",
+          "id": "arxiv-tmr-survey",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Section Triple Modular Redundancy (TMR), equation (1) and majority condition.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Flad et al.: Comprehensive Survey of Redundancy Systems (majority condition)",
+          "url": "https://arxiv.org/html/2603.14411v1",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Two-of-three voted availability for distinct independent modules.",
+      "title": "Two-of-three availability for distinct modules",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same voted system, mission instant, environment and voter as A2, A3 and A",
+          "definition": "Availability (probability correct) of first module",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "module_reliability",
+          "role": "input",
+          "source_symbol": "module 1 availability (A1)",
+          "symbol": "A1",
+          "unit": "1"
+        },
+        {
+          "context": "same voted system, mission instant, environment and voter as A1, A3 and A",
+          "definition": "Availability (probability correct) of second module",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "module_reliability",
+          "role": "input",
+          "source_symbol": "module 2 availability (A2)",
+          "symbol": "A2",
+          "unit": "1"
+        },
+        {
+          "context": "same voted system, mission instant, environment and voter as A1, A2 and A",
+          "definition": "Availability (probability correct) of third module",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "module_reliability",
+          "role": "input",
+          "source_symbol": "module 3 availability (A3)",
+          "symbol": "A3",
+          "unit": "1"
+        },
+        {
+          "context": "same voted system, mission instant, environment and voter as inputs",
+          "definition": "Voted system availability (majority correct) with a perfect voter",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "voted_availability",
+          "role": "output",
+          "source_symbol": "majority-vote availability (A)",
+          "symbol": "A",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "N identical legs with common steady-state availability X, mutually independent up/down indicators at the evaluation instant and same mission/time/environment.",
+        "Combination up iff all N legs are up (N-out-of-N:G series logic)."
+      ],
+      "constants": [],
+      "guards": [
+        "X >= 0",
+        "X <= 1",
+        "N >= 1"
+      ],
+      "id": "computer-science--series-availability-n-identical",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings identical-leg availability/leg count absent from runtime vocabulary; ** with a variable count exponent needs engine support; all requires-extension with null runtime_model.",
+          "Collapses onto the b01 two-component record at N=2 and the b11 three-component record at N=3 by construction."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "X = A**(1/N) needs N != 0 (guarded); N = log(A)/log(X) needs X != 1 (log form outside scalar grammar, stated for completeness). Check: A=0.9801,N=2 gives X = 0.99. Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Identical independent legs only; heterogeneous legs need the distinct-leg series records.",
+        "Source states the 2- and 3-component products; the N-generalization is a labeled induction in translation notes, not a verbatim source line.",
+        "N is a positive leg count; N=0 guarded out (empty combination)."
+      ],
+      "references": [
+        {
+          "expected": 0.9801,
+          "id": "two-nines-series",
+          "inputs": {
+            "N": 2,
+            "X": 0.99
+          },
+          "method": "EventHelix component scale: two 99% legs in series give 0.99^2 = 0.9801; collapses onto the b01 record, cross-checking consistency.",
+          "provenance": "Published component values recombined through the series form (EventHelix).",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.0009765625,
+          "id": "ten-half-series",
+          "inputs": {
+            "N": 10,
+            "X": 0.5
+          },
+          "method": "Ordinary case 0.5^10 = 1/1024 = 0.0009765625, materially different scale showing series decay.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.9,
+          "id": "boundary-single-leg-n",
+          "inputs": {
+            "N": 1,
+            "X": 0.9
+          },
+          "method": "Boundary: a single leg (N=1) returns its own availability; admitted degenerate boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "N": 0,
+            "X": 0.99
+          },
+          "kind": "domain",
+          "reason": "N below 1 violates the leg-count guard (empty combination)."
+        },
+        {
+          "inputs": {
+            "N": 3
+          },
+          "kind": "missing-input",
+          "reason": "Leg availability X is required alongside N; omitting it leaves A undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "X ** N",
+        "locator": "Series vs Parallel components section: two-part product A=Ax*Ay and three-component product A x B x C; N-identical form by induction over legs.",
+        "original_equation": "Availability of N identical series components = X^N",
+        "output_symbol": "A",
+        "source_id": "wikipedia-availability",
+        "translation_notes": "Source-backed derivation (not a verbatim source line): repeated application of the stated 2- and 3-component products with identical legs. Labeled induction here. ** is scalar-grammar exponentiation; dimensionless base and count exponent."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States the two-part series product A=Ax*Ay and the three-component series product, with combined availability always below individual ones.",
+          "id": "wikipedia-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Availability in Series section; Series vs Parallel components section.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Availability (series product forms)",
+          "url": "https://en.wikipedia.org/wiki/Availability",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "N-identical-leg series availability as the leg availability to the Nth power.",
+      "title": "N-identical series availability",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same legs, mission instant and environment as N and A",
+          "definition": "Common steady-state availability of each identical leg",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "component_availability",
+          "role": "input",
+          "source_symbol": "availability of each component (X)",
+          "symbol": "X",
+          "unit": "1"
+        },
+        {
+          "context": "same legs, mission instant and environment as X and A",
+          "definition": "Number of identical series legs",
+          "dimensions": "dimensionless",
+          "domain": "Greater than or equal to 1",
+          "quantity_id": "leg_count",
+          "role": "input",
+          "source_symbol": "number of series components (N)",
+          "symbol": "N",
+          "unit": "1"
+        },
+        {
+          "context": "same legs, mission instant and environment as inputs",
+          "definition": "Steady-state availability of the N-leg series combination",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]; bounded above by X",
+          "quantity_id": "series_availability",
+          "role": "output",
+          "source_symbol": "Availability of series component (A)",
+          "symbol": "A",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "deferred": [
+    {
+      "title": "NMR majority voting for N>3 (e.g. 5MR)",
+      "reason": "Continuation priority: binomial-summation majority rules for higher-order NMR are outside the scalar grammar; survey covers NMR scaling trade-offs qualitatively.",
+      "source_urls": [
+        "https://arxiv.org/html/2603.14411v1"
+      ]
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b12 curates 3 records: TMR reliability for identical modules, two-of-three voted availability for distinct modules, and N-identical series availability.",
+    "gaps": [
+      "New meanings (module_reliability, tmr_reliability, voted_availability, leg_count, series_availability) absent from runtime-vocabulary.json; ** variable powers need engine support; all requires-extension with null runtime_model.",
+      "Duplicate search limited to catalog-inventory.json snapshot plus b01-b12 batches; global uniqueness not claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "2026-11-01 validate: pending pack-time check; curator text review done; central review pending; terms pages not inspected; m2/m3 are labeled source-backed derivations, not verbatim source lines."
+  }
+}

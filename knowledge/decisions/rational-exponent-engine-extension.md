@@ -59,6 +59,7 @@ Exact rationals keep dimensional type-checking sound (equality is exact) while f
 - Stage 2 shipped in 0.17.0: log/exp (natural, dimensionless-only), sqrt (halves dimensions), n-ary sum (uniform dims) and prod (adds dims), all forward-only with the solver profile unchanged.
 - Kit curator instructions should gain the exponent-grammar and function-allowlist rules; unbounded/indexed summation (age classes, generations, k-out-of-N) stays deferred by design.
 - Update 2026-11-01 (0.18.0): log10 added (pH-ready); index-family inputs shipped with forward-only solver treatment and digest-compatible serialization. Curation-schema support for family records (bundle variables, list references, integration projection) is the explicit follow-up before curators can submit family records.
+- Update 2026-11-01 (0.19.0): the follow-up shipped — single evolving schema at kit .6 (family role, optional max_size, number-or-array references, families sketch), intake/integration/registry family handling, and curator instructions for canonical units, rational exponents, the function allowlist and families. Old returns validate unchanged; a synthetic family bundle flows intake-to-eligible in tests. Kit .6 distribution and DOMAINS additions for pending waves remain dispatch decisions.
 
 
 ## Revisit if

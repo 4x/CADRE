@@ -147,7 +147,22 @@ class RuntimeTests(unittest.TestCase):
                  "redesign_performance_ratio": ("1", DIMENSIONLESS),
                  "mean_downtime": ("h", TIME),
                  "operational_availability": ("1", DIMENSIONLESS),
-                 "leg_count": ("1", DIMENSIONLESS)}
+                 "leg_count": ("1", DIMENSIONLESS),
+                 "disk_count": ("1", DIMENSIONLESS),
+                 "member_capacity": ("GB", DIMENSIONLESS),
+                 "striped_usable_capacity": ("GB", DIMENSIONLESS),
+                 "parity_usable_capacity": ("GB", DIMENSIONLESS),
+                 "double_parity_usable_capacity": ("GB", DIMENSIONLESS),
+                 "module_reliability": ("1", DIMENSIONLESS),
+                 "tmr_reliability": ("1", DIMENSIONLESS),
+                 "voted_availability": ("1", DIMENSIONLESS),
+                 "leg_mtbf": ("h", TIME),
+                 "series_mtbf": ("h", TIME),
+                 "leg_mdt": ("h", TIME),
+                 "series_mdt": ("h", TIME),
+                 "parallel_mtbf": ("h", TIME),
+                 "parallel_mdt": ("h", TIME),
+                 "constant_failure_rate": ("1/h", INVERSE_TIME)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)

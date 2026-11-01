@@ -17,7 +17,7 @@ PRICE: Dimensions = (-1, -2, 2, 1)
 INVERSE_MONEY: Dimensions = (0, 0, 0, -1)
 INVERSE_TIME: Dimensions = (0, 0, -1, 0)
 JOULES_PER_KWH = 3_600_000
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-2+cs-3"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-2+cs-4"
 DIMENSION_AXES = ("mass", "length", "time", "currency")
 NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
@@ -107,6 +107,8 @@ UNITS = {
     # in the registry scale, never inlined in an expression.
     "Hz": Unit(INVERSE_TIME, 1.0),
     "MIPS": Unit(INVERSE_TIME, 1000000.0),
+    # CS batch (cs-4): per-hour failure rates against the per-second base.
+    "1/h": Unit(INVERSE_TIME, 1 / 3600),
 }
 
 # Meaning is independent of dimension: heat and electricity cannot bind implicitly.
@@ -301,6 +303,23 @@ MEANINGS = {
     "mean_downtime": TIME,
     "operational_availability": DIMENSIONLESS,
     "leg_count": DIMENSIONLESS,
+    # CS-4: RAID usable-capacity family (disk counts and member capacities).
+    "disk_count": DIMENSIONLESS,
+    "member_capacity": DIMENSIONLESS,
+    "striped_usable_capacity": DIMENSIONLESS,
+    "parity_usable_capacity": DIMENSIONLESS,
+    "double_parity_usable_capacity": DIMENSIONLESS,
+    # CS-4 continued: voting/TMR reliability and series/parallel MTBF/MDT pairs.
+    "module_reliability": DIMENSIONLESS,
+    "tmr_reliability": DIMENSIONLESS,
+    "voted_availability": DIMENSIONLESS,
+    "leg_mtbf": TIME,
+    "series_mtbf": TIME,
+    "leg_mdt": TIME,
+    "series_mdt": TIME,
+    "parallel_mtbf": TIME,
+    "parallel_mdt": TIME,
+    "constant_failure_rate": INVERSE_TIME,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

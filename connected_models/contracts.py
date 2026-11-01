@@ -15,8 +15,9 @@ ENERGY: Dimensions = (1, 2, -2, 0)
 MONEY: Dimensions = (0, 0, 0, 1)
 PRICE: Dimensions = (-1, -2, 2, 1)
 INVERSE_MONEY: Dimensions = (0, 0, 0, -1)
+INVERSE_TIME: Dimensions = (0, 0, -1, 0)
 JOULES_PER_KWH = 3_600_000
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-2+cs-1"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-2+cs-2"
 DIMENSION_AXES = ("mass", "length", "time", "currency")
 NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
@@ -97,6 +98,10 @@ UNITS = {
     "GiB": Unit(DIMENSIONLESS, 1073741824.0),
     "activity-unit": Unit(DIMENSIONLESS, 1.0),
     "USD/activity-unit": Unit(MONEY, 1.0),
+    # CS batch (cs-2): byte-rates carry explicit 1/time dimensions so that
+    # data-size / transfer-rate yields physical time; bytes themselves stay
+    # dimensionless and no rate ever converts implicitly to a time instant.
+    "B/s": Unit(INVERSE_TIME, 1.0),
 }
 
 # Meaning is independent of dimension: heat and electricity cannot bind implicitly.
@@ -260,6 +265,16 @@ MEANINGS = {
     "byte_count": DIMENSIONLESS,
     "gigabyte_count": DIMENSIONLESS,
     "gibibyte_count": DIMENSIONLESS,
+    # CS-2: Amdahl fractions, transfer sizing, record capacity, series systems.
+    "parallel_fraction": DIMENSIONLESS,
+    "component_speedup": DIMENSIONLESS,
+    "data_size": DIMENSIONLESS,
+    "transfer_rate": INVERSE_TIME,
+    "transfer_time": TIME,
+    "record_count": DIMENSIONLESS,
+    "record_size": DIMENSIONLESS,
+    "storage_capacity": DIMENSIONLESS,
+    "series_availability": DIMENSIONLESS,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

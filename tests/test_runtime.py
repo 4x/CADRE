@@ -7,7 +7,7 @@ from pathlib import Path
 from test_support import scratch_directory
 import unittest
 
-from connected_models.contracts import DIMENSIONLESS, INVERSE_MONEY, MEANINGS, MONEY, TIME, Composition, ModelError, Node, Port, Reference, Value
+from connected_models.contracts import DIMENSIONLESS, INVERSE_MONEY, INVERSE_TIME, MEANINGS, MONEY, TIME, Composition, ModelError, Node, Port, Reference, Value
 from connected_models.demo import ANNUAL, HEAT, RATE, SAVING, YEARS, catalog, composition, fixture
 from connected_models.runtime import execute, save_run
 
@@ -119,7 +119,16 @@ class RuntimeTests(unittest.TestCase):
                  "execution_time": ("s", TIME),
                  "byte_count": ("B", DIMENSIONLESS),
                  "gigabyte_count": ("GB", DIMENSIONLESS),
-                 "gibibyte_count": ("GiB", DIMENSIONLESS)}
+                 "gibibyte_count": ("GiB", DIMENSIONLESS),
+                 "parallel_fraction": ("1", DIMENSIONLESS),
+                 "component_speedup": ("1", DIMENSIONLESS),
+                 "data_size": ("B", DIMENSIONLESS),
+                 "transfer_rate": ("B/s", INVERSE_TIME),
+                 "transfer_time": ("s", TIME),
+                 "record_count": ("1", DIMENSIONLESS),
+                 "record_size": ("B", DIMENSIONLESS),
+                 "storage_capacity": ("B", DIMENSIONLESS),
+                 "series_availability": ("1", DIMENSIONLESS)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)

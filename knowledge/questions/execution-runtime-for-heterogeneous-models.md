@@ -34,6 +34,10 @@ To fulfill the [[concept-connected-models-thesis]], the runtime must safely orch
 
 ## Current partial answer
 
+### Demand evidence — 2026-11-01
+
+Wave-1 curation returned 144 records across 42 batches (biology 39, computer-science 56, economics 35, engineering-finance 14); all 144 are `requires-extension` and none is runtime-ready, while the eligible executable catalog stays at 7 models. Catalog breadth now outruns execution support roughly 25-to-1 in record count. This confirms the engine profile — scalar `+ - * / **` with integer dimensional powers, exact-meaning ports, no function calls, no arrays — as the binding constraint on query-time value, not curation throughput. Candidate upgrade sequence under discussion: (1) continuous demand-ranked meaning/unit batches (proven by the mechanics extension); (2) a scoped pure-scalar math-function extension (sqrt/exp/log and similar, forward evaluation first, with the inverse-solver profile explicitly re-scoped); (3) a second-backend prototype behind the envelope/payload boundary, which requires the [[question-execution-security-and-access]] isolation answers first. No upgrade decision has been made; option 2 awaits a scoped proposal.
+
 ### Bounded inverse facility implemented — 2026-10-31
 
 Runtime 0.2 adds per-instance solve views over pinned existing model revisions, keeping source identity/evidence/review intact. `solve_for` names one original input; known bindings are the other inputs plus `__output__`, which denotes the known original output or requested output target. `relation=equal` finds admissible roots; `at_least` finds the earliest integer period meeting an output threshold within explicit original-guard bounds. Compilation uses each view's actual input/result ports and validates source admission before either direction executes. No new model publication is authorized by a solve request.

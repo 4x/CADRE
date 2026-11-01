@@ -92,7 +92,9 @@ class RuntimeTests(unittest.TestCase):
                  "effective_rate": ("1", DIMENSIONLESS), "nominal_rate": ("1", DIMENSIONLESS),
                  "signed_point_price_elasticity": ("1", DIMENSIONLESS), "unit_price": ("USD/unit", MONEY),
                  "quantity_price_derivative": ("unit^2/USD", INVERSE_MONEY),
-                 "gross_domestic_product_current_price": ("USD", MONEY)}
+                 "gross_domestic_product_current_price": ("USD", MONEY),
+                 "gradient_amount": ("USD", MONEY), "interest_payment": ("USD", MONEY),
+                 "principal_payment": ("USD", MONEY), "payment_index": ("periods", DIMENSIONLESS)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)

@@ -1,0 +1,505 @@
+{
+  "batch_id": "engineering-finance-spark-b03",
+  "created": "2026-11-01",
+  "curator": "muse-spark",
+  "deferred": [
+    {
+      "reason": "The retrospective balance form compounds the disbursed principal forward and subtracts the accumulated payments, combining two time-value laws in one expression; per the atomicity rule it is a scenario composition, not a new model. The prospective form is the recorded UPV twin direction. Continuation priority: composition support, not new scalar records.",
+      "source_urls": [
+        "https://en.wikipedia.org/wiki/Annuity"
+      ],
+      "title": "Loan outstanding balance (retrospective method)"
+    }
+  ],
+  "domain": "engineering-finance",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "All three records are requires-extension: interest_payment, principal_payment, payment_index and per_period_rate_definition meanings are new; periodic_payment, periodic_rate, period_count and nominal_rate reuse b01/b02 proposals. No runtime projection attempted.",
+      "The payment-split records share the UMD amortization example inputs (A=350.30, i=0.15, n=4) across different payment indices, which is intended: t varies the case.",
+      "Duplicate search limited to the supplied snapshot plus b01/b02 of this session."
+    ],
+    "queries": [
+      "Of a $350.30 loan payment at 15 percent in a 4-period schedule, how much is interest in the first payment?",
+      "What part of the final payment reduces principal when the balance is one period from maturity?",
+      "What is the monthly rate for a 5 percent nominal rate compounded quarterly?"
+    ],
+    "review_notes": "Arithmetic validated with the kit validator; source fidelity reviewed against the fetched UMD payment-split text and the Annuity article rate passages. Not performed: visual PDF checks (none used), independent measurement beyond published examples and alternate-route derivations. The two payment-split records decompose one payment into complementary parts (they sum to A) without combining independent laws into a scenario formula.",
+    "summary": "Batch b03 finishes the loan-arithmetic queue: the interest and principal portions of a scheduled level payment (complementary, summing to the payment) and the per-period rate definition linking nominal APR to the rate per compounding period."
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: fixed-rate loan with equal end-of-period payments; the balance after t-1 payments discounts the remaining n-t+1 payments at fixed per-period rate i.",
+        "Application profile: amortization-schedule interest allocation for a fully amortizing loan with no fees or rate changes.",
+        "All amounts and rates on one price basis; i is the effective rate per payment period."
+      ],
+      "constants": [],
+      "guards": [
+        "A >= 0",
+        "i > 0",
+        "n >= 1",
+        "t >= 1",
+        "t <= n"
+      ],
+      "id": "engineering-finance--loan-payment-interest-portion",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new quantity meanings: interest_payment, payment_index; reuses periodic_payment, periodic_rate, period_count. No current-runtime projection attempted.",
+          "Complements the principal-portion record; the two outputs sum to A by construction."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "A=I*(1+i)**(n-t+1)/((1+i)**(n-t+1)-1) needs i>0 and n-t+1>=1; checked year 1: 150.00*1.74901/0.74901=350.27 against the schedule payment 350.30 (input rounding). Solving for t needs a logarithm, unsupported and untested. No zero boundary exists for A>0 under i>0: every scheduled payment carries interest; A=0 gives I=0, the admitted no-loan case.",
+      "kind": "theoretical",
+      "limitations": [
+        "Zero-rate schedules (i=0) are excluded by guard; interest allocation there is trivially zero and needs no record.",
+        "Beginning-of-period (annuity-due) schedules shift every discount exponent and are not covered.",
+        "Solving for the payment index t needs a logarithm, unsupported by the scalar grammar."
+      ],
+      "references": [
+        {
+          "expected": 150.0,
+          "id": "umd-first-payment",
+          "inputs": {
+            "A": 350.3,
+            "i": 0.15,
+            "n": 4,
+            "t": 1
+          },
+          "method": "UMD payment-split table gives first-year interest $150.00 for A=350.30, i=15%, n=4; recomputation gives 150.015 because the source payment is rounded (exact 350.265), so tolerance covers the propagated input rounding.",
+          "provenance": "Published amortization-table row in the UMD tutorial, Principal and Interest Payments section",
+          "tolerance": 0.05
+        },
+        {
+          "expected": 45.68,
+          "id": "umd-last-payment",
+          "inputs": {
+            "A": 350.3,
+            "i": 0.15,
+            "n": 4,
+            "t": 4
+          },
+          "method": "UMD table gives last-payment interest $45.68; recomputation from the rounded payment gives 45.691, so tolerance covers the propagated rounding.",
+          "provenance": "Published amortization-table row in the UMD tutorial, Principal and Interest Payments section",
+          "tolerance": 0.05
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A": 350.3,
+            "i": 0.15,
+            "n": 4,
+            "t": 5
+          },
+          "kind": "domain",
+          "reason": "Payment index beyond the term has no scheduled payment and violates t<=n."
+        },
+        {
+          "inputs": {
+            "A": 350.3,
+            "i": 0.15,
+            "n": 4
+          },
+          "kind": "missing-input",
+          "reason": "Without the payment index t the interest portion is undefined."
+        }
+      ],
+      "relationship": {
+        "expression": "A*((1+i)**(n-t+1)-1)/(1+i)**(n-t+1)",
+        "locator": "UMD tutorial: Principal and Interest Payments (I_t = A(P/A,i,n-(t-1))(i) with balance A(P/A,i,n-(t-1)); table for P=1000, n=4, i=15%, A=350.30 giving year-1 interest 150.00 and year-4 interest 45.68).",
+        "original_equation": "I_t = A*(P/A,i,n-t+1)*(i), i.e. A times one minus the n-t+1-period discount factor",
+        "output_symbol": "I",
+        "source_id": "umd-ence202",
+        "translation_notes": "Expanded the source (P/A,i,k)(i) factor into scalar form A*((1+i)^k-1)/(1+i)^k with k=n-t+1; no other change. Dimensional check: currency times a dimensionless share stays currency. Guards i>0, n>=1, 1<=t<=n keep the remaining-term count k>=1 and all divisors nonzero. Reference exponents 4 and 1 are within the tooling cap."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Page states I_t=A(P/A,i,n-(t-1))(i) with the balance A(P/A,i,n-(t-1)), reduces B_t via P/F,i,n-t+1, and tabulates the P=1000/n=4/i=15%/A=350.30 schedule with year-1 interest 150.00 and year-4 interest 45.68.",
+          "id": "umd-ence202",
+          "kind": "primary",
+          "license": "Page footer states Copyright (c) 1996-1998, Department of Civil Engineering, University of Maryland; no open-license or terms page found on 2026-11-01.",
+          "locator": "Section Principal and Interest Payments, including the I_t/B_t formulas and the worked 15% table.",
+          "redistribution": "No verbatim excerpts stored; only short original paraphrases, formula symbols and computed values.",
+          "title": "Introduction to Engineering Economics (ENCE 202 tutorial, Univ. of Maryland)",
+          "url": "https://user.eng.umd.edu/~austin/ence202.d/economics.html",
+          "version": "Tutorial text as printed; last modified February 1, 1998"
+        }
+      ],
+      "summary": "Interest portion of the t-th scheduled level loan payment at a positive per-period rate.",
+      "title": "Interest portion of a scheduled level loan payment",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate:schedule",
+          "definition": "Scheduled level end-of-period payment",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite payment",
+          "quantity_id": "periodic_payment",
+          "role": "input",
+          "source_symbol": "A (payment of A at time t)",
+          "symbol": "A",
+          "unit": "USD"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate:schedule",
+          "definition": "Effective interest rate per payment period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite decimal",
+          "quantity_id": "periodic_rate",
+          "role": "input",
+          "source_symbol": "i (fixed rate)",
+          "symbol": "i",
+          "unit": "1"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate:schedule",
+          "definition": "Total number of scheduled payments",
+          "dimensions": "count",
+          "domain": "At least one period; integer-valued counts in use",
+          "quantity_id": "period_count",
+          "role": "input",
+          "source_symbol": "n (loan term in periods)",
+          "symbol": "n",
+          "unit": "periods"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate:schedule",
+          "definition": "One-based index of the scheduled payment being split",
+          "dimensions": "count",
+          "domain": "From the first through the last scheduled payment",
+          "quantity_id": "payment_index",
+          "role": "input",
+          "source_symbol": "t (time/payment index; introduced for the source n-(t-1) remaining-term form)",
+          "symbol": "t",
+          "unit": "periods"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate:schedule",
+          "definition": "Interest component of the t-th payment",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite interest",
+          "quantity_id": "interest_payment",
+          "role": "output",
+          "source_symbol": "I_t (interest payment of A at time t)",
+          "symbol": "I",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: fixed-rate loan with equal end-of-period payments; the t-th principal portion is the payment discounted over the remaining n-t+1 periods (source P/F reduction).",
+        "Application profile: amortization-schedule principal allocation for a fully amortizing loan with no fees or rate changes.",
+        "All amounts and rates on one price basis; i is the effective rate per payment period."
+      ],
+      "constants": [],
+      "guards": [
+        "A >= 0",
+        "i > 0",
+        "n >= 1",
+        "t >= 1",
+        "t <= n"
+      ],
+      "id": "engineering-finance--loan-payment-principal-portion",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new quantity meanings: principal_payment, payment_index; reuses periodic_payment, periodic_rate, period_count. No current-runtime projection attempted.",
+          "Complements the interest-portion record; the two outputs sum to A by construction."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "A=B*(1+i)**(n-t+1) needs i>0 and 1<=t<=n; checked year 1: 200.30*1.74901=350.33 against the schedule payment 350.30 (input rounding). Solving for t needs a logarithm, unsupported and untested. Admitted boundary: the final payment (t=n) reduces to B=A/(1+i), verified in references.",
+      "kind": "theoretical",
+      "limitations": [
+        "Zero-rate schedules (i=0) are excluded by guard; the principal portion there equals the whole payment and needs no record.",
+        "Beginning-of-period (annuity-due) schedules shift every discount exponent and are not covered.",
+        "Solving for the payment index t needs a logarithm, unsupported by the scalar grammar."
+      ],
+      "references": [
+        {
+          "expected": 200.3,
+          "id": "umd-first-payment",
+          "inputs": {
+            "A": 350.3,
+            "i": 0.15,
+            "n": 4,
+            "t": 1
+          },
+          "method": "UMD table gives first-payment principal $200.30 (as 350.30 times the 4-period discount factor); recomputation gives 200.285 because the source payment is rounded (exact 350.265), so tolerance covers the propagated input rounding.",
+          "provenance": "Published amortization-table row in the UMD tutorial, Principal and Interest Payments section",
+          "tolerance": 0.05
+        },
+        {
+          "expected": 304.62,
+          "id": "umd-last-payment",
+          "inputs": {
+            "A": 350.3,
+            "i": 0.15,
+            "n": 4,
+            "t": 4
+          },
+          "method": "UMD table gives last-payment principal $304.62; recomputation from the rounded payment gives 304.609, so tolerance covers the propagated rounding (the source factor 0.8696 is itself rounded).",
+          "provenance": "Published amortization-table row in the UMD tutorial, Principal and Interest Payments section",
+          "tolerance": 0.05
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A": 350.3,
+            "i": 0.15,
+            "n": 4,
+            "t": 0
+          },
+          "kind": "domain",
+          "reason": "A zeroth payment does not exist in the schedule and violates t>=1."
+        },
+        {
+          "inputs": {
+            "A": 350.3,
+            "i": 0.15,
+            "t": 1
+          },
+          "kind": "missing-input",
+          "reason": "Without the term count n the remaining-term discount is undefined."
+        }
+      ],
+      "relationship": {
+        "expression": "A/(1+i)**(n-t+1)",
+        "locator": "UMD tutorial: Principal and Interest Payments (B_t = A(P/F,i,n-t+1) via P/F,i,n = 1-(P/A,i,n)(i); table for P=1000, n=4, i=15%, A=350.30 giving year-1 principal 200.30 and year-4 principal 304.62).",
+        "original_equation": "B_t = A*(P/F,i,n-t+1) = A/(1+i)^(n-t+1)",
+        "output_symbol": "B",
+        "source_id": "umd-ence202",
+        "translation_notes": "Expanded the source single-payment discount factor into scalar division form; no other change. Dimensional check: currency divided by a dimensionless accumulation stays currency. Guards i>0, n>=1, 1<=t<=n keep the remaining-term count k>=1 and the base positive. Reference exponents 4 and 1 are within the tooling cap."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Page states B_t=A(P/F,i,n-t+1) via the identity P/F,i,n=1-(P/A,i,n)(i), and tabulates the P=1000/n=4/i=15%/A=350.30 schedule with year-1 principal 200.30 and year-4 principal 304.62.",
+          "id": "umd-ence202",
+          "kind": "primary",
+          "license": "Page footer states Copyright (c) 1996-1998, Department of Civil Engineering, University of Maryland; no open-license or terms page found on 2026-11-01.",
+          "locator": "Section Principal and Interest Payments, including the B_t reduction and the worked 15% table.",
+          "redistribution": "No verbatim excerpts stored; only short original paraphrases, formula symbols and computed values.",
+          "title": "Introduction to Engineering Economics (ENCE 202 tutorial, Univ. of Maryland)",
+          "url": "https://user.eng.umd.edu/~austin/ence202.d/economics.html",
+          "version": "Tutorial text as printed; last modified February 1, 1998"
+        }
+      ],
+      "summary": "Principal portion of the t-th scheduled level loan payment at a positive per-period rate.",
+      "title": "Principal portion of a scheduled level loan payment",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate:schedule",
+          "definition": "Scheduled level end-of-period payment",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite payment",
+          "quantity_id": "periodic_payment",
+          "role": "input",
+          "source_symbol": "A (payment of A at time t)",
+          "symbol": "A",
+          "unit": "USD"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate:schedule",
+          "definition": "Effective interest rate per payment period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite decimal",
+          "quantity_id": "periodic_rate",
+          "role": "input",
+          "source_symbol": "i (fixed rate)",
+          "symbol": "i",
+          "unit": "1"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate:schedule",
+          "definition": "Total number of scheduled payments",
+          "dimensions": "count",
+          "domain": "At least one period; integer-valued counts in use",
+          "quantity_id": "period_count",
+          "role": "input",
+          "source_symbol": "n (loan term in periods)",
+          "symbol": "n",
+          "unit": "periods"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate:schedule",
+          "definition": "One-based index of the scheduled payment being split",
+          "dimensions": "count",
+          "domain": "From the first through the last scheduled payment",
+          "quantity_id": "payment_index",
+          "role": "input",
+          "source_symbol": "t (time/payment index; introduced for the source n-(t-1) remaining-term form)",
+          "symbol": "t",
+          "unit": "periods"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate:schedule",
+          "definition": "Principal component of the t-th payment",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite principal",
+          "quantity_id": "principal_payment",
+          "role": "output",
+          "source_symbol": "B_t (portion of A reducing the balance at time t)",
+          "symbol": "B",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: nominal annual rate r quoted for m equal compounding periods per year with the rate per period applied uniformly (UMD l*m=1 line; article i=j/m with monthly illustration).",
+        "The payment period coincides with the compounding period; otherwise convert with the effective-rate record first."
+      ],
+      "constants": [],
+      "guards": [
+        "r >= 0",
+        "m >= 1"
+      ],
+      "id": "engineering-finance--periodic-rate-from-nominal",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Reuses the b01 proposed nominal_rate meaning and introduces the per-period rate as the same periodic_rate quantity used across batches; no current-runtime projection attempted.",
+          "The nominal-from-periodic direction (r=i*m) is recorded as an inverse, not a separate model."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "r=i*m needs m>=1; checked 0.0125*4=0.05 exactly against the article nominal. Admitted boundary m=1 gives i=r (annual compounding). The effective-annual direction is a different record, never a substitution here.",
+      "kind": "definition",
+      "limitations": [
+        "This is the periodic rate definition, not the effective annual rate; compounding across periods needs the effective-rate record.",
+        "Applies when the payment period coincides with the compounding period; mismatched frequencies need prior conversion.",
+        "Quoted add-on or flat-rate conventions that do not divide evenly are outside this definition."
+      ],
+      "references": [
+        {
+          "expected": 0.0125,
+          "id": "quarterly-from-article",
+          "inputs": {
+            "m": 4,
+            "r": 0.05
+          },
+          "method": "Article states i=j/m and works j=0.05 compounded quarterly as i=0.05/4=0.0125 with n=8*4=32; direct transcription.",
+          "provenance": "Published worked conversion in the Annuity article, Example calculations section",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.015,
+          "id": "umd-monthly-table",
+          "inputs": {
+            "m": 12,
+            "r": 0.18
+          },
+          "method": "UMD effective-rate table lists the monthly period rate as 1.5% for 18% nominal; direct transcription.",
+          "provenance": "Published table value in the UMD tutorial, Discrete and Continuous Compounding section",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "m": 0,
+            "r": 0.18
+          },
+          "kind": "domain",
+          "reason": "Zero compounding periods per year is meaningless and violates m>=1."
+        },
+        {
+          "inputs": {
+            "r": 0.18
+          },
+          "kind": "missing-input",
+          "reason": "Without the compounding frequency the nominal rate cannot be split into periods."
+        }
+      ],
+      "relationship": {
+        "expression": "r/m",
+        "locator": "UMD tutorial: Discrete and Continuous Compounding (Clearly if l*m=1, then i is simply r/m). Annuity article: Example calculations (i=j/m is the effective interest rate per payment period; i=0.05/4=0.0125; monthly i=J/12 with n=12t).",
+        "original_equation": "i = r/m (per-period rate equals nominal annual rate divided by periods per year)",
+        "output_symbol": "i",
+        "source_id": "umd-ence202",
+        "translation_notes": "Direct transcription of the source definitional line into scalar division. Dimensional check: dimensionless divided by a count stays a per-period dimensionless rate. Guard m>=1 preserves the divisor."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Page states that when the interval holds one compounding set (l*m=1) the effective interval rate is simply r/m, and illustrates 18% nominal as 1.5% per month in its effective-rate table.",
+          "id": "umd-ence202",
+          "kind": "primary",
+          "license": "Page footer states Copyright (c) 1996-1998, Department of Civil Engineering, University of Maryland; no open-license or terms page found on 2026-11-01.",
+          "locator": "Section Discrete and Continuous Compounding (l*m=1 line and effective-rate table).",
+          "redistribution": "No verbatim excerpts stored; only short original paraphrases, formula symbols and computed values.",
+          "title": "Introduction to Engineering Economics (ENCE 202 tutorial, Univ. of Maryland)",
+          "url": "https://user.eng.umd.edu/~austin/ence202.d/economics.html",
+          "version": "Tutorial text as printed; last modified February 1, 1998"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Article states i=j/m as the effective rate per payment period, works 5% nominal compounded quarterly as 0.0125 with n=32, and notes monthly payments under nominal J use i=J/12 with n=12t.",
+          "id": "wikipedia-annuity",
+          "kind": "primary",
+          "license": "Wikimedia projects carry the CC BY-SA license via the site footer as standard; the footer text was not separately archived in this record on 2026-11-01, so treat the exact license version as unverified.",
+          "locator": "Sections Annuity-immediate (i=J/12, n=12t passage) and Example calculations (i=j/m, quarterly 0.0125).",
+          "redistribution": "Only short paraphrases and standard formula symbols; no passage copied.",
+          "title": "Annuity (Wikipedia, tertiary summary with textbook citations)",
+          "url": "https://en.wikipedia.org/wiki/Annuity",
+          "version": "Article revision as read on 2026-11-01"
+        }
+      ],
+      "summary": "Definition of the per-period interest rate from a nominal annual rate and compounding frequency.",
+      "title": "Per-period rate from nominal annual rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-rate-year:nominal-basis:discrete-compounding",
+          "definition": "Nominal interest rate per year as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite decimal",
+          "quantity_id": "nominal_rate",
+          "role": "input",
+          "source_symbol": "r (nominal interest rate per year; article j/J)",
+          "symbol": "r",
+          "unit": "1"
+        },
+        {
+          "context": "same-rate-year:nominal-basis:discrete-compounding",
+          "definition": "Number of compounding periods per year",
+          "dimensions": "count per time",
+          "domain": "At least annual compounding (m>=1)",
+          "quantity_id": "compounding_frequency",
+          "role": "input",
+          "source_symbol": "m (compounding periods per year)",
+          "symbol": "m",
+          "unit": "periods/year"
+        },
+        {
+          "context": "same-rate-year:nominal-basis:discrete-compounding",
+          "definition": "Effective interest rate per compounding (and payment) period",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite decimal",
+          "quantity_id": "periodic_rate",
+          "role": "output",
+          "source_symbol": "i (rate per period; article i)",
+          "symbol": "i",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

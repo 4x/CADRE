@@ -16,7 +16,7 @@ MONEY: Dimensions = (0, 0, 0, 1)
 PRICE: Dimensions = (-1, -2, 2, 1)
 INVERSE_MONEY: Dimensions = (0, 0, 0, -1)
 JOULES_PER_KWH = 3_600_000
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-1"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2"
 DIMENSION_AXES = ("mass", "length", "time", "currency")
 NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
@@ -129,6 +129,11 @@ MEANINGS = {
     "government_consumption_and_gross_investment": MONEY,
     "exports_goods_services": MONEY,
     "imports_goods_services": MONEY,
+    # Finance-2: second reviewed batch (amortization schedule and gradient meanings).
+    "gradient_amount": MONEY,
+    "interest_payment": MONEY,
+    "principal_payment": MONEY,
+    "payment_index": DIMENSIONLESS,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

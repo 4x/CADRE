@@ -17,7 +17,7 @@ PRICE: Dimensions = (-1, -2, 2, 1)
 INVERSE_MONEY: Dimensions = (0, 0, 0, -1)
 INVERSE_TIME: Dimensions = (0, 0, -1, 0)
 JOULES_PER_KWH = 3_600_000
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-2+cs-2"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-2+cs-3"
 DIMENSION_AXES = ("mass", "length", "time", "currency")
 NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
@@ -102,6 +102,11 @@ UNITS = {
     # data-size / transfer-rate yields physical time; bytes themselves stay
     # dimensionless and no rate ever converts implicitly to a time instant.
     "B/s": Unit(INVERSE_TIME, 1.0),
+    # CS batch (cs-3): clock frequencies in Hz; MIPS ratings in an explicit
+    # MIPS unit (millions of instructions per second) so the 1e6 factor lives
+    # in the registry scale, never inlined in an expression.
+    "Hz": Unit(INVERSE_TIME, 1.0),
+    "MIPS": Unit(INVERSE_TIME, 1000000.0),
 }
 
 # Meaning is independent of dimension: heat and electricity cannot bind implicitly.
@@ -275,6 +280,27 @@ MEANINGS = {
     "record_size": DIMENSIONLESS,
     "storage_capacity": DIMENSIONLESS,
     "series_availability": DIMENSIONLESS,
+    # CS-3: Karp-Flatt, MTBF/MTTR/MTTF availability family, CPU-performance
+    # equation, clock/cycle quantities, operational availability, leg counts.
+    "measured_speedup": DIMENSIONLESS,
+    "experimental_serial_fraction": DIMENSIONLESS,
+    "mtbf": TIME,
+    "mttr": TIME,
+    "mttf": TIME,
+    "inherent_availability": DIMENSIONLESS,
+    "expected_uptime": TIME,
+    "expected_downtime": TIME,
+    "window_availability": DIMENSIONLESS,
+    "instruction_count": DIMENSIONLESS,
+    "effective_cpi": DIMENSIONLESS,
+    "cycle_time": TIME,
+    "cpu_time": TIME,
+    "clock_frequency": INVERSE_TIME,
+    "mips_rating": INVERSE_TIME,
+    "redesign_performance_ratio": DIMENSIONLESS,
+    "mean_downtime": TIME,
+    "operational_availability": DIMENSIONLESS,
+    "leg_count": DIMENSIONLESS,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

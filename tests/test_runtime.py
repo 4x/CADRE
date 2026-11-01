@@ -7,7 +7,7 @@ from pathlib import Path
 from test_support import scratch_directory
 import unittest
 
-from connected_models.contracts import DIMENSIONLESS, INVERSE_MONEY, INVERSE_TIME, MEANINGS, MONEY, TIME, Composition, ModelError, Node, Port, Reference, Value
+from connected_models.contracts import DIMENSIONLESS, INVERSE_MONEY, INVERSE_TIME, MEANINGS, MONEY, TIME, UNITS, Composition, ModelError, Node, Port, Reference, Value
 from connected_models.demo import ANNUAL, HEAT, RATE, SAVING, YEARS, catalog, composition, fixture
 from connected_models.runtime import execute, save_run
 
@@ -128,7 +128,26 @@ class RuntimeTests(unittest.TestCase):
                  "record_count": ("1", DIMENSIONLESS),
                  "record_size": ("B", DIMENSIONLESS),
                  "storage_capacity": ("B", DIMENSIONLESS),
-                 "series_availability": ("1", DIMENSIONLESS)}
+                 "series_availability": ("1", DIMENSIONLESS),
+                 "measured_speedup": ("1", DIMENSIONLESS),
+                 "experimental_serial_fraction": ("1", DIMENSIONLESS),
+                 "mtbf": ("h", TIME),
+                 "mttr": ("h", TIME),
+                 "mttf": ("h", TIME),
+                 "inherent_availability": ("1", DIMENSIONLESS),
+                 "expected_uptime": ("h", TIME),
+                 "expected_downtime": ("h", TIME),
+                 "window_availability": ("1", DIMENSIONLESS),
+                 "instruction_count": ("1", DIMENSIONLESS),
+                 "effective_cpi": ("1", DIMENSIONLESS),
+                 "cycle_time": ("s", TIME),
+                 "cpu_time": ("s", TIME),
+                 "clock_frequency": ("Hz", INVERSE_TIME),
+                 "mips_rating": ("MIPS", INVERSE_TIME),
+                 "redesign_performance_ratio": ("1", DIMENSIONLESS),
+                 "mean_downtime": ("h", TIME),
+                 "operational_availability": ("1", DIMENSIONLESS),
+                 "leg_count": ("1", DIMENSIONLESS)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)
@@ -150,6 +169,13 @@ class RuntimeTests(unittest.TestCase):
         with self.assertRaisesRegex(ModelError, "never convert implicitly"):
             Port("economic_series_current_price", "USD", "test-context").require_compatible(
                 Port("economic_series_current_price", "USD_ref", "test-context"))
+
+    def test_mips_scale_lives_in_registry(self) -> None:
+        """MIPS ratings convert to per-second magnitude through the unit scale, never an inlined literal."""
+        rating = Value(2000.0, Port("mips_rating", "MIPS", "test-context"), "observation", "test-evidence")
+        self.assertAlmostEqual(rating.bind(Port("mips_rating", "MIPS", "test-context")), 2000.0)
+        self.assertEqual(UNITS["MIPS"].scale, 1000000.0)
+        self.assertEqual(UNITS["Hz"].scale, 1.0)
 
     def test_revision_and_old_run_preservation(self) -> None:
         """New inputs and a compatible model revision leave earlier runs intact."""

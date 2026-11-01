@@ -7,11 +7,12 @@ from typing import Any
 from .contracts import ModelError
 
 SCHEMA_VERSION = "cm-curation-batch/1"
-KIT_VERSION = "2026-10-31.4"
-SUPPORTED_KIT_VERSIONS = ("2026-10-31.1", "2026-10-31.2", "2026-10-31.3", KIT_VERSION)
+KIT_VERSION = "2026-10-31.5"
+SUPPORTED_KIT_VERSIONS = ("2026-10-31.1", "2026-10-31.2", "2026-10-31.3", "2026-10-31.4", KIT_VERSION)
 MAX_MODELS = 12
 MAX_BATCH_BYTES = 1_048_576
-DOMAINS = ("building-energy", "engineering-finance", "electric-circuits", "water-hydraulics", "classical-mechanics", "probability")
+DOMAINS = ("building-energy", "engineering-finance", "electric-circuits", "water-hydraulics", "classical-mechanics", "probability",
+           "economics", "computer-science", "chemistry", "biology")
 STRING = {"type": "string", "minLength": 1, "maxLength": 4096}
 NUMBER = {"type": "number"}
 IDENTIFIER = {**STRING, "pattern": "^[a-z][a-z0-9-]{0,95}$"}

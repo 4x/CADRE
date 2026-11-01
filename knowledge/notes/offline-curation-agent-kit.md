@@ -24,7 +24,7 @@ relations:
 
 # Owner/operator guide: offline model curation
 
-Kit version `2026-10-31.4`; return schema `cm-curation-batch/1`; earlier .1/.2/.3 data returns remain readable. This document is for the owner/integrator and is excluded from worker ZIPs. The complete curator protocol is [[note-offline-curator-instructions]], exported directly as each kit's `AGENTS.md`. It contains the actual instructions, not a redirect to this guide.
+Kit version `2026-10-31.5`; return schema `cm-curation-batch/1`; earlier .1–.4 data returns remain readable. Release .5 adds economics, computer-science, chemistry and biology domains and supersedes the engineering-finance and probability briefs with broadened wave-1 coverage; curator instructions are unchanged from .4. This document is for the owner/integrator and is excluded from worker ZIPs. The complete curator protocol is [[note-offline-curator-instructions]], exported directly as each kit's `AGENTS.md`. It contains the actual instructions, not a redirect to this guide.
 
 ## Sustained sessions and fleet dispatch
 
@@ -32,7 +32,7 @@ The owner now requests at least an hour of useful work per session. The previous
 
 For existing workers, replace only the extracted worker's `AGENTS.md` with the generated .4 instructions and add the current inventory under `data/curation/catalog-inventory.json`. Preserve its prior returns, toolkit and actual version metadata. Do not replace this repository's root AGENTS.md. Then send:
 
-Ready-made files are directly under `.runs/curation-kits-2026-10-31.4/`. For existing workers, extract `existing-worker-update.zip` into their isolated kit workspace to put those two files in place; it contains no assignment or toolkit replacement. For new workers choose the corresponding `curation-DOMAIN.zip` from that folder, or `curation-generic.zip` for an inline task. Keep this owner guide out of the worker workspace. The former `ready/` nesting is retired: build staging and extracted smoke-test copies are archived separately at `.runs/_archive/curation-kits-2026-10-31.4-build/`. Only the flat release directory is for distribution; do not use archived AGENTS.md files as current instructions.
+Ready-made files are directly under `.runs/curation-kits-2026-10-31.5/`. For existing workers, extract `existing-worker-update.zip` into their isolated kit workspace to put those two files in place; it contains no assignment or toolkit replacement. For new workers choose the corresponding `curation-DOMAIN.zip` from that folder, or `curation-generic.zip` for an inline task. Keep this owner guide out of the worker workspace. The former `ready/` nesting is retired: build staging and extracted smoke-test copies are archived separately at `.runs/_archive/curation-kits-2026-10-31.5-build/`. Only the flat release directory is for distribution; do not use archived AGENTS.md files as current instructions. The `.runs/curation-kits-2026-10-31.4/` release remains valid for its six domains; new-domain workers must use .5 kits.
 
 > Read the updated @AGENTS.md and @data/curation/catalog-inventory.json. Continue your current assignment for a sustained session of at least 60 minutes of useful work. Save, validate and pack checkpoints, then continue automatically; do not stop after a batch or await my acknowledgement. Preserve earlier returns, record SESSION.json, and provide one consolidated report at the end. Follow the interruption/resume rules if the host forces you to stop early.
 
@@ -72,20 +72,24 @@ There are two supported package shapes:
 | Generic kit | Complete AGENTS.md, schema/example/vocabulary, minimal offline tools; no assignments | Read @AGENTS.md and work on {the one assigned JSON object} |
 | Domain kit | The same files plus only that domain's assignment.json | Read @AGENTS.md and work on @assignment.json. |
 
-There is no `START-HERE.md`, operator document, full assignment catalog, or collection of other workers' briefs in either shape. The central repository keeps all six assignment configurations for the owner's selection. Both shapes use the same curator protocol and validator. If updating already-dispatched workers, provide the new whole kit in a fresh directory; do not replace only AGENTS.md while leaving an older validator that still requires connections/queries.
+There is no `START-HERE.md`, operator document, full assignment catalog, or collection of other workers' briefs in either shape. The central repository keeps all ten assignment configurations for the owner's selection. Both shapes use the same curator protocol and validator. If updating already-dispatched workers, provide the new whole kit in a fresh directory; do not replace only AGENTS.md while leaving an older validator that still requires connections/queries.
 
-## Six available assignments
+## Ten available assignments
 
 The complete JSON objects live in `data/curation/assignments.json`. Missions now ask for independently reusable atomic models; priorities are seeds for continuing coverage. Domain boundaries organize source-search effort and do not create separate scientific meanings for the same quantity. Existing inventory entries are duplicate-checking hints, not mandatory future destinations.
 
 | Domain | Initial coverage |
 | --- | --- |
 | building-energy | Constant power/energy, sensible heat, slab conduction, thermal resistance/conductance |
-| engineering-finance | Discounting, annualization, rate conventions and deterministic project definitions |
+| engineering-finance | TVM family: future value, amortization, effective rate, Gordon growth, Fisher conversion |
 | electric-circuits | Ohmic behavior, DC power and bounded resistance definitions |
 | water-hydraulics | Flow, volume, pressure/head and hydraulic efficiency definitions |
 | classical-mechanics | Scalar motion, kinetic/potential energy and bounded work relationships |
-| probability | Event identities, conditioning and explicitly qualified dependence |
+| probability | Event identities, conditioning, total probability, odds and explicitly qualified dependence |
+| economics | Elasticities, GDP identity, growth rates and break-even arithmetic |
+| computer-science | Amdahl speedup, transfer/capacity accounting and availability composition |
+| chemistry | Ideal gas, moles, molarity/dilution and stoichiometric ratios |
+| biology | Hardy-Weinberg, discrete growth, allometry and ecological accounting |
 
 Do not hand a worker this table or the entire configuration file. Give only its JSON object or domain kit. Workers may select their own attributable label and unique batch ID if none was supplied. If assigning multiple workers to one broad domain, narrow each assignment's priorities/source families and allocate disjoint batch/model ownership; repeated discoveries should be recorded as overlaps, not different formulas solely because of names.
 
@@ -95,9 +99,9 @@ Run from the central repository. Each destination must be new; no existing ZIP i
 
 ```powershell
 # Generic kit for the owner's inline JSON assignment prompt:
-uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-generic-2026-10-31.4.zip
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-generic-2026-10-31.5.zip
 # A worker-specific kit containing only one assignment:
-uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-building-energy-2026-10-31.4.zip --domain building-energy
+uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit curation-building-energy-2026-10-31.5.zip --domain building-energy
 ```
 
 Copy/extract each kit into a new worker folder, such as `C:\Curation\worker-a`. Provide the short prompt and optionally an agent label/batch ID. There is no API key to distribute; these tools make no inference requests. External agent-service spending is outside the central application's ledger. Do not copy the inference ledger or run independent paid application-curation loops on several PCs under the assumption that their local limits add up to a global budget.

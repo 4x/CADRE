@@ -105,7 +105,11 @@ class RuntimeTests(unittest.TestCase):
                  "gross_domestic_income_current_price": ("USD", MONEY),
                  "personal_saving_fraction": ("1", DIMENSIONLESS),
                  "unit_contribution_margin": ("USD/unit", MONEY),
-                 "degree_operating_leverage": ("1", DIMENSIONLESS)}
+                 "degree_operating_leverage": ("1", DIMENSIONLESS),
+                 "allele_frequency": ("1", DIMENSIONLESS),
+                 "effective_size": ("count", DIMENSIONLESS),
+                 "selection_response": ("trait-units", DIMENSIONLESS),
+                 "mutation_rate": ("1/site/generation", DIMENSIONLESS)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)

@@ -1,0 +1,391 @@
+{
+  "batch_id": "biology-a-b08",
+  "created": "2026-11-01",
+  "curator": "buffy-curator",
+  "deferred": [],
+  "domain": "biology",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "All three records need new quantity meanings and units, so all are requires-extension; duplicate search covered the supplied catalog-inventory.json (no biology records) and batches b01-b07.",
+      "All three records carry constructed-only references: the cited pages print the equations and worked examples exist only for neighboring relationships (Buri N=16/Ne=11.5 drift experiment; dioecy narrative), not for these exact forms. This is recorded honestly in each provenance; a future batch should attach published numeric oracles (e.g. a textbook drift-variance table) as r2 reference upgrades.",
+      "Inbreeding-recurrence Ft forms on the Ne page were read but the extraction's equation layout was ambiguous, so no record was written; needs textbook verification, not a guess."
+    ],
+    "queries": [],
+    "review_notes": "Validation: schema + arithmetic + guard checks to be run with the kit validator; packed ZIP to be re-validated. Source-fidelity review by curator: all three equations and the surrounding assumption/definition sentences were read on the cited Wikipedia page on 2026-11-01; the UWyo lecture corroborates the HW-ideal definition. No review corrections were supplied.",
+    "summary": "Batch b08: three atomic theoretical biology records (Wright-Fisher drift variance, dioecious effective-size correction, neutral nucleotide diversity) grounded in the inspected effective-population-size treatment and the UWyo lecture, each with two constructed references, domain and missing-input rejections, and inverse notes."
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: Wright-Fisher idealized diploid population (random mating, discrete non-overlapping generations, neutrality, constant size); the page presents the formula as the conditional variance 'in the Wright-Fisher idealized population model'.",
+        "source assumption: single diallelic locus with current frequency p; the variance is conditional on the previous generation (one-generation drift step)."
+      ],
+      "constants": [],
+      "guards": [
+        "p >= 0",
+        "p <= 1",
+        "N > 0"
+      ],
+      "id": "biology--drift-variance-allele-frequency",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings allele_frequency, ideal_population_size and drift_variance are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Ideal size is recoverable as N = p*(1-p)/(2*V) for nonzero V. Substitution check: 0.25/(2*0.00125) = 100, consistent with the ordinary reference. V = 0 (p at 0 or 1, allele fixed or lost) leaves N undetermined, which is expected: a fixed allele carries no drift-variance information.",
+      "kind": "theoretical",
+      "limitations": [
+        "One-generation ideal-model variance; real-population variance is larger and is the quantity that defines the variance effective size (the separate Ne family of records).",
+        "Assumes neutrality and free recombination context; linked selection and population structure need the fuller treatments the page surveys."
+      ],
+      "references": [
+        {
+          "expected": 0.00125,
+          "id": "mid-frequency-large-population",
+          "inputs": {
+            "N": 100,
+            "p": 0.5
+          },
+          "method": "Constructed check: 0.5*0.5/(2*100) = 0.25/200 = 0.00125 by direct arithmetic; verifies encoding, no field value claimed.",
+          "provenance": "Independently constructed arithmetic check; the cited page prints the equation but no worked numeric example for this form.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.0021,
+          "id": "low-frequency-small-population",
+          "inputs": {
+            "N": 50,
+            "p": 0.3
+          },
+          "method": "Constructed check: 0.3*0.7/(2*50) = 0.21/100 = 0.0021; materially different frequency and size from the first case.",
+          "provenance": "Independently constructed arithmetic check; the cited page prints the equation but no worked numeric example for this form.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "N": 100,
+            "p": 1.5
+          },
+          "kind": "domain",
+          "reason": "Allele frequencies are bounded by 0 and 1; p = 1.5 is outside the frequency domain."
+        },
+        {
+          "inputs": {
+            "p": 0.5
+          },
+          "kind": "missing-input",
+          "reason": "Ideal population size N is required; frequency alone does not determine drift variance."
+        }
+      ],
+      "relationship": {
+        "expression": "p * (1 - p) / (2 * N)",
+        "locator": "Wikipedia 'Variance effective size': 'In the Wright-Fisher idealized population model, the conditional variance of the allele frequency p-prime, given p in the previous generation, is var(p'|p) = p(1-p)/2N.'",
+        "original_equation": "var(p'|p) = p * (1 - p) / (2 * N)",
+        "output_symbol": "V",
+        "source_id": "wikipedia-effective-size",
+        "translation_notes": "Source notation preserved (p for frequency, N for ideal size; conditionality carried in prose, not syntax). Dimensional check: dimensionless frequency product over a count gives a dimensionless variance. The factor 2 is exact diploidy combinatorics, kept inline with this note."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: in the Wright-Fisher idealized model the one-generation conditional variance of allele frequency is p(1-p)/2N; the variance effective size is defined by substituting the actual (larger) variance and solving for N.",
+          "id": "wikipedia-effective-size",
+          "kind": "project-derivation",
+          "license": "Wikipedia text is CC BY-SA 4.0; page carries the standard license footer (exact footer line not re-verified on this read). Redistribution here is limited to a short original paraphrase and independently computed numbers; no long verbatim quotation.",
+          "locator": "https://en.wikipedia.org/wiki/Effective_population_size, 'Variance effective size' section, as accessed 2026-11-01.",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the article.",
+          "title": "Wikipedia: Effective population size (drift-variance definition)",
+          "url": "https://en.wikipedia.org/wiki/Effective_population_size",
+          "version": "Page as accessed 2026-11-01"
+        }
+      ],
+      "summary": "One-generation Wright-Fisher drift variance of a diallelic frequency.",
+      "title": "Drift variance of allele frequency",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same ideal population, locus and generation as N and V",
+          "definition": "Allele frequency in the previous generation",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "allele_frequency",
+          "role": "input",
+          "source_symbol": "p",
+          "symbol": "p",
+          "unit": "1"
+        },
+        {
+          "context": "same ideal population, locus and generation as p and V",
+          "definition": "Ideal-population size (number of diploid individuals)",
+          "dimensions": "count",
+          "domain": "Positive finite size",
+          "quantity_id": "ideal_population_size",
+          "role": "input",
+          "source_symbol": "N",
+          "symbol": "N",
+          "unit": "count"
+        },
+        {
+          "context": "same ideal population, locus and generation as inputs",
+          "definition": "Conditional variance of next-generation allele frequency given p",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite variance",
+          "quantity_id": "drift_variance",
+          "role": "output",
+          "source_symbol": "introduced V for var(p'|p)",
+          "symbol": "V",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: dioecious population (no self-fertilization) that is otherwise ideal; the correction isolates the mating-system structure effect.",
+        "source assumption: single-generation, discrete-generation framing shared with the Ne family."
+      ],
+      "constants": [],
+      "guards": [
+        "N >= 2"
+      ],
+      "id": "biology--dioecious-effective-size",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings census_size and effective_size are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Census size is recoverable as N = Ne - 0.5. Substitution check: 100.5 - 0.5 = 100, consistent with the ordinary reference. The correction is negligible at large N ('When N is large, Ne approximately equals N'), which the second reference demonstrates.",
+      "kind": "theoretical",
+      "limitations": [
+        "A half-individual bookkeeping correction only; it does not model sex-ratio skew (separate record) or variance in reproductive success.",
+        "Dioecy without selfing is required; the page's generalized D-form is not recorded here."
+      ],
+      "references": [
+        {
+          "expected": 100.5,
+          "id": "hundred-census",
+          "inputs": {
+            "N": 100
+          },
+          "method": "Constructed check: 100 + 0.5 = 100.5 by direct arithmetic; verifies encoding, no field value claimed.",
+          "provenance": "Independently constructed arithmetic check; the cited page prints the equation but no worked numeric example for this form.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1000.5,
+          "id": "thousand-census-negligible",
+          "inputs": {
+            "N": 1000
+          },
+          "method": "Constructed check at large N: 1000 + 0.5 = 1000.5, demonstrating the page's 'approximately equals N' statement.",
+          "provenance": "Independently constructed arithmetic check tied to the source's large-N statement.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "N": 0
+          },
+          "kind": "domain",
+          "reason": "A dioecious breeding population needs at least two individuals; N = 0 has no effective size."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Census size N must be supplied; the correction cannot be computed from no input."
+        }
+      ],
+      "relationship": {
+        "expression": "N + 0.5",
+        "locator": "Wikipedia 'Dioeciousness': 'If a population is dioecious, i.e. there is no self-fertilisation then Ne = N + 1/2'; 'When N is large, Ne approximately equals N, so this is usually trivial and often ignored.'",
+        "original_equation": "Ne = N + 1/2 (dioecious case)",
+        "output_symbol": "Ne",
+        "source_id": "wikipedia-effective-size",
+        "translation_notes": "Source fraction 1/2 serialized as 0.5. Dimensional check: count plus a pure number is treated as a count of ideal individuals. The half-count is exact mating-system combinatorics, not a measurement."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: dioecious populations (no self-fertilisation) have Ne = N + 1/2; at large N this approximately equals N and is often ignored.",
+          "id": "wikipedia-effective-size",
+          "kind": "project-derivation",
+          "license": "Wikipedia text is CC BY-SA 4.0; page carries the standard license footer (exact footer line not re-verified on this read). Redistribution here is limited to a short original paraphrase and independently computed numbers; no long verbatim quotation.",
+          "locator": "https://en.wikipedia.org/wiki/Effective_population_size, 'Dioeciousness' section, as accessed 2026-11-01.",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the article.",
+          "title": "Wikipedia: Effective population size (dioecious correction)",
+          "url": "https://en.wikipedia.org/wiki/Effective_population_size",
+          "version": "Page as accessed 2026-11-01"
+        }
+      ],
+      "summary": "Dioecious-population effective-size correction of one half individual.",
+      "title": "Dioecious effective-size correction",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same breeding population and generation as Ne",
+          "definition": "Census size of the dioecious population",
+          "dimensions": "count",
+          "domain": "Finite whole individuals, at least 2",
+          "quantity_id": "census_size",
+          "role": "input",
+          "source_symbol": "N",
+          "symbol": "N",
+          "unit": "count"
+        },
+        {
+          "context": "same breeding population and generation as N",
+          "definition": "Effective population size under dioecy",
+          "dimensions": "count",
+          "domain": "Finite effective size above N",
+          "quantity_id": "effective_size",
+          "role": "output",
+          "source_symbol": "Ne",
+          "symbol": "Ne",
+          "unit": "count"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: neutral theory in an idealised diploid population at mutation-drift equilibrium; the page presents the identity as the theoretical expectation ('will have').",
+        "source assumption: pairwise nucleotide diversity (per-site) and a single per-site per-generation mutation rate mu shared by the diversity and rate variables."
+      ],
+      "constants": [],
+      "guards": [
+        "Ne > 0",
+        "mu >= 0"
+      ],
+      "id": "biology--neutral-nucleotide-diversity",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings effective_size, mutation_rate and nucleotide_diversity are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Effective size is estimable as Ne = pi / (4*mu); the page states this estimation use explicitly ('can therefore be estimated empirically by dividing the nucleotide diversity by 4mu'). Substitution check: 0.00004/(4e-9) = 10000, consistent with the ordinary reference. mu = 0 leaves Ne undetermined, which is expected (no mutational input, no diversity signal).",
+      "kind": "theoretical",
+      "limitations": [
+        "Equilibrium expectation only; selection, hitchhiking, background selection and demographic change all move realized diversity off this value (page lists all four).",
+        "Long-timescale composite: the page warns the resulting Ne 'may have little relationship to the number of individuals physically present'."
+      ],
+      "references": [
+        {
+          "expected": 4e-05,
+          "id": "ten-thousand-standard-rate",
+          "inputs": {
+            "Ne": 10000,
+            "mu": 1e-09
+          },
+          "method": "Constructed check: 4 * 10000 * 1e-9 = 4e-5 by direct arithmetic; verifies encoding, no field value claimed.",
+          "provenance": "Independently constructed arithmetic check; the cited page prints the identity but no worked numeric example for this form.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.04,
+          "id": "million-elevated-rate",
+          "inputs": {
+            "Ne": 1000000,
+            "mu": 1e-08
+          },
+          "method": "Constructed check at larger size and rate: 4 * 1e6 * 1e-8 = 0.04; materially different magnitude from the first case.",
+          "provenance": "Independently constructed arithmetic check; the cited page prints the identity but no worked numeric example for this form.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Ne": 10000,
+            "mu": -1e-09
+          },
+          "kind": "domain",
+          "reason": "Mutation rates cannot be negative."
+        },
+        {
+          "inputs": {
+            "Ne": 10000
+          },
+          "kind": "missing-input",
+          "reason": "Mutation rate mu is required; effective size alone does not determine diversity."
+        }
+      ],
+      "relationship": {
+        "expression": "4 * Ne * mu",
+        "locator": "Wikipedia 'Empirical measurements': 'According to the neutral theory of molecular evolution, an idealised diploid population will have a pairwise nucleotide diversity equal to 4 mu Ne.'",
+        "original_equation": "pi = 4 * mu * Ne (neutral pairwise diversity)",
+        "output_symbol": "pi",
+        "source_id": "wikipedia-effective-size",
+        "translation_notes": "Source symbols (mu, Ne, pairwise diversity) preserved as mu, Ne, pi. Dimensional check: pure number times count times per-site-per-generation rate gives dimensionless per-site diversity. The factor 4 is exact diploid neutral-theory combinatorics, kept inline with this note."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: under neutral theory an idealised diploid population has pairwise nucleotide diversity 4 mu Ne; Ne is therefore estimated empirically as diversity over 4 mu; the long-timescale estimate may differ greatly from census numbers.",
+          "id": "wikipedia-effective-size",
+          "kind": "project-derivation",
+          "license": "Wikipedia text is CC BY-SA 4.0; page carries the standard license footer (exact footer line not re-verified on this read). Redistribution here is limited to a short original paraphrase and independently computed numbers; no verbatim quotation.",
+          "locator": "https://en.wikipedia.org/wiki/Effective_population_size, 'Empirical measurements' section, as accessed 2026-11-01.",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the article.",
+          "title": "Wikipedia: Effective population size (neutral diversity identity)",
+          "url": "https://en.wikipedia.org/wiki/Effective_population_size",
+          "version": "Page as accessed 2026-11-01"
+        }
+      ],
+      "summary": "Neutral-theory pairwise nucleotide diversity from effective size and mutation rate.",
+      "title": "Nucleotide diversity from effective size and mutation rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same idealised diploid population and timescale as mu and pi",
+          "definition": "Effective population size (drift/inbreeding rate parameter)",
+          "dimensions": "count",
+          "domain": "Positive finite effective size",
+          "quantity_id": "effective_size",
+          "role": "input",
+          "source_symbol": "Ne",
+          "symbol": "Ne",
+          "unit": "count"
+        },
+        {
+          "context": "same idealised diploid population and timescale as Ne and pi",
+          "definition": "Per-site per-generation mutation rate",
+          "dimensions": "1 / (site * time)",
+          "domain": "Nonnegative finite rate",
+          "quantity_id": "mutation_rate",
+          "role": "input",
+          "source_symbol": "mu",
+          "symbol": "mu",
+          "unit": "1/site/generation"
+        },
+        {
+          "context": "same idealised diploid population and timescale as inputs",
+          "definition": "Expected pairwise nucleotide diversity (per-site differences)",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite diversity",
+          "quantity_id": "nucleotide_diversity",
+          "role": "output",
+          "source_symbol": "introduced pi for pairwise diversity",
+          "symbol": "pi",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

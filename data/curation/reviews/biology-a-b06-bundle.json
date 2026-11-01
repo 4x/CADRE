@@ -1,0 +1,303 @@
+{
+  "batch_id": "biology-a-b06",
+  "created": "2026-11-01",
+  "curator": "buffy-curator",
+  "deferred": [
+    {
+      "reason": "Fluctuating-size effective size is the harmonic mean over generations, needing an unbounded summation the scalar (+ - * / **) profile cannot express. The UWyo lecture prints the concept ('harmonic mean of the census size... reciprocal of the average of the reciprocals') with the worked census series 200, 150, 50, 300 giving Ne = 123.7 vs arithmetic mean 200, and Wikipedia prints the 10/100/50/80/20/500 series giving 30.8: defer, never approximate the mean with a fixed-arity product.",
+      "source_urls": [
+        "https://www.uwyo.edu/dbmcd/molmark/lect07/lect7.html",
+        "https://en.wikipedia.org/wiki/Effective_population_size"
+      ],
+      "title": "Harmonic-mean effective size under fluctuating census"
+    }
+  ],
+  "domain": "biology",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "Both records need new quantity meanings and units, so both are requires-extension; duplicate search covered the supplied catalog-inventory.json (no biology records) and batches b01-b05.",
+      "The breeder's h2 is narrow-sense (additive) heritability, a scoped component of the general variance fraction in b05's heritability record; the two records are compatible by construction (see breeder's assumptions) and must not be conflated.",
+      "The one-step recurrence family remains single-canonical: ratio/rank inversions (lambda = N2/N1, R = (N2-N1)/N1, h2 = R/S here) are documented as inverse uses, never as separate records."
+    ],
+    "queries": [],
+    "review_notes": "Validation: schema + arithmetic + guard checks to be run with the kit validator; packed ZIP to be re-validated. Source-fidelity review by curator: the breeder's equation, its rearrangement, definitions and limit were read on the LibreTexts page on 2026-11-01 (the page prints no numeric example, recorded honestly); the Ne sex-ratio equation and 80/20 example were read on Wikipedia and the dairy-cow numbers, ideal-population definition and Poisson assumption on the UWyo lecture page on 2026-11-01. No review corrections were supplied.",
+    "summary": "Batch b06: two atomic biology records (breeder's selection response, sex-ratio effective population size) grounded in the inspected LibreTexts artificial-selection derivation, Wikipedia effective-size treatment and the UWyo population-genetics lecture, each with two references, domain and missing-input rejections, and inverse notes. One summation-dependent discovery deferred with exact sources."
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: h2 is NARROW-SENSE (additive) heritability, not the general variance fraction: response depends on the heritable component transmissible parent-to-offspring (page: response 'dependent on ... the narrow-sense heritability and the selection differential'). This scopes, rather than contradicts, the b05 heritability record.",
+        "source assumption: S and R are one-generation mean shifts in the same trait units (S = selected-parent mean minus population mean; R = offspring mean minus population mean).",
+        "source assumption: directional truncation selection on a complex trait with standing allelic variation; the page's stated limit is allele fixation through repeated selection, driving h2 and hence R to 0 (with inbreeding depression)."
+      ],
+      "constants": [],
+      "guards": [
+        "h2 >= 0",
+        "h2 <= 1"
+      ],
+      "id": "biology--breeders-selection-response",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings narrow_heritability, selection_differential and selection_response are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Narrow-sense heritability is estimable as h2 = R / S from an artificial-selection experiment; the rearrangement is printed on the page. Substitution check: R = 5 with S = 10 gives h2 = 0.5, consistent with the ordinary reference. S = 0 (no differential) leaves h2 undetermined, which is expected. The S and R component definitions (differences of generation means) are documented uses of the same quantities, not separate records.",
+      "kind": "theoretical",
+      "limitations": [
+        "Single-generation prediction under the stated selection regime; realized multi-generation trajectories need the fixation/drift dynamics the page describes qualitatively.",
+        "Entry-mean and other operational heritabilities (e.g. in replicated plant-breeding trials) differ from Lush's narrow-sense h2 and must not be substituted without adjustment.",
+        "No numeric example is printed on the cited page, so both references are constructed checks; the equation, definitions and limit are the published content."
+      ],
+      "references": [
+        {
+          "expected": 5,
+          "id": "ordinary-response",
+          "inputs": {
+            "S": 10,
+            "h2": 0.5
+          },
+          "method": "Constructed check in trait units (e.g. grams): h2 = 0.5 with a 10-unit differential predicts a 5-unit response (0.5 * 10 = 5); verifies encoding, no field value claimed.",
+          "provenance": "Independently constructed arithmetic check; the cited page prints no numeric example.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "fixation-limit-boundary",
+          "inputs": {
+            "S": 10,
+            "h2": 0.0
+          },
+          "method": "Boundary with source meaning: with allelic diversity exhausted h2 drops to 0 and 'so does the response to selection' (page wording).",
+          "provenance": "Definitional boundary check tied to the source's stated selection limit.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "S": 10,
+            "h2": 1.5
+          },
+          "kind": "domain",
+          "reason": "Heritability is a variance fraction bounded by 0 and 1; h2 = 1.5 is outside its domain."
+        },
+        {
+          "inputs": {
+            "h2": 0.5
+          },
+          "kind": "missing-input",
+          "reason": "Selection differential S is required; heritability alone does not determine the response."
+        }
+      ],
+      "relationship": {
+        "expression": "h2 * S",
+        "locator": "LibreTexts 5.4 'Artificial Selection': displayed 'R = h^2 S' named 'the breeder's equation'; R defined as 'the amount that a phenotype changes in one generation', S as 'the average superiority of individuals selected to be parents of the next generation'; rearrangement 'h^2 = R / S' printed for estimating heritability.",
+        "original_equation": "R = h^2 * S (breeder's equation)",
+        "output_symbol": "R",
+        "source_id": "libretexts-artificial-selection",
+        "translation_notes": "Source symbols R, h^2, S preserved as local R, h2, S (superscript serialized). Dimensional check: dimensionless heritability times a trait-mean shift gives a trait-mean shift in the same units. Fitted-vs-theoretical status: h2 here is an estimated population parameter, not a derived constant; the equation's predictive use assumes it is known for the generation."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: selection response R (phenotype change in one generation) depends on narrow-sense heritability and selection differential S (average superiority of selected parents); R = h^2 S (breeder's equation); rearranged h^2 = R / S estimates heritability; S = selected mean minus population mean, R = offspring mean minus population mean; selection limit via allele fixation driving h2 to 0 with inbreeding depression.",
+          "id": "libretexts-artificial-selection",
+          "kind": "project-derivation",
+          "license": "LibreTexts pages are standardly CC BY-NC-SA; the exact footer license line was not re-verified on this read and is recorded as unverified. Redistribution here is limited to a short original paraphrase and independently computed numbers; no long verbatim quotation.",
+          "locator": "https://bio.libretexts.org/Workbench/Modern_Genetics/05%3A_Genotype_and_Phenotype_II_-_Complex_Traits/5.04%3A_Artificial_Selection, '5.4: Artificial Selection' (cites Falconer & Mackay 1996; Conner & Hartl 2004).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the page.",
+          "title": "LibreTexts Artificial Selection (Modern Genetics Workbench, 5.4)",
+          "url": "https://bio.libretexts.org/Workbench/Modern_Genetics/05%3A_Genotype_and_Phenotype_II_-_Complex_Traits/5.04%3A_Artificial_Selection",
+          "version": "Page as accessed 2026-11-01"
+        }
+      ],
+      "summary": "Breeder's equation: single-generation selection response from narrow-sense heritability and selection differential.",
+      "title": "Selection response from heritability and differential",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same population, trait and generation as S and R",
+          "definition": "Narrow-sense (additive) heritability of the trait",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "narrow_heritability",
+          "role": "input",
+          "source_symbol": "h^2 (rendered h2)",
+          "symbol": "h2",
+          "unit": "1"
+        },
+        {
+          "context": "same population, trait and generation as h2 and R",
+          "definition": "Selection differential: mean of selected parents minus mean of the original population",
+          "dimensions": "trait shift",
+          "domain": "Finite signed shift in trait units",
+          "quantity_id": "selection_differential",
+          "role": "input",
+          "source_symbol": "S (S = Ts-bar minus T-bar)",
+          "symbol": "S",
+          "unit": "trait-units"
+        },
+        {
+          "context": "same population, trait and generation as inputs",
+          "definition": "Selection response: mean of offspring minus mean of the original population, one generation later",
+          "dimensions": "trait shift",
+          "domain": "Finite signed shift in trait units",
+          "quantity_id": "selection_response",
+          "role": "output",
+          "source_symbol": "R (R = To-bar minus T-bar)",
+          "symbol": "R",
+          "unit": "trait-units"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: Wright-Fisher ideal population in all respects EXCEPT the 1:1 sex ratio (random mating, Poisson-distributed family sizes, constant breeder number, no migration/mutation/selection); Ne is the ideal-population size losing heterozygosity (UWyo) or drifting (Wikipedia) at the observed rate.",
+        "source assumption: Nm and Nf count BREEDING males and females contributing to the next generation (dairy-cow 'breeding herd'), not the raw census; overlapping generations and variance-skewed success need the fuller treatments.",
+        "source assumption: single-generation, discrete-generation framing (Wright 1931/1938 lineage)."
+      ],
+      "constants": [],
+      "guards": [
+        "Nm > 0",
+        "Nf > 0"
+      ],
+      "id": "biology--effective-size-unequal-sex-ratio",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings breeding_males, breeding_females and effective_size are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Breeding-male count is recoverable as Nm = Ne*Nf / (4*Nf - Ne) for 4*Nf != Ne. Substitution check: 64*20 / (80 - 64) = 1280/16 = 80, consistent with the 80/20 reference. Single-sex breeding (Nm = 0 or Nf = 0) is excluded by the guards (the ratio is undefined); the 1000-to-1 near-boundary illustrates Ne collapsing toward 4 times the rarer sex.",
+      "kind": "theoretical",
+      "limitations": [
+        "Sex-ratio correction only; variance in reproductive success, fluctuating size, overlapping generations and spatial structure reduce Ne through the separate treatments, not this record.",
+        "Ne is a drift/inbreeding rate parameter, not a head count: Ne below N does not mean individuals are missing."
+      ],
+      "references": [
+        {
+          "expected": 64,
+          "id": "eighty-twenty-skew",
+          "inputs": {
+            "Nf": 20,
+            "Nm": 80
+          },
+          "method": "Published worked example: Ne = 4 x 80 x 20 / (80 + 20) = 6400/100 = 64, stated to be less than the census N = 100.",
+          "provenance": "Published result (worked example with exact integer arithmetic).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 15.36,
+          "id": "dairy-herd-skew",
+          "inputs": {
+            "Nf": 96,
+            "Nm": 4
+          },
+          "method": "Published dairy-cow example: 96 cows and 4 bulls give 4 x 96 x 4 / 100 = 1536/100 = 15.36; the lecture reports the rounded 15.4, so the expected keeps the exact recomputation (difference 0.04 documented here).",
+          "provenance": "Published result (lecture example) kept at exact recomputation with documented rounding of the reported 15.4.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Nf": 50,
+            "Nm": 0
+          },
+          "kind": "domain",
+          "reason": "With zero breeding males the sex-ratio formula has no finite effective size."
+        },
+        {
+          "inputs": {
+            "Nm": 80
+          },
+          "kind": "missing-input",
+          "reason": "Breeding-female count Nf is required; males alone do not determine the effective size."
+        }
+      ],
+      "relationship": {
+        "expression": "4 * Nm * Nf / (Nm + Nf)",
+        "locator": "Wikipedia 'Non-Fisherian sex-ratios': 'Ne(v) = Ne(F) = 4NmNf/(Nm + Nf). Where Nm is the number of males and Nf the number of females.' with the worked 80/20 -> 64; UWyo Lecture 7 prints the dairy-cow application (96 cows, 4 bulls -> effective size 15.4) and the 50:50 sanity check (Ne = N at 1:1).",
+        "original_equation": "Ne = 4 * Nm * Nf / (Nm + Nf)",
+        "output_symbol": "Ne",
+        "source_id": "wikipedia-effective-size",
+        "translation_notes": "Source symbols Nm, Nf, Ne preserved. Dimensional check: count times count over count gives a count of ideal individuals. The factor 4 is exact combinatorics of the two-sex diploid derivation, kept inline with this note rather than as a fitted constant. Equal-ratio identity: Nm = Nf gives Ne = Nm + Nf = N (verified UWyo sanity check)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: with sex ratio varying from Fisherian 1:1, Ne(v) = Ne(F) = 4NmNf/(Nm + Nf) with Nm males and Nf females; worked 80 males and 20 females gives 6400/100 = 64, less than N = 100; Ne introduced by Wright 1931 as the idealised-population size drifting at the observed rate.",
+          "id": "wikipedia-effective-size",
+          "kind": "project-derivation",
+          "license": "Wikipedia text is CC BY-SA 4.0; page carries the standard license footer (exact footer line not re-verified on this read). Redistribution here is limited to a short original paraphrase and independently computed numbers; no long verbatim quotation.",
+          "locator": "https://en.wikipedia.org/wiki/Effective_population_size, 'Non-Fisherian sex-ratios' section, as accessed 2026-11-01.",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the article.",
+          "title": "Wikipedia: Effective population size (sex-ratio formula and example)",
+          "url": "https://en.wikipedia.org/wiki/Effective_population_size",
+          "version": "Page as accessed 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: Ne is the size of an ideal population (meeting all Hardy-Weinberg assumptions) losing heterozygosity at the observed rate; 96 cows and 4 bulls give a sex-ratio effective size of 15.4, much closer to the bulls; 50:50 verifies Ne = N; Ne assumes Poisson family numbers and is usually less than census N.",
+          "id": "uwyo-ne-lecture",
+          "kind": "project-derivation",
+          "license": "University course lecture page; no license statement observed on the read portion and none is claimed here -- terms unknown, recorded as unverified. Redistribution here is limited to a short original paraphrase and independently computed numbers; no verbatim quotation.",
+          "locator": "https://www.uwyo.edu/dbmcd/molmark/lect07/lect7.html, Lecture 7 'Effective population size, Ne' (factors 1-3: harmonic mean, sex ratio, family-size variance), as accessed 2026-11-01.",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the page.",
+          "title": "UWyo Molecular Markers Lecture 7: Effective population size",
+          "url": "https://www.uwyo.edu/dbmcd/molmark/lect07/lect7.html",
+          "version": "Page as accessed 2026-11-01"
+        }
+      ],
+      "summary": "Variance/inbreeding effective size under unequal breeding sex ratio.",
+      "title": "Effective population size from breeding sex ratio",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same breeding population and generation as Nf and Ne",
+          "definition": "Number of breeding males contributing to the next generation",
+          "dimensions": "count",
+          "domain": "Positive finite count",
+          "quantity_id": "breeding_males",
+          "role": "input",
+          "source_symbol": "Nm",
+          "symbol": "Nm",
+          "unit": "count"
+        },
+        {
+          "context": "same breeding population and generation as Nm and Ne",
+          "definition": "Number of breeding females contributing to the next generation",
+          "dimensions": "count",
+          "domain": "Positive finite count",
+          "quantity_id": "breeding_females",
+          "role": "input",
+          "source_symbol": "Nf",
+          "symbol": "Nf",
+          "unit": "count"
+        },
+        {
+          "context": "same breeding population and generation as inputs",
+          "definition": "Effective population size: ideal-population size drifting (or losing heterozygosity) at the observed rate",
+          "dimensions": "count",
+          "domain": "Positive finite effective size, at most Nm + Nf",
+          "quantity_id": "effective_size",
+          "role": "output",
+          "source_symbol": "Ne",
+          "symbol": "Ne",
+          "unit": "count"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

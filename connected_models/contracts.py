@@ -16,7 +16,7 @@ MONEY: Dimensions = (0, 0, 0, 1)
 PRICE: Dimensions = (-1, -2, 2, 1)
 INVERSE_MONEY: Dimensions = (0, 0, 0, -1)
 JOULES_PER_KWH = 3_600_000
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-4"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-4+biology-1"
 DIMENSION_AXES = ("mass", "length", "time", "currency")
 NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
@@ -84,6 +84,12 @@ UNITS = {
     "CAD": Unit(MONEY, 1.0),
     "CAD/unit": Unit(MONEY, 1.0),
     "CAD_ref": Unit(MONEY, 1.0),
+    # Biology batch (biology-1): organism/site counts and abstract trait units
+    # are dimensionless. Concrete units (cm, kg) cannot bind abstract trait
+    # ports: the meaning/unit dimension check rejects them fail-closed.
+    "count": Unit(DIMENSIONLESS, 1.0),
+    "trait-units": Unit(DIMENSIONLESS, 1.0),
+    "1/site/generation": Unit(DIMENSIONLESS, 1.0),
 }
 
 # Meaning is independent of dimension: heat and electricity cannot bind implicitly.
@@ -205,6 +211,20 @@ MEANINGS = {
     "sales_margin_of_safety_fraction": DIMENSIONLESS,
     "degree_operating_leverage": DIMENSIONLESS,
     "net_operating_income": MONEY,
+    # Biology-1: population-genetics frequencies, counts and trait meanings.
+    "allele_frequency": DIMENSIONLESS,
+    "genotype_frequency": DIMENSIONLESS,
+    "narrow_heritability": DIMENSIONLESS,
+    "selection_differential": DIMENSIONLESS,
+    "selection_response": DIMENSIONLESS,
+    "breeding_males": DIMENSIONLESS,
+    "breeding_females": DIMENSIONLESS,
+    "census_size": DIMENSIONLESS,
+    "effective_size": DIMENSIONLESS,
+    "ideal_population_size": DIMENSIONLESS,
+    "drift_variance": DIMENSIONLESS,
+    "mutation_rate": DIMENSIONLESS,
+    "nucleotide_diversity": DIMENSIONLESS,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

@@ -16,7 +16,7 @@ MONEY: Dimensions = (0, 0, 0, 1)
 PRICE: Dimensions = (-1, -2, 2, 1)
 INVERSE_MONEY: Dimensions = (0, 0, 0, -1)
 JOULES_PER_KWH = 3_600_000
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-2"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-3"
 DIMENSION_AXES = ("mass", "length", "time", "currency")
 NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
@@ -78,6 +78,12 @@ UNITS = {
     "USD_ref/person": Unit(MONEY, 1.0),
     "person": Unit(DIMENSIONLESS, 1.0),
     "index-point": Unit(DIMENSIONLESS, 1.0),
+    # Economics-3: second currency identity. Currency units never convert
+    # implicitly (see Value.bind): CAD and USD amounts mix only through an
+    # explicit rate model, never at assumed parity.
+    "CAD": Unit(MONEY, 1.0),
+    "CAD/unit": Unit(MONEY, 1.0),
+    "CAD_ref": Unit(MONEY, 1.0),
 }
 
 # Meaning is independent of dimension: heat and electricity cannot bind implicitly.
@@ -171,6 +177,17 @@ MEANINGS = {
     "total_production_cost": MONEY,
     "produced_quantity": DIMENSIONLESS,
     "finite_increment_marginal_cost": MONEY,
+    # Economics-3: value-added, capital-stock and transaction-price meanings.
+    "gross_value_added_current_price": MONEY,
+    "industry_gross_output_current_price": MONEY,
+    "industry_intermediate_inputs_current_price": MONEY,
+    "fixed_capital_net_stock_reference_price": MONEY,
+    "fixed_capital_investment_reference_price": MONEY,
+    "fixed_capital_consumption_reference_price": MONEY,
+    "fixed_capital_other_disappearance_reference_price": MONEY,
+    "identical_product_transaction_value": MONEY,
+    "identical_product_transacted_quantity": DIMENSIONLESS,
+    "quantity_weighted_mean_transaction_price": MONEY,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 
@@ -211,6 +228,9 @@ class Port:
         target.validate()
         if (self.meaning, self.context) != (target.meaning, target.context):
             raise ModelError(f"Cannot bind {self} to {target}: meaning/context mismatch.")
+        if self.unit != target.unit and (UNITS[self.unit].dimensions[3] != 0 or UNITS[target.unit].dimensions[3] != 0):
+            raise ModelError(f"Cannot bind {self.unit} to {target.unit}: currency units never convert implicitly; "
+                             "route through an explicit rate model instead of assuming parity.")
 
 
 @dataclass(frozen=True)

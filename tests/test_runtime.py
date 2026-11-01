@@ -112,6 +112,18 @@ class RuntimeTests(unittest.TestCase):
         with self.assertRaises(ModelError):
             Port("duration", "years", "test-context").validate()
 
+    def test_currency_units_never_convert_implicitly(self) -> None:
+        """USD, CAD and reference-year dollars bind only to their own unit string."""
+        usd = Port("future_value", "USD", "test-context")
+        usd.require_compatible(Port("future_value", "USD", "test-context"))
+        kwh = Port("delivered_heat", "kWh", "test-context")
+        kwh.require_compatible(Port("delivered_heat", "Wh", "test-context"))
+        with self.assertRaisesRegex(ModelError, "never convert implicitly"):
+            Port("future_value", "USD", "test-context").require_compatible(Port("future_value", "CAD", "test-context"))
+        with self.assertRaisesRegex(ModelError, "never convert implicitly"):
+            Port("economic_series_current_price", "USD", "test-context").require_compatible(
+                Port("economic_series_current_price", "USD_ref", "test-context"))
+
     def test_revision_and_old_run_preservation(self) -> None:
         """New inputs and a compatible model revision leave earlier runs intact."""
         models = catalog()

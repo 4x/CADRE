@@ -7,7 +7,7 @@ from pathlib import Path
 from test_support import scratch_directory
 import unittest
 
-from connected_models.contracts import Composition, ModelError, Node, Port, Reference, Value
+from connected_models.contracts import DIMENSIONLESS, INVERSE_MONEY, MEANINGS, MONEY, Composition, ModelError, Node, Port, Reference, Value
 from connected_models.demo import ANNUAL, HEAT, RATE, SAVING, YEARS, catalog, composition, fixture
 from connected_models.runtime import execute, save_run
 
@@ -85,6 +85,23 @@ class RuntimeTests(unittest.TestCase):
             run = execute(composition(), models)
             self.assertEqual(run["status"], "rejected")
             self.assertEqual(run["steps"], [])
+
+    def test_finance_vocabulary_batch(self) -> None:
+        """Finance-1 meanings validate with their units; financial years stay non-physical."""
+        pairs = {"future_value": ("USD", MONEY), "periodic_payment": ("USD", MONEY),
+                 "effective_rate": ("1", DIMENSIONLESS), "nominal_rate": ("1", DIMENSIONLESS),
+                 "signed_point_price_elasticity": ("1", DIMENSIONLESS), "unit_price": ("USD/unit", MONEY),
+                 "quantity_price_derivative": ("unit^2/USD", INVERSE_MONEY),
+                 "gross_domestic_product_current_price": ("USD", MONEY)}
+        for meaning, (unit, dimensions) in pairs.items():
+            Port(meaning, unit, "test-context").validate()
+            self.assertEqual(MEANINGS[meaning], dimensions)
+        financial_year = Port("elapsed_time", "years", "test-context")
+        financial_year.validate()
+        with self.assertRaises(ModelError):
+            Port("elapsed_time", "s", "test-context").validate()
+        with self.assertRaises(ModelError):
+            Port("duration", "years", "test-context").validate()
 
     def test_revision_and_old_run_preservation(self) -> None:
         """New inputs and a compatible model revision leave earlier runs intact."""

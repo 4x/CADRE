@@ -14,8 +14,9 @@ FORCE: Dimensions = (1, 1, -2, 0)
 ENERGY: Dimensions = (1, 2, -2, 0)
 MONEY: Dimensions = (0, 0, 0, 1)
 PRICE: Dimensions = (-1, -2, 2, 1)
+INVERSE_MONEY: Dimensions = (0, 0, 0, -1)
 JOULES_PER_KWH = 3_600_000
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-1"
 DIMENSION_AXES = ("mass", "length", "time", "currency")
 NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
@@ -61,6 +62,15 @@ UNITS = {
     "N": Unit(FORCE, 1 / JOULES_PER_KWH),
     "J": Unit(ENERGY, 1 / JOULES_PER_KWH),
     "kJ": Unit(ENERGY, 1000 / JOULES_PER_KWH),
+    # Finance/economics batch (finance-1): period counts and abstract units are
+    # dimensionless by design. Financial "years"/"periods" are discrete counts,
+    # deliberately NOT physical time: they never convert to s/min/h.
+    "periods": Unit(DIMENSIONLESS, 1.0),
+    "periods/year": Unit(DIMENSIONLESS, 1.0),
+    "years": Unit(DIMENSIONLESS, 1.0),
+    "unit": Unit(DIMENSIONLESS, 1.0),
+    "USD/unit": Unit(MONEY, 1.0),
+    "unit^2/USD": Unit(INVERSE_MONEY, 1.0),
 }
 
 # Meaning is independent of dimension: heat and electricity cannot bind implicitly.
@@ -89,6 +99,36 @@ MEANINGS = {
     "translational_kinetic_energy": ENERGY,
     "gravitational_potential_energy_change": ENERGY,
     "mechanical_work": ENERGY,
+    # Finance/economics batch (finance-1): adopted curator quantity IDs verbatim
+    # for the nine reviewed b01 records. Several are instance-level names that a
+    # future canonicalization pass should consolidate; they bind conservatively
+    # (exact meaning/context match) until then.
+    "future_value": MONEY,
+    "periodic_payment": MONEY,
+    "effective_rate": DIMENSIONLESS,
+    "nominal_rate": DIMENSIONLESS,
+    "periodic_rate": DIMENSIONLESS,
+    "real_rate": DIMENSIONLESS,
+    "inflation_rate": DIMENSIONLESS,
+    "required_return": DIMENSIONLESS,
+    "growth_rate": DIMENSIONLESS,
+    "annualized_geometric_growth_rate": DIMENSIONLESS,
+    "compounding_frequency": DIMENSIONLESS,
+    "periods_per_year": DIMENSIONLESS,
+    "elapsed_time": DIMENSIONLESS,
+    "expected_dividend": MONEY,
+    "signed_point_price_elasticity": DIMENSIONLESS,
+    "signed_arc_price_elasticity": DIMENSIONLESS,
+    "quantity_price_derivative": INVERSE_MONEY,
+    "unit_price": MONEY,
+    "economic_quantity": DIMENSIONLESS,
+    "economic_series_level": MONEY,
+    "gross_domestic_product_current_price": MONEY,
+    "personal_consumption_expenditure": MONEY,
+    "gross_private_domestic_investment": MONEY,
+    "government_consumption_and_gross_investment": MONEY,
+    "exports_goods_services": MONEY,
+    "imports_goods_services": MONEY,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

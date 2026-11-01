@@ -2,7 +2,7 @@
 
 Compose reusable quantitative models and inspect their inputs, assumptions, dependencies and results. The first runnable slice compares electric resistance heating with a heat pump, then connects operating savings to discounted investment value.
 
-Returning agents: start with the session handoff in [PROJECT_STATE.md](PROJECT_STATE.md), then the [active MVP plan](knowledge/notes/mvp-build-sequence-and-extension-triggers.md). M2 is complete, including the recorded acceptance exercise; M3 testing continues and M4 release work can start. Current worker release files are directly in `.runs/curation-kits-2026-10-31.5/` (generic plus ten domain kits; the `.4` release stays valid for its six domains); build/test artifacts are archived separately. The full offline suite has 89 passing tests. Incoming ZIPs and the live registry/runs are local state; migration details are in the handoff.
+Returning agents: start with the session handoff in [PROJECT_STATE.md](PROJECT_STATE.md), then the [active MVP plan](knowledge/notes/mvp-build-sequence-and-extension-triggers.md). M2 is complete, including the recorded acceptance exercise; M3 testing continues and M4 release work can start. Current worker release files are directly in `.runs/curation-kits-2026-10-31.5/` (generic plus ten domain kits; the `.4` release stays valid for its six domains); build/test artifacts are archived separately. The full offline suite has 90 passing tests. Incoming ZIPs and the live registry/runs are local state; migration details are in the handoff.
 
 ## Run the current prototype
 

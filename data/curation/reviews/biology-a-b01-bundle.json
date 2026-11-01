@@ -1,0 +1,666 @@
+{
+  "batch_id": "biology-a-b01",
+  "created": "2026-11-01",
+  "curator": "buffy-curator",
+  "deferred": [
+    {
+      "reason": "Closed-form continuous-time models need exp/logarithm and differential-equation semantics, which the scalar (+ - * / **) profile cannot express. Priority: after discrete-growth coverage, revisit only if the runtime gains exp support; never approximate exp with polynomials.",
+      "source_urls": [
+        "https://openstax.org/books/biology-2e/pages/45-3-environmental-limits-to-population-growth"
+      ],
+      "title": "Continuous exponential (dN/dT = rN, dN/dT = rmax N) and logistic (dN/dT = rmax N (K-N)/K) growth"
+    },
+    {
+      "reason": "The applied 70 kcal/day-per-kg^0.75 normalization is a widely repeated secondary restatement (seen on the Kleiber's-law summary page) whose exact printed coefficient, units and animal list in Hilgardia 6(11):315-353 could not be verified: the journal landing page returned 403 and no PDF was readable in this workspace. Priority: verify against the Hilgardia page via DOI 10.3733/hilg.v06n11p315 before curating as an empirical constant.",
+      "source_urls": [
+        "https://en.wikipedia.org/wiki/Kleiber%27s_law",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC3477241/"
+      ],
+      "title": "Kleiber empirical metabolic-rate coefficient (70 x M^0.75 kcal/day)"
+    }
+  ],
+  "domain": "biology",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "New quantity meanings needed (allele_frequency, genotype_frequency, individual_count, survey_area, population_density) and count/area units are outside the current runtime vocabulary; all five records are requires-extension.",
+      "No life-table survivorship/fecundity (lx, mx), net reproductive rate (R0) or generation time (T) in OpenStax Biology 2e Chapter 45; candidate alternate sources are Biology for AP Courses Ch. 45 and Concepts of Biology Ch. 19.",
+      "Multi-allele Hardy-Weinberg expansion (ABO three-allele example on the same page) not yet formalized."
+    ],
+    "queries": [],
+    "review_notes": "Validation: schema + arithmetic + guard checks to be run with the kit validator after writing; packed ZIP to be re-validated. Source-fidelity review performed by curator: every equation, assumption quote and numerical value above was read on the cited page on 2026-11-01 except where explicitly marked mirror-derived. No review corrections were supplied with this assignment.",
+    "summary": "Batch b01: five atomic biology records (three Hardy-Weinberg genotype-frequency predictions, allele-frequency-from-counts definition, population-density definition) grounded in OpenStax Biology 2e sections 19.1 and 45.1, each with two references, domain and missing-input rejections, and inverse notes. Two out-of-format/unverifiable discoveries deferred with exact sources."
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: Hardy-Weinberg equilibrium conditions stated on the page: an infinitely large population with no mutations, migration, emigration, or selective pressure for or against genotype.",
+        "source assumption: exactly two alleles at one diploid locus with p + q = 1, and offspring genotypes formed by the random union of two gene-pool alleles (source: probability of obtaining genotypes 'if we draw two alleles at random from the gene pool')."
+      ],
+      "constants": [],
+      "guards": [
+        "p >= 0",
+        "p <= 1"
+      ],
+      "id": "biology--hardy-weinberg-homozygous-dominant-frequency",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings allele_frequency and genotype_frequency and dimensionless unit 1 for frequencies are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Allele frequency is recoverable as the nonnegative root of fAA (p = +sqrt(fAA)); the negative root is rejected by the p >= 0 guard. Substitution check: fAA = 0.64 gives p = 0.8, consistent with the violet-flower reference. Boundary p = 0 gives fAA = 0 (allele absent from the gene pool) and is admissible, not a violation. Joint inversion of (p, q) from fAA alone is underdetermined and not attempted.",
+      "kind": "theoretical",
+      "limitations": [
+        "Predicts the expected genotype frequency under equilibrium; a real population whose measured frequency deviates is evolving (drift, mutation, migration, selection).",
+        "Excludes loci with more than two alleles, sex linkage, polyploidy and nonrandom mating; the source notes no natural population fully satisfies the equilibrium conditions."
+      ],
+      "references": [
+        {
+          "expected": 0.64,
+          "id": "violet-homozygous-dominant",
+          "inputs": {
+            "p": 0.8
+          },
+          "method": "Published self-check answer: 320 VV of 500 plants (320/500 = 0.64) at p = 0.8; model answer verified on the CC-licensed practice mirror of section 19.1.",
+          "provenance": "Published result (worked self-check with keyed model answer) converted from expected counts to frequency.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.49,
+          "id": "pea-homozygous-dominant",
+          "inputs": {
+            "p": 0.7
+          },
+          "method": "Figure 19.2 extended description: 245 YY of 500 individuals with allele frequency p = 0.7; 245/500 = 0.49 independently recomputed from the printed counts, matching the grid cell p-squared = .49.",
+          "provenance": "Value derived independently from published figure counts (not the printed product).",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "p": 1.2
+          },
+          "kind": "domain",
+          "reason": "Allele frequencies are bounded by 0 and 1; p = 1.2 is outside the frequency domain."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Allele frequency p must be supplied; a genotype frequency cannot be predicted from no input."
+        }
+      ],
+      "relationship": {
+        "expression": "p * p",
+        "locator": "Section 19.1, subsection 'Hardy-Weinberg Principle of Equilibrium': sentence 'the frequency of pp individuals is simply p2' (superscript renders as a plain digit in page extraction) and equation p2 + 2pq + q2 = 1.",
+        "original_equation": "frequency of pp individuals is simply p^2",
+        "output_symbol": "fAA",
+        "source_id": "openstax-biology-2e-19-1",
+        "translation_notes": "Superscript p-squared transcribed as p * p. Source symbols p (allele Y frequency) and pp (YY genotype frequency) preserved as local p and fAA. Dimensional check: dimensionless frequency times dimensionless frequency gives a dimensionless frequency. Independence of the two allele draws encodes the random-union assumption."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: under stated equilibrium conditions the pp genotype frequency equals the square of allele frequency p, as part of p-squared + 2pq + q-squared = 1; worked self-check with p = 0.8, q = 0.2 in 500 plants.",
+          "id": "openstax-biology-2e-19-1",
+          "kind": "primary",
+          "license": "OpenStax textbooks are distributed under CC BY 4.0 per the publisher's standard licensing; the dedicated terms page rendered no extractable text on 2026-11-01, so the exact terms section is recorded as unverified: https://openstax.org/license.",
+          "locator": "https://openstax.org/books/biology-2e/pages/19-1-population-evolution, subsection 'Hardy-Weinberg Principle of Equilibrium' (Biology 2e, Clark/Jung/Douglas, 2018-03-28).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the source.",
+          "title": "OpenStax Biology 2e, Section 19.1 Population Evolution",
+          "url": "https://openstax.org/books/biology-2e/pages/19-1-population-evolution",
+          "version": "Biology 2e web edition, 2018-03-28"
+        }
+      ],
+      "summary": "Hardy-Weinberg prediction of the homozygous dominant genotype frequency as the square of its allele frequency.",
+      "title": "Hardy-Weinberg homozygous dominant genotype frequency from allele frequency",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same diploid locus, gene pool and generation as fAA",
+          "definition": "Frequency of the focal allele among all gene copies at the locus",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "allele_frequency",
+          "role": "input",
+          "source_symbol": "p",
+          "symbol": "p",
+          "unit": "1"
+        },
+        {
+          "context": "same diploid locus, gene pool and generation as p",
+          "definition": "Expected frequency of homozygous dominant individuals under Hardy-Weinberg equilibrium",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "genotype_frequency",
+          "role": "output",
+          "source_symbol": "pp (YY)",
+          "symbol": "fAA",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: Hardy-Weinberg equilibrium conditions stated on the page: an infinitely large population with no mutations, migration, emigration, or selective pressure for or against genotype.",
+        "source assumption: exactly two alleles at one diploid locus with p + q = 1, and offspring genotypes formed by the random union of two gene-pool alleles; the factor 2 counts the two reciprocal heterozygote unions (Y from sire with y from dam, and the reverse)."
+      ],
+      "constants": [],
+      "guards": [
+        "p >= 0",
+        "p <= 1",
+        "q >= 0",
+        "q <= 1"
+      ],
+      "id": "biology--hardy-weinberg-heterozygote-frequency",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings allele_frequency and genotype_frequency and dimensionless unit 1 for frequencies are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Given fAa and nonzero p, q = fAa / (2p), symmetric in p and q. Substitution check: fAa = 0.32 with p = 0.8 gives q = 0.2, consistent with the violet-flower reference. Zero-factor boundary: p = 0 or q = 0 gives fAa = 0 (one allele fixed); admissible, not a violation. Recovering a unique (p, q) pair from fAa alone is underdetermined and not attempted. The sum-to-one condition p + q = 1 is kept as an assumption, not an executable guard, to avoid floating-point equality on rounded published inputs.",
+      "kind": "theoretical",
+      "limitations": [
+        "Predicts the expected genotype frequency under equilibrium; a measured deviation means the population is evolving.",
+        "Excludes loci with more than two alleles, sex linkage, polyploidy and nonrandom mating."
+      ],
+      "references": [
+        {
+          "expected": 0.32,
+          "id": "violet-heterozygote",
+          "inputs": {
+            "p": 0.8,
+            "q": 0.2
+          },
+          "method": "Published self-check answer: 160 Vv of 500 plants (160/500 = 0.32); model answer verified on the CC-licensed practice mirror of section 19.1.",
+          "provenance": "Published result (worked self-check with keyed model answer) converted from expected counts to frequency.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.42,
+          "id": "pea-heterozygote",
+          "inputs": {
+            "p": 0.7,
+            "q": 0.3
+          },
+          "method": "Figure 19.2 extended description: 210 Yy of 500 individuals (210/500 = 0.42) with p = 0.7, q = 0.3; independently recomputed from the printed counts, matching the two grid cells pq = .21 each.",
+          "provenance": "Value derived independently from published figure counts (not the printed product).",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "p": 0.8,
+            "q": -0.1
+          },
+          "kind": "domain",
+          "reason": "Allele frequencies cannot be negative; q = -0.1 violates the frequency domain."
+        },
+        {
+          "inputs": {
+            "p": 0.8
+          },
+          "kind": "missing-input",
+          "reason": "Both allele frequencies p and q are required; the heterozygote frequency needs the full two-allele specification."
+        }
+      ],
+      "relationship": {
+        "expression": "2 * p * q",
+        "locator": "Section 19.1, subsection 'Hardy-Weinberg Principle of Equilibrium': sentence 'the frequency of pq individuals is 2pq' and equation p2 + 2pq + q2 = 1.",
+        "original_equation": "frequency of pq individuals is 2pq",
+        "output_symbol": "fAa",
+        "source_id": "openstax-biology-2e-19-1",
+        "translation_notes": "Source symbols p, q and factor 2 preserved. The coefficient 2 is exact combinatorics (two ordered parental-origin unions), not a fitted parameter, so it is written inline with the reason recorded here rather than as a constants entry. Dimensional check: dimensionless product, dimensionless output."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: the pq (heterozygous) genotype frequency equals 2pq, as part of p-squared + 2pq + q-squared = 1; worked self-check with p = 0.8, q = 0.2 in 500 plants.",
+          "id": "openstax-biology-2e-19-1",
+          "kind": "primary",
+          "license": "OpenStax textbooks are distributed under CC BY 4.0 per the publisher's standard licensing; the dedicated terms page rendered no extractable text on 2026-11-01, so the exact terms section is recorded as unverified: https://openstax.org/license.",
+          "locator": "https://openstax.org/books/biology-2e/pages/19-1-population-evolution, subsection 'Hardy-Weinberg Principle of Equilibrium' (Biology 2e, Clark/Jung/Douglas, 2018-03-28).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the source.",
+          "title": "OpenStax Biology 2e, Section 19.1 Population Evolution",
+          "url": "https://openstax.org/books/biology-2e/pages/19-1-population-evolution",
+          "version": "Biology 2e web edition, 2018-03-28"
+        }
+      ],
+      "summary": "Hardy-Weinberg prediction of the heterozygote genotype frequency as twice the product of the two allele frequencies.",
+      "title": "Hardy-Weinberg heterozygote genotype frequency from allele frequencies",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same diploid locus, gene pool and generation as fAa and q",
+          "definition": "Frequency of the first allele among all gene copies at the locus",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "allele_frequency",
+          "role": "input",
+          "source_symbol": "p",
+          "symbol": "p",
+          "unit": "1"
+        },
+        {
+          "context": "same diploid locus, gene pool and generation as fAa and p",
+          "definition": "Frequency of the second allele among all gene copies at the locus",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "allele_frequency",
+          "role": "input",
+          "source_symbol": "q",
+          "symbol": "q",
+          "unit": "1"
+        },
+        {
+          "context": "same diploid locus, gene pool and generation as p and q",
+          "definition": "Expected frequency of heterozygous individuals under Hardy-Weinberg equilibrium",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "genotype_frequency",
+          "role": "output",
+          "source_symbol": "pq (Yy)",
+          "symbol": "fAa",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: Hardy-Weinberg equilibrium conditions stated on the page: an infinitely large population with no mutations, migration, emigration, or selective pressure for or against genotype.",
+        "source assumption: exactly two alleles at one diploid locus with p + q = 1, and offspring genotypes formed by the random union of two gene-pool alleles (source: probability of obtaining genotypes 'if we draw two alleles at random from the gene pool')."
+      ],
+      "constants": [],
+      "guards": [
+        "q >= 0",
+        "q <= 1"
+      ],
+      "id": "biology--hardy-weinberg-homozygous-recessive-frequency",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings allele_frequency and genotype_frequency and dimensionless unit 1 for frequencies are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Allele frequency is recoverable as the nonnegative root of faa (q = +sqrt(faa)); the negative root is rejected by the q >= 0 guard. Substitution check: faa = 0.04 gives q = 0.2, consistent with the violet-flower reference. Boundary q = 0 gives faa = 0 (allele absent) and is admissible. This supports the source's stated use: the homozygous recessive phenotype is the only genotype directly observable, from which the remaining genotypes are estimated.",
+      "kind": "theoretical",
+      "limitations": [
+        "Predicts the expected genotype frequency under equilibrium; a measured deviation means the population is evolving.",
+        "Excludes loci with more than two alleles, sex linkage, polyploidy and nonrandom mating."
+      ],
+      "references": [
+        {
+          "expected": 0.04,
+          "id": "white-homozygous-recessive",
+          "inputs": {
+            "q": 0.2
+          },
+          "method": "Published self-check answer: 20 vv (white-flowered) of 500 plants (20/500 = 0.04) at q = 0.2; model answer verified on the CC-licensed practice mirror of section 19.1.",
+          "provenance": "Published result (worked self-check with keyed model answer) converted from expected counts to frequency.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.09,
+          "id": "pea-homozygous-recessive",
+          "inputs": {
+            "q": 0.3
+          },
+          "method": "Figure 19.2 extended description: 45 yy of 500 individuals with allele frequency q = 0.3; 45/500 = 0.09 independently recomputed from the printed counts, matching the grid cell q-squared = .09.",
+          "provenance": "Value derived independently from published figure counts (not the printed product).",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "q": 1.5
+          },
+          "kind": "domain",
+          "reason": "Allele frequencies are bounded by 0 and 1; q = 1.5 is outside the frequency domain."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Allele frequency q must be supplied; a genotype frequency cannot be predicted from no input."
+        }
+      ],
+      "relationship": {
+        "expression": "q * q",
+        "locator": "Section 19.1, subsection 'Hardy-Weinberg Principle of Equilibrium': sentence 'the frequency of qq individuals is q2' (superscript renders as a plain digit in page extraction) and equation p2 + 2pq + q2 = 1.",
+        "original_equation": "frequency of qq individuals is simply q^2",
+        "output_symbol": "faa",
+        "source_id": "openstax-biology-2e-19-1",
+        "translation_notes": "Superscript q-squared transcribed as q * q. Source symbols q (allele y frequency) and qq (yy genotype frequency) preserved as local q and faa. Dimensional check: dimensionless times dimensionless gives dimensionless. Independence of the two allele draws encodes the random-union assumption."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: under stated equilibrium conditions the qq genotype frequency equals the square of allele frequency q, as part of p-squared + 2pq + q-squared = 1; the text notes the homozygous recessive phenotype is the only directly observable genotype.",
+          "id": "openstax-biology-2e-19-1",
+          "kind": "primary",
+          "license": "OpenStax textbooks are distributed under CC BY 4.0 per the publisher's standard licensing; the dedicated terms page rendered no extractable text on 2026-11-01, so the exact terms section is recorded as unverified: https://openstax.org/license.",
+          "locator": "https://openstax.org/books/biology-2e/pages/19-1-population-evolution, subsection 'Hardy-Weinberg Principle of Equilibrium' (Biology 2e, Clark/Jung/Douglas, 2018-03-28).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the source.",
+          "title": "OpenStax Biology 2e, Section 19.1 Population Evolution",
+          "url": "https://openstax.org/books/biology-2e/pages/19-1-population-evolution",
+          "version": "Biology 2e web edition, 2018-03-28"
+        }
+      ],
+      "summary": "Hardy-Weinberg prediction of the homozygous recessive genotype frequency as the square of its allele frequency.",
+      "title": "Hardy-Weinberg homozygous recessive genotype frequency from allele frequency",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same diploid locus, gene pool and generation as faa",
+          "definition": "Frequency of the focal allele among all gene copies at the locus",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "allele_frequency",
+          "role": "input",
+          "source_symbol": "q",
+          "symbol": "q",
+          "unit": "1"
+        },
+        {
+          "context": "same diploid locus, gene pool and generation as q",
+          "definition": "Expected frequency of homozygous recessive individuals under Hardy-Weinberg equilibrium",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "genotype_frequency",
+          "role": "output",
+          "source_symbol": "qq (yy)",
+          "symbol": "faa",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: diploid organisms in which each individual carries exactly two alleles per gene (source: 'Each individual in a population of diploid organisms can only carry two alleles for a particular gene').",
+        "source assumption: the census counts every individual of the sampled population exactly once across the three genotype classes, so the total N equals nAA + nAa + naa."
+      ],
+      "constants": [],
+      "guards": [
+        "nAA >= 0",
+        "nAa >= 0",
+        "N > 0",
+        "nAA + nAa <= N"
+      ],
+      "id": "biology--allele-frequency-from-genotype-counts",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings allele_frequency, genotype_count and individual_count are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Total census size N is recoverable as (2*nAA + nAa) / (2*p) when p is nonzero; N = 0 is excluded by the guard because a frequency over an empty sample is undefined. Substitution check: 700 Y alleles at p = 0.7 give N = 700 / 1.4 = 500 individuals, consistent with the figure reference. Inverting for a single genotype count from p alone is underdetermined and not attempted.",
+      "kind": "definition",
+      "limitations": [
+        "Estimates the current gene-pool frequency from an observed census; it does not test equilibrium and must not be confused with the Hardy-Weinberg predicted frequencies, against which it is compared.",
+        "Requires complete, non-overlapping genotype classification; misclassified or unsampled individuals bias the frequency."
+      ],
+      "references": [
+        {
+          "expected": 0.7,
+          "id": "pea-allele-count-figure",
+          "inputs": {
+            "N": 500,
+            "nAA": 245,
+            "nAa": 210
+          },
+          "method": "Figure 19.2 extended description on the practice mirror: Y alleles 2*245 + 210 = 700 of 2*500 = 1000 gene copies (700/1000 = 0.7); allele total recomputed from the printed genotype counts.",
+          "provenance": "Value derived independently from published figure counts via the allele-counting route.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.4166666666666667,
+          "id": "review-question-allele-count",
+          "inputs": {
+            "N": 24,
+            "nAA": 8,
+            "nAa": 4
+          },
+          "method": "Review-question dataset (12 yy, 8 YY, 4 Yy; total 24): exact rational (2*8 + 4)/(2*24) = 20/48; the mirror reports the rounded value .42, so the unrounded rational is the expected value here.",
+          "provenance": "Value derived independently from published review counts; explains the mirror's rounded .42 rather than repeating it.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "N": 500,
+            "nAA": 300,
+            "nAa": 250
+          },
+          "kind": "domain",
+          "reason": "Genotype-class counts (300 + 250 = 550) exceed the census total N = 500, so they cannot come from one complete non-overlapping census."
+        },
+        {
+          "inputs": {
+            "nAA": 245,
+            "nAa": 210
+          },
+          "kind": "missing-input",
+          "reason": "Census total N is required; without it the allele copies cannot be normalized to a frequency."
+        }
+      ],
+      "relationship": {
+        "expression": "(2 * nAA + nAa) / (2 * N)",
+        "locator": "Section 19.1 'Population Genetics' subsection: allele frequency defined as 'the number of copies of that allele divided by all the copies of the ABO gene in the population'; applied in Figure 19.2 extended description (Y: 490 + 210 = 700 of 1000, p = .7).",
+        "original_equation": "allele frequency = number of copies of the allele divided by all gene copies in the population",
+        "output_symbol": "p",
+        "source_id": "openstax-biology-2e-19-1",
+        "translation_notes": "Prose definition formalized: copies of the focal allele = 2 per homozygote + 1 per heterozygote (introduced factor 2 reflects diploidy, labeled here, not a source symbol); total gene copies = 2 per individual (introduced factor 2, same mapping). Source symbols for the counts are introduced (the page prints example counts, not symbols) and marked accordingly. Dimensional check: count divided by count gives a dimensionless frequency."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: allele frequency is the number of copies of an allele divided by all gene copies in the population (ABO example: IA 26.1%, IB 13.4%, I0 60.5%, summing to 100%); Figure 19.2 applies this as Y = 490 + 210 = 700 of 1000, giving p = .7.",
+          "id": "openstax-biology-2e-19-1",
+          "kind": "primary",
+          "license": "OpenStax textbooks are distributed under CC BY 4.0 per the publisher's standard licensing; the dedicated terms page rendered no extractable text on 2026-11-01, so the exact terms section is recorded as unverified: https://openstax.org/license.",
+          "locator": "https://openstax.org/books/biology-2e/pages/19-1-population-evolution, 'Population Genetics' subsection and Figure 19.2 (Biology 2e, Clark/Jung/Douglas, 2018-03-28).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the source.",
+          "title": "OpenStax Biology 2e, Section 19.1 Population Evolution",
+          "url": "https://openstax.org/books/biology-2e/pages/19-1-population-evolution",
+          "version": "Biology 2e web edition, 2018-03-28"
+        }
+      ],
+      "summary": "Counting definition of an allele frequency from observed diploid genotype counts: two copies per homozygote plus one per heterozygote, over twice the census total.",
+      "title": "Allele frequency from observed genotype counts",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same sampled population and census as N and nAa",
+          "definition": "Number of observed homozygous carriers of the focal allele",
+          "dimensions": "count",
+          "domain": "Nonnegative finite count",
+          "quantity_id": "genotype_count",
+          "role": "input",
+          "source_symbol": "introduced nAA for the printed YY count",
+          "symbol": "nAA",
+          "unit": "count"
+        },
+        {
+          "context": "same sampled population and census as N and nAA",
+          "definition": "Number of observed heterozygous carriers of the focal allele",
+          "dimensions": "count",
+          "domain": "Nonnegative finite count",
+          "quantity_id": "genotype_count",
+          "role": "input",
+          "source_symbol": "introduced nAa for the printed Yy count",
+          "symbol": "nAa",
+          "unit": "count"
+        },
+        {
+          "context": "same sampled population and census as nAA and nAa",
+          "definition": "Total number of censused individuals across all genotype classes",
+          "dimensions": "count",
+          "domain": "Positive finite count",
+          "quantity_id": "individual_count",
+          "role": "input",
+          "source_symbol": "introduced N for the printed census total",
+          "symbol": "N",
+          "unit": "count"
+        },
+        {
+          "context": "same sampled population and census as inputs",
+          "definition": "Frequency of the focal allele among all gene copies in the sampled population",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive given consistent counts",
+          "quantity_id": "allele_frequency",
+          "role": "output",
+          "source_symbol": "introduced p for the allele frequency",
+          "symbol": "p",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: a population consists of all individuals of one particular species occurring in one particular area (source: population definition in section 45.1).",
+        "application profile: single-survey snapshot; the record describes the population at one point in time and carries no growth, dispersal or time-aggregation semantics (source: size and density 'describe a population at one particular point in time')."
+      ],
+      "constants": [],
+      "guards": [
+        "N >= 0",
+        "A > 0"
+      ],
+      "id": "biology--population-density-from-count-and-area",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings individual_count, survey_area and population_density and count/area units are not in the runtime vocabulary snapshot; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Count is recoverable as N = D * A for nonzero area; A = 0 is excluded by the guard. Substitution check: D = 1.2 count/m2 over A = 100 m2 gives N = 120 individuals, consistent with the quadrat reference. Area is recoverable as A = N / D for nonzero density; the zero-density boundary leaves area undetermined, which is expected rather than a defect.",
+      "kind": "definition",
+      "limitations": [
+        "A single density number carries no information about spatial dispersion (uniform, random, clumped); the source stresses that dispersion must be measured separately.",
+        "Density alone does not estimate total population size without the corresponding total habitat area; quadrat samples require representative placement and sufficient replication."
+      ],
+      "references": [
+        {
+          "expected": 1.2,
+          "id": "redwood-quadrat-scale",
+          "inputs": {
+            "A": 100,
+            "N": 120
+          },
+          "method": "Constructed quadrat-style check at the source's 100 m2 redwood-quadrat scale: 120 individuals in 100 m2 gives 1.2 per m2 by direct division; no field observation is claimed.",
+          "provenance": "Independently constructed arithmetic check at a source-stated quadrat scale; not a published field value.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.0,
+          "id": "empty-quadrat-boundary",
+          "inputs": {
+            "A": 1,
+            "N": 0
+          },
+          "method": "Admitted ideal boundary: an empty 1 m2 (daffodil-scale) quadrat holds zero individuals, giving zero density; verifies the N = 0 edge of the definition.",
+          "provenance": "Definitional boundary check with an explicit ecological meaning (no individuals observed in the sampled area).",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A": 0,
+            "N": 50
+          },
+          "kind": "domain",
+          "reason": "Density over zero area is undefined; a survey must state a positive sampled area."
+        },
+        {
+          "inputs": {
+            "N": 50
+          },
+          "kind": "missing-input",
+          "reason": "Sampled area A is required; a bare count is population size, not density."
+        }
+      ],
+      "relationship": {
+        "expression": "N / A",
+        "locator": "Section 45.1 'Population Size and Density': N defined as 'the total number of individuals' and density as 'the number of individuals within a specific area or volume'; quadrat paragraph gives 1 m2 (daffodils) and 100 m2 (redwoods) as area-explicit sampling scales.",
+        "original_equation": "population density = the number of individuals within a specific area or volume",
+        "output_symbol": "D",
+        "source_id": "openstax-biology-2e-45-1",
+        "translation_notes": "Prose definition formalized as a ratio: the 'within a specific area' relation becomes division by the stated area. Source symbol N for population size preserved; D and A are introduced for density and area (the page names them only in prose). Dimensional check: count divided by area gives count per area. The glossary restatement 'number of population members divided by the area or volume being measured' (Lumen mirror of the same section) confirms the division reading."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: a population is characterized by size N (total individuals) and density (individuals within a specific area or volume); quadrats of 1 m2 and 100 m2 illustrate area-explicit sampling.",
+          "id": "openstax-biology-2e-45-1",
+          "kind": "primary",
+          "license": "OpenStax textbooks are distributed under CC BY 4.0 per the publisher's standard licensing; the dedicated terms page rendered no extractable text on 2026-11-01, so the exact terms section is recorded as unverified: https://openstax.org/license.",
+          "locator": "https://openstax.org/books/biology-2e/pages/45-1-population-demography, 'Population Size and Density' and quadrat paragraphs (Biology 2e, Clark/Jung/Douglas, 2018-03-28).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the source.",
+          "title": "OpenStax Biology 2e, Section 45.1 Population Demography",
+          "url": "https://openstax.org/books/biology-2e/pages/45-1-population-demography",
+          "version": "Biology 2e web edition, 2018-03-28"
+        }
+      ],
+      "summary": "Accounting definition of population density as census count divided by the explicitly stated survey area.",
+      "title": "Population density from count and area",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same species, habitat survey and snapshot as A and D",
+          "definition": "Total number of individuals of the species in the surveyed area",
+          "dimensions": "count",
+          "domain": "Nonnegative finite count; zero is the empty-survey boundary",
+          "quantity_id": "individual_count",
+          "role": "input",
+          "source_symbol": "N",
+          "symbol": "N",
+          "unit": "count"
+        },
+        {
+          "context": "same species, habitat survey and snapshot as N and D",
+          "definition": "Explicitly stated survey area over which the individuals were counted",
+          "dimensions": "length^2",
+          "domain": "Positive finite area; zero area is undefined for density",
+          "quantity_id": "survey_area",
+          "role": "input",
+          "source_symbol": "introduced A for the sampled area",
+          "symbol": "A",
+          "unit": "m2"
+        },
+        {
+          "context": "same species, habitat survey and snapshot as N and A",
+          "definition": "Number of individuals per unit survey area at the survey time",
+          "dimensions": "count / length^2",
+          "domain": "Nonnegative finite density",
+          "quantity_id": "population_density",
+          "role": "output",
+          "source_symbol": "introduced D for population density",
+          "symbol": "D",
+          "unit": "count/m2"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

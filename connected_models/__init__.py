@@ -1,3 +1,3 @@
 """Connected Models: a small deterministic composition core."""
 
-__version__ = "0.15.0"
+__version__ = "0.16.0"

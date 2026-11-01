@@ -94,6 +94,17 @@ class SolvingTests(unittest.TestCase):
         self.assertEqual(cubic["solve_diagnostic"]["code"], "unsupported_degree")
         self.assertEqual(exponential["solve_diagnostic"]["code"], "unsupported_expression")
 
+    def test_fractional_power_rejects_unknown_base_but_solves_linear_factor(self) -> None:
+        """B0*M**0.75 inverts exactly for B0 and reports unsupported_degree for M."""
+        model = Model("kleiber-algebra", "1", {"B0": SCALAR, "M": SCALAR}, SCALAR, "B0 * M ** 0.75",
+                      ("B0 > 0", "M > 0"), "Synthetic allometry fixture", ("Unitless mathematical test only.",))
+        target = 70 * 100 ** 0.75
+        factor = inverse(model, "B0", {"M": 100}, target)
+        self.assertEqual(factor["status"], "completed", factor.get("error"))
+        self.assertAlmostEqual(factor["outputs"]["inverse"]["amount"], 70)
+        base = inverse(model, "M", {"B0": 70}, target)
+        self.assertEqual(base["solve_diagnostic"]["code"], "unsupported_degree")
+
     def test_discounted_payback_searches_model_domain(self) -> None:
         """The first year meeting investment follows independently summed cash flows."""
         model = catalog()["uniform-present-value@1"]

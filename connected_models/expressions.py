@@ -3,12 +3,14 @@
 import ast
 import operator
 from collections.abc import Mapping
+from fractions import Fraction
 
 from .contracts import DIMENSIONLESS, Dimensions, ModelError, NumericalError, finite
 
 MAX_EXPRESSION_CHARS = 2048
 MAX_EXPRESSION_NODES = 128
 MAX_ABS_EXPONENT = 100
+MAX_EXPONENT_DENOMINATOR = 1024
 ARITHMETIC = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv}
 COMPARISONS = {ast.Gt: operator.gt, ast.GtE: operator.ge, ast.Lt: operator.lt, ast.LtE: operator.le, ast.Eq: operator.eq}
 
@@ -24,6 +26,27 @@ def parse(expression: str) -> ast.AST:
     if sum(1 for _ in ast.walk(tree)) > MAX_EXPRESSION_NODES:
         raise ModelError("Expression exceeds the complexity limit.")
     return tree.body
+
+
+def _rational_exponent(node: ast.AST) -> Fraction:
+    """Evaluate an exponent subtree to an exact rational; names and calls are rejected."""
+    if isinstance(node, ast.Constant) and type(node.value) is int:
+        return Fraction(node.value)
+    if isinstance(node, ast.Constant) and type(node.value) is float:
+        exact = Fraction(node.value)
+        if exact.denominator > MAX_EXPONENT_DENOMINATOR:
+            raise ModelError(f"Exponent {node.value} is not an exact rational with denominator at most "
+                             f"{MAX_EXPONENT_DENOMINATOR}; write it as an integer ratio such as 1/3.")
+        return exact
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
+        value = _rational_exponent(node.operand)
+        return -value if isinstance(node.op, ast.USub) else value
+    if isinstance(node, ast.BinOp) and type(node.op) in (ast.Add, ast.Sub, ast.Mult, ast.Div):
+        left, right = _rational_exponent(node.left), _rational_exponent(node.right)
+        if isinstance(node.op, ast.Div) and right == 0:
+            raise ModelError("Exponent ratio divides by zero.")
+        return {ast.Add: left + right, ast.Sub: left - right, ast.Mult: left * right, ast.Div: left / right}[type(node.op)]
+    raise ModelError("Dimensional powers require a bounded exact-rational exponent without names or calls.")
 
 
 def dimensions(node: ast.AST, names: Mapping[str, Dimensions]) -> Dimensions:
@@ -46,16 +69,11 @@ def dimensions(node: ast.AST, names: Mapping[str, Dimensions]) -> Dimensions:
         if isinstance(node.op, ast.Pow) and left == right == DIMENSIONLESS:
             return DIMENSIONLESS
         if isinstance(node.op, ast.Pow) and right == DIMENSIONLESS:
-            exponent_node = node.right
-            sign = 1
-            if isinstance(exponent_node, ast.UnaryOp) and isinstance(exponent_node.op, (ast.USub, ast.UAdd)):
-                sign = -1 if isinstance(exponent_node.op, ast.USub) else 1
-                exponent_node = exponent_node.operand
-            if isinstance(exponent_node, ast.Constant):
-                exponent = finite(exponent_node.value, "Dimensional exponent") * sign
-                if exponent.is_integer() and abs(exponent) <= MAX_ABS_EXPONENT:
-                    return tuple(int(exponent) * power for power in left)
-            raise ModelError("Dimensional powers require a bounded literal integer exponent.")
+            exponent = _rational_exponent(node.right)
+            if abs(exponent) > MAX_ABS_EXPONENT or exponent.denominator > MAX_EXPONENT_DENOMINATOR:
+                raise ModelError(f"Dimensional powers require an exponent of magnitude at most {MAX_ABS_EXPONENT} "
+                                 f"with denominator at most {MAX_EXPONENT_DENOMINATOR}.")
+            return tuple(exponent * power for power in left)
         raise ModelError("Expression has incompatible dimensions or an unsupported operator.")
     raise ModelError("Only declared names, numbers and scalar arithmetic are executable.")
 
@@ -85,6 +103,8 @@ def evaluate(node: ast.AST, names: Mapping[str, float]) -> float:
             if isinstance(node.op, ast.Pow):
                 if abs(right) > MAX_ABS_EXPONENT:
                     raise NumericalError(f"Exponent exceeds supported magnitude {MAX_ABS_EXPONENT}.")
+                if left < 0 and not float(right).is_integer():
+                    raise ModelError("Real powers need a nonnegative base for a fractional exponent.")
                 return finite(left**right, "Power result")
             if type(node.op) in ARITHMETIC:
                 return finite(ARITHMETIC[type(node.op)](left, right), "Arithmetic result")

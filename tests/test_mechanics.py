@@ -1,9 +1,12 @@
 """Dimensional mechanics, conversions, inversions and strict semantic bindings."""
 
 from dataclasses import replace
+from fractions import Fraction
+import json
 import unittest
 
-from connected_models.contracts import Composition, Model, ModelError, Node, Port, UNITS, Value
+from connected_models.contracts import DIMENSIONLESS, MASS, Composition, Model, ModelError, Node, Port, UNITS, Value
+from connected_models.expressions import dimensions, evaluate, parse
 from connected_models.query_inputs import bind_fact, validate_fact
 from connected_models.runtime import execute, validate_model
 
@@ -54,6 +57,37 @@ class MechanicsTests(unittest.TestCase):
                 Value(10, port, "fixture", "test").bind(model.inputs["v"])
         with self.assertRaises(ModelError):
             Port("duration", "J", "test").validate()
+
+    def test_rational_powers_close_fractional_dimensions(self) -> None:
+        """A Kleiber-shaped B0*M**0.75 fixture validates, evaluates and serializes to JSON."""
+        context = "test taxon, kcal/day"
+        model = Model("synthetic-kleiber", "test1",
+            {"B0": Port("metabolic_normalization", "kcal/day per kg^0.75", context),
+             "M": Port("body_mass", "kg", context)},
+            Port("basal_metabolic_rate", "kcal/day", context), "B0 * M ** 0.75", ("B0 > 0", "M > 0"),
+            "Synthetic allometry fixture", ("Test-only rational-power shape.",))
+        validate_model(model)
+        node = Node("bmr", model.key, {"B0": Value(70, model.inputs["B0"], "fixture", "test"),
+                    "M": Value(100, model.inputs["M"], "fixture", "test")})
+        result = execute(Composition("kleiber", (node,), (node.id,)), {model.key: model})
+        self.assertEqual(result["status"], "completed", result.get("error"))
+        self.assertAlmostEqual(result["outputs"][node.id]["amount"], 2213.59, places=2)
+        json.dumps(result, allow_nan=False)
+
+    def test_rational_exponent_grammar_rules(self) -> None:
+        """Exact rationals and integer ratios power dimensional bases; names and sloppy floats fail."""
+        mass = {"M": MASS}
+        self.assertEqual(dimensions(parse("M ** 0.75"), mass), (Fraction(3, 4), Fraction(0), Fraction(0), Fraction(0)))
+        self.assertEqual(dimensions(parse("M ** (1/3)"), mass), (Fraction(1, 3), Fraction(0), Fraction(0), Fraction(0)))
+        self.assertEqual(dimensions(parse("M ** 2"), mass), (Fraction(2), Fraction(0), Fraction(0), Fraction(0)))
+        self.assertEqual(dimensions(parse("x ** N"), {"x": DIMENSIONLESS, "N": DIMENSIONLESS}), DIMENSIONLESS)
+        for bad in ("M ** 0.1", "M ** z", "M ** 101", "M ** (1/1025)", "M ** (1/0)"):
+            with self.assertRaises(ModelError, msg=bad):
+                dimensions(parse(bad), {**mass, "z": DIMENSIONLESS})
+        with self.assertRaises(ModelError):
+            evaluate(parse("x ** 0.5"), {"x": -4.0})
+        self.assertEqual(evaluate(parse("x ** 2"), {"x": -4.0}), 16.0)
+        self.assertAlmostEqual(evaluate(parse("x ** 0.5"), {"x": 16.0}), 4.0)
 
     def test_query_units_are_grounded_and_aliases_bind(self) -> None:
         """Explicit physical units cannot be silently replaced during query parsing."""

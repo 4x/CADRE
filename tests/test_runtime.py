@@ -2,12 +2,13 @@
 
 from dataclasses import replace
 from decimal import Decimal
+from fractions import Fraction
 import json
 from pathlib import Path
 from test_support import scratch_directory
 import unittest
 
-from connected_models.contracts import DIMENSIONLESS, INVERSE_MONEY, INVERSE_TIME, MEANINGS, MONEY, TIME, UNITS, Composition, ModelError, Node, Port, Reference, Value
+from connected_models.contracts import DIMENSIONLESS, INVERSE_MONEY, INVERSE_TIME, MASS, MEANINGS, MONEY, POWER, TIME, UNITS, Composition, ModelError, Node, Port, Reference, Value
 from connected_models.demo import ANNUAL, HEAT, RATE, SAVING, YEARS, catalog, composition, fixture
 from connected_models.runtime import execute, save_run
 
@@ -162,7 +163,11 @@ class RuntimeTests(unittest.TestCase):
                  "series_mdt": ("h", TIME),
                  "parallel_mtbf": ("h", TIME),
                  "parallel_mdt": ("h", TIME),
-                 "constant_failure_rate": ("1/h", INVERSE_TIME)}
+                 "constant_failure_rate": ("1/h", INVERSE_TIME),
+                 "basal_metabolic_rate": ("kcal/day", POWER),
+                 "body_mass": ("kg", MASS),
+                 "metabolic_normalization": ("kcal/day per kg^0.75",
+                                               (Fraction(1, 4), Fraction(2), Fraction(-3), Fraction(0)))}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)

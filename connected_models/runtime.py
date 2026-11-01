@@ -15,7 +15,7 @@ from uuid import uuid4
 
 from . import __version__
 from .contracts import (Composition, DIMENSION_AXES, MEANINGS, NUMERICAL_BASIS, Model, ModelError,
-                        Node, Port, Reference, UNITS, VOCABULARY_PROFILE, Value, finite)
+                        Node, Port, Reference, UNITS, VOCABULARY_PROFILE, Value, encode_dimensions, finite, unit_json)
 from .expressions import check_guard, dimensions, evaluate, guard_dimensions, parse
 from .serialization import model_digest
 from .solving import SolveError, node_ports, solve
@@ -121,7 +121,8 @@ def execute(composition: Composition, catalog: dict[str, Model],
         "admissions": admissions or {},
         "vocabulary": {"profile": VOCABULARY_PROFILE, "dimension_axes": DIMENSION_AXES,
                        "numerical_basis": NUMERICAL_BASIS,
-                       "units": {name: asdict(unit) for name, unit in UNITS.items()}, "meanings": MEANINGS},
+                       "units": {name: unit_json(unit) for name, unit in UNITS.items()},
+                       "meanings": {name: encode_dimensions(dims) for name, dims in MEANINGS.items()}},
         "status": "rejected", "steps": [], "outputs": {},
         "limitations": ["Fixture execution." if composition.purpose == "fixture" else "Conditional scenario; no empirical validation of the supplied case.",
                         "Input uncertainty is not propagated; scenario assumptions are conditional."],

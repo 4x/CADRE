@@ -1,23 +1,35 @@
 """Small scalar contracts; context belongs to each port, not to a whole node."""
 
 from dataclasses import dataclass
+from fractions import Fraction
 import math
 
-Dimensions = tuple[int, int, int, int]  # Mass, length, time, currency.
-DIMENSIONLESS: Dimensions = (0, 0, 0, 0)
-MASS: Dimensions = (1, 0, 0, 0)
-LENGTH: Dimensions = (0, 1, 0, 0)
-TIME: Dimensions = (0, 0, 1, 0)
-VELOCITY: Dimensions = (0, 1, -1, 0)
-ACCELERATION: Dimensions = (0, 1, -2, 0)
-FORCE: Dimensions = (1, 1, -2, 0)
-ENERGY: Dimensions = (1, 2, -2, 0)
-MONEY: Dimensions = (0, 0, 0, 1)
-PRICE: Dimensions = (-1, -2, 2, 1)
-INVERSE_MONEY: Dimensions = (0, 0, 0, -1)
-INVERSE_TIME: Dimensions = (0, 0, -1, 0)
+Dimensions = tuple[Fraction, Fraction, Fraction, Fraction]  # Mass, length, time, currency.
+
+
+def _dims(mass: int | Fraction, length: int | Fraction, time: int | Fraction, currency: int | Fraction) -> Dimensions:
+    """Build an exact dimension vector; rational powers need exact rationals, never floats."""
+    return (Fraction(mass), Fraction(length), Fraction(time), Fraction(currency))
+
+
+DIMENSIONLESS: Dimensions = _dims(0, 0, 0, 0)
+MASS: Dimensions = _dims(1, 0, 0, 0)
+LENGTH: Dimensions = _dims(0, 1, 0, 0)
+TIME: Dimensions = _dims(0, 0, 1, 0)
+VELOCITY: Dimensions = _dims(0, 1, -1, 0)
+ACCELERATION: Dimensions = _dims(0, 1, -2, 0)
+FORCE: Dimensions = _dims(1, 1, -2, 0)
+ENERGY: Dimensions = _dims(1, 2, -2, 0)
+POWER: Dimensions = _dims(1, 2, -3, 0)
+MONEY: Dimensions = _dims(0, 0, 0, 1)
+PRICE: Dimensions = _dims(-1, -2, 2, 1)
+INVERSE_MONEY: Dimensions = _dims(0, 0, 0, -1)
+INVERSE_TIME: Dimensions = _dims(0, 0, -1, 0)
 JOULES_PER_KWH = 3_600_000
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-2+cs-4"
+KCAL_IN_JOULES = 4_184
+SECONDS_PER_DAY = 86_400
+KLEIBER_MASS_EXPONENT = Fraction(3, 4)
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4"
 DIMENSION_AXES = ("mass", "length", "time", "currency")
 NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
@@ -40,6 +52,16 @@ class Unit:
 
     dimensions: Dimensions
     scale: float
+
+
+def encode_dimensions(dims: Dimensions) -> list[object]:
+    """Encode a dimension vector for JSON; whole powers stay ints, fractional powers become [num, den] pairs."""
+    return [power.numerator if power.denominator == 1 else [power.numerator, power.denominator] for power in dims]
+
+
+def unit_json(unit: Unit) -> dict[str, object]:
+    """Encode a unit for JSON manifests with exact dimension powers."""
+    return {"dimensions": encode_dimensions(unit.dimensions), "scale": unit.scale}
 
 
 UNITS = {
@@ -109,6 +131,14 @@ UNITS = {
     "MIPS": Unit(INVERSE_TIME, 1000000.0),
     # CS batch (cs-4): per-hour failure rates against the per-second base.
     "1/h": Unit(INVERSE_TIME, 1 / 3600),
+    # Biology batch (biology-3): metabolic power in kcal/day (thermochemical
+    # kcal) and its Kleiber normalization per kg^0.75. The normalization unit
+    # carries fractional mass power 1 - 3/4; its scale divides the kcal/day
+    # scale by the canonical-kg scale raised to the Kleiber exponent.
+    "kcal/day": Unit(POWER, (KCAL_IN_JOULES / JOULES_PER_KWH) / SECONDS_PER_DAY),
+    "kcal/day per kg^0.75": Unit(_dims(Fraction(1) - KLEIBER_MASS_EXPONENT, 2, -3, 0),
+                                 ((KCAL_IN_JOULES / JOULES_PER_KWH) / SECONDS_PER_DAY)
+                                 / ((1 / JOULES_PER_KWH) ** float(KLEIBER_MASS_EXPONENT))),
 }
 
 # Meaning is independent of dimension: heat and electricity cannot bind implicitly.
@@ -247,6 +277,10 @@ MEANINGS = {
     # Biology-2: count meanings for genotype-frequency r2.
     "genotype_count": DIMENSIONLESS,
     "individual_count": DIMENSIONLESS,
+    # Biology-3: Kleiber metabolic scaling (power, mass, fractional normalization).
+    "basal_metabolic_rate": POWER,
+    "body_mass": MASS,
+    "metabolic_normalization": _dims(Fraction(1) - KLEIBER_MASS_EXPONENT, 2, -3, 0),
     # Economics-5: break-even, mixed-cost and average-cost meanings.
     "break_even_quantity": DIMENSIONLESS,
     "unit_variable_cost": MONEY,

@@ -42,7 +42,7 @@ Curator demand: Kleiber M^0.75 and island S=cA^z sat engine-blocked, and curator
 - Float dimension vectors: rejected — float error (e.g. 3×(1/3)≠1) would break exact type equality; the type system must be exact even though evaluation is float64.
 - Scaled-integer powers (fixed denominator): rejected — arbitrary precision cap, breaks on thirds/sevenths.
 - Extending the solver to fractional/monotonic inverses: rejected for this stage — new soundness-proof burden; the exact profile is a feature, and linear-factor solves already cover the honest cases.
-- Indexed summation (x[1..n]): rejected — needs the arrays/shape design owned by [[question-dimensional-and-unit-type-system]]; n-ary sum/prod over named inputs covers 2–4-leg curator needs.
+- Indexed summation (x[1..n]): originally deferred to the arrays/shape design owned by [[question-dimensional-and-unit-type-system]]; then designed and shipped in 0.18.0 as index-family inputs instead (shared element port + max_size bound, explicit Value/Reference tuples, sum/prod/len aggregation, expressions stay scalar, per-element transforms via upstream nodes). Elementwise family arithmetic and implicit broadcasting were rejected as unnecessary complexity.
 - One big-bang increment (exponents + functions + summation): rejected — each stage independently tested and replayed instead.
 
 
@@ -58,6 +58,7 @@ Exact rationals keep dimensional type-checking sound (equality is exact) while f
 - Island brief #4 requests a normalized-area r2 (`c * (A / A0) ** z`), which projects with no further engine work.
 - Stage 2 shipped in 0.17.0: log/exp (natural, dimensionless-only), sqrt (halves dimensions), n-ary sum (uniform dims) and prod (adds dims), all forward-only with the solver profile unchanged.
 - Kit curator instructions should gain the exponent-grammar and function-allowlist rules; unbounded/indexed summation (age classes, generations, k-out-of-N) stays deferred by design.
+- Update 2026-11-01 (0.18.0): log10 added (pH-ready); index-family inputs shipped with forward-only solver treatment and digest-compatible serialization. Curation-schema support for family records (bundle variables, list references, integration projection) is the explicit follow-up before curators can submit family records.
 
 
 ## Revisit if

@@ -67,11 +67,18 @@ class Registry:
             reference = check["reference"]
             expected = finite(reference["expected"], "Reference expected value")
             tolerance = finite(reference.get("tolerance", 0.005), "Reference tolerance")
-            if tolerance <= 0 or set(reference["inputs"]) != set(model.inputs):
+            if tolerance <= 0 or set(reference["inputs"]) != set(model.inputs) | set(model.families):
                 return False
             test_model = replace(model, status="fixture")
-            node = Node("reference", model.key, {name: Value(amount, model.inputs[name], "fixture", "Supplied independent numerical reference")
-                                               for name, amount in reference["inputs"].items()})
+
+            def bind(name: str, amount: Any) -> Value | tuple[Value, ...]:
+                """Bind one scalar input or one family element tuple."""
+                if name in model.families:
+                    port = model.families[name].port
+                    return tuple(Value(item, port, "fixture", "Supplied independent numerical reference") for item in amount)
+                return Value(amount, model.inputs[name], "fixture", "Supplied independent numerical reference")
+
+            node = Node("reference", model.key, {name: bind(name, amount) for name, amount in reference["inputs"].items()})
             result = execute(Composition("admission-reference", (node,), (node.id,)), {model.key: test_model})
             return result["status"] == "completed" and abs(result["outputs"][node.id]["amount"] - expected) <= tolerance
         except (ModelError, KeyError, TypeError):

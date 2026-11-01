@@ -7,8 +7,8 @@ from typing import Any
 from .contracts import ModelError
 
 SCHEMA_VERSION = "cm-curation-batch/1"
-KIT_VERSION = "2026-10-31.5"
-SUPPORTED_KIT_VERSIONS = ("2026-10-31.1", "2026-10-31.2", "2026-10-31.3", "2026-10-31.4", KIT_VERSION)
+KIT_VERSION = "2026-10-31.6"
+SUPPORTED_KIT_VERSIONS = ("2026-10-31.1", "2026-10-31.2", "2026-10-31.3", "2026-10-31.4", "2026-10-31.5", KIT_VERSION)
 MAX_MODELS = 12
 MAX_BATCH_BYTES = 1_048_576
 DOMAINS = ("building-energy", "engineering-finance", "electric-circuits", "water-hydraulics", "classical-mechanics", "probability",
@@ -25,9 +25,10 @@ def array(items: dict[str, Any], minimum: int = 0, maximum: int = 40) -> dict[st
     return {"type": "array", "items": items, "minItems": minimum, "maxItems": maximum}
 
 
-def record(properties: dict[str, Any]) -> dict[str, Any]:
-    """Require every declared field and reject undeclared fields."""
-    return {"type": "object", "properties": properties, "required": list(properties), "additionalProperties": False}
+def record(properties: dict[str, Any], optional: tuple[str, ...] = ()) -> dict[str, Any]:
+    """Require every declared field and reject undeclared fields, except listed optional fields."""
+    return {"type": "object", "properties": properties,
+            "required": [name for name in properties if name not in optional], "additionalProperties": False}
 
 
 def choice(*values: str) -> dict[str, Any]:
@@ -36,12 +37,15 @@ def choice(*values: str) -> dict[str, Any]:
 
 
 PORT = record({"meaning": STRING, "unit": STRING, "context": STRING})
+FAMILY_PORT = record({"meaning": STRING, "unit": STRING, "context": STRING, "max_size": NUMBER})
 RUNTIME_MODEL = record({
     "id": IDENTIFIER, "version": IDENTIFIER,
-    "inputs": {"type": "object", "minProperties": 1, "maxProperties": 16, "additionalProperties": PORT},
+    "inputs": {"type": "object", "minProperties": 0, "maxProperties": 16, "additionalProperties": PORT},
     "output": PORT, "expression": STRING, "guards": array(STRING), "source": STRING, "assumptions": array(STRING, 1),
-})
-INPUTS = {"type": "object", "minProperties": 1, "maxProperties": 16, "additionalProperties": NUMBER}
+    "families": {"type": "object", "maxProperties": 16, "additionalProperties": FAMILY_PORT},
+}, ("families",))
+INPUT_VALUE = {"type": ["number", "array"], "items": NUMBER, "minItems": 1, "maxItems": 256}
+INPUTS = {"type": "object", "minProperties": 1, "maxProperties": 16, "additionalProperties": INPUT_VALUE}
 SOURCE = record({
     "id": IDENTIFIER, "kind": choice("primary", "project-derivation"), "title": STRING,
     "url": {"type": ["string", "null"], "minLength": 1, "maxLength": 4096},
@@ -49,10 +53,10 @@ SOURCE = record({
     "license": STRING, "redistribution": STRING,
 })
 VARIABLE = record({
-    "symbol": SYMBOL, "source_symbol": STRING, "role": choice("input", "output"),
+    "symbol": SYMBOL, "source_symbol": STRING, "role": choice("input", "output", "family"),
     "quantity_id": STRING, "definition": STRING, "unit": STRING, "dimensions": STRING,
-    "context": STRING, "domain": STRING,
-})
+    "context": STRING, "domain": STRING, "max_size": NUMBER,
+}, ("max_size",))
 MODEL = record({
     "id": IDENTIFIER, "revision": IDENTIFIER, "title": STRING, "summary": STRING,
     "kind": choice("definition", "theoretical", "empirical"),

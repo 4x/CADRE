@@ -1,13 +1,19 @@
 """Index-family inputs: aggregation over bound element tuples with shared ports."""
 
+from copy import deepcopy
 from dataclasses import asdict, replace
 import hashlib
 import json
 from pathlib import Path
 import unittest
 
+from connected_models.auditing import template, validate_review
 from connected_models.contracts import DIMENSIONLESS, JOULES_PER_KWH, MASS, Composition, Family, Model, ModelError, Node, Port, Reference, Value
+from connected_models.curation import validate_bundle
+from connected_models.curation_schema import KIT_VERSION, SCHEMA_VERSION
 from connected_models.expressions import dimensions, evaluate, parse
+from connected_models.integration import project_record
+from connected_models.registry import Registry
 from connected_models.reports import write_report
 from connected_models.runtime import execute, save_run, validate_model
 from connected_models.serialization import composition_from_dict, model_digest, model_from_dict
@@ -22,9 +28,70 @@ def total_mass_model() -> Model:
                  {"x": Family("mass", "kg", context, 4)})
 
 
-def element(amount: float, unit: str = "kg") -> Value:
+def element(amount: float, unit: str = "kg", origin: str = "fixture") -> Value:
     """Build one attributed family element value."""
-    return Value(amount, Port("mass", unit, "test fixture, summed parts"), "fixture", "test")
+    return Value(amount, Port("mass", unit, "test fixture, summed parts"), origin, "test")
+
+
+def family_bundle() -> dict:
+    """Build a complete synthetic curation bundle holding one family record."""
+    context = "test fixture, summed parts"
+    return {
+        "schema_version": SCHEMA_VERSION, "kit_version": KIT_VERSION, "batch_id": "test-only-family-b01",
+        "domain": "computer-science", "curator": "synthetic-test-only", "created": "2026-11-01",
+        "example_only": False, "deferred": [],
+        "handoff": {"summary": "Test.", "gaps": [], "connections": [], "queries": [], "review_notes": "Test."},
+        "models": [{
+            "id": "computer-science--test-only-family-sum", "revision": "r1", "title": "Test sum",
+            "summary": "Test.", "kind": "definition",
+            "relationship": {"output_symbol": "U", "expression": "sum(x)", "original_equation": "U = sum of x",
+                             "source_id": "test-src", "locator": "Test.", "translation_notes": "Test."},
+            "variables": [
+                {"symbol": "x", "source_symbol": "x", "role": "family", "quantity_id": "mass",
+                 "definition": "Test.", "unit": "kg", "dimensions": "mass", "context": context,
+                 "domain": "Test.", "max_size": 4},
+                {"symbol": "U", "source_symbol": "U", "role": "output", "quantity_id": "mass",
+                 "definition": "Test.", "unit": "kg", "dimensions": "mass", "context": context,
+                 "domain": "Test."},
+            ],
+            "constants": [], "guards": ["len(x) >= 1"], "assumptions": ["Test."], "limitations": ["Test."],
+            "unresolved": [],
+            "sources": [{"id": "test-src", "kind": "primary", "title": "Test.", "url": "https://example.org/test-only",
+                         "version": "test", "accessed": "2026-11-01", "locator": "Test.", "evidence": "Test.",
+                         "license": "Test.", "redistribution": "Test."}],
+            "references": [
+                {"id": "three", "inputs": {"x": [1, 2, 3]}, "expected": 6, "tolerance": 1e-9,
+                 "method": "Test.", "provenance": "Test."},
+                {"id": "one", "inputs": {"x": [10]}, "expected": 10, "tolerance": 1e-9,
+                 "method": "Test.", "provenance": "Test."},
+            ],
+            "rejection_cases": [{"kind": "missing-input", "inputs": {}, "reason": "Test."}],
+            "inverse_notes": "Test.",
+            "integration": {"status": "requires-extension", "runtime_model": None,
+                            "gaps": ["Test gap."], "duplicate_of": []},
+        }],
+    }
+
+
+def admit(bundle: dict, folder: str) -> tuple[Registry, str]:
+    """Review, project and publish one synthetic family record in a scratch registry."""
+    report = template(bundle)
+    report["reviewer"] = "synthetic-reviewer-test-only"
+    for item in report["models"]:
+        item["checks"] = {name: {"status": "passed", "evidence": "Synthetic fixture assertion, not actual review."}
+                          for name in item["checks"]}
+        item["sources"] = [{"url": "https://example.org/test-only", "locator": "Synthetic test",
+                            "accessed": "2026-10-31", "finding": "No scientific claim."}]
+        item["blockers"] = []
+        item["recommendation"] = "recommend-admit"
+        item["permitted_use"] = "Synthetic tests only."
+    validate_review(bundle, report)
+    registry = Registry(Path(folder) / "registry.sqlite3")
+    payload = project_record(bundle, report, bundle["models"][0]["id"], "r1.runtime1")
+    candidate = registry.propose(payload)
+    assert registry.candidate(candidate)["diagnostics"] == []
+    registry.review(candidate, "synthetic-integrator", "Synthetic test only.")
+    return registry, bundle["models"][0]["id"]
 
 
 class FamilyTests(unittest.TestCase):
@@ -150,6 +217,45 @@ class FamilyTests(unittest.TestCase):
             self.assertIn("x[0]", html)
             self.assertIn("x[1]", html)
             self.assertIn("100", html)
+
+    def test_family_bundle_validates_intake_rules(self) -> None:
+        """Intake accepts the family bundle and rejects misshapen family payloads."""
+        validate_bundle(family_bundle())
+        missing = deepcopy(family_bundle())
+        del missing["models"][0]["variables"][0]["max_size"]
+        with self.assertRaises(ModelError):
+            validate_bundle(missing)
+        stray = deepcopy(family_bundle())
+        stray["models"][0]["variables"][1]["max_size"] = 4
+        with self.assertRaises(ModelError):
+            validate_bundle(stray)
+        scalar_list = deepcopy(family_bundle())
+        scalar_list["models"][0]["variables"][0]["role"] = "input"
+        with self.assertRaises(ModelError):
+            validate_bundle(scalar_list)
+        over = deepcopy(family_bundle())
+        over["models"][0]["references"][0]["inputs"]["x"] = [1, 2, 3, 4, 5]
+        with self.assertRaises(ModelError):
+            validate_bundle(over)
+        empty = deepcopy(family_bundle())
+        empty["models"][0]["references"][0]["inputs"]["x"] = []
+        with self.assertRaises(ModelError):
+            validate_bundle(empty)
+
+    def test_family_record_projects_admits_and_executes(self) -> None:
+        """A reviewed family bundle flows from intake to an eligible executable model."""
+        bundle = family_bundle()
+        validate_bundle(bundle)
+        with scratch_directory() as folder:
+            registry, record_id = admit(bundle, folder)
+            models, admissions = registry.snapshot()
+            key = f"{record_id}@r1.runtime1"
+            self.assertIn(key, models)
+            self.assertEqual(models[key].families["x"].max_size, 4)
+            node = Node("result", key, {"x": (element(80, "kg", "observation"), element(20000, "g", "observation"))})
+            result = execute(Composition("admitted-family", (node,), (node.id,), "scenario"), models, admissions)
+            self.assertEqual(result["status"], "completed", result.get("error"))
+            self.assertAlmostEqual(result["outputs"][node.id]["amount"], 100.0)
 
 
 if __name__ == "__main__":

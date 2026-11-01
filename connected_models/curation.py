@@ -11,9 +11,9 @@ from typing import Any
 from urllib.parse import urlsplit
 import zipfile
 
-from .contracts import DIMENSIONLESS, DIMENSION_AXES, MEANINGS, NUMERICAL_BASIS, UNITS, VOCABULARY_PROFILE, ModelError, NumericalError, encode_dimensions, unit_json
+from .contracts import DIMENSIONLESS, DIMENSION_AXES, MAX_FAMILY_SIZE, MEANINGS, NUMERICAL_BASIS, UNITS, VOCABULARY_PROFILE, ModelError, NumericalError, encode_dimensions, unit_json
 from .curation_schema import DOMAINS, KIT_VERSION, MAX_BATCH_BYTES, SCHEMA, SCHEMA_VERSION, SUPPORTED_KIT_VERSIONS, validate_schema
-from .expressions import check_guard, dimensions, evaluate, guard_dimensions, parse
+from .expressions import SCALAR_FUNCTIONS, check_guard, dimensions, evaluate, guard_dimensions, parse
 from .registry import Registry
 from .runtime import validate_model
 from .serialization import MAX_RECORD_BYTES, model_from_dict
@@ -108,15 +108,25 @@ def validate_record(item: dict[str, Any], domain: str) -> dict[str, Any]:
     relationship = item["relationship"]
     require(outputs == [relationship["output_symbol"]], f"{identity}: exactly one declared output must match the relationship.")
     inputs = {name: entry for name, entry in variables.items() if entry["role"] == "input"}
+    fams = {name: entry for name, entry in variables.items() if entry["role"] == "family"}
+    for name, entry in variables.items():
+        bound = entry.get("max_size")
+        if entry["role"] == "family":
+            require(type(bound) is int and 1 <= bound <= MAX_FAMILY_SIZE,
+                    f"{identity}: family {name} needs an integer max_size from 1 to {MAX_FAMILY_SIZE}.")
+        else:
+            require(bound is None, f"{identity}: only families declare max_size.")
     names = {name: DIMENSIONLESS for name in inputs}
+    family_tags = {name: DIMENSIONLESS for name in fams}
     # Here dimensionless tags enable grammar checks only. Units are never rewritten in the record.
     expression = parse(relationship["expression"])
-    dimensions(expression, names)
-    referenced = {node.id for node in ast.walk(expression) if isinstance(node, ast.Name)}
-    require(referenced == set(inputs), f"{identity}: expression must use exactly the declared inputs.")
+    dimensions(expression, names, family_tags)
+    require(not (set(variables) & SCALAR_FUNCTIONS), f"{identity}: symbols must not shadow log/log10/exp/sqrt/sum/prod/len.")
+    referenced = {node.id for node in ast.walk(expression) if isinstance(node, ast.Name) and node.id not in SCALAR_FUNCTIONS}
+    require(referenced == set(inputs) | set(fams), f"{identity}: expression must use exactly the declared inputs and families.")
     guards = [parse(guard) for guard in item["guards"]]
     for guard in guards:
-        guard_dimensions(guard, names)
+        guard_dimensions(guard, names, family_tags)
     sources = {source["id"]: source for source in item["sources"]}
     require(len(sources) == len(item["sources"]), f"{identity}: duplicate source IDs.")
     require(relationship["source_id"] in sources, f"{identity}: relationship source is missing.")
@@ -129,27 +139,45 @@ def validate_record(item: dict[str, Any], domain: str) -> dict[str, Any]:
         require(source["kind"] != "primary" or source["url"] is not None, f"{identity}: primary source URL is required.")
     for constant in item["constants"]:
         require(constant["source_id"] in sources, f"{identity}: constant source is missing.")
+    def split(values: dict[str, Any], label: str) -> tuple[dict[str, float], dict[str, tuple[float, ...]]]:
+        """Separate scalar inputs from family element tuples, checking shapes against declarations."""
+        scalars: dict[str, float] = {}
+        families: dict[str, tuple[float, ...]] = {}
+        for name, amount in values.items():
+            if name in fams:
+                require(isinstance(amount, list) and 1 <= len(amount) <= fams[name]["max_size"]
+                        and all(type(item) in (int, float) for item in amount),
+                        f"{identity}: {label} family {name} needs 1 to {fams[name]['max_size']} numbers.")
+                families[name] = tuple(amount)
+            else:
+                require(not isinstance(amount, list), f"{identity}: {label} scalar {name} takes one number.")
+                scalars[name] = amount
+        return scalars, families
+
     observed_inputs: set[bytes] = set()
     reference_ids: set[str] = set()
+    declared = set(inputs) | set(fams)
     for case in item["references"]:
         require(case["id"] not in reference_ids, f"{identity}: duplicate reference ID.")
         reference_ids.add(case["id"])
-        require(set(case["inputs"]) == set(inputs), f"{identity}: reference input symbols do not match.")
+        require(set(case["inputs"]) == declared, f"{identity}: reference input symbols do not match.")
         require(encoded(case["inputs"]) not in observed_inputs, f"{identity}: numerical references must use distinct inputs.")
         observed_inputs.add(encoded(case["inputs"]))
-        require(all(check_guard(guard, case["inputs"]) for guard in guards), f"{identity}: reference violates a guard.")
-        actual = evaluate(expression, case["inputs"])
+        scalars, families = split(case["inputs"], "reference")
+        require(all(check_guard(guard, scalars, families) for guard in guards), f"{identity}: reference violates a guard.")
+        actual = evaluate(expression, scalars, families)
         require(abs(actual - case["expected"]) <= case["tolerance"], f"{identity}/{case['id']}: numerical reference does not match ({actual}).")
     for case in item["rejection_cases"]:
         if case["kind"] == "missing-input":
-            require(set(case["inputs"]) < set(inputs), f"{identity}: missing-input case must omit a declared input without adding symbols.")
+            require(set(case["inputs"]) < declared, f"{identity}: missing-input case must omit a declared input without adding symbols.")
             continue
-        require(set(case["inputs"]) == set(inputs), f"{identity}: rejection input symbols do not match.")
+        require(set(case["inputs"]) == declared, f"{identity}: rejection input symbols do not match.")
         rejected = False
         try:
-            rejected = not all(check_guard(guard, case["inputs"]) for guard in guards)
+            scalars, families = split(case["inputs"], "rejection")
+            rejected = not all(check_guard(guard, scalars, families) for guard in guards)
             if not rejected:
-                evaluate(expression, case["inputs"])
+                evaluate(expression, scalars, families)
         except NumericalError:
             raise  # An overflow is not evidence of a scientifically excluded case.
         except ModelError:
@@ -168,11 +196,17 @@ def validate_record(item: dict[str, Any], domain: str) -> dict[str, Any]:
         require(model.key == identity, f"{identity}: runtime identity differs from research record.")
         require(model.expression == relationship["expression"] and list(model.guards) == item["guards"],
                 f"{identity}: runtime expression/guards must equal the research record.")
-        require(set(model.inputs) == set(inputs), f"{identity}: runtime inputs differ from the research record.")
+        require(set(model.inputs) == set(inputs) and set(model.families) == set(fams),
+                f"{identity}: runtime inputs differ from the research record.")
         for name, port in {**model.inputs, outputs[0]: model.output}.items():
             entry = variables[name]
             require((port.meaning, port.unit, port.context) == (entry["quantity_id"], entry["unit"], entry["context"]),
                     f"{identity}: runtime port {name} differs from the research record.")
+        for name, family in model.families.items():
+            entry = variables[name]
+            require((family.meaning, family.unit, family.context, family.max_size)
+                    == (entry["quantity_id"], entry["unit"], entry["context"], entry["max_size"]),
+                    f"{identity}: runtime family {name} differs from the research record.")
         require(set(item["assumptions"] + item["limitations"]) <= set(model.assumptions),
                 f"{identity}: runtime assumptions must retain every assumption and limitation.")
         for case in item["references"]:

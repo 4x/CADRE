@@ -9,7 +9,7 @@ from typing import Any
 import zipfile
 
 from .auditing import validate_review
-from .contracts import Model, ModelError, Port, VOCABULARY_PROFILE
+from .contracts import Family, Model, ModelError, Port, VOCABULARY_PROFILE
 from .curation import REGISTRY, digest, encoded, load_bundle, public_path, require
 from .registry import Registry
 from .runtime import validate_model
@@ -33,13 +33,19 @@ def project_record(bundle: dict[str, Any], report: dict[str, Any], model_id: str
         item = variables[symbol]
         return Port(item["quantity_id"], item["unit"], item["context"])
 
+    def family(symbol: str) -> Family:
+        """Preserve the original element declaration and size bound without adapters."""
+        item = variables[symbol]
+        return Family(item["quantity_id"], item["unit"], item["context"], item["max_size"])
+
     output = original["relationship"]["output_symbol"]
     source = "; ".join(f"{item['url']} — {item['locator']}" for item in original["sources"])
     source += "; independent audit: " + "; ".join(item["url"] for item in review["sources"])
     model = Model(original["id"], version,
         {name: port(name) for name, item in variables.items() if item["role"] == "input"}, port(output),
         original["relationship"]["expression"], tuple(original["guards"]), source,
-        tuple(original["assumptions"] + original["limitations"] + [f"Audited permitted use: {review['permitted_use']}"]), "candidate")
+        tuple(original["assumptions"] + original["limitations"] + [f"Audited permitted use: {review['permitted_use']}"]), "candidate",
+        {name: family(name) for name, item in variables.items() if item["role"] == "family"})
     validate_model(model)
     checks = [{"reference": case} for case in original["references"]]
     require(all(Registry.verify_reference(model, check) for check in checks), "Runtime projection failed reference replay.")

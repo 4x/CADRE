@@ -16,7 +16,7 @@ MONEY: Dimensions = (0, 0, 0, 1)
 PRICE: Dimensions = (-1, -2, 2, 1)
 INVERSE_MONEY: Dimensions = (0, 0, 0, -1)
 JOULES_PER_KWH = 3_600_000
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-3"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-4"
 DIMENSION_AXES = ("mass", "length", "time", "currency")
 NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
@@ -188,6 +188,23 @@ MEANINGS = {
     "identical_product_transaction_value": MONEY,
     "identical_product_transacted_quantity": DIMENSIONLESS,
     "quantity_weighted_mean_transaction_price": MONEY,
+    # Economics-4: income-side aggregates and cost-volume-profit meanings.
+    "gross_domestic_income_current_price": MONEY,
+    "gdp_gdi_statistical_discrepancy": MONEY,
+    "final_sales_domestic_product_current_price": MONEY,
+    "gross_domestic_purchases_current_price": MONEY,
+    "private_inventory_change_current_price": MONEY,
+    "net_exports_goods_services_current_price": MONEY,
+    "disposable_personal_income_current_price": MONEY,
+    "personal_saving_fraction": DIMENSIONLESS,
+    "unit_contribution_margin": MONEY,
+    "unit_contribution_margin_ratio": DIMENSIONLESS,
+    "total_contribution_margin": MONEY,
+    "actual_sales_revenue": MONEY,
+    "break_even_sales_revenue": MONEY,
+    "sales_margin_of_safety_fraction": DIMENSIONLESS,
+    "degree_operating_leverage": DIMENSIONLESS,
+    "net_operating_income": MONEY,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

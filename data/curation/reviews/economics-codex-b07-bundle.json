@@ -1,0 +1,636 @@
+{
+  "batch_id": "economics-codex-b07",
+  "created": "2026-11-01",
+  "curator": "codex",
+  "deferred": [
+    {
+      "reason": "BEA Chapter2 footnote28 explicitly warns that inventories contain imported goods and source data do not separate imported inventory additions from direct sales. Final_sales=GDP-inventory_change is retained with this caveat, not advertised as a literal domestic sales observation; resolving that would need imported-inventory allocation data.",
+      "source_urls": [
+        "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-02.pdf"
+      ],
+      "title": "Literal domestic-product sales from final-sales statistic"
+    },
+    {
+      "reason": "S=DPI-personal_outlays is a qualified representation of b03 personal-saving-current-account after the source-defined DPI=PI-T substitution. Do not return it as separate new coverage. Personal saving rate, which defines a new dimensionless measurement, can be investigated separately with positive/zero denominator and signed-saving scope.",
+      "source_urls": [
+        "https://bea.gov/news/pio-release-additional-information"
+      ],
+      "title": "Saving from DPI as a new model"
+    }
+  ],
+  "domain": "economics",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "New account meanings and measured-boundary/time-vintage metadata required; monetary units alone do not enable safe runtime binding.",
+      "Final-sales interpretation limited by unknown imported inventory allocation.",
+      "BEA source/citation policies recorded; no comprehensive redistribution clearance inferred."
+    ],
+    "queries": [],
+    "review_notes": "Direct BEA glossary definitions, Chapter2 current framework/footnote28 and FAQ117/PIO additional definitions inspected 2026-11-01. Reviewed statistical-discrepancy sign and independent measurement, inventory volume valuation versus book stock, resident purchases versus domestic production, and personal-tax refunds versus social insurance/sales taxes. Independent synthetic error/origin/disposition ledgers test accounting identities, with zero or signed alternative cases. Actual JSON/ZIP validation logs accompany files; no scientific approval. Duplicate comparison includes own b01-b06 plus supplied inventory/runtime snapshot only. Toolkit JSON validation passed: four models, 12 arithmetic references and four rejection cases, all requires-extension; final edit revalidated before packing.",
+    "summary": "Four independently defined national-accounting quantities: signed GDP-GDI statistical discrepancy, final sales of domestic product (with imported-inventory caveat), gross domestic purchases, and disposable personal income. All are current-price account flows/residuals, with signed adjustments retained. Earlier 23 model IDs preserved; no renamed algebraic inverses returned."
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "assumptions": [
+        "Source accounting convention: theoretical production coverage is common while source data/timing/measurement can differ.",
+        "Application scope: consistent current-dollar interval, annual-rate basis and data vintage; do not mix successive releases."
+      ],
+      "constants": [],
+      "guards": [],
+      "id": "economics--gdp-gdi-statistical-discrepancy",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New GDI and statistical-discrepancy meanings; current-price GDP reused from b01 with matching vintage/context. Do not enforce a zero residual as an integration rule."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "GDP=GDI+SD given GDI,SD; GDI=GDP-SD given GDP,SD. Unique additive directions, no denominators or roots. Synthetic check SD=70,GDI=970 gives GDP=1040; forward SD=70. SD=0 gives equal estimates without singularity. Given only SD both levels are underdetermined. This scalar inversion does not correct source data or identify the true unobserved production value.",
+      "kind": "definition",
+      "limitations": [
+        "Residual does not identify which source is correct or estimate any particular error component.",
+        "Not excess demand, trade imbalance, a funding shortfall or a counterfactual equilibrium condition."
+      ],
+      "references": [
+        {
+          "expected": 70,
+          "id": "synthetic-independent-error-ledgers",
+          "inputs": {
+            "GDI": 970,
+            "GDP": 1040
+          },
+          "method": "Independent constructed error decomposition around true synthetic production 1000: expenditure ledger duplicates 40 and income ledger omits 30. Known imposed measurement errors independently imply signed discrepancy 40+30=70. Counts of error entries supply expected residual; no claim actual BEA errors are known.",
+          "provenance": "Curator synthetic two-measurement ledger; official source supports discrepancy concept, not these hypothetical errors.",
+          "tolerance": 1e-10
+        },
+        {
+          "expected": -50,
+          "id": "synthetic-opposite-discrepancy",
+          "inputs": {
+            "GDI": 1000,
+            "GDP": 950
+          },
+          "method": "Independent error construction: true synthetic production 970, expenditure coverage misses 20 while income ledger overcounts 30. Discrepancy from imposed errors is -20-30=-50, checking sign convention.",
+          "provenance": "Curator synthetic alternative measurement ledger.",
+          "tolerance": 1e-10
+        },
+        {
+          "expected": 0,
+          "id": "coincident-estimates-boundary",
+          "inputs": {
+            "GDI": 500,
+            "GDP": 500
+          },
+          "method": "Identical estimates leave no measured residual; zero does not demonstrate absence of equal offsetting measurement errors.",
+          "provenance": "Curator zero-discrepancy boundary.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "GDP": 1040
+          },
+          "kind": "missing-input",
+          "reason": "Independent GDI estimate missing; cannot default to GDP or zero."
+        }
+      ],
+      "relationship": {
+        "expression": "GDP - GDI",
+        "locator": "Glossary definition and Chapter 2 printed 2-12/2-29 (PDF pp.12/29) product-to-income sign convention",
+        "original_equation": "Statistical discrepancy = GDP - GDI.",
+        "output_symbol": "SD",
+        "source_id": "bea-statistical-discrepancy",
+        "translation_notes": "Introduced SD labels the source discrepancy. Currency-currency=currency. Sign is expenditure estimate minus income estimate, confirmed by GDI=GDP-SD in handbook framework. Each amount represents the same period's production but different measurement approaches; no condition GDP=GDI imposed. Defining a residual is scientifically distinct from an extra expenditure component or a rearranged claim of equilibrium. No attribution of the discrepancy to either approach or a particular missing transaction is inferred."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines the GDP-minus-GDI discrepancy; handbook sign confirmed by product-to-income subtraction convention.",
+          "id": "bea-statistical-discrepancy",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Definition paragraph",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA Glossary: Statistical discrepancy",
+          "url": "https://www.bea.gov/help/glossary/statistical-discrepancy",
+          "version": "Official live HTML, inspected 2026-11-01; glossary pages modified April 2018 unless otherwise specified"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "GDI measures income and costs incurred in domestic production; conceptually same production as GDP, but independent measurement gives different estimates.",
+          "id": "bea-gdi",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Definition paragraph",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA Glossary: Gross domestic income",
+          "url": "https://www.bea.gov/help/glossary/gross-domestic-income-gdi",
+          "version": "Official live HTML, inspected 2026-11-01; glossary pages modified April 2018 unless otherwise specified"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "GDP and GDI estimate production from different source data and may differ. Domestic purchases cover resident final purchases regardless of production location. Final sales deduct inventory change, but imported inventory prevents literal identification of domestic sales.",
+          "id": "bea-national-account-definitions",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Printed 2-12 (PDF p.12) statistical discrepancy; 2-14 (PDF p.14) domestic purchases/final sales and footnote 28",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA NIPA Handbook Chapter 2: Fundamental Concepts",
+          "url": "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-02.pdf",
+          "version": "Updated December 2024; PDF 31 pages"
+        }
+      ],
+      "summary": "Accounting residual between separately measured expenditure and income estimates of domestic production. Preserves the measurement discrepancy instead of imposing exact observed equality or interpreting it as a behavioral gap.",
+      "title": "Signed statistical discrepancy between GDP and GDI",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same domestic economy, current accounting interval, current-price USD scale, data vintage and seasonal/annual-rate convention. GDP is the expenditure production estimate; GDI is independently measured domestic production income/costs, before any statistical discrepancy adjustment.",
+          "definition": "Current-price expenditure-side estimate of domestic production.",
+          "dimensions": "currency",
+          "domain": "Finite estimate on the stated account/vintage basis.",
+          "quantity_id": "gross_domestic_product_current_price",
+          "role": "input",
+          "source_symbol": "GDP",
+          "symbol": "GDP",
+          "unit": "USD"
+        },
+        {
+          "context": "Same domestic economy, current accounting interval, current-price USD scale, data vintage and seasonal/annual-rate convention. GDP is the expenditure production estimate; GDI is independently measured domestic production income/costs, before any statistical discrepancy adjustment.",
+          "definition": "Current-price income/cost-side estimate of the same domestic production, independently compiled.",
+          "dimensions": "currency",
+          "domain": "Finite estimate, with no assumption of observed equality to GDP.",
+          "quantity_id": "gross_domestic_income_current_price",
+          "role": "input",
+          "source_symbol": "GDI",
+          "symbol": "GDI",
+          "unit": "USD"
+        },
+        {
+          "context": "Same domestic economy, current accounting interval, current-price USD scale, data vintage and seasonal/annual-rate convention. GDP is the expenditure production estimate; GDI is independently measured domestic production income/costs, before any statistical discrepancy adjustment.",
+          "definition": "Signed expenditure-minus-income residual for domestic production estimates.",
+          "dimensions": "currency",
+          "domain": "Finite signed; zero when estimates coincide, positive or negative otherwise.",
+          "quantity_id": "gdp_gdi_statistical_discrepancy",
+          "role": "output",
+          "source_symbol": "Introduced SD = Statistical discrepancy",
+          "symbol": "SD",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source definition: deduct complete NIPA change in private inventories from GDP.",
+        "Source limitation adopted explicitly: inventory additions include both domestic production and imports, and their allocation is unavailable in source data.",
+        "Application scope: additive current-price values, same interval/vintage and valuation conventions."
+      ],
+      "constants": [],
+      "guards": [],
+      "id": "economics--current-price-final-sales-domestic-product",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New final-sales and private-inventory-change meanings; current-price GDP reused. No binding from book inventory change or capital stock without a valuation adjustment model."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "GDP=FS+dInv, dInv=GDP-FS, each unique when the other two quantities known, no denominator or roots. Ordinary ledger FS=950,dInv=50 recovers GDP=1000 and forward950. At dInv=0,FS=GDP without singularity; negative dInv is allowed. If only FS known, GDP and inventory change remain underdetermined. Algebraic recovery does not distinguish domestic versus imported inventories or identify actual domestic sales.",
+      "kind": "definition",
+      "limitations": [
+        "Not a literal observed total of domestic-output sales because imported inventories are not separately allocated.",
+        "Does not remove inventory price revaluation from raw company books; a correct NIPA volume-change input is required. No inventory forecasting."
+      ],
+      "references": [
+        {
+          "expected": 950,
+          "id": "synthetic-final-use-ledger",
+          "inputs": {
+            "GDP": 1000,
+            "dInv": 50
+          },
+          "method": "Independent complete nominal expenditure ledger: PCE600, private fixed investment200, government100, net exports50, inventory additions50. Alternate source-defined final-use total excluding inventory is 600+200+100+50=950, while expenditure GDP includes the inventory flow and totals1000.",
+          "provenance": "Curator synthetic disaggregated final-expenditure ledger, not published national data.",
+          "tolerance": 1e-10
+        },
+        {
+          "expected": 970,
+          "id": "synthetic-imported-inventory-caveat",
+          "inputs": {
+            "GDP": 1000,
+            "dInv": 30
+          },
+          "method": "Independent alternate source sum: PCE700+private fixed investment200+government100+net exports(-30)=970. Here all 30 imports go into inventories; domestic final output sales total1000, GDP1000, private gross investment230, and inventory flow30. Thus statistic970 deliberately differs from literal domestic sales1000, testing source caveat rather than conflating them.",
+          "provenance": "Curator complete hypothetical import/inventory ledger based on BEA footnote28; no source allocation data claimed.",
+          "tolerance": 1e-10
+        },
+        {
+          "expected": 1020,
+          "id": "synthetic-inventory-liquidation",
+          "inputs": {
+            "GDP": 1000,
+            "dInv": -20
+          },
+          "method": "Independent sales ledger with no imports: 1000 of current production plus 20 of prior domestic inventory sold to final users, giving 1020 final sales. Negative inventory investment correctly leaves final sales above current production.",
+          "provenance": "Curator synthetic liquidation ledger.",
+          "tolerance": 1e-10
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "GDP": 1000
+          },
+          "kind": "missing-input",
+          "reason": "Private inventory volume-change valuation missing; a stock value cannot be silently substituted."
+        }
+      ],
+      "relationship": {
+        "expression": "GDP - dInv",
+        "locator": "Glossary definition; Chapter 2 printed 2-14 (PDF p.14), especially footnote 28",
+        "original_equation": "Final sales of domestic product = GDP - change in private inventories.",
+        "output_symbol": "FS",
+        "source_id": "bea-final-sales",
+        "translation_notes": "Introduced FS,dInv name source prose quantities; GDP retained. Currency-currency=currency for flows over the same interval. dInv is a signed volume-change valuation, not closing inventory value minus opening book value. Source independently defines this aggregate despite its subtractive form; it is not a solve direction of b01 GDP, whose I input combines fixed and inventory investment. Do not strengthen the label into a literal domestic-sales classification: footnote 28 says inventory contains imports whose division between stocks and direct sales is not observed."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "GDP less private inventory change; alternate sum uses PCE, private fixed investment, government consumption/gross investment and net exports.",
+          "id": "bea-final-sales",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Definition paragraph",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA Glossary: Final sales of domestic product",
+          "url": "https://www.bea.gov/help/glossary/final-sales-domestic-product",
+          "version": "Official live HTML, inspected 2026-11-01; glossary pages modified April 2018 unless otherwise specified"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Physical-volume inventory change valued at period-average prices; not the book-value change including valuation effects.",
+          "id": "bea-inventory-change",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Definition paragraph",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA Glossary: Change in private inventories",
+          "url": "https://www.bea.gov/help/glossary/change-private-inventories",
+          "version": "Official live HTML, inspected 2026-11-01; glossary pages modified April 2018 unless otherwise specified"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "GDP and GDI estimate production from different source data and may differ. Domestic purchases cover resident final purchases regardless of production location. Final sales deduct inventory change, but imported inventory prevents literal identification of domestic sales.",
+          "id": "bea-national-account-definitions",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Printed 2-12 (PDF p.12) statistical discrepancy; 2-14 (PDF p.14) domestic purchases/final sales and footnote 28",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA NIPA Handbook Chapter 2: Fundamental Concepts",
+          "url": "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-02.pdf",
+          "version": "Updated December 2024; PDF 31 pages"
+        }
+      ],
+      "summary": "BEA-defined GDP excluding change in private inventories. Retains the source caveat that imported inventory changes prevent this statistic from strictly isolating actual sales of domestically produced output.",
+      "title": "Current-price final sales of domestic product",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same domestic NIPA accounting boundary, interval, current-price USD scale, vintage and annual-rate/seasonal convention. Inventory input is period-average-price volume change in privately owned inventories (including imported goods), not a book revaluation or inventory stock.",
+          "definition": "Current-price gross domestic product for the accounting interval.",
+          "dimensions": "currency",
+          "domain": "Finite accounting estimate, preserving source conventions.",
+          "quantity_id": "gross_domestic_product_current_price",
+          "role": "input",
+          "source_symbol": "GDP",
+          "symbol": "GDP",
+          "unit": "USD"
+        },
+        {
+          "context": "Same domestic NIPA accounting boundary, interval, current-price USD scale, vintage and annual-rate/seasonal convention. Inventory input is period-average-price volume change in privately owned inventories (including imported goods), not a book revaluation or inventory stock.",
+          "definition": "Signed physical-volume change in privately owned inventories during the interval, valued at average prices of that interval under NIPA conventions.",
+          "dimensions": "currency",
+          "domain": "Finite signed; accumulation positive, liquidation negative; excludes pure inventory holding gains/losses.",
+          "quantity_id": "private_inventory_change_current_price",
+          "role": "input",
+          "source_symbol": "Introduced dInv = change in private inventories",
+          "symbol": "dInv",
+          "unit": "USD"
+        },
+        {
+          "context": "Same domestic NIPA accounting boundary, interval, current-price USD scale, vintage and annual-rate/seasonal convention. Inventory input is period-average-price volume change in privately owned inventories (including imported goods), not a book revaluation or inventory stock.",
+          "definition": "BEA aggregate GDP less private inventory change; does not strictly identify actual domestically produced goods sold.",
+          "dimensions": "currency",
+          "domain": "Finite signed accounting aggregate; retain definition and source caveat.",
+          "quantity_id": "final_sales_domestic_product_current_price",
+          "role": "output",
+          "source_symbol": "Introduced FS = final sales of domestic product",
+          "symbol": "FS",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source definition: GDP less net exports, equivalently PCE plus gross private domestic investment plus government consumption/gross investment.",
+        "Application scope: consistent nominal components, resident and geographic boundaries, interval and vintage."
+      ],
+      "constants": [],
+      "guards": [],
+      "id": "economics--current-price-gross-domestic-purchases",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New net_exports_goods_services_current_price and gross_domestic_purchases_current_price meanings; GDP reused with compatible account context. Do not substitute GNP cross-border income or nominal account totals with chained-dollar values."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "GDP=DP+NX and NX=GDP-DP, unique with other two values known; no denominator or branches. Deficit-ledger substitution DP=1080,NX=-80 recovers GDP=1000, forward1080. NX=0 yields DP=GDP without singularity. With only DP known, production and net exports remain underdetermined. No inverse identifies particular exports/imports: a net amount permits infinitely many directional pairs, and no causal response is asserted.",
+      "kind": "definition",
+      "limitations": [
+        "Does not estimate imports, demand behavior or equilibrium; gross domestic purchases includes inventory investment.",
+        "No sum of independently chained-dollar components or automatic link to a different price index."
+      ],
+      "references": [
+        {
+          "expected": 1080,
+          "id": "synthetic-trade-deficit-origin-ledger",
+          "inputs": {
+            "GDP": 1000,
+            "NX": -80
+          },
+          "method": "Independent origin/use ledger: domestic output1000, of which120 exported, leaves880 domestic output acquired by residents; imported resident final purchases200 make total resident purchases1080. Net exports120-200=-80. Alternate categories C700+I230+G150 also total1080, a cross-check rather than another GDP-NX evaluation.",
+          "provenance": "Curator complete synthetic origin/final-use accounting ledger.",
+          "tolerance": 1e-10
+        },
+        {
+          "expected": 950,
+          "id": "synthetic-trade-surplus-origin-ledger",
+          "inputs": {
+            "GDP": 1000,
+            "NX": 50
+          },
+          "method": "Independent resident-use ledger: domestic output1000, exports150, domestic output used by residents850 plus imports100, total resident purchases950. Net export surplus50; no income receipts/payments included.",
+          "provenance": "Curator synthetic trade-surplus case, not observed economic data.",
+          "tolerance": 1e-10
+        },
+        {
+          "expected": 500,
+          "id": "balanced-trade-boundary",
+          "inputs": {
+            "GDP": 500,
+            "NX": 0
+          },
+          "method": "Equal export/import values leave gross domestic purchases numerically equal to GDP under the accounting definition; not a statement about how foreign trade changes actual production.",
+          "provenance": "Curator zero-net-export boundary.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "GDP": 1000
+          },
+          "kind": "missing-input",
+          "reason": "Net exports missing; cannot assume balanced trade."
+        }
+      ],
+      "relationship": {
+        "expression": "GDP - NX",
+        "locator": "Glossary definition; NIPA Chapter 2 printed 2-14 (PDF p.14)",
+        "original_equation": "Gross domestic purchases = GDP - net exports of goods and services.",
+        "output_symbol": "DP",
+        "source_id": "bea-domestic-purchases",
+        "translation_notes": "Introduced DP labels source gross domestic purchases; NX=exports-imports. Currency-currency=currency. This independently named purchase aggregate differs from the geographic production boundary in GDP; negative NX raises DP relative to GDP arithmetically, without implying a causal import effect. It includes gross private domestic investment (fixed plus inventories), unlike final sales to domestic purchasers. Source alternate aggregation is C+I+G under full matching definitions, not a new equilibrium statement. No cross-border income adjustment as in GNP."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Resident purchases regardless of production location equal GDP minus net exports, and equal PCE plus gross private domestic investment plus government consumption/gross investment.",
+          "id": "bea-domestic-purchases",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Definition paragraph",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA Glossary: Gross domestic purchases",
+          "url": "https://www.bea.gov/help/glossary/gross-domestic-purchases",
+          "version": "Official live HTML, inspected 2026-11-01; glossary pages modified April 2018 unless otherwise specified"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "GDP and GDI estimate production from different source data and may differ. Domestic purchases cover resident final purchases regardless of production location. Final sales deduct inventory change, but imported inventory prevents literal identification of domestic sales.",
+          "id": "bea-national-account-definitions",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Printed 2-12 (PDF p.12) statistical discrepancy; 2-14 (PDF p.14) domestic purchases/final sales and footnote 28",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA NIPA Handbook Chapter 2: Fundamental Concepts",
+          "url": "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-02.pdf",
+          "version": "Updated December 2024; PDF 31 pages"
+        }
+      ],
+      "summary": "BEA final-purchase aggregate covering resident purchases regardless of production location. Distinguished from domestic production, with the sign of net exports retained.",
+      "title": "Current-price gross domestic purchases",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same domestic economy and resident-purchaser definition, accounting interval, current-price USD scale, vintage and seasonal/annual-rate conventions. GDP covers domestic production; NX is signed exports of goods/services minus imports, using matching NIPA classifications, not cross-border income.",
+          "definition": "Current-price gross domestic product in the matching interval.",
+          "dimensions": "currency",
+          "domain": "Finite accounting estimate under source scope.",
+          "quantity_id": "gross_domestic_product_current_price",
+          "role": "input",
+          "source_symbol": "GDP",
+          "symbol": "GDP",
+          "unit": "USD"
+        },
+        {
+          "context": "Same domestic economy and resident-purchaser definition, accounting interval, current-price USD scale, vintage and seasonal/annual-rate conventions. GDP covers domestic production; NX is signed exports of goods/services minus imports, using matching NIPA classifications, not cross-border income.",
+          "definition": "Signed value of source-defined goods/services exports less imports for the same accounting interval.",
+          "dimensions": "currency",
+          "domain": "Finite signed; surplus positive, deficit negative; income transfers excluded.",
+          "quantity_id": "net_exports_goods_services_current_price",
+          "role": "input",
+          "source_symbol": "Introduced NX = net exports of goods/services",
+          "symbol": "NX",
+          "unit": "USD"
+        },
+        {
+          "context": "Same domestic economy and resident-purchaser definition, accounting interval, current-price USD scale, vintage and seasonal/annual-rate conventions. GDP covers domestic production; NX is signed exports of goods/services minus imports, using matching NIPA classifications, not cross-border income.",
+          "definition": "Current-price resident final purchases under NIPA scope, including gross investment, regardless of production location.",
+          "dimensions": "currency",
+          "domain": "Finite accounting amount; not GDP or net national income.",
+          "quantity_id": "gross_domestic_purchases_current_price",
+          "role": "output",
+          "source_symbol": "Introduced DP = gross domestic purchases",
+          "symbol": "DP",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source definition: subtract only personal current taxes from source-defined personal income.",
+        "Source convention: current taxes are net of refunds; PI already includes the source social-insurance adjustments.",
+        "Application scope: matching current-price account and time/annual-rate conventions."
+      ],
+      "constants": [],
+      "guards": [],
+      "id": "economics--disposable-personal-income",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New disposable_personal_income_current_price meaning; PI and personal_current_taxes reuse b03 definitions. Context must preserve persons sector, net refunds, and SAAR versus literal period-flow basis."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "PI=DPI+T or T=PI-DPI, unique with other two known; no denominator or root branches. Ordinary check DPI=900,T=100 gives PI=1000 and forward900. At T=0,DPI=PI nonsingular; with T=-20,PI=1000,DPI=1020, recovered refund is -20. If both PI,T unknown, DPI alone underdetermines them. Inversion never identifies legal tax obligations or the correct tax classification.",
+      "kind": "definition",
+      "limitations": [
+        "Not take-home wages, bank deposits or change in wealth; NIPA personal income includes components beyond wages.",
+        "Does not evaluate tax laws or calculate tax liabilities; T is an observed/classified accounting input. No forecast or advice."
+      ],
+      "references": [
+        {
+          "expected": 900,
+          "id": "synthetic-disposition-ledger",
+          "inputs": {
+            "PI": 1000,
+            "T": 100
+          },
+          "method": "Independent uses-of-after-tax-income ledger: personal outlays780 and net current saving120 use900. Separate receipt ledger PI1000 includes source-compatible current income components and tax payment100. Expected DPI900 comes from the disposition side780+120, not another PI-T ordering.",
+          "provenance": "Curator synthetic balanced current-income/disposition ledger; same constructed ordinary case as b03, new quantity rather than a new observation.",
+          "tolerance": 1e-10
+        },
+        {
+          "expected": 1020,
+          "id": "net-refund-boundary",
+          "inputs": {
+            "PI": 1000,
+            "T": -20
+          },
+          "method": "Independent disposition ledger after a net20 tax refund: outlays1000 plus saving20 use1020. Under source net-tax convention T=-20, and refund increases available current funds; social-insurance contributions are not subtracted twice.",
+          "provenance": "Curator synthetic net-refund case supported by FAQ117 classification.",
+          "tolerance": 1e-10
+        },
+        {
+          "expected": 1000,
+          "id": "zero-tax-boundary",
+          "inputs": {
+            "PI": 1000,
+            "T": 0
+          },
+          "method": "No personal current tax liability/refund means all source-defined PI is disposable; no inference that sales or payroll taxes vanish.",
+          "provenance": "Curator boundary definition check.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "PI": 1000
+          },
+          "kind": "missing-input",
+          "reason": "Personal current taxes missing; cannot silently substitute all tax payments or zero."
+        }
+      ],
+      "relationship": {
+        "expression": "PI - T",
+        "locator": "Glossary definition; FAQ117 opening paragraphs; PIO Additional Information definitions",
+        "original_equation": "Disposable personal income = personal income - personal current taxes.",
+        "output_symbol": "DPI",
+        "source_id": "bea-dpi",
+        "translation_notes": "Introduced PI,T,DPI label source prose quantities. Currency-currency=currency on a single current-price interval basis; DPI is a flow, not accumulated wealth. This newly named income definition is distinct from b03 personal saving, whose extra outlay input measures a different residual; do not submit the equivalent saving equation S=DPI-O as another new relationship. Source net-refund convention permits negative T. Do not subtract social-insurance contributions again from PI or sales taxes here. Matching SAAR levels produce SAAR DPI; they do not become literal one-month cash receipts without a separate time-basis conversion."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "After-personal-current-tax income is personal income less personal current taxes; this amount is available for spending or saving.",
+          "id": "bea-dpi",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Definition paragraph",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA Glossary: Disposable personal income",
+          "url": "https://www.bea.gov/help/glossary/disposable-personal-income-0",
+          "version": "Official live HTML, inspected 2026-11-01; glossary pages modified April 2018 unless otherwise specified"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Personal current taxes are net of refunds, exclude sales taxes in the DPI subtraction and exclude social-insurance contributions; the latter are accounted in personal-income construction.",
+          "id": "bea-dpi-tax-boundary",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Opening definition and personal-current-tax paragraphs",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA FAQ117: Are sales taxes included in disposable personal income?",
+          "url": "https://www.bea.gov/index.php/help/faq/117",
+          "version": "Published 2006-01-12; modified 2019-12-19; inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines the sequence PI, DPI, outlays and saving and their current-dollar basis; monthly published levels may be SAAR, so one must match annual-rate conventions.",
+          "id": "bea-pio-definitions",
+          "kind": "primary",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "locator": "Definitions: personal income, DPI, outlays and saving; Statistical conventions",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status.",
+          "title": "BEA Personal Income and Outlays Release: Additional Information",
+          "url": "https://bea.gov/news/pio-release-additional-information",
+          "version": "Modified 2026-04-09; inspected 2026-11-01"
+        }
+      ],
+      "summary": "Current after-tax personal income available for outlays and saving under NIPA definitions. A distinct source-defined income aggregate, with net tax refunds and signed values preserved.",
+      "title": "Disposable personal income after personal current taxes",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same NIPA persons sector, geography/residency boundary, current accounting interval, current-price USD scale, source vintage and adjustment/annual-rate convention. PI already follows NIPA treatment of social-insurance contributions; T is personal current taxes net of refunds, excluding sales taxes and other taxes classified outside this account.",
+          "definition": "Source-defined current personal income accruing to persons before personal current taxes.",
+          "dimensions": "currency",
+          "domain": "Finite signed accounting amount on NIPA conventions; not just cash wages or capital gains.",
+          "quantity_id": "personal_income_current_price",
+          "role": "input",
+          "source_symbol": "Introduced PI = personal income",
+          "symbol": "PI",
+          "unit": "USD"
+        },
+        {
+          "context": "Same NIPA persons sector, geography/residency boundary, current accounting interval, current-price USD scale, source vintage and adjustment/annual-rate convention. PI already follows NIPA treatment of social-insurance contributions; T is personal current taxes net of refunds, excluding sales taxes and other taxes classified outside this account.",
+          "definition": "Personal current tax payments net of refunds under source classification, for the same interval.",
+          "dimensions": "currency",
+          "domain": "Finite signed; a net refund can be negative; excludes sales taxes and social-insurance contributions in this subtraction.",
+          "quantity_id": "personal_current_taxes",
+          "role": "input",
+          "source_symbol": "Introduced T = personal current taxes",
+          "symbol": "T",
+          "unit": "USD"
+        },
+        {
+          "context": "Same NIPA persons sector, geography/residency boundary, current accounting interval, current-price USD scale, source vintage and adjustment/annual-rate convention. PI already follows NIPA treatment of social-insurance contributions; T is personal current taxes net of refunds, excluding sales taxes and other taxes classified outside this account.",
+          "definition": "Personal income after personal current taxes, available for personal outlays or saving.",
+          "dimensions": "currency",
+          "domain": "Finite signed current flow, with no invented nonnegative balance restriction.",
+          "quantity_id": "disposable_personal_income_current_price",
+          "role": "output",
+          "source_symbol": "Introduced DPI = disposable personal income",
+          "symbol": "DPI",
+          "unit": "USD"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

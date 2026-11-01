@@ -101,7 +101,11 @@ class RuntimeTests(unittest.TestCase):
                  "real_gdp_per_capita": ("USD_ref/person", MONEY),
                  "economic_profit": ("USD", MONEY),
                  "produced_quantity": ("unit", DIMENSIONLESS),
-                 "finite_increment_marginal_cost": ("USD/unit", MONEY)}
+                 "finite_increment_marginal_cost": ("USD/unit", MONEY),
+                 "gross_domestic_income_current_price": ("USD", MONEY),
+                 "personal_saving_fraction": ("1", DIMENSIONLESS),
+                 "unit_contribution_margin": ("USD/unit", MONEY),
+                 "degree_operating_leverage": ("1", DIMENSIONLESS)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)

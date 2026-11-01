@@ -1,0 +1,560 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.5",
+  "batch_id": "computer-science-b04",
+  "domain": "computer-science",
+  "curator": "muse-spark",
+  "created": "2026-11-01",
+  "example_only": false,
+  "models": [
+    {
+      "assumptions": [
+        "Decimal (SI) rate convention: 1 Mbit/s = 10^6 bit/s; binary Mibit/s is a separate record and the two must never be mixed.",
+        "Sustained average rate over the same averaging interval for input and output; peak-vs-sustained distinction stated at use."
+      ],
+      "constants": [
+        {
+          "literal": 1000000,
+          "locator": "Megabit per second section: 1 Mbit/s = 1,000,000 bits per second; conversion table row Mbit/s formula 10^6.",
+          "meaning": "decimal bits per second per megabit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_mbps >= 0"
+      ],
+      "id": "computer-science--decimal-megabit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings megabit_rate/bit_rate and units Mbit/s, bit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_mbps = R_bps/1000000 needs R_bps. Check: 100000000 gives 100. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Decimal Mbit/s only; Mibit/s (2^20) confusion is the documented pitfall and needs the binary record.",
+        "Excludes protocol overhead and peak-vs-sustained differences; asserted rate only, never a measured claim about a real link."
+      ],
+      "references": [
+        {
+          "expected": 100000000,
+          "id": "fast-ethernet-rate",
+          "inputs": {
+            "R_mbps": 100
+          },
+          "method": "Published bit-rate example row: 100 Mbit/s Fast Ethernet = 100,000,000 bit/s. Expected keeps reported value.",
+          "provenance": "Published result from inspected source (Data-rate units bit-rate examples).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 54000000,
+          "id": "wireless-g-rate",
+          "inputs": {
+            "R_mbps": 54
+          },
+          "method": "Published bit-rate example row: 54 Mbit/s 802.11g = 54,000,000 bit/s, materially different scale from 100.",
+          "provenance": "Published result from inspected source (Data-rate units bit-rate examples).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-rate",
+          "inputs": {
+            "R_mbps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary (idle link), not a measurement.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_mbps": -5
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_mbps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_mbps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_mbps * 1000000",
+        "locator": "Megabit per second section and conversion table Mbit/s row (formula 10^6 bit/s).",
+        "original_equation": "1 Mbit/s = 1,000,000 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Direct unit scaling; decimal prefix only. Locals R_mbps, output R_bps. Check: information/time preserved, factor dimensionless count of bits."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines 1 Mbit/s as 1,000,000 bit/s and tabulates 100 Mbit/s = 100,000,000 bit/s (Fast Ethernet) and 54 Mbit/s = 54,000,000 bit/s (802.11g).",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Megabit per second section; conversion table; bit-rate examples.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (decimal Mbit/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Decimal megabit-per-second rate scaled to bits per second.",
+      "title": "Decimal megabit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in decimal megabits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "megabit_rate",
+          "role": "input",
+          "source_symbol": "megabit per second (Mbit/s)",
+          "symbol": "R_mbps",
+          "unit": "Mbit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_mbps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Binary (IEC) rate convention: 1 Mibit/s = 2^20 bit/s per IEC 80000-13; decimal Mbit/s (10^6) is a separate record.",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1048576,
+          "locator": "Binary prefixes section and conversion table Mibit/s row: 2^20 = 1,048,576 bit/s.",
+          "meaning": "binary bits per second per mebibit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_mibps >= 0"
+      ],
+      "id": "computer-science--binary-mebibit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings mebibit_rate/bit_rate and unit Mibit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_mibps = R_bps/1048576 needs R_bps. Check: 1048576 gives 1. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Binary Mibit/s only; in data-rate contexts typically only decimal prefixes are used (source Variations note), so assert the convention at use.",
+        "Excludes protocol overhead; asserted rate only."
+      ],
+      "references": [
+        {
+          "expected": 1048576,
+          "id": "one-mebibit-rate",
+          "inputs": {
+            "R_mibps": 1
+          },
+          "method": "Conversion table row: 1 Mibit/s = 1,048,576 bit/s. Expected keeps tabulated value.",
+          "provenance": "Published result from inspected source (Data-rate units conversion table).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 4194304,
+          "id": "four-mebibit-rate",
+          "inputs": {
+            "R_mibps": 4
+          },
+          "method": "Ordinary case 4 * 1048576 = 4194304, materially different scale from the unit row.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-mebibit",
+          "inputs": {
+            "R_mibps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_mibps": -1
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_mibps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_mibps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_mibps * 1048576",
+        "locator": "Binary prefixes (IEC 80000-13) section and conversion table Mibit/s row (formula 2^20 bit/s).",
+        "original_equation": "1 Mibit/s = 1,048,576 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Direct unit scaling; binary prefix only, 2^20 inlined as literal with constants metadata. Locals R_mibps, output R_bps. Check: information/time preserved."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Tabulates 1 Mibit/s as 1,048,576 bit/s (formula 2^20) and notes binary prefixes introduced by IEC 60027-2 Amendment 2 / IEC 80000-13 with SI prefixes meaning only powers of 10.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Binary prefixes (IEC 80000-13) section; conversion table Mibit/s row.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (binary Mibit/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary mebibit-per-second rate scaled to bits per second.",
+      "title": "Binary mebibit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in binary mebibits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "mebibit_rate",
+          "role": "input",
+          "source_symbol": "mebibit per second (Mibit/s)",
+          "symbol": "R_mibps",
+          "unit": "Mibit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_mibps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "One byte (octet) is 8 bits in the data-rate context (source unit-symbol section).",
+        "Sustained average rate over the same averaging interval; protocol overhead excluded per assignment boundary.",
+        "source_symbol: source uses B/s for byte per second and bit/s for bit per second."
+      ],
+      "constants": [
+        {
+          "literal": 8,
+          "locator": "Unit symbol section: one byte consists of 8 bits; conversion table bit/s row formula 1/8 B/s.",
+          "meaning": "bits per byte",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit"
+        }
+      ],
+      "guards": [
+        "R_bps >= 0"
+      ],
+      "id": "computer-science--bit-rate-to-byte-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings bit_rate/byte_rate and units bit/s, B/s absent from runtime vocabulary; output can feed transfer-time rate input once meanings exist (adapter: rate-unit agreement on sustained basis)."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_bps = R_Bps*8 needs R_Bps. Check: 125000 gives 1000000. Negative R_Bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Bit-to-byte grouping only; usable payload throughput needs separate overhead/framing records.",
+        "Sustained-vs-peak basis must match the downstream use; not a measured claim about any real link."
+      ],
+      "references": [
+        {
+          "expected": 125000,
+          "id": "megabit-to-kbytes",
+          "inputs": {
+            "R_bps": 1000000
+          },
+          "method": "Megabit section: 1,000,000 bit/s = 125,000 bytes per second; unit-symbol passage confirms 1 Mbit/s = 0.125 MB/s. Expected keeps reported value.",
+          "provenance": "Published result from inspected source (Data-rate units megabit section).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 1,
+          "id": "eight-bits-one-byte",
+          "inputs": {
+            "R_bps": 8
+          },
+          "method": "Conversion table: 1 byte per second = 8 bits per second, unit-scale case.",
+          "provenance": "Published result from inspected source (Data-rate units conversion table).",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-bitrate",
+          "inputs": {
+            "R_bps": 0
+          },
+          "method": "Boundary: zero bit rate groups to zero byte rate; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_bps": -100
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_bps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_bps is required; empty input leaves R_Bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_bps / 8",
+        "locator": "Unit symbol section (1 byte = 8 bits) and conversion table bit/s row (1 bit/s = 0.125 = 1/8 B/s).",
+        "original_equation": "1 bit/s = 1/8 byte per second",
+        "output_symbol": "R_Bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Division by the 8-bit grouping factor, recorded in constants. Locals R_bps, output R_Bps. Check: information/time on both sides, factor converts information units."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States one byte consists of 8 bits (synonymous with octet); conversion table gives 1 bit/s = 0.125 B/s and 1 Mbit/s = 125,000 B/s = 0.125 MB/s.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Unit symbol section; conversion table bit/s and Mbit/s rows.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (bit/byte grouping)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Bit-per-second rate grouped into byte-per-second rate via 8 bits per byte.",
+      "title": "Bit rate to byte rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_Bps",
+          "definition": "Asserted sustained data rate in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "input",
+          "source_symbol": "bit per second (bit/s)",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Same asserted rate expressed in bytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "byte_rate",
+          "role": "output",
+          "source_symbol": "byte per second (B/s)",
+          "symbol": "R_Bps",
+          "unit": "B/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: fixed problem size (page: serial fraction diagnoses scaling for a problem of fixed size).",
+        "S is measured speedup psi = T(1)/T(p) on the same workload and code version as the serial-fraction claim.",
+        "application profile: N identical processors with the parallel work evenly distributable; load imbalance and overhead surface inside e rather than as separate terms."
+      ],
+      "constants": [],
+      "guards": [
+        "S > 0",
+        "N > 1"
+      ],
+      "id": "computer-science--karp-flatt-serial-fraction",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings experimental_serial_fraction/measured_speedup/processor_count absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "No verified distinct calibration of this metric against Amdahl/Gustafson records; cross-record consistency noted only."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "N = (1-e)/(1/S - e) needs 1/S != e; S = 1/(e + (1-e)/N) needs nonzero denominator. Check: e=0.2,N=16 gives S = 1/(0.2+0.05) = 4. Algebraic inversion only, not causal; e outside [0,1] can arise under overhead/superlinear effects and is diagnostic, not rejected.",
+      "kind": "theoretical",
+      "limitations": [
+        "Source page states this is a diagnostic metric consistent with Amdahl, not a derivation from it; Amdahl ignores load balance and overhead, which is exactly what e is meant to expose.",
+        "Source article carries a March-2020 lacking-inline-citations notice; the underlying paper (Karp & Flatt 1990, CACM 33(5):539-543) is cited by the page but was not directly inspected.",
+        "Fixed-size problems only; scaled-workload (Gustafson) diagnosis needs a separate treatment."
+      ],
+      "references": [
+        {
+          "expected": 0.2,
+          "id": "ordinary-sixteen-way",
+          "inputs": {
+            "N": 16,
+            "S": 4
+          },
+          "method": "Amdahl-consistency substitution from the source justification: 1/psi = e + (1-e)/p gives 0.2 + 0.8/16 = 0.25 = 1/4. Exact decimal; tolerance covers float division.",
+          "provenance": "Independent derivation via the source's Amdahl-consistency equation.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "boundary-linear-speedup",
+          "inputs": {
+            "N": 8,
+            "S": 8
+          },
+          "method": "Limiting identity: ideal linear speedup implies zero experimentally determined serial fraction.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 1,
+          "id": "boundary-no-speedup",
+          "inputs": {
+            "N": 8,
+            "S": 1
+          },
+          "method": "Fully serial limit: (1 - 1/8)/(1 - 1/8) = 1; no speedup on 8 processors implies unit serial fraction.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "N": 1,
+            "S": 4
+          },
+          "kind": "domain",
+          "reason": "N = 1 makes the denominator 1 - 1/N zero; source requires p > 1 (metric undefined for uniprocessor)."
+        },
+        {
+          "inputs": {
+            "N": 8
+          },
+          "kind": "missing-input",
+          "reason": "Measured speedup S is required alongside N; omitting it leaves e undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "(1/S - 1/N)/(1 - 1/N)",
+        "locator": "Description section: metric definition e = ((1/psi) - (1/p)) / (1 - (1/p)) with p > 1; Justification section derives the equivalent 1/psi = e + (1-e)/p form.",
+        "original_equation": "e = ((1/psi) - (1/p)) / (1 - (1/p))",
+        "output_symbol": "e",
+        "source_id": "wikipedia-karpflatt",
+        "translation_notes": "Source symbols psi -> S (measured speedup), p -> N (processor count), e -> e. Denominator exclusion N != 1 preserved as guard N > 1 per source p > 1. Check: dimensionless ratio arithmetic."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines the experimentally determined serial fraction e from measured speedup psi on p > 1 processors via the stated quotient, shows consistency with Amdahl through 1/psi = e + (1-e)/p, and cites Karp & Flatt 1990 CACM 33(5):539-543 (paper not directly inspected; article lacks inline citations per its March-2020 notice).",
+          "id": "wikipedia-karpflatt",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Description and Justification sections; References (Karp & Flatt 1990).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Karp-Flatt metric (experimentally determined serial fraction)",
+          "url": "https://en.wikipedia.org/wiki/Karp%E2%80%93Flatt_metric",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Experimentally determined serial fraction from measured speedup and processor count.",
+      "title": "Karp-Flatt experimentally determined serial fraction",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same code version, fixed problem size and measurement method as S and e",
+          "definition": "Measured execution-time speedup T(1)/T(p) on N processors",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite ratio",
+          "quantity_id": "measured_speedup",
+          "role": "input",
+          "source_symbol": "speedup (psi)",
+          "symbol": "S",
+          "unit": "1"
+        },
+        {
+          "context": "same code version, fixed problem size and measurement method as S and e",
+          "definition": "Number of processors used in the measured run",
+          "dimensions": "dimensionless",
+          "domain": "Greater than 1",
+          "quantity_id": "processor_count",
+          "role": "input",
+          "source_symbol": "number of processors (p)",
+          "symbol": "N",
+          "unit": "1"
+        },
+        {
+          "context": "same code version, fixed problem size and measurement method as inputs",
+          "definition": "Experimentally determined serial fraction (Karp-Flatt metric); lower means better parallelization",
+          "dimensions": "dimensionless",
+          "domain": "Diagnostic real value; 0 ideal, 1 fully serial",
+          "quantity_id": "experimental_serial_fraction",
+          "role": "output",
+          "source_symbol": "experimentally determined serial fraction (e)",
+          "symbol": "e",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "deferred": [
+    {
+      "title": "Gigabit/terabit rate conversions",
+      "reason": "Continuation priority: Gbit/s, Gibit/s and Tbit/s rows of the same inspected conversion table; scalar analogues of the b04 rate records.",
+      "source_urls": [
+        "https://en.wikipedia.org/wiki/Data-rate_units"
+      ]
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b04 curates 4 records: decimal Mbit/s to bit/s, binary Mibit/s to bit/s, bit/s to B/s grouping, and the Karp-Flatt experimentally determined serial fraction.",
+    "gaps": [
+      "New meanings (megabit_rate, mebibit_rate, bit_rate, byte_rate, measured_speedup, processor_count, experimental_serial_fraction) absent from runtime-vocabulary.json; all requires-extension with null runtime_model.",
+      "Duplicate search limited to catalog-inventory.json snapshot plus b01-b04 batches; global uniqueness not claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "2026-11-01 validate: pending pack-time check; curator text review done; central review pending; terms pages not inspected; Karp-Flatt paper cited via inspected page, not directly inspected."
+  }
+}

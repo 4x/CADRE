@@ -1,0 +1,608 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.5",
+  "batch_id": "computer-science-b06",
+  "domain": "computer-science",
+  "curator": "muse-spark",
+  "created": "2026-11-01",
+  "example_only": false,
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: inherent availability scope - ideal support environment, includes corrective maintenance downtime, excludes logistics/waiting/administrative and preventive downtime (page Definitions section).",
+        "MTBF and MTTR in consistent time units; steady-state (limiting) availability.",
+        "Component is repairable; one-off/non-repairable elements use the MTTF form instead."
+      ],
+      "constants": [],
+      "guards": [
+        "MTBF > 0",
+        "MTTR >= 0"
+      ],
+      "id": "computer-science--inherent-availability-mtbf-mttr",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings mtbf/mttr/inherent_availability and time units absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "MTBF vs MTTF accounting (repairable vs one-off) must be selected at bind time; see limitations."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "MTBF = A*MTTR/(1-A) needs A != 1; MTTR = MTBF*(1-A)/A needs A != 0. Check: A=0.99998,MTTR=2 gives MTBF = 0.99998*2/0.00002 = 99998 (rounding of 100000). A=1 forces MTTR=0 with MTBF free; A=0 forces MTBF=0 against guard (degenerate never-up). Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Inherent (design-control) scope only; achieved/operational availability with logistics and preventive downtime need separate records.",
+        "MTBF > 0 required: a never-operating (MTBF=0) degenerate has no steady-state availability.",
+        "MTBF/MTTR are estimated inputs with often-high uncertainty (source basic example warns MTTF-class parameters are uncertain); never measured claims about real hardware."
+      ],
+      "references": [
+        {
+          "expected": 0.99998,
+          "id": "input-transducer-ai",
+          "inputs": {
+            "MTBF": 100000,
+            "MTTR": 2
+          },
+          "method": "EventHelix component table: input transducer MTBF 100000 h, MTTR 2 h gives 99.998%. 100000/100002 = 0.99998 exactly to shown digits.",
+          "provenance": "Published result from inspected source (EventHelix component availability table).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.9998,
+          "id": "sp-hardware-ai",
+          "inputs": {
+            "MTBF": 10000,
+            "MTTR": 2
+          },
+          "method": "EventHelix component table: signal processor hardware MTBF 10000 h, MTTR 2 h gives 99.98%, different scale. Table shows 99.98% (4 s.f.); exact quotient 10000/10002=0.99980004, tolerance covers display rounding.",
+          "provenance": "Published result from inspected source (EventHelix component availability table).",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 0.9999619483,
+          "id": "sp-software-ai",
+          "inputs": {
+            "MTBF": 2190,
+            "MTTR": 0.0833333333
+          },
+          "method": "EventHelix software row: MTBF ~2190 h, MTTR ~5 min = 5/60 h; 2190/2190.0833333 = 0.99996195 vs reported 99.9962%. Inputs are stated estimates, tolerance covers estimate rounding.",
+          "provenance": "Published result from inspected source (EventHelix component availability table) with unit normalization.",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "MTBF": 10000,
+            "MTTR": -2
+          },
+          "kind": "domain",
+          "reason": "Negative mean repair time violates MTTR >= 0."
+        },
+        {
+          "inputs": {
+            "MTTR": 2
+          },
+          "kind": "missing-input",
+          "reason": "MTBF is required alongside MTTR; omitting it leaves A undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "MTBF / (MTBF + MTTR)",
+        "locator": "Definitions within systems engineering: inherent availability derived as MTBF/(MTBF+MTTR); Representation section ratio form; EventHelix worked-example section states availability is calculated from MTBF/MTTR with the tabulated verifications.",
+        "original_equation": "Ai = MTBF / (MTBF + MTTR)",
+        "output_symbol": "A",
+        "source_id": "wikipedia-availability",
+        "translation_notes": "Source symbols MTBF, MTTR, Ai -> locals MTBF, MTTR, output A. Consistent-unit requirement made explicit (software row needs minutes-to-hours normalization). Check: time/time dimensionless probability."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States inherent availability of a repairable element equals MTBF/(MTBF+MTTR); representation section gives A as expected-uptime ratio and A = MTTF/(MTTF+MTTR) = MTTF/MTBF; basic example works MTTF 713940 h with MTTR 1 h.",
+          "id": "wikipedia-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Representation section; Definitions within systems engineering (inherent availability); Basic example.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Availability (inherent availability formula)",
+          "url": "https://en.wikipedia.org/wiki/Availability",
+          "version": "inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Component table verifies the formula on three rows: 100000/2 h -> 99.998%, 10000/2 h -> 99.98%, 2190 h/5 min -> 99.9962% with paired downtime column.",
+          "id": "eventhelix-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Availability Computation Example: Calculating Availability of Individual Components.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "EventHelix: System Availability (MTBF/MTTR worked example)",
+          "url": "https://www.eventhelix.com/fault-handling/system-reliability-availability/",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Inherent steady-state availability of a repairable element from MTBF and MTTR.",
+      "title": "Inherent availability from MTBF and MTTR",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same element, stated conditions and ideal support environment as MTTR and A",
+          "definition": "Mean time between failures (expected operating time between consecutive failures)",
+          "dimensions": "time",
+          "domain": "Positive finite",
+          "quantity_id": "mtbf",
+          "role": "input",
+          "source_symbol": "MTBF",
+          "symbol": "MTBF",
+          "unit": "h"
+        },
+        {
+          "context": "same element, stated conditions and ideal support environment as MTBF and A",
+          "definition": "Mean time to repair (expected corrective-maintenance downtime per failure)",
+          "dimensions": "time",
+          "domain": "Nonnegative finite, same unit as MTBF",
+          "quantity_id": "mttr",
+          "role": "input",
+          "source_symbol": "MTTR",
+          "symbol": "MTTR",
+          "unit": "h"
+        },
+        {
+          "context": "same element, stated conditions and ideal support environment as inputs",
+          "definition": "Inherent (steady-state, design-scope) availability probability",
+          "dimensions": "dimensionless",
+          "domain": "Interval (0,1]",
+          "quantity_id": "inherent_availability",
+          "role": "output",
+          "source_symbol": "inherent availability (Ai)",
+          "symbol": "A",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "U and D are expected values over the same observation window C = U + D (source representation section).",
+        "Binary up/down status; window long enough for expectations to be meaningful."
+      ],
+      "constants": [],
+      "guards": [
+        "U >= 0",
+        "D >= 0"
+      ],
+      "id": "computer-science--uptime-ratio-availability",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings expected_uptime/expected_downtime/observation availability absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "MTBF/MTTR record operationalizes these expectations for repairable elements; binding the two needs consistent-window/condition context."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "U = A*D/(1-A) needs A != 1; D = U*(1-A)/A needs A != 0. Check: A=0.99,D=87.6 gives U = 0.99*87.6/0.01 = 8672.4. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Expectation form: single-window observed up/total is an estimator, not the expectation; sampling variability needs separate treatment.",
+        "Empty window (U=D=0) is degenerate and outside scope; guards admit it algebraically so state the exclusion here.",
+        "Steady-state interpretation needs the limiting-average construction (source), not just one window."
+      ],
+      "references": [
+        {
+          "expected": 0.99,
+          "id": "two-nines-window",
+          "inputs": {
+            "D": 87.6,
+            "U": 8672.4
+          },
+          "method": "EventHelix series table: 99% leg with 3.65 days/yr = 87.6 h/yr downtime; in an 8760-h year U = 8760 - 87.6 = 8672.4, ratio 0.99 exactly.",
+          "provenance": "Published table values recombined through the source ratio form (EventHelix).",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 1,
+          "id": "boundary-no-downtime",
+          "inputs": {
+            "D": 0,
+            "U": 8760
+          },
+          "method": "Boundary: no downtime in the window gives unit availability; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "boundary-never-up",
+          "inputs": {
+            "D": 10,
+            "U": 0
+          },
+          "method": "Boundary: zero uptime in the window gives zero availability; admitted degenerate boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "D": 5,
+            "U": -5
+          },
+          "kind": "domain",
+          "reason": "Negative expected uptime violates U >= 0."
+        },
+        {
+          "inputs": {
+            "D": 87.6
+          },
+          "kind": "missing-input",
+          "reason": "Expected uptime U is required alongside D; omitting it leaves A undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "U / (U + D)",
+        "locator": "Representation section: simplest representation A = E[uptime]/(E[uptime]+E[downtime]) = E[uptime]/C.",
+        "original_equation": "A = E[uptime] / (E[uptime] + E[downtime])",
+        "output_symbol": "A",
+        "source_id": "wikipedia-availability",
+        "translation_notes": "Expectation operators instantiated as window expected values U, D with same unit; output A. Check: time/time dimensionless."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Gives availability as the ratio of expected uptime to the sum of expected up and down time (total observation window C), plus the probability/status-function forms.",
+          "id": "wikipedia-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Representation section.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Availability (uptime-ratio representation)",
+          "url": "https://en.wikipedia.org/wiki/Availability",
+          "version": "inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Pairs availability levels with yearly downtime (99% with 3.65 days/year), supplying the recombined reference window values.",
+          "id": "eventhelix-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Availability in Series table; Availability in Parallel table.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "EventHelix: System Availability (availability/downtime tables)",
+          "url": "https://www.eventhelix.com/fault-handling/system-reliability-availability/",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Availability as expected uptime over total expected up-plus-down time.",
+      "title": "Uptime-ratio availability",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same system, conditions and observation window as D and A",
+          "definition": "Expected uptime within the observation window",
+          "dimensions": "time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "expected_uptime",
+          "role": "input",
+          "source_symbol": "E[uptime]",
+          "symbol": "U",
+          "unit": "h"
+        },
+        {
+          "context": "same system, conditions and observation window as U and A",
+          "definition": "Expected downtime within the observation window",
+          "dimensions": "time",
+          "domain": "Nonnegative finite, same unit as U",
+          "quantity_id": "expected_downtime",
+          "role": "input",
+          "source_symbol": "E[downtime]",
+          "symbol": "D",
+          "unit": "h"
+        },
+        {
+          "context": "same system, conditions and observation window as inputs",
+          "definition": "Availability probability over the window",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1] for nonempty windows",
+          "quantity_id": "window_availability",
+          "role": "output",
+          "source_symbol": "availability (A)",
+          "symbol": "A",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "U is steady-state unavailability (probability down) under stated conditions; year is the 8760-hour accounting year.",
+        "Linear accumulation: expected downtime scales with the window; no seasonality or planned-outage shaping."
+      ],
+      "constants": [
+        {
+          "literal": 8760,
+          "locator": "Reference windows derived from EventHelix yearly downtime column (percent-to-annual-time pairing); 365*24 arithmetic in translation notes.",
+          "meaning": "hours per accounting year",
+          "source_id": "eventhelix-availability",
+          "unit": "h"
+        }
+      ],
+      "guards": [
+        "U >= 0",
+        "U <= 1"
+      ],
+      "id": "computer-science--annual-downtime-hours",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings steady_unavailability/annual_downtime absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Minute/day renderings (52 min/yr, 3.65 days/yr) are display conversions of this record, not separate models."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "U = D/8760 needs D. Check: D=87.6 gives 0.01. D above 8760 maps back against the U <= 1 guard. Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Expected (average-year) downtime, not a prediction for any specific year or system.",
+        "Planned maintenance shaping and nonstationary failure intensity need separate records."
+      ],
+      "references": [
+        {
+          "expected": 87.6,
+          "id": "two-nines-downtime",
+          "inputs": {
+            "U": 0.01
+          },
+          "method": "EventHelix tables: 99% availability pairs with 3.65 days/year = 87.6 h; 0.01*8760 = 87.6 exactly.",
+          "provenance": "Published table value reproduced through the record (EventHelix).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.00876,
+          "id": "six-nines-downtime",
+          "inputs": {
+            "U": 1e-06
+          },
+          "method": "EventHelix parallel table: three 99% legs give 99.9999% with 31 seconds/year; 1e-6*8760 h = 0.00876 h = 31.5 s, source displays rounded 31 s.",
+          "provenance": "Published table value reproduced through the record (EventHelix); tolerance covers display rounding.",
+          "tolerance": 0.001
+        },
+        {
+          "expected": 0,
+          "id": "boundary-perfect-year",
+          "inputs": {
+            "U": 0
+          },
+          "method": "Boundary: zero unavailability gives zero annual downtime; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "U": 1.5
+          },
+          "kind": "domain",
+          "reason": "Unavailability above 1 violates the probability guard U <= 1."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Unavailability U is required; empty input leaves D undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "U * 8760",
+        "locator": "EventHelix series/parallel/worked-example tables pairing each availability level with its yearly downtime (99% <-> 3.65 days/yr; 99.99% <-> 52 min/yr; 99.9999% <-> 31 s/yr; 99.998% <-> 10.51 min/yr).",
+        "original_equation": "yearly downtime = unavailability x 8760 hours",
+        "output_symbol": "D",
+        "source_id": "eventhelix-availability",
+        "translation_notes": "Source tabulates the pairing without printing the equation; formalized as linear scaling with the 8760 h accounting-year constant (365*24, pure arithmetic in notes). Locals U, output D. Check: dimensionless x time = time."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Availability/downtime tables pair 99% with 3.65 days/year, 99.99% with 52 minutes/year, 99.9999% (three parallel 99% legs) with 31 seconds/year, and worked-example rows (99.998% with 10.51 minutes/year).",
+          "id": "eventhelix-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Availability in Series table; Availability in Parallel table; Calculating Availability of Individual Components table.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "EventHelix: System Availability (availability/downtime tables)",
+          "url": "https://www.eventhelix.com/fault-handling/system-reliability-availability/",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Expected yearly downtime hours from steady-state unavailability.",
+      "title": "Annual downtime hours from unavailability",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same system, stated conditions and accounting year as D",
+          "definition": "Steady-state unavailability (probability down, 1 minus availability)",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "steady_unavailability",
+          "role": "input",
+          "source_symbol": "1 - availability",
+          "symbol": "U",
+          "unit": "1"
+        },
+        {
+          "context": "same system, stated conditions and accounting year as U",
+          "definition": "Expected downtime within one 8760-hour accounting year",
+          "dimensions": "time",
+          "domain": "Interval [0,8760] hours",
+          "quantity_id": "annual_downtime",
+          "role": "output",
+          "source_symbol": "downtime per year",
+          "symbol": "D",
+          "unit": "h"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Repairable-element accounting: each failure is followed by a repair so the between-failure interval adds mean operating time and mean repair time.",
+        "MTTF and MTTR in consistent time units; steady-state scope matching the availability records."
+      ],
+      "constants": [],
+      "guards": [
+        "MTTF >= 0",
+        "MTTR >= 0"
+      ],
+      "id": "computer-science--mtbf-from-mttf-mttr",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings mttf/mtbf/mttr absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Feeds the inherent-availability record; binding needs consistent-unit and repairable-scope context."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "MTTF = MTBF - MTTR needs MTBF >= MTTR; MTTR = MTBF - MTTF needs MTBF >= MTTF. Check: MTBF=100002,MTTR=2 gives MTTF=100000. Guards map back as nonnegativity of the residual. Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Repairable accounting only; for one-off/non-repairable elements the source uses the MTTF form of availability instead.",
+        "Does not split MTBF into logistics/administrative components; operational MDT accounting needs a separate record."
+      ],
+      "references": [
+        {
+          "expected": 713941,
+          "id": "basic-example-mtbf",
+          "inputs": {
+            "MTTF": 713940,
+            "MTTR": 1
+          },
+          "method": "Wikipedia basic example works MTTF 713940 h with MTTR 1 h and prints the sum 713941 in the availability quotient. Expected keeps that printed value.",
+          "provenance": "Published value appearing in the inspected source (Availability basic example).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 100002,
+          "id": "transducer-mtbf",
+          "inputs": {
+            "MTTF": 100000,
+            "MTTR": 2
+          },
+          "method": "Ordinary case mirroring the EventHelix transducer row scale (100000 h operating, 2 h repair); cross-checks the 99.998% availability record inputs.",
+          "provenance": "Independent arithmetic check with source-scale inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 2190,
+          "id": "boundary-instant-repair",
+          "inputs": {
+            "MTTF": 2190,
+            "MTTR": 0
+          },
+          "method": "Boundary: zero repair time collapses MTBF onto MTTF; admitted ideal boundary (instant recovery).",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "MTTF": 1000,
+            "MTTR": -1
+          },
+          "kind": "domain",
+          "reason": "Negative mean repair time violates MTTR >= 0."
+        },
+        {
+          "inputs": {
+            "MTTR": 2
+          },
+          "kind": "missing-input",
+          "reason": "MTTF is required alongside MTTR; omitting it leaves MTBF undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "MTTF + MTTR",
+        "locator": "Representation section equation A = MTTF/(MTTF+MTTR) = MTTF/MTBF: equal numerators with equal ratios force equal denominators, i.e. MTBF = MTTF+MTTR.",
+        "original_equation": "MTBF = MTTF + MTTR",
+        "output_symbol": "MTBF",
+        "source_id": "wikipedia-availability",
+        "translation_notes": "Source-backed derivation (not a verbatim source line): from the two printed equalities sharing numerator MTTF. Labeled derivation here, not a source quotation. Check: time + time = time."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Prints A = MTTF/(MTTF+MTTR) = MTTF/MTBF in one equation and works the MTTF 713940 h / MTTR 1 h basic example.",
+          "id": "wikipedia-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Representation section equation; Basic example.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Availability (MTBF/MTTF/MTTR relation)",
+          "url": "https://en.wikipedia.org/wiki/Availability",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Mean time between failures as mean operating time plus mean repair time.",
+      "title": "MTBF from MTTF and MTTR",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same element, stated conditions and steady-state scope as MTTR and MTBF",
+          "definition": "Mean time to failure (expected operating time before a failure)",
+          "dimensions": "time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "mttf",
+          "role": "input",
+          "source_symbol": "MTTF",
+          "symbol": "MTTF",
+          "unit": "h"
+        },
+        {
+          "context": "same element, stated conditions and steady-state scope as MTTF and MTBF",
+          "definition": "Mean time to repair (expected corrective-maintenance downtime per failure)",
+          "dimensions": "time",
+          "domain": "Nonnegative finite, same unit as MTTF",
+          "quantity_id": "mttr",
+          "role": "input",
+          "source_symbol": "MTTR",
+          "symbol": "MTTR",
+          "unit": "h"
+        },
+        {
+          "context": "same element, stated conditions and steady-state scope as inputs",
+          "definition": "Mean time between failures (expected failure-to-failure interval)",
+          "dimensions": "time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "mtbf",
+          "role": "output",
+          "source_symbol": "MTBF",
+          "symbol": "MTBF",
+          "unit": "h"
+        }
+      ]
+    }
+  ],
+  "deferred": [
+    {
+      "title": "Achieved/operational availability with preventive and logistics downtime",
+      "reason": "Continuation priority: source distinguishes achieved (preventive+corrective) and operational (plus MDT/logistics) availability; needs MDT/ready-time quantities beyond the inherent record.",
+      "source_urls": [
+        "https://en.wikipedia.org/wiki/Availability"
+      ]
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b06 curates 4 records: inherent availability from MTBF/MTTR, uptime-ratio availability definition, annual downtime hours from unavailability, and MTBF from MTTF+MTTR derivation.",
+    "gaps": [
+      "New meanings (mtbf, mttr, mttf, inherent_availability, expected_uptime/downtime, window_availability, steady_unavailability, annual_downtime) absent from runtime-vocabulary.json; all requires-extension with null runtime_model.",
+      "Duplicate search limited to catalog-inventory.json snapshot plus b01-b06 batches; global uniqueness not claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "2026-11-01 validate: pending pack-time check; curator text review done; central review pending; terms pages not inspected; MTBF=MTTF+MTTR is a labeled source-backed derivation, not a verbatim source line."
+  }
+}

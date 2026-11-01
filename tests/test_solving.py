@@ -2,6 +2,7 @@
 
 from dataclasses import asdict, replace
 from decimal import Decimal
+import math
 import unittest
 
 from connected_models.contracts import Composition, Model, Node, Port, Value
@@ -104,6 +105,17 @@ class SolvingTests(unittest.TestCase):
         self.assertAlmostEqual(factor["outputs"]["inverse"]["amount"], 70)
         base = inverse(model, "M", {"B0": 70}, target)
         self.assertEqual(base["solve_diagnostic"]["code"], "unsupported_degree")
+
+    def test_function_calls_are_forward_only(self) -> None:
+        """B0*log(M) inverts exactly for B0 and reports unsupported_expression for M."""
+        model = Model("log-algebra", "1", {"B0": SCALAR, "M": SCALAR}, SCALAR, "B0 * log(M)",
+                      ("B0 > 0", "M > 0"), "Synthetic logarithm fixture", ("Unitless mathematical test only.",))
+        target = 3 * math.log(10)
+        factor = inverse(model, "B0", {"M": 10}, target)
+        self.assertEqual(factor["status"], "completed", factor.get("error"))
+        self.assertAlmostEqual(factor["outputs"]["inverse"]["amount"], 3)
+        base = inverse(model, "M", {"B0": 3}, target)
+        self.assertEqual(base["solve_diagnostic"]["code"], "unsupported_expression")
 
     def test_discounted_payback_searches_model_domain(self) -> None:
         """The first year meeting investment follows independently summed cash flows."""

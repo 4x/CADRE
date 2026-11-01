@@ -175,7 +175,7 @@ class CurationTests(unittest.TestCase):
             validate_bundle(bundle)
         bundle = self.example()
         bundle["models"][0]["relationship"]["expression"] = "__import__('os')"
-        with self.assertRaisesRegex(ModelError, "Only declared names"):
+        with self.assertRaisesRegex(ModelError, "Only log, exp, sqrt, sum and prod calls"):
             validate_bundle(bundle)
 
     def test_zip_checksum_extra_members_and_secret_paths_fail(self) -> None:

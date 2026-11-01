@@ -1,6 +1,7 @@
 """Bounded algebra interpreted directly from AST nodes; never eval or exec."""
 
 import ast
+import math
 import operator
 from collections.abc import Mapping
 from fractions import Fraction
@@ -11,6 +12,7 @@ MAX_EXPRESSION_CHARS = 2048
 MAX_EXPRESSION_NODES = 128
 MAX_ABS_EXPONENT = 100
 MAX_EXPONENT_DENOMINATOR = 1024
+SCALAR_FUNCTIONS = frozenset({"log", "exp", "sqrt", "sum", "prod"})
 ARITHMETIC = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv}
 COMPARISONS = {ast.Gt: operator.gt, ast.GtE: operator.ge, ast.Lt: operator.lt, ast.LtE: operator.le, ast.Eq: operator.eq}
 
@@ -75,7 +77,39 @@ def dimensions(node: ast.AST, names: Mapping[str, Dimensions]) -> Dimensions:
                                  f"with denominator at most {MAX_EXPONENT_DENOMINATOR}.")
             return tuple(exponent * power for power in left)
         raise ModelError("Expression has incompatible dimensions or an unsupported operator.")
-    raise ModelError("Only declared names, numbers and scalar arithmetic are executable.")
+    if isinstance(node, ast.Call):
+        return call_dimensions(node, names)
+    raise ModelError("Only declared names, numbers, scalar arithmetic and log/exp/sqrt/sum/prod calls are executable.")
+
+
+def call_arguments(node: ast.Call) -> tuple[str, tuple[ast.AST, ...]]:
+    """Reject keywords, starred arguments and non-allowlisted callees without inventing semantics."""
+    if not isinstance(node.func, ast.Name) or node.func.id not in SCALAR_FUNCTIONS:
+        raise ModelError("Only log, exp, sqrt, sum and prod calls are executable.")
+    if node.keywords or any(isinstance(arg, ast.Starred) for arg in node.args):
+        raise ModelError(f"{node.func.id} takes positional arguments only.")
+    return node.func.id, tuple(node.args)
+
+
+def call_dimensions(node: ast.Call, names: Mapping[str, Dimensions]) -> Dimensions:
+    """Type an allowlisted call: log/exp need dimensionless arguments, sum needs uniform dimensions."""
+    name, args = call_arguments(node)
+    if name in {"log", "exp", "sqrt"} and len(args) != 1:
+        raise ModelError(f"{name} takes exactly one argument.")
+    if name in {"sum", "prod"} and not args:
+        raise ModelError(f"{name} needs at least one argument.")
+    kinds = [dimensions(arg, names) for arg in args]
+    if name in {"log", "exp"}:
+        if kinds[0] != DIMENSIONLESS:
+            raise ModelError(f"{name} needs a dimensionless argument.")
+        return DIMENSIONLESS
+    if name == "sqrt":
+        return tuple(Fraction(1, 2) * power for power in kinds[0])
+    if name == "sum":
+        if any(kind != kinds[0] for kind in kinds):
+            raise ModelError("sum needs identical dimensions on every argument.")
+        return kinds[0]
+    return tuple(sum(powers) for powers in zip(*kinds, strict=True))
 
 
 def guard_dimensions(node: ast.AST, names: Mapping[str, Dimensions]) -> None:
@@ -108,6 +142,26 @@ def evaluate(node: ast.AST, names: Mapping[str, float]) -> float:
                 return finite(left**right, "Power result")
             if type(node.op) in ARITHMETIC:
                 return finite(ARITHMETIC[type(node.op)](left, right), "Arithmetic result")
+        if isinstance(node, ast.Call):
+            name, args = call_arguments(node)
+            values = [evaluate(arg, names) for arg in args]
+            if name in {"log", "exp", "sqrt"} and len(values) != 1:
+                raise ModelError(f"{name} takes exactly one argument.")
+            if name in {"sum", "prod"} and not values:
+                raise ModelError(f"{name} needs at least one argument.")
+            if name == "log":
+                if values[0] <= 0:
+                    raise ModelError("Logarithm needs a positive argument.")
+                return finite(math.log(values[0]), "Logarithm result")
+            if name == "exp":
+                return finite(math.exp(values[0]), "Exponential result")
+            if name == "sqrt":
+                if values[0] < 0:
+                    raise ModelError("Square root needs a nonnegative argument.")
+                return finite(math.sqrt(values[0]), "Square-root result")
+            if name == "sum":
+                return finite(sum(values), "Sum result")
+            return finite(math.prod(values), "Product result")
     except NumericalError:
         raise
     except OverflowError as exc:

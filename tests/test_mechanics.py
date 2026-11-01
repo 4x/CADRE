@@ -3,9 +3,10 @@
 from dataclasses import replace
 from fractions import Fraction
 import json
+import math
 import unittest
 
-from connected_models.contracts import DIMENSIONLESS, MASS, Composition, Model, ModelError, Node, Port, UNITS, Value
+from connected_models.contracts import DIMENSIONLESS, MASS, TIME, Composition, Model, ModelError, Node, Port, UNITS, Value
 from connected_models.expressions import dimensions, evaluate, parse
 from connected_models.query_inputs import bind_fact, validate_fact
 from connected_models.runtime import execute, validate_model
@@ -88,6 +89,37 @@ class MechanicsTests(unittest.TestCase):
             evaluate(parse("x ** 0.5"), {"x": -4.0})
         self.assertEqual(evaluate(parse("x ** 2"), {"x": -4.0}), 16.0)
         self.assertAlmostEqual(evaluate(parse("x ** 0.5"), {"x": 16.0}), 4.0)
+
+    def test_scalar_functions_validate_dimensions_and_evaluate(self) -> None:
+        """Doubling time log(2)/log(lam) executes end to end; sqrt halves dimensions."""
+        mass = {"M": MASS}
+        self.assertEqual(dimensions(parse("log(x)"), {"x": DIMENSIONLESS}), DIMENSIONLESS)
+        self.assertEqual(dimensions(parse("exp(x)"), {"x": DIMENSIONLESS}), DIMENSIONLESS)
+        self.assertEqual(dimensions(parse("sqrt(M)"), mass), (Fraction(1, 2), Fraction(0), Fraction(0), Fraction(0)))
+        self.assertEqual(dimensions(parse("sum(a, b)"), {"a": MASS, "b": MASS}), MASS)
+        self.assertEqual(evaluate(parse("log(2) / log(lam)"), {"lam": 1.5}), math.log(2) / math.log(1.5))
+        context = "test fixture, doubling time"
+        model = Model("synthetic-doubling", "test1", {"lam": Port("parallel_fraction", "1", context)},
+            Port("overall_speedup", "1", context), "log(2) / log(lam)", ("lam > 1",),
+            "Synthetic logarithm fixture", ("Test-only function shape.",))
+        validate_model(model)
+        node = Node("double", model.key, {"lam": Value(1.5, model.inputs["lam"], "fixture", "test")})
+        result = execute(Composition("doubling", (node,), (node.id,)), {model.key: model})
+        self.assertEqual(result["status"], "completed", result.get("error"))
+        self.assertAlmostEqual(result["outputs"][node.id]["amount"], 1.70951129, places=6)
+        json.dumps(result, allow_nan=False)
+
+    def test_function_domain_and_grammar_errors(self) -> None:
+        """Bad domains, arities, keywords, unknown functions and dimensional logs fail closed."""
+        for bad_eval in ("log(0)", "log(-2)", "sqrt(-1)", "log(x, 2)", "sum()", "log(x=1)", "sin(x)", "x(2)"):
+            with self.assertRaises(ModelError, msg=bad_eval):
+                evaluate(parse(bad_eval), {"x": 4.0})
+        for bad_dims in ("log(M)", "exp(M)", "sum(M, t)", "log(x, y)", "sum()", "pow(x, 2)"):
+            with self.assertRaises(ModelError, msg=bad_dims):
+                dimensions(parse(bad_dims), {"M": MASS, "t": TIME, "x": DIMENSIONLESS, "y": DIMENSIONLESS})
+        self.assertAlmostEqual(evaluate(parse("exp(1)"), {}), 2.718281828, places=8)
+        self.assertAlmostEqual(evaluate(parse("prod(2, 3, 4)"), {}), 24.0)
+        self.assertAlmostEqual(evaluate(parse("sum(2, 3, 4)"), {}), 9.0)
 
     def test_query_units_are_grounded_and_aliases_bind(self) -> None:
         """Explicit physical units cannot be silently replaced during query parsing."""

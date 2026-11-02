@@ -1,0 +1,616 @@
+{
+  "batch_id": "building-energy-muse-b01",
+  "created": "2026-10-31",
+  "curator": "muse-spark",
+  "deferred": [
+    {
+      "reason": "UMD Extension heat-pump page states COP only as prose ratio (COP 3.0 means three units of heat per unit of electricity; 2-4x band) with no symbolic equation, units, or seasonal weighting; DOE FEMP water-heater page reports UEF compliance numbers (3.93/3.3/0.95) defined by 10 CFR 430 App. E without reproducing a scalar equation. Neither supports an independent seasonal delivered-heat/electricity equation, so no duplicate_of heat-to-electricity is submitted.",
+      "source_urls": [
+        "https://www.extension.umd.edu/resource/home-energy-heat-pump",
+        "https://www.energy.gov/cmei/femp/purchasing-energy-efficient-residential-water-heaters"
+      ],
+      "title": "Seasonal heat-pump performance audit of heat-to-electricity"
+    },
+    {
+      "reason": "OpenStax UP2 section 1.6 quotes insulating R factor as d/k in US units ft2-F-h/Btu with example values R-11/R-19. A US-customary R-value model is left out to keep this batch in coherent SI; a future batch can curate it with explicit unit conversion.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-2/pages/1-6-mechanisms-of-heat-transfer"
+      ],
+      "title": "US-customary insulation R-value (d/k in ft2-F-h/Btu)"
+    },
+    {
+      "reason": "UEF is computed by a multi-step regulatory recipe (draw pattern, standby loss, first-hour rating per 10 CFR 430 Subpart B Appendix E), not a single scalar equation expressible in the bounded grammar; excluded rather than fabricated.",
+      "source_urls": [
+        "https://www.energy.gov/cmei/femp/purchasing-energy-efficient-residential-water-heaters"
+      ],
+      "title": "Uniform Energy Factor computation for water heaters"
+    },
+    {
+      "reason": "Time-varying tariffs, weather-driven load, full HVAC sizing and dynamic building simulation need time series or empirical calibration outside the bounded scalar static scope.",
+      "source_urls": [],
+      "title": "Dynamic building simulation and HVAC sizing"
+    }
+  ],
+  "domain": "building-energy",
+  "example_only": false,
+  "handoff": {
+    "connections": [
+      "building-energy--conduction-thermal-resistance output feeds building-energy--steady-conduction-heat-rate as the alternative view heat_rate = temp_diff / resistance for the same slab, area and temperature convention.",
+      "building-energy--sensible-heat-demand and building-energy--steady-conduction-heat-rate outputs are thermal demand that can feed existing heat-to-electricity only after a seasonal-scope and unit/context alignment (instantaneous or single-event heat is not seasonal delivered_heat).",
+      "building-energy--constant-power-electricity-consumption output is purchased electrical energy that can feed existing electricity-cost only after unit (kWh) and accounting-interval context alignment.",
+      "No hydraulics link is claimed: water mass here is a declared heating mass, not a hydraulics volumetric-flow product, and no density/scope match was established."
+    ],
+    "gaps": [
+      "No seasonal or empirical performance model is curated; all records are steady/constant-parameter identities or theoretical laws.",
+      "Point-instantaneous conduction rate vs time-integrated conduction energy is not separately modeled; integrate rate over a declared duration only with an explicit holding assumption.",
+      "Cooling (negative temperature change) sign conventions are excluded; heating-only nonnegative domains are declared.",
+      "Validator replays arithmetic only; physical dimensional algebra and new-domain unit conversion were checked by hand, not by the engine."
+    ],
+    "queries": [
+      "A 20 W LED runs 3 h per day for 365 days at constant power. What purchased electrical energy in kWh does it consume, and what is the variable cost at a flat 0.10 USD/kWh in the same annual interval, excluding fixed charges?",
+      "How much sensible heat in joules is needed to raise 0.250 kg of water (c = 4186 J/(kg K)) from 20 C to 80 C with no phase change, and what purchased electricity does that imply through a seasonal performance model whose scope matches this single heating event?"
+    ],
+    "review_notes": "Arithmetic and contract checks run via the bundled validator; source fidelity, edition/locator accuracy, physical dimensions, oracle independence, assumption wording, and requires-extension classification need human review. License statements record the preface text as observed on 2026-10-31 and must be rechecked at import. No empirical or expert validation is claimed.",
+    "summary": "Four requires-extension scalar relationships chaining thermal demand and constant power to purchased energy: sensible heat, steady conduction rate, single-layer conduction resistance, and constant-power electricity consumption. Seasonal audit deferred with reasons."
+  },
+  "kit_version": "2026-10-31.1",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: power is delivered at a constant rate over the whole declared interval (OpenStax: E = Pt is the constant-rate special case of E = integral P dt).",
+        "Application assumption: the declared interval, device boundary and meter scope are fixed by the question; no duty cycling, standby draw or tariff change inside the interval."
+      ],
+      "constants": [
+        {
+          "literal": 1000,
+          "locator": "Section 9.5 worked LED example converts watts with the factor (1 kW / 1000 W); cost subsection states 1 kW.h = 3.6e6 J, consistent with E = Pt.",
+          "meaning": "watts per kilowatt in the billing-energy conversion",
+          "source_id": "openstax-up2-9-5",
+          "unit": "W/kW"
+        }
+      ],
+      "guards": [
+        "power >= 0",
+        "duration >= 0"
+      ],
+      "id": "building-energy--constant-power-electricity-consumption",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Electrical power (W) and operating duration (h) are not in the current runtime unit set (kWh, Wh, USD, USD/kWh, 1, percent); forward execution needs power/time vocabulary and dimension support.",
+          "Context single-device:declared-interval:constant-power does not match the existing home-A annual accounting context; connection to electricity-cost needs an explicit interval-alignment change, not silent relabeling."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Duration = energy * 1000 / power requires power > 0; power = energy * 1000 / duration requires duration > 0. Zero power with zero energy leaves duration undetermined; zero duration with zero energy leaves power undetermined. No separate inverse model is published.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes variable power (use the integral form), standby/duty-cycle structure inside the interval, and fixed charges or time-varying tariffs.",
+        "Energy here is metered electrical energy for the declared interval, not seasonal delivered heat and not generic stored energy."
+      ],
+      "references": [
+        {
+          "expected": 21.9,
+          "id": "led-annual-energy",
+          "inputs": {
+            "duration": 1095,
+            "power": 20
+          },
+          "method": "Independent check against the published LED example: 20 W = 0.02 kW times 3 h/day x 365 days = 1095 h gives 21.9 kW.h, matching the source's reported 21.90 kW.h. Tolerance 0.01 covers the source's two-decimal reporting.",
+          "provenance": "Published worked result in OpenStax UP2 section 9.5 LED cost-effectiveness example (100 W vs 20 W, 3 h/day, 365 days).",
+          "tolerance": 0.01
+        },
+        {
+          "expected": 0,
+          "id": "zero-power-boundary",
+          "inputs": {
+            "duration": 5,
+            "power": 0
+          },
+          "method": "Limiting identity: a device drawing no power consumes no energy over any finite duration under the constant-rate definition.",
+          "provenance": "Definitional boundary check, not an empirical observation.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "duration": 1,
+            "power": -10
+          },
+          "kind": "domain",
+          "reason": "Negative power violates the nonnegative-draw profile; export or signed-flow regimes need a different definition."
+        }
+      ],
+      "relationship": {
+        "expression": "power * duration / 1000",
+        "locator": "Section 9.5 subsection The Cost of Electricity, unnumbered equations E = integral P dt and constant-rate E = Pt; numbered power forms Eqs. 9.12-9.13; LED worked example",
+        "original_equation": "E = Pt for constant power P over time interval t (general form E = integral P dt)",
+        "output_symbol": "energy",
+        "source_id": "openstax-up2-9-5",
+        "translation_notes": "Source states energy E in joules for SI power in watts; billing form uses kilowatts times hours. Stored variables take power in W and duration in h and output energy in kW.h, dividing by the definitional constant 1000 W/kW recorded in constants. Arithmetic literal 1000 needs no measurement source beyond the stated SI prefix, explained here and sourced to the worked conversion."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Page states E = integral P dt generally and E = Pt at constant rate; defines P as the time rate of energy transfer in watts and kW.h as the billing energy unit consistent with E = Pt; LED example converts W with 1 kW/1000 W and reports 20 W over 1095 h as 21.90 kW.h.",
+          "id": "openstax-up2-9-5",
+          "kind": "primary",
+          "license": "OpenStax preface states CC BY 4.0 for University Physics as observed 2026-10-31; verify current terms at source.",
+          "locator": "OpenStax University Physics Volume 2, Ch. 9, section 9.5 Electrical Energy and Power; web view accessed 2026-10-31",
+          "redistribution": "This return quotes no source text; it records a brief original paraphrase, equation shape and independently stated numbers.",
+          "title": "OpenStax University Physics Volume 2, section 9.5 Electrical Energy and Power",
+          "url": "https://openstax.org/books/university-physics-volume-2/pages/9-5-electrical-energy-and-power",
+          "version": "1st ed. 2016, web view accessed 2026-10-31"
+        }
+      ],
+      "summary": "Purchased electrical energy in kW.h for a device drawing constant power in W over a declared duration in h.",
+      "title": "Constant-power electricity consumption over a declared duration",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "single-device:declared-interval:constant-power",
+          "definition": "Constant electrical input power drawn by the device over the declared interval",
+          "dimensions": "mass * length^2 / time^3",
+          "domain": "Nonnegative finite power; zero is the switched-off boundary",
+          "quantity_id": "building-energy:electrical-power",
+          "role": "input",
+          "source_symbol": "P",
+          "symbol": "power",
+          "unit": "W"
+        },
+        {
+          "context": "single-device:declared-interval:constant-power",
+          "definition": "Operating duration over which the constant power is drawn, in hours",
+          "dimensions": "time",
+          "domain": "Nonnegative finite hours; zero is the no-operation boundary",
+          "quantity_id": "building-energy:operating-duration",
+          "role": "input",
+          "source_symbol": "t",
+          "symbol": "duration",
+          "unit": "h"
+        },
+        {
+          "context": "single-device:declared-interval:constant-power",
+          "definition": "Purchased electrical energy consumed in the declared interval",
+          "dimensions": "mass * length^2 / time^2",
+          "domain": "Nonnegative finite billing energy",
+          "quantity_id": "building-energy:electrical-energy",
+          "role": "output",
+          "source_symbol": "E",
+          "symbol": "energy",
+          "unit": "kWh"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: no phase change and no work done on or by the system; specific heat is treated as constant over the stated temperature interval.",
+        "Application assumption: mass, material (fixed c) and the initial/final temperature scope are declared by the question; c does not vary with temperature inside the interval."
+      ],
+      "constants": [],
+      "guards": [
+        "mass >= 0",
+        "specific_heat > 0",
+        "temp_rise >= 0"
+      ],
+      "id": "building-energy--sensible-heat-demand",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Joules, kilograms, J/(kg K) and kelvin temperature difference are outside the current runtime unit set; forward execution needs mass/energy/temperature vocabulary and dimension support.",
+          "Output is single-event sensible heat, not seasonal delivered_heat; feeding heat-to-electricity needs an explicit seasonal-scope alignment, not relabeling."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Mass = heat / (specific_heat * temp_rise) and temp_rise = heat / (mass * specific_heat) need nonzero denominators; zero heat with zero mass or zero rise leaves the third quantity undetermined. Cooling (negative rise) is excluded from this heating-only record and needs its own sign convention, not an algebraic flip.",
+      "kind": "theoretical",
+      "limitations": [
+        "Excludes phase change (latent heat), temperature-dependent specific heat, work exchange, and heat loss to surroundings during warming.",
+        "Covers heating rises only; cooling or signed temperature differences need a separate scoped record."
+      ],
+      "references": [
+        {
+          "expected": 62790,
+          "id": "water-heating-ordinary",
+          "inputs": {
+            "mass": 0.25,
+            "specific_heat": 4186,
+            "temp_rise": 60
+          },
+          "method": "Independent check against the published pan-of-water example: 0.250 kg water x 4186 J/(kg C) x 60 C = 62790 J, matching the source's reported 62.8 kJ. Tolerance 100 J covers the source's three-significant-figure rounding.",
+          "provenance": "Published worked result in OpenStax UP2 section 1.4 Required Heat example (0.250 L water, 20 C to 80 C).",
+          "tolerance": 100
+        },
+        {
+          "expected": 0,
+          "id": "zero-rise-boundary",
+          "inputs": {
+            "mass": 1,
+            "specific_heat": 4186,
+            "temp_rise": 0
+          },
+          "method": "Limiting identity: zero temperature change demands zero sensible heat for any finite mass and specific heat.",
+          "provenance": "Definitional boundary check, not an empirical observation.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "mass": 1,
+            "specific_heat": 4186,
+            "temp_rise": -5
+          },
+          "kind": "domain",
+          "reason": "Negative rise is a cooling change outside this heating-only record; the guard excludes it rather than relabeling it as negative demand."
+        }
+      ],
+      "relationship": {
+        "expression": "mass * specific_heat * temp_rise",
+        "locator": "Section 1.4, Eq. 1.5; Required Heat worked example",
+        "original_equation": "Q = m c delta-T for heat transfer with no phase change and no work",
+        "output_symbol": "heat",
+        "source_id": "openstax-up2-1-4",
+        "translation_notes": "Source symbols map directly: Q to heat (J), m to mass (kg), c to specific_heat (J/(kg K)), delta-T = Tf - Ti to temp_rise (K difference). Celsius-degree differences equal kelvin differences, so the stored kelvin-difference unit needs no conversion factor."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Page introduces Q = mc delta-T as the practical approximation with no phase change and no work; defines Q in joules, m as substance mass, c as specific heat in J/(kg K) or J/(kg C), delta-T as Tf - Ti; water example reports 62.8 kJ for 0.250 kg over 60 C.",
+          "id": "openstax-up2-1-4",
+          "kind": "primary",
+          "license": "OpenStax preface states CC BY 4.0 for University Physics as observed 2026-10-31; verify current terms at source.",
+          "locator": "OpenStax University Physics Volume 2, Ch. 1, section 1.4 Heat Transfer, Specific Heat, and Calorimetry, Eq. 1.5; web view accessed 2026-10-31",
+          "redistribution": "This return quotes no source text; it records a brief original paraphrase, equation shape and independently stated numbers.",
+          "title": "OpenStax University Physics Volume 2, section 1.4 Heat Transfer, Specific Heat, and Calorimetry",
+          "url": "https://openstax.org/books/university-physics-volume-2/pages/1-4-heat-transfer-specific-heat-and-calorimetry",
+          "version": "1st ed. 2016, web view accessed 2026-10-31"
+        }
+      ],
+      "summary": "Sensible heat in joules for a declared mass and temperature rise with constant specific heat and no phase change.",
+      "title": "Sensible heat for a declared mass and temperature change",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "single-material:sensible-only:no-phase-change:constant-specific-heat",
+          "definition": "Mass of the single material being heated",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass; zero is the no-material boundary",
+          "quantity_id": "building-energy:mass",
+          "role": "input",
+          "source_symbol": "m",
+          "symbol": "mass",
+          "unit": "kg"
+        },
+        {
+          "context": "single-material:sensible-only:no-phase-change:constant-specific-heat",
+          "definition": "Specific heat capacity of the material, assumed constant over the interval",
+          "dimensions": "length^2 / time^2 / temperature",
+          "domain": "Positive finite specific heat",
+          "quantity_id": "building-energy:specific-heat-capacity",
+          "role": "input",
+          "source_symbol": "c",
+          "symbol": "specific_heat",
+          "unit": "J/(kg K)"
+        },
+        {
+          "context": "single-material:sensible-only:no-phase-change:constant-specific-heat",
+          "definition": "Final minus initial temperature of the material; a temperature difference, not an absolute temperature",
+          "dimensions": "temperature",
+          "domain": "Nonnegative finite temperature difference; zero is the no-change boundary",
+          "quantity_id": "building-energy:temperature-difference",
+          "role": "input",
+          "source_symbol": "delta-T",
+          "symbol": "temp_rise",
+          "unit": "K"
+        },
+        {
+          "context": "single-material:sensible-only:no-phase-change:constant-specific-heat",
+          "definition": "Sensible heat that must be supplied for the stated mass and rise",
+          "dimensions": "mass * length^2 / time^2",
+          "domain": "Nonnegative finite heat",
+          "quantity_id": "building-energy:sensible-heat",
+          "role": "output",
+          "source_symbol": "Q",
+          "symbol": "heat",
+          "unit": "J"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: steady one-dimensional conduction through a uniform slab of area A and thickness d with constant conductivity and a linear temperature drop from Th to Tc.",
+        "Application assumption: faces are isothermal at the stated hot and cold temperatures over the same bounded assembly; edge effects, convection and radiation are excluded."
+      ],
+      "constants": [],
+      "guards": [
+        "conductivity > 0",
+        "area >= 0",
+        "thickness > 0",
+        "temp_diff >= 0"
+      ],
+      "id": "building-energy--steady-conduction-heat-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Watts, W/(m K), m2, m and kelvin difference are outside the current runtime unit set; forward execution needs power/length/area/temperature vocabulary and dimension support.",
+          "Output is an instantaneous loss rate, not a seasonal or cumulative heat quantity; time integration needs a separate declared holding assumption. See deferred list."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Conductivity = heat_rate * thickness / (area * temp_diff) and temp_diff = heat_rate * thickness / (conductivity * area) need nonzero area, thickness, conductivity and difference. Thickness zero is a singularity excluded by guard; it does not model a zero-resistance contact. No separate inverse model is published.",
+      "kind": "theoretical",
+      "limitations": [
+        "Excludes transient warm-up, nonuniform or multilayer assemblies, temperature-dependent conductivity, and combined convection/radiation.",
+        "Heating-loss direction only (hot to cold as declared); reversed or signed flow needs its own convention."
+      ],
+      "references": [
+        {
+          "expected": 1.47,
+          "id": "aluminum-rod-rate",
+          "inputs": {
+            "area": 7.85e-05,
+            "conductivity": 220,
+            "temp_diff": 21.3,
+            "thickness": 0.25
+          },
+          "method": "Independent check against the published two-conductor example: the aluminum rod (k = 220, A = 7.85e-5 m2, d = 0.25 m) carrying the joint-to-cold drop 41.3 - 20 = 21.3 C reproduces the reported 1.47 W. Tolerance 0.02 covers three-significant-figure reporting.",
+          "provenance": "Published worked result in OpenStax UP2 section 1.6 Two Conductors End to End example (joint 41.3 C, P = 1.47 W).",
+          "tolerance": 0.02
+        },
+        {
+          "expected": 0,
+          "id": "zero-difference-boundary",
+          "inputs": {
+            "area": 7.85e-05,
+            "conductivity": 220,
+            "temp_diff": 0,
+            "thickness": 0.25
+          },
+          "method": "Limiting identity: zero temperature difference drives zero steady conduction rate for any finite geometry and conductivity.",
+          "provenance": "Definitional boundary check consistent with the source equation form.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "area": 7.85e-05,
+            "conductivity": 220,
+            "temp_diff": 21.3,
+            "thickness": 0
+          },
+          "kind": "domain",
+          "reason": "Zero thickness is a singularity (division by zero) and an unmodelled contact, excluded by the positive-thickness guard."
+        }
+      ],
+      "relationship": {
+        "expression": "conductivity * area * temp_diff / thickness",
+        "locator": "Section 1.6, Eq. 1.9; Two Conductors End to End worked example",
+        "original_equation": "P = dQ/dt = k A (Th - Tc) / d for a uniform slab",
+        "output_symbol": "heat_rate",
+        "source_id": "openstax-up2-1-6",
+        "translation_notes": "Source rate P (W) maps to heat_rate; k to conductivity; A to area; slab thickness d to thickness; (Th - Tc) to temp_diff as a kelvin-difference quantity (C-degree differences equal K differences). Stored form equals the source equation with no added coefficients."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Page gives P = dQ/dt = kA(Th - Tc)/d as Eq. 1.9 for a slab of area A and thickness d; defines P in watts, k as thermal conductivity, Th - Tc as the across-slab difference; two-rod example reports joint 41.3 C and P = 1.47 W.",
+          "id": "openstax-up2-1-6",
+          "kind": "primary",
+          "license": "OpenStax preface license terms as observed 2026-10-31; verify current terms at source before redistribution.",
+          "locator": "OpenStax University Physics Volume 2, Ch. 1, section 1.6 Mechanisms of Heat Transfer, Eq. 1.9; web view accessed 2026-10-31",
+          "redistribution": "This return quotes no source text; it records a brief original paraphrase, equation shape and independently stated numbers.",
+          "title": "OpenStax University Physics Volume 2, section 1.6 Mechanisms of Heat Transfer",
+          "url": "https://openstax.org/books/university-physics-volume-2/pages/1-6-mechanisms-of-heat-transfer",
+          "version": "1st ed. 2016, web view accessed 2026-10-31"
+        }
+      ],
+      "summary": "Steady conductive heat-loss rate in watts through a uniform slab of declared area, thickness and across-slab temperature difference.",
+      "title": "Steady conductive heat loss through a bounded assembly",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "single-uniform-slab:steady-state:one-dimensional",
+          "definition": "Thermal conductivity of the slab material, assumed uniform and constant",
+          "dimensions": "mass * length / time^3 / temperature",
+          "domain": "Positive finite conductivity",
+          "quantity_id": "building-energy:thermal-conductivity",
+          "role": "input",
+          "source_symbol": "k",
+          "symbol": "conductivity",
+          "unit": "W/(m K)"
+        },
+        {
+          "context": "single-uniform-slab:steady-state:one-dimensional",
+          "definition": "Face area of the slab normal to heat flow",
+          "dimensions": "length^2",
+          "domain": "Nonnegative finite area; zero is the no-assembly boundary",
+          "quantity_id": "building-energy:area",
+          "role": "input",
+          "source_symbol": "A",
+          "symbol": "area",
+          "unit": "m2"
+        },
+        {
+          "context": "single-uniform-slab:steady-state:one-dimensional",
+          "definition": "Hot-side minus cold-side temperature across the slab; a difference, not an absolute temperature",
+          "dimensions": "temperature",
+          "domain": "Nonnegative finite difference; zero is the no-drive boundary",
+          "quantity_id": "building-energy:temperature-difference",
+          "role": "input",
+          "source_symbol": "Th - Tc",
+          "symbol": "temp_diff",
+          "unit": "K"
+        },
+        {
+          "context": "single-uniform-slab:steady-state:one-dimensional",
+          "definition": "Slab thickness in the direction of heat flow",
+          "dimensions": "length",
+          "domain": "Positive finite thickness",
+          "quantity_id": "building-energy:thickness",
+          "role": "input",
+          "source_symbol": "d",
+          "symbol": "thickness",
+          "unit": "m"
+        },
+        {
+          "context": "single-uniform-slab:steady-state:one-dimensional",
+          "definition": "Steady rate of heat transfer through the slab from hot to cold face",
+          "dimensions": "mass * length^2 / time^3",
+          "domain": "Nonnegative finite heat rate",
+          "quantity_id": "building-energy:conduction-heat-rate",
+          "role": "output",
+          "source_symbol": "P",
+          "symbol": "heat_rate",
+          "unit": "W"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: the same uniform-slab, steady one-dimensional geometry as the conduction rate law, so resistance depends only on thickness, conductivity and area.",
+        "Application assumption: the layer is homogeneous with constant conductivity; multilayer or composite assemblies need series/parallel composition outside this record. The two-rod source example notes its equal-area restriction."
+      ],
+      "constants": [],
+      "guards": [
+        "thickness >= 0",
+        "conductivity > 0",
+        "area > 0"
+      ],
+      "id": "building-energy--conduction-thermal-resistance",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "K/W, m, W/(m K) and m2 are outside the current runtime unit set; forward execution needs thermal-resistance vocabulary and dimension support.",
+          "Area-normalized R-value (m2 K/W) and US-customary R are distinct quantities and are not this record; see deferred list."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Thickness = resistance * conductivity * area is linear and always available within guards. Conductivity = thickness / (resistance * area) and area = thickness / (resistance * conductivity) need nonzero resistance and third quantity; zero resistance with zero thickness leaves conductivity and area undetermined. No separate inverse model is published.",
+      "kind": "definition",
+      "limitations": [
+        "Single homogeneous layer only; contact resistance, convection films and multilayer buildup are excluded.",
+        "Absolute resistance (K/W) for a declared area, not the area-normalized R-value (m2 K/W); do not interchange them."
+      ],
+      "references": [
+        {
+          "expected": 39.81,
+          "id": "steel-rod-resistance",
+          "inputs": {
+            "area": 7.85e-05,
+            "conductivity": 80,
+            "thickness": 0.25
+          },
+          "method": "Independent cross-check: 0.25 / (80 x 7.85e-5) = 39.81 K/W, and the published drops and rate satisfy delta-T / R = 58.7 / 39.81 = 1.47 W, reproducing the source's reported 1.47 W. Tolerance 0.2 covers rounded area and temperature reporting.",
+          "provenance": "Geometry and reported rate from OpenStax UP2 section 1.6 Two Conductors End to End example (steel rod, joint 41.3 C, P = 1.47 W).",
+          "tolerance": 0.2
+        },
+        {
+          "expected": 0,
+          "id": "zero-thickness-boundary",
+          "inputs": {
+            "area": 7.85e-05,
+            "conductivity": 80,
+            "thickness": 0
+          },
+          "method": "Limiting identity: a layer of zero thickness offers zero conductive resistance for finite conductivity and positive area.",
+          "provenance": "Definitional boundary check consistent with the source resistance form.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "area": 0,
+            "conductivity": 80,
+            "thickness": 0.25
+          },
+          "kind": "domain",
+          "reason": "Zero area is a singularity (division by zero) excluded by the positive-area guard; the source's resistance form requires equal nonzero areas."
+        }
+      ],
+      "relationship": {
+        "expression": "thickness / (conductivity * area)",
+        "locator": "Section 1.6, R-factor discussion and Two Conductors example with R = L/k and P = A delta-T / R",
+        "original_equation": "R = L / k with P = A delta-T / R for joined rods (absolute form R_abs = d / (k A) so that delta-T = R_abs P)",
+        "output_symbol": "resistance",
+        "source_id": "openstax-up2-1-6",
+        "translation_notes": "Source states area-normalized R = L/k and P = A delta-T / R. Dividing by area gives the absolute slab resistance d/(kA) used here, so delta-T = resistance * heat_rate for the same slab convention. No coefficients are added."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Page defines R factor as d/k, states conductive rate is inversely proportional to R, and works the two-rod example as R = L/k with P = A delta-T / R, noting the equal-area restriction.",
+          "id": "openstax-up2-1-6",
+          "kind": "primary",
+          "license": "OpenStax preface license terms as observed 2026-10-31; verify current terms at source before redistribution.",
+          "locator": "OpenStax University Physics Volume 2, Ch. 1, section 1.6 Mechanisms of Heat Transfer, R-factor discussion; web view accessed 2026-10-31",
+          "redistribution": "This return quotes no source text; it records a brief original paraphrase, equation shape and independently stated numbers.",
+          "title": "OpenStax University Physics Volume 2, section 1.6 Mechanisms of Heat Transfer",
+          "url": "https://openstax.org/books/university-physics-volume-2/pages/1-6-mechanisms-of-heat-transfer",
+          "version": "1st ed. 2016, web view accessed 2026-10-31"
+        }
+      ],
+      "summary": "Absolute conductive thermal resistance in K/W for one homogeneous layer of declared thickness, conductivity and face area.",
+      "title": "Conductive thermal resistance of one homogeneous material layer",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "single-uniform-slab:steady-state:one-dimensional",
+          "definition": "Layer thickness in the direction of heat flow",
+          "dimensions": "length",
+          "domain": "Nonnegative finite thickness; zero is the no-layer boundary",
+          "quantity_id": "building-energy:thickness",
+          "role": "input",
+          "source_symbol": "d (L in the example)",
+          "symbol": "thickness",
+          "unit": "m"
+        },
+        {
+          "context": "single-uniform-slab:steady-state:one-dimensional",
+          "definition": "Thermal conductivity of the layer material, assumed uniform and constant",
+          "dimensions": "mass * length / time^3 / temperature",
+          "domain": "Positive finite conductivity",
+          "quantity_id": "building-energy:thermal-conductivity",
+          "role": "input",
+          "source_symbol": "k",
+          "symbol": "conductivity",
+          "unit": "W/(m K)"
+        },
+        {
+          "context": "single-uniform-slab:steady-state:one-dimensional",
+          "definition": "Face area of the layer normal to heat flow",
+          "dimensions": "length^2",
+          "domain": "Positive finite area",
+          "quantity_id": "building-energy:area",
+          "role": "input",
+          "source_symbol": "A",
+          "symbol": "area",
+          "unit": "m2"
+        },
+        {
+          "context": "single-uniform-slab:steady-state:one-dimensional",
+          "definition": "Absolute thermal resistance of the layer: temperature drop per unit heat rate",
+          "dimensions": "temperature * time^3 / mass / length^2",
+          "domain": "Nonnegative finite resistance",
+          "quantity_id": "building-energy:conduction-thermal-resistance",
+          "role": "output",
+          "source_symbol": "R_abs",
+          "symbol": "resistance",
+          "unit": "K/W"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,468 @@
+{
+  "batch_id": "building-energy-a-b04",
+  "created": "2026-10-31",
+  "curator": "buffy",
+  "deferred": [
+    {
+      "reason": "Newtonian Qdot=h*A*dT and U-factor sums still need a load-bearing primary textbook/agency source for h with calibration regime; OpenStax Univ. Physics 1.6 declines quantitative convection. Retained from b02/b03.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-2/pages/1-6-mechanisms-of-heat-transfer"
+      ],
+      "title": "Convective rate coefficient and overall U-factor assemblies"
+    },
+    {
+      "reason": "Two-body Tf composition combines sensible-heat and balance relations into an end-to-end scenario formula; curate only if framed as a reusable equilibrium law with full scope, not as a worked-example rearrangement. Retained with OpenStax 14.2 Eqs. 14.12-14.25 as source.",
+      "source_urls": [
+        "https://openstax.org/books/college-physics-2e/pages/14-2-temperature-change-and-heat-capacity"
+      ],
+      "title": "Isolated-system calorimetry equilibrium temperature"
+    }
+  ],
+  "domain": "building-energy",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "New extensions in b04: series-total resistance (same unit as b01 R), emissivity/absolute-temperature fourth-power radiative rule with inlined sigma, Carnot cooling bound. No runtime fits.",
+      "Duplicate search limited to runtime-vocabulary known_model_ids plus b01-b03 IDs; no global catalog supplied.",
+      "Emissivity-band and enclosure-geometry refinements plus linearized h_rad remain future adapters."
+    ],
+    "queries": [],
+    "review_notes": "Validator run required after writing. Sources read directly 2026-10-31: Univ. Physics Vol 2 Sec. 1.6 (series rule) and College Physics 2e Secs. 14.7 (radiation, sigma, person example) and 15.5 (cooling bound). Arithmetic replayed; rounding in method fields. Dimensional checks in translation_notes; validator does not check research dimensions.",
+    "summary": "Batch b04 curates 3 records: equal-area series resistance sum, gray-surface net radiative exchange with inlined Stefan-Boltzmann constant, and the Carnot cooling-COP bound. Complements b01-b03 with no resubmission."
+  },
+  "kit_version": "2026-10-31.2",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: two rods/layers joined end to end carry the same steady heat rate with no surface loss, so the layer drops add at equal areas (Univ. Physics two-conductor strategy and second Solution).",
+        "Same 1D heat-flow path, equal face areas, steady state, and temperature差 convention for R1, R2, and Rtot."
+      ],
+      "constants": [],
+      "guards": [
+        "R1 > 0",
+        "R2 > 0"
+      ],
+      "id": "building-energy--series-thermal-resistance-sum",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires extension: area-normalized resistance (m2*K/W) reuses b01 quantity; equal-area series scope only. Absolute-resistance sums and U-factor inverses need separate records.",
+          "More-than-two-layer assemblies by repeated pairwise use, not inlined."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Rtot with R1 gives R2=Rtot-R1 requiring Rtot>R1 (and symmetrically for R1). Equal-resistance bisection R1=R2=Rtot/2 is a special case, not a separate model. Substitution checked: 0.00427-0.00313=0.00114.",
+      "kind": "theoretical",
+      "limitations": [
+        "Equal areas only; source Significance note restricts the P=A*dT/R use to equal areas and excludes 3D spreading for unequal areas.",
+        "Excludes contact resistance, convection films, and more-than-two assemblies except by repeated pairwise application outside this record."
+      ],
+      "references": [
+        {
+          "expected": 0.00427,
+          "id": "steel-plus-aluminum",
+          "inputs": {
+            "R1": 0.00313,
+            "R2": 0.00114
+          },
+          "method": "Published inputs with replay: reported Rsteel=3.13e-3 and RAl=1.14e-3 sum to 0.00427. Tolerance 2e-05 covers each 3-significant rounding (half unit 0.005e-3) added in quadrature plus display rounding.",
+          "provenance": "Published textbook worked values summed under the stated series rule",
+          "tolerance": 2e-05
+        },
+        {
+          "expected": 0.03,
+          "id": "round-illustration",
+          "inputs": {
+            "R1": 0.01,
+            "R2": 0.02
+          },
+          "method": "Independent illustration at round materially different magnitudes; replay 0.01+0.02=0.03 exact in binary-exact decimals.",
+          "provenance": "Independent elementary illustration of the addition rule",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R1": -0.001,
+            "R2": 0.00114
+          },
+          "kind": "domain",
+          "reason": "Negative resistance is unphysical for a passive layer; guards reject it."
+        },
+        {
+          "inputs": {
+            "R1": 0.00313
+          },
+          "kind": "missing-input",
+          "reason": "Both layer resistances are required; one layer alone does not determine the assembly total."
+        }
+      ],
+      "relationship": {
+        "expression": "R1 + R2",
+        "locator": "Univ. Physics Sec. 1.6 two-conductor second Solution (add R factors; P=(80C)(A)/(Rsteel+RAl)) with Rsteel/RAl evaluation and Significance note",
+        "original_equation": "P = (80C)(A)/(Rsteel+RAl); DeltaTsteel+DeltaTAl=80C with Psteel=PAl; adding R values is common for insulated walls",
+        "output_symbol": "Rtot",
+        "source_id": "openstax-univ-physics-1-6",
+        "translation_notes": "Direct transcription of the stated series rule for two equal-area layers. Units: m2*K/W throughout. Dimensional check: resistance+resistance=resistance. Pairwise form only; more layers by repeated application outside this record."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: the heat entering the steel has no place to go but through both rods, so rates are equated; the second method uses R=L/k with P=ADeltaT/R, adds R factors in series as P=(80C)(A)/(Rsteel+RAl) with Rsteel=3.13e-3 and RAl=1.14e-3, and notes adding R values is common for insulated walls.",
+          "id": "openstax-univ-physics-1-6",
+          "kind": "primary",
+          "license": "CC BY 4.0 per OpenStax University Physics Volume 2 front matter via https://openstax.org/details/books/university-physics-volume-2, read via book page 2026-10-31; free reuse with attribution.",
+          "locator": "Ch. 1, Sec. 1.6, two-conductor example (both solutions plus Significance note) and R-factor prose",
+          "redistribution": "Contains only this short original paraphrase and computed checks; no verbatim long quotation.",
+          "title": "OpenStax University Physics Volume 2, Section 1.6 Mechanisms of Heat Transfer",
+          "url": "https://openstax.org/books/university-physics-volume-2/pages/1-6-mechanisms-of-heat-transfer",
+          "version": "2016 web edition as accessed 2026-10-31"
+        }
+      ],
+      "summary": "Total area-normalized resistance of two plane layers in series with equal face areas as the sum of the layer resistances.",
+      "title": "Series sum of area-normalized resistances (equal areas)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same heat-flow path, area, and steady 1D series pair as Rtot",
+          "definition": "Area-normalized resistance of the first plane layer",
+          "dimensions": "length^2 * temperature / power",
+          "domain": "Positive finite resistance",
+          "quantity_id": "thermal_resistance_area_normalized",
+          "role": "input",
+          "source_symbol": "Rsteel (first layer R)",
+          "symbol": "R1",
+          "unit": "m2*K/W"
+        },
+        {
+          "context": "same heat-flow path, area, and steady 1D series pair as Rtot",
+          "definition": "Area-normalized resistance of the second plane layer",
+          "dimensions": "length^2 * temperature / power",
+          "domain": "Positive finite resistance",
+          "quantity_id": "thermal_resistance_area_normalized",
+          "role": "input",
+          "source_symbol": "RAl (second layer R)",
+          "symbol": "R2",
+          "unit": "m2*K/W"
+        },
+        {
+          "context": "same heat-flow path and area as inputs",
+          "definition": "Total area-normalized series resistance of the two-layer assembly",
+          "dimensions": "length^2 * temperature / power",
+          "domain": "Positive finite resistance",
+          "quantity_id": "thermal_resistance_area_normalized",
+          "role": "output",
+          "source_symbol": "Rsteel+RAl (introduced total)",
+          "symbol": "Rtot",
+          "unit": "m2*K/W"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: object at T1 in uniform-temperature surroundings T2 with gray-surface balance depending on the object emissivity alone (source Eq. 14.44 prose).",
+        "Same surface, enclosure pair, and infrared-band emissivity for e, A, To, Ts, P; absolute kelvins required (fourth-power law).",
+        "Steady temperatures over the evaluation instant; no participating medium or spectral selectivity beyond the single emissivity."
+      ],
+      "constants": [
+        {
+          "literal": 5.67e-08,
+          "locator": "Eq. 14.43: sigma=5.67e-08 J/s/m2/K4",
+          "meaning": "Stefan-Boltzmann constant",
+          "source_id": "openstax-cp2e-14-7",
+          "unit": "W/(m2*K4)"
+        }
+      ],
+      "guards": [
+        "e >= 0",
+        "e <= 1",
+        "A > 0",
+        "To > 0",
+        "Ts > 0"
+      ],
+      "id": "building-energy--net-radiative-exchange-gray-surface",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires extensions: emissivity (1), absolute temperatures (K, offset scale), net radiative rate (W, signed), and fourth-power Stefan-Boltzmann form with inlined sigma. No runtime unit/operator fits.",
+          "Linearized heat-transfer-coefficient form h_rad needs a separate adapter, not silently substituted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "P with e, A, and one temperature gives the other temperature via fourth root: To=(P/(sigma e A)+Ts^4)**0.25 requiring a nonnegative radicand and the physical nonnegative root (negative roots extraneous); e=0 forces P=0 regardless of temperatures (reflective limit). Substitution checked: -98.53207283/(5.67e-08*0.97*1.5)+306^4=295^4 within rounding. Inversion does not separate emission from absorption components.",
+      "kind": "theoretical",
+      "limitations": [
+        "Excludes convection and conduction, which also transfer energy in real rooms (person example discusses 125 W metabolic vs radiative loss).",
+        "Small-temperature-difference linearization and view-factor/enclosure details are outside this record; Earth/atmosphere feedback discussed in source is out of scope."
+      ],
+      "references": [
+        {
+          "expected": -99.0,
+          "id": "person-dark-room",
+          "inputs": {
+            "A": 1.5,
+            "To": 295.0,
+            "Ts": 306.0,
+            "e": 0.97
+          },
+          "method": "Published result: source Eqs. 14.45-14.47 report -99 W for the stated inputs. Replay gives -98.53 W (diff 0.47). Tolerance 1.0 W covers the two-significant display rounding (half unit 0.5 W) plus input rounding.",
+          "provenance": "Published textbook worked example (unclothed person in dark room)",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 58.241673,
+          "id": "blackbody-near-ambient",
+          "inputs": {
+            "A": 1.0,
+            "To": 300.0,
+            "Ts": 290.0,
+            "e": 1.0
+          },
+          "method": "Independent illustration at a materially different near-ambient pair for an ideal black surface: 5.67e-08*1*(300^4-290^4)=58.241673 W. Replay exact in double precision.",
+          "provenance": "Independent elementary illustration of the net-difference form",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A": 1.5,
+            "To": 295.0,
+            "Ts": 306.0,
+            "e": 1.5
+          },
+          "kind": "domain",
+          "reason": "Emissivity above 1 contradicts the gray-surface definition (black limit 1); guard e<=1 rejects it."
+        },
+        {
+          "inputs": {
+            "To": 295.0,
+            "Ts": 306.0,
+            "e": 0.97
+          },
+          "kind": "missing-input",
+          "reason": "Surface area A is required; temperatures and emissivity alone do not determine the rate."
+        }
+      ],
+      "relationship": {
+        "expression": "e * 5.67e-08 * A * (To**4 - Ts**4)",
+        "locator": "Sec. 14.7, Eqs. 14.43-14.46 with person example (e=0.97, A=1.50, T2=295K, T1=306K gives -99 W)",
+        "original_equation": "Q/t = sigma e A T^4 (Eq. 14.43, emission); Qnet/t = sigma e A (T2^4 - T1^4) (Eq. 14.44, net with surroundings T2 and object T1)",
+        "output_symbol": "P",
+        "source_id": "openstax-cp2e-14-7",
+        "translation_notes": "Local e/A map to source e/A; local To/Ts map to source T2 (surroundings) and T1 (object). Sigma inlined as the numeric literal 5.67e-08 per source Eq. 14.43. Units: e dimensionless, sigma W/(m2*K4), A m2, T K, P W. Dimensional check: (W/(m2*K4))*m2*K4=W. Sign follows surroundings-minus-object (negative = net loss)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: emission rate is Q/t=sigma e A T^4 (14.43) with sigma=5.67e-08, A area, T absolute kelvin, e emissivity (black 1, reflector 0); net rate with uniform surroundings is sigma e A (T2^4-T1^4) (14.44) depending on object emissivity alone; person example e=0.97, A=1.50, T2=295K, T1=306K gives -99 W net loss.",
+          "id": "openstax-cp2e-14-7",
+          "kind": "primary",
+          "license": "CC BY-NC-SA 4.0 per OpenStax College Physics 2e Preface at https://openstax.org/books/college-physics-2e/pages/preface, read 2026-10-31; non-commercial share-alike, attribution required.",
+          "locator": "Ch. 14, Sec. 14.7, Eqs. 14.43-14.47 with person worked example and emissivity prose",
+          "redistribution": "Contains only this short original paraphrase and computed checks; no verbatim long quotation.",
+          "title": "OpenStax College Physics 2e, Section 14.7 Radiation",
+          "url": "https://openstax.org/books/college-physics-2e/pages/14-7-radiation",
+          "version": "2e (2022-07-13 web edition)"
+        }
+      ],
+      "summary": "Signed net radiative rate into an object from uniform surroundings via the Stefan-Boltzmann gray-surface difference of fourth powers.",
+      "title": "Net radiative exchange of a gray surface with uniform surroundings",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same surface and infrared band as P",
+          "definition": "Total hemispherical emissivity of the object surface (1 ideal black, 0 perfect reflector)",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "thermal_emissivity",
+          "role": "input",
+          "source_symbol": "e",
+          "symbol": "e",
+          "unit": "1"
+        },
+        {
+          "context": "same surface as P",
+          "definition": "Radiating surface area of the object",
+          "dimensions": "length^2",
+          "domain": "Positive finite area",
+          "quantity_id": "heat_transfer_area",
+          "role": "input",
+          "source_symbol": "A",
+          "symbol": "A",
+          "unit": "m2"
+        },
+        {
+          "context": "same enclosure pair as Ts and P",
+          "definition": "Absolute temperature of the uniform surroundings",
+          "dimensions": "temperature",
+          "domain": "Positive finite absolute temperature",
+          "quantity_id": "absolute_surroundings_temperature",
+          "role": "input",
+          "source_symbol": "T2 (surroundings)",
+          "symbol": "To",
+          "unit": "K"
+        },
+        {
+          "context": "same enclosure pair as To and P",
+          "definition": "Absolute temperature of the object surface",
+          "dimensions": "temperature",
+          "domain": "Positive finite absolute temperature",
+          "quantity_id": "absolute_surface_temperature",
+          "role": "input",
+          "source_symbol": "T1 (object)",
+          "symbol": "Ts",
+          "unit": "K"
+        },
+        {
+          "context": "same surface and enclosure pair as inputs",
+          "definition": "Signed net radiative rate into the object (positive gain, negative net loss)",
+          "dimensions": "power",
+          "domain": "Finite signed rate",
+          "quantity_id": "net_radiative_heat_rate",
+          "role": "output",
+          "source_symbol": "Qnet/t",
+          "symbol": "P",
+          "unit": "W"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: reversed Carnot with Qh=Qc+W giving COPref=COP_hp-1, evaluated at the reversible heating bound (OpenStax 15.5).",
+        "Same reservoir pair and reversible cycle for Th, Tc, COPmaxc; absolute kelvins required."
+      ],
+      "constants": [],
+      "guards": [
+        "Th > 0",
+        "Tc > 0",
+        "Th > Tc"
+      ],
+      "id": "building-energy--carnot-cooling-cop-limit",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires extensions: absolute temperatures (K) and dimensionless Carnot-cooling-bound meaning, reusing b03 reservoir quantity definitions. Distinct from heating bound, point COPs, and seasonal HSPF.",
+          "Engine-efficiency and heating/cooling relation records remain separate where needed."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Bounds strictly ordered positive absolutes; Th>Tc excludes equality. With COPmaxc and Th, Tc=Th*COPmaxc/(1+COPmaxc); with COPmaxc and Tc, Th=Tc*(1+1/COPmaxc) requiring positive COPmaxc. Substitution checked: 4.3 and Th=318 give Tc=318*4.3/5.3=258.0 within rounding.",
+      "kind": "theoretical",
+      "limitations": [
+        "Ideal upper bound only; real cooling COP typically ranges 2-6 per source. Not a default efficiency.",
+        "Excludes the heating-bound record (separate b03 output), engine efficiency, and all irreversibilities and sizing/cost considerations."
+      ],
+      "references": [
+        {
+          "expected": 4.3,
+          "id": "carnot-cooling-318-258",
+          "inputs": {
+            "Tc": 258.0,
+            "Th": 318.0
+          },
+          "method": "Source-backed derivation: 258/(318-258)=4.30 exact, consistent with heating 5.30 minus 1 via Eq. 15.44. Tolerance 0.01 covers two-decimal rounding.",
+          "provenance": "Derived from the published Carnot heating example via the source-stated cooling relation; ideal bound",
+          "tolerance": 0.01
+        },
+        {
+          "expected": 9.0,
+          "id": "mild-cooling-300-270",
+          "inputs": {
+            "Tc": 270.0,
+            "Th": 300.0
+          },
+          "method": "Independent illustration at a materially different mild-lift pair: 270/30=9.0 exact.",
+          "provenance": "Independent elementary illustration of the source-stated bound form",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Tc": 300.0,
+            "Th": 300.0
+          },
+          "kind": "domain",
+          "reason": "Zero lift (Th=Tc) makes the bound singular; guard Th>Tc rejects it."
+        },
+        {
+          "inputs": {
+            "Th": 318.0
+          },
+          "kind": "missing-input",
+          "reason": "Cold reservoir Tc is required; one reservoir alone does not determine the bound."
+        }
+      ],
+      "relationship": {
+        "expression": "Tc / (Th - Tc)",
+        "locator": "Sec. 15.5 refrigerator subsection Eqs. 15.43-15.44 combined with Best-COP example Eqs. 15.38-15.42",
+        "original_equation": "COPref = Qc/W (Eq. 15.43); COPref = COP_hp - 1 (Eq. 15.44); Carnot heating 5.30 implies cooling 4.30 for Th=318K, Tc=258K",
+        "output_symbol": "COPmaxc",
+        "source_id": "openstax-cp2e-15-5",
+        "translation_notes": "Source-backed derivation combining COPref=COP_hp-1 with Carnot heating bound Th/(Th-Tc) to cooling form Tc/(Th-Tc); no new physics introduced. Units: absolute kelvins; result dimensionless. Dimensional check: temperature/temperature-difference=dimensionless (absolute scale required)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: cooling COP is COPref=Qc/W (15.43) with COPref=COP_hp-1 (15.44); heating Carnot example gives 5.30 between 318K and 258K, implying a cooling bound of 4.30; real cooling units typically achieve COPref 2-6.",
+          "id": "openstax-cp2e-15-5",
+          "kind": "primary",
+          "license": "CC BY-NC-SA 4.0 per OpenStax College Physics 2e Preface at https://openstax.org/books/college-physics-2e/pages/preface, read 2026-10-31; non-commercial share-alike, attribution required.",
+          "locator": "Ch. 15, Sec. 15.5, Eqs. 15.38-15.44 with Carnot example and real-range paragraph",
+          "redistribution": "Contains only this short original paraphrase and computed checks; no verbatim long quotation.",
+          "title": "OpenStax College Physics 2e, Section 15.5 Heat Pumps and Refrigerators",
+          "url": "https://openstax.org/books/college-physics-2e/pages/15-5-applications-of-thermodynamics-heat-pumps-and-refrigerators",
+          "version": "2e (2022-07-13 web edition)"
+        }
+      ],
+      "summary": "Reversible ideal limit on refrigerator/air-conditioner COP from absolute cold and hot reservoir temperatures.",
+      "title": "Carnot upper bound on cooling COP between reservoirs",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same reversible cycle and reservoir pair as Tc and COPmaxc",
+          "definition": "Absolute temperature of the hot reservoir (same definition as heating-bound record)",
+          "dimensions": "temperature",
+          "domain": "Positive finite absolute temperature",
+          "quantity_id": "absolute_hot_reservoir_temperature",
+          "role": "input",
+          "source_symbol": "Th",
+          "symbol": "Th",
+          "unit": "K"
+        },
+        {
+          "context": "same reversible cycle and reservoir pair as Th and COPmaxc",
+          "definition": "Absolute temperature of the cold reservoir (same definition as heating-bound record)",
+          "dimensions": "temperature",
+          "domain": "Positive finite absolute temperature below Th",
+          "quantity_id": "absolute_cold_reservoir_temperature",
+          "role": "input",
+          "source_symbol": "Tc",
+          "symbol": "Tc",
+          "unit": "K"
+        },
+        {
+          "context": "same reversible cycle and reservoir pair as inputs",
+          "definition": "Reversible ideal upper bound on cooling COP between the stated reservoirs",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite bound",
+          "quantity_id": "carnot_cooling_cop_bound",
+          "role": "output",
+          "source_symbol": "COPref (Carnot best case)",
+          "symbol": "COPmaxc",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

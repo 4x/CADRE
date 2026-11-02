@@ -25,11 +25,15 @@ MONEY: Dimensions = _dims(0, 0, 0, 1)
 PRICE: Dimensions = _dims(-1, -2, 2, 1)
 INVERSE_MONEY: Dimensions = _dims(0, 0, 0, -1)
 INVERSE_TIME: Dimensions = _dims(0, 0, -1, 0)
+VOLUME: Dimensions = _dims(0, 3, 0, 0)
+MASS_DENSITY: Dimensions = _dims(1, -3, 0, 0)
+SPECIFIC_ENERGY: Dimensions = _dims(0, 2, -2, 0)
 JOULES_PER_KWH = 3_600_000
 KCAL_IN_JOULES = 4_184
 SECONDS_PER_DAY = 86_400
+BTU_IN_JOULES = 1055.05585262
 KLEIBER_MASS_EXPONENT = Fraction(3, 4)
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1"
 DIMENSION_AXES = ("mass", "length", "time", "currency")
 NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
 
@@ -139,6 +143,16 @@ UNITS = {
     "kcal/day per kg^0.75": Unit(_dims(Fraction(1) - KLEIBER_MASS_EXPONENT, 2, -3, 0),
                                  ((KCAL_IN_JOULES / JOULES_PER_KWH) / SECONDS_PER_DAY)
                                  / ((1 / JOULES_PER_KWH) ** float(KLEIBER_MASS_EXPONENT))),
+    # Building-energy batch (be-1): SI power, volume, mass density and specific
+    # energy plus the International Table Btu used by ENERGY STAR seasonal
+    # ratings. Btu/Wh is a dimensionless scale ratio: (Btu/Wh)*Wh collapses to
+    # Btu through the registry scales, never through an inlined factor.
+    "W": Unit(POWER, 1 / JOULES_PER_KWH),
+    "Btu": Unit(ENERGY, BTU_IN_JOULES / JOULES_PER_KWH),
+    "Btu/Wh": Unit(DIMENSIONLESS, BTU_IN_JOULES / 3600),
+    "m3": Unit(VOLUME, 1.0),
+    "kg/m3": Unit(MASS_DENSITY, 1 / JOULES_PER_KWH),
+    "J/kg": Unit(SPECIFIC_ENERGY, 1.0),
 }
 
 # Meaning is independent of dimension: heat and electricity cannot bind implicitly.
@@ -354,6 +368,24 @@ MEANINGS = {
     "parallel_mtbf": TIME,
     "parallel_mdt": TIME,
     "constant_failure_rate": INVERSE_TIME,
+    # BE-1: point and seasonal heat-pump, density and latent-heat meanings for
+    # reviewed wave-2 b01/b02/b03 admittables. Curator quantity IDs adopted
+    # verbatim; temperature-carrying records stay out until the engine gains a
+    # temperature axis (no silent remaps onto existing axes).
+    "electrical_power": POWER,
+    "operating_duration": TIME,
+    "point_heating_cop": DIMENSIONLESS,
+    "point_heating_heat_delivery": ENERGY,
+    "point_work_input": ENERGY,
+    "point_cooling_cop": DIMENSIONLESS,
+    "point_cooling_heat_removal": ENERGY,
+    "seasonal_heating_performance_hspf": DIMENSIONLESS,
+    "seasonal_space_heating_delivered": ENERGY,
+    "seasonal_electricity_consumption_hp": ENERGY,
+    "mass_density": MASS_DENSITY,
+    "volume": VOLUME,
+    "latent_heat_coefficient": SPECIFIC_ENERGY,
+    "latent_heat_transfer": ENERGY,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

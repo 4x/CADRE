@@ -8,7 +8,7 @@ from pathlib import Path
 from test_support import scratch_directory
 import unittest
 
-from connected_models.contracts import DIMENSIONLESS, INVERSE_MONEY, INVERSE_TIME, MASS, MEANINGS, MONEY, POWER, TIME, UNITS, Composition, ModelError, Node, Port, Reference, Value
+from connected_models.contracts import DIMENSIONLESS, ENERGY, INVERSE_MONEY, INVERSE_TIME, MASS, MASS_DENSITY, MEANINGS, MONEY, POWER, SPECIFIC_ENERGY, TIME, UNITS, VOLUME, Composition, ModelError, Node, Port, Reference, Value
 from connected_models.demo import ANNUAL, HEAT, RATE, SAVING, YEARS, catalog, composition, fixture
 from connected_models.runtime import execute, save_run
 
@@ -167,7 +167,21 @@ class RuntimeTests(unittest.TestCase):
                  "basal_metabolic_rate": ("kcal/day", POWER),
                  "body_mass": ("kg", MASS),
                  "metabolic_normalization": ("kcal/day per kg^0.75",
-                                               (Fraction(1, 4), Fraction(2), Fraction(-3), Fraction(0)))}
+                                               (Fraction(1, 4), Fraction(2), Fraction(-3), Fraction(0))),
+                 "electrical_power": ("W", POWER),
+                 "operating_duration": ("h", TIME),
+                 "point_heating_cop": ("1", DIMENSIONLESS),
+                 "point_heating_heat_delivery": ("J", ENERGY),
+                 "point_work_input": ("J", ENERGY),
+                 "point_cooling_cop": ("1", DIMENSIONLESS),
+                 "point_cooling_heat_removal": ("J", ENERGY),
+                 "seasonal_heating_performance_hspf": ("Btu/Wh", DIMENSIONLESS),
+                 "seasonal_space_heating_delivered": ("Btu", ENERGY),
+                 "seasonal_electricity_consumption_hp": ("Wh", ENERGY),
+                 "mass_density": ("kg/m3", MASS_DENSITY),
+                 "volume": ("m3", VOLUME),
+                 "latent_heat_coefficient": ("J/kg", SPECIFIC_ENERGY),
+                 "latent_heat_transfer": ("J", ENERGY)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)
@@ -196,6 +210,19 @@ class RuntimeTests(unittest.TestCase):
         self.assertAlmostEqual(rating.bind(Port("mips_rating", "MIPS", "test-context")), 2000.0)
         self.assertEqual(UNITS["MIPS"].scale, 1000000.0)
         self.assertEqual(UNITS["Hz"].scale, 1.0)
+
+    def test_building_energy_scales_close_algebra(self) -> None:
+        """Btu, W and Btu/Wh scales collapse seasonal ratings without inlined factors."""
+        self.assertAlmostEqual(UNITS["W"].scale, 1 / 3600000)
+        self.assertAlmostEqual(UNITS["Btu"].scale, 1055.05585262 / 3600000)
+        self.assertAlmostEqual(UNITS["Btu/Wh"].scale, 1055.05585262 / 3600)
+        self.assertEqual(UNITS["J/kg"].scale, 1.0)
+        hspf = Value(10.0, Port("seasonal_heating_performance_hspf", "Btu/Wh", "test-context"),
+                     "observation", "test-evidence")
+        seasonal_wh = Value(1000.0, Port("seasonal_electricity_consumption_hp", "Wh", "test-context"),
+                            "observation", "test-evidence")
+        canonical_kwh = (hspf.amount * UNITS["Btu/Wh"].scale) * (seasonal_wh.amount * UNITS["Wh"].scale)
+        self.assertAlmostEqual(canonical_kwh / UNITS["Btu"].scale, 10000.0, places=6)
 
     def test_revision_and_old_run_preservation(self) -> None:
         """New inputs and a compatible model revision leave earlier runs intact."""

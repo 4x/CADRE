@@ -12,7 +12,12 @@ SUPPORTED_KIT_VERSIONS = ("2026-10-31.1", "2026-10-31.2", "2026-10-31.3", "2026-
 MAX_MODELS = 12
 MAX_BATCH_BYTES = 1_048_576
 DOMAINS = ("building-energy", "engineering-finance", "electric-circuits", "water-hydraulics", "classical-mechanics", "probability",
-           "economics", "computer-science", "chemistry", "biology")
+           "economics", "computer-science", "chemistry", "biology",
+           # Wave-2 breadth lanes (assignments staged in data/curation/wave2/).
+           "statistics", "materials-science", "thermodynamics",
+           # Wave-3 breadth lanes (assignments staged in data/curation/wave3/).
+           "structural-mechanics", "waves-and-optics", "demography", "clinical-arithmetic",
+           "environmental-accounting", "orbital-mechanics")
 STRING = {"type": "string", "minLength": 1, "maxLength": 4096}
 NUMBER = {"type": "number"}
 IDENTIFIER = {**STRING, "pattern": "^[a-z][a-z0-9-]{0,95}$"}

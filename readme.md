@@ -1,28 +1,26 @@
 # Connected Models
 
-Compose reusable quantitative models and inspect their inputs, assumptions, dependencies and results. The first runnable slice compares electric resistance heating with a heat pump, then connects operating savings to discounted investment value.
-
-Returning agents: start with the session handoff in [PROJECT_STATE.md](PROJECT_STATE.md), then the [active MVP plan](knowledge/notes/mvp-build-sequence-and-extension-triggers.md). M2 is complete, including the recorded acceptance exercise; M3 testing continues and M4 release work can start. Current worker release files are directly in `.runs/curation-kits-2026-10-31.5/` (generic plus ten domain kits; the `.4` release stays valid for its six domains); build/test artifacts are archived separately. The full offline suite has 91 passing tests. Incoming ZIPs and the live registry/runs are local state; migration details are in the handoff.
+Answers quantitative questions with grounded, testable results by composing reusable models and inspecting their inputs, assumptions, dependencies and results. The first runnable slice compares electric resistance heating with a heat pump, then connects operating savings to discounted investment value.
 
 ## Run the current prototype
 
-Requires uv and Python 3.12 or newer. No third-party Python packages are required.
+Requires uv and Python 3.12 or newer. No third-party Python packages are required. Answering a question uses live inference and needs `META_API_KEY` in the environment (see Meta inference setup below); inspection, reports, tests and curation tools run offline.
 
 ```powershell
-uv --cache-dir .uv-cache run --no-env-file -m connected_models demo
-uv --cache-dir .uv-cache run --no-env-file -m connected_models demo --performance 2 --investment 12000
-uv --cache-dir .uv-cache run --no-env-file -m connected_models demo --question operating-cost
+uv --cache-dir .uv-cache run --env-file .env -m connected_models answer 'For the same annual delivered heat of 12000 kWh, compare baseline electric heating with seasonal performance 1 and a heat pump with seasonal performance 3, using a flat tariff of 0.30 USD/kWh in constant real prices. Exclude cooling benefits, maintenance differences, and changes in fixed charges. Calculate annual operating costs and savings.'
+uv --cache-dir .uv-cache run --no-env-file -m connected_models inspect RUN_ID
+uv --cache-dir .uv-cache run --no-env-file -m connected_models report RUN_ID
 ```
 
-The synthetic default scenario uses 12,000 kWh of delivered annual heat, seasonal performance 3, a flat $0.30/kWh tariff, $10,000 incremental investment, a ten-year study period and a 5% annual effective real discount rate. It yields $2,400 annual operating savings and $8,532.16 net present value under those assumptions. These are illustrative inputs, not household measurements or purchasing advice. Every run saves its complete model definitions, input bindings, provenance and intermediate results under `.runs/`; earlier runs are preserved.
+The worked heating example uses 12,000 kWh of delivered annual heat, seasonal performance 3, a flat $0.30/kWh tariff, $10,000 incremental investment, a ten-year study period and a 5% annual effective real discount rate. It yields $2,400 annual operating savings and $8,532.16 net present value under those assumptions. These are illustrative inputs, not household measurements or purchasing advice. Every run saves its complete model definitions, input bindings, provenance and intermediate results under `.runs/`; earlier runs are preserved.
 
-The `demo` command is a developer fixture with known presets. The real `answer` command accepts only a self-contained question: put assumptions, numbers, units and requested outputs in its text. It has no performance, tariff or investment options and never loads the demo's preset inputs. The present-value model currently requires a positive discount rate and an integer horizon from 1 to 100 years. Performance must represent seasonal whole-system delivered heat divided by electricity use; a single temperature's COP rating is insufficient. Maintenance, cooling benefits, replacements, incentives, tariff escalation and uncertainty propagation are excluded from the initial heating models.
+The `answer` command accepts only a self-contained question: put assumptions, numbers, units and requested outputs in its text. It has no performance, tariff or investment options and uses only what the question states. The present-value model currently requires a positive discount rate and an integer horizon from 1 to 100 years. Performance must represent seasonal whole-system delivered heat divided by electricity use; a single temperature's COP rating is insufficient. Maintenance, cooling benefits, replacements, incentives, tariff escalation and uncertainty propagation are excluded from the initial heating models.
 
 ## Meta inference setup
 
 The public settings in `inference.toml` select `muse-spark-1.3` in Standard mode and a $150 application-wide ceiling. The adapter uses the [Meta API route documented for coding agents](https://dev.meta.ai/docs/coding-agents). It does not change the coding agent running this session.
 
-The application accepts `META_API_KEY` from its process environment. On October 29, 2026 the owner authorized runtime-only loading with uv; this permission does not authorize inspecting or displaying `.env` or its contents. Launch a bounded connection check with:
+The application accepts `META_API_KEY` from its process environment. Launch a bounded connection check with:
 
 ```powershell
 uv --cache-dir .uv-cache run --env-file .env -m connected_models meta-smoke
@@ -44,7 +42,7 @@ Tests compare execution with a separately summed Decimal cash flow and NIST Hand
 
 Implemented: bounded scalar algebra, explicit per-port context and meaning checks, ratio-unit conversions, graph compilation, deterministic evaluation, immutable run snapshots, two fixture compositions and a budgeted Meta connection-check adapter. Expressions are interpreted through an allowlisted AST; arbitrary Python code is not executed.
 
-The `demo` command uses handwritten fixtures. The separate registry workflow supports offline source extraction, candidate storage, attributed review/publication, withdrawal and query-time composition against eligible stored versions. Sixty-seven offline tests pass, including isolated curator packaging, compatible data returns and candidate-only import. Live question-only evaluation, inverse solving, discounted payback and missing-input clarification have been verified. The development agent recorded a scoped local prototype review under `codex-prototype-review`; it does not claim human scientific approval. The inspector prints saved evidence and can export a standalone HTML report, including inputs quoted from the question. The contracts implement a bounded subset of the representation draft, not full v0 conformance.
+The registry workflow supports offline source extraction, candidate storage, attributed review/publication, withdrawal and query-time composition against eligible stored versions. 109 offline tests pass, including isolated curator packaging, compatible data returns and candidate-only import. Live question-only evaluation, inverse solving, discounted payback and missing-input clarification have been verified. The development agent recorded a scoped local prototype review under `codex-prototype-review`; it does not claim human scientific approval. The inspector prints saved evidence and can export a standalone HTML report, including inputs quoted from the question. The contracts implement a bounded subset of the representation draft, not full v0 conformance.
 
 ## Curate, review and reuse models
 
@@ -71,7 +69,7 @@ uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation inventor
 uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation kit building-energy-worker.zip --domain building-energy --inventory fleet-inventory.json
 ```
 
-M2-A/B are complete. The [separate mechanics audit](knowledge/sources/mechanics-independent-audit.md) recommends two constant-acceleration records for bounded local execution; three require corrections. Runtime 0.3 adds a bounded mechanics vocabulary, dimensional integer powers and physical-unit aliases, preserving the legacy kWh/USD numerical scales. Two independently reviewed runtime projections are eligible locally. Seventy-six tests pass, including fresh-registry reproduction; three saved heating runs replay with unchanged results and original files. Full report, unchanged research data and integration receipt are in `data/curation/reviews/`. The [M2 plan](knowledge/notes/mvp-build-sequence-and-extension-triggers.md#m2-closeout-assessment--2026-10-31) retains revision controls and the broader acceptance exercise as M2-C/D.
+The [separate mechanics audit](knowledge/sources/mechanics-independent-audit.md) recommends two constant-acceleration records for bounded local execution; three require corrections. The runtime includes a bounded mechanics vocabulary, dimensional integer powers and physical-unit aliases, preserving the legacy kWh/USD numerical scales. Independently reviewed runtime projections are eligible locally. Saved heating runs replay with unchanged results and original files. Full report, unchanged research data and integration receipt are in `data/curation/reviews/`. The [MVP plan](knowledge/notes/mvp-build-sequence-and-extension-triggers.md#m2-closeout-assessment--2026-10-31) retains revision controls and the broader acceptance exercise.
 
 Create a separate reviewer packet, then validate the returned report and stage a supported recommended record:
 
@@ -83,7 +81,7 @@ uv --cache-dir .uv-cache run --no-env-file -m connected_models.integration incom
 
 Give only the extracted packet to a different reviewer agent with `Read @AGENTS.md and complete @assignment.json`. See the [operator guide](knowledge/notes/offline-curation-agent-kit.md#separate-auditor-handoff-and-technical-integration) for review criteria, projection evidence and the separate attributed admission command. Neither report validation nor projection publishes a model. To reproduce the committed example without the original ZIP, the validator and integrator also accept `data/curation/reviews/classical-mechanics-a-b01-bundle.json` with its corresponding review JSON.
 
-The application credential variable is **META_API_KEY**. This overrides the variable name shown in Meta's generic documentation. Agents do not access `.env` unless the owner explicitly permits a runtime-loading exception. The following live commands are intended for an owner launch, or for an explicitly authorized runtime launch by the agent.
+The application credential variable is **META_API_KEY**. This overrides the variable name shown in Meta's generic documentation. The following commands stage project-derived candidates, run a paid extraction from the bundled NIST source packet, and report on a bundle:
 
 ```powershell
 # Stage four supporting project-derived candidates, without publishing them.
@@ -118,7 +116,7 @@ uv --cache-dir .uv-cache run --no-env-file -m connected_models report RUN_ID ANO
 uv --cache-dir .uv-cache run --no-env-file -m connected_models usage
 ```
 
-The first query-time step extracts a domain-independent list of typed facts (number, date or text), with exact quotes from the question. Numeric literals and supported adjacent units are checked against those quotes. The composer receives these facts and eligible stored definitions; each external input must reference a fact ID, and each derived input must reference an upstream node. It cannot emit a new numeric literal or use a remembered demo value. A structured graph object avoids nested JSON-string generation. The compiler checks and executes the resolved graph, saving both extraction evidence and proposed assignments to model inputs.
+The first query-time step extracts a domain-independent list of typed facts (number, date or text), with exact quotes from the question. Numeric literals and supported adjacent units are checked against those quotes. The composer receives these facts and eligible stored definitions; each external input must reference a fact ID, and each derived input must reference an upstream node. It cannot emit a new numeric literal or use a remembered preset value. A structured graph object avoids nested JSON-string generation. The compiler checks and executes the resolved graph, saving both extraction evidence and proposed assignments to model inputs.
 
 If the question omits required inputs, the result is `needs-input` with specific clarification questions and no calculated answer. Asking only for annual operating costs does not require an investment amount, horizon or discount rate. Unsupported model coverage remains `blocked`, with parsed inputs retained. This currently uses a self-contained follow-up question rather than persistent conversational state. Generated estimates remain disabled until a scoped consent flow exists; source curation never runs inline.
 

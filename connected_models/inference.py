@@ -19,11 +19,38 @@ from uuid import uuid4
 
 from .contracts import ModelError
 
+PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
+MAX_PROMPT_FILE_BYTES = 32_768
 APPROVED_BUDGET_USD = Decimal("150")
 MAX_CONTEXT_TOKENS = 1_048_576
 MAX_COMPLETION_TOKENS = 4096
 MAX_RESPONSE_BYTES = 1_048_576
-MAX_PROMPT_BYTES = 32_768
+# Composer requests embed the eligible-model catalog, which outgrew the
+# original 32 KiB cap at ~100 models. 1 MiB matches the response cap and the
+# 1M-token context; per-call cost still accrues through the ledger. The
+# long-term fix is catalog retrieval instead of full-catalog prompts (see
+# question-model-discovery-and-selection).
+MAX_PROMPT_BYTES = 1_048_576
+
+
+def load_prompt(filename: str) -> str:
+    """Load one editable system prompt; fail closed on missing, empty or oversize files."""
+    if not isinstance(filename, str) or Path(filename).name != filename or not filename.endswith(".md"):
+        raise ModelError("Prompt must be a plain Markdown filename inside prompts/.")
+    path = PROMPTS_DIR / filename
+    try:
+        raw = path.read_bytes()
+    except OSError as exc:
+        raise ModelError(f"Prompt file {filename} is not readable.") from exc
+    if len(raw) > MAX_PROMPT_FILE_BYTES:
+        raise ModelError(f"Prompt file {filename} exceeds the size limit.")
+    try:
+        content = raw.decode("utf-8").strip()
+    except UnicodeDecodeError as exc:
+        raise ModelError(f"Prompt file {filename} is not valid UTF-8.") from exc
+    if not content:
+        raise ModelError(f"Prompt file {filename} is empty.")
+    return content
 MINOR_UNITS_PER_USD = 1_000_000
 API_HOST = "api.meta.ai"
 API_PATH = "/v1/chat/completions"

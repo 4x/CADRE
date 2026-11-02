@@ -4,12 +4,14 @@ from dataclasses import dataclass, field
 from fractions import Fraction
 import math
 
-Dimensions = tuple[Fraction, Fraction, Fraction, Fraction]  # Mass, length, time, currency.
+Dimensions = tuple[Fraction, Fraction, Fraction, Fraction, Fraction, Fraction, Fraction]  # Mass, length, time, currency, temperature, current, amount.
 
 
-def _dims(mass: int | Fraction, length: int | Fraction, time: int | Fraction, currency: int | Fraction) -> Dimensions:
+def _dims(mass: int | Fraction, length: int | Fraction, time: int | Fraction, currency: int | Fraction,
+          temperature: int | Fraction = 0, current: int | Fraction = 0, amount: int | Fraction = 0) -> Dimensions:
     """Build an exact dimension vector; rational powers need exact rationals, never floats."""
-    return (Fraction(mass), Fraction(length), Fraction(time), Fraction(currency))
+    return (Fraction(mass), Fraction(length), Fraction(time), Fraction(currency),
+            Fraction(temperature), Fraction(current), Fraction(amount))
 
 
 DIMENSIONLESS: Dimensions = _dims(0, 0, 0, 0)
@@ -28,14 +30,29 @@ INVERSE_TIME: Dimensions = _dims(0, 0, -1, 0)
 VOLUME: Dimensions = _dims(0, 3, 0, 0)
 MASS_DENSITY: Dimensions = _dims(1, -3, 0, 0)
 SPECIFIC_ENERGY: Dimensions = _dims(0, 2, -2, 0)
+AREA: Dimensions = _dims(0, 2, 0, 0)
+TEMPERATURE: Dimensions = _dims(0, 0, 0, 0, 1, 0, 0)
+INVERSE_TEMPERATURE: Dimensions = _dims(0, 0, 0, 0, -1, 0, 0)
+CURRENT: Dimensions = _dims(0, 0, 0, 0, 0, 1, 0)
+AMOUNT: Dimensions = _dims(0, 0, 0, 0, 0, 0, 1)
+VOLTAGE: Dimensions = _dims(1, 2, -3, 0, 0, -1, 0)
+RESISTANCE: Dimensions = _dims(1, 2, -3, 0, 0, -2, 0)
+CHARGE: Dimensions = _dims(0, 0, 1, 0, 0, 1, 0)
+CONDUCTANCE: Dimensions = _dims(-1, -2, 3, 0, 0, 2, 0)
+RESISTIVITY: Dimensions = _dims(1, 3, -3, 0, 0, -2, 0)
+CONDUCTIVITY: Dimensions = _dims(-1, -3, 3, 0, 0, 2, 0)
+SPECIFIC_HEAT: Dimensions = _dims(0, 2, -2, 0, -1, 0, 0)
+THERMAL_RESISTANCE_AREA: Dimensions = _dims(-1, 0, 3, 0, 1, 0, 0)
+THERMAL_RESISTANCE: Dimensions = _dims(-1, -2, 3, 0, 1, 0, 0)
+THERMAL_CONDUCTIVITY: Dimensions = _dims(1, 1, -3, 0, -1, 0, 0)
 JOULES_PER_KWH = 3_600_000
 KCAL_IN_JOULES = 4_184
 SECONDS_PER_DAY = 86_400
 BTU_IN_JOULES = 1055.05585262
 KLEIBER_MASS_EXPONENT = Fraction(3, 4)
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1"
-DIMENSION_AXES = ("mass", "length", "time", "currency")
-NUMERICAL_BASIS = f"kWh, m, s, USD; mass base = {JOULES_PER_KWH} kg"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1"
+DIMENSION_AXES = ("mass", "length", "time", "currency", "temperature", "current", "amount")
+NUMERICAL_BASIS = f"kWh, m, s, USD, K, A, mol; mass base = {JOULES_PER_KWH} kg"
 
 
 class ModelError(ValueError):
@@ -153,6 +170,25 @@ UNITS = {
     "m3": Unit(VOLUME, 1.0),
     "kg/m3": Unit(MASS_DENSITY, 1 / JOULES_PER_KWH),
     "J/kg": Unit(SPECIFIC_ENERGY, 1.0),
+    # Temperature/current/amount axes (7-axis migration): SI base units K, A,
+    # mol at scale 1; electrical units derive from the kWh energy base so that
+    # V=IR and P=IV close through registry scales (V and ohm carry 1/3.6e6,
+    # S carries 3.6e6). Curator unit strings adopted verbatim (m^2, ohm m,
+    # K^-1, S/m); K serves both absolute temperatures and differences — the
+    # distinction lives in guards and review scope, not in the engine.
+    "K": Unit(TEMPERATURE, 1.0),
+    "V": Unit(VOLTAGE, 1 / JOULES_PER_KWH),
+    "A": Unit(CURRENT, 1.0),
+    "ohm": Unit(RESISTANCE, 1 / JOULES_PER_KWH),
+    "C": Unit(CHARGE, 1.0),
+    "S": Unit(CONDUCTANCE, JOULES_PER_KWH),
+    "m^2": Unit(AREA, 1.0),
+    "ohm m": Unit(RESISTIVITY, 1 / JOULES_PER_KWH),
+    "S/m": Unit(CONDUCTIVITY, JOULES_PER_KWH),
+    "K^-1": Unit(INVERSE_TEMPERATURE, 1.0),
+    "mol": Unit(AMOUNT, 1.0),
+    "m2*K/W": Unit(THERMAL_RESISTANCE_AREA, JOULES_PER_KWH),
+    "J/(kg*K)": Unit(SPECIFIC_HEAT, 1.0),
 }
 
 # Meaning is independent of dimension: heat and electricity cannot bind implicitly.
@@ -386,6 +422,31 @@ MEANINGS = {
     "volume": VOLUME,
     "latent_heat_coefficient": SPECIFIC_ENERGY,
     "latent_heat_transfer": ENERGY,
+    # BE-2: thermal meanings for reviewed wave-2 b01/b03/b04 admittables.
+    # Absolute temperatures and differences share K by curator convention;
+    # guards (T > 0) and review scope carry the absolute-side constraint.
+    "absolute_hot_reservoir_temperature": TEMPERATURE,
+    "absolute_cold_reservoir_temperature": TEMPERATURE,
+    "carnot_heating_cop_bound": DIMENSIONLESS,
+    "carnot_cooling_cop_bound": DIMENSIONLESS,
+    "sensible_heat_transfer": ENERGY,
+    "specific_heat_capacity": SPECIFIC_HEAT,
+    "temperature_difference": TEMPERATURE,
+    "thermal_resistance_area_normalized": THERMAL_RESISTANCE_AREA,
+    # Circuits-1: electrical meanings for reviewed codex b01/b02 admittables.
+    # Finance-owned elapsed_time stays dimensionless (period counts); physical
+    # durations use duration (average-signed-current needs a rename r2).
+    "terminal_voltage": VOLTAGE,
+    "electric_current": CURRENT,
+    "absorbed_electrical_power": POWER,
+    "electrical_resistance": RESISTANCE,
+    "cross_sectional_area": AREA,
+    "electrical_resistivity": RESISTIVITY,
+    "length": LENGTH,
+    "electrical_conductivity": CONDUCTIVITY,
+    "resistance_temperature_coefficient": INVERSE_TEMPERATURE,
+    "time_averaged_electric_current": CURRENT,
+    "net_transferred_electric_charge": CHARGE,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

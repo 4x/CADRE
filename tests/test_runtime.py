@@ -8,7 +8,7 @@ from pathlib import Path
 from test_support import scratch_directory
 import unittest
 
-from connected_models.contracts import DIMENSIONLESS, ENERGY, INVERSE_MONEY, INVERSE_TIME, MASS, MASS_DENSITY, MEANINGS, MONEY, POWER, SPECIFIC_ENERGY, TIME, UNITS, VOLUME, Composition, ModelError, Node, Port, Reference, Value
+from connected_models.contracts import AMOUNT, AREA, CHARGE, CONDUCTANCE, CONDUCTIVITY, CURRENT, DIMENSIONLESS, ENERGY, INVERSE_MONEY, INVERSE_TEMPERATURE, INVERSE_TIME, LENGTH, MASS, MASS_DENSITY, MEANINGS, MONEY, POWER, RESISTANCE, RESISTIVITY, SPECIFIC_ENERGY, SPECIFIC_HEAT, TEMPERATURE, THERMAL_RESISTANCE_AREA, TIME, UNITS, VOLTAGE, VOLUME, Composition, ModelError, Node, Port, Reference, Value
 from connected_models.demo import ANNUAL, HEAT, RATE, SAVING, YEARS, catalog, composition, fixture
 from connected_models.runtime import execute, save_run
 
@@ -167,7 +167,8 @@ class RuntimeTests(unittest.TestCase):
                  "basal_metabolic_rate": ("kcal/day", POWER),
                  "body_mass": ("kg", MASS),
                  "metabolic_normalization": ("kcal/day per kg^0.75",
-                                               (Fraction(1, 4), Fraction(2), Fraction(-3), Fraction(0))),
+                                               (Fraction(1, 4), Fraction(2), Fraction(-3), Fraction(0),
+                                                Fraction(0), Fraction(0), Fraction(0))),
                  "electrical_power": ("W", POWER),
                  "operating_duration": ("h", TIME),
                  "point_heating_cop": ("1", DIMENSIONLESS),
@@ -181,7 +182,26 @@ class RuntimeTests(unittest.TestCase):
                  "mass_density": ("kg/m3", MASS_DENSITY),
                  "volume": ("m3", VOLUME),
                  "latent_heat_coefficient": ("J/kg", SPECIFIC_ENERGY),
-                 "latent_heat_transfer": ("J", ENERGY)}
+                 "latent_heat_transfer": ("J", ENERGY),
+                 "absolute_hot_reservoir_temperature": ("K", TEMPERATURE),
+                 "absolute_cold_reservoir_temperature": ("K", TEMPERATURE),
+                 "carnot_heating_cop_bound": ("1", DIMENSIONLESS),
+                 "carnot_cooling_cop_bound": ("1", DIMENSIONLESS),
+                 "sensible_heat_transfer": ("J", ENERGY),
+                 "specific_heat_capacity": ("J/(kg*K)", SPECIFIC_HEAT),
+                 "temperature_difference": ("K", TEMPERATURE),
+                 "thermal_resistance_area_normalized": ("m2*K/W", THERMAL_RESISTANCE_AREA),
+                 "terminal_voltage": ("V", VOLTAGE),
+                 "electric_current": ("A", CURRENT),
+                 "absorbed_electrical_power": ("W", POWER),
+                 "electrical_resistance": ("ohm", RESISTANCE),
+                 "cross_sectional_area": ("m^2", AREA),
+                 "electrical_resistivity": ("ohm m", RESISTIVITY),
+                 "length": ("m", LENGTH),
+                 "electrical_conductivity": ("S/m", CONDUCTIVITY),
+                 "resistance_temperature_coefficient": ("K^-1", INVERSE_TEMPERATURE),
+                 "time_averaged_electric_current": ("A", CURRENT),
+                 "net_transferred_electric_charge": ("C", CHARGE)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)
@@ -223,6 +243,31 @@ class RuntimeTests(unittest.TestCase):
                             "observation", "test-evidence")
         canonical_kwh = (hspf.amount * UNITS["Btu/Wh"].scale) * (seasonal_wh.amount * UNITS["Wh"].scale)
         self.assertAlmostEqual(canonical_kwh / UNITS["Btu"].scale, 10000.0, places=6)
+
+    def test_electrical_scales_close_ohm_and_power_laws(self) -> None:
+        """V, ohm, S, C and m2*K/W scales close their laws through registry scales alone."""
+        self.assertAlmostEqual(UNITS["V"].scale, 1 / 3600000)
+        self.assertAlmostEqual(UNITS["ohm"].scale, 1 / 3600000)
+        self.assertAlmostEqual(UNITS["S"].scale, 3600000)
+        self.assertEqual(UNITS["A"].scale, 1.0)
+        self.assertEqual(UNITS["C"].scale, 1.0)
+        self.assertEqual(UNITS["K"].scale, 1.0)
+        self.assertEqual(UNITS["mol"].scale, 1.0)
+        self.assertAlmostEqual(UNITS["ohm m"].scale, UNITS["ohm"].scale * UNITS["m"].scale)
+        self.assertAlmostEqual(UNITS["S/m"].scale, UNITS["S"].scale / UNITS["m"].scale)
+        self.assertAlmostEqual(UNITS["A"].scale * UNITS["ohm"].scale, UNITS["V"].scale)
+        self.assertAlmostEqual(UNITS["V"].scale * UNITS["A"].scale, UNITS["W"].scale)
+        self.assertAlmostEqual(UNITS["C"].scale / UNITS["s"].scale, UNITS["A"].scale)
+        self.assertAlmostEqual(1 / UNITS["ohm"].scale, UNITS["S"].scale)
+        self.assertAlmostEqual(1 / UNITS["S/m"].scale, UNITS["ohm m"].scale)
+        self.assertAlmostEqual(UNITS["K"].scale / UNITS["W"].scale * UNITS["m^2"].scale,
+                               UNITS["m2*K/W"].scale)
+        self.assertAlmostEqual(UNITS["J"].scale / UNITS["kg"].scale / UNITS["K"].scale,
+                               UNITS["J/(kg*K)"].scale)
+        self.assertEqual(UNITS["S"].dimensions, CONDUCTANCE)
+        self.assertEqual(UNITS["mol"].dimensions, AMOUNT)
+        with self.assertRaises(ModelError):
+            Port("elapsed_time", "s", "test-context").validate()
 
     def test_revision_and_old_run_preservation(self) -> None:
         """New inputs and a compatible model revision leave earlier runs intact."""

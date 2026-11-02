@@ -78,9 +78,9 @@ class MechanicsTests(unittest.TestCase):
     def test_rational_exponent_grammar_rules(self) -> None:
         """Exact rationals and integer ratios power dimensional bases; names and sloppy floats fail."""
         mass = {"M": MASS}
-        self.assertEqual(dimensions(parse("M ** 0.75"), mass), (Fraction(3, 4), Fraction(0), Fraction(0), Fraction(0)))
-        self.assertEqual(dimensions(parse("M ** (1/3)"), mass), (Fraction(1, 3), Fraction(0), Fraction(0), Fraction(0)))
-        self.assertEqual(dimensions(parse("M ** 2"), mass), (Fraction(2), Fraction(0), Fraction(0), Fraction(0)))
+        self.assertEqual(dimensions(parse("M ** 0.75"), mass), (Fraction(3, 4), Fraction(0), Fraction(0), Fraction(0), Fraction(0), Fraction(0), Fraction(0)))
+        self.assertEqual(dimensions(parse("M ** (1/3)"), mass), (Fraction(1, 3), Fraction(0), Fraction(0), Fraction(0), Fraction(0), Fraction(0), Fraction(0)))
+        self.assertEqual(dimensions(parse("M ** 2"), mass), (Fraction(2), Fraction(0), Fraction(0), Fraction(0), Fraction(0), Fraction(0), Fraction(0)))
         self.assertEqual(dimensions(parse("x ** N"), {"x": DIMENSIONLESS, "N": DIMENSIONLESS}), DIMENSIONLESS)
         for bad in ("M ** 0.1", "M ** z", "M ** 101", "M ** (1/1025)", "M ** (1/0)"):
             with self.assertRaises(ModelError, msg=bad):
@@ -96,7 +96,7 @@ class MechanicsTests(unittest.TestCase):
         self.assertEqual(dimensions(parse("log(x)"), {"x": DIMENSIONLESS}), DIMENSIONLESS)
         self.assertEqual(dimensions(parse("log10(x)"), {"x": DIMENSIONLESS}), DIMENSIONLESS)
         self.assertEqual(dimensions(parse("exp(x)"), {"x": DIMENSIONLESS}), DIMENSIONLESS)
-        self.assertEqual(dimensions(parse("sqrt(M)"), mass), (Fraction(1, 2), Fraction(0), Fraction(0), Fraction(0)))
+        self.assertEqual(dimensions(parse("sqrt(M)"), mass), (Fraction(1, 2), Fraction(0), Fraction(0), Fraction(0), Fraction(0), Fraction(0), Fraction(0)))
         self.assertEqual(dimensions(parse("sum(a, b)"), {"a": MASS, "b": MASS}), MASS)
         self.assertEqual(evaluate(parse("log(2) / log(lam)"), {"lam": 1.5}), math.log(2) / math.log(1.5))
         context = "test fixture, doubling time"

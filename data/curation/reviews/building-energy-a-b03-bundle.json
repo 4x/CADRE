@@ -1,0 +1,428 @@
+{
+  "batch_id": "building-energy-a-b03",
+  "created": "2026-10-31",
+  "curator": "buffy",
+  "deferred": [
+    {
+      "reason": "Two-body equilibrium Tf=(m1c1T1+m2c2T2)/(m1c1+m2c2)-class relations (OpenStax 14.2 Eqs. 14.12-14.16, soda-ice 14.19-14.25) need multi-input heat-balance records with loss-free scope; retain as next batch after latent-heat coverage.",
+      "source_urls": [
+        "https://openstax.org/books/college-physics-2e/pages/14-2-temperature-change-and-heat-capacity"
+      ],
+      "title": "Isolated-system calorimetry equilibrium temperature"
+    },
+    {
+      "reason": "Newtonian Qdot=h*A*dT and series U-factor sums still need a load-bearing primary textbook/agency source for h with calibration regime; OpenStax Univ. Physics 1.6 declines quantitative convection. Retained from b02.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-2/pages/1-6-mechanisms-of-heat-transfer"
+      ],
+      "title": "Convective rate and U-factor assemblies"
+    }
+  ],
+  "domain": "building-energy",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "New quantities/units in b03 requiring extensions: latent_heat_coefficient (J/kg), latent_heat_transfer (J), point cooling heat/COP, absolute reservoir temperatures (K), Carnot-bound COP. Current runtime has none of these.",
+      "Quantity-alias notes: work input reuses b02 point_work_input; mass reuses b01/b02 mass; heating vs cooling COP and point vs Carnot-bound vs seasonal HSPF are distinct ports.",
+      "Duplicate search limited to runtime-vocabulary known_model_ids plus b01/b02 IDs; no global catalog supplied, so global uniqueness is not claimed."
+    ],
+    "queries": [],
+    "review_notes": "Validator run required after writing. Sources read directly 2026-10-31: OpenStax College Physics 2e 14.3 (latent) and 15.5 (COP/Carnot) with preface license. Arithmetic replayed against published evaluations; rounding propagation in method fields. HSPF independence caveat from b02 stands. Dimensional checks in translation_notes; validator does not check research dimensions.",
+    "summary": "Batch b03 curates 3 records: latent-heat phase-change magnitude, refrigerator cooling COP at an operating point, and the Carnot heating-COP bound. Complements b01 (sensible/slab/R) and b02 (heating COP, HSPF, Rth, mass) with no resubmission."
+  },
+  "kit_version": "2026-10-31.2",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: complete isothermal phase change at the transition temperature with no temperature change until the change is complete; energy scales with mass and bond strength via an experimentally determined coefficient (OpenStax 14.3).",
+        "Same sample, substance, transition (fusion or vaporization pair), and constant-temperature condition for m, L, and Q; L treated as constant for the stated transition.",
+        "Magnitude semantics: Q is the nonnegative energy for the stated direction; freezing/condensation release has the same magnitude with reversed flow direction handled outside this record."
+      ],
+      "constants": [],
+      "guards": [
+        "m > 0",
+        "L > 0"
+      ],
+      "id": "building-energy--latent-heat-phase-change",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires extensions: mass (kg, reuses b01/b02 mass), latent_heat_coefficient (J/kg), latent_heat_transfer (J). No runtime unit fits L or Q in J.",
+          "Magnitude-only record: sign/direction of freezing vs melting and condensation vs vaporization needs an application adapter, not a silent sign flip."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Q with positive L gives m=Q/L; Q with positive m gives L=Q/m. Zero mass or zero coefficient excluded. Substitution checked: Q=334000, L=334000 gives m=1.0 kg. Inversion does not establish transition direction or completeness.",
+      "kind": "theoretical",
+      "limitations": [
+        "Excludes sensible heating/cooling before or after the transition (needs the b01 sensible-heat record) and partial-change or sub-boiling evaporation regimes with higher effective energy.",
+        "Table coefficients are representatives for the stated transition, not defaults for any sample or condition."
+      ],
+      "references": [
+        {
+          "expected": 334000.0,
+          "id": "melt-1kg-ice",
+          "inputs": {
+            "L": 334000.0,
+            "m": 1.0
+          },
+          "method": "Published result: source evaluates Q=(1.0 kg)(334 kJ/kg)=334 kJ for melting 1 kg ice at 0C; stored as 334000 J. Replay exact; tolerance 500 J covers the 3-significant kJ display rounding (half unit 0.5 kJ).",
+          "provenance": "Published textbook evaluation with kJ-to-J conversion",
+          "tolerance": 500.0
+        },
+        {
+          "expected": 2256000.0,
+          "id": "vaporize-1kg-water",
+          "inputs": {
+            "L": 2256000.0,
+            "m": 1.0
+          },
+          "method": "Published result: source states 2256 kJ vaporizes 1 kg water at 100C; stored as 2256000 J. Replay exact; tolerance 500 J covers display rounding. Materially different transition from the fusion case.",
+          "provenance": "Published textbook evaluation with kJ-to-J conversion (vaporization branch)",
+          "tolerance": 500.0
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "L": 334000.0,
+            "m": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero mass ceases to describe a sample; guard m>0 rejects it (no ideal zero-mass boundary for this definition)."
+        },
+        {
+          "inputs": {
+            "m": 1.0
+          },
+          "kind": "missing-input",
+          "reason": "Latent coefficient L is required; mass alone does not determine phase-change heat."
+        }
+      ],
+      "relationship": {
+        "expression": "m * L",
+        "locator": "Sec. 14.3, Eqs. 14.17-14.18 with Table 14.2 coefficients and 1-kg water evaluations (334 kJ melt, 2256 kJ vaporize)",
+        "original_equation": "Q = mLf (melting/freezing, Eq. 14.17); Q = mLv (vaporization/condensation, Eq. 14.18)",
+        "output_symbol": "Q",
+        "source_id": "openstax-cp2e-14-3",
+        "translation_notes": "Generic L renames Lf/Lv for the stated transition (fusion or vaporization) to keep one canonical record; complete isothermal change only. Units: m in kg, L in J/kg, Q in J. Dimensional check: kg*(J/kg)=J (energy). Magnitude semantics retained; no temperature-change term."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: phase-change heat is Q=mLf for melting/freezing and Q=mLv for vaporization/condensation with experimentally determined coefficients in J/kg; 1 kg ice at 0C needs 334 kJ to melt (same as heating 1 kg water 0C to 79.8C) and 1 kg water at 100C needs 2256 kJ to vaporize; soda-ice example uses mice*Lf=0.018*334000=6012 J.",
+          "id": "openstax-cp2e-14-3",
+          "kind": "primary",
+          "license": "CC BY-NC-SA 4.0 per OpenStax College Physics 2e Preface at https://openstax.org/books/college-physics-2e/pages/preface, read 2026-10-31; non-commercial share-alike, attribution required.",
+          "locator": "Ch. 14, Sec. 14.3, Eqs. 14.17-14.18, Table 14.2, 1-kg water evaluations and soda-ice Eqs. 14.19-14.25",
+          "redistribution": "Contains only this short original paraphrase and published numeric checks; no table reproduction.",
+          "title": "OpenStax College Physics 2e, Section 14.3 Phase Change and Latent Heat",
+          "url": "https://openstax.org/books/college-physics-2e/pages/14-3-phase-change-and-latent-heat",
+          "version": "2e (2022-07-13 web edition)"
+        }
+      ],
+      "summary": "Heat magnitude for complete melting/freezing or vaporization/condensation of a mass with constant latent-heat coefficient at constant temperature.",
+      "title": "Latent heat for a complete isothermal phase change",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same sample, substance, phase transition, and constant-temperature interval as Q",
+          "definition": "Mass of the sample undergoing the complete phase change",
+          "dimensions": "mass",
+          "domain": "Positive finite mass",
+          "quantity_id": "mass",
+          "role": "input",
+          "source_symbol": "m",
+          "symbol": "m",
+          "unit": "kg"
+        },
+        {
+          "context": "same substance and phase transition as Q",
+          "definition": "Latent-heat coefficient for the stated isothermal transition and substance (fusion or vaporization)",
+          "dimensions": "energy / mass",
+          "domain": "Positive finite coefficient for the stated transition",
+          "quantity_id": "latent_heat_coefficient",
+          "role": "input",
+          "source_symbol": "Lf or Lv for the stated transition",
+          "symbol": "L",
+          "unit": "J/kg"
+        },
+        {
+          "context": "same sample and transition as inputs",
+          "definition": "Nonnegative heat magnitude for the complete isothermal phase change in the stated direction (no temperature change)",
+          "dimensions": "energy",
+          "domain": "Nonnegative finite energy",
+          "quantity_id": "latent_heat_transfer",
+          "role": "output",
+          "source_symbol": "Q",
+          "symbol": "Q",
+          "unit": "J"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: Qh, Qc, W positive magnitudes with Qh=Qc+W; refrigerator mission is Qc from the cold space (OpenStax 15.5).",
+        "Same single operating point and test condition for Qc and W with identical energy units; no seasonal averaging in this record."
+      ],
+      "constants": [],
+      "guards": [
+        "W > 0",
+        "Qc >= 0"
+      ],
+      "id": "building-energy--refrigerator-coefficient-of-performance",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires extensions: point cooling heat (J), point work (J, reuses b02 work quantity), dimensionless cooling COP. Must not be coerced to heating COP or seasonal metrics.",
+          "Heating/cooling pair linked by COPref=COP_hp-1 under Qh=Qc+W; that relation is noted, not separately curated."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Qc and positive COPref give W=Qc/COPref; W and COPref give Qc=COPref*W. Zero Qc with positive W gives COPref 0 (degenerate). Substitution checked: Qc=4.3, W=1.0 gives 4.3; inversion W=4.3/4.3=1.0.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes heating COP (separate b02 record), seasonal metrics, and EER in Btu/Wh; COPref=COP_hp-1 relates the two point records but is not curated as a separate model here.",
+        "Real units typically range 2-6 per source; Carnot values are ideal bounds, not defaults."
+      ],
+      "references": [
+        {
+          "expected": 4.3,
+          "id": "carnot-cooling-same-reservoirs",
+          "inputs": {
+            "Qc": 4.3,
+            "W": 1.0
+          },
+          "method": "Source-backed derivation: heating Carnot example gives Qh=5.30W with W=1.0 and Qh=Qc+W implies Qc=4.30, so COPref=4.30 consistent with Eq. 15.44 (5.30-1). Tolerance 0.01 covers two-decimal rounding.",
+          "provenance": "Derived from the published Carnot heating example via source-stated Qh=Qc+W; ideal bound, not a field measurement",
+          "tolerance": 0.01
+        },
+        {
+          "expected": 3.0,
+          "id": "mid-range-cooling",
+          "inputs": {
+            "Qc": 3.0,
+            "W": 1.0
+          },
+          "method": "Ordinary illustration inside the published real range 2-6; replay 3.0/1.0=3.0 exact.",
+          "provenance": "Independent elementary illustration consistent with the published real range",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Qc": 4.3,
+            "W": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero work input cannot drive cold-to-hot transfer; guard W>0 rejects division by zero."
+        },
+        {
+          "inputs": {
+            "Qc": 3.0
+          },
+          "kind": "missing-input",
+          "reason": "Work input W is required; removed heat alone does not determine COP."
+        }
+      ],
+      "relationship": {
+        "expression": "Qc / W",
+        "locator": "Sec. 15.5 Air Conditioners and Refrigerators, Eqs. 15.43-15.44 with Qh=Qc+W and real range 2-6",
+        "original_equation": "COPref = Qc/W (Eq. 15.43); with Qh=Qc+W giving COPref = COP_hp - 1 (Eq. 15.44)",
+        "output_symbol": "COPref",
+        "source_id": "openstax-cp2e-15-5",
+        "translation_notes": "Direct transcription: source Qc (heat from cold space), W (work input) mapped to locals. Units normalized to J/J so COPref dimensionless (1). Point scope retained; EER in Btu/Wh explicitly excluded."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: cooling quality is judged by Qc from the cold space vs work W as COPref=Qc/W (15.43); with Qh=Qc+W a heat engine used for cooling has COPref=COP_hp-1 (15.44); real units typically do remarkably well with COPref 2-6.",
+          "id": "openstax-cp2e-15-5",
+          "kind": "primary",
+          "license": "CC BY-NC-SA 4.0 per OpenStax College Physics 2e Preface at https://openstax.org/books/college-physics-2e/pages/preface, read 2026-10-31; non-commercial share-alike, attribution required.",
+          "locator": "Ch. 15, Sec. 15.5, Eqs. 15.43-15.44 with Qh=Qc+W and real-range paragraph",
+          "redistribution": "Contains only this short original paraphrase and computed checks; no verbatim long quotation.",
+          "title": "OpenStax College Physics 2e, Section 15.5 Heat Pumps and Refrigerators",
+          "url": "https://openstax.org/books/college-physics-2e/pages/15-5-applications-of-thermodynamics-heat-pumps-and-refrigerators",
+          "version": "2e (2022-07-13 web edition)"
+        }
+      ],
+      "summary": "Cooling coefficient of performance as heat removed from the cold space over work input at one operating condition.",
+      "title": "Refrigerator/air-conditioner COP at an operating point",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same operating point, test, and interval as W and COPref",
+          "definition": "Heat removed from the cold space at the stated operating point",
+          "dimensions": "energy",
+          "domain": "Nonnegative finite energy; zero is the degenerate no-cooling boundary",
+          "quantity_id": "point_cooling_heat_removal",
+          "role": "input",
+          "source_symbol": "Qc",
+          "symbol": "Qc",
+          "unit": "J"
+        },
+        {
+          "context": "same operating point, test, and interval as Qc and COPref",
+          "definition": "Work input required at the stated operating point (same definition as heating-COP work input)",
+          "dimensions": "energy",
+          "domain": "Positive finite work input",
+          "quantity_id": "point_work_input",
+          "role": "input",
+          "source_symbol": "W",
+          "symbol": "W",
+          "unit": "J"
+        },
+        {
+          "context": "same operating point and test as inputs",
+          "definition": "Dimensionless ratio of cooling heat removed to work input at one operating condition",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite ratio",
+          "quantity_id": "point_cooling_cop",
+          "role": "output",
+          "source_symbol": "COPref",
+          "symbol": "COPref",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: reversed Carnot (reversible, adiabatic/isothermal, no dissipative/frictional losses) between steady reservoirs; COP=1/Eff with EffC=1-Tc/Th in absolute temperature (OpenStax 15.5).",
+        "Same reservoir pair and reversible cycle for Th, Tc, and COPmax; Th and Tc are absolute kelvins, not Celsius readings or differences.",
+        "Ideal bound scope: best-possible performance at stated reservoirs; actual placement needs working-fluid temperatures beyond indoor/outdoor air (source strategy note)."
+      ],
+      "constants": [],
+      "guards": [
+        "Th > 0",
+        "Tc > 0",
+        "Th > Tc"
+      ],
+      "id": "building-energy--carnot-heating-cop-limit",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires extensions: absolute temperatures in K (offset scale, not differences) and dimensionless Carnot-bound meaning. Must not be coerced to temperature_difference or point_heating_cop values.",
+          "Working-fluid vs air temperature placement and unit-rating procedures need separate records."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Th and Tc strictly ordered positive absolutes; Th>Tc excludes equality. With COPmax and Tc, Th=COPmax*(Th-Tc) solves as Th=COPmax*Tc/(COPmax-1) requiring COPmax>1; with COPmax and Th, Tc=Th*(1-1/COPmax). Substitution checked: 5.3 and Tc=258 give Th=5.3*258/4.3=318.0 within rounding. Bound inversion does not make real units reversible.",
+      "kind": "theoretical",
+      "limitations": [
+        "Ideal upper bound only; real heating COP ranges about 2-4 and degrades in very cold climates (small-lift advantage reversed). Not a default efficiency.",
+        "Excludes refrigerator-bound form Tc/(Th-Tc), engine efficiency 1-Tc/Th as a separate record, and all irreversibilities, sizing, and cost considerations."
+      ],
+      "references": [
+        {
+          "expected": 5.3,
+          "id": "carnot-318-258",
+          "inputs": {
+            "Tc": 258.0,
+            "Th": 318.0
+          },
+          "method": "Published result: source computes EffC=1-258/318=0.1887 and COP=1/0.1887=5.30. Direct form 318/(318-258)=5.3 exact; tolerance 0.01 covers the reported two-decimal rounding.",
+          "provenance": "Published textbook ideal (Carnot) worked example",
+          "tolerance": 0.01
+        },
+        {
+          "expected": 10.0,
+          "id": "mild-300-270",
+          "inputs": {
+            "Tc": 270.0,
+            "Th": 300.0
+          },
+          "method": "Independent illustration of the same ideal bound at a materially different mild-lift pair: 300/30=10.0 exact, showing the small-difference advantage. Not a published example.",
+          "provenance": "Independent elementary illustration of the source-stated bound form",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Tc": 300.0,
+            "Th": 300.0
+          },
+          "kind": "domain",
+          "reason": "Zero lift (Th=Tc) makes the bound singular and no heat-pumping lift exists; guard Th>Tc rejects it."
+        },
+        {
+          "inputs": {
+            "Th": 318.0
+          },
+          "kind": "missing-input",
+          "reason": "Cold reservoir Tc is required; one reservoir alone does not determine the bound."
+        }
+      ],
+      "relationship": {
+        "expression": "Th / (Th - Tc)",
+        "locator": "Sec. 15.5 Best-COP example, Eqs. 15.38-15.42 with Th=45.0C=318K, Tc=-15.0C=258K and small-difference discussion",
+        "original_equation": "EffC = 1 - Tc/Th (Eqs. 15.38-15.39); COPhp = 1/Eff = 5.30 (Eqs. 15.40-15.41) for Th=318K, Tc=258K",
+        "output_symbol": "COPmax",
+        "source_id": "openstax-cp2e-15-5",
+        "translation_notes": "Source-backed derivation combining COP=1/Eff with Carnot EffC=1-Tc/Th to single form Th/(Th-Tc); no new physics introduced. Units: Th, Tc absolute kelvins; result dimensionless. Dimensional check: temperature/temperature-difference = dimensionless (offset-free scale required; Celsius inputs invalid without conversion)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: reversed Carnot gives best performance with COP=1/Eff and EffC=1-Tc/Th; for Th=318K and Tc=258K, EffC=0.1887 and COP=5.30 with Qh=5.30W; smaller hot-cold differences raise COP; friction reduces real COP to about 2-4.",
+          "id": "openstax-cp2e-15-5",
+          "kind": "primary",
+          "license": "CC BY-NC-SA 4.0 per OpenStax College Physics 2e Preface at https://openstax.org/books/college-physics-2e/pages/preface, read 2026-10-31; non-commercial share-alike, attribution required.",
+          "locator": "Ch. 15, Sec. 15.5, Eqs. 15.38-15.42 with Th=318K/Tc=258K evaluation and small-difference discussion",
+          "redistribution": "Contains only this short original paraphrase and computed checks; no verbatim long quotation.",
+          "title": "OpenStax College Physics 2e, Section 15.5 Heat Pumps and Refrigerators",
+          "url": "https://openstax.org/books/college-physics-2e/pages/15-5-applications-of-thermodynamics-heat-pumps-and-refrigerators",
+          "version": "2e (2022-07-13 web edition)"
+        }
+      ],
+      "summary": "Reversible ideal limit on heat-pump heating COP from absolute hot and cold reservoir temperatures.",
+      "title": "Carnot upper bound on heating COP between reservoirs",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same reversible cycle and reservoir pair as Tc and COPmax",
+          "definition": "Absolute temperature of the hot reservoir",
+          "dimensions": "temperature",
+          "domain": "Positive finite absolute temperature",
+          "quantity_id": "absolute_hot_reservoir_temperature",
+          "role": "input",
+          "source_symbol": "Th",
+          "symbol": "Th",
+          "unit": "K"
+        },
+        {
+          "context": "same reversible cycle and reservoir pair as Th and COPmax",
+          "definition": "Absolute temperature of the cold reservoir",
+          "dimensions": "temperature",
+          "domain": "Positive finite absolute temperature below Th",
+          "quantity_id": "absolute_cold_reservoir_temperature",
+          "role": "input",
+          "source_symbol": "Tc",
+          "symbol": "Tc",
+          "unit": "K"
+        },
+        {
+          "context": "same reversible cycle and reservoir pair as inputs",
+          "definition": "Reversible ideal upper bound on heating COP between the stated reservoirs",
+          "dimensions": "dimensionless",
+          "domain": "Finite bound above 1",
+          "quantity_id": "carnot_heating_cop_bound",
+          "role": "output",
+          "source_symbol": "COPhp (Carnot best case)",
+          "symbol": "COPmax",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

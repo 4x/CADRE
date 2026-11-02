@@ -4,7 +4,7 @@ type: finding
 title: 'Wave-2 intake: 8 admitted, thermal/circuits blocked on dimension axes'
 summary: Reviewers V/W/X/Y cleared 31 wave-2 records (24 recommend-admit). Runtime 0.20.0 be-1 vocabulary
   admitted 8 (3 mechanics, 5 building-energy); registry 90->98; 7 legacy runs replay exact. Constant-power
-  r1 failed projection (inlined /1000, briefed for r2). Two mech r1s duplicate wave-1 admissions (staged,
+  r1 failed projection (inlined /1000, briefed for r2). Two mech r1s are a byte-identical re-delivery of the M2 batch (same record SHAs), already admitted (staged,
   never published). Five thermal records (sensible-heat, carnot-heating, b04 x3) need a temperature
   axis; 8 circuits records need current (V/A/ohm/C/S) and one needs amount (mol); temperature-difference
   vs absolute-temperature semantics unresolved. Axis extension is now the binding constraint; see [[question-dimensional-and-unit-type-system]].
@@ -61,5 +61,8 @@ are all vocabulary-blocked on missing dimension axes, not on science:
 
 ## Limitations / uncertainty
 
-- Axis migration breaks stored 4-vector digests; migration plan (re-derive +
-  prove replays) not yet designed or approved. Owner decision required.
+- Axis migration approved and shipped, digest-safe (models hash strings, not
+vectors): see [[decision-seven-axis-dimension-migration]]. 11 of the 16 queued
+records admitted (registry 109); radiative needs a sigma-input r2,
+average-current a duration-rename r2, constant-power r2 still owed,
+carrier-density still unreviewed.

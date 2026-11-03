@@ -29,6 +29,7 @@ CONSTANTS = {
     "stefan_boltzmann": Constant(5.670374419e-8, "W/(m2*K^4)", "CODATA 2022", True),
     "gravitational_constant": Constant(6.67430e-11, "m3/(kg*s^2)", "CODATA 2022", False),
     "avogadro": Constant(6.02214076e23, "1/mol", "SI defining constant", True),
+    "speed_of_light": Constant(299792458, "m/s", "SI defining constant", True),
 }
 
 

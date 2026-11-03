@@ -7,7 +7,7 @@ import zipfile
 import json
 
 from connected_models.constants import CONSTANTS, CONSTANT_DIMENSIONS, CONSTANT_VALUES, Constant, constants_json, validate_constants
-from connected_models.contracts import DIMENSIONLESS, GRAVITATION, PER_AMOUNT, POWER, STEFAN_BOLTZMANN, TEMPERATURE
+from connected_models.contracts import DIMENSIONLESS, GRAVITATION, PER_AMOUNT, POWER, STEFAN_BOLTZMANN, TEMPERATURE, VELOCITY
 from connected_models.curation import build_kit, load_bundle, validate_bundle
 from connected_models.contracts import AREA
 from connected_models.expressions import dimensions, evaluate, parse
@@ -26,10 +26,12 @@ class ConstantTests(unittest.TestCase):
         self.assertEqual(CONSTANT_DIMENSIONS["stefan_boltzmann"], STEFAN_BOLTZMANN)
         self.assertEqual(CONSTANT_DIMENSIONS["gravitational_constant"], GRAVITATION)
         self.assertEqual(CONSTANT_DIMENSIONS["avogadro"], PER_AMOUNT)
+        self.assertEqual(CONSTANT_DIMENSIONS["speed_of_light"], VELOCITY)
         self.assertAlmostEqual(CONSTANT_VALUES["pi"], math.pi)
         self.assertAlmostEqual(CONSTANT_VALUES["stefan_boltzmann"], 5.670374419e-8 / 3600000)
         self.assertAlmostEqual(CONSTANT_VALUES["gravitational_constant"], 6.67430e-11 * 3600000)
         self.assertAlmostEqual(CONSTANT_VALUES["avogadro"], 6.02214076e23)
+        self.assertAlmostEqual(CONSTANT_VALUES["speed_of_light"], 299792458)
         self.assertTrue(all(isinstance(name, str) and constant.source.strip() for name, constant in CONSTANTS.items()))
 
     def test_radiative_expression_checks_and_evaluates(self) -> None:

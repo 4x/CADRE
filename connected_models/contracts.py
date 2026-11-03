@@ -55,12 +55,18 @@ VOLUME_FLOW: Dimensions = _dims(0, 3, -1, 0, 0, 0, 0)
 VELOCITY_SQUARED: Dimensions = _dims(0, 2, -2, 0, 0, 0, 0)
 TIME_SQUARED: Dimensions = _dims(0, 0, 2, 0, 0, 0, 0)
 GRAVITATIONAL_PARAMETER: Dimensions = _dims(0, 3, -2, 0, 0, 0, 0)
+MASS_PER_MONEY: Dimensions = _dims(1, 0, 0, -1, 0, 0, 0)
+SPECIFIC_ANGULAR_MOMENTUM_SQUARED: Dimensions = _dims(0, 4, -2, 0, 0, 0, 0)
+CURRENT_DENSITY: Dimensions = _dims(0, -2, 0, 0, 0, 1, 0)
+NUMBER_DENSITY: Dimensions = _dims(0, -3, 0, 0, 0, 0, 0)
+MOLAR_MASS: Dimensions = _dims(1, 0, 0, 0, 0, 0, -1)
+INVERSE_LENGTH: Dimensions = _dims(0, -1, 0, 0, 0, 0, 0)
 JOULES_PER_KWH = 3_600_000
 KCAL_IN_JOULES = 4_184
 SECONDS_PER_DAY = 86_400
 BTU_IN_JOULES = 1055.05585262
 KLEIBER_MASS_EXPONENT = Fraction(3, 4)
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1+envacct-1+demography-1+orbital-2+circuits-2+waves-1"
 DIMENSION_AXES = ("mass", "length", "time", "currency", "temperature", "current", "amount")
 NUMERICAL_BASIS = f"kWh, m, s, USD, K, A, mol; mass base = {JOULES_PER_KWH} kg"
 
@@ -220,6 +226,30 @@ UNITS = {
     "m^2/s^2": Unit(VELOCITY_SQUARED, 1.0),
     "s^2": Unit(TIME_SQUARED, 1.0),
     "m3/s2": Unit(GRAVITATIONAL_PARAMETER, 1.0),
+    # Environmental-accounting batch (envacct-1): metric tonne (SI symbol t),
+    # mass ratios, and per-output / per-revenue / per-capita intensities in
+    # curator spellings. Person, output-unit and currency denominators are
+    # dimensionless/registry-scaled, so t/person and kg/unit stay MASS while
+    # kg/USD carries the mass-per-money dimension.
+    "t": Unit(MASS, 1000 / JOULES_PER_KWH),
+    "kg/kg": Unit(DIMENSIONLESS, 1.0),
+    "kg/unit": Unit(MASS, 1 / JOULES_PER_KWH),
+    "kg/USD": Unit(MASS_PER_MONEY, 1 / JOULES_PER_KWH),
+    "t/person": Unit(MASS, 1000 / JOULES_PER_KWH),
+    # Orbital batch (orbital-2): mean motion in rad/s and squared specific
+    # angular momentum. Radian measure keeps rad/s at scale 1 against the
+    # per-second base.
+    "rad/s": Unit(INVERSE_TIME, 1.0),
+    "m4/s2": Unit(SPECIFIC_ANGULAR_MOMENTUM_SQUARED, 1.0),
+    # Circuits batch (circuits-2): current density, number density and molar
+    # mass in curator spellings. Molar mass rides the kg/mol scale off the
+    # canonical-kg base; mol itself stays scale 1.
+    "A/m^2": Unit(CURRENT_DENSITY, 1.0),
+    "m^-3": Unit(NUMBER_DENSITY, 1.0),
+    "kg/mol": Unit(MOLAR_MASS, 1 / JOULES_PER_KWH),
+    # Waves batch (waves-1): reciprocal length for optical power and surface
+    # curvature in the curator spelling.
+    "1/m": Unit(INVERSE_LENGTH, 1.0),
 }
 
 
@@ -619,6 +649,132 @@ MEANINGS = {
     "standard_gravitational_parameter": GRAVITATIONAL_PARAMETER,
     "synodic_period": TIME,
     "total_orbital_energy": ENERGY,
+    # Environmental-accounting batch (envacct-1): factor-accounting, GWP
+    # conversion, intensity, waste-ledger, fuel-inventory and biomass-memo
+    # meanings for reviewed a-b01..b05 records. Curator quantity IDs adopted
+    # verbatim.
+    "accountable_fossil_co2": MASS,
+    "activity_amount": MASS,
+    "analyzed_combustion_co2": MASS,
+    "biomass_co2_memo": MASS,
+    "carbon_dioxide_equivalent": MASS,
+    "diversion_rate": DIMENSIONLESS,
+    "emission_factor": DIMENSIONLESS,
+    "emission_intensity": MASS,
+    "emission_mass": MASS,
+    "fuel_burned_mass": MASS,
+    "fuel_combustion_analysis_mass": MASS,
+    "fuel_feedstock_mass": MASS,
+    "fuel_purchased_mass": MASS,
+    "fuel_stock_mass": MASS,
+    "global_warming_potential": DIMENSIONLESS,
+    "greenhouse_gas_mass": MASS,
+    "per_capita_generation": MASS,
+    "production_output": DIMENSIONLESS,
+    "recycling_rate": DIMENSIONLESS,
+    "revenue_emission_intensity": MASS_PER_MONEY,
+    "revenue_output": MONEY,
+    "waste_combusted_mass": MASS,
+    "waste_composted_mass": MASS,
+    "waste_disposed_mass": MASS,
+    "waste_diverted_mass": MASS,
+    "waste_other_managed_mass": MASS,
+    "waste_recycled_mass": MASS,
+    "waste_total_mass": MASS,
+    # Demography batch (demography-1): vital rates, dependency ratios,
+    # population-balance and migration meanings for reviewed a-b01..b03
+    # records. Counts, stocks and rates are dimensionless by design: persons
+    # never convert to other units, and per-1000/per-100 rate scales live in
+    # the record expressions, not in unit scales.
+    "child_population_0_4_stock": DIMENSIONLESS,
+    "child_woman_ratio": DIMENSIONLESS,
+    "crude_birth_rate": DIMENSIONLESS,
+    "crude_death_rate": DIMENSIONLESS,
+    "crude_net_migration_rate": DIMENSIONLESS,
+    "death_period_count": DIMENSIONLESS,
+    "dependency_ratio": DIMENSIONLESS,
+    "elderly_dependent_population": DIMENSIONLESS,
+    "emigration_period_count": DIMENSIONLESS,
+    "female_population_15_49_stock": DIMENSIONLESS,
+    "female_population_stock": DIMENSIONLESS,
+    "final_period_population": DIMENSIONLESS,
+    "immigration_period_count": DIMENSIONLESS,
+    "initial_period_population": DIMENSIONLESS,
+    "live_birth_period_count": DIMENSIONLESS,
+    "male_population_stock": DIMENSIONLESS,
+    "midperiod_reference_population": DIMENSIONLESS,
+    "natural_increase_count": DIMENSIONLESS,
+    "natural_increase_rate": DIMENSIONLESS,
+    "net_migration_period_count": DIMENSIONLESS,
+    "old_age_dependency_ratio": DIMENSIONLESS,
+    "sex_ratio": DIMENSIONLESS,
+    "working_age_population": DIMENSIONLESS,
+    "youth_dependency_ratio": DIMENSIONLESS,
+    "youth_dependent_population": DIMENSIONLESS,
+    # Orbital batch (orbital-2): mean motion, two-body energies, vis-viva,
+    # barycenter and reduced-mass meanings for reviewed a-b03..b05 records.
+    # Includes meanings for G/pi-inlining records whose r2s reuse them.
+    "barycenter_distance": LENGTH,
+    "binary_component_mass": MASS,
+    "body_radius": LENGTH,
+    "body_separation": LENGTH,
+    "circular_orbit_kinetic_energy": ENERGY,
+    "departure_radius": LENGTH,
+    "departure_speed": VELOCITY,
+    "gravitational_potential_energy": ENERGY,
+    "hyperbolic_excess_velocity_squared": VELOCITY_SQUARED,
+    "mean_motion": INVERSE_TIME,
+    "primary_mass": MASS,
+    "reduced_mass": MASS,
+    "secondary_mass": MASS,
+    "specific_angular_momentum_squared": SPECIFIC_ANGULAR_MOMENTUM_SQUARED,
+    "surface_gravity": ACCELERATION,
+    "vis_viva_velocity_squared": VELOCITY_SQUARED,
+    # Circuits batch (circuits-2): conductance, current-density, drift,
+    # source-characteristic, carrier-content and calibration meanings for
+    # reviewed codex b03/b04 records. Includes meanings for the two
+    # dimensional-literal records whose r2s reuse them.
+    "area_mean_normal_current_density": CURRENT_DENSITY,
+    "charge_carrier_number_density": NUMBER_DENSITY,
+    "charge_per_carrier": CHARGE,
+    "electrical_conductance": CONDUCTANCE,
+    "electromotive_force": VOLTAGE,
+    "mobile_carriers_per_host_entity": DIMENSIONLESS,
+    "molar_mass": MOLAR_MASS,
+    "normal_carrier_drift_velocity": VELOCITY,
+    "relative_electrical_conductivity": DIMENSIONLESS,
+    "surface_area": AREA,
+    # Waves batch (waves-1): propagation, imaging, magnification, acoustic
+    # and ranging meanings for reviewed codex b01/b02/b03/b04 records.
+    # Curator quantity IDs adopted verbatim.
+    "acoustic_target_range": LENGTH,
+    "angular_magnification": DIMENSIONLESS,
+    "eye_to_lens_distance": LENGTH,
+    "eye_to_virtual_image_distance": LENGTH,
+    "focal_length": LENGTH,
+    "geometric_ray_path_length": LENGTH,
+    "image_distance": LENGTH,
+    "mach_number": DIMENSIONLESS,
+    "object_distance": LENGTH,
+    "observed_wave_frequency": INVERSE_TIME,
+    "observer_velocity_toward_source_in_medium": VELOCITY,
+    "optical_path_length": LENGTH,
+    "optical_power": INVERSE_LENGTH,
+    "phase_refractive_index": DIMENSIONLESS,
+    "pulse_propagation_speed": VELOCITY,
+    "round_trip_acoustic_time": TIME,
+    "signed_optical_surface_curvature": INVERSE_LENGTH,
+    "signed_optical_surface_radius": LENGTH,
+    "signed_spherical_mirror_radius": LENGTH,
+    "source_velocity_toward_observer_in_medium": VELOCITY,
+    "source_wave_frequency": INVERSE_TIME,
+    "speed": VELOCITY,
+    "transverse_magnification": DIMENSIONLESS,
+    "unaided_near_point_distance": LENGTH,
+    "wave_frequency": INVERSE_TIME,
+    "wave_period": TIME,
+    "wave_phase_speed": VELOCITY,
+    "wavelength": LENGTH,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

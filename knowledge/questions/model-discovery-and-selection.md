@@ -62,7 +62,7 @@ The desired behavior is suitable-model-first, not keyword-first or guess-first. 
 
 ## What would resolve it?
 
-A discovery request/result contract and adjudicated cases containing a suitable match, same-unit wrong-meaning candidate, out-of-domain candidate, competing valid models, and no eligible match. Record selection/rejection reasons and unresolved ambiguity. Choose retrieval technology only after these needs are clear.
+A discovery request/result contract and adjudicated cases containing a suitable match, same-unit wrong-meaning candidate, out-of-domain candidate, competing valid models, and no eligible match. Record selection/rejection reasons and unresolved ambiguity. Choose retrieval technology only after these needs are clear. Include an adversarial binding case with two same-unit dimensionless quantities where the composer must pick by meaning (e.g. emissivity vs any other unit-1 value); meaning alignment is LLM-side only, backstopped by guards and inspectable assignments.
 
 ## Provenance
 

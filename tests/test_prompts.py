@@ -12,7 +12,8 @@ class PromptTests(unittest.TestCase):
     def test_shipped_prompts_load_with_key_instructions(self) -> None:
         """Fail closed on drift that would silently change model behavior."""
         expectations = {
-            "answer-question.md": ("backward chaining", "__output__", "EXACT numeric literal"),
+            "answer-question.md": ("backward chaining", "__output__", "EXACT numeric literal",
+                                   "never fill a graph binding with an estimate silently"),
             "offline-model-extraction.md": ("offline model curator", "never suppress these"),
         }
         for filename, phrases in expectations.items():

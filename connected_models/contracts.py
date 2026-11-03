@@ -66,7 +66,7 @@ KCAL_IN_JOULES = 4_184
 SECONDS_PER_DAY = 86_400
 BTU_IN_JOULES = 1055.05585262
 KLEIBER_MASS_EXPONENT = Fraction(3, 4)
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1+envacct-1+demography-1+orbital-2+circuits-2+waves-1"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1+envacct-1+demography-1+orbital-2+circuits-2+waves-1+waves-2"
 DIMENSION_AXES = ("mass", "length", "time", "currency", "temperature", "current", "amount")
 NUMERICAL_BASIS = f"kWh, m, s, USD, K, A, mol; mass base = {JOULES_PER_KWH} kg"
 
@@ -775,6 +775,11 @@ MEANINGS = {
     "wave_period": TIME,
     "wave_phase_speed": VELOCITY,
     "wavelength": LENGTH,
+    # Waves batch (waves-2): beat, pupil and f-number meanings for reviewed
+    # codex b05 records. The b06/b07/b08 r2s reuse waves-1 meanings.
+    "acoustic_beat_frequency": INVERSE_TIME,
+    "entrance_pupil_diameter": LENGTH,
+    "f_number": DIMENSIONLESS,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

@@ -342,7 +342,10 @@ class RuntimeTests(unittest.TestCase):
                  "wave_frequency": ("Hz", INVERSE_TIME),
                  "wave_period": ("s", TIME),
                  "wave_phase_speed": ("m/s", VELOCITY),
-                 "wavelength": ("m", LENGTH)}
+                 "wavelength": ("m", LENGTH),
+                 "acoustic_beat_frequency": ("Hz", INVERSE_TIME),
+                 "entrance_pupil_diameter": ("m", LENGTH),
+                 "f_number": ("1", DIMENSIONLESS)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)

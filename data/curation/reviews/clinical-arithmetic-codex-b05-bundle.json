@@ -1,0 +1,762 @@
+{
+  "batch_id": "clinical-arithmetic-codex-b05",
+  "created": "2026-11-03",
+  "curator": "codex",
+  "deferred": [
+    {
+      "reason": "Direct original study inspected: Schreuder et al., Nephron2017;136:221–225, DOI10.1159/000468547, https://pmc.ncbi.nlm.nih.gov/articles/PMC5516416/. Equation1 rendering labels urinary sodium nmol/L versus serum mmol/L while separately normalizing creatinine units. Do not silently correct that unit ambiguity. Study cohort is ages4–18, GFR>60 mL/min/1.73m^2,761 reliable collections; paper explicitly warns against a universal diagnostic cutoff. A faithful future record needs an unambiguous primary equation/unit source and a precise distinction between a creatinine-clearance-referenced ratio and a true filtered-sodium fraction. Device-manual alternative https://fcc.report/FCC-ID/ZLZ-EPM/4297304.pdf was discovery only; direct retrieval403. No candidate, diagnostic cutoff or approximate correction is returned.",
+      "source_urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC5516416/",
+        "https://fcc.report/FCC-ID/ZLZ-EPM/4297304.pdf"
+      ],
+      "title": "Fractional sodium excretion from paired measurements"
+    },
+    {
+      "reason": "Health Hawke's Bay 2023 guidance, Appendix2 printed p41/PDF index43, was inspected as extracted text. The100 multiplier's fraction placement is visually ambiguous and screenshot pixels are unavailable, so it is not the equation authority. Completed weight-change definitions instead use Gibson/Meredith-Jones's directly inspected HTML Box10.4, which also explicitly discusses gain. No nutritional score, treatment or monitoring protocol is imported.",
+      "source_urls": [
+        "https://healthhb.co.nz/wp-content/uploads/2023/10/Diabetes-Care-for-Age-Related-Residential-Care-Facilities-in-Hawkes-Bay-2023-v2.pdf",
+        "https://nutritionalassessment.org/bodysize/"
+      ],
+      "title": "Weight-loss formula from an ambiguous PDF rendering"
+    },
+    {
+      "reason": "Same two-weight normalization already represented by fractional-body-mass-decrease; percentage of usual mass is its complementary view (1-f) under the same baseline. Preserve as source evidence rather than minting a cosmetic complement. Time-normalized rate is a distinct quantity and is separately defined from the source's own equation.",
+      "source_urls": [
+        "https://nutritionalassessment.org/bodysize/"
+      ],
+      "title": "Usual-weight percentage as another record"
+    },
+    {
+      "reason": "Supersedes b02/r1's integration status with blocked r2 under the same model ID. Original files are preserved. Full methods/calibration-range evidence remains unavailable; a source-backed equation and passing arithmetic do not settle empirical scope. Continue only when a directly inspected original/validation source supplies the missing applicability facts; do not invent concentration endpoints or broaden the female validation claim.",
+      "source_urls": [
+        "https://pubmed.ncbi.nlm.nih.gov/1244564/",
+        "https://www.drugtnt.com/ref/RenalDosing/Cockcroft_1976.pdf"
+      ],
+      "title": "Cockcroft-Gault empirical applicability"
+    }
+  ],
+  "domain": "clinical-arithmetic",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "No clinical diagnoses, treatment choices, risk thresholds or monitoring instructions are returned. New definitions require quantity/unit extensions; no toolkit/registry changes.",
+      "Cockcroft–Gault r2 is blocked on empirical applicability evidence; its passing numerical checks do not make it scientifically ready. Full original scope/assay evidence remains needed.",
+      "FENa unit ambiguity, uninspected source images and source-specific usage rights remain explicitly deferred; no guessed equation correction is supplied.",
+      "Duplicate search remains limited to the2026-11-01 inventory, vocabulary and own five batches. BMI/dose/flow/ratio/data-state meanings are compared semantically, not by expression spelling alone."
+    ],
+    "queries": [],
+    "review_notes": "Primary author-hosted 3rd-edition July2024 body-size chapter and CC-BY4.0 attribution inspected; explicit loss/gain and time-rate equations support both new body-change definitions. Boston Heart formula and ACL January2026 calculation row inspected directly; MedlinePlus unit convention and restrictive source footer recorded. Self-audit conservatively reclassifies CG as blocked because age/population facts alone do not supply its missing empirical calibration range. Earlier preferred weight-based dose is r2; other earlier records remain unreviewed requires-extension candidates. JSON validation executed successfully using installed kit 2026-10-31.6: 4 records, 11 reference and 9 rejection cases. Final JSON revalidation and packed ZIP validation are recorded in the external checkpoint log. No central or scientific approval has occurred.",
+    "summary": "Fifth checkpoint: three new arithmetic definitions (signed fractional body-mass decrease, mean body-mass change rate, conventional serum BUN/creatinine mass ratio) and a blocked r2 revision of the historical Cockcroft–Gault candidate. Original r1 remains preserved; use r2's conservative scientific-blocker status."
+  },
+  "kit_version": "2026-10-31.6",
+  "models": [
+    {
+      "assumptions": [
+        "Source definition: Box10.4 normalizes usual-minus-actual mass by usual mass; surrounding prose includes loss and gain.",
+        "Application profile: same individual and comparable actual-mass measurements, with a declared baseline and assessment interval. No clinical population calibration is needed for the arithmetic identity or claimed for risk prediction."
+      ],
+      "constants": [],
+      "guards": [
+        "w0 > 0",
+        "w1 > 0"
+      ],
+      "id": "clinical-arithmetic--fractional-body-mass-decrease",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Need fractional_body_mass_decrease meaning; body_mass, kg, 1 and percent already exist. Canonical expression returns fraction; a percent output must use the registry scale once.",
+          "Other domains' population or capacity ratios share algebraic shape but not this human body-mass definition or context. No runtime projection."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Target w1: known w0>0 and f<1 give w1=w0*(1-f)>0, unique. Target w0: known w1>0,f<1 give w0=w1/(1-f)>0, unique; denominator exclusion is f!=1 and positivity strengthens it to f<1. Retain original contexts. Check f=0.05,w0=80 gives w1=76 kg and forward f=0.05; f=-0.05,w0=60 gives w1=63 and forward -0.05. At f=0, one known positive mass uniquely determines the equal other. f=1 would require zero current mass and is excluded; f alone without either mass leaves infinitely many positive pairs when f<1. No biological causal inverse is asserted.",
+      "kind": "definition",
+      "limitations": [
+        "Body-mass change alone does not distinguish tissue, fluid, edema, dehydration or other components; the source cautions that these affect nutritional interpretation.",
+        "No malnutrition threshold, desired change, intervention or monitoring schedule is encoded. A usual mass obtained by recall rather than measurement needs its own uncertainty metadata."
+      ],
+      "references": [
+        {
+          "expected": 0.05,
+          "id": "independent-five-percent-decrease",
+          "inputs": {
+            "w0": 80,
+            "w1": 76
+          },
+          "method": "Independent synthetic partition: 4 kg is one twentieth of the 80 kg baseline, so the decrease is 0.05 (5%). The fraction is stored directly; no percentage factor is part of the expression. Tolerance is numerical only.",
+          "provenance": "Curator-created ratio check, not an observed clinical result.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": -0.05,
+          "id": "independent-gain-sign",
+          "inputs": {
+            "w0": 60,
+            "w1": 63
+          },
+          "method": "Current mass exceeds baseline by one twentieth of 60 kg; the signed decrease is -0.05, not zero or +0.05. Arithmetic-only tolerance.",
+          "provenance": "Curator-constructed materially different signed case.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "no-change-positive-masses",
+          "inputs": {
+            "w0": 60,
+            "w1": 60
+          },
+          "method": "Equal positive masses give no relative change; neither body has zero mass.",
+          "provenance": "Definitional equality boundary.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "w0": 0,
+            "w1": 60
+          },
+          "kind": "domain",
+          "reason": "Zero reference body mass is inadmissible and makes the denominator zero."
+        },
+        {
+          "inputs": {
+            "w1": 60
+          },
+          "kind": "missing-input",
+          "reason": "Baseline mass is missing."
+        }
+      ],
+      "relationship": {
+        "expression": "(w0 - w1) / w0",
+        "locator": "Body Size, section on weight changes, Box 10.4, second displayed equation and preceding paragraph",
+        "original_equation": "% Wt. loss = (usual wt. - actual wt.) / usual wt. x 100%",
+        "output_symbol": "f",
+        "source_id": "gibson-weight-fraction",
+        "translation_notes": "Introduced w0,w1 map to usual and actual body weight; f is the source percentage expressed as a fraction in unit 1. The snapshot's percent unit has scale 0.01, so no factor 100 is inlined; a future percent display would convert f once. Use actual body masses in kg, not force; dimensions (M-M)/M=1 and mass scale cancels. Source preceding prose explicitly discusses weight loss or weight gain, supporting the signed form rather than clamping negative values. Usual/reference mass must be supplied with provenance and timing; it is not a model default. This normalized body-size definition is not equivalent to the postpartum absolute mass difference, which has a distinct baseline and dimensions M."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Defines fractional weight loss relative to usual weight and explicitly discusses weight gain as well as loss.",
+          "id": "gibson-weight-fraction",
+          "kind": "primary",
+          "license": "Chapter opening identifies CC BY 4.0 and links https://creativecommons.org/licenses/by/4.0/; both chapter and CC deed inspected 2026-11-03. No source images are used.",
+          "locator": "Weight changes; Box10.4, percentage weight-loss equation",
+          "redistribution": "Attribution: Gibson RS and Meredith-Jones K, Principles of Nutritional Assessment: Body Size, 3rd ed., July 2024, CC BY 4.0. Changes: local symbols, coherent units, signed mathematical interpretation and added synthetic checks; no endorsement. Retain author/source/license links and change notice.",
+          "title": "Gibson and Meredith-Jones: Nutritional Assessment of Body Size",
+          "url": "https://nutritionalassessment.org/bodysize/",
+          "version": "Gibson RS and Meredith-Jones K, Principles of Nutritional Assessment: Body Size, 3rd edition, July 2024; live HTML"
+        }
+      ],
+      "summary": "Usual mass minus current mass, divided by usual mass. Positive values indicate relative decrease, negative values relative gain. The fraction is not a nutrition diagnosis or a prescribed weight target.",
+      "title": "Signed fractional decrease from usual body mass",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same person, actual current body mass and an explicitly dated usual/baseline body mass on comparable measurement bases. Source covers human body-size assessment in adults and children; the ratio is arithmetic without validated disease-risk classification. The interval/baseline is specified externally, with no assumed three- or six-month aggregation.",
+          "definition": "Actual measured usual/baseline body mass at the declared reference assessment.",
+          "dimensions": "M",
+          "domain": "Finite strictly positive; baseline date, provenance and measurement comparability required externally.",
+          "quantity_id": "body_mass",
+          "role": "input",
+          "source_symbol": "Introduced w0 maps to usual wt.",
+          "symbol": "w0",
+          "unit": "kg"
+        },
+        {
+          "context": "Same person, actual current body mass and an explicitly dated usual/baseline body mass on comparable measurement bases. Source covers human body-size assessment in adults and children; the ratio is arithmetic without validated disease-risk classification. The interval/baseline is specified externally, with no assumed three- or six-month aggregation.",
+          "definition": "Actual measured body mass at the current assessment for the same person.",
+          "dimensions": "M",
+          "domain": "Finite strictly positive; it may be above, equal to or below baseline.",
+          "quantity_id": "body_mass",
+          "role": "input",
+          "source_symbol": "Introduced w1 maps to actual wt.",
+          "symbol": "w1",
+          "unit": "kg"
+        },
+        {
+          "context": "Same person, actual current body mass and an explicitly dated usual/baseline body mass on comparable measurement bases. Source covers human body-size assessment in adults and children; the ratio is arithmetic without validated disease-risk classification. The interval/baseline is specified externally, with no assumed three- or six-month aggregation.",
+          "definition": "Signed fraction of baseline body mass by which current mass is lower; negative values denote gain.",
+          "dimensions": "1",
+          "domain": "Finite real less than 1 for positive masses; no arbitrary lower bound or clinical category is imposed.",
+          "quantity_id": "fractional_body_mass_decrease",
+          "role": "output",
+          "source_symbol": "Introduced f maps to % Wt. loss in fractional units",
+          "symbol": "f",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source definition: the body-size text divides endpoint mass change by the matched difference of assessment days.",
+        "Application profile: interpret time units as continuous elapsed duration and masses as comparable observations of the same person. Source addresses human body-size assessment, not a calibrated prediction of healthy growth."
+      ],
+      "constants": [],
+      "guards": [
+        "w0 > 0",
+        "w1 > 0",
+        "t > 0"
+      ],
+      "id": "clinical-arithmetic--mean-body-mass-change-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Need mean_body_mass_change_rate meaning and kg/s unit with kg's mass scale; body_mass, kg, duration and s already exist. No runtime projection.",
+          "Unit match with infused constituent mass rate does not authorize semantic binding; a patient's net body-mass change is a different quantity/support."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Target w1: known w0>0,t>0 and r give w1=w0+r*t, requiring w1>0. Target w0: known w1>0,t>0 and r give w0=w1-r*t>0. Target t: known endpoint masses and r!=0 give t=(w1-w0)/r; require t>0, so change and rate must have the same sign. Retain original guards/context. Check r=1.1574074074074074e-6 kg/s,w0=60,t=1728000 s gives w1=62 and forward r matches. For r=0 and w1=w0, any t>0 fits; for r=0 and unequal masses none fits. Equal masses with r!=0 would give t=0 and are excluded. These inverses do not establish a physiological causal law.",
+      "kind": "definition",
+      "limitations": [
+        "Endpoint mean may hide nonlinear growth or fluctuation and does not separate tissue, water or measurement error.",
+        "No interval adequacy, target gain, age-based threshold, feeding decision or monitoring protocol is supplied; measurement uncertainty can dominate small endpoint changes."
+      ],
+      "references": [
+        {
+          "expected": 1.1574074074074074e-06,
+          "id": "independent-twenty-day-gain",
+          "inputs": {
+            "t": 1728000,
+            "w0": 60,
+            "w1": 62
+          },
+          "method": "Independent synthetic interval partition: a total 2 kg increase across 20 equal 24-hour days corresponds to 0.1 kg/day. Convert that counted mean once to kg/s; t=20*86400 s. This is an average, not a claimed daily trajectory. Tolerance is arithmetic only.",
+          "provenance": "Curator-constructed mean-rate example.",
+          "tolerance": 1e-16
+        },
+        {
+          "expected": -1.1574074074074074e-06,
+          "id": "independent-thirty-day-loss",
+          "inputs": {
+            "t": 2592000,
+            "w0": 63,
+            "w1": 60
+          },
+          "method": "A signed 3 kg decrease over 30 equal days corresponds to -0.1 kg/day, normalized to kg/s. Materially different sign and interval; no linear within-interval loss assumed.",
+          "provenance": "Curator synthetic endpoint example.",
+          "tolerance": 1e-16
+        },
+        {
+          "expected": 0,
+          "id": "zero-net-change",
+          "inputs": {
+            "t": 86400,
+            "w0": 60,
+            "w1": 60
+          },
+          "method": "Equal positive endpoint masses have zero net mean change over a positive day, without proving the instantaneous mass remained constant.",
+          "provenance": "Definitional endpoint identity.",
+          "tolerance": 1e-20
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "t": 0,
+            "w0": 60,
+            "w1": 62
+          },
+          "kind": "domain",
+          "reason": "Two endpoints with zero elapsed interval cannot define this mean rate."
+        },
+        {
+          "inputs": {
+            "w0": 60,
+            "w1": 62
+          },
+          "kind": "missing-input",
+          "reason": "Elapsed interval is missing; visit count or nominal month is not substituted."
+        }
+      ],
+      "relationship": {
+        "expression": "(w1 - w0) / t",
+        "locator": "Box10.4, third displayed equation, Rate of change",
+        "original_equation": "Rate of change = (body weight present - body weight initial) / (day present - day initial), in kg/day",
+        "output_symbol": "r",
+        "source_id": "gibson-mass-rate",
+        "translation_notes": "Introduced w1 and w0 map to present and initial mass; introduced t is the positive elapsed interval corresponding to the source day difference, normalized to seconds. r is kg/s rather than kg/day; day conversion belongs to unit scales (86400 s for a continuous 24-hour day), not an inlined equation factor. Dimensions (M-M)/T=M T^-1; kg's numerical scale applies equally to the input masses and output rate, so the expression is canonical. The endpoint definition gives a time average; no constant instantaneous growth assumption is introduced. It is not a separately minted inverse of postpartum mass retention because it defines a generic time-normalized quantity with a supplied interval and no pregnancy-specific baseline."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Defines an endpoint mass-change rate using the difference of assessment times.",
+          "id": "gibson-mass-rate",
+          "kind": "primary",
+          "license": "Chapter opening identifies CC BY 4.0 and links https://creativecommons.org/licenses/by/4.0/; both chapter and CC deed inspected 2026-11-03. No source images are used.",
+          "locator": "Box10.4, Rate of change; surrounding weight-change discussion",
+          "redistribution": "Attribution: Gibson RS and Meredith-Jones K, Principles of Nutritional Assessment: Body Size, 3rd ed., July 2024, CC BY 4.0. Changes: local symbols, coherent units, signed mathematical interpretation and added synthetic checks; no endorsement. Retain author/source/license links and change notice.",
+          "title": "Gibson and Meredith-Jones: Nutritional Assessment of Body Size",
+          "url": "https://nutritionalassessment.org/bodysize/",
+          "version": "Gibson RS and Meredith-Jones K, Principles of Nutritional Assessment: Body Size, 3rd edition, July 2024; live HTML"
+        }
+      ],
+      "summary": "Signed change in actual body mass divided by elapsed assessment time. A positive rate indicates endpoint gain and a negative rate endpoint loss, without assuming change was linear within the interval.",
+      "title": "Mean body-mass change rate between assessments",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same person, two actual body-mass assessments on comparable measurement bases, and the positive continuous elapsed interval between them. Source human assessment includes adults and children; this endpoint mean is not a fitted growth curve or age-specific normal rate. Direction is later mass minus earlier mass; time is supplied in seconds, not visit count or a calendar-year default.",
+          "definition": "Actual measured body mass at the initial assessment.",
+          "dimensions": "M",
+          "domain": "Finite strictly positive measured mass.",
+          "quantity_id": "body_mass",
+          "role": "input",
+          "source_symbol": "Introduced w0 maps to body weight initial",
+          "symbol": "w0",
+          "unit": "kg"
+        },
+        {
+          "context": "Same person, two actual body-mass assessments on comparable measurement bases, and the positive continuous elapsed interval between them. Source human assessment includes adults and children; this endpoint mean is not a fitted growth curve or age-specific normal rate. Direction is later mass minus earlier mass; time is supplied in seconds, not visit count or a calendar-year default.",
+          "definition": "Actual measured body mass at the later assessment.",
+          "dimensions": "M",
+          "domain": "Finite strictly positive measured mass; gain, loss and equality all admitted.",
+          "quantity_id": "body_mass",
+          "role": "input",
+          "source_symbol": "Introduced w1 maps to body weight present",
+          "symbol": "w1",
+          "unit": "kg"
+        },
+        {
+          "context": "Same person, two actual body-mass assessments on comparable measurement bases, and the positive continuous elapsed interval between them. Source human assessment includes adults and children; this endpoint mean is not a fitted growth curve or age-specific normal rate. Direction is later mass minus earlier mass; time is supplied in seconds, not visit count or a calendar-year default.",
+          "definition": "Continuous elapsed duration between these two mass assessments.",
+          "dimensions": "T",
+          "domain": "Finite strictly positive elapsed interval; no source-supported minimum interval or rounding default is invented.",
+          "quantity_id": "duration",
+          "role": "input",
+          "source_symbol": "Introduced t maps to day present minus day initial, normalized to elapsed seconds",
+          "symbol": "t",
+          "unit": "s"
+        },
+        {
+          "context": "Same person, two actual body-mass assessments on comparable measurement bases, and the positive continuous elapsed interval between them. Source human assessment includes adults and children; this endpoint mean is not a fitted growth curve or age-specific normal rate. Direction is later mass minus earlier mass; time is supplied in seconds, not visit count or a calendar-year default.",
+          "definition": "Signed endpoint body-mass change per elapsed time over the stated interval.",
+          "dimensions": "M T^-1",
+          "domain": "Finite real, including zero and negative rates; no instant-by-instant trajectory is inferred.",
+          "quantity_id": "mean_body_mass_change_rate",
+          "role": "output",
+          "source_symbol": "Introduced r maps to Rate of change",
+          "symbol": "r",
+          "unit": "kg/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source definition: the test operator directly states BUN divided by creatinine; ACL's laboratory calculation reference independently lists the same relationship.",
+        "Application profile: conventional serum mass-concentration basis, with both analyte definitions and same assessment established externally. This identity has no empirical patient-population calibration or diagnostic accuracy claim."
+      ],
+      "constants": [],
+      "guards": [
+        "B >= 0",
+        "C > 0"
+      ],
+      "id": "clinical-arithmetic--serum-bun-creatinine-mass-ratio",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Need serum_urea_nitrogen_mass_concentration and serum_bun_creatinine_mass_ratio meanings; reuse serum_creatinine_mass_concentration from b02. kg/m^3 needs the same mass scale in numerator and denominator. No runtime projection.",
+          "Explicit conventional mass basis and specimen matrix must accompany any actual binding; source operator's serum/plasma workflow difference is not resolved by this ratio record."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Target B: known R>=0,C>0 give B=R*C uniquely. Target C: known B>0,R>0 give C=B/R>0. Retain original serum/analyte contexts. Check R=12,C=0.015 kg/m^3 gives B=0.18 and forward R=12. At R=0,C>0, B=0 uniquely; if B=R=0 and C is unknown, any C>0 satisfies the definition. B>0,R=0 has no finite solution; B=0,R>0 would imply C=0 and violates the denominator domain. These are laboratory-ratio algebraic views, not clearance inversions or clinical inferences.",
+      "kind": "definition",
+      "limitations": [
+        "Total urea mass and molar urea/creatinine ratios are distinct inputs/conventions and cannot be bound by unit label alone.",
+        "No ratio threshold, diagnosis or treatment is supplied; source operator specimen-list/prose differences remain a workflow review issue beyond this serum arithmetic profile."
+      ],
+      "references": [
+        {
+          "expected": 20,
+          "id": "independent-twenty-to-one",
+          "inputs": {
+            "B": 0.2,
+            "C": 0.01
+          },
+          "method": "Independent synthetic unit count: conventional 20 mg/dL of BUN nitrogen and 1 mg/dL of creatinine form twenty equal numerator units per denominator unit. Normalize both to kg/m^3:0.2 and0.01; the ratio stays20. Arithmetic-only tolerance.",
+          "provenance": "Curator-created mass-ratio example; not patient data or a diagnostic normal-range claim.",
+          "tolerance": 1e-10
+        },
+        {
+          "expected": 12,
+          "id": "independent-twelve-to-one",
+          "inputs": {
+            "B": 0.18,
+            "C": 0.015
+          },
+          "method": "18 mg/dL divided into 1.5 mg/dL units gives twelve units, with independently normalized inputs0.18 and0.015 kg/m^3. This checks a different nonunit denominator and the same mass basis.",
+          "provenance": "Curator-constructed arithmetic evidence.",
+          "tolerance": 1e-10
+        },
+        {
+          "expected": 0,
+          "id": "zero-nitrogen-ideal-limit",
+          "inputs": {
+            "B": 0,
+            "C": 0.01
+          },
+          "method": "Ideal no-urea-nitrogen mathematical limit at positive serum creatinine gives ratio zero. It is not a claimed clinical assay value.",
+          "provenance": "Definitional boundary.",
+          "tolerance": 1e-20
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "B": 0.2,
+            "C": 0
+          },
+          "kind": "domain",
+          "reason": "Zero serum creatinine makes this ratio undefined."
+        },
+        {
+          "inputs": {
+            "B": 0.2
+          },
+          "kind": "missing-input",
+          "reason": "Serum creatinine is missing."
+        }
+      ],
+      "relationship": {
+        "expression": "B / C",
+        "locator": "Test Code1013, Methodology; independently corroborated by ACL Calculations manual January2026, page1",
+        "original_equation": "BUN/Creatinine ratio = BUN divided by creatinine",
+        "output_symbol": "R",
+        "source_id": "boston-ratio",
+        "translation_notes": "Introduced B,C,R map to serum BUN, serum creatinine and their ratio. Both inputs use kg/m^3, corresponding to the conventional mg/dL mass concentrations documented by MedlinePlus; identical scales cancel. Dimensions (M L^-3)/(M L^-3)=1. The numerator counts nitrogen in urea, whereas the denominator counts creatinine mass. Equal dimensions do not make their molecular/mass definitions interchangeable; no urea-to-nitrogen or molarity conversion is inlined. Source operator's prose describes serum; its preferred-specimen list names heparin plasma. This arithmetic record explicitly uses serum quantities and makes no claim to resolve the operator's specimen workflow or authorize plasma substitution. Normal ranges and diagnostic risk descriptions are not imported as guards; this is a ratio of two supplied laboratory quantities."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Describes the serum BUN/creatinine calculation and explicitly specifies division.",
+          "id": "boston-ratio",
+          "kind": "primary",
+          "license": "Page footer copyright Boston Heart Diagnostics; no redistribution terms established for this accessed page. Terms unknown; do not infer a license from public access.",
+          "locator": "Test Details, description and Methodology; preferred specimen noted separately",
+          "redistribution": "Includes only original short evidence paraphrases, equations and attributed numerical facts, not a full source document or images. Further redistribution/use rights remain unverified; no endorsement claimed.",
+          "title": "Boston Heart Diagnostics: BUN/Creatinine Ratio, Test1013",
+          "url": "https://bostonheartdiagnostics.com/test/bun-creatinine-ratio/",
+          "version": "Live HTML inspected 2026-11-03; page revision date not established"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Lists the ratio formula when both analytes are ordered.",
+          "id": "acl-ratio",
+          "kind": "primary",
+          "license": "No reusable-content license or terms granting redistribution were established for this accessed version; terms unknown. Public availability alone is not legal clearance.",
+          "locator": "Page1 (PDF index0), BUN/Creatinine Ratio row",
+          "redistribution": "Includes only original short evidence paraphrases, equations and attributed numerical facts, not a full source document or images. Further redistribution/use rights remain unverified; no endorsement claimed.",
+          "title": "ACL Laboratories: Calculations for Reference Manual",
+          "url": "https://referencemanual.aclab.com/wp-content/uploads/2026/01/Calculations-for-Reference-Manual_01.2026.pdf",
+          "version": "Revision January2026; 6-page PDF"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Uses mg/dL for conventional BUN and creatinine reporting, separately from SI amount-concentration values.",
+          "id": "medline-units",
+          "kind": "primary",
+          "license": "Same-page footer inspected2026-11-03 states Ebix copyright and personal noncommercial viewing; other content uses require consent, with copying/derivative restrictions. No reuse permission or legal clearance for source content is inferred.",
+          "locator": "Normal Results: BUN and creatinine unit entries; footer rights statement",
+          "redistribution": "Only independently authored mathematical facts and a very short original unit-convention paraphrase are returned; no reference ranges, source paragraphs, graphics or page copies. Downstream source-content rights remain unresolved.",
+          "title": "MedlinePlus Medical Encyclopedia: Basic metabolic panel",
+          "url": "https://medlineplus.gov/ency/article/003462.htm",
+          "version": "Review date May19,2025; A.D.A.M./Ebix material hosted by MedlinePlus"
+        }
+      ],
+      "summary": "Serum urea-nitrogen mass concentration divided by serum creatinine mass concentration. The explicit mass basis prevents silently substituting an SI urea-to-creatinine molar ratio, which has a different numerical convention.",
+      "title": "Conventional serum BUN-to-creatinine mass-concentration ratio",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same adult assessment and paired serum BUN and serum creatinine measurements on the conventional mass-concentration basis. Numerator is nitrogen mass associated with urea, not total urea mass or urea amount concentration. This laboratory ratio is a definition, with no validated diagnostic interpretation or therapeutic action supplied.",
+          "definition": "Nitrogen mass contained in serum urea per serum volume; conventional BUN analyte basis.",
+          "dimensions": "M L^-3",
+          "domain": "Finite nonnegative, with analyte/assay basis supplied. Do not substitute total urea mass or a bare molar urea number.",
+          "quantity_id": "serum_urea_nitrogen_mass_concentration",
+          "role": "input",
+          "source_symbol": "Introduced B maps to BUN",
+          "symbol": "B",
+          "unit": "kg/m^3"
+        },
+        {
+          "context": "Same adult assessment and paired serum BUN and serum creatinine measurements on the conventional mass-concentration basis. Numerator is nitrogen mass associated with urea, not total urea mass or urea amount concentration. This laboratory ratio is a definition, with no validated diagnostic interpretation or therapeutic action supplied.",
+          "definition": "Serum creatinine mass per serum volume at the same assessment.",
+          "dimensions": "M L^-3",
+          "domain": "Finite strictly positive, on the same volume unit basis as B; no flooring or clamping.",
+          "quantity_id": "serum_creatinine_mass_concentration",
+          "role": "input",
+          "source_symbol": "Introduced C maps to Creatinine",
+          "symbol": "C",
+          "unit": "kg/m^3"
+        },
+        {
+          "context": "Same adult assessment and paired serum BUN and serum creatinine measurements on the conventional mass-concentration basis. Numerator is nitrogen mass associated with urea, not total urea mass or urea amount concentration. This laboratory ratio is a definition, with no validated diagnostic interpretation or therapeutic action supplied.",
+          "definition": "Dimensionless conventional BUN nitrogen-mass to creatinine-mass concentration ratio.",
+          "dimensions": "1",
+          "domain": "Finite nonnegative ratio. No diagnostic category or molar-ratio equivalence is asserted.",
+          "quantity_id": "serum_bun_creatinine_mass_ratio",
+          "role": "output",
+          "source_symbol": "Introduced R maps to BUN/Creatinine Ratio",
+          "symbol": "R",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source facts: original abstract reports the 18–92 derivation age range and correlation 0.83 in comparison with measured creatinine clearance; NKF identifies narrow historical cohort and assay limitations.",
+        "Application profile: restrict to stable renal function and non-extreme body composition; eviQ practice points warn against unstable function, severe malnutrition and obesity. No pregnancy-specific validation is asserted.",
+        "The female branch preserves the source adjustment as an estimate; the original male derivation must not be described as female validation.",
+        "Permitted use is reviewable arithmetic/history for qualified interpretation. Eligibility, assay comparability and use of a renal estimate are external clinical judgments."
+      ],
+      "constants": [
+        {
+          "literal": 140,
+          "locator": "Q16, printed p8",
+          "meaning": "Historical age intercept for numerical age in years",
+          "source_id": "nkf-equation",
+          "unit": "1 (year-index convention)"
+        },
+        {
+          "literal": 0.15,
+          "locator": "Abstract: 15% reduction",
+          "meaning": "Source female reduction (1-0.15=0.85)",
+          "source_id": "cg-original-abstract",
+          "unit": "1"
+        },
+        {
+          "literal": 432000000000,
+          "locator": "Q16 equation and unit definitions; normalization in translation_notes",
+          "meaning": "Source empirical denominator 72 normalized from kg*min*dL/(mg*mL) to seconds; mass scales cancel",
+          "source_id": "nkf-equation",
+          "unit": "s"
+        },
+        {
+          "literal": 72,
+          "locator": "Q16 equation",
+          "meaning": "Original conventional denominator coefficient; documented for provenance, not additionally multiplied in expression",
+          "source_id": "nkf-equation",
+          "unit": "kg*min*dL/(mg*mL)"
+        }
+      ],
+      "guards": [
+        "a >= 18",
+        "a <= 92",
+        "w > 0",
+        "sCr > 0",
+        "z * (z - 1) == 0"
+      ],
+      "id": "clinical-arithmetic--cockcroft-gault-creatinine-clearance",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Scientific scope blocker: obtain original methods/calibration evidence or a directly inspected appropriate validation study before considering this candidate ready for scientific review as an applicable empirical mapping. Do not use r1's requires-extension status to imply the source gap was resolved.",
+          "Need chronological_age_year_index, serum_creatinine_mass_concentration, cockcroft_gault_female_branch_indicator and creatinine_clearance meanings; years is an existing dimensionless year-index unit, not elapsed time. Need kg/m^3 and m^3/s units with consistent mass scales.",
+          "Population/assay eligibility and modern clinical interpretation cannot be established by scalar numeric guards. Original full-text image inspection and detailed calibration range remain review gaps; no additional scientific validity is inferred from arithmetic."
+        ],
+        "runtime_model": null,
+        "status": "blocked"
+      },
+      "inverse_notes": "Forward estimate only. Clearance inversions are explicitly deferred by the assignment; no inverse direction, inverse numerical example or separate inverse model is offered. An algebraic inversion would not establish biological or statistical invertibility. Zero serum creatinine is a forward singularity, and the original age/eligibility guards remain essential. See the batch deferred entry for exact scope of this exclusion.",
+      "kind": "empirical",
+      "limitations": [
+        "Correlation 0.83 is a population fit summary, not individual precision or causal accuracy. No residual standard error or confidence interval is invented; the original abstract does not report these or concentration-range endpoints.",
+        "The original non-standardized creatinine-assay era differs from modern IDMS-traceable measurement. No automatic correction factor is supplied.",
+        "NKF currently favors newer race-agnostic eGFR approaches for medication-related decisions; this record preserves the historical relationship without selecting a clinical method. Creatinine clearance and GFR are different quantities.",
+        "No extrapolated age, extreme-mass rule, creatinine floor, obesity adjustment, race coefficient, BSA correction or dosing recommendation is included."
+      ],
+      "references": [
+        {
+          "expected": 1.3333333333333334e-06,
+          "id": "independent-conventional-male-arithmetic",
+          "inputs": {
+            "a": 60,
+            "sCr": 0.01,
+            "w": 72,
+            "z": 0
+          },
+          "method": "Independent hand-calculated rational oracle from the printed conventional formula: age difference 80 and weight 72 cancel the printed denominator 72 at serum 1 mg/dL, giving exactly 80 mL/min, then normalize to m^3/s. This is arithmetic reproduction against a separately unit-normalized expression, not independent empirical/source validation. Tolerance covers representation only.",
+          "provenance": "Curator synthetic case; NKF printed formula supplies the conventional equation. No published patient outcome claimed.",
+          "tolerance": 1e-17
+        },
+        {
+          "expected": 5.902777777777778e-07,
+          "id": "independent-conventional-female-arithmetic",
+          "inputs": {
+            "a": 40,
+            "sCr": 0.02,
+            "w": 60,
+            "z": 1
+          },
+          "method": "Independent rational calculation in conventional units: 100*60/(72*2)=125/3 mL/min; the female branch multiplies by 17/20 to yield 425/12 mL/min. Normalize to m^3/s. Materially different age, mass, serum value and branch. Arithmetic-only oracle; no assertion of female clinical validation.",
+          "provenance": "Curator synthetic case derived from the printed source form; 1e-17 m^3/s permits floating representation only.",
+          "tolerance": 1e-17
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "a": 60,
+            "sCr": 0,
+            "w": 72,
+            "z": 0
+          },
+          "kind": "domain",
+          "reason": "Zero serum creatinine makes the historical estimate undefined; no clamping is allowed."
+        },
+        {
+          "inputs": {
+            "a": 17,
+            "sCr": 0.01,
+            "w": 60,
+            "z": 0
+          },
+          "kind": "domain",
+          "reason": "Outside the declared original adult derivation age profile."
+        },
+        {
+          "inputs": {
+            "a": 60,
+            "sCr": 0.01,
+            "w": 72,
+            "z": 0.5
+          },
+          "kind": "domain",
+          "reason": "No interpolation between source sex branches is supported."
+        }
+      ],
+      "relationship": {
+        "expression": "(1 - 0.15 * z) * (140 - a) * w / (432000000000 * sCr)",
+        "locator": "Frequently Asked Questions About GFR Estimates, question 16, printed page 8 (PDF page 8, index 7), displayed equation and following units",
+        "original_equation": "eClcr = {((140-age) x weight)/(72 SCr)} x 0.85 if female, with eClcr in mL/min, age in years, weight in kg and SCr in mg/dL",
+        "output_symbol": "C",
+        "source_id": "nkf-equation",
+        "translation_notes": "Introduced C maps to eClcr, a to age's numerical value in years, w to weight, and sCr to SCr. Introduced z is 0 for the source male branch or 1 for its female branch; 1-0.15*z exactly encodes the published 15% reduction, not a fitted continuous sex factor. Age is a numerical year index (unit years, dimensionless in this snapshot), not an elapsed-time input converted to seconds. Serum creatinine is kg/m^3, so 1 mg/dL=0.01 kg/m^3. The source denominator coefficient 72 kg*min*dL/(mg*mL) becomes 432000000000 s in coherent units. With w in the runtime mass base and sCr on the same mass scale, mass cancels and C is m^3/s. Dimensions: (1)*(1)*M/(T*(M L^-3))=L^3 T^-1. The normalized 432000000000 is the dimensional empirical coefficient, not an extra input/output unit conversion. Unit scales alone must convert future mL/min display ports. Unambiguous NKF extracted equation is the authority; original PDF visual inspection was unavailable, so no full-original methods/table inspection is claimed."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Displays the historical adult clearance equation with denominator 72 SCr and female factor 0.85.",
+          "id": "nkf-equation",
+          "kind": "primary",
+          "license": "No reusable-content license or terms granting redistribution were established for this accessed version; terms unknown. Public availability alone is not legal clearance.",
+          "locator": "Q16; printed page 8, PDF page index 7; clear extracted equation and units",
+          "redistribution": "Includes only original short evidence paraphrases, equations and attributed numerical facts, not a full source document or images. Further redistribution/use rights remain unverified; no endorsement claimed.",
+          "title": "National Kidney Foundation: Frequently Asked Questions About GFR Estimates",
+          "url": "https://www.kidney.org/sites/default/files/441-8491_2202_faqs_aboutgfr_v5.pdf",
+          "version": "2022 PDF indicated by document code 441-8491_2202; no later edition asserted"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Reports 249 derivation patients aged 18–92, 236 comparison patients, r=0.83 and a 15% female reduction.",
+          "id": "cg-original-abstract",
+          "kind": "primary",
+          "license": "Original article rights not established from PubMed abstract; terms unknown. Bibliographic hosting does not license the article.",
+          "locator": "Abstract only, inspected directly; full original methods and tables were not visually inspected",
+          "redistribution": "Includes only original short evidence paraphrases, equations and attributed numerical facts, not a full source document or images. Further redistribution/use rights remain unverified; no endorsement claimed.",
+          "title": "Cockcroft DW and Gault MH: Prediction of creatinine clearance from serum creatinine",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/1244564/",
+          "version": "Nephron 1976;16(1):31–41, DOI 10.1159/000180580; abstract hosted by PubMed"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Describes a narrow male derivation cohort, unvalidated female adjustment and assay-era differences.",
+          "id": "nkf-limitations",
+          "kind": "primary",
+          "license": "No reusable-content license or terms granting redistribution were established for this accessed version; terms unknown. Public availability alone is not legal clearance.",
+          "locator": "Limitations of the Cockcroft-Gault equation; Limitations of Practice Adaptations",
+          "redistribution": "Includes only original short evidence paraphrases, equations and attributed numerical facts, not a full source document or images. Further redistribution/use rights remain unverified; no endorsement claimed.",
+          "title": "National Kidney Foundation: Cockcroft-Gault Equation for Estimating Creatinine Clearance",
+          "url": "https://www.kidney.org/professionals/kdoqi/cockcroft-gault-equation-estimating-creatinine-clearance",
+          "version": "Live HTML inspected 2026-11-03, cites 2025 publications; no page revision date established"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Warns that the estimate is inaccurate with unstable renal function and unreliable at extremes of body size.",
+          "id": "eviq-scope",
+          "kind": "primary",
+          "license": "Page links Terms and Disclaimer and copyright; their detailed content was not successfully retrieved. Terms unknown for redistribution; do not assume clearance.",
+          "locator": "Practice points, first three bullets",
+          "redistribution": "Includes only original short evidence paraphrases, equations and attributed numerical facts, not a full source document or images. Further redistribution/use rights remain unverified; no endorsement claimed.",
+          "title": "Cancer Institute NSW, eviQ: Creatinine Clearance Calculator, ID 3200",
+          "url": "https://www.eviq.org.au/clinical-resources/eviq-calculators/3200-creatinine-clearance-calculator",
+          "version": "Version 3; history includes 2022-10-21 and 2025-03-28"
+        }
+      ],
+      "summary": "Conservative self-audit correction of b02/r1: preserve the historical equation, numerical arithmetic and known cohort facts, but mark the candidate blocked because original concentration/renal-function calibration endpoints and assay/method scope were not directly established. Positive numeric inputs and age18–92 do not supply that missing empirical applicability evidence. No clinical approval or new validation is asserted.",
+      "title": "Historical Cockcroft–Gault estimated creatinine clearance",
+      "unresolved": [
+        "Empirical applicability cannot be fully bounded from directly inspected evidence: original methods/tables and calibration concentration/renal-function range were not inspectable. The formula's meaning is clear, but which positive assay values constitute supported calibrated use remains a scientific review blocker. The source-stated female reduction also lacks equivalent validation; no unsupported interval is invented."
+      ],
+      "variables": [
+        {
+          "context": "Historical adult Cockcroft–Gault creatinine-clearance estimate for the same patient's age, actual measured mass and serum creatinine. Age profile 18–92 years, stable renal function, non-obese/non-malnourished body composition; no pregnancy-specific validation. Original derivation was in men; the female adjustment is a source-stated estimate without equivalent validation. Assay provenance must be supplied outside the scalar record.",
+          "definition": "Numerical chronological age in years as required by this historical calibration; not a duration in seconds.",
+          "dimensions": "1 (numerical year index per snapshot convention)",
+          "domain": "Finite age index from 18 through 92 inclusive, matching the original abstract's reported derivation ages; this guard does not certify clinical eligibility.",
+          "quantity_id": "chronological_age_year_index",
+          "role": "input",
+          "source_symbol": "Introduced a maps to age",
+          "symbol": "a",
+          "unit": "years"
+        },
+        {
+          "context": "Historical adult Cockcroft–Gault creatinine-clearance estimate for the same patient's age, actual measured mass and serum creatinine. Age profile 18–92 years, stable renal function, non-obese/non-malnourished body composition; no pregnancy-specific validation. Original derivation was in men; the female adjustment is a source-stated estimate without equivalent validation. Assay provenance must be supplied outside the scalar record.",
+          "definition": "Actual measured patient body mass; no ideal/adjusted mass substitution in this profile.",
+          "dimensions": "M",
+          "domain": "Finite strictly positive actual mass in the declared non-extreme body-composition profile.",
+          "quantity_id": "body_mass",
+          "role": "input",
+          "source_symbol": "Introduced w maps to weight (kg)",
+          "symbol": "w",
+          "unit": "kg"
+        },
+        {
+          "context": "Historical adult Cockcroft–Gault creatinine-clearance estimate for the same patient's age, actual measured mass and serum creatinine. Age profile 18–92 years, stable renal function, non-obese/non-malnourished body composition; no pregnancy-specific validation. Original derivation was in men; the female adjustment is a source-stated estimate without equivalent validation. Assay provenance must be supplied outside the scalar record.",
+          "definition": "Serum creatinine mass per serum volume, matched to this assessment and documented assay calibration.",
+          "dimensions": "M L^-3",
+          "domain": "Finite strictly positive. No floor, clipping or empirical inflation. Positive numeric guard is not a validated concentration range; original concentration calibration limits were not established from the inspected abstract.",
+          "quantity_id": "serum_creatinine_mass_concentration",
+          "role": "input",
+          "source_symbol": "SCr; local sCr spelling introduced",
+          "symbol": "sCr",
+          "unit": "kg/m^3"
+        },
+        {
+          "context": "Historical adult Cockcroft–Gault creatinine-clearance estimate for the same patient's age, actual measured mass and serum creatinine. Age profile 18–92 years, stable renal function, non-obese/non-malnourished body composition; no pregnancy-specific validation. Original derivation was in men; the female adjustment is a source-stated estimate without equivalent validation. Assay provenance must be supplied outside the scalar record.",
+          "definition": "Indicator selecting the source's stated sex branch: 0 male, 1 female. It is a historical formula category, not an inference about gender or contemporary individual physiology.",
+          "dimensions": "1",
+          "domain": "Exactly 0 or 1. This record supplies no rule for assigning the category in other populations.",
+          "quantity_id": "cockcroft_gault_female_branch_indicator",
+          "role": "input",
+          "source_symbol": "Introduced binary indicator; maps to source male/female branches",
+          "symbol": "z",
+          "unit": "1"
+        },
+        {
+          "context": "Historical adult Cockcroft–Gault creatinine-clearance estimate for the same patient's age, actual measured mass and serum creatinine. Age profile 18–92 years, stable renal function, non-obese/non-malnourished body composition; no pregnancy-specific validation. Original derivation was in men; the female adjustment is a source-stated estimate without equivalent validation. Assay provenance must be supplied outside the scalar record.",
+          "definition": "Historical algebraic estimate of creatinine clearance, as an effective serum volume per time; not measured GFR and not BSA-indexed.",
+          "dimensions": "L^3 T^-1",
+          "domain": "Positive estimate within the stated algebraic domain, with population/assay-dependent error; no prediction interval is provided.",
+          "quantity_id": "creatinine_clearance",
+          "role": "output",
+          "source_symbol": "eClcr; introduced local C",
+          "symbol": "C",
+          "unit": "m^3/s"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -52,12 +52,15 @@ PER_AMOUNT: Dimensions = _dims(0, 0, 0, 0, 0, 0, -1)
 AREAL_DENSITY: Dimensions = _dims(1, -2, 0, 0, 0, 0, 0)
 MASS_FLOW: Dimensions = _dims(1, 0, -1, 0, 0, 0, 0)
 VOLUME_FLOW: Dimensions = _dims(0, 3, -1, 0, 0, 0, 0)
+VELOCITY_SQUARED: Dimensions = _dims(0, 2, -2, 0, 0, 0, 0)
+TIME_SQUARED: Dimensions = _dims(0, 0, 2, 0, 0, 0, 0)
+GRAVITATIONAL_PARAMETER: Dimensions = _dims(0, 3, -2, 0, 0, 0, 0)
 JOULES_PER_KWH = 3_600_000
 KCAL_IN_JOULES = 4_184
 SECONDS_PER_DAY = 86_400
 BTU_IN_JOULES = 1055.05585262
 KLEIBER_MASS_EXPONENT = Fraction(3, 4)
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1"
 DIMENSION_AXES = ("mass", "length", "time", "currency", "temperature", "current", "amount")
 NUMERICAL_BASIS = f"kWh, m, s, USD, K, A, mol; mass base = {JOULES_PER_KWH} kg"
 
@@ -210,6 +213,13 @@ UNITS = {
     "m^3/s": Unit(VOLUME_FLOW, 1.0),
     "kg/m^2": Unit(AREAL_DENSITY, 1 / JOULES_PER_KWH),
     "kg/s": Unit(MASS_FLOW, 1 / JOULES_PER_KWH),
+    # Orbital batch (orbital-1): SI radian (dimensionless angle), calendar
+    # days, and squared/parameter combinations for Kepler and energy records.
+    "rad": Unit(DIMENSIONLESS, 1.0),
+    "d": Unit(TIME, 86400),
+    "m^2/s^2": Unit(VELOCITY_SQUARED, 1.0),
+    "s^2": Unit(TIME_SQUARED, 1.0),
+    "m3/s2": Unit(GRAVITATIONAL_PARAMETER, 1.0),
 }
 
 
@@ -589,6 +599,26 @@ MEANINGS = {
     "calculated_mid_upper_arm_muscle_circumference": LENGTH,
     "mid_upper_arm_circumference": LENGTH,
     "triceps_skinfold_thickness": LENGTH,
+    # Orbital-1: Kepler, energy, parallax and synodic meanings for reviewed
+    # a-b01/a-b02 records. Day-counted periods are TIME (the engine models
+    # periods as physical time); parallax angles are dimensionless radians.
+    "central_mass": MASS,
+    "circular_orbit_velocity_squared": VELOCITY_SQUARED,
+    "escape_reference_radius": LENGTH,
+    "escape_velocity_squared": VELOCITY_SQUARED,
+    "inner_sidereal_period": TIME,
+    "orbit_radius": LENGTH,
+    "orbital_period": TIME,
+    "orbital_period_squared": TIME_SQUARED,
+    "orbiting_mass": MASS,
+    "outer_sidereal_period": TIME,
+    "parallax_angle": DIMENSIONLESS,
+    "parallax_baseline": LENGTH,
+    "parallax_distance": LENGTH,
+    "semi_major_axis": LENGTH,
+    "standard_gravitational_parameter": GRAVITATIONAL_PARAMETER,
+    "synodic_period": TIME,
+    "total_orbital_energy": ENERGY,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

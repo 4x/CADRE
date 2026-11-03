@@ -8,7 +8,7 @@ from pathlib import Path
 from test_support import scratch_directory
 import unittest
 
-from connected_models.contracts import AMOUNT, AREA, AREAL_DENSITY, CHARGE, CONDUCTANCE, CONDUCTIVITY, CURRENT, DIMENSIONLESS, ENERGY, INVERSE_MONEY, INVERSE_TEMPERATURE, INVERSE_TIME, LENGTH, MASS, MASS_DENSITY, MASS_FLOW, MEANINGS, MONEY, POWER, RESISTANCE, RESISTIVITY, SPECIFIC_ENERGY, SPECIFIC_HEAT, TEMPERATURE, THERMAL_RESISTANCE_AREA, TIME, UNITS, VOLTAGE, VOLUME, VOLUME_FLOW, Composition, ModelError, Node, Port, Reference, Value
+from connected_models.contracts import AMOUNT, AREA, AREAL_DENSITY, CHARGE, CONDUCTANCE, CONDUCTIVITY, CURRENT, DIMENSIONLESS, ENERGY, GRAVITATIONAL_PARAMETER, INVERSE_MONEY, INVERSE_TEMPERATURE, INVERSE_TIME, LENGTH, MASS, MASS_DENSITY, MASS_FLOW, MEANINGS, MONEY, POWER, RESISTANCE, RESISTIVITY, SPECIFIC_ENERGY, SPECIFIC_HEAT, TEMPERATURE, THERMAL_RESISTANCE_AREA, TIME, TIME_SQUARED, UNITS, VELOCITY_SQUARED, VOLTAGE, VOLUME, VOLUME_FLOW, Composition, ModelError, Node, Port, Reference, Value
 from connected_models.demo import ANNUAL, HEAT, RATE, SAVING, YEARS, catalog, composition, fixture
 from connected_models.runtime import execute, save_run
 
@@ -218,7 +218,24 @@ class RuntimeTests(unittest.TestCase):
                  "body_surface_area": ("m^2", AREA),
                  "calculated_mid_upper_arm_muscle_circumference": ("m", LENGTH),
                  "mid_upper_arm_circumference": ("m", LENGTH),
-                 "triceps_skinfold_thickness": ("m", LENGTH)}
+                 "triceps_skinfold_thickness": ("m", LENGTH),
+                 "central_mass": ("kg", MASS),
+                 "circular_orbit_velocity_squared": ("m^2/s^2", VELOCITY_SQUARED),
+                 "escape_reference_radius": ("m", LENGTH),
+                 "escape_velocity_squared": ("m^2/s^2", VELOCITY_SQUARED),
+                 "inner_sidereal_period": ("d", TIME),
+                 "orbit_radius": ("m", LENGTH),
+                 "orbital_period": ("s", TIME),
+                 "orbital_period_squared": ("s^2", TIME_SQUARED),
+                 "orbiting_mass": ("kg", MASS),
+                 "outer_sidereal_period": ("d", TIME),
+                 "parallax_angle": ("rad", DIMENSIONLESS),
+                 "parallax_baseline": ("m", LENGTH),
+                 "parallax_distance": ("m", LENGTH),
+                 "semi_major_axis": ("m", LENGTH),
+                 "standard_gravitational_parameter": ("m3/s2", GRAVITATIONAL_PARAMETER),
+                 "synodic_period": ("d", TIME),
+                 "total_orbital_energy": ("J", ENERGY)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)
@@ -295,6 +312,16 @@ class RuntimeTests(unittest.TestCase):
         self.assertAlmostEqual(UNITS["kg/m^2"].scale, UNITS["kg"].scale / UNITS["m^2"].scale)
         self.assertAlmostEqual(UNITS["m^3/s"].scale, UNITS["m^3"].scale / UNITS["s"].scale)
         self.assertAlmostEqual(UNITS["kg/m^3"].scale * UNITS["m^3/s"].scale, UNITS["kg/s"].scale)
+
+    def test_orbital_scales_close_period_and_energy_laws(self) -> None:
+        """Days, squared units and the gravitational parameter compose through scales."""
+        self.assertEqual(UNITS["d"].scale, 86400)
+        self.assertEqual(UNITS["rad"].scale, 1.0)
+        self.assertEqual(UNITS["m^2/s^2"].scale, 1.0)
+        self.assertEqual(UNITS["s^2"].scale, 1.0)
+        self.assertEqual(UNITS["m3/s2"].scale, 1.0)
+        self.assertAlmostEqual(UNITS["s"].scale ** 2, UNITS["s^2"].scale)
+        self.assertAlmostEqual(UNITS["m"].scale ** 2 / UNITS["s"].scale ** 2, UNITS["m^2/s^2"].scale)
 
     def test_revision_and_old_run_preservation(self) -> None:
         """New inputs and a compatible model revision leave earlier runs intact."""

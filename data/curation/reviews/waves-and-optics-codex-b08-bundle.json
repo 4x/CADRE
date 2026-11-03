@@ -1,0 +1,232 @@
+{
+  "batch_id": "waves-and-optics-codex-b08",
+  "created": "2026-11-03",
+  "curator": "codex",
+  "deferred": [
+    {
+      "reason": "Plane Eq. 2.10 is now explicitly supported as C=0 within spherical-interface-imaging@r2, after mapping positive apparent depth h_i=-d_i. No new model ID is minted for this qualified special case; source h_i must not be confused with transverse image height.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-3/pages/2-3-images-formed-by-refraction"
+      ],
+      "title": "Separate apparent-depth model copy"
+    }
+  ],
+  "domain": "waves-and-optics",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "Current runtime lacks the proposed optics/wave quantity meanings. Research-only candidates; no publication or scientific approval implied.",
+      "Duplicate search limited to supplied 2026-11-01 inventory (218 records), runtime snapshot and this curator's public returns; no global uniqueness claimed.",
+      "Current OpenStax web terms require rights review before downstream redistribution/use; see each source's license and redistribution fields."
+    ],
+    "queries": [],
+    "review_notes": "Updates our b02 spherical-interface-imaging@r1; original record and ZIP preserved. Re-inspected official OpenStax University Physics 3 section 2.3 Eqs. 2.10/2.11 and normal-view condition on 2026-11-03. New plane case checked by an independent ray/apparent-depth construction and inverse substitution; original curved reference expected values/tolerances retained with input C=1/R. This source-backed parameterization avoids excluding planes merely because finite radius cannot serialize infinity. b06 Doppler r2 and b07 period-overlap r2 remain preferred over their r1 histories. Initial JSON validation via uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation validate returned valid-data-awaiting-review, four numerical checks and three rejection checks. Final JSON and ZIP validation reports are saved beside this bundle; source/scientific/rights review pending.",
+    "summary": "Scope revision only: spherical-interface-imaging@r2 uses curvature to include the separately sourced plane apparent-depth boundary while preserving both curved signs, index matching and finite-image singularities. Eighteen nonduplicate scientific relationships remain; no extra model coverage is counted for a special case."
+  },
+  "kit_version": "2026-10-31.6",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: one refracting interface and paraxial rays; for a plane boundary, the apparent-depth relation is the near-normal viewing approximation, not arbitrary oblique viewing.",
+        "Source geometry: medium 2 continues without a subsequent refracting interface; both supplied phase indices correspond to the same optical frequency and declared medium states.",
+        "Source/profile convention: real-is-positive conjugates and a finite real object d_o>0; signed surface curvature follows the outgoing-center-positive convention.",
+        "Application profile: ordinary transparent real-index media n_1,n_2>=1. Equal indices and zero curvature are explicitly admitted no-refraction/plane limits; no default material values."
+      ],
+      "constants": [],
+      "guards": [
+        "n_1 >= 1",
+        "n_2 >= 1",
+        "d_o > 0",
+        "((n_2 - n_1) * C * d_o - n_1) ** 2 > 0"
+      ],
+      "id": "waves-and-optics--spherical-interface-imaging",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Add/use signed_optical_surface_curvature and coherent 1/m (same sign convention as b02 thin-lens-maker); use the proposed phase_refractive_index and conjugate-distance meanings. Units m and 1 exist; 1/m remains a research extension.",
+          "Revision r2 replaces finite R input with C=1/R and supports C=0. Existing instances need explicit radius-to-curvature mapping; zero radius must never map to zero curvature. Preserve plane near-normal viewing and distinguish axial apparent depth from transverse image height."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Solve d_o=n_1*d_i/[(n_2-n_1)*C*d_i-n_2] given n_1,n_2>=1, finite C and d_i!=0; require displayed denominator!=0, reconstructed d_o>0 and original forward guards. Solve C=(n_1*d_i+n_2*d_o)/[(n_2-n_1)*d_o*d_i] given d_o>0,d_i!=0,n_1,n_2>=1,n_2!=n_1; C=0 is individually admissible, and original finite-image guard must hold. Example (n_1,n_2,C,d_o,d_i)=(1,1.5,10,0.4,0.6) reconstructs d_o=0.4 and C=10; original reciprocal equation gives 2.5+2.5=5. Plane example (1.5,1,0,0.3,-0.2) reconstructs C=0 and d_o=0.3; forward gives -0.2. If n_1=n_2 and d_i=-d_o, every finite C (including plane C=0) is compatible and curvature is underdetermined; other conjugates inconsistent. A zero image distance is unavailable for a finite nonzero real object. Recovering a finite spherical R=1/C additionally requires C!=0; plane C=0 means R infinite, not R=0. All non-singular mentioned inverses have one root; refractive-index inversions not separately assessed.",
+      "kind": "theoretical",
+      "limitations": [
+        "No second surface or complete thick-lens/sphere system is included; a later interface needs separate modeling.",
+        "An object at the curved-interface first focus produces parallel transmitted rays and no finite d_i.",
+        "Plane-interface apparent depth depends on viewing angle outside the near-normal/paraxial regime; Eq. 2.10 is not asserted as exact at arbitrary angles.",
+        "No image intensity, transmission fraction, group delay, diffraction or polarization prediction is provided."
+      ],
+      "references": [
+        {
+          "expected": 0.6,
+          "id": "independent-real-image-ray",
+          "inputs": {
+            "C": 10.0,
+            "d_o": 0.4,
+            "n_1": 1,
+            "n_2": 1.5
+          },
+          "method": "Independent small-angle ray geometry at height h=0.001 m: incoming slope=h/0.4=0.0025; local normal slope=-h/0.1=-0.010. Incident relative-normal angle 0.0125 becomes 0.00833333333333 in index 1.5. Outgoing slope -0.00166666666667 reaches the axis after 0.001/0.00166666666667=0.6 m. Oracle uses refraction and ray intersection, not serialized conjugate equation. Synthetic paraxial values, tolerance covers repeating decimals. For r2 the same physical radius is supplied as introduced curvature C=1/R; expected and tolerance are unchanged.",
+          "provenance": "https://openstax.org/books/university-physics-volume-3/pages/2-3-images-formed-by-refraction# preceding small-angle Snell and geometry derivation",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": -0.2,
+          "id": "independent-concave-virtual-ray",
+          "inputs": {
+            "C": -10.0,
+            "d_o": 0.4,
+            "n_1": 1,
+            "n_2": 1.5
+          },
+          "method": "Independent ray construction at height 0.001 m: incident slope 0.0025; normal slope +0.010. Relative angle -0.0075 becomes -0.005 in index 1.5, yielding outgoing slope +0.005. Backward extension reaches axis at -0.001/0.005=-0.2 m. Exact synthetic small-angle data; 1e-12 m floating-point allowance. For r2 the same physical radius is supplied as introduced curvature C=1/R; expected and tolerance are unchanged.",
+          "provenance": "https://openstax.org/books/university-physics-volume-3/pages/2-3-images-formed-by-refraction# small-angle derivation and concave sign convention",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": -0.4,
+          "id": "index-matched-no-refraction",
+          "inputs": {
+            "C": 10.0,
+            "d_o": 0.4,
+            "n_1": 1.33,
+            "n_2": 1.33
+          },
+          "method": "Limiting identity: equal-index media cause no bending; backward extensions still originate at the original object, 0.4 m on the incident side, hence negative image distance. This is a virtual location of the unchanged object rather than a new real focus. For r2 the same physical radius is supplied as introduced curvature C=1/R; expected and tolerance are unchanged.",
+          "provenance": "https://openstax.org/books/university-physics-volume-3/pages/2-3-images-formed-by-refraction# Eq. 2.11 equal-index limit, independently interpreted geometry",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": -0.2,
+          "id": "independent-plane-apparent-depth",
+          "inputs": {
+            "C": 0,
+            "d_o": 0.3,
+            "n_1": 1.5,
+            "n_2": 1
+          },
+          "method": "Independent synthetic near-normal ray construction: object depth 0.300 m in index 1.5, plane interface, outgoing medium index 1. At lateral surface intercept 0.001 m the incident slope magnitude is 0.001/0.300=1/300; the source's paraxial boundary geometry gives outgoing slope 1.5/300=0.005. Back-projecting 0.001/0.005 gives positive apparent depth 0.200 m on the incident side, hence signed d_i=-0.200 m. This uses the plane ray/apparent-depth construction, not serialized curved-conjugate replay; tolerance covers exact synthetic decimal arithmetic.",
+          "provenance": "https://openstax.org/books/university-physics-volume-3/pages/2-3-images-formed-by-refraction# Eq. 2.10 / Fig. 2.14, independent normal-view plane construction",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "C": 10,
+            "d_o": 0.2,
+            "n_1": 1,
+            "n_2": 1.5
+          },
+          "kind": "domain",
+          "reason": "At the curved-interface first object focus, transmitted rays are parallel and the finite-image denominator vanishes."
+        },
+        {
+          "inputs": {
+            "C": 0,
+            "d_o": 0,
+            "n_1": 1.5,
+            "n_2": 1
+          },
+          "kind": "domain",
+          "reason": "A real object on the interface is excluded by the original finite-conjugate real-object domain; C=0 alone is valid and is not rejected."
+        },
+        {
+          "inputs": {
+            "d_o": 0.3,
+            "n_1": 1.5,
+            "n_2": 1
+          },
+          "kind": "missing-input",
+          "reason": "Surface curvature is required; do not silently assume a plane when the geometry is unspecified."
+        }
+      ],
+      "relationship": {
+        "expression": "n_2 * d_o / ((n_2 - n_1) * C * d_o - n_1)",
+        "locator": "University Physics 3 section 2.3 Eqs. 2.10 and 2.11, plane normal-view paragraph and single-surface sign convention",
+        "original_equation": "n_1/d_o+n_2/d_i=(n_2-n_1)/R (Eq. 2.11); plane normal-view apparent depth h_i=(n_2/n_1)*h_o (Eq. 2.10)",
+        "output_symbol": "d_i",
+        "source_id": "os-up3-2-3-images-formed-by-refraction",
+        "translation_notes": "Introduce signed geometric surface curvature C=1/R for finite nonzero spherical radius, with C=0 representing the plane boundary. Solve the unchanged Eq. 2.11 for d_i in curvature coordinates. Eq. 2.10 independently supports the plane limit: source apparent depth h_i is a positive distance on the incident side, so local d_i=-h_i and d_o=h_o; C=0 gives d_i=-(n_2/n_1)*d_o. Source h_i here is axial apparent depth, not the transverse image height used in magnification; do not bind those quantities by shared symbol. The old R!=0 exclusion becomes exclusion of infinite C (all scalar inputs must be finite), not C!=0. Thus admitting C=0 does not silently restore the original forbidden R=0. Dimensions: numerator L, denominator (1)*(L^-1)*L-1=1, output L. m and coherent research 1/m avoid inlined unit conversion. Normal-view/paraxial source approximations remain explicit; no new approximation of a forbidden angle law is authored."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Section 2.3 supplies both the index-weighted spherical conjugate law and the near-normal plane apparent-depth law. Signed curvature extends the same conjugate relationship to the plane limit, after converting the positive axial apparent depth to a negative virtual-image distance. The source's h_i in the plane passage is an axial depth, not transverse image height.",
+          "id": "os-up3-2-3-images-formed-by-refraction",
+          "kind": "primary",
+          "license": "Directly inspected section footer Citation/Attribution and volume Preface, About OpenStax resources / Customization, https://openstax.org/books/university-physics-volume-3/pages/preface, accessed 2026-11-03: identifies CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/, deed inspected). Footer additionally asserts prior written permission for LLM ingestion/AI offerings and commercial use. The current web version's terms are recorded without inferring an older license or resolving their legal interaction.",
+          "locator": "Refraction at a Spherical Interface, Eq. 2.11, preceding small-angle derivation and sign convention; Eqs. 2.12-2.13 and unnumbered image-focus formula; r2 additionally inspects plane-interface Eq. 2.10 and preceding normal-view approximation paragraph",
+          "redistribution": "Return contains short original evidence paraphrases, mathematical relationships, attribution and numerical data; no source images, pages or PDFs. This is not a legal clearance. Applicability of NC/SA and asserted AI-use restrictions to these research records and downstream commercial/AI use remains an owner rights-review question; no permission obtained or claimed.",
+          "title": "OpenStax, University Physics Volume 3: 2.3 Images Formed by Refraction",
+          "url": "https://openstax.org/books/university-physics-volume-3/pages/2-3-images-formed-by-refraction",
+          "version": "Original publication 2016-09-29; live HTML edition inspected 2026-11-03; footer copyright 2026-06-11. Authors Ling, Sanny, Moebs (Volume 1 lists Moebs first)."
+        }
+      ],
+      "summary": "Broadens b02 spherical-interface-imaging@r1 under the same ID using signed curvature C=1/R and the separately evidenced C=0 plane-interface apparent-depth limit. This is a scope/parameterization revision, not another independent model or a renamed apparent-depth clone.",
+      "title": "Paraxial imaging at one spherical or plane refracting interface",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same single spherical or plane interface, optical axis and surface vertex/reference plane, incident medium 1 and transmitted semi-infinite medium 2, common optical frequency and specified material states. Real-is-positive convention: real object d_o>0, real transmitted image d_i>0, virtual image d_i<0. Signed curvature C>0 has center on outgoing side (convex toward real object), C<0 concave toward it; C=0 is a plane, not a zero-radius surface.",
+          "definition": "Phase refractive index in incident medium containing the real object.",
+          "dimensions": "1 (dimensionless)",
+          "domain": "Finite at least one for ordinary transparent-medium profile; specified composition, temperature, pressure and wavelength.",
+          "quantity_id": "phase_refractive_index",
+          "role": "input",
+          "source_symbol": "n_1",
+          "symbol": "n_1",
+          "unit": "1"
+        },
+        {
+          "context": "Same single spherical or plane interface, optical axis and surface vertex/reference plane, incident medium 1 and transmitted semi-infinite medium 2, common optical frequency and specified material states. Real-is-positive convention: real object d_o>0, real transmitted image d_i>0, virtual image d_i<0. Signed curvature C>0 has center on outgoing side (convex toward real object), C<0 concave toward it; C=0 is a plane, not a zero-radius surface.",
+          "definition": "Phase refractive index in the transmitted semi-infinite medium.",
+          "dimensions": "1 (dimensionless)",
+          "domain": "Finite at least one for ordinary transparent-medium profile at the same wavelength.",
+          "quantity_id": "phase_refractive_index",
+          "role": "input",
+          "source_symbol": "n_2",
+          "symbol": "n_2",
+          "unit": "1"
+        },
+        {
+          "context": "Same single spherical or plane interface, optical axis and surface vertex/reference plane, incident medium 1 and transmitted semi-infinite medium 2, common optical frequency and specified material states. Real-is-positive convention: real object d_o>0, real transmitted image d_i>0, virtual image d_i<0. Signed curvature C>0 has center on outgoing side (convex toward real object), C<0 concave toward it; C=0 is a plane, not a zero-radius surface.",
+          "definition": "Signed inverse spherical radius, positive with curvature center on outgoing side; zero for a plane refracting interface.",
+          "dimensions": "L^-1 (m^-1)",
+          "domain": "Any finite signed curvature, including zero; finite C excludes the source's zero-radius singular surface.",
+          "quantity_id": "signed_optical_surface_curvature",
+          "role": "input",
+          "source_symbol": "Introduced C=1/R for a sphere; C=0 is plane boundary evidenced by Eq. 2.10",
+          "symbol": "C",
+          "unit": "1/m"
+        },
+        {
+          "context": "Same single spherical or plane interface, optical axis and surface vertex/reference plane, incident medium 1 and transmitted semi-infinite medium 2, common optical frequency and specified material states. Real-is-positive convention: real object d_o>0, real transmitted image d_i>0, virtual image d_i<0. Signed curvature C>0 has center on outgoing side (convex toward real object), C<0 concave toward it; C=0 is a plane, not a zero-radius surface.",
+          "definition": "Real-is-positive object distance from the single refracting surface vertex.",
+          "dimensions": "L (m)",
+          "domain": "Finite strictly positive in this directly evidenced real-object profile.",
+          "quantity_id": "object_distance",
+          "role": "input",
+          "source_symbol": "d_o",
+          "symbol": "d_o",
+          "unit": "m"
+        },
+        {
+          "context": "Same single spherical or plane interface, optical axis and surface vertex/reference plane, incident medium 1 and transmitted semi-infinite medium 2, common optical frequency and specified material states. Real-is-positive convention: real object d_o>0, real transmitted image d_i>0, virtual image d_i<0. Signed curvature C>0 has center on outgoing side (convex toward real object), C<0 concave toward it; C=0 is a plane, not a zero-radius surface.",
+          "definition": "Signed real-is-positive image distance from the same interface vertex in the refracted ray construction.",
+          "dimensions": "L (m)",
+          "domain": "Finite nonzero; image at infinity excluded from this scalar output.",
+          "quantity_id": "image_distance",
+          "role": "output",
+          "source_symbol": "d_i",
+          "symbol": "d_i",
+          "unit": "m"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

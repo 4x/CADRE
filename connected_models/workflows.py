@@ -7,12 +7,12 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from .contracts import Composition, ModelError, Node, Value
+from .contracts import Composition, Model, ModelError, Node, Value
 from .demo import catalog
 from .inference import BudgetLedger, InferenceSettings, load_prompt, structured_request
 from .registry import Registry
 from .runtime import execute, save_run
-from .query_inputs import bind_fact, parse_query
+from .query_inputs import MAX_QUERY_CHARS, MAX_QUERY_FACTS, bind_fact, validate_fact
 from .solving import OUTPUT_BINDING, PROFILE, node_ports
 from .serialization import MAX_RECORD_BYTES, composition_from_dict, model_from_dict, object_fields, text
 
@@ -118,20 +118,35 @@ def seed_candidates(registry: Registry) -> list[str]:
     return candidate_ids
 
 
+def catalog_card(model: Model) -> dict[str, Any]:
+    """Project one eligible model to its composition signal: ports, guards, assumptions.
+
+    Identity, version, status, source, and expression stay in the database:
+    the key already pins the sole eligible revision, sources are never looked
+    up at query time, and the expression is the engine's to execute, not the
+    composer's to read. Guards and families ride only when non-empty."""
+    data = asdict(model)
+    card: dict[str, Any] = {"inputs": data["inputs"], "output": data["output"], "assumptions": data["assumptions"]}
+    if data["guards"]:
+        card["guards"] = data["guards"]
+    if data.get("families"):
+        card["families"] = data["families"]
+    return card
+
+
 def answer(registry: Registry, question: str) -> dict[str, Any]:
-    """Parse a self-contained question, compose stored models, and preserve grounding evidence."""
+    """Answer a self-contained question with one parse-and-compose call, then execute."""
     record: dict[str, Any] = {"run_id": str(uuid4()), "created": datetime.now(timezone.utc).isoformat(),
         "question": question, "status": "blocked", "outputs": {}, "clarifications": []}
     try:
-        parsed = parse_query(question, live_request)
-        record["query_inputs"] = parsed
-        if parsed["issues"]:
-            record["status"] = "needs-input"
-            record["clarifications"] = parsed["issues"]
-            raise ModelError("Please clarify the conflicting or ambiguous statements in the question.")
+        text(question)
+        if len(question) > MAX_QUERY_CHARS:
+            raise ModelError("Question exceeds the supported length.")
         models, admissions = registry.snapshot()
         if not models:
             raise ModelError("No eligible models in the registry match an executable request yet.")
+        fact_properties = {name: {"type": "string"} for name in ("id", "name", "value", "unit", "quote")}
+        fact_properties["value_type"] = {"type": "string", "enum": ["number", "date", "text"]}
         graph_schema = {"type": "object", "properties": {
             "id": {"type": "string"}, "outputs": {"type": "array", "items": {"type": "string"}},
             "nodes": {"type": "array", "items": {"type": "object", "properties": {
@@ -143,20 +158,31 @@ def answer(registry: Registry, question: str) -> dict[str, Any]:
                 "required": ["id", "model", "bindings"], "additionalProperties": False}}},
             "required": ["id", "nodes", "outputs"], "additionalProperties": False}
         schema = {"type": "object", "properties": {
+            "facts": {"type": "array", "items": {"type": "object", "properties": fact_properties,
+                        "required": list(fact_properties), "additionalProperties": False}},
+            "issues": {"type": "array", "items": {"type": "string"}},
             "status": {"type": "string", "enum": ["proposed", "needs-input", "unresolved"]},
             "graph": graph_schema, "reason": {"type": "string"},
             "clarifications": {"type": "array", "items": {"type": "string"}}},
-            "required": ["status", "graph", "reason", "clarifications"], "additionalProperties": False}
+            "required": ["facts", "issues", "status", "graph", "reason", "clarifications"], "additionalProperties": False}
         response = live_request([
-            {"role": "system", "content": load_prompt("compose-grounded-models.md")},
-            {"role": "user", "content": json.dumps({"question": question,
-                "models": {key: asdict(value) for key, value in models.items()}, "query_facts": parsed["facts"],
-                "inverse_views": {key: {"candidate_solve_targets": list(model.inputs), "profile": PROFILE}
-                                  for key, model in models.items()}})}],
-            schema, "ComposeQueryGroundedModels")
+            {"role": "system", "content": load_prompt("answer-question.md")},
+            {"role": "user", "content": json.dumps({"question": question, "solver_profile": PROFILE,
+                "models": {key: catalog_card(model) for key, model in models.items()}})}],
+            schema, "AnswerQuestionGrounded")
         proposal = response["content"]
         record["proposal"], record["inference"] = proposal, response["audit"]
-        object_fields(proposal, {"status", "graph", "reason", "clarifications"})
+        object_fields(proposal, {"facts", "issues", "status", "graph", "reason", "clarifications"})
+        if not isinstance(proposal["facts"], list) or len(proposal["facts"]) > MAX_QUERY_FACTS or not isinstance(proposal["issues"], list):
+            raise ModelError("Answer returned invalid facts or issues.")
+        facts = [validate_fact(raw, question) for raw in proposal["facts"]]
+        if len({fact["id"] for fact in facts}) != len(facts):
+            raise ModelError("Parsed fact identifiers must be unique.")
+        record["query_inputs"] = {"facts": facts, "issues": [text(issue) for issue in proposal["issues"]], "inference": response["audit"]}
+        if record["query_inputs"]["issues"]:
+            record["status"] = "needs-input"
+            record["clarifications"] = record["query_inputs"]["issues"]
+            raise ModelError("Please clarify the conflicting or ambiguous statements in the question.")
         if not isinstance(proposal["clarifications"], list):
             raise ModelError("Clarifications must be an array.")
         record["clarifications"] = [text(item) for item in proposal["clarifications"]]
@@ -173,7 +199,7 @@ def answer(registry: Registry, question: str) -> dict[str, Any]:
         object_fields(graph_data, {"id", "nodes", "outputs"})
         if not isinstance(graph_data["nodes"], list):
             raise ModelError("Proposed graph nodes must be an array.")
-        facts = {fact["id"]: fact for fact in parsed["facts"]}
+        facts = {fact["id"]: fact for fact in record["query_inputs"]["facts"]}
         grounded = []
         for node in graph_data["nodes"]:
             object_fields(node, {"id", "model", "bindings"}, {"solve_for", "relation"})

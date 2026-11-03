@@ -1,16 +1,13 @@
-"""Extract domain-independent query facts and ground each value in the user's text."""
+"""Validate domain-independent query facts and ground each value in the user's text."""
 
-from collections.abc import Callable
 from datetime import date
 from decimal import Decimal, InvalidOperation
 import re
 from typing import Any
 
 from .contracts import ModelError, Port, UNITS, Value, finite
-from .inference import load_prompt
 from .serialization import object_fields, text
 
-Request = Callable[[list[dict[str, str]], dict[str, Any], str], dict[str, Any]]
 MAX_QUERY_CHARS = 16_384
 MAX_QUERY_FACTS = 64
 NUMBER_PATTERN = re.compile(r"[+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:[eE][+-]?\d+)?")
@@ -76,31 +73,6 @@ def validate_fact(raw: dict[str, Any], question: str) -> dict[str, Any]:
     elif fact["value_type"] != "text":
         raise ModelError("Unsupported query value type.")
     return fact
-
-
-def parse_query(question: str, request: Request) -> dict[str, Any]:
-    """Parse facts independently of the demo, model catalog and question-specific CLI flags."""
-    text(question)
-    if len(question) > MAX_QUERY_CHARS:
-        raise ModelError("Question exceeds the supported length.")
-    fact_properties = {name: {"type": "string"} for name in ("id", "name", "value", "unit", "quote")}
-    fact_properties["value_type"] = {"type": "string", "enum": ["number", "date", "text"]}
-    schema = {"type": "object", "properties": {
-        "facts": {"type": "array", "items": {"type": "object", "properties": fact_properties,
-                    "required": list(fact_properties), "additionalProperties": False}},
-        "issues": {"type": "array", "items": {"type": "string"}}},
-        "required": ["facts", "issues"], "additionalProperties": False}
-    response = request([
-        {"role": "system", "content": load_prompt("parse-query-inputs.md")},
-        {"role": "user", "content": question}], schema, "ParseQueryInputs")
-    parsed = response["content"]
-    object_fields(parsed, {"facts", "issues"})
-    if not isinstance(parsed["facts"], list) or len(parsed["facts"]) > MAX_QUERY_FACTS or not isinstance(parsed["issues"], list):
-        raise ModelError("Query parsing returned invalid facts or issues.")
-    facts = [validate_fact(raw, question) for raw in parsed["facts"]]
-    if len({fact["id"] for fact in facts}) != len(facts):
-        raise ModelError("Parsed fact identifiers must be unique.")
-    return {"facts": facts, "issues": [text(issue) for issue in parsed["issues"]], "inference": response["audit"]}
 
 
 def bind_fact(fact: dict[str, Any], target: Port) -> Value:

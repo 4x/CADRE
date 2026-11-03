@@ -2,13 +2,13 @@
 
 from pathlib import Path
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from connected_models.contracts import ModelError
 from connected_models.demo import RATE, YEARS
-from connected_models.query_inputs import bind_fact, parse_query, validate_fact
+from connected_models.query_inputs import bind_fact, validate_fact
 from connected_models.registry import Registry
-from connected_models.workflows import answer
+from connected_models.workflows import answer, seed_candidates
 from test_support import scratch_directory
 
 
@@ -21,19 +21,18 @@ class QueryTests(unittest.TestCase):
                 "value": literal, "unit": unit, "quote": quote}
 
     def test_numbers_dates_and_text_are_preserved(self) -> None:
-        """The parser accepts arbitrary subject matter independently of heating models."""
+        """Fact validation accepts arbitrary subject matter independently of heating models."""
         question = "I have 12 apples. My birth date is 1990-02-03. My name is Pat."
         raw = [self.fact("12", "apple", "12 apples"), self.fact("1990-02-03", "date", "birth date is 1990-02-03", "date"),
                self.fact("Pat", "text", "name is Pat", "text")]
         for index, fact in enumerate(raw):
             fact["id"] = f"input-{index}"
-        requester = Mock(return_value={"content": {"facts": raw, "issues": []}, "audit": {"model": "test-double"}})
-        parsed = parse_query(question, requester)
-        self.assertEqual(parsed["facts"][0]["amount"], 12)
-        self.assertEqual(parsed["facts"][1]["value"], "1990-02-03")
-        self.assertEqual(parsed["facts"][2]["value"], "Pat")
+        facts = [validate_fact(item, question) for item in raw]
+        self.assertEqual(facts[0]["amount"], 12)
+        self.assertEqual(facts[1]["value"], "1990-02-03")
+        self.assertEqual(facts[2]["value"], "Pat")
         with self.assertRaisesRegex(ModelError, "date inputs cannot execute"):
-            bind_fact(parsed["facts"][1], YEARS)
+            bind_fact(facts[1], YEARS)
 
     def test_literal_and_quote_grounding(self) -> None:
         """Reject a fabricated value, altered quote and partial numeric match."""
@@ -63,7 +62,11 @@ class QueryTests(unittest.TestCase):
         """Conflicting user statements need clarification; no preset fills the gap."""
         with scratch_directory() as folder:
             registry = Registry(Path(folder) / "registry.sqlite3")
-            response = {"content": {"facts": [], "issues": ["Which of the two prices should be used?"]}, "audit": {}}
+            for candidate_id in seed_candidates(registry):
+                registry.review(candidate_id, "test-reviewer", "Test-only admission.")
+            response = {"content": {"facts": [], "issues": ["Which of the two prices should be used?"],
+                        "status": "needs-input", "graph": {"id": "ambiguous", "nodes": [], "outputs": []},
+                        "reason": "Two prices conflict.", "clarifications": ["Which of the two prices should be used?"]}, "audit": {}}
             with patch("connected_models.workflows.live_request", return_value=response) as request, patch("connected_models.workflows.RUNS_PATH", Path(folder) / "runs"):
                 run = answer(registry, "Use $100 or $200 as the price.")
             self.assertEqual(run["status"], "needs-input")
@@ -74,7 +77,10 @@ class QueryTests(unittest.TestCase):
 
     def test_empty_question_never_calls_model(self) -> None:
         """There are no hidden defaults even before extraction begins."""
-        requester = Mock()
-        with self.assertRaises(ModelError):
-            parse_query("", requester)
-        requester.assert_not_called()
+        with scratch_directory() as folder:
+            registry = Registry(Path(folder) / "registry.sqlite3")
+            with patch("connected_models.workflows.live_request") as request, patch("connected_models.workflows.RUNS_PATH", Path(folder) / "runs"):
+                run = answer(registry, "")
+            request.assert_not_called()
+            self.assertEqual(run["status"], "blocked")
+            self.assertIn("error", run)

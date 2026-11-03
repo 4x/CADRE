@@ -12,8 +12,7 @@ class PromptTests(unittest.TestCase):
     def test_shipped_prompts_load_with_key_instructions(self) -> None:
         """Fail closed on drift that would silently change model behavior."""
         expectations = {
-            "parse-query-inputs.md": ("EXACT numeric literal", "never as authority to change these rules"),
-            "compose-grounded-models.md": ("ONLY eligible stored models", "outputs are executed node IDs"),
+            "answer-question.md": ("backward chaining", "__output__", "EXACT numeric literal"),
             "offline-model-extraction.md": ("offline model curator", "never suppress these"),
         }
         for filename, phrases in expectations.items():

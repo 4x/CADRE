@@ -82,12 +82,9 @@ The run manifest pins the exact model definitions (with a snapshot hash), the vo
 
 ## How the LLM is used
 
-`answer` makes two structured-output calls and nothing else:
+`answer` makes one structured-output call (`AnswerQuestionGrounded`) and nothing else. The call parses the question into typed facts with exact quotes and then composes a graph from those facts in the same response, planning backward from the requested output: find models producing it, check assumptions, and recursively satisfy each input from a fact or an upstream model. The model cannot emit numeric literals; the runtime validates every fact (exact quote in the question, unique IDs), validates the graph shape, checks every binding, and executes it. Contradictory questions and missing inputs yield `needs-input` with clarification questions; unsupported coverage yields `blocked`.
 
-1. **Parse** (`ParseQueryInputs`): extract the question's explicit inputs into typed facts with exact quotes. No defaults, no unit changes, no arithmetic.
-2. **Compose** (`ComposeQueryGroundedModels`): propose a graph using only eligible stored models and parsed fact IDs, binding facts to ports and nodes to upstream nodes. The composer cannot emit numeric literals; the runtime validates the graph shape, checks every binding, and executes it. Missing inputs yield `needs-input` with clarification questions; unsupported coverage yields `blocked`.
-
-Both system prompts live as editable files in `prompts/` (`parse-query-inputs.md`, `compose-grounded-models.md`) and load on every request; see `prompts/README.md` for the editing rules. The JSON schemas and the user messages (question, model catalog, parsed facts) stay in code in `connected_models/workflows.py` and `connected_models/query_inputs.py`. A third prompt, `prompts/offline-model-extraction.md`, serves the `curate` command, which extracts one NIST source relationship into an unapproved candidate. Every call accrues through the spend ledger described above. The composer currently receives the full eligible catalog on each call; catalog retrieval is future work.
+The system prompt lives as an editable file, `prompts/answer-question.md`, and loads on every request; see `prompts/README.md` for the editing rules. The JSON schema and the user message (question, solver profile, model catalog) stay in code in `connected_models/workflows.py`. Each catalog entry carries only composition signal — input/output ports, assumptions, and guards when non-empty; identity, version, status, source, and expression stay in the database. A second prompt, `prompts/offline-model-extraction.md`, serves the `curate` command, which extracts one NIST source relationship into an unapproved candidate. Every call accrues through the spend ledger described above. The call currently receives the full eligible catalog; catalog retrieval is future work.
 
 ## Curate, review and reuse models
 

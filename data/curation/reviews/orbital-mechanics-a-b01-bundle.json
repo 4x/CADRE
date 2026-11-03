@@ -1,0 +1,677 @@
+{
+  "batch_id": "orbital-mechanics-a-b01",
+  "created": "2026-11-03",
+  "curator": "muse-spark",
+  "deferred": [
+    {
+      "reason": "General two-body energy integral v^2 = GM*(2/r - 1/a) needs an elliptical instantaneous-radius scope decision (instantaneous radius vs semi-major axis in one record) beyond the circular-orbit lane worked in §13.4–13.5. Continuation priority: read §13.5 elliptical-orbit passage in full and curate as one atomic record.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-1/pages/13-4-satellite-orbits-and-energy",
+        "https://openstax.org/books/university-physics-volume-1/pages/13-5-keplers-laws-of-planetary-motion"
+      ],
+      "title": "Vis-viva (general elliptical-orbit velocity-squared)"
+    },
+    {
+      "reason": "Algebraically the same law as the curated period-squared record (ratio of two applications eliminates GM). Kept as one canonical relationship; do not mint a separate ratio record. Continuation priority: none — covered by inverse/duplicate note.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-1/pages/13-5-keplers-laws-of-planetary-motion"
+      ],
+      "title": "Kepler third-law ratio form (T1/T2)^2 = (a1/a2)^3"
+    },
+    {
+      "reason": "Exact triangulation d = b/tan(p) requires a trigonometric operator; the scalar engine supports only log, log10, exp, sqrt, sum, prod, len. Small-angle form curated instead. Continuation priority: revisit if a tan operator is ever added.",
+      "source_urls": [
+        "https://openstax.org/books/astronomy-2e/pages/19-2-surveying-the-stars"
+      ],
+      "title": "Exact parallax triangulation with tangent"
+    },
+    {
+      "reason": "Distance modulus m - M = 5*log10(d/10pc) is photometry, not two-body dynamics, and needs magnitude/log-quantity extension. Out of lane. Continuation priority: none for this domain.",
+      "source_urls": [],
+      "title": "Distance modulus from parallax distance"
+    },
+    {
+      "reason": "Hohmann transfers, reentry, attitude dynamics, perturbations, Hill sphere and resonance capture are excluded by the assignment boundaries. The synodic record must not be chained into a transfer scenario. Continuation priority: none for this lane.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-1/pages/13-5-keplers-laws-of-planetary-motion"
+      ],
+      "title": "Transfer, perturbation and N-body scenarios"
+    }
+  ],
+  "domain": "orbital-mechanics",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "All four records need runtime vocabulary extension: new meanings (orbital_period_squared, circular_orbit_velocity_squared, parallax_distance, parallax_angle, parallax_baseline, synodic_period, inner/outer_sidereal_period, semi_major_axis, central_mass, orbit_radius), new units (s^2, m^2/s^2, rad, d as dimensionless calendar count); integer powers used throughout so no operator extension is needed.",
+      "Tatum/LibreTexts license terms for the synodic source could not be text-extracted (JS-rendered footer); terms recorded as unknown and no verbatim material reproduced.",
+      "Duplicate search limited to the supplied catalog-inventory snapshot (building-energy only, no orbital records) and this batch; no global uniqueness claimed.",
+      "Batch-2 queue: standard gravitational parameter definition, circular-orbit total energy, kinematic velocity-squared from radius and period, escape velocity-squared."
+    ],
+    "queries": [],
+    "review_notes": "Self-review completed 2026-11-03: each expression re-derived from the cited section equations; dimensional checks in translation notes; reference arithmetic pre-computed independently (uv python) then validated by the toolkit; guard/rejection behavior validated by the toolkit; prose checked against source claims (no perturbed/N-body widening, m << M preserved, half-angle parallax definition preserved, inner/outer ordering explicit). Not performed: independent second-curator review; license-terms fetch for JS-rendered pages (recorded as unknown). Validation: `uv run -m connected_models.curation validate returns/orbital-mechanics-a-b01/bundle.json` passed; packed ZIP re-validated.",
+    "summary": "Batch b01 curates the four seed relationships in honest squared/cubed scalar algebra: Kepler period-squared (SI, central mass input), circular-orbit velocity-squared, small-angle parallax distance, and ordered-inner/outer synodic period. Five adjacent discoveries deferred with exact sources and missing capabilities. All records requires-extension (new meanings/units), integer powers only."
+  },
+  "kit_version": "2026-10-31.6",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: Newtonian point-mass two-body dynamics with negligible orbiter mass (m << M), so only the central mass appears; §13.4 cancels m in the derivation and §13.5 confines the form to m << M.",
+        "application profile: a is the circular orbit radius, or the elliptical semi-major axis under the §13.5 major-axis reading (circular orbits use r = a).",
+        "Central mass M is a supplied input for a stated body and epoch, never inferred from the orbit itself."
+      ],
+      "constants": [
+        {
+          "literal": 39.47841760435743,
+          "locator": "§13.4 Example 'Determining the Mass of Earth' prints M_E = 4π²r³/(GT²); double-precision expansion of 4π² used in the expression.",
+          "meaning": "four pi squared (dimensionless geometric factor from squaring 2π)",
+          "source_id": "s-uniphys-13-4",
+          "unit": "1"
+        },
+        {
+          "literal": 6.67e-11,
+          "locator": "§13.4 Examples 'International Space Station' and 'Determining the Mass of Earth' print G = 6.67×10⁻¹¹ N·m²/kg².",
+          "meaning": "Newtonian universal gravitational constant as printed in the source (3 significant figures)",
+          "source_id": "s-uniphys-13-4",
+          "unit": "m3/(kg*s2)"
+        }
+      ],
+      "guards": [
+        "M > 0",
+        "a > 0"
+      ],
+      "id": "orbital-mechanics--kepler-third-law-period-squared",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires vocabulary extension: new meanings orbital_period_squared and central_mass (or reuse once defined), new unit s^2 for the squared period. Expression uses only integer powers and is engine-ready once meanings exist.",
+          "Printed G carries 3 significant figures; a higher-precision G record would need a CODATA source and a new revision."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Central mass solves as M = 39.47841760435743*a**3/(6.67e-11*T2); substitution check with the lunar numbers (a = 3.84e8 m, T2 = (2.36e6 s)^2) gives M = 6.017e24 kg, reproducing the section's 6.01e24 kg. Semi-major axis solves as a = (6.67e-11*M*T2/39.47841760435743)**(1/3) with the unique real root for positive inputs; requires T2 > 0 beyond the declared output domain. Do not publish rearrangements as separate records.",
+      "kind": "theoretical",
+      "limitations": [
+        "Excludes comparable-mass binaries, which require the M1+M2 sum form (Astronomy 2e §3.3); this record must not be applied to stellar binaries or galaxy pairs.",
+        "Excludes perturbations, general relativity, radiation pressure and drag; ideal two-body motion only.",
+        "Narrowed by the source derivation to the m << M regime; the orbiter mass does not appear and must not be added."
+      ],
+      "references": [
+        {
+          "expected": 5569600000000.0,
+          "id": "lunar-period-squared",
+          "inputs": {
+            "M": 5.96e+24,
+            "a": 384000000.0
+          },
+          "method": "Published lunar sidereal period 27.3 d = 2.36e6 s (lunar example in §13.4) squared; central mass is the separately published surface-gravimetry value 5.96e24 kg (Example 13.5 tradition), an independent measurement tradition from the period.",
+          "provenance": "Published result (period) combined with a separately published mass value; checks the law across independent determinations, not arithmetic replay.",
+          "tolerance": 60000000000.0
+        },
+        {
+          "expected": 995882117760000.0,
+          "id": "earth-year-squared",
+          "inputs": {
+            "M": 1.99e+30,
+            "a": 149600000000.0
+          },
+          "method": "Published mean orbital period 365.25 d (Appendix D) converted to seconds and squared; semi-major axis 149.6 million km and solar mass 1.99e30 kg from the same appendix. Appendix D values are mutually consistent to 4 significant figures; tolerance 4e12 (0.4%) bounds worst-case rounding propagation including cubic amplification.",
+          "provenance": "Published tabulated orbital data; independent compilation from the chapter text.",
+          "tolerance": 4000000000000.0
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "M": 5.96e+24,
+            "a": -1000.0
+          },
+          "kind": "domain",
+          "reason": "A non-positive semi-major axis is not an orbit; guard a > 0 rejects it."
+        },
+        {
+          "inputs": {
+            "a": 384000000.0
+          },
+          "kind": "missing-input",
+          "reason": "Central mass is required input and is never assumed from the orbit."
+        }
+      ],
+      "relationship": {
+        "expression": "39.47841760435743 * a ** 3 / (6.67e-11 * M)",
+        "locator": "§13.4 Eq. 13.8 with Examples 'International Space Station' and 'Determining the Mass of Earth'; Ch. 13 Summary §13.5 bullet; Astronomy 2e §3.3 'Orbital Motion and Mass' for the comparable-mass exclusion.",
+        "original_equation": "T = 2π√(r³/(G·M_E)) (Eq. 13.8, circular orbits); the square of the period of an elliptical orbit is proportional to the cube of the semi-major axis (Ch. 13 summary); lunar-orbit rearrangement M_E = 4π²r³/(G·T²) (§13.4 example).",
+        "output_symbol": "T2",
+        "source_id": "s-uniphys-13-4",
+        "translation_notes": "Squared Eq. 13.8 exactly to T² = 4π²r³/(G·M). Generalized the radius r to the semi-major axis a for the elliptical reading per the Ch. 13 summary proportionality and the §13.5 objective 'Determine the period of an elliptical orbit from its major axis' (circular orbits use r = a). 4π² expanded to the double-precision literal 39.47841760435743 (dimensionless). G inlined as the printed literal with constants metadata; no unit-conversion factor appears — the expression is coherent in base SI units. Dimensional check: L³ / ((L³/(M·T²))·M) = T². Output name carries the square (T2) so no consumer mistakes it for a period."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Derives circular-orbit speed and period by equating gravity to centripetal acceleration (GmM/r² = mv²/r), giving v_orbit = √(GM/r) and T = 2π√(r³/GM); works the ISS (v = 7.67e3 m/s, T = 5.55e3 s) and lunar (M_E = 4π²r³/GT² = 6.01e24 kg) examples with G = 6.67e-11.",
+          "id": "s-uniphys-13-4",
+          "kind": "primary",
+          "license": "OpenStax section pages carry the footer 'Textbook content produced by OpenStax is licensed under a Creative Commons Attribution License' (CC BY; observed via search rendering of the book footer, 2026-11-03). The JS-rendered full terms page was not text-extractable, so exact terms are unconfirmed.",
+          "locator": "Eqs. 13.7–13.8 and worked examples, as above.",
+          "redistribution": "This return reproduces no OpenStax prose, figures, or problem statements — only short original paraphrases, section locators, and numerical values.",
+          "title": "University Physics Volume 1, Section 13.4 Satellite Orbits and Energy",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/13-4-satellite-orbits-and-energy",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "States the §13.5 result that the square of the period of an elliptical orbit is proportional to the cube of the semi-major axis, and the §13.4 result that orbital velocity and period depend on the central mass and distance, not the orbiter mass.",
+          "id": "s-uniphys-13-summary",
+          "kind": "primary",
+          "license": "Same OpenStax licensing footer as s-uniphys-13-4; exact terms unconfirmed (JS-rendered).",
+          "locator": "Ch. 13 Summary bullets for §§13.4–13.5.",
+          "redistribution": "Short original paraphrase and locator only; no OpenStax prose reproduced.",
+          "title": "University Physics Volume 1, Chapter 13 Summary",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/13-summary",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Gives Newton's form a³ = (M1+M2)×P² in solar units and explains the planet mass is negligible for Sun-planet pairs but the sum is required for star-star or galaxy-galaxy pairs.",
+          "id": "s-astro-3-3",
+          "kind": "primary",
+          "license": "Same OpenStax licensing footer as s-uniphys-13-4; exact terms unconfirmed (JS-rendered).",
+          "locator": "Astronomy 2e §3.3 subsection 'Orbital Motion and Mass'.",
+          "redistribution": "Short original paraphrase and locator only; no OpenStax prose reproduced.",
+          "title": "Astronomy 2e, Section 3.3 Newton’s Universal Law of Gravitation",
+          "url": "https://openstax.org/books/astronomy-2e/pages/3-3-newtons-universal-law-of-gravitation",
+          "version": "OpenStax Astronomy 2e as posted on openstax.org, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Tabulates mean distances, revolution periods (Earth 149.6M km / 365.25 d; Moon 0.386M km from Earth / 27.3 d) and masses (Earth 5.97e24 kg; Sun 1.99e30 kg) used as reference inputs.",
+          "id": "s-uniphys-app-d",
+          "kind": "primary",
+          "license": "Same OpenStax licensing footer as s-uniphys-13-4; exact terms unconfirmed (JS-rendered).",
+          "locator": "Table D1 and 'Other Data' masses.",
+          "redistribution": "Numerical values and locator only; no OpenStax prose reproduced.",
+          "title": "University Physics Volume 1, Appendix D Astronomical Data",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/d-astronomical-data",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        }
+      ],
+      "summary": "Kepler third law with the square explicit: period-squared from semi-major axis and central mass (SI, two-body, negligible orbiter mass).",
+      "title": "Kepler third law in period-squared form for a negligible-mass orbiter",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same two-body system, central body, and epoch as a and M.",
+          "definition": "Square of the orbital period (one full revolution) of the negligible-mass orbiter.",
+          "dimensions": "time^2",
+          "domain": "Positive finite period-squared in s^2.",
+          "quantity_id": "orbital_period_squared",
+          "role": "output",
+          "source_symbol": "T^2 (introduced square of the source period T)",
+          "symbol": "T2",
+          "unit": "s^2"
+        },
+        {
+          "context": "Same two-body system, central body, and epoch as T2 and M.",
+          "definition": "Circular orbit radius, or elliptical semi-major axis under the §13.5 major-axis reading, measured from the central-body center.",
+          "dimensions": "length",
+          "domain": "Positive finite axis in m.",
+          "quantity_id": "semi_major_axis",
+          "role": "input",
+          "source_symbol": "r (Eq. 13.8); a (semi-major axis in §13.5)",
+          "symbol": "a",
+          "unit": "m"
+        },
+        {
+          "context": "Same two-body system and epoch as T2 and a; stated body, never assumed.",
+          "definition": "Mass of the central body that dominates the two-body dynamics.",
+          "dimensions": "mass",
+          "domain": "Positive finite mass in kg.",
+          "quantity_id": "central_mass",
+          "role": "input",
+          "source_symbol": "M_E generalized to M (source uses M_E for Earth, M_Sun, M generally)",
+          "symbol": "M",
+          "unit": "kg"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: Newtonian circular orbit in which gravity alone supplies the centripetal acceleration (GmM/r² = mv²/r, Fig. 13.12 derivation); the orbiter mass m cancels, so speed depends only on the central body.",
+        "Central mass M is a supplied input for a stated body and epoch, never assumed."
+      ],
+      "constants": [
+        {
+          "literal": 6.67e-11,
+          "locator": "§13.4 Examples 'International Space Station' and 'Determining the Mass of Earth' print G = 6.67×10⁻¹¹ N·m²/kg².",
+          "meaning": "Newtonian universal gravitational constant as printed in the source (3 significant figures)",
+          "source_id": "s-uniphys-13-4",
+          "unit": "m3/(kg*s2)"
+        }
+      ],
+      "guards": [
+        "M > 0",
+        "r > 0"
+      ],
+      "id": "orbital-mechanics--circular-orbit-velocity-squared",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires vocabulary extension: new meanings circular_orbit_velocity_squared and orbit_radius (or reuse once defined), new unit m^2/s^2. Integer powers only; engine-ready once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Radius solves as r = 6.67e-11*M/v2 and mass as M = v2*r/6.67e-11; substitution check with the ISS numbers (v2 = 5.872e7 m²/s², M = 5.96e24 kg) returns r = 6.77e6 m. The v2 = 0 limit (r → ∞) is a limiting extrapolation, not an admissible bound orbit. Do not publish rearrangements as separate records.",
+      "kind": "theoretical",
+      "limitations": [
+        "Circular orbits only; elliptical-orbit speeds need the vis-viva form (deferred), not this record.",
+        "This is the bound-orbit speed, not the escape speed, which is exactly √2 larger (§13.4); do not substitute one for the other.",
+        "Ideal two-body motion only; excludes drag, thrust, radiation pressure and perturbations."
+      ],
+      "references": [
+        {
+          "expected": 58828900.0,
+          "id": "iss-orbital-speed-squared",
+          "inputs": {
+            "M": 5.96e+24,
+            "r": 6770000.0
+          },
+          "method": "Published ISS orbital velocity 7.67e3 m/s from the §13.4 worked example, squared; inputs are the example's printed radius (6.37e6 + 4.00e5 m) and mass. Tolerance 2e5 (0.34%) covers 3-significant-figure print rounding and the text's 6.36/6.37 radius inconsistency.",
+          "provenance": "Published worked result; checks the squared transcription against the source's own square-root computation.",
+          "tolerance": 200000.0
+        },
+        {
+          "expected": 886205000.0,
+          "id": "earth-circular-speed-from-escape",
+          "inputs": {
+            "M": 1.99e+30,
+            "r": 150000000000.0
+          },
+          "method": "Independent route through the section's solar-escape worked example (v_esc = 4.21e4 m/s from Earth's orbit) combined with the section's stated exact √2 ratio between escape and circular-orbit speeds: v² = v_esc²/2. Inputs are the escape example's printed mass and distance.",
+          "provenance": "Source-supported alternate route (separate worked example plus stated speed ratio), not arithmetic replay of Eq. 13.7.",
+          "tolerance": 3000000.0
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "M": 5.96e+24,
+            "r": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero radius is not an orbit (division by zero); guard r > 0 rejects it."
+        },
+        {
+          "inputs": {
+            "r": 6770000.0
+          },
+          "kind": "missing-input",
+          "reason": "Central mass is required input and is never assumed."
+        }
+      ],
+      "relationship": {
+        "expression": "6.67e-11 * M / r",
+        "locator": "§13.4 'Circular Orbits' derivation (GmM/r² = mv²/r) and Eq. 13.7; escape-speed √2 comparison in the same passage.",
+        "original_equation": "v_orbit = √(G·M_E/r) (Eq. 13.7).",
+        "output_symbol": "v2",
+        "source_id": "s-uniphys-13-4",
+        "translation_notes": "Squared Eq. 13.7 exactly to v² = G·M/r, keeping the square explicit in the output name (v2) so no consumer mistakes it for a speed. G inlined as the printed literal with constants metadata; no conversion factor is inlined — coherent in base SI units. Dimensional check: (L³/(M·T²))·M/L = L²/T²."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Derives circular-orbit speed by equating gravity to centripetal acceleration, giving v_orbit = √(GM/r) (Eq. 13.7); notes the orbiter mass cancels and the escape velocity is exactly √2 times greater; works the ISS example (7.67e3 m/s).",
+          "id": "s-uniphys-13-4",
+          "kind": "primary",
+          "license": "OpenStax section pages carry the footer 'Textbook content produced by OpenStax is licensed under a Creative Commons Attribution License' (CC BY; observed via search rendering of the book footer, 2026-11-03). The JS-rendered full terms page was not text-extractable, so exact terms are unconfirmed.",
+          "locator": "Eq. 13.7 with the Fig. 13.12 derivation and the √2 comparison.",
+          "redistribution": "This return reproduces no OpenStax prose, figures, or problem statements — only short original paraphrases, section locators, and numerical values.",
+          "title": "University Physics Volume 1, Section 13.4 Satellite Orbits and Energy",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/13-4-satellite-orbits-and-energy",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Works escape from the Sun starting at Earth's orbit (R = 1.50e11 m, M_Sun = 1.99e30 kg → v_esc = 4.21e4 m/s), used as the independent-route oracle.",
+          "id": "s-uniphys-13-3",
+          "kind": "primary",
+          "license": "Same OpenStax licensing footer as s-uniphys-13-4; exact terms unconfirmed (JS-rendered).",
+          "locator": "§13.3 Example 'Escape from Earth', solar-escape part.",
+          "redistribution": "Numerical values and locator only; no OpenStax prose reproduced.",
+          "title": "University Physics Volume 1, Section 13.3 Gravitational Potential Energy and Total Energy",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/13-3-gravitational-potential-energy-and-total-energy",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        }
+      ],
+      "summary": "Circular-orbit velocity with the square explicit: velocity-squared from central mass and orbit radius (orbiter mass cancels).",
+      "title": "Circular-orbit velocity-squared from central mass and radius",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same two-body system, central body, and epoch as M and r.",
+          "definition": "Square of the circular-orbit speed of the negligible-mass orbiter.",
+          "dimensions": "length^2/time^2",
+          "domain": "Positive finite velocity-squared in m^2/s^2.",
+          "quantity_id": "circular_orbit_velocity_squared",
+          "role": "output",
+          "source_symbol": "v_orbit^2 (introduced square of the source speed v_orbit)",
+          "symbol": "v2",
+          "unit": "m^2/s^2"
+        },
+        {
+          "context": "Same two-body system and epoch as v2 and r; stated body, never assumed.",
+          "definition": "Mass of the central body that dominates the two-body dynamics.",
+          "dimensions": "mass",
+          "domain": "Positive finite mass in kg.",
+          "quantity_id": "central_mass",
+          "role": "input",
+          "source_symbol": "M_E generalized to M (source uses M_E for Earth, M generally)",
+          "symbol": "M",
+          "unit": "kg"
+        },
+        {
+          "context": "Same two-body system and epoch as v2 and M.",
+          "definition": "Circular orbit radius measured from the central-body center.",
+          "dimensions": "length",
+          "domain": "Positive finite radius in m.",
+          "quantity_id": "orbit_radius",
+          "role": "input",
+          "source_symbol": "r",
+          "symbol": "r",
+          "unit": "m"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: small-angle triangulation (tan p ≈ p with p in radians, p ≪ 1); the section solves triangles 'by using trigonometry' and the curated form is its small-angle limit, stated explicitly here.",
+        "source assumption: p is the defined annual parallax — one-half the total yearly shift, subtending the 1 AU baseline (Figure 19.6 and surrounding text) — not the total excursion.",
+        "application profile: baseline b is supplied in meters (1 AU for annual parallax); Euclidean geometry with a distant background reference."
+      ],
+      "constants": [],
+      "guards": [
+        "b > 0",
+        "p > 0"
+      ],
+      "id": "orbital-mechanics--parallax-distance-small-angle",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires vocabulary extension: new meanings parallax_distance, parallax_baseline, parallax_angle and new units rad (dimensionless angle) and m for these ports; no operator extension needed (division only).",
+          "The parsec/arcsecond unit pair (D = 1/p) is intentionally left as a unit-scale projection for the extension layer, never inlined."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Parallax angle solves as p = b/d and requires d > 0; baseline as b = d*p. Substitution check: d = 3.0857244e16 m with b = 1.496e11 m returns p = 4.848e-6 rad (1 arcsecond). Non-positive d or b have no geometric meaning here. Do not publish the D = 1/p unit-scaled restatement as a separate record.",
+      "kind": "theoretical",
+      "limitations": [
+        "Small-angle approximation only; the exact d = b/tan(p) form is deferred because the scalar engine has no trigonometric operator.",
+        "Annual-parallax context (1 AU baseline) per the source definition; survey baselines of other lengths need their own stated baseline but the same algebra.",
+        "Euclidean triangulation only; not valid for cosmological distances where spacetime curvature matters."
+      ],
+      "references": [
+        {
+          "expected": 3.1e+16,
+          "id": "one-arcsecond-parsec",
+          "inputs": {
+            "b": 149600000000.0,
+            "p": 4.84813681109536e-06
+          },
+          "method": "Text's printed defining case: a parallax of 1 arcsecond corresponds to 206,265 AU = 3.1×10¹³ km (3.1e16 m). Baseline 1 AU = 1.496e11 m from Appendix D; angle 1/206265 rad from the text's figure. Tolerance 1e15 (3.2%) bounds the 2-significant-figure print rounding of 3.1e13 km.",
+          "provenance": "Published defining result converted to SI with documented scales; cross-checks the small-angle algebra against the text's exact-form statement.",
+          "tolerance": 1000000000000000.0
+        },
+        {
+          "expected": 3.1e+17,
+          "id": "tenth-arcsecond-ten-parsecs",
+          "inputs": {
+            "b": 149600000000.0,
+            "p": 4.84813681109536e-07
+          },
+          "method": "Text's printed example: a star with parallax 0.1 arcsecond lies at 10 parsecs (10 × 3.1e13 km = 3.1e17 m). Same scales as the first case at a materially different (10× smaller) angle.",
+          "provenance": "Published worked example converted to SI; distinct input scale from the first case.",
+          "tolerance": 1e+16
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "b": 149600000000.0,
+            "p": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero parallax means no measurable shift (infinite-distance limit); guard p > 0 rejects it as a finite-distance determination."
+        },
+        {
+          "inputs": {
+            "p": 4.84813681109536e-06
+          },
+          "kind": "missing-input",
+          "reason": "Baseline length is required; the 1 AU annual baseline is stated per measurement, never assumed."
+        }
+      ],
+      "relationship": {
+        "expression": "b / p",
+        "locator": "§19.2 'Units of Stellar Distance': D = 1/p with the 206,265 AU / 3.1×10¹³ km worked equivalence; 'Triangulation in Space' and Figure 19.6 for the 1 AU baseline and half-angle parallax definition.",
+        "original_equation": "D = 1/p (distance in parsecs from parallax in arcseconds), with 1 arcsecond ↔ 206,265 AU = 3.26 light-years = 3.1×10¹³ km; parallax defined as one-half the yearly shift on a 1 AU baseline.",
+        "output_symbol": "d",
+        "source_id": "s-astro-19-2",
+        "translation_notes": "Restated the D = 1/p relation in base SI units as d = b/p with b in meters and p in radians: since 1 arcsecond = 1/206265 rad, d = (1 AU)/(1/206265) = 206,265 AU reproduces the text exactly, confirming the small-angle transcription. No conversion factor is inlined — AU, parsec and arcsecond scales belong to the extension layer. Dimensional check: L / 1 = L (radians dimensionless). Valid only for p ≪ 1 rad, satisfied by all stellar parallaxes (< 1e-5 rad)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Explains triangulation with a baseline, defines parallax as the angle subtended by the baseline, defines stellar parallax as one-half the yearly shift on a 1 AU baseline (Fig. 19.6), and states D = 1/p with 1 arcsecond ↔ 206,265 AU = 3.1e13 km, plus the 0.1-arcsecond → 10-parsec example.",
+          "id": "s-astro-19-2",
+          "kind": "primary",
+          "license": "OpenStax section pages carry the footer 'Textbook content produced by OpenStax is licensed under a Creative Commons Attribution License' (CC BY; observed via search rendering of the book footer, 2026-11-03). The JS-rendered full terms page was not text-extractable, so exact terms are unconfirmed.",
+          "locator": "Astronomy 2e §19.2 subsections 'Triangulation in Space' and 'Units of Stellar Distance' with Figure 19.6.",
+          "redistribution": "This return reproduces no OpenStax prose, figures, or problem statements — only short original paraphrases, section locators, and numerical values.",
+          "title": "Astronomy 2e, Section 19.2 Surveying the Stars",
+          "url": "https://openstax.org/books/astronomy-2e/pages/19-2-surveying-the-stars",
+          "version": "OpenStax Astronomy 2e as posted on openstax.org, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Tabulates Earth's mean solar distance 149.6M km = 1.496e11 m, used as the 1 AU annual-parallax baseline in SI.",
+          "id": "s-uniphys-app-d",
+          "kind": "primary",
+          "license": "Same OpenStax licensing footer as s-astro-19-2; exact terms unconfirmed (JS-rendered).",
+          "locator": "Table D1, Earth row.",
+          "redistribution": "Numerical value and locator only; no OpenStax prose reproduced.",
+          "title": "University Physics Volume 1, Appendix D Astronomical Data",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/d-astronomical-data",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        }
+      ],
+      "summary": "Stellar distance in the honest small-angle form: distance from baseline length and parallax angle in radians (1 AU annual baseline).",
+      "title": "Parallax distance from baseline and angle (small-angle form)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same triangulation measurement as b and p: stated baseline, epoch, and background reference.",
+          "definition": "Line-of-sight distance from the baseline to the nearby object in the small-angle limit.",
+          "dimensions": "length",
+          "domain": "Positive finite distance in m.",
+          "quantity_id": "parallax_distance",
+          "role": "output",
+          "source_symbol": "D (source expresses D in parsecs; introduced SI restatement d in meters)",
+          "symbol": "d",
+          "unit": "m"
+        },
+        {
+          "context": "Same triangulation measurement as d and p.",
+          "definition": "Perpendicular baseline separating the two vantage points (1 AU for annual stellar parallax).",
+          "dimensions": "length",
+          "domain": "Positive finite length in m; value stated per measurement.",
+          "quantity_id": "parallax_baseline",
+          "role": "input",
+          "source_symbol": "AB; 1 AU baseline (Figure 19.6)",
+          "symbol": "b",
+          "unit": "m"
+        },
+        {
+          "context": "Same triangulation measurement as d and b.",
+          "definition": "Defined (half-amplitude) parallax angle subtended by the baseline at the object, in radians.",
+          "dimensions": "dimensionless plane angle",
+          "domain": "Positive finite angle in rad, valid in the small-angle regime (stellar values below 1e-5 rad).",
+          "quantity_id": "parallax_angle",
+          "role": "input",
+          "source_symbol": "P (Figure 19.6 angle); p (D = 1/p statement)",
+          "symbol": "p",
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: constant mean angular speeds about a common center (near-circular coplanar orbits), so ω = 2π/P and the relative angular speed is the difference of the two (Tatum Fig. VIII.3 derivation).",
+        "application profile: T1 is the shorter (inner) sidereal period and T2 the longer (outer) one, generalizing the source's Earth/planet roles to any inner/outer pair by the same relative-angular-speed argument; the guard T2 > T1 encodes the ordering.",
+        "application profile: periods are day-counts on the same calendar scale; calendar durations stay dimensionless counts and are never converted to physical time inside this record."
+      ],
+      "constants": [],
+      "guards": [
+        "T1 > 0",
+        "T2 > 0",
+        "T2 > T1"
+      ],
+      "id": "orbital-mechanics--synodic-period-ordered",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires vocabulary extension: new meanings synodic_period, inner_sidereal_period, outer_sidereal_period and a dimensionless day-count unit d (calendar duration, never physical-time conversion). Integer powers only; engine-ready once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Outer period solves as T2 = S*T1/(S-T1) and requires S > T1, which always holds when T2 > T1; check with Mars: 780×365.25/(780−365.25) = 686.96 ≈ 687 d. Inner period solves as T1 = S*T2/(S+T2); check with Mercury: 116×365.25/(116+365.25) = 88.04 ≈ 88 d. Equal sidereal periods (T1 = T2) admit no finite synodic period — the resonance singularity excluded by the guard. Do not publish rearrangements as separate records.",
+      "kind": "theoretical",
+      "limitations": [
+        "Excludes eccentric or inclined orbits whose angular speeds vary; the constant-ω derivation fails there.",
+        "Excludes the 1:1 resonance T1 = T2 (no finite synodic period); rejected by the ordering guard, not silently extrapolated.",
+        "Excludes N-body perturbations; ideal two-body relative motion only.",
+        "Source demonstrates Earth plus planet; the inner/outer generalization is an application profile justified by the body-agnostic relative-angular-speed derivation."
+      ],
+      "references": [
+        {
+          "expected": 780.0,
+          "id": "mars-synodic-superior",
+          "inputs": {
+            "T1": 365.25,
+            "T2": 687.0
+          },
+          "method": "Superior-planet case: Earth's 365.25 d and Mars' 687 d sidereal periods (Appendix D) give S = 779.88 d against the published 780 d synodic period (Tatum §8.3). Tolerance 1 d bounds the integer-rounded 687 d input propagating through the near-resonant denominator.",
+          "provenance": "Published synodic value from one source against sidereal periods from an independent tabulation.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 116.0,
+          "id": "mercury-synodic-inferior",
+          "inputs": {
+            "T1": 88.0,
+            "T2": 365.25
+          },
+          "method": "Inferior-planet case: Mercury's 88 d and Earth's 365.25 d sidereal periods (Appendix D) give S = 115.93 d against the published 116 d synodic period (Tatum §8.3). Tolerance 1 d bounds the integer-rounded 88 d input.",
+          "provenance": "Published synodic value from one source against sidereal periods from an independent tabulation.",
+          "tolerance": 1.0
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "T1": 365.25,
+            "T2": 365.25
+          },
+          "kind": "domain",
+          "reason": "Equal sidereal periods mean zero relative angular speed (1:1 resonance); no finite synodic period exists and guard T2 > T1 rejects it."
+        },
+        {
+          "inputs": {
+            "T2": 687.0
+          },
+          "kind": "missing-input",
+          "reason": "Both sidereal periods are required; the inner period cannot be assumed."
+        }
+      ],
+      "relationship": {
+        "expression": "T1 * T2 / (T2 - T1)",
+        "locator": "Tatum §8.3 Eqs. 8.3.1 (inferior) and 8.3.2 (superior) with Fig. VIII.3; published values Mars 780 d, Mercury 116 d in the same passage.",
+        "original_equation": "1/P_syn = 1/P_sid − 1/P_0 (inferior planet, Eq. 8.3.1); 1/P_syn = 1/P_0 − 1/P_sid (superior planet, Eq. 8.3.2), with P_0 Earth's sidereal period.",
+        "output_symbol": "S",
+        "source_id": "s-tatum-8-3",
+        "translation_notes": "Solved either reciprocal form for the synodic period: with T1 the shorter (inner) and T2 the longer (outer) sidereal period, both orderings reduce to the single canonical expression S = T1·T2/(T2−T1), so no absolute value or branch is needed and the engine's lack of abs() is irrelevant. Generalizes Earth's P_0 role to any inner reference orbit about the same center (relative angular speed is body-agnostic). Dimensional check: count·count/count = count; inputs and output share one dimensionless day-count scale, so no conversion is inlined."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Derives synodic periods from relative angular speed about the Sun: inferior 1/P_syn = 1/P_sid − 1/P_0 (Eq. 8.3.1) and superior 1/P_syn = 1/P_0 − 1/P_sid (Eq. 8.3.2); states Mars has the longest synodic period at 780 days and Mercury the shortest at 116 days.",
+          "id": "s-tatum-8-3",
+          "kind": "primary",
+          "license": "LibreTexts-hosted open textbook (Jeremy Tatum, Celestial Mechanics). The page license footer is JS-rendered and was not text-extractable on 2026-11-03, so license terms are recorded as unknown.",
+          "locator": "Section 8.3 'Sidereal and Synodic Periods', Eqs. 8.3.1–8.3.2 and following paragraph.",
+          "redistribution": "This return reproduces no textbook prose or figures — only short original paraphrases, section locators, and numerical values.",
+          "title": "Celestial Mechanics (Tatum), Section 8.3 Sidereal and Synodic Periods",
+          "url": "https://phys.libretexts.org/Bookshelves/Astronomy__Cosmology/Celestial_Mechanics_(Tatum)/08%3A_Planetary_Motions/8.03%3A_Sidereal_and_Synodic_Periods",
+          "version": "LibreTexts edition as posted, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Tabulates sidereal revolution periods used as reference inputs: Earth 365.25 d, Mars 687 d, Mercury 88 d.",
+          "id": "s-uniphys-app-d",
+          "kind": "primary",
+          "license": "OpenStax section pages carry the footer 'Textbook content produced by OpenStax is licensed under a Creative Commons Attribution License' (CC BY; observed via search rendering of the book footer, 2026-11-03). The JS-rendered full terms page was not text-extractable, so exact terms are unconfirmed.",
+          "locator": "Table D1 period column.",
+          "redistribution": "Numerical values and locator only; no OpenStax prose reproduced.",
+          "title": "University Physics Volume 1, Appendix D Astronomical Data",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/d-astronomical-data",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        }
+      ],
+      "summary": "Synodic (alignment-to-alignment) period from two sidereal periods in one canonical ordered form: inner/shorter and outer/longer, equal periods rejected.",
+      "title": "Synodic period from inner and outer sidereal periods",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same central body, orbital plane family, and calendar scale as T1 and T2.",
+          "definition": "Synodic period: interval between consecutive repeat alignments (oppositions for superior, inferior conjunctions for inferior planets), as a day count.",
+          "dimensions": "dimensionless calendar-day count",
+          "domain": "Positive finite count in d.",
+          "quantity_id": "synodic_period",
+          "role": "output",
+          "source_symbol": "P_syn (introduced local symbol S)",
+          "symbol": "S",
+          "unit": "d"
+        },
+        {
+          "context": "Same central body, orbital plane family, and calendar scale as S and T2.",
+          "definition": "Sidereal period of the inner (faster, shorter-period) orbiter, as a day count.",
+          "dimensions": "dimensionless calendar-day count",
+          "domain": "Positive finite count in d, strictly below T2.",
+          "quantity_id": "inner_sidereal_period",
+          "role": "input",
+          "source_symbol": "P_sid for an inferior planet (Eq. 8.3.1); P_0 where Earth is the inner body (Eq. 8.3.2)",
+          "symbol": "T1",
+          "unit": "d"
+        },
+        {
+          "context": "Same central body, orbital plane family, and calendar scale as S and T1.",
+          "definition": "Sidereal period of the outer (slower, longer-period) orbiter, as a day count.",
+          "dimensions": "dimensionless calendar-day count",
+          "domain": "Positive finite count in d, strictly above T1.",
+          "quantity_id": "outer_sidereal_period",
+          "role": "input",
+          "source_symbol": "P_0 where Earth is the outer body (Eq. 8.3.1); P_sid for a superior planet (Eq. 8.3.2)",
+          "symbol": "T2",
+          "unit": "d"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

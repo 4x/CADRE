@@ -8,7 +8,7 @@ from pathlib import Path
 from test_support import scratch_directory
 import unittest
 
-from connected_models.contracts import AMOUNT, AREA, CHARGE, CONDUCTANCE, CONDUCTIVITY, CURRENT, DIMENSIONLESS, ENERGY, INVERSE_MONEY, INVERSE_TEMPERATURE, INVERSE_TIME, LENGTH, MASS, MASS_DENSITY, MEANINGS, MONEY, POWER, RESISTANCE, RESISTIVITY, SPECIFIC_ENERGY, SPECIFIC_HEAT, TEMPERATURE, THERMAL_RESISTANCE_AREA, TIME, UNITS, VOLTAGE, VOLUME, Composition, ModelError, Node, Port, Reference, Value
+from connected_models.contracts import AMOUNT, AREA, AREAL_DENSITY, CHARGE, CONDUCTANCE, CONDUCTIVITY, CURRENT, DIMENSIONLESS, ENERGY, INVERSE_MONEY, INVERSE_TEMPERATURE, INVERSE_TIME, LENGTH, MASS, MASS_DENSITY, MASS_FLOW, MEANINGS, MONEY, POWER, RESISTANCE, RESISTIVITY, SPECIFIC_ENERGY, SPECIFIC_HEAT, TEMPERATURE, THERMAL_RESISTANCE_AREA, TIME, UNITS, VOLTAGE, VOLUME, VOLUME_FLOW, Composition, ModelError, Node, Port, Reference, Value
 from connected_models.demo import ANNUAL, HEAT, RATE, SAVING, YEARS, catalog, composition, fixture
 from connected_models.runtime import execute, save_run
 
@@ -201,7 +201,24 @@ class RuntimeTests(unittest.TestCase):
                  "electrical_conductivity": ("S/m", CONDUCTIVITY),
                  "resistance_temperature_coefficient": ("K^-1", INVERSE_TEMPERATURE),
                  "time_averaged_electric_current": ("A", CURRENT),
-                 "net_transferred_electric_charge": ("C", CHARGE)}
+                 "net_transferred_electric_charge": ("C", CHARGE),
+                 "constituent_mass": ("kg", MASS),
+                 "solution_volume": ("m^3", VOLUME),
+                 "mass_concentration": ("kg/m^3", MASS_DENSITY),
+                 "postpartum_body_mass_retention": ("kg", MASS),
+                 "fractional_body_mass_decrease": ("1", DIMENSIONLESS),
+                 "mean_body_mass_change_rate": ("kg/s", MASS_FLOW),
+                 "mean_constituent_mass_infusion_rate": ("kg/s", MASS_FLOW),
+                 "mean_volumetric_infusion_rate": ("m^3/s", VOLUME_FLOW),
+                 "prescribed_drug_mass_per_administration": ("kg", MASS),
+                 "prescribed_drug_mass_per_body_surface_area": ("kg/m^2", AREAL_DENSITY),
+                 "serum_bun_creatinine_mass_ratio": ("1", DIMENSIONLESS),
+                 "serum_creatinine_mass_concentration": ("kg/m^3", MASS_DENSITY),
+                 "serum_urea_nitrogen_mass_concentration": ("kg/m^3", MASS_DENSITY),
+                 "body_surface_area": ("m^2", AREA),
+                 "calculated_mid_upper_arm_muscle_circumference": ("m", LENGTH),
+                 "mid_upper_arm_circumference": ("m", LENGTH),
+                 "triceps_skinfold_thickness": ("m", LENGTH)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)
@@ -268,6 +285,16 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(UNITS["mol"].dimensions, AMOUNT)
         with self.assertRaises(ModelError):
             Port("elapsed_time", "s", "test-context").validate()
+
+    def test_clinical_scales_close_concentration_and_infusion(self) -> None:
+        """Caret-spelled SI units share scales with their plain twins; laws close."""
+        self.assertEqual(UNITS["kg/m^3"].scale, UNITS["kg/m3"].scale)
+        self.assertEqual(UNITS["m^3"].scale, UNITS["m3"].scale)
+        self.assertAlmostEqual(UNITS["kg/m^3"].scale, UNITS["kg"].scale / UNITS["m^3"].scale)
+        self.assertAlmostEqual(UNITS["kg/s"].scale, UNITS["kg"].scale / UNITS["s"].scale)
+        self.assertAlmostEqual(UNITS["kg/m^2"].scale, UNITS["kg"].scale / UNITS["m^2"].scale)
+        self.assertAlmostEqual(UNITS["m^3/s"].scale, UNITS["m^3"].scale / UNITS["s"].scale)
+        self.assertAlmostEqual(UNITS["kg/m^3"].scale * UNITS["m^3/s"].scale, UNITS["kg/s"].scale)
 
     def test_revision_and_old_run_preservation(self) -> None:
         """New inputs and a compatible model revision leave earlier runs intact."""

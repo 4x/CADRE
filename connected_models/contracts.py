@@ -49,12 +49,15 @@ THERMAL_CONDUCTIVITY: Dimensions = _dims(1, 1, -3, 0, -1, 0, 0)
 STEFAN_BOLTZMANN: Dimensions = _dims(1, 0, -3, 0, -4, 0, 0)
 GRAVITATION: Dimensions = _dims(-1, 3, -2, 0, 0, 0, 0)
 PER_AMOUNT: Dimensions = _dims(0, 0, 0, 0, 0, 0, -1)
+AREAL_DENSITY: Dimensions = _dims(1, -2, 0, 0, 0, 0, 0)
+MASS_FLOW: Dimensions = _dims(1, 0, -1, 0, 0, 0, 0)
+VOLUME_FLOW: Dimensions = _dims(0, 3, -1, 0, 0, 0, 0)
 JOULES_PER_KWH = 3_600_000
 KCAL_IN_JOULES = 4_184
 SECONDS_PER_DAY = 86_400
 BTU_IN_JOULES = 1055.05585262
 KLEIBER_MASS_EXPONENT = Fraction(3, 4)
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1"
 DIMENSION_AXES = ("mass", "length", "time", "currency", "temperature", "current", "amount")
 NUMERICAL_BASIS = f"kWh, m, s, USD, K, A, mol; mass base = {JOULES_PER_KWH} kg"
 
@@ -198,6 +201,15 @@ UNITS = {
     "W/(m2*K^4)": Unit(STEFAN_BOLTZMANN, 1 / JOULES_PER_KWH),
     "m3/(kg*s^2)": Unit(GRAVITATION, JOULES_PER_KWH),
     "1/mol": Unit(PER_AMOUNT, 1.0),
+    # Clinical batch (clinical-1): concentration, dosing and infusion units in
+    # curator SI spellings. kg/m^3 and m^3 duplicate canonical kg/m3 and m3
+    # (the latter pinned by an admitted record); machine spellings are all
+    # canonical, query aliases serve natural language only.
+    "kg/m^3": Unit(MASS_DENSITY, 1 / JOULES_PER_KWH),
+    "m^3": Unit(VOLUME, 1.0),
+    "m^3/s": Unit(VOLUME_FLOW, 1.0),
+    "kg/m^2": Unit(AREAL_DENSITY, 1 / JOULES_PER_KWH),
+    "kg/s": Unit(MASS_FLOW, 1 / JOULES_PER_KWH),
 }
 
 
@@ -557,6 +569,26 @@ MEANINGS = {
     "resistance_temperature_coefficient": INVERSE_TEMPERATURE,
     "time_averaged_electric_current": CURRENT,
     "net_transferred_electric_charge": CHARGE,
+    # Clinical-1: concentration, infusion, dosing and anthropometric meanings
+    # for reviewed codex b04/b05/b06 admittables. Curator quantity IDs adopted
+    # verbatim.
+    "constituent_mass": MASS,
+    "solution_volume": VOLUME,
+    "mass_concentration": MASS_DENSITY,
+    "postpartum_body_mass_retention": MASS,
+    "fractional_body_mass_decrease": DIMENSIONLESS,
+    "mean_body_mass_change_rate": MASS_FLOW,
+    "mean_constituent_mass_infusion_rate": MASS_FLOW,
+    "mean_volumetric_infusion_rate": VOLUME_FLOW,
+    "prescribed_drug_mass_per_administration": MASS,
+    "prescribed_drug_mass_per_body_surface_area": AREAL_DENSITY,
+    "serum_bun_creatinine_mass_ratio": DIMENSIONLESS,
+    "serum_creatinine_mass_concentration": MASS_DENSITY,
+    "serum_urea_nitrogen_mass_concentration": MASS_DENSITY,
+    "body_surface_area": AREA,
+    "calculated_mid_upper_arm_muscle_circumference": LENGTH,
+    "mid_upper_arm_circumference": LENGTH,
+    "triceps_skinfold_thickness": LENGTH,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

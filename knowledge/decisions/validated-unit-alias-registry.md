@@ -44,6 +44,16 @@ rejects with a clear error.
 ## Rationale
 
 
+## Amendment 2026-11-03: machine spellings are canonical
+
+Wave-3 intake corrected the migration rule: aliases serve QUERY spellings
+(natural language), but record ports require exact canonical strings, so
+curator round-trips for SI spelling variants (kg/m^3 vs kg/m3) cost more
+than a one-line canonical entry. Rule now: unambiguous machine SI
+spellings all become canonical units sharing dims/scale; natural-language
+variants enter as aliases. kg/m^3 and m^3 admitted as canonical under
+runtime 0.24.0 (m3 was already pinned by an admitted record).
+
 ## Consequences
 
 - Fixed latent misresolution: uppercase canonicals without lowercase

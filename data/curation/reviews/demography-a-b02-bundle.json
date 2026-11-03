@@ -1,0 +1,700 @@
+{
+  "batch_id": "demography-a-b02",
+  "created": "2026-11-03",
+  "curator": "muse-spark",
+  "deferred": [
+    {
+      "reason": "Valuable adjacent discovery but excluded: doubling time needs exponential/log form. PRB defines doubling time as years for a population to double at the current growth rate. Continuation priority: locate a primary exponential-form equation source and curate with requires-extension for log.",
+      "source_urls": [
+        "https://www.prb.org/resource/glossary/",
+        "https://openstax.org/books/introduction-sociology-3e/pages/20-1-demography-and-population"
+      ],
+      "title": "Population doubling time from growth rate (exponential form)"
+    },
+    {
+      "reason": "Excluded by boundaries: age-specific schedules and life tables are never computed from raw schedules here (no arrays) and projection/stable-population theory is out of scope. PRB lists cohort and age-specific-rate concepts; Hageman discusses age-specific fertility/mortality dependence. Continuation priority: curate only supplied scalar aggregates or defer schedule tables as unsupported.",
+      "source_urls": [
+        "https://www.prb.org/resource/glossary/",
+        "https://ecampusontario.pressbooks.pub/demographyandeconomics/chapter/demographic-data/"
+      ],
+      "title": "Life tables and age-specific schedules (arrays/projection, out of scope)"
+    }
+  ],
+  "domain": "demography",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "New meanings used here (natural_increase_rate, youth_dependency_ratio, old_age_dependency_ratio, net_migration_period_count) are absent from the supplied runtime vocabulary; all four records use requires-extension.",
+      "Duplicate search limited to supplied catalog-inventory (no demography records) plus batches b01/b02 in this workspace; b02 checks overlap against b01 IDs, equations, quantity definitions and scope (CBR/CDR/TDR/balance) rather than minting rearranged clones.",
+      "No archive, credential or verbatim dataset is included; short paraphrases plus synthetic checks only."
+    ],
+    "queries": [],
+    "review_notes": "To be validated with: uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation validate returns/demography-a-b02/bundle.json, then pack and revalidate the ZIP. Hand arithmetic: RNI 18.5-9.5=9.0, 12-14=-2.0, 10-10=0; YDR 100*20/70=28.57142857142857, 100*30/80=37.5, 0-case=0; ODR 100*15/70=21.42857142857143, 100*30/80=37.5, 0-case=0; M 5000-3000=2000, 1000-4000=-3000, 0-case=0. Source fidelity reviewed against World Bank RNI sentences, World Bank DPND methodology, Eurostat natural-change/net-migration definitions, Hageman per-component forms and PRB glossary entries. Central approval, broad reconciliation and legal clearance remain for review.",
+    "summary": "Batch b02 continues the demography queue: natural increase rate from crude rates, youth and old-age dependency splits (components of the b01 total), and net migration count. All scalar and accounting-only, with signed scopes where the sources support decrease/net outflow. Sources inspected 2026-11-03: World Bank CBR/CDR/DPND glossaries, Eurostat demo_gind (27 July 2026), Hageman ch.3, PRB glossary (2 Oct 2020), OpenStax Sociology 3e s20.1."
+  },
+  "kit_version": "2026-10-31.6",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: CBR and CDR are same-period crude rates on the same per-1000 base and reference population (World Bank RNI sentence; Eurostat crude-rates paragraph).",
+        "Application profile: RNI equals the rate of population change in the absence of migration (World Bank statistical concepts); with migration present it is one component, not total growth.",
+        "Source assumption: inputs are period accounting rates, not forecasts; no exponential or projection machinery is used."
+      ],
+      "constants": [],
+      "guards": [
+        "CBR >= 0",
+        "CDR >= 0"
+      ],
+      "id": "demography--natural-increase-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New meaning natural_increase_rate is absent from the supplied runtime vocabulary; extension required.",
+          "Per-1000 convention is inherited from the CBR/CDR inputs with no added scaling literal; output unit 1 matches inputs.",
+          "This record complements, not duplicates, demography--population-balance@r1 (rate view versus count identity) and the b01 CBR/CDR definitions."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Forward solves RNI from CBR and CDR. Inverses: CBR = RNI + CDR needs RNI and CDR; CDR = CBR - RNI needs CBR and RNI. No division, so no singularities; nonnegativity guards on CBR/CDR persist (e.g. RNI = 9 with CDR = 9.5 gives CBR = 18.5, matching reference rni-ordinary; RNI = -2 with CBR = 12 gives CDR = 14). Substitution checks pass. Signed RNI is meaningful (natural decrease); algebraic inversion implies no causality.",
+      "kind": "definition",
+      "limitations": [
+        "Covers natural change only: in the presence of migration, RNI is not the total growth rate (World Bank: equal to change in the absence of migration).",
+        "Inherits crude-rate limits: no age-structure adjustment, so cross-population comparison needs care (World Bank/Hageman).",
+        "Rate inputs are not defaults: no fixed CBR/CDR value is reused as a default."
+      ],
+      "references": [
+        {
+          "expected": 9,
+          "id": "rni-ordinary",
+          "inputs": {
+            "CBR": 18.5,
+            "CDR": 9.5
+          },
+          "method": "Direct subtraction: 18.5 - 9.5 = 9.0 per 1000; ordinary natural-increase case.",
+          "provenance": "Independent elementary arithmetic check with synthetic rates; no observed population claimed.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": -2,
+          "id": "rni-natural-decrease",
+          "inputs": {
+            "CBR": 12,
+            "CDR": 14
+          },
+          "method": "Direct subtraction with signed outcome: 12 - 14 = -2.0 per 1000 (natural decrease, supported by Eurostat natural-decrease definition).",
+          "provenance": "Independent elementary arithmetic check with synthetic rates demonstrating the signed scope.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "rni-zero",
+          "inputs": {
+            "CBR": 10,
+            "CDR": 10
+          },
+          "method": "Zero-change identity: 10 - 10 = 0 for any equal-rate pair.",
+          "provenance": "Definitional boundary check; not an empirical validation.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "CBR": -1,
+            "CDR": 9.5
+          },
+          "kind": "domain",
+          "reason": "Negative crude birth rate violates CBR >= 0; a negative vital rate input is scientifically excluded."
+        },
+        {
+          "inputs": {
+            "CBR": 18.5
+          },
+          "kind": "missing-input",
+          "reason": "RNI needs both crude rates; omitting CDR leaves the CBR-minus-CDR difference undefined."
+        }
+      ],
+      "relationship": {
+        "expression": "CBR - CDR",
+        "locator": "World Bank CBR/CDR glossary statistical-concepts sentences (subtracting CDR from CBR gives the rate of natural increase); corroborated by Eurostat demo_gind section 3.4 (natural change = births minus deaths) and Hageman natural-increase definition.",
+        "original_equation": "RNI = CBR − CDR (rate of natural increase equals crude birth rate minus crude death rate, per 1000)",
+        "output_symbol": "RNI",
+        "source_id": "worldbank-cbr-glossary",
+        "translation_notes": "CBR/CDR map the b01 crude-rate outputs on the same per-1000 scale for the same period and reference population, so no new scaling literal is added. Dimensional check: per-1000 rate minus per-1000 rate = per-1000 rate (dimensionless on the conventional scale, unit 1). The count-level counterpart (B - D) is kept in the population-balance record; this record is the rate view. Signed output is deliberate: Eurostat defines natural decrease when deaths exceed births."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Methodology paraphrased: subtracting the crude death rate from the crude birth rate provides the rate of natural increase, equal to population change without migration; CBR is births over average (mid-year) population per 1000.",
+          "id": "worldbank-cbr-glossary",
+          "kind": "primary",
+          "license": "World Bank Data Catalog default CC BY-4.0: https://datacatalog.worldbank.org/public-licenses#cc-by (Creative Commons Attribution 4.0 section), accessed 2026-11-03; glossary page shows CC BY-4.0 footer.",
+          "locator": "Glossary page SP.DYN.CBRT.IN, Methodology and Statistical concepts sections",
+          "redistribution": "Retains only this short paraphrase and synthetic checks; nothing else copied.",
+          "title": "World Bank DataBank glossary: Birth rate, crude (per 1,000 people), SP.DYN.CBRT.IN (UN WPP source)",
+          "url": "https://databank.worldbank.org/metadataglossary/gender-statistics/series/SP.DYN.CBRT.IN",
+          "version": "Metadata viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Methodology paraphrased: CDR is deaths over mid-year exposed population per 1000; the same RNI sentence appears (CBR minus CDR).",
+          "id": "worldbank-cdr-glossary",
+          "kind": "primary",
+          "license": "World Bank Data Catalog default CC BY-4.0: https://datacatalog.worldbank.org/public-licenses#cc-by, accessed 2026-11-03; glossary page shows CC BY-4.0 footer.",
+          "locator": "Glossary page SP.DYN.CDRT.IN, Methodology and Statistical concepts sections",
+          "redistribution": "Retains only this short paraphrase and synthetic checks; nothing else copied.",
+          "title": "World Bank DataBank glossary: Death rate, crude (per 1,000 people), SP.DYN.CDRT.IN (UN WPP source)",
+          "url": "https://databank.worldbank.org/metadataglossary/world-development-indicators/series/SP.DYN.CDRT.IN",
+          "version": "Metadata viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Reference metadata paraphrased: natural change is births minus deaths (positive = natural increase, negative = natural decrease); crude rates are events over average population times 1000.",
+          "id": "eurostat-demo-gind",
+          "kind": "primary",
+          "license": "No license statement found on the inspected metadata page; terms treated as unknown (accessed 2026-11-03). Only a short paraphrase and synthetic numbers retained.",
+          "locator": "Section 3.4: Natural change of population; Crude rates",
+          "redistribution": "Retains only this short paraphrase and synthetic checks; nothing else copied.",
+          "title": "Eurostat reference metadata demo_gind (27 July 2026)",
+          "url": "https://ec.europa.eu/eurostat/cache/metadata/en/demo_gind_esms.htm",
+          "version": "ESMS metadata demo_gind, 27 July 2026"
+        }
+      ],
+      "summary": "Rate of natural increase: crude birth rate minus crude death rate (per 1000); signed accounting rate, migration excluded.",
+      "title": "Natural increase rate from crude birth and death rates",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same reference population and period as CDR and RNI",
+          "definition": "Crude birth rate for the period on the per-1000 scale",
+          "dimensions": "dimensionless (conventional per-1000 scaling)",
+          "domain": "Nonnegative finite rate on the per-1000 scale",
+          "quantity_id": "crude_birth_rate",
+          "role": "input",
+          "source_symbol": "CBR (source: crude birth rate)",
+          "symbol": "CBR",
+          "unit": "1"
+        },
+        {
+          "context": "same reference population and period as CBR and RNI",
+          "definition": "Crude death rate for the period on the per-1000 scale",
+          "dimensions": "dimensionless (conventional per-1000 scaling)",
+          "domain": "Nonnegative finite rate on the per-1000 scale",
+          "quantity_id": "crude_death_rate",
+          "role": "input",
+          "source_symbol": "CDR (source: crude death rate)",
+          "symbol": "CDR",
+          "unit": "1"
+        },
+        {
+          "context": "same reference population and period as CBR and CDR",
+          "definition": "Rate of natural increase: CBR minus CDR per 1000 persons (negative = natural decrease)",
+          "dimensions": "dimensionless (conventional per-1000 scaling)",
+          "domain": "Finite signed rate on the per-1000 scale",
+          "quantity_id": "natural_increase_rate",
+          "role": "output",
+          "source_symbol": "rate of natural increase (source: rate of natural increase)",
+          "symbol": "RNI",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: age bands are 0-14 (youth) and 15-64 (working age) in the same reference population and date (World Bank DPND; PRB under-15 versus 15-64).",
+        "Application profile: inputs are supplied aggregates with stated scope, never computed from raw age schedules here (no arrays).",
+        "Source assumption: the split describes age composition only; child-dependency burden is not economic dependency (World Bank/PRB caveat)."
+      ],
+      "constants": [
+        {
+          "literal": 100,
+          "locator": "Methodology: calculated as 100 x (Population (0-14) + Population (65+)) / Population (15-64); youth component uses the same per-100 base.",
+          "meaning": "Conventional dependency base: youth dependents per 100 working-age persons",
+          "source_id": "worldbank-dependency-glossary",
+          "unit": "1"
+        }
+      ],
+      "guards": [
+        "W > 0",
+        "Y >= 0"
+      ],
+      "id": "demography--youth-dependency-ratio",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New meanings youth_dependency_ratio, youth_dependent_population and working_age_population are absent from the supplied vocabulary; extension required.",
+          "Per-100 convention carried by explicit ×100 with output unit 1; must not be double-counted by a future percent scale.",
+          "Component of demography--total-dependency-ratio@r1 (Y/(Y+O) split); kept as an independently reusable ratio, not a rearranged clone: different output meaning and two-input form."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Forward solves YDR from Y and W. Inverses: Y = YDR * W / 100 needs YDR and W with W > 0; W = 100 * Y / YDR needs YDR > 0 (YDR = 0 with Y = 0 leaves W underdetermined; YDR = 0 with Y > 0 is inconsistent). Substitution check: YDR = 28.57142857142857 with W = 70 gives Y = 20, matching reference ydr-ordinary. Guards persist; Y >= 0 retained.",
+      "kind": "definition",
+      "limitations": [
+        "Age composition only, not economic dependency (World Bank/PRB caveat).",
+        "Elderly structure is excluded here by design; use the old-age split or the b01 total for the full burden.",
+        "Five-year-cohort interpolation limits apply when inputs come from UN WPP estimates (World Bank note)."
+      ],
+      "references": [
+        {
+          "expected": 28.57142857142857,
+          "id": "ydr-ordinary",
+          "inputs": {
+            "W": 70,
+            "Y": 20
+          },
+          "method": "Direct arithmetic: 100 * 20 / 70 = 28.57142857142857 youth dependents per 100 working-age.",
+          "provenance": "Independent elementary arithmetic check with synthetic stocks.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 37.5,
+          "id": "ydr-higher",
+          "inputs": {
+            "W": 80,
+            "Y": 30
+          },
+          "method": "Direct arithmetic materially different: 100 * 30 / 80 = 37.5.",
+          "provenance": "Independent elementary arithmetic check with synthetic stocks.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "ydr-zero",
+          "inputs": {
+            "W": 100,
+            "Y": 0
+          },
+          "method": "No-youth limiting identity: 100 * 0 / 100 = 0 for any admissible W.",
+          "provenance": "Definitional boundary check; not empirical.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "W": 0,
+            "Y": 20
+          },
+          "kind": "domain",
+          "reason": "Zero working-age population violates W > 0; the ratio is undefined and rejected, never divided."
+        },
+        {
+          "inputs": {
+            "W": 70
+          },
+          "kind": "missing-input",
+          "reason": "The youth ratio needs both the youth aggregate and the working-age denominator; omitting Y leaves it undefined."
+        }
+      ],
+      "relationship": {
+        "expression": "100 * Y / W",
+        "locator": "World Bank DPND methodology youth term (100 x youth-plus-elderly over working-age) restricted to the youth component; corroborated by PRB child-dependency illustration (0.45 means 45 per 100).",
+        "original_equation": "Youth dependency ratio = 100 × Population (0-14) / Population (15-64)",
+        "output_symbol": "YDR",
+        "source_id": "worldbank-dependency-glossary",
+        "translation_notes": "Y maps Population (0-14); W maps Population (15-64). This is the youth component of the b01 total: TDR = YDR + ODR holds algebraically when inputs match, but it is curated as its own reusable ratio with its own output meaning. The literal 100 is the conventional per-100 base, not a registry percent conversion (units person scale 1, output unit 1). Dimensional check: person / person dimensionless, times pure number stays dimensionless on the per-100 scale."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Methodology paraphrased: age dependency is 100 times youth-plus-elderly over working-age (0-14, 65+, 15-64), shown per 100 working-age; ratios show age burden, not economic dependency.",
+          "id": "worldbank-dependency-glossary",
+          "kind": "primary",
+          "license": "World Bank Data Catalog default CC BY-4.0: https://datacatalog.worldbank.org/public-licenses#cc-by, accessed 2026-11-03; glossary page shows CC BY-4.0 footer.",
+          "locator": "Glossary page SP.POP.DPND, definition and Methodology lines",
+          "redistribution": "Retains only this short paraphrase and synthetic checks; nothing else copied.",
+          "title": "World Bank DataBank glossary: Age dependency ratio, SP.POP.DPND (UN Population Division source)",
+          "url": "https://databank.worldbank.org/metadataglossary/world-development-indicators/series/SP.POP.DPND",
+          "version": "Metadata viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Glossary paraphrased: dependency ratio is under-15 plus 65-and-older over 15-64, with a 0.45-means-45-per-100 child illustration.",
+          "id": "prb-glossary",
+          "kind": "primary",
+          "license": "No license statement recorded from the inspected page; terms treated as unknown (accessed 2026-11-03). Only short paraphrases and synthetic numbers retained.",
+          "locator": "Entries: Dependency Ratio; Age-Dependency Ratio",
+          "redistribution": "Retains only this short paraphrase and synthetic checks; nothing else copied.",
+          "title": "Population Reference Bureau glossary (2 Oct 2020)",
+          "url": "https://www.prb.org/resource/glossary/",
+          "version": "Glossary viewed 2026-11-03"
+        }
+      ],
+      "summary": "Youth dependency ratio: population 0-14 per 100 working-age (15-64); age-composition component.",
+      "title": "Youth dependency ratio from youth and working-age populations",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same reference population and date as W and YDR",
+          "definition": "Youth dependent population ages 0-14",
+          "dimensions": "population",
+          "domain": "Nonnegative finite persons; zero admits no youth dependents",
+          "quantity_id": "youth_dependent_population",
+          "role": "input",
+          "source_symbol": "Population (0-14) (source: youth / under 15)",
+          "symbol": "Y",
+          "unit": "person"
+        },
+        {
+          "context": "same reference population and date as Y and YDR",
+          "definition": "Working-age population ages 15-64",
+          "dimensions": "population",
+          "domain": "Positive finite persons; zero rejected",
+          "quantity_id": "working_age_population",
+          "role": "input",
+          "source_symbol": "Population (15-64) (source: working-age population)",
+          "symbol": "W",
+          "unit": "person"
+        },
+        {
+          "context": "same reference population and date as Y and W",
+          "definition": "Youth dependency ratio: youth dependents per 100 working-age persons",
+          "dimensions": "dimensionless (conventional per-100 scaling)",
+          "domain": "Nonnegative finite ratio on the per-100 scale",
+          "quantity_id": "youth_dependency_ratio",
+          "role": "output",
+          "source_symbol": "youth / child dependency ratio (source: age dependency ratio, youth component)",
+          "symbol": "YDR",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: age bands are 65+ (elderly) and 15-64 (working age) in the same reference population and date (World Bank DPND; PRB 65-and-older versus 15-64).",
+        "Application profile: inputs are supplied aggregates with stated scope, never computed from raw age schedules here (no arrays).",
+        "Source assumption: the split describes age composition only, not economic dependency (World Bank/PRB caveat)."
+      ],
+      "constants": [
+        {
+          "literal": 100,
+          "locator": "Methodology: calculated as 100 x (Population (0-14) + Population (65+)) / Population (15-64); elderly component uses the same per-100 base.",
+          "meaning": "Conventional dependency base: elderly dependents per 100 working-age persons",
+          "source_id": "worldbank-dependency-glossary",
+          "unit": "1"
+        }
+      ],
+      "guards": [
+        "W > 0",
+        "O >= 0"
+      ],
+      "id": "demography--old-age-dependency-ratio",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New meanings old_age_dependency_ratio, elderly_dependent_population and working_age_population are absent from the supplied vocabulary; extension required.",
+          "Per-100 convention carried by explicit ×100 with output unit 1; must not be double-counted by a future percent scale.",
+          "Component of demography--total-dependency-ratio@r1 (O/(Y+O) split); independent ratio with its own output meaning, not a rearranged clone."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Forward solves ODR from O and W. Inverses: O = ODR * W / 100 needs ODR and W with W > 0; W = 100 * O / ODR needs ODR > 0 (ODR = 0 with O = 0 leaves W underdetermined; ODR = 0 with O > 0 is inconsistent). Substitution check: ODR = 21.42857142857143 with W = 70 gives O = 15, matching reference odr-ordinary. Guards persist; O >= 0 retained.",
+      "kind": "definition",
+      "limitations": [
+        "Age composition only, not economic dependency (World Bank/PRB caveat).",
+        "Youth structure is excluded here by design; use the youth split or the b01 total for the full burden.",
+        "Five-year-cohort interpolation limits apply when inputs come from UN WPP estimates (World Bank note)."
+      ],
+      "references": [
+        {
+          "expected": 21.42857142857143,
+          "id": "odr-ordinary",
+          "inputs": {
+            "O": 15,
+            "W": 70
+          },
+          "method": "Direct arithmetic: 100 * 15 / 70 = 21.42857142857143 elderly dependents per 100 working-age.",
+          "provenance": "Independent elementary arithmetic check with synthetic stocks.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 37.5,
+          "id": "odr-higher",
+          "inputs": {
+            "O": 30,
+            "W": 80
+          },
+          "method": "Direct arithmetic materially different: 100 * 30 / 80 = 37.5.",
+          "provenance": "Independent elementary arithmetic check with synthetic stocks.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "odr-zero",
+          "inputs": {
+            "O": 0,
+            "W": 100
+          },
+          "method": "No-elderly limiting identity: 100 * 0 / 100 = 0 for any admissible W.",
+          "provenance": "Definitional boundary check; not empirical.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "O": 15,
+            "W": 0
+          },
+          "kind": "domain",
+          "reason": "Zero working-age population violates W > 0; the ratio is undefined and rejected, never divided."
+        },
+        {
+          "inputs": {
+            "W": 70
+          },
+          "kind": "missing-input",
+          "reason": "The old-age ratio needs both the elderly aggregate and the working-age denominator; omitting O leaves it undefined."
+        }
+      ],
+      "relationship": {
+        "expression": "100 * O / W",
+        "locator": "World Bank DPND methodology elderly term (100 x youth-plus-elderly over working-age) restricted to the elderly component; corroborated by PRB dependency entries.",
+        "original_equation": "Old-age dependency ratio = 100 × Population (65+) / Population (15-64)",
+        "output_symbol": "ODR",
+        "source_id": "worldbank-dependency-glossary",
+        "translation_notes": "O maps Population (65+); W maps Population (15-64). This is the elderly component of the b01 total: TDR = YDR + ODR holds algebraically when inputs match, but it is curated as its own reusable ratio with its own output meaning. The literal 100 is the conventional per-100 base, not a registry percent conversion (units person scale 1, output unit 1). Dimensional check: person / person dimensionless, times pure number stays dimensionless on the per-100 scale."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Methodology paraphrased: age dependency is 100 times youth-plus-elderly over working-age (0-14, 65+, 15-64), shown per 100 working-age; ratios show age burden, not economic dependency.",
+          "id": "worldbank-dependency-glossary",
+          "kind": "primary",
+          "license": "World Bank Data Catalog default CC BY-4.0: https://datacatalog.worldbank.org/public-licenses#cc-by, accessed 2026-11-03; glossary page shows CC BY-4.0 footer.",
+          "locator": "Glossary page SP.POP.DPND, definition and Methodology lines",
+          "redistribution": "Retains only this short paraphrase and synthetic checks; nothing else copied.",
+          "title": "World Bank DataBank glossary: Age dependency ratio, SP.POP.DPND (UN Population Division source)",
+          "url": "https://databank.worldbank.org/metadataglossary/world-development-indicators/series/SP.POP.DPND",
+          "version": "Metadata viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Glossary paraphrased: dependency ratio is under-15 plus 65-and-older over 15-64; same page defines doubling time and the balancing equation.",
+          "id": "prb-glossary",
+          "kind": "primary",
+          "license": "No license statement recorded from the inspected page; terms treated as unknown (accessed 2026-11-03). Only short paraphrases and synthetic numbers retained.",
+          "locator": "Entries: Dependency Ratio; Age-Dependency Ratio",
+          "redistribution": "Retains only this short paraphrase and synthetic checks; nothing else copied.",
+          "title": "Population Reference Bureau glossary (2 Oct 2020)",
+          "url": "https://www.prb.org/resource/glossary/",
+          "version": "Glossary viewed 2026-11-03"
+        }
+      ],
+      "summary": "Old-age dependency ratio: population 65+ per 100 working-age (15-64); age-composition component.",
+      "title": "Old-age dependency ratio from elderly and working-age populations",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same reference population and date as W and ODR",
+          "definition": "Elderly dependent population ages 65 and over",
+          "dimensions": "population",
+          "domain": "Nonnegative finite persons; zero admits no elderly dependents",
+          "quantity_id": "elderly_dependent_population",
+          "role": "input",
+          "source_symbol": "Population (65+) (source: elderly / over 64)",
+          "symbol": "O",
+          "unit": "person"
+        },
+        {
+          "context": "same reference population and date as O and ODR",
+          "definition": "Working-age population ages 15-64",
+          "dimensions": "population",
+          "domain": "Positive finite persons; zero rejected",
+          "quantity_id": "working_age_population",
+          "role": "input",
+          "source_symbol": "Population (15-64) (source: working-age population)",
+          "symbol": "W",
+          "unit": "person"
+        },
+        {
+          "context": "same reference population and date as O and W",
+          "definition": "Old-age dependency ratio: elderly dependents per 100 working-age persons",
+          "dimensions": "dimensionless (conventional per-100 scaling)",
+          "domain": "Nonnegative finite ratio on the per-100 scale",
+          "quantity_id": "old_age_dependency_ratio",
+          "role": "output",
+          "source_symbol": "old-age dependency ratio (source: age dependency ratio, elderly component)",
+          "symbol": "ODR",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: I and E count the same reference area, residency definition and period (immigrants/inflows versus emigrants/outflows during year T; Eurostat net migration definition).",
+        "Application profile: published net-migration-plus-adjustment residuals are excluded here; M is measured I minus E, with any statistical adjustment disclosed separately (Eurostat caveat).",
+        "Source assumption: each migration event changes the usually-resident stock by one person; the count identity feeds the b01 balance as M = I - E."
+      ],
+      "constants": [],
+      "guards": [
+        "I >= 0",
+        "E >= 0"
+      ],
+      "id": "demography--net-migration-count",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New meaning net_migration_period_count is absent from the supplied vocabulary; extension required.",
+          "This count complements demography--population-balance@r1 (M enters P1 = P0 + B - D + M) without duplicating it: different output meaning and two-input form.",
+          "Time aggregation stays in supplied period flows; no physical-time conversion."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Forward solves net migration M from I and E. Inverses: I = M + E needs M and E; E = I - M needs I and M. No division, so no singularities; nonnegativity guards on I/E persist (e.g. M = 2000 with E = 3000 gives I = 5000, matching reference migration-inflow; M = -3000 with I = 1000 gives E = 4000). Signed M is meaningful (net outflow); algebraic inversion implies no causality.",
+      "kind": "definition",
+      "limitations": [
+        "Measured flows only: Eurostat net-migration-plus-adjustment can bundle coverage error with I - E, and Hageman notes emigration must often be inferred; residuals are outside this identity.",
+        "Explains nothing by itself: separating accounting from causal or forecast claims about why migration took the supplied values.",
+        "Counts are not defaults: no fixed migration value is reused as a default input."
+      ],
+      "references": [
+        {
+          "expected": 2000,
+          "id": "migration-inflow",
+          "inputs": {
+            "E": 3000,
+            "I": 5000
+          },
+          "method": "Direct subtraction: 5000 - 3000 = 2000 net inflow.",
+          "provenance": "Independent elementary arithmetic check with synthetic flows.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": -3000,
+          "id": "migration-outflow",
+          "inputs": {
+            "E": 4000,
+            "I": 1000
+          },
+          "method": "Direct subtraction with signed outcome: 1000 - 4000 = -3000 net outflow (supported by net-migration sign convention).",
+          "provenance": "Independent elementary arithmetic check demonstrating the signed scope.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "migration-zero",
+          "inputs": {
+            "E": 0,
+            "I": 0
+          },
+          "method": "Zero-flow identity: 0 - 0 = 0.",
+          "provenance": "Definitional boundary check; not empirical.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "E": 3000,
+            "I": -5
+          },
+          "kind": "domain",
+          "reason": "Negative immigration violates I >= 0; a negative migrant-event count is scientifically excluded."
+        },
+        {
+          "inputs": {
+            "I": 5000
+          },
+          "kind": "missing-input",
+          "reason": "Net migration needs both inflows and outflows; omitting E leaves I - E undefined."
+        }
+      ],
+      "relationship": {
+        "expression": "I - E",
+        "locator": "Eurostat demo_gind section 3.4 (net migration is immigrants minus emigrants) plus Hageman ch.3 (net migration is immigrants minus emigrants); PRB Balancing Equation entry lists the same components.",
+        "original_equation": "M = I − E (net migration equals immigration/inflows minus emigration/outflows in the period)",
+        "output_symbol": "M",
+        "source_id": "eurostat-demo-gind",
+        "translation_notes": "I maps immigrants/inflows and E maps emigrants/outflows for the same area, residency and period. No scaling literal and no unit conversion: canonical unit is person (scale 1) for every flow, each event counting one usually-resident person. Dimensional check: population − population = population. Signed output is deliberate (negative = net outflow). This two-input count is the migration arm of the b01 balance P1 = P0 + B - D + M."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Reference metadata paraphrased: net migration is immigrants minus emigrants; the plus-adjustment variant is the residual of change minus natural change and can bundle coverage error.",
+          "id": "eurostat-demo-gind",
+          "kind": "primary",
+          "license": "No license statement found on the inspected metadata page; terms treated as unknown (accessed 2026-11-03). Only a short paraphrase and synthetic numbers retained.",
+          "locator": "Section 3.4: Net migration plus statistical adjustment",
+          "redistribution": "Retains only this short paraphrase and synthetic checks; nothing else copied.",
+          "title": "Eurostat reference metadata demo_gind (27 July 2026)",
+          "url": "https://ec.europa.eu/eurostat/cache/metadata/en/demo_gind_esms.htm",
+          "version": "ESMS metadata demo_gind, 27 July 2026"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Chapter box paraphrased: yearly growth is births minus deaths plus immigration minus emigration; net migration is immigrants minus emigrants in the same period.",
+          "id": "hageman-demographic-data",
+          "kind": "primary",
+          "license": "Pressbooks book page attributes CC BY 4.0 to Demography and Economics by Anya Hageman (researcher-verified footer 2026-11-03; re-verify at review). Only a short paraphrase and synthetic numbers retained.",
+          "locator": "Chapter 3 Demographic Data: fundamental-equation box and net-migration sentence",
+          "redistribution": "Retains only this short paraphrase and synthetic checks; nothing else copied.",
+          "title": "Anya Hageman, Demography and Economics, Chapter 3 (eCampusOntario, 2024)",
+          "url": "https://ecampusontario.pressbooks.pub/demographyandeconomics/chapter/demographic-data/",
+          "version": "Pressbooks chapter viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Glossary paraphrased: the balancing equation includes births, deaths, immigration, emigration and in/out-migration components.",
+          "id": "prb-glossary",
+          "kind": "primary",
+          "license": "No license statement recorded from the inspected page; terms treated as unknown (accessed 2026-11-03). Only short paraphrases and synthetic numbers retained.",
+          "locator": "Entry: Balancing Equation",
+          "redistribution": "Retains only this short paraphrase and synthetic checks; nothing else copied.",
+          "title": "Population Reference Bureau glossary (2 Oct 2020)",
+          "url": "https://www.prb.org/resource/glossary/",
+          "version": "Glossary viewed 2026-11-03"
+        }
+      ],
+      "summary": "Net migration count: immigrants minus emigrants in the period; signed accounting flow feeding the balance.",
+      "title": "Net migration count from immigration and emigration",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same reference area, residency definition and period as E and M",
+          "definition": "Immigrants (in-migrants taking up usual residence) arriving during the reference period",
+          "dimensions": "population",
+          "domain": "Nonnegative finite flow in persons",
+          "quantity_id": "immigration_period_count",
+          "role": "input",
+          "source_symbol": "immigration (source: immigrants; inflows)",
+          "symbol": "I",
+          "unit": "person"
+        },
+        {
+          "context": "same reference area, residency definition and period as I and M",
+          "definition": "Emigrants (out-migrants leaving usual residence) departing during the reference period",
+          "dimensions": "population",
+          "domain": "Nonnegative finite flow in persons",
+          "quantity_id": "emigration_period_count",
+          "role": "input",
+          "source_symbol": "emigration (source: emigrants; outflows)",
+          "symbol": "E",
+          "unit": "person"
+        },
+        {
+          "context": "same reference area, residency definition and period as I and E",
+          "definition": "Net migration: immigrants minus emigrants (negative = net outflow)",
+          "dimensions": "population",
+          "domain": "Finite signed flow in persons",
+          "quantity_id": "net_migration_period_count",
+          "role": "output",
+          "source_symbol": "net migration (source: net migration)",
+          "symbol": "M",
+          "unit": "person"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

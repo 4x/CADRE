@@ -1,0 +1,292 @@
+{
+  "batch_id": "environmental-accounting-a-b04",
+  "created": "2026-11-03",
+  "curator": "buffy-spark",
+  "deferred": [
+    {
+      "reason": "Same factor identity as b01 M1; a renamed clone with identical expression is not new coverage. GHGI Table 1 lists energy/volume EF units (kg CO2 per Btu/MJ, per scf/m3, per gallon/L) but curating them needs fuel-specific primary calibration evidence (e.g. IPCC default EFs in kg/TJ with carbon-content documentation), not a unit relabel. Continuation priority: IPCC 2006 Guidelines Vol.2 Ch.2 sectoral defaults with stated fuel carbon contents.",
+      "source_urls": [
+        "https://ghginstitute.org/2022/10/31/what-are-emission-factors-and-where-can-i-find-them/"
+      ],
+      "title": "Energy- and volume-basis emission factor forms (need fuel-specific calibration)"
+    },
+    {
+      "reason": "GTP measures temperature change at the end of the horizon (needs climate-sensitivity and ocean-heat-uptake modeling), unlike GWP's integrated forcing; not expressible as a scalar product of inventory masses. Record only with a primary endpoint-metric methodology source.",
+      "source_urls": [
+        "https://www.epa.gov/ghgemissions/understanding-global-warming-potentials"
+      ],
+      "title": "Global Temperature Potential endpoint metric (needs climate-response modeling)"
+    }
+  ],
+  "domain": "environmental-accounting",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "New quantity meanings: 20-year-horizon CO2e/gas roles, recycled-only rate role; ledger mass unit t shared with b01. Scalar forms fit the engine once meanings exist.",
+      "Duplicate search limited to the catalog snapshot and batches b01-b04; the GWP20 record is horizon-distinct from the b01 GWP100 record (never interchangeable) and the recycling-only rate is a published subset headline distinct from the combined 32.1% rate."
+    ],
+    "queries": [],
+    "review_notes": "Checks performed: curation validate (schema/grammar/arithmetic/guards); 4 references; 2 domain rejections; inverse notes; prose-vs-locator fidelity; canonical-units review (no inlined conversions). Not performed: central scientific review, lab replication, PDF page verification, legal clearance beyond recorded terms.",
+    "summary": "Batch b04 (2 models): (12) CO2-equivalent on the 20-year horizon (CF4 AR6 values, explicitly not interchangeable with GWP100) and (13) recycling-only rate (69 Mt of 292.4 Mt, 23.6%) as a published subset headline distinct from the combined recycling-and-composting rate. Energy/volume EF bases and GTP endpoint metrics deferred with exact sources."
+  },
+  "kit_version": "2026-10-31.6",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: GWP20 is the integrated radiative forcing over 20 years versus 1 kg CO2 (EPA GWP page; IPCC-TFI FAQ horizon concept); CF4 values are Sixth Assessment estimates for a gas with a 50,000-year lifetime.",
+        "application profile: single-gas conversion at the 20-year horizon; multi-gas sums at GWP20 need horizon-consistent components and are a separate aggregation."
+      ],
+      "constants": [],
+      "guards": [
+        "Mgas >= 0",
+        "GWP >= 0"
+      ],
+      "id": "environmental-accounting--co2-equivalent-gwp20-from-gas-mass",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires new quantity meanings for 20-year-horizon gas mass, GWP20 index and GWP20-based CO2e; units kg and 1 exist. Horizon carried in context, never interchangeable with GWP100."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Mco2e with positive GWP determines Mgas = Mco2e / GWP; Mco2e with positive Mgas determines the implied GWP. GWP = 0 is only a zero-forcing idealization. Substitution checks: 10600 / 5300 = 2 recovers case cf4-large; 2650 / 5300 = 0.5 recovers case cf4-small. Algebraic only; GWP20 results must never be mixed with GWP100 inventories.",
+      "kind": "definition",
+      "limitations": [
+        "GWP20 prioritizes short-lived gases and must not be compared with, or substituted for, GWP100 results (CH4 81-83 at 20 years versus 27-30 at 100 years).",
+        "Excludes atmospheric physics, decay dynamics, discounting and offset claims."
+      ],
+      "references": [
+        {
+          "expected": 10600.0,
+          "id": "cf4-large",
+          "inputs": {
+            "GWP": 5300.0,
+            "Mgas": 2.0
+          },
+          "method": "EPA GWP page states CF4 has a 20-year GWP of 5300 (versus 7380 at 100 years); expected is independent multiplication 2 x 5300.",
+          "provenance": "Published factor combined with independent multiplication; the total is derived, not source-published.",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 2650.0,
+          "id": "cf4-small",
+          "inputs": {
+            "GWP": 5300.0,
+            "Mgas": 0.5
+          },
+          "method": "Same published CF4 GWP20 (5300) at a materially smaller mass; expected is independent multiplication 0.5 x 5300.",
+          "provenance": "Published factor combined with independent multiplication; the total is derived, not source-published.",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "GWP": 5300.0,
+            "Mgas": -1.0
+          },
+          "kind": "domain",
+          "reason": "Negative gas mass violates the nonnegative-mass accounting profile; removals need a separate sink definition."
+        }
+      ],
+      "relationship": {
+        "expression": "Mgas * GWP",
+        "locator": "FAQ 'Are there alternatives to the 100-year GWP for comparing GHGs?' (20-year versus 100-year framing with CH4 and CF4 worked comparisons)",
+        "original_equation": "CO2-equivalent (20-year horizon) = gas mass x GWP20 (stated gas and vintage)",
+        "output_symbol": "Mco2e",
+        "source_id": "epa-gwp-page",
+        "translation_notes": "Single-gas GWP20 specialization: Mgas in kg of stated gas, GWP dimensionless for the stated gas/20-year-horizon/vintage, Mco2e in kg CO2e(GWP20). Dimensional check: mass = mass x dimensionless. Horizon and vintage carried in context; no conversion inlined."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: the 20-year GWP uses energy absorbed over 20 years; shorter-horizon GWPs are larger for short-lived gases (CH4 100-year 27-30 versus 20-year 81-83) and smaller for very long-lived gases (CF4 100-year 7380 versus 20-year 5300; CF4 lifetime 50,000 years).",
+          "id": "epa-gwp-page",
+          "kind": "primary",
+          "license": "U.S. federal government public information; site terms at https://www.epa.gov/privacy/privacy-and-security-notice (accessed 2026-11-03); only a short paraphrase is used.",
+          "locator": "FAQ 'Are there alternatives to the 100-year GWP for comparing GHGs?'",
+          "redistribution": "Contains only a short original paraphrase and independent arithmetic checks; no copied text or data.",
+          "title": "Understanding Global Warming Potentials - US EPA",
+          "url": "https://www.epa.gov/ghgemissions/understanding-global-warming-potentials",
+          "version": "Page as accessed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase Q1-2-4: GWPs are the ratio of radiative forcing of 1 kg of gas to that of 1 kg CO2 over a stated period, with the precise horizon laid down for reporting (currently 100 years for UNFCCC; other horizons are separate applications).",
+          "id": "ipcc-tfi-faq",
+          "kind": "primary",
+          "license": "IPCC-TFI published FAQ; terms not verified on the accessed page (2026-11-03); only a short paraphrase is used.",
+          "locator": "FAQ Q1-2-4",
+          "redistribution": "Contains only a short original paraphrase; no copied text.",
+          "title": "FAQs - IPCC Task Force on National Greenhouse Gas Inventories",
+          "url": "https://www.ipcc-nggip.iges.or.jp/faq/faq.html",
+          "version": "Page as accessed 2026-11-03"
+        }
+      ],
+      "summary": "Single-gas CO2-equivalent on the 20-year horizon: emitted gas mass times its GWP20 for the stated vintage.",
+      "title": "CO2-equivalent (20-year horizon) from gas mass and GWP20",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same stated gas, 20-year horizon and assessment vintage (AR6 values used in references) as Mco2e",
+          "definition": "Mass of one stated greenhouse gas emitted over the accounting period",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg; zero admits the zero-equivalent boundary",
+          "quantity_id": "greenhouse_gas_mass",
+          "role": "input",
+          "source_symbol": "emissions of a gas (mass)",
+          "symbol": "Mgas",
+          "unit": "kg"
+        },
+        {
+          "context": "same stated gas, 20-year horizon and assessment vintage as Mgas",
+          "definition": "Global Warming Potential of the stated gas over the 20-year horizon and vintage, relative to CO2",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite index; horizon-specific, never interchangeable with GWP100",
+          "quantity_id": "global_warming_potential",
+          "role": "input",
+          "source_symbol": "GWP (20-year)",
+          "symbol": "GWP",
+          "unit": "1"
+        },
+        {
+          "context": "same stated gas, 20-year horizon, vintage, Scope boundary and period as inputs",
+          "definition": "CO2 mass that would absorb as much energy over 20 years as the stated gas mass (accounting equivalent only)",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg CO2e(GWP20)",
+          "quantity_id": "carbon_dioxide_equivalent",
+          "role": "output",
+          "source_symbol": "CO2 equivalent (20-year)",
+          "symbol": "Mco2e",
+          "unit": "kg"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: numerator and denominator share the same reporting period, MSW scope and weight basis (EPA weight-basis post-consumer MSW scope).",
+        "Application profile: recycling-only subset headline; composting, other food management and combustion with energy recovery are excluded from this numerator by definition."
+      ],
+      "constants": [],
+      "guards": [
+        "Mr >= 0",
+        "Mt > 0",
+        "Mr <= Mt"
+      ],
+      "id": "environmental-accounting--recycling-only-rate-from-recycled-and-total",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires new quantity meanings for recycled-only and total roles and the recycling-only rate; ledger mass unit t shared with b01. Scalar fraction fits the engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Rr with positive Mt determines Mr = Rr x Mt; Rr with positive Mr determines Mt = Mr / Rr (needs Rr > 0). Rr = 0 with positive Mt implies zero recycling. Substitution checks: 0.2359781122 x 292.4 ~= 69 recovers case national-2018; 69 / 0.2359781122 ~= 292.4 recovers Mt. Algebraic only; stream eligibility follows the stated method.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes composting and other recovery by definition; must be labeled recycling-only and never presented as the diversion rate.",
+        "A mass-based rate is not a GHG inventory; waste mass is activity data for separate factor-based estimation."
+      ],
+      "references": [
+        {
+          "expected": 0.2359781122,
+          "id": "national-2018",
+          "inputs": {
+            "Mr": 69.0,
+            "Mt": 292.4
+          },
+          "method": "EPA National Overview 2018: about 69 Mt recycled of 292.4 Mt generated; fraction independently computed (69/292.4 = 23.6% when expressed as percent).",
+          "provenance": "Values from published EPA figures; the fraction is independently computed, not source-published as a fraction.",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 0.0,
+          "id": "boundary-zero-recycling",
+          "inputs": {
+            "Mr": 0.0,
+            "Mt": 292.4
+          },
+          "method": "Boundary identity: zero recycled mass gives a zero recycling-only rate at fixed generation.",
+          "provenance": "Definitional boundary check; not an empirical validation.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Mr": 10.0,
+            "Mt": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero total waste makes the rate undefined, not 0%; the Mt > 0 guard rejects it."
+        }
+      ],
+      "relationship": {
+        "expression": "Mr / Mt",
+        "locator": "Section 'The Current National Picture' (recycled versus composted stream split of the 292.4 Mt generation ledger)",
+        "original_equation": "Recycling-only rate = recycled mass / total generated mass (fraction 0-1; x100 for percent display)",
+        "output_symbol": "Rr",
+        "source_id": "epa-national-overview",
+        "translation_notes": "Recycling-only subset fraction of the same MSW ledger: both masses in a common unit, output dimensionless. Dimensional check: mass/mass = dimensionless. Percent display stays outside the expression; common-unit rule applies."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: 2018 MSW shows about 69 Mt recycled and 25 Mt composted as separate streams of 292.4 Mt generated; measurement is by weight for post-consumer MSW.",
+          "id": "epa-national-overview",
+          "kind": "primary",
+          "license": "U.S. federal government public information; site terms at https://www.epa.gov/privacy/privacy-and-security-notice (accessed 2026-11-03); only a short paraphrase is used.",
+          "locator": "Section 'The Current National Picture'",
+          "redistribution": "Contains only a short original paraphrase and independently computed ratios; no copied text, tables or figures.",
+          "title": "National Overview: Facts and Figures on Materials, Wastes and Recycling - US EPA",
+          "url": "https://www.epa.gov/facts-and-figures-about-materials-waste-and-recycling/national-overview-facts-and-figures-materials",
+          "version": "Page as accessed 2026-11-03 (data through calendar year 2018)"
+        }
+      ],
+      "summary": "Recycling-only rate for one boundary and period: recycled mass divided by total generated mass.",
+      "title": "Recycling-only rate from recycled and total waste masses",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same reporting period, program boundary, waste scope and weight basis as Mt and Rr",
+          "definition": "Mass of waste recycled under the stated method (excludes composting and other recovery)",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass not exceeding total generation",
+          "quantity_id": "waste_recycled_mass",
+          "role": "input",
+          "source_symbol": "recycled",
+          "symbol": "Mr",
+          "unit": "t"
+        },
+        {
+          "context": "same reporting period, program boundary, waste scope and weight basis as Mr",
+          "definition": "Total generated waste mass under the same boundary",
+          "dimensions": "mass",
+          "domain": "Positive finite mass; zero is rejected as a no-data ledger",
+          "quantity_id": "waste_total_mass",
+          "role": "input",
+          "source_symbol": "total generation",
+          "symbol": "Mt",
+          "unit": "t"
+        },
+        {
+          "context": "same reporting period, program boundary, waste scope and stream definitions as inputs",
+          "definition": "Fraction of generated waste recycled (multiply by 100 for percent display)",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "recycling_rate",
+          "role": "output",
+          "source_symbol": "recycling rate (only)",
+          "symbol": "Rr",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

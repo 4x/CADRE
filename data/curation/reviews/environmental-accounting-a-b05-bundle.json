@@ -1,0 +1,412 @@
+{
+  "batch_id": "environmental-accounting-a-b05",
+  "created": "2026-11-03",
+  "curator": "buffy-spark",
+  "deferred": [
+    {
+      "reason": "The full fuel-analysis product (fuel amount x heat content x carbon coefficient x fraction oxidized x 44/12) is source-backed as EPA Equation 1, but a canonical-SI return needs heat-content/carbon-coefficient evidence without importing an external Btu-to-joule conversion. Curate only after an SI-native or fully documented coefficient table is inspected; do not relabel mass-basis ADxEF as new coverage.",
+      "source_urls": [
+        "https://nepis.epa.gov/Exe/ZyPURL.cgi?Dockey=P1004NED.TXT"
+      ],
+      "title": "Full stationary-combustion CO2 fuel-analysis product (needs SI-native calibration)"
+    }
+  ],
+  "domain": "environmental-accounting",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "New quantity meanings: fuel purchased/stock/burned masses, feedstock-excluded combustion fuel, total/listed/accountable CO2 masses. Ledger mass units kg/t are shared with prior batches; no runtime projection is claimed.",
+      "Duplicate search limited to the supplied catalog snapshot and batches b01-b05; these ledger-adjustment identities do not duplicate emission-factor, intensity, diversion, family-sum or per-capita records."
+    ],
+    "queries": [],
+    "review_notes": "Checks performed: curation validate (schema/grammar/arithmetic/guards); 6 references; 3 domain rejections; inverse substitutions; prose-vs-locator fidelity; canonical-units review (common ledger unit, no inlined x100/x1000, no external Btu-J conversion). Not performed: central scientific review, lab replication, legal clearance beyond recorded terms.",
+    "summary": "Batch b05 (3 models): (14) fuel burned from purchases plus stock change, (15) feedstock-excluded fuel for combustion analysis, and (16) accountable fossil CO2 excluding listed biomass-CO2 memo. All are same-unit ledger identities from EPA Climate Leaders stationary-combustion guidance; the full Equation 1 product is deferred pending SI-native calibration."
+  },
+  "kit_version": "2026-10-31.6",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: purchased, stock and burned quantities are the same fuel, site, reporting period and mass basis; purchase records proxy combustion only after stock/feedstock adjustments (EPA Section 5.1, Equation 3).",
+        "Application profile: mass-metered fuels; volume-metered fuels need a separate unit-consistent application with the same equation shape."
+      ],
+      "constants": [],
+      "guards": [
+        "FuelP >= 0",
+        "FuelST >= 0",
+        "FuelSE >= 0",
+        "FuelP + FuelST >= FuelSE"
+      ],
+      "id": "environmental-accounting--fuel-burned-from-purchase-and-inventory",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires new quantity meanings for purchased, stock and burned fuel masses; ledger mass unit t is shared. Scalar form fits the engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "FuelB with FuelP and FuelST determines FuelSE = FuelP + FuelST - FuelB; FuelB with FuelP and FuelSE determines FuelST = FuelB - FuelP + FuelSE; FuelB with stocks determines FuelP = FuelB - FuelST + FuelSE. Original nonnegativity and stock-consistency guards apply. Substitution checks: 1000 + 200 - 150 = 1050 recovers case ordinary-stock-draw; 1050 - 1000 + 150 = 200 recovers FuelST. Algebraic only; negative FuelB would indicate a data/boundary error, not combustion.",
+      "kind": "definition",
+      "limitations": [
+        "Feedstock/non-combustion use is handled by a separate exclusion; do not subtract feedstock inside this stock equation unless the purchased quantity is already combustion-only.",
+        "Fugitive/non-combustion releases and storage losses outside the stock endpoints need separate source treatment."
+      ],
+      "references": [
+        {
+          "expected": 1050.0,
+          "id": "ordinary-stock-draw",
+          "inputs": {
+            "FuelP": 1000.0,
+            "FuelSE": 150.0,
+            "FuelST": 200.0
+          },
+          "method": "Independent arithmetic in EPA Equation 3 form: 1000 purchased plus opening 200 minus closing 150.",
+          "provenance": "Independent arithmetic reasoning from stated inputs; not a published facility total.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 500.0,
+          "id": "boundary-no-stock-change",
+          "inputs": {
+            "FuelP": 500.0,
+            "FuelSE": 120.0,
+            "FuelST": 120.0
+          },
+          "method": "Boundary identity: equal opening and closing stocks leave burned fuel equal to purchases.",
+          "provenance": "Definitional boundary check; not an empirical validation.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "FuelP": 10.0,
+            "FuelSE": 20.0,
+            "FuelST": 0.0
+          },
+          "kind": "domain",
+          "reason": "Closing stock exceeds purchases plus opening stock, implying negative burned fuel; the stock-consistency guard rejects it as a data/boundary error."
+        }
+      ],
+      "relationship": {
+        "expression": "FuelP + FuelST - FuelSE",
+        "locator": "Section 5.1 'Activity Data Source' (Equation 3: Fuel B = Fuel P + (Fuel ST - Fuel SE))",
+        "original_equation": "Fuel burned in reporting period = fuel purchased + opening stock - closing stock (FuelB = FuelP + FuelST - FuelSE)",
+        "output_symbol": "FuelB",
+        "source_id": "epa-climate-leaders-stationary",
+        "translation_notes": "Purchase-to-burn ledger adjustment: all quantities in a common fuel mass unit (t), output in t. Dimensional check: mass = mass + mass - mass. Parentheses expanded without changing the accounting identity; no conversion inlined."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: fuel burned can be estimated from fuel purchases adjusted for stock change as Fuel B = Fuel P + (Fuel ST - Fuel SE); purchase data must also be adjusted for inventory changes, fugitive/spill losses and feedstock use.",
+          "id": "epa-climate-leaders-stationary",
+          "kind": "primary",
+          "license": "U.S. EPA Climate Leaders guidance publication; terms not verified on the accessed NEPIS rendering (2026-11-03); only a short paraphrase is used.",
+          "locator": "Section 5.1 'Activity Data Source', Equation 3",
+          "redistribution": "Contains only a short original paraphrase and independent arithmetic checks; no copied text, tables or figures.",
+          "title": "Direct Emissions from Stationary Combustion Sources - U.S. EPA Climate Leaders",
+          "url": "https://nepis.epa.gov/Exe/ZyPURL.cgi?Dockey=P1004NED.TXT",
+          "version": "EPA430-K-08-003, May 2008, as accessed 2026-11-03"
+        }
+      ],
+      "summary": "Reporting-period fuel burned from purchases adjusted for opening and closing stocks.",
+      "title": "Fuel burned from purchases and stock change",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same fuel, site, reporting period and mass basis as FuelST, FuelSE and FuelB",
+          "definition": "Fuel purchased/received during the reporting period on the stated mass basis",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in t",
+          "quantity_id": "fuel_purchased_mass",
+          "role": "input",
+          "source_symbol": "Fuel P",
+          "symbol": "FuelP",
+          "unit": "t"
+        },
+        {
+          "context": "same fuel, site, reporting period and mass basis as FuelP, FuelSE and FuelB",
+          "definition": "Fuel stock held at the start of the reporting period",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in t",
+          "quantity_id": "fuel_stock_mass",
+          "role": "input",
+          "source_symbol": "Fuel ST",
+          "symbol": "FuelST",
+          "unit": "t"
+        },
+        {
+          "context": "same fuel, site, reporting period and mass basis as FuelP, FuelST and FuelB",
+          "definition": "Fuel stock held at the end of the reporting period",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in t",
+          "quantity_id": "fuel_stock_mass",
+          "role": "input",
+          "source_symbol": "Fuel SE",
+          "symbol": "FuelSE",
+          "unit": "t"
+        },
+        {
+          "context": "same fuel, site, reporting period and mass basis as inputs",
+          "definition": "Fuel burned during the reporting period after stock adjustment",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in t",
+          "quantity_id": "fuel_burned_mass",
+          "role": "output",
+          "source_symbol": "Fuel B (introduced symbol for fuel burned)",
+          "symbol": "FuelB",
+          "unit": "t"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: purchased and feedstock quantities are the same fuel, site, reporting period and mass basis; carbon leaving in products is stored, not combusted, and is excluded from direct combustion analysis (EPA Section 5.1).",
+        "Application profile: isolate the feedstock exclusion; stock adjustments belong to the separate inventory-adjustment record and must use the same purchased quantity without double counting."
+      ],
+      "constants": [],
+      "guards": [
+        "FuelP >= 0",
+        "FuelF >= 0",
+        "FuelP >= FuelF"
+      ],
+      "id": "environmental-accounting--combustion-fuel-after-feedstock-exclusion",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires new quantity meanings for purchased, feedstock and combustion-analysis fuel masses; ledger mass unit t is shared. Scalar form fits the engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "FuelC with FuelP determines FuelF = FuelP - FuelC; FuelC with FuelF determines FuelP = FuelC + FuelF. Original guards apply. Substitution checks: 1000 - 850 = 150 recovers case ordinary-feedstock-use; 850 + 150 = 1000 recovers FuelP. Algebraic only; stored carbon may later be released outside this facility boundary.",
+      "kind": "definition",
+      "limitations": [
+        "Covers only non-combustion feedstock/product storage at the reporting facility; subsequent combustion elsewhere is outside this record.",
+        "Waste-fuel fossil/biomass splits use stream-specific carbon accounting, not this purchased-minus-feedstock form alone."
+      ],
+      "references": [
+        {
+          "expected": 850.0,
+          "id": "ordinary-feedstock-use",
+          "inputs": {
+            "FuelF": 150.0,
+            "FuelP": 1000.0
+          },
+          "method": "Independent arithmetic in EPA feedstock-adjustment form: 1000 purchased minus 150 stored in products.",
+          "provenance": "Independent arithmetic reasoning from stated inputs; not a published facility total.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1000.0,
+          "id": "boundary-no-feedstock",
+          "inputs": {
+            "FuelF": 0.0,
+            "FuelP": 1000.0
+          },
+          "method": "Boundary identity: zero feedstock leaves the combustion-analysis quantity equal to purchases.",
+          "provenance": "Definitional boundary check; not an empirical validation.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "FuelF": 1200.0,
+            "FuelP": 1000.0
+          },
+          "kind": "domain",
+          "reason": "Feedstock use cannot exceed purchased fuel under the same boundary; the FuelP >= FuelF guard rejects it."
+        }
+      ],
+      "relationship": {
+        "expression": "FuelP - FuelF",
+        "locator": "Section 5.1 'Activity Data Source' (subtract feedstock fuel stored in products from purchased fuel before calculating emissions)",
+        "original_equation": "Combustion-analysis fuel quantity = purchased fuel - fuel used as feedstock (FuelC = FuelP - FuelF)",
+        "output_symbol": "FuelC",
+        "source_id": "epa-climate-leaders-stationary",
+        "translation_notes": "Feedstock exclusion on a common fuel mass unit (t): mass = mass - mass. This is a ledger-scope adjustment, not an emission-factor estimate; no conversion inlined."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: purchased fuels used as feedstock store carbon in products, so subtract feedstock fuel from purchased fuel before calculating combustion emissions; carbon leaving stored in a product is not counted as a facility release.",
+          "id": "epa-climate-leaders-stationary",
+          "kind": "primary",
+          "license": "U.S. EPA Climate Leaders guidance publication; terms not verified on the accessed NEPIS rendering (2026-11-03); only a short paraphrase is used.",
+          "locator": "Section 5.1 'Activity Data Source' (feedstock paragraph)",
+          "redistribution": "Contains only a short original paraphrase and independent arithmetic checks; no copied text, tables or figures.",
+          "title": "Direct Emissions from Stationary Combustion Sources - U.S. EPA Climate Leaders",
+          "url": "https://nepis.epa.gov/Exe/ZyPURL.cgi?Dockey=P1004NED.TXT",
+          "version": "EPA430-K-08-003, May 2008, as accessed 2026-11-03"
+        }
+      ],
+      "summary": "Fuel quantity entering combustion analysis after excluding feedstock stored in products.",
+      "title": "Combustion-analysis fuel after feedstock exclusion",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same fuel, site, reporting period and mass basis as FuelF and FuelC",
+          "definition": "Fuel purchased/received during the reporting period before feedstock exclusion",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in t",
+          "quantity_id": "fuel_purchased_mass",
+          "role": "input",
+          "source_symbol": "fuel purchased",
+          "symbol": "FuelP",
+          "unit": "t"
+        },
+        {
+          "context": "same fuel, site, reporting period and mass basis as FuelP and FuelC",
+          "definition": "Purchased fuel used as manufacturing feedstock and stored in products rather than combusted",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in t not exceeding purchases",
+          "quantity_id": "fuel_feedstock_mass",
+          "role": "input",
+          "source_symbol": "fuel used as feedstock (introduced symbol FuelF)",
+          "symbol": "FuelF",
+          "unit": "t"
+        },
+        {
+          "context": "same fuel, site, reporting period and mass basis as inputs",
+          "definition": "Purchased fuel remaining for direct combustion analysis after feedstock exclusion",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in t",
+          "quantity_id": "fuel_combustion_analysis_mass",
+          "role": "output",
+          "source_symbol": "combustion-analysis fuel (introduced symbol FuelC)",
+          "symbol": "FuelC",
+          "unit": "t"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: total and memo quantities are the same facility, reporting period, fuel scope and CO2 mass basis; biomass CO2 is listed but excluded from the Climate Leaders CO2e reduction inventory (EPA Sections 1.2-1.3).",
+        "Application profile: fossil-waste combustion is included while non-fossil waste CO2 is listed as biomass memo; offsets from waste-fuel use are reported separately, not netted here."
+      ],
+      "constants": [],
+      "guards": [
+        "Ctotal >= 0",
+        "Bmemo >= 0",
+        "Ctotal >= Bmemo"
+      ],
+      "id": "environmental-accounting--accountable-co2-excluding-biomass-memo",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires new quantity meanings for analyzed total, listed biomass memo and accountable fossil CO2; mass unit kg is shared. Scalar form fits the engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Cacct with Ctotal determines Bmemo = Ctotal - Cacct; Cacct with Bmemo determines Ctotal = Cacct + Bmemo. Original guards apply. Substitution checks: 500 - 460 = 40 recovers case ordinary-biomass-share; 460 + 40 = 500 recovers Ctotal. Algebraic only; memo listing remains required and land-use carbon-stock assumptions stay outside the expression.",
+      "kind": "definition",
+      "limitations": [
+        "The exclusion assumes no net biomass-carbon stock loss from land-use practices; that assumption needs its own land-use evidence.",
+        "CH4/N2O from biomass combustion follow separate scope treatment and are not removed by this CO2 memo rule.",
+        "Waste-fuel offsets, if any, are reported separately and must not be netted through this memo exclusion."
+      ],
+      "references": [
+        {
+          "expected": 460.0,
+          "id": "ordinary-biomass-share",
+          "inputs": {
+            "Bmemo": 40.0,
+            "Ctotal": 500.0
+          },
+          "method": "Independent arithmetic in EPA biomass-memo form: 500 analyzed minus 40 listed biomass CO2.",
+          "provenance": "Independent arithmetic reasoning from stated inputs; not a published facility total.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 500.0,
+          "id": "boundary-no-biomass",
+          "inputs": {
+            "Bmemo": 0.0,
+            "Ctotal": 500.0
+          },
+          "method": "Boundary identity: zero biomass memo leaves accountable CO2 equal to the analyzed total.",
+          "provenance": "Definitional boundary check; not an empirical validation.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Bmemo": 600.0,
+            "Ctotal": 500.0
+          },
+          "kind": "domain",
+          "reason": "Listed biomass CO2 cannot exceed the analyzed combustion CO2 under the same scope; the Ctotal >= Bmemo guard rejects it."
+        }
+      ],
+      "relationship": {
+        "expression": "Ctotal - Bmemo",
+        "locator": "Sections 1.2 'Biofuels' and 1.3 'Waste Fuels' (biomass CO2 listed separately and excluded from the tracked CO2e inventory; fossil waste-fuel CO2 included)",
+        "original_equation": "Accountable fossil CO2 = analyzed combustion CO2 - listed biomass CO2 memo (Cacct = Ctotal - Bmemo)",
+        "output_symbol": "Cacct",
+        "source_id": "epa-climate-leaders-stationary",
+        "translation_notes": "Memo-line boundary adjustment on a common CO2 mass unit (kg): mass = mass - mass. This implements the reporting scope, not atmospheric fate; no offset netting is included."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: biomass CO2 is listed as total gas emitted but excluded from the overall CO2e inventory used to track progress, assuming no net biomass-carbon loss from land use; fossil-portion waste-fuel CO2 is included while non-fossil waste CO2 is listed as biomass.",
+          "id": "epa-climate-leaders-stationary",
+          "kind": "primary",
+          "license": "U.S. EPA Climate Leaders guidance publication; terms not verified on the accessed NEPIS rendering (2026-11-03); only a short paraphrase is used.",
+          "locator": "Sections 1.2 'Biofuels' and 1.3 'Waste Fuels'",
+          "redistribution": "Contains only a short original paraphrase and independent arithmetic checks; no copied text, tables or figures.",
+          "title": "Direct Emissions from Stationary Combustion Sources - U.S. EPA Climate Leaders",
+          "url": "https://nepis.epa.gov/Exe/ZyPURL.cgi?Dockey=P1004NED.TXT",
+          "version": "EPA430-K-08-003, May 2008, as accessed 2026-11-03"
+        }
+      ],
+      "summary": "Accountable fossil CO2 after excluding the separately listed biomass-CO2 memo amount.",
+      "title": "Accountable fossil CO2 excluding biomass memo",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same facility, reporting period, fuel scope and CO2 mass basis as Bmemo and Cacct",
+          "definition": "Analyzed direct CO2 from fuel combustion before memo-line scope adjustment",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg CO2",
+          "quantity_id": "analyzed_combustion_co2",
+          "role": "input",
+          "source_symbol": "analyzed combustion CO2 (introduced symbol Ctotal)",
+          "symbol": "Ctotal",
+          "unit": "kg"
+        },
+        {
+          "context": "same facility, reporting period, fuel scope and CO2 mass basis as Ctotal and Cacct",
+          "definition": "Separately listed biomass CO2 amount excluded from the tracked inventory",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg CO2 not exceeding the analyzed total",
+          "quantity_id": "biomass_co2_memo",
+          "role": "input",
+          "source_symbol": "biomass CO2 (introduced symbol Bmemo)",
+          "symbol": "Bmemo",
+          "unit": "kg"
+        },
+        {
+          "context": "same facility, reporting period, fuel scope and CO2 mass basis as inputs",
+          "definition": "Fossil CO2 accountable in the tracked inventory after memo exclusion",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg CO2",
+          "quantity_id": "accountable_fossil_co2",
+          "role": "output",
+          "source_symbol": "accountable CO2 (introduced symbol Cacct)",
+          "symbol": "Cacct",
+          "unit": "kg"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,598 @@
+{
+  "batch_id": "environmental-accounting-a-b01",
+  "created": "2026-11-03",
+  "curator": "buffy-spark",
+  "deferred": [
+    {
+      "reason": "Assignment boundary requires deferring exponential decay, half-life and discounting forms. The GWP time-integral over a decaying pulse (AR5 Ch8 S8.7 / AR6 Ch7 S7.6) needs time-indexed decay operators beyond scalar v1; do not approximate it as a single product. Continuation priority: inspect IPCC AR5 Ch8 S8.7/Table 8.7 and AR6 Ch7 S7.6/Table 7.15 directly.",
+      "source_urls": [
+        "https://www.epa.gov/ghgemissions/understanding-global-warming-potentials",
+        "https://www.ipcc-nggip.iges.or.jp/faq/faq.html"
+      ],
+      "title": "Time-decaying radiative-forcing impulse response behind GWP (decay integral)"
+    },
+    {
+      "reason": "Assignment boundary requires deferring discounting forms. Valuing future emission liabilities or removal reversals needs time-indexed discount operators beyond scalar v1; do not force into a single-period product. Continuation priority: record only with finance-grade sources and explicit rate/horizon vintage.",
+      "source_urls": [],
+      "title": "Discounted valuation of future emission liabilities"
+    },
+    {
+      "reason": "Excluded by assignment boundaries (lifecycle assessment excluded). EPA WARM-style material-pathway modelling combines fate, energy and substitution parameters beyond the atomic factor identity E = A x EF. Continuation priority: EPA WARM documentation and GHG Protocol Scope 3 Category 5 guidance.",
+      "source_urls": [
+        "https://www.epa.gov/climateleadership/ghg-emission-factors-hub",
+        "https://www.epa.gov/facts-and-figures-about-materials-waste-and-recycling/national-overview-facts-and-figures-materials"
+      ],
+      "title": "Full lifecycle material-pathway emission modelling (WARM-style)"
+    }
+  ],
+  "domain": "environmental-accounting",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "New quantity meanings required: emission_mass, activity_amount, emission_factor, greenhouse_gas_mass, global_warming_potential, carbon_dioxide_equivalent, emission_intensity, production_output, waste_diverted_mass, waste_total_mass, diversion_rate. New units required: kg/kg (mass-basis factor), kg/unit (intensity), t (tonne mass). All four expressions are scalar (A*EF, Mgas*GWP, E/Q, Md/Mt) and fit the engine once meanings/units exist; no runtime projection is claimed.",
+      "Duplicate search limited to the supplied catalog-inventory snapshot (building-energy records only, no environmental-accounting entries) and batches b01-b04; no global uniqueness is claimed.",
+      "No direct PDF inspection was possible (read_url cannot parse PDFs); primary-method evidence comes from directly read HTML pages (GHGI, TEAM Energy, EPA Overview, EPA GWP page, IPCC-TFI FAQ, NetNada, CarbonBetter, EPA National Overview, Anchor diversion guide) with search-snippet leads recorded as leads, not evidence."
+    ],
+    "queries": [],
+    "review_notes": "Checks performed: schema/grammar via curation validate; arithmetic replay of all 8 references; guard behavior on 4 rejection cases (negative activity, negative gas mass, zero output, zero waste total plus over-diversion); inverse substitution checks noted per model; source-fidelity review of prose vs locators; canonical-units review (no inlined conversion factors; percent display kept outside expressions). Checks not performed: central scientific review, independent lab replication, PDF page-number verification inside IPCC/GHG Protocol PDFs, legal clearance beyond recorded terms evidence.",
+    "summary": "Batch b01 curates the four seed factor-accounting identities as scalar definitions/theoretical records: (1) emission mass from activity and factor, (2) CO2-equivalent from gas mass and GWP100, (3) emission intensity per unit output, (4) waste diversion fraction. All use directly-read HTML sources with stated vintages/horizons/boundaries, two references each (ordinary plus boundary/materially-different), and requires-extension integration pending vocabulary extension."
+  },
+  "kit_version": "2026-10-31.6",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: the factor identity applies to the same source, gas, Scope boundary and accounting period with a representative EF matched to the activity (GHGI article; TEAM page: activity data converted with recognised factors).",
+        "Application profile: this record formalizes the mass-basis specialization (kg activity x kg/kg factor); energy/volume activity bases require a unit-consistent EF and are separate applications."
+      ],
+      "constants": [],
+      "guards": [
+        "A >= 0",
+        "EF >= 0"
+      ],
+      "id": "environmental-accounting--emission-mass-from-activity-and-factor",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires new quantity meanings: emission_mass, activity_amount, emission_factor; new unit kg/kg for the mass-basis factor. Scalar form A*EF fits the engine once meanings/units exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "E with positive EF determines A = E / EF; E with positive A determines EF = E / A. Original guards apply to the forward direction; each inverse needs its divisor strictly positive (0/0 indeterminate; nonzero/zero has no finite solution). Substitution check: 2500 / 2.5 = 1000 recovers case ordinary-mass-basis; 2500 / 1000 = 2.5 recovers EF. Inversion is algebraic only and does not establish EF transferability across technology, geography or vintage.",
+      "kind": "theoretical",
+      "limitations": [
+        "Excludes direct measurement (CEMS), mass-balance/stoichiometric process models, atmospheric fate, dispersion, lifecycle accounting and offset claims.",
+        "Does not establish EF representativeness across geography, technology or vintage; a mismatched EF is out of scope and needs its own calibration record."
+      ],
+      "references": [
+        {
+          "expected": 2500.0,
+          "id": "ordinary-mass-basis",
+          "inputs": {
+            "A": 1000.0,
+            "EF": 2.5
+          },
+          "method": "Independent elementary multiplication in mass-basis units; 2.5 kg/kg is an illustrative coal-style factor in the Table-1 unit style (kg CO2 per unit fuel mass), not a source-published total.",
+          "provenance": "Independent arithmetic reasoning from stated inputs; not a published measurement.",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 0.0,
+          "id": "boundary-zero-activity",
+          "inputs": {
+            "A": 0.0,
+            "EF": 2.5
+          },
+          "method": "Boundary identity of the factor form: zero activity yields zero emissions at fixed EF.",
+          "provenance": "Definitional boundary check (limiting identity of the accounting form); not an empirical validation.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A": -1.0,
+            "EF": 2.5
+          },
+          "kind": "domain",
+          "reason": "Negative activity mass violates the nonnegative-activity profile; backflow or removal regimes need a different definition."
+        }
+      ],
+      "relationship": {
+        "expression": "A * EF",
+        "locator": "Sections 'What is an emission factor?' through 'The basic formula is:' (EF-times-activity-data method) and Table 1 stationary-combustion row (kg CO2 / tonne)",
+        "original_equation": "Emissions = Activity Data x Emission Factor (mass-basis form: E = A x EF)",
+        "output_symbol": "E",
+        "source_id": "ghgi-ef-article",
+        "translation_notes": "Specializes the generic factor identity to a mass-basis form: A in kg of fuel/material, EF in kg gas per kg activity, E in kg. Dimensional check: mass = mass x (mass/mass). No unit conversion inlined; EF vintage/applicability carried in context, never as a constant."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: EFs are defined as mass of gas per unit of emissions-producing activity (example kg CO2 per tonne of bituminous coal combusted); to estimate emissions, an EF is multiplied by the corresponding activity data such as production output, energy in combusted fuel, or electricity consumed, with activity units converted to match the EF.",
+          "id": "ghgi-ef-article",
+          "kind": "primary",
+          "license": "Terms not verified on the accessed page (2026-11-03); treated as all rights reserved; only a short paraphrase is used with no verbatim reproduction.",
+          "locator": "Article body 'What is an emission factor?' through 'The basic formula is:' and Table 1",
+          "redistribution": "Contains only a short original paraphrase and independent arithmetic checks; no copied text, tables or data.",
+          "title": "What are emission factors? And where can I find them? - Greenhouse Gas Management Institute",
+          "url": "https://ghginstitute.org/2022/10/31/what-are-emission-factors-and-where-can-i-find-them/",
+          "version": "Article dated 2022-10-31 as accessed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: organisations measure GHG emissions by collecting activity data (energy consumption, fuel, operational inputs) and converting it into emissions figures using recognised emission factors (UK DESNZ government conversion factors); methodology follows the GHG Protocol Corporate Standard with an equity-share or control boundary.",
+          "id": "team-carbon-reporting",
+          "kind": "primary",
+          "license": "Terms not verified on the accessed page (2026-11-03); treated as all rights reserved; only a short paraphrase is used with no verbatim reproduction.",
+          "locator": "Sections 'What Is Carbon Emission Reporting?' (three core steps) and 'Methodology Requirements'",
+          "redistribution": "Contains only a short original paraphrase; no copied text or data.",
+          "title": "UK Carbon Emission Reporting Requirements Explained - TEAM Energy",
+          "url": "https://www.teamenergy.com/discover/insights/guidance-and-market-research/uk-carbon-reporting-requirements-explained/",
+          "version": "Page as accessed 2026-11-03"
+        }
+      ],
+      "summary": "Factor-based emission mass for one source, gas and period: activity amount times a matched mass-basis emission factor.",
+      "title": "Emission mass from activity amount and emission factor (mass-basis factor identity)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same emitting source, gas, Scope boundary, accounting period, EF vintage and applicability as E",
+          "definition": "Amount of emissions-producing activity on a mass basis for the stated source and period",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg; zero admits the zero-emission boundary",
+          "quantity_id": "activity_amount",
+          "role": "input",
+          "source_symbol": "activity data",
+          "symbol": "A",
+          "unit": "kg"
+        },
+        {
+          "context": "same emitting source, gas, Scope boundary, accounting period and applicability as E",
+          "definition": "Mass-basis emission factor: mass of stated gas per unit activity mass for the stated vintage and technology",
+          "dimensions": "mass / mass",
+          "domain": "Nonnegative finite factor; vintage- and technology-specific; zero admits the zero-emission boundary",
+          "quantity_id": "emission_factor",
+          "role": "input",
+          "source_symbol": "EF",
+          "symbol": "EF",
+          "unit": "kg/kg"
+        },
+        {
+          "context": "same emitting source, gas, Scope boundary, accounting period and EF applicability as inputs",
+          "definition": "Mass of stated greenhouse gas emitted by the source over the accounting period",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg",
+          "quantity_id": "emission_mass",
+          "role": "output",
+          "source_symbol": "Emissions",
+          "symbol": "E",
+          "unit": "kg"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: GWP is the IPCC relative energy-absorption index versus 1 kg CO2 over the stated horizon (EPA GWP page; IPCC-TFI FAQ Q1-2-4: ratio of radiative forcing per kg gas to per kg CO2 over a period, currently a 100-year horizon for UNFCCC reporting).",
+        "Application profile: this record converts one stated gas at one stated horizon and vintage; multi-gas inventories sum single-gas results with horizon-consistent GWPs."
+      ],
+      "constants": [],
+      "guards": [
+        "Mgas >= 0",
+        "GWP >= 0"
+      ],
+      "id": "environmental-accounting--co2-equivalent-from-gas-mass-and-gwp",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires new quantity meanings: greenhouse_gas_mass, global_warming_potential, carbon_dioxide_equivalent. Units kg and dimensionless 1 already exist; horizon/vintage carried in context, never interchangeable."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Mco2e with positive GWP determines Mgas = Mco2e / GWP; Mco2e with positive Mgas determines the implied GWP = Mco2e / Mgas. GWP = 0 is only a zero-forcing idealization, not a real gas; CO2 has GWP 1 by definition so converting a CO2 mass is the identity. Substitution checks: 300 / 30 = 10 recovers case ch4-ar6-upper-bound; 546 / 273 = 2 recovers case n2o-ar6. Inversion is algebraic only and does not establish physical equivalence of climate effects.",
+      "kind": "definition",
+      "limitations": [
+        "Distinguishes the accounting conversion from any physical fate, temperature, damage or offset claim; GWP100 versus GWP20/GTP values are not interchangeable.",
+        "Excludes atmospheric physics, decay dynamics, discounting and additionality/offset determinations."
+      ],
+      "references": [
+        {
+          "expected": 300.0,
+          "id": "ch4-ar6-upper-bound",
+          "inputs": {
+            "GWP": 30.0,
+            "Mgas": 10.0
+          },
+          "method": "EPA GWP page reports methane GWP100 as 27-30 (Sixth Assessment, 100-year); 30 used as the stated published bound; expected is independent multiplication 10 x 30.",
+          "provenance": "Published factor bound combined with independent multiplication; the 300 total is derived, not source-published.",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 546.0,
+          "id": "n2o-ar6",
+          "inputs": {
+            "GWP": 273.0,
+            "Mgas": 2.0
+          },
+          "method": "EPA GWP page states nitrous oxide has a GWP 273 times CO2 for a 100-year timescale (Sixth Assessment); expected is independent multiplication 2 x 273.",
+          "provenance": "Published factor combined with independent multiplication; the 546 total is derived, not source-published.",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "GWP": 273.0,
+            "Mgas": -1.0
+          },
+          "kind": "domain",
+          "reason": "Negative gas mass violates the nonnegative-mass accounting profile; removals/sinks need a separate definition."
+        }
+      ],
+      "relationship": {
+        "expression": "Mgas * GWP",
+        "locator": "Page section 'Explanation of Units' (CO2-equivalent conversion note: gas emissions times the gas GWP, with AR5 100-year GWPs used in the U.S. Inventory)",
+        "original_equation": "CO2-equivalent emissions = gas mass x GWP (stated gas, horizon and vintage)",
+        "output_symbol": "Mco2e",
+        "source_id": "epa-overview-ghg",
+        "translation_notes": "Single-gas specialization of the GWP-weighted aggregation: Mgas in kg of stated gas, GWP dimensionless for the stated gas/horizon/vintage (CO2 = 1), Mco2e in kg CO2e. Dimensional check: mass = mass x dimensionless. Horizon (GWP100) and vintage (AR5/AR6) carried in context; no conversion factor inlined."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: GHG emissions are often measured in CO2 equivalent; to convert a gas into CO2 equivalent its emissions are multiplied by the gas's GWP, which accounts for gases being more effective per unit mass than CO2; page notes US Inventory figures use IPCC AR5 100-year GWPs.",
+          "id": "epa-overview-ghg",
+          "kind": "primary",
+          "license": "U.S. federal government public information; site terms at https://www.epa.gov/privacy/privacy-and-security-notice (accessed 2026-11-03); only a short paraphrase is used with no verbatim reproduction.",
+          "locator": "'Explanation of Units' section of the Overview page",
+          "redistribution": "Contains only a short original paraphrase and independent arithmetic checks; no copied text or data.",
+          "title": "Overview of Greenhouse Gases - US EPA",
+          "url": "https://www.epa.gov/ghgemissions/overview-greenhouse-gases",
+          "version": "Page as accessed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: GWP measures how much energy 1 ton of a gas absorbs over a given period (usually 100 years) relative to 1 ton of CO2; CO2 is 1 by definition; methane is 27-30 over 100 years (Sixth Assessment); nitrous oxide is 273 times CO2 over 100 years; methane 20-year GWP is 81-83.",
+          "id": "epa-gwp-page",
+          "kind": "primary",
+          "license": "U.S. federal government public information; site terms at https://www.epa.gov/privacy/privacy-and-security-notice (accessed 2026-11-03); only a short paraphrase is used with no verbatim reproduction.",
+          "locator": "Lead definition paragraphs and FAQ 'Are there alternatives to the 100-year GWP'",
+          "redistribution": "Contains only a short original paraphrase and independent arithmetic checks; no copied text or data.",
+          "title": "Understanding Global Warming Potentials - US EPA",
+          "url": "https://www.epa.gov/ghgemissions/understanding-global-warming-potentials",
+          "version": "Page as accessed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase Q1-2-4: GWPs are calculated as the ratio of the radiative forcing of one kilogram of GHG emitted to that from one kilogram of CO2 over a period of time; the precise numbers are laid down by the UNFCCC and at present use a 100-year horizon.",
+          "id": "ipcc-tfi-faq",
+          "kind": "primary",
+          "license": "IPCC-TFI published FAQ; terms not verified on the accessed page (2026-11-03); only a short paraphrase is used with no verbatim reproduction.",
+          "locator": "FAQ Q1-2-4 'How can you compare emissions of different gases?'",
+          "redistribution": "Contains only a short original paraphrase; no copied text.",
+          "title": "FAQs - IPCC Task Force on National Greenhouse Gas Inventories",
+          "url": "https://www.ipcc-nggip.iges.or.jp/faq/faq.html",
+          "version": "Page as accessed 2026-11-03"
+        }
+      ],
+      "summary": "Single-gas CO2-equivalent mass: emitted gas mass times its GWP for the stated horizon and assessment vintage.",
+      "title": "CO2-equivalent mass from gas mass and warming potential over a stated horizon",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same emitted gas, 100-year horizon and assessment vintage (AR6 values used in references) as Mco2e",
+          "definition": "Mass of one stated greenhouse gas emitted over the accounting period",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg; zero admits the zero-equivalent boundary",
+          "quantity_id": "greenhouse_gas_mass",
+          "role": "input",
+          "source_symbol": "emissions of a gas (mass)",
+          "symbol": "Mgas",
+          "unit": "kg"
+        },
+        {
+          "context": "same stated gas, 100-year horizon and assessment vintage as Mgas; CO2 is 1 by definition",
+          "definition": "Global Warming Potential of the stated gas over the stated horizon and vintage, relative to CO2",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite index; vintage- and horizon-specific, never silently interchangeable",
+          "quantity_id": "global_warming_potential",
+          "role": "input",
+          "source_symbol": "GWP",
+          "symbol": "GWP",
+          "unit": "1"
+        },
+        {
+          "context": "same stated gas, 100-year horizon, vintage, Scope boundary and period as inputs",
+          "definition": "Mass of CO2 that would warm the Earth as much as the stated gas mass over the stated horizon (accounting equivalent only)",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg CO2e",
+          "quantity_id": "carbon_dioxide_equivalent",
+          "role": "output",
+          "source_symbol": "CO2 equivalent",
+          "symbol": "Mco2e",
+          "unit": "kg"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: numerator and denominator cover the same Scope boundary and annual period with a relevant, year-consistent metric (TEAM intensity-ratio reporting; NetNada: total GHG divided by the chosen activity metric).",
+        "Application profile: this record is the per-unit-of-production specialization; state the numerator scope (Scopes, gas, CO2e) and denominator definition alongside the result."
+      ],
+      "constants": [],
+      "guards": [
+        "E >= 0",
+        "Q > 0"
+      ],
+      "id": "environmental-accounting--emission-intensity-from-mass-and-output",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires new quantity meanings: emission_mass (shared with sibling record), production_output, emission_intensity; new unit kg/unit for per-unit intensity. Scalar form E/Q fits the engine once meanings/units exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "I with positive Q determines E = I x Q; I with positive E determines Q = E / I. Q = 0 is excluded by the guard (per-unit intensity undefined); I = 0 with positive Q implies zero emissions; 0/0 is indeterminate. Substitution checks: 0.1 x 100000 = 10000 recovers case bakery-a; 10000 / 0.1 = 100000 recovers Q. Inversion is algebraic only and does not establish causal or efficiency claims.",
+      "kind": "definition",
+      "limitations": [
+        "A falling intensity alongside rising absolute emissions still increases atmospheric loading; intensity does not measure climate impact, fate or offsets.",
+        "Denominator choice shapes the story (revenue versus physical output); cross-company comparison requires the same metric and boundary."
+      ],
+      "references": [
+        {
+          "expected": 0.1,
+          "id": "bakery-a",
+          "inputs": {
+            "E": 10000.0,
+            "Q": 100000.0
+          },
+          "method": "NetNada bakery illustration reports 10 tonnes CO2 per 100,000 loaves as 0.1 kg per loaf; 10 t converted to 10,000 kg as documented; expected independently divided.",
+          "provenance": "Value derived from a published illustration after a documented unit conversion; arithmetic independently checked.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.2,
+          "id": "bakery-b",
+          "inputs": {
+            "E": 8000.0,
+            "Q": 40000.0
+          },
+          "method": "NetNada second bakery illustration reports 8 tonnes per 40,000 loaves as 0.2 kg per loaf; 8 t converted to 8,000 kg as documented; materially different denominator and ratio from case bakery-a.",
+          "provenance": "Value derived from a published illustration after a documented unit conversion; arithmetic independently checked.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "E": 100.0,
+            "Q": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero output makes per-unit intensity undefined; the Q > 0 guard rejects it rather than returning zero."
+        }
+      ],
+      "relationship": {
+        "expression": "E / Q",
+        "locator": "Section 'Intensity Ratios' (annual-emissions-to-business-metric ratio; per-unit-of-production among the listed examples with revenue, headcount and area forms)",
+        "original_equation": "Emissions intensity = total GHG emissions / activity or output metric (per-unit specialization: I = E / Q)",
+        "output_symbol": "I",
+        "source_id": "team-carbon-reporting",
+        "translation_notes": "Per-unit-of-production specialization (kg per unit) of the generic intensity definition so numerator/denominator periods match. Dimensional check: mass / count = mass per count. Revenue/area/headcount denominators are separate applications with unit-consistent Q; no x100/x1000 scaling inlined."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: every in-scope organisation must report at least one intensity ratio expressing annual emissions relative to a business metric (examples: tCO2e per revenue, per employee, per square metre, per unit of production), chosen relevantly and consistently year over year; emissions are computed from activity data via recognised factors.",
+          "id": "team-carbon-reporting",
+          "kind": "primary",
+          "license": "Terms not verified on the accessed page (2026-11-03); treated as all rights reserved; only a short paraphrase is used with no verbatim reproduction.",
+          "locator": "Sections 'Intensity Ratios' and 'Methodology Requirements'",
+          "redistribution": "Contains only a short original paraphrase and independent arithmetic checks; no copied text or data.",
+          "title": "UK Carbon Emission Reporting Requirements Explained - TEAM Energy",
+          "url": "https://www.teamenergy.com/discover/insights/guidance-and-market-research/uk-carbon-reporting-requirements-explained/",
+          "version": "Page as accessed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: emissions intensity is calculated by dividing total GHG emissions (tCO2e) by a chosen activity metric (revenue, production volume, space, headcount); bakery illustration gives 10 tonnes per 100,000 loaves (0.1 kg/loaf) versus 8 tonnes per 40,000 loaves (0.2 kg/loaf).",
+          "id": "netnada-intensity-guide",
+          "kind": "primary",
+          "license": "Terms not verified on the accessed page (2026-11-03); treated as all rights reserved; only a short paraphrase is used with no verbatim reproduction.",
+          "locator": "Sections 'How Emissions Intensity Works' (formula) and 'Emissions Intensity Explained' (bakery illustration)",
+          "redistribution": "Contains only a short original paraphrase and independently converted arithmetic; no copied text or data.",
+          "title": "What is Emissions Intensity? Definition, Examples and Complete Guide - NetNada",
+          "url": "https://www.netnada.com/post/what-is-emissions-intensity-definition-examples-complete-guide",
+          "version": "Page as accessed 2026-11-03"
+        }
+      ],
+      "summary": "Per-unit emission intensity for one Scope boundary and period: emission mass divided by the matching output quantity.",
+      "title": "Emission intensity from emission mass and output quantity",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same Scope boundary, gas/CO2e basis and annual period as Q and I",
+          "definition": "Total GHG emission mass for the stated Scope boundary and period (numerator)",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg; zero admits the zero-intensity boundary",
+          "quantity_id": "emission_mass",
+          "role": "input",
+          "source_symbol": "Total GHG Emissions",
+          "symbol": "E",
+          "unit": "kg"
+        },
+        {
+          "context": "same Scope boundary and annual period as E; metric stated with the result",
+          "definition": "Production output quantity matching the numerator period (denominator)",
+          "dimensions": "count",
+          "domain": "Positive finite count in units; zero is rejected as undefined intensity",
+          "quantity_id": "production_output",
+          "role": "input",
+          "source_symbol": "Activity Metric (units produced)",
+          "symbol": "Q",
+          "unit": "unit"
+        },
+        {
+          "context": "same Scope boundary, gas/CO2e basis and annual period as inputs",
+          "definition": "Emission mass per unit of production output",
+          "dimensions": "mass / count",
+          "domain": "Nonnegative finite intensity in kg per unit",
+          "quantity_id": "emission_intensity",
+          "role": "output",
+          "source_symbol": "Emissions Intensity",
+          "symbol": "I",
+          "unit": "kg/unit"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: numerator and denominator share the same reporting period, MSW scope and weight basis (EPA: weight basis, post-consumer MSW excluding C&D debris, wastewater sludge and industrial waste; 2018 food-methodology change noted).",
+        "Application profile: this record is the diverted-mass fraction; percent display (x100) and the accepted diverted streams (recycling/composting versus other food management or energy recovery) must be stated with the result."
+      ],
+      "constants": [],
+      "guards": [
+        "Md >= 0",
+        "Mt > 0",
+        "Md <= Mt"
+      ],
+      "id": "environmental-accounting--waste-diversion-rate-from-diverted-and-total",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires new quantity meanings: waste_diverted_mass, waste_total_mass, diversion_rate; new unit t (tonne mass) for ledger-scale masses. Scalar form Md/Mt fits the engine once meanings/units exist; percent display is a registry scale, never an inlined x100."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "D with positive Mt determines Md = D x Mt; D with positive Md determines Mt = Md / D (needs D > 0); D = 0 with any positive Mt implies Md = 0 while Mt stays underdetermined. Substitution checks: 0.3214774282 x 292.4 ~= 94 recovers case epa-2018-national; 94 / 0.3214774282 ~= 292.4 recovers Mt. Inversion is algebraic only and does not establish stream eligibility or facility performance.",
+      "kind": "definition",
+      "limitations": [
+        "A mass-based diversion rate is not a greenhouse-gas inventory; waste mass is activity data requiring separate factors, method and boundary for any Scope 3 estimate.",
+        "Stream definitions change comparability: EPA excludes 17.7 Mt of other food management and 34.6 Mt combusted with energy recovery from the 32.1% headline rate."
+      ],
+      "references": [
+        {
+          "expected": 0.3214774282,
+          "id": "epa-2018-national",
+          "inputs": {
+            "Md": 94.0,
+            "Mt": 292.4
+          },
+          "method": "EPA National Overview publishes 69 Mt recycled + 25 Mt composted (about 94 Mt) of 292.4 Mt generated as a 32.1% headline rate; expected is the independently computed fraction 94/292.4 (headline is the rounded percent).",
+          "provenance": "Values derived from published EPA figures; the fraction is independently computed, not source-published as a fraction.",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 0.6824925816,
+          "id": "epa-2018-paper",
+          "inputs": {
+            "Md": 46.0,
+            "Mt": 67.4
+          },
+          "method": "EPA National Overview reports paper/paperboard recycling as 68.2% (46.0 Mt); generation context is 67.4 Mt; expected is the independently computed fraction 46.0/67.4 (headline is the rounded percent).",
+          "provenance": "Values derived from published EPA figures; the fraction is independently computed, not source-published as a fraction.",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Md": 10.0,
+            "Mt": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero total waste makes the rate undefined, not 0%; the Mt > 0 guard rejects it."
+        },
+        {
+          "inputs": {
+            "Md": 100.0,
+            "Mt": 50.0
+          },
+          "kind": "domain",
+          "reason": "Diverted mass cannot exceed total generated mass under the same boundary; violates Md <= Mt."
+        }
+      ],
+      "relationship": {
+        "expression": "Md / Mt",
+        "locator": "Section 'The Current National Picture' (2018 MSW ledger: 292.4 Mt generated; recycled/composted streams of about 69 Mt and 25 Mt reported as a 32.1% headline rate)",
+        "original_equation": "Diversion (recycling/composting) rate = diverted mass / total generated mass (fraction 0-1; x100 for percent display)",
+        "output_symbol": "D",
+        "source_id": "epa-national-overview",
+        "translation_notes": "Fraction form (unit 1) of the published percent rate; percent display multiplies by 100 outside the canonical expression (percent scale 0.01 belongs to the registry). Dimensional check: mass/mass = dimensionless. Ratio is invariant to the common mass unit (EPA figures are million short tons); ledger inputs must still share one unit and boundary with no cross-product or cross-year allocation."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: 2018 MSW generation was 292.4 million short tons (4.9 lb/person/day); about 69 Mt recycled plus 25 Mt composted (about 94 Mt) is reported as a 32.1% recycling-and-composting rate; additionally 17.7 Mt of food via other pathways, 34.6 Mt (11.8%) combusted with energy recovery, and 146.1 Mt (50%) landfilled; scope is post-consumer MSW by weight excluding C&D, sludge and industrial waste; 2018 paper recycling was 68.2% (46.0 Mt).",
+          "id": "epa-national-overview",
+          "kind": "primary",
+          "license": "U.S. federal government public information; site terms at https://www.epa.gov/privacy/privacy-and-security-notice (accessed 2026-11-03); only a short paraphrase is used with no verbatim reproduction.",
+          "locator": "Sections 'The Current National Picture', 'Recycling', 'Trends - 1960 to Today' and 'Recycling, Composting and Other Food Management Trends Specific to 2015-2018'",
+          "redistribution": "Contains only a short original paraphrase and independently computed ratios; no copied text, tables or figures.",
+          "title": "National Overview: Facts and Figures on Materials, Wastes and Recycling - US EPA",
+          "url": "https://www.epa.gov/facts-and-figures-about-materials-waste-and-recycling/national-overview-facts-and-figures-materials",
+          "version": "Page as accessed 2026-11-03 (data through calendar year 2018)"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: the core formula is diversion rate = diverted waste divided by total generated waste, times 100; diverted means reuse/recycling/composting/recovery accepted by the method; total is diverted plus disposal under the same boundary; use one boundary for numerator and denominator; a zero total is a no-data state, never 0%.",
+          "id": "anchor-diversion-guide",
+          "kind": "primary",
+          "license": "Terms not verified on the accessed page (2026-11-03); treated as all rights reserved; only a short paraphrase is used with no verbatim reproduction.",
+          "locator": "Sections 'Use the basic formula' and 'Start with a clear boundary'",
+          "redistribution": "Contains only a short original paraphrase and independent arithmetic checks; no copied text or calculator code.",
+          "title": "How to calculate your waste diversion rate - Anchor",
+          "url": "https://myanchorresource.com/resources/waste-diversion-rate",
+          "version": "Page as accessed 2026-11-03"
+        }
+      ],
+      "summary": "Mass-based waste diversion fraction for one boundary and period: diverted mass divided by total generated mass.",
+      "title": "Waste diversion rate from diverted and total waste masses",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same reporting period, site/program boundary, waste scope and weight basis as Mt and D",
+          "definition": "Mass of waste assigned to accepted diversion (reuse, recycling, composting or stated recovery) under the method",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass; zero admits the zero-diversion boundary",
+          "quantity_id": "waste_diverted_mass",
+          "role": "input",
+          "source_symbol": "Diverted weight",
+          "symbol": "Md",
+          "unit": "t"
+        },
+        {
+          "context": "same reporting period, site/program boundary, waste scope and weight basis as Md",
+          "definition": "Total generated waste mass (diverted plus disposal) under the same boundary",
+          "dimensions": "mass",
+          "domain": "Positive finite mass; zero is rejected as a no-data state",
+          "quantity_id": "waste_total_mass",
+          "role": "input",
+          "source_symbol": "Total weight",
+          "symbol": "Mt",
+          "unit": "t"
+        },
+        {
+          "context": "same reporting period, site/program boundary, waste scope and stream definitions as inputs",
+          "definition": "Fraction of generated waste diverted from disposal (multiply by 100 for percent display)",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "diversion_rate",
+          "role": "output",
+          "source_symbol": "Diversion",
+          "symbol": "D",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,703 @@
+{
+  "batch_id": "demography-a-b03",
+  "created": "2026-11-03",
+  "curator": "muse-spark",
+  "deferred": [
+    {
+      "reason": "Out of scope for this batch: exponential growth and doubling-time forms need log/exp support and a separate growth-rate record; age-specific fertility/mortality schedules need family (array) quantities; cohort-component projections need multi-model composition. Priority continuation after b03: crude birth/death subdivisions by sex if sourced.",
+      "source_urls": [
+        "https://population.un.org/dataportal/",
+        "https://www.prb.org/resource/glossary/"
+      ],
+      "title": "Exponential growth, doubling time, life-table and projection models"
+    }
+  ],
+  "domain": "demography",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "New quantity meanings needed: demography:sex_ratio (males per 100 females, unit 1), demography:crude_net_migration_rate (per 1000, unit 1), demography:child_woman_ratio (children 0-4 per 1000 women 15-49, unit 1), demography:natural_increase_count (persons, unit 1). Per-100 and per-1000 presentation multipliers are explicit numeric literals with output unit 1, matching b01/b02 convention. Decimal-ratio presentations (e.g., SRB 1.05) are unit-convention variants, not separate models."
+    ],
+    "queries": [],
+    "review_notes": "b03 complements b01 (CBR, CDR, TDR, balance) and b02 (RNI, YDR, ODR, net migration count). Sex ratio uses PRB per-100 definition; SRB 105 figure is the same relationship applied to a birth cohort, documented in inverse_notes/summary, not a separate model. CNMR Germany-2023 oracle combines Destatis flow table (I, E) with Destatis year-end stocks for the average-population denominator; UN WPP 2024 Germany-2023 estimate may differ slightly in level. CWR Burkina Faso 1996 oracle is from the IUSSP teaching exercise (US Census Bureau International Database inputs), result 876 stated on site. Eurostat net-migration residual/measurement caveat recorded in limitations.",
+    "summary": "Batch b03 adds four demography models: population sex ratio (per 100), crude net-migration rate (per 1000), child-woman ratio (per 1000 women 15-49), and natural-increase count (births minus deaths). All four validate as requires-extension (new demography meanings)."
+  },
+  "kit_version": "2026-10-31.6",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: sex ratio is a stock measure of the living population at a reference date (PRB wording: 'in a population', no reference period).",
+        "source assumption: the per-100 multiplier is a presentation convention; the underlying index is the male/female ratio."
+      ],
+      "constants": [
+        {
+          "literal": 100.0,
+          "locator": "PRB glossary 'S' entry; NSO Vietnam terminology page formula (M/F) x 100",
+          "meaning": "per-100 presentation multiplier for the sex ratio",
+          "source_id": "prb-glossary",
+          "unit": "1"
+        }
+      ],
+      "guards": [
+        "M >= 0",
+        "F > 0"
+      ],
+      "id": "demography--sex-ratio",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meaning demography:sex_ratio and per-100 presentation convention need runtime extension; runtime_model null."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Solve F = 100*M/SR requires SR != 0 (a zero sex ratio would mean no males; guard M >= 0 admits M = 0 with SR = 0, in which case F is unidentified). Solve M = SR*F/100 is linear, no singularity. Substitution check: SR = 103.2, F = 4700000 gives M = 103.2*4700000/100 = 4850400, within rounding of 4850000. Same relationship applied to a birth cohort gives the sex ratio at birth (benchmark ~105 males per 100 females); the decimal presentation (1.05) is a unit-convention variant, not a separate model. No causal invertibility: the ratio does not identify cohort histories.",
+      "kind": "definition",
+      "limitations": [
+        "Some agencies publish the inverse (females per 100 males); such figures must be inverted before comparison.",
+        "The ratio alone does not distinguish a high-SRB cohort effect from differential mortality or migration by sex."
+      ],
+      "references": [
+        {
+          "expected": 103.2,
+          "id": "ordinary-synthetic",
+          "inputs": {
+            "F": 4700000.0,
+            "M": 4850000.0
+          },
+          "method": "Independent arithmetic illustration of the per-100 formula built from the research (same 103.2 structure as the worked example); checks the expression, not a published aggregate.",
+          "provenance": "independent-derivation",
+          "tolerance": 0.1
+        },
+        {
+          "expected": 105.0,
+          "id": "srb-benchmark",
+          "inputs": {
+            "F": 1000000.0,
+            "M": 1050000.0
+          },
+          "method": "Benchmark case from the sources: OWID/UN WPP states about 105 boys are born for every 100 girls, inside the World Bank 1.03-1.07 normal band; inputs are the canonical per-100 illustration of that benchmark.",
+          "provenance": "published-illustration-derived",
+          "tolerance": 0.5
+        },
+        {
+          "expected": 100.0,
+          "id": "parity-boundary",
+          "inputs": {
+            "F": 1000000.0,
+            "M": 1000000.0
+          },
+          "method": "Limiting identity: equal numbers of males and females give exactly 100 by construction of the per-100 convention.",
+          "provenance": "limiting-identity",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "F": 0.0,
+            "M": 100.0
+          },
+          "kind": "domain",
+          "reason": "Zero female population violates F > 0; the ratio is undefined."
+        },
+        {
+          "inputs": {
+            "M": 4850000.0
+          },
+          "kind": "missing-input",
+          "reason": "Female count missing; the ratio cannot be computed from males alone."
+        }
+      ],
+      "relationship": {
+        "expression": "100 * M / F",
+        "locator": "PRB glossary letter-S entry; NSO Vietnam 'Sex ratio of the population = (Total of males / Total of females) x 100'",
+        "original_equation": "Sex ratio: the number of males per 100 females in a population (PRB). Formula (M/F) x 100 (NSO Vietnam).",
+        "output_symbol": "SR",
+        "source_id": "prb-glossary",
+        "translation_notes": "Dimensional check: counts/counts is dimensionless; the literal 100 carries the per-100 presentation convention with output unit 1 (no registry per-100 unit). Same relationship with a birth cohort as the population gives the sex ratio at birth (~105)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Glossary entry under letter S defines sex ratio as the number of males per 100 females in a population; a stock composition measure with no reference period.",
+          "id": "prb-glossary",
+          "kind": "primary",
+          "license": "Terms unknown: PRB glossary is a copyrighted web resource (no working copyright page found); cite briefly with attribution rather than redistributing.",
+          "locator": "Glossary of Demographic Terms, letter-S entry 'Sex Ratio'",
+          "redistribution": "Short evidence paraphrase and locator only; no verbatim reproduction or redistribution.",
+          "title": "PRB Glossary of Demographic Terms",
+          "url": "https://www.prb.org/resource/glossary/",
+          "version": "Glossary viewed 2026-11-03; entry published 2020-10-02"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Terminology page states both formulas: population sex ratio = (total males / total females) x 100, and sex ratio of newborns = (male newborns in a period / female newborns in a period) x 100.",
+          "id": "nso-vietnam-sex-ratio",
+          "kind": "primary",
+          "license": "Terms unknown; official statistics agency terminology page, cite with attribution.",
+          "locator": "'Sex ratio of the population' and 'Sex ratio of newborns' entries",
+          "redistribution": "Short evidence paraphrase and locator only; no verbatim reproduction or redistribution.",
+          "title": "National Statistics Office of Vietnam: Terminology of Population",
+          "url": "https://www.nso.gov.vn/en/default/2019/03/terminology-of-population/",
+          "version": "Terminology page viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Chart defines the indicator as number of male births per 100 female births (UN WPP 2024 series) and states that on average about 105 boys are born for every 100 girls.",
+          "id": "owid-srb",
+          "kind": "primary",
+          "license": "OWID content under Creative Commons BY; underlying UN WPP data subject to original provider terms.",
+          "locator": "Sex ratio at birth chart definition and key statement",
+          "redistribution": "Short evidence paraphrase and locator only; no verbatim reproduction or redistribution.",
+          "title": "Our World in Data: Sex ratio at birth (UN WPP 2024)",
+          "url": "https://ourworldindata.org/grapher/sex-ratio-at-birth",
+          "version": "Chart viewed 2026-11-03 (UN WPP 2024)"
+        }
+      ],
+      "summary": "Population sex ratio: males per 100 females, computed as 100 times male count divided by female count.",
+      "title": "Population sex ratio (males per 100 females)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same population stock at the same reference date as F",
+          "definition": "Number of males in the population",
+          "dimensions": "count of persons (dimensionless)",
+          "domain": "count of persons, nonnegative",
+          "quantity_id": "male_population_stock",
+          "role": "input",
+          "source_symbol": "Total of males",
+          "symbol": "M",
+          "unit": "1"
+        },
+        {
+          "context": "same population stock at the same reference date as M",
+          "definition": "Number of females in the population",
+          "dimensions": "count of persons (dimensionless)",
+          "domain": "count of persons, strictly positive",
+          "quantity_id": "female_population_stock",
+          "role": "input",
+          "source_symbol": "Total of females",
+          "symbol": "F",
+          "unit": "1"
+        },
+        {
+          "context": "same population stock as M and F",
+          "definition": "Males per 100 females under the per-100 presentation convention",
+          "dimensions": "dimensionless (conventional per-100 scaling)",
+          "domain": "dimensionless index, typically 30-120 for human populations",
+          "quantity_id": "sex_ratio",
+          "role": "output",
+          "source_symbol": "introduced: SR",
+          "symbol": "SR",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: net migration is immigrants minus emigrants during the year (UN WPP wording).",
+        "source assumption: denominator is the average (midyear) population of that year, e.g. (P_Jan1_t + P_Jan1_t+1)/2.",
+        "application profile: the Germany-2023 oracle uses Destatis flow counts with a stock-averaged denominator; UN WPP estimates for the same year may differ slightly in level."
+      ],
+      "constants": [
+        {
+          "literal": 1000.0,
+          "locator": "UN WPP dataportal indicator metadata: 'The value is expressed per 1000 persons'",
+          "meaning": "per-1000 presentation multiplier for the crude rate",
+          "source_id": "un-wpp-cnmr",
+          "unit": "1"
+        }
+      ],
+      "guards": [
+        "I >= 0",
+        "E >= 0",
+        "P > 0"
+      ],
+      "id": "demography--crude-net-migration-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meaning demography:crude_net_migration_rate and per-1000 presentation convention need runtime extension; runtime_model null. Complements (not duplicates) demography--net-migration-count (b02 level) and demography--population-balance (b01)."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Given CNMR and P, net migration count N = CNMR*P/1000 (linear, exact up to rounding); substitution check: 7.84*84514086/1000 = 662590, within 0.1% of published 662964. I and E individually are NOT identified from the rate alone (one equation, two unknowns) -- a common misinversion. Zero/ambiguous case: CNMR = 0 with P finite admits any I = E, including zero gross flows.",
+      "kind": "definition",
+      "limitations": [
+        "Crude means denominated by total population with no age-sex standardisation; weakly comparable across different age structures.",
+        "Eurostat practice derives net migration residually (population change minus natural change), so the published 'net migration plus statistical adjustment' absorbs count errors and may include non-migration residuals.",
+        "Where flow data are insufficient, net migration may be estimated from stock differences (foreign-born/foreign-population) or as growth minus natural increase; inputs then carry that method's error."
+      ],
+      "references": [
+        {
+          "expected": 7.84,
+          "id": "germany-2023",
+          "inputs": {
+            "E": 1269545.0,
+            "I": 1932509.0,
+            "P": 84514086.0
+          },
+          "method": "Published inputs: Destatis migration flow table 2023 (arrivals 1932509, departures 1269545, net 662964) with average population from Destatis year-end stocks 2022/2023 (84358845, 84669326). 662964/84514086*1000 = 7.844; tolerance covers rounding of the averaged denominator.",
+          "provenance": "published-illustration-derived",
+          "tolerance": 0.05
+        },
+        {
+          "expected": 95.24,
+          "id": "ordinary-textbook",
+          "inputs": {
+            "E": 100000.0,
+            "I": 200000.0,
+            "P": 1050000.0
+          },
+          "method": "Independent worked case in the standard textbook form (midyear population with flows): (200000-100000)/1050000*1000 = 95.238; checks the expression on materially different values.",
+          "provenance": "independent-derivation",
+          "tolerance": 0.05
+        },
+        {
+          "expected": 0.0,
+          "id": "balanced-flows-boundary",
+          "inputs": {
+            "E": 50000.0,
+            "I": 50000.0,
+            "P": 1000000.0
+          },
+          "method": "Limiting identity: equal immigration and emigration give exactly zero net migration and hence a zero rate.",
+          "provenance": "limiting-identity",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "E": 1269545.0,
+            "I": 1932509.0,
+            "P": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero average population violates P > 0; a rate over no population is undefined."
+        },
+        {
+          "inputs": {
+            "E": 1269545.0,
+            "P": 84514086.0
+          },
+          "kind": "missing-input",
+          "reason": "Immigration count missing; net migration cannot be formed from emigration and population alone."
+        }
+      ],
+      "relationship": {
+        "expression": "(I - E) / P * 1000",
+        "locator": "UN WPP 2024 dataportal indicator 66/65 metadata Description; Eurostat glossary 'Crude rate of net migration'",
+        "original_equation": "Crude rate of net migration: the ratio of net migration (immigrants minus emigrants) during the year to the average population in that year, expressed per 1000 persons (UN WPP 2024).",
+        "output_symbol": "CNMR",
+        "source_id": "un-wpp-cnmr",
+        "translation_notes": "Dimensional check: (counts - counts)/count is dimensionless; literal 1000 carries the per-1000 presentation with output unit 1. Identity check: CNMR equals crude population-change rate minus crude natural-change rate (Eurostat demo_r_gind3)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Metadata defines the crude rate of net migration as the ratio of net migration during the year to the average population in that year, expressed per 1000 persons; net migration defined as immigrants minus emigrants. Topic: International Migration.",
+          "id": "un-wpp-cnmr",
+          "kind": "primary",
+          "license": "Terms unknown: UN DESA/WPP citation required (UN DESA Population Division (2024), WPP 2024 Revision, custom data acquired via website); exact licence identifier unverified.",
+          "locator": "Data Portal indicator 66/65 metadata, Description",
+          "redistribution": "Short evidence paraphrase and locator only; no verbatim reproduction or redistribution.",
+          "title": "UN World Population Prospects 2024: Crude rate of net migration metadata",
+          "url": "https://population.un.org/dataportal/data/indicators/66,65/locations/840/start/1990/end/2023/metadata",
+          "version": "WPP 2024 Revision dataportal metadata viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Glossary/metadata define net migration as immigrants minus emigrants (12-month usual-residence criterion, Regulation (EC) No 862/2007) and the crude rate of net migration (plus statistical adjustment) as that ratio to average population per 1000 inhabitants.",
+          "id": "eurostat-cnmr",
+          "kind": "primary",
+          "license": "Eurostat editorial content and statistics reusable under CC BY 4.0 with attribution.",
+          "locator": "Glossary:Migration / demo_gind reference metadata",
+          "redistribution": "Short evidence paraphrase and locator only; no verbatim reproduction or redistribution.",
+          "title": "Eurostat: crude rate of net migration (glossary and demo_gind metadata)",
+          "url": "https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Glossary:Crude_rate_of_net_migration",
+          "version": "Glossary/metadata viewed 2026-11-03"
+        }
+      ],
+      "summary": "Crude net-migration rate: yearly net migration (immigration minus emigration) per 1000 average population.",
+      "title": "Crude rate of net migration (per 1000 population)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same territory and calendar year as E and P",
+          "definition": "Number of immigrants (arrivals establishing usual residence) during the year",
+          "dimensions": "count of persons (dimensionless)",
+          "domain": "count of persons, nonnegative",
+          "quantity_id": "immigration_period_count",
+          "role": "input",
+          "source_symbol": "immigrants",
+          "symbol": "I",
+          "unit": "1"
+        },
+        {
+          "context": "same territory and calendar year as I and P",
+          "definition": "Number of emigrants (departures ending usual residence) during the year",
+          "dimensions": "count of persons (dimensionless)",
+          "domain": "count of persons, nonnegative",
+          "quantity_id": "emigration_period_count",
+          "role": "input",
+          "source_symbol": "emigrants",
+          "symbol": "E",
+          "unit": "1"
+        },
+        {
+          "context": "same territory and calendar year as I and E; average (midyear) stock",
+          "definition": "Average population of the year, e.g. mean of start- and end-year stocks",
+          "dimensions": "count of persons (dimensionless)",
+          "domain": "count of persons, strictly positive",
+          "quantity_id": "midperiod_reference_population",
+          "role": "input",
+          "source_symbol": "average population in that year",
+          "symbol": "P",
+          "unit": "1"
+        },
+        {
+          "context": "same territory and calendar year as I, E and P",
+          "definition": "Net migration per 1000 average population under the per-1000 presentation convention; signed",
+          "dimensions": "dimensionless (conventional per-1000 scaling)",
+          "domain": "per-1000 rate, signed (negative values are net outflows)",
+          "quantity_id": "crude_net_migration_rate",
+          "role": "output",
+          "source_symbol": "introduced: CNMR",
+          "symbol": "CNMR",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: numerator is surviving children aged 0-4 of both sexes as enumerated at the reference date (a stock, not a flow of births).",
+        "source assumption: denominator is women of reproductive age 15-49 (UNSD/IUSSP); PRB also admits 15-44, which is a different denominator and not interchangeable.",
+        "application profile: the Burkina Faso oracle uses 1996 census stocks; the ratio reflects recent fertility net of child mortality plus census coverage effects."
+      ],
+      "constants": [
+        {
+          "literal": 1000.0,
+          "locator": "UNSD DYB Table 3 technical notes: 'per 1 000 women aged 15-49'",
+          "meaning": "per-1000 presentation multiplier for the child-woman ratio",
+          "source_id": "unsd-dyb-cwr",
+          "unit": "1"
+        }
+      ],
+      "guards": [
+        "C04 >= 0",
+        "W > 0"
+      ],
+      "id": "demography--child-woman-ratio",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meaning demography:child_woman_ratio and per-1000 presentation convention need runtime extension; runtime_model null."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Given CWR and C04, W = C04*1000/CWR requires CWR != 0. Given CWR and W, C04 = CWR*W/1000. Substitution check: 876*2303180/1000 = 2017585.7, within 0.05% of published 2016960 (rounding of the published ratio). No causal invertibility: the ratio understates true fertility (counts survivors only) and is depressed by young-child under-enumeration, so it cannot be inverted into a total fertility rate without a mortality/coverage model.",
+      "kind": "empirical",
+      "limitations": [
+        "Invariably understates true fertility: counts surviving children only, so high-mortality settings read lower than their birth flow (UNSD).",
+        "Depressed by young-child census under-enumeration and age misreporting; narrowed across countries because high-fertility places also have high child mortality (UNSD).",
+        "Partly (not fully) standardised for age-sex composition; unlike CBR it still embeds population-structure effects (IUSSP: more a measure of 'youngness'/child-support burden)."
+      ],
+      "references": [
+        {
+          "expected": 876.0,
+          "id": "burkina-faso-1996",
+          "inputs": {
+            "C04": 2016960.0,
+            "W": 2303180.0
+          },
+          "method": "Published teaching-oracle inputs: IUSSP PAPP101 Session 2 Exercise 2 (US Census Bureau International Database), children 0-4 = 2016960, women 15-49 = 2303180; stated correct answer 876. 2016960/2303180*1000 = 875.8; tolerance covers the unit rounding of the published ratio.",
+          "provenance": "published-illustration-derived",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 250.0,
+          "id": "ordinary-synthetic",
+          "inputs": {
+            "C04": 500.0,
+            "W": 2000.0
+          },
+          "method": "Independent ordinary case: 500/2000*1000 = 250 exactly; checks the expression on materially different values.",
+          "provenance": "independent-derivation",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 0.0,
+          "id": "no-children-boundary",
+          "inputs": {
+            "C04": 0.0,
+            "W": 2000.0
+          },
+          "method": "Limiting identity: zero surviving young children give exactly zero regardless of denominator.",
+          "provenance": "limiting-identity",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "C04": 500.0,
+            "W": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero women of reproductive age violates W > 0; the ratio is undefined."
+        },
+        {
+          "inputs": {
+            "C04": 500.0
+          },
+          "kind": "missing-input",
+          "reason": "Denominator (women 15-49) missing; the ratio cannot be formed from the child count alone."
+        }
+      ],
+      "relationship": {
+        "expression": "C04 / W * 1000",
+        "locator": "UNSD DYB Table 3 technical notes 'Ratio and rate computation'; PRB glossary 'Child-Woman Ratio' entry; IUSSP PAPP101 Session 4 formula",
+        "original_equation": "Child-woman ratio: number of children under five years of age per 1000 women aged 15-49 at a given moment (UNSD); children 0-4 of both sexes per 1000 women 15-44 or 15-49 (PRB).",
+        "output_symbol": "CWR",
+        "source_id": "unsd-dyb-cwr",
+        "translation_notes": "Dimensional check: counts/counts is dimensionless; literal 1000 carries the per-1000 presentation with output unit 1. Distinct from CBR: CWR needs only census age-sex stocks, no birth registration."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Technical notes state the child-woman ratio is the number of children under five per 1000 women aged 15-49 at a given moment, computed from censuses/surveys/estimates; an indicator of recent fertility net of child mortality that invariably understates true fertility.",
+          "id": "unsd-dyb-cwr",
+          "kind": "primary",
+          "license": "Terms unknown: conventional UN copyrighted material (UN Terms of Use allow personal non-commercial download without redistribution/derivative rights); cite briefly with attribution.",
+          "locator": "Table 3 technical notes, 'Description of variables' and 'Ratio and rate computation'",
+          "redistribution": "Short evidence paraphrase and locator only; no verbatim reproduction or redistribution.",
+          "title": "UNSD Demographic Yearbook: Table 3 Technical Notes (Selected derived measures of natality)",
+          "url": "https://unstats.un.org/unsd/demographic/products/dyb/DYBNat/NotesNatStatTab03.htm",
+          "version": "DYB Table 3 notes viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Glossary entry defines the child-woman ratio as children under age 5 per 1000 women ages 15-44 or 15-49 in a given year; a crude census-based fertility measure used when specific fertility data are unavailable.",
+          "id": "prb-glossary",
+          "kind": "primary",
+          "license": "Terms unknown: PRB glossary is a copyrighted web resource; cite briefly with attribution.",
+          "locator": "Glossary entry 'Child-Woman Ratio'",
+          "redistribution": "Short evidence paraphrase and locator only; no verbatim reproduction or redistribution.",
+          "title": "PRB Glossary of Demographic Terms",
+          "url": "https://www.prb.org/resource/glossary/",
+          "version": "Glossary viewed 2026-11-03; entry published 2020-10-02"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Session 4 gives the formula as living children 0-4 divided by women 15-49 and Session 2 Exercise 2 works Burkina Faso 1996 (2016960 children, 2303180 women, answer 876).",
+          "id": "iussp-cwr",
+          "kind": "primary",
+          "license": "Terms unknown: free-access teaching modules with no explicit open licence found; quote briefly with attribution.",
+          "locator": "PAPP101 Session 4 'Child/Woman Ratio' and Session 2 Exercise 2",
+          "redistribution": "Short evidence paraphrase and locator only; no verbatim reproduction or redistribution.",
+          "title": "IUSSP PAPP101: Child/Woman Ratio",
+          "url": "https://papp.iussp.org/sessions/papp101_s04/PAPP101_s04_050_010.html",
+          "version": "PAPP101 sessions viewed 2026-11-03"
+        }
+      ],
+      "summary": "Child-woman ratio: surviving children aged 0-4 per 1000 women aged 15-49, a census-based crude fertility index.",
+      "title": "Child-woman ratio (children 0-4 per 1000 women 15-49)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same territory at the same census/estimate reference date as W",
+          "definition": "Living children aged 0-4 (under five), both sexes, as enumerated",
+          "dimensions": "count of persons (dimensionless)",
+          "domain": "count of persons, nonnegative",
+          "quantity_id": "child_population_0_4_stock",
+          "role": "input",
+          "source_symbol": "children under five-years of age",
+          "symbol": "C04",
+          "unit": "1"
+        },
+        {
+          "context": "same territory at the same census/estimate reference date as C04",
+          "definition": "Women of reproductive age 15-49 as enumerated",
+          "dimensions": "count of persons (dimensionless)",
+          "domain": "count of persons, strictly positive",
+          "quantity_id": "female_population_15_49_stock",
+          "role": "input",
+          "source_symbol": "women aged 15-49",
+          "symbol": "W",
+          "unit": "1"
+        },
+        {
+          "context": "same territory and reference date as C04 and W",
+          "definition": "Children 0-4 per 1000 women 15-49 under the per-1000 presentation convention",
+          "dimensions": "dimensionless (conventional per-1000 scaling)",
+          "domain": "per-1000 index, nonnegative",
+          "quantity_id": "child_woman_ratio",
+          "role": "output",
+          "source_symbol": "introduced: CWR",
+          "symbol": "CWR",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: natural increase is the surplus (or deficit) of live births over deaths in the same period and territory (Eurostat wording).",
+        "application profile: inputs are period flow counts; the same identity holds for annual estimates, intercensal intervals, or projections provided B and D share period and territory."
+      ],
+      "constants": [],
+      "guards": [
+        "B >= 0",
+        "D >= 0"
+      ],
+      "id": "demography--natural-increase-count",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meaning demography:natural_increase_count needs runtime extension; runtime_model null. Complements (not duplicates) demography--natural-increase-rate (b02 per-1000 rate) and demography--population-balance (b01, which adds this difference to migration)."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Solve B = NI + D given deaths; solve D = B - NI given births. Both linear, no singularities. Substitution check: NI = 150000 with D = 750000 gives B = 900000. Zero case B = D gives NI = 0 regardless of level (a large balanced population still has zero natural increase). No causal invertibility: the count does not identify age-specific fertility or mortality schedules.",
+      "kind": "definition",
+      "limitations": [
+        "Counts alone do not standardise for population size or age structure; for comparison use the crude natural-increase rate (b02).",
+        "Does not separate the fertility and mortality contributions; equal and opposite changes in B and D leave NI unchanged."
+      ],
+      "references": [
+        {
+          "expected": 150000.0,
+          "id": "ordinary-surplus",
+          "inputs": {
+            "B": 900000.0,
+            "D": 750000.0
+          },
+          "method": "Independent ordinary case: 900000 - 750000 = 150000 exactly; checks the expression on a plain surplus.",
+          "provenance": "independent-derivation",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": -200000.0,
+          "id": "natural-decrease",
+          "inputs": {
+            "B": 500000.0,
+            "D": 700000.0
+          },
+          "method": "Independent materially different case: deaths exceed births, 500000 - 700000 = -200000; checks signed output (natural decrease).",
+          "provenance": "independent-derivation",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 0.0,
+          "id": "balanced-boundary",
+          "inputs": {
+            "B": 600000.0,
+            "D": 600000.0
+          },
+          "method": "Limiting identity: equal births and deaths give exactly zero natural increase.",
+          "provenance": "limiting-identity",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "B": -100.0,
+            "D": 50000.0
+          },
+          "kind": "domain",
+          "reason": "Negative birth count violates B >= 0; counts of vital events cannot be negative."
+        },
+        {
+          "inputs": {
+            "B": 900000.0
+          },
+          "kind": "missing-input",
+          "reason": "Death count missing; natural increase cannot be formed from births alone."
+        }
+      ],
+      "relationship": {
+        "expression": "B - D",
+        "locator": "Eurostat demo_gind metadata: natural change = live births minus deaths; corroborated by the balancing equation (b01 sources: PRB glossary, World Bank WDI methodology)",
+        "original_equation": "Natural change / natural increase: the difference between the number of live births and the number of deaths during the period (Eurostat).",
+        "output_symbol": "NI",
+        "source_id": "eurostat-demo-gind",
+        "translation_notes": "Dimensional check: persons minus persons = persons (unit 1). This is the level form; the b02 rate form divides by midyear population and scales per 1000, and the b01 balance adds net migration to this difference."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Reference metadata define natural change as live births minus deaths during the year, and the crude rate of natural change as that difference over average population per 1000; births and deaths follow the usual-residence and vital-events definitions.",
+          "id": "eurostat-demo-gind",
+          "kind": "primary",
+          "license": "Eurostat editorial content and statistics reusable under CC BY 4.0 with attribution.",
+          "locator": "demo_gind reference metadata (ESMS population pages)",
+          "redistribution": "Short evidence paraphrase and locator only; no verbatim reproduction or redistribution.",
+          "title": "Eurostat: demo_gind reference metadata (natural change)",
+          "url": "https://ec.europa.eu/eurostat/cache/metadata/EN/demo_gind_esmspop_pl.htm",
+          "version": "demo_gind metadata viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Demographic balancing identity P1 = P0 + births - deaths + net migration, corroborating natural increase as the births-minus-deaths component of population change.",
+          "id": "prior-b01-balance",
+          "kind": "primary",
+          "license": "Prior-batch sources: World Bank WDI methodology (CC BY-4.0 underlying); PRB glossary (copyrighted, cite briefly).",
+          "locator": "b01 bundle sources for demography--population-balance",
+          "redistribution": "Short evidence paraphrase and locator only; no verbatim reproduction or redistribution.",
+          "title": "Prior batch b01: population-balance sources (corroboration)",
+          "url": "https://www.prb.org/resource/glossary/",
+          "version": "b01 bundle packed 2026-11-03"
+        }
+      ],
+      "summary": "Natural increase count: live births minus deaths in the same period and territory (signed; negative is natural decrease).",
+      "title": "Natural increase count (births minus deaths)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same territory and reference period as D",
+          "definition": "Number of live births during the period",
+          "dimensions": "count of persons (dimensionless)",
+          "domain": "count of persons, nonnegative",
+          "quantity_id": "live_birth_period_count",
+          "role": "input",
+          "source_symbol": "live births",
+          "symbol": "B",
+          "unit": "1"
+        },
+        {
+          "context": "same territory and reference period as B",
+          "definition": "Number of deaths during the period",
+          "dimensions": "count of persons (dimensionless)",
+          "domain": "count of persons, nonnegative",
+          "quantity_id": "death_period_count",
+          "role": "input",
+          "source_symbol": "deaths",
+          "symbol": "D",
+          "unit": "1"
+        },
+        {
+          "context": "same territory and reference period as B and D",
+          "definition": "Surplus of births over deaths; negative values are natural decrease",
+          "dimensions": "count of persons (dimensionless)",
+          "domain": "count of persons, signed",
+          "quantity_id": "natural_increase_count",
+          "role": "output",
+          "source_symbol": "introduced: NI",
+          "symbol": "NI",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

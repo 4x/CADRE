@@ -1,0 +1,582 @@
+{
+  "batch_id": "environmental-accounting-a-b02",
+  "created": "2026-11-03",
+  "curator": "buffy-spark",
+  "deferred": [
+    {
+      "reason": "Needs sub-assembly emission and output data per facility plus a stated allocation rule; allocating a shared meter across products or years is a separate allocation record, not this ratio. Continuation priority: facility-level worked examples in GHG Protocol Scope 3 Calculation Guidance with explicit allocation.",
+      "source_urls": [
+        "https://www.teamenergy.com/discover/insights/guidance-and-market-research/uk-carbon-reporting-requirements-explained/"
+      ],
+      "title": "Facility-level intensity with sub-assembly allocation (needs allocation rule)"
+    }
+  ],
+  "domain": "environmental-accounting",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "New quantity meanings required: carbon_dioxide_equivalent (shared with b01), two-gas component roles, revenue_basis output, recycled/composted/diverted/disposed mass roles, combusted and other-managed mass roles. New units: t (tonne), kg/USD. Scalar sums/differences fit the engine once meanings/units exist.",
+      "Duplicate search limited to the supplied catalog-inventory snapshot and batches b01-b04; b02 totals reuse b01 derived values as cross-record arithmetic checks, flagged as derived rather than independently published.",
+      "N-gas generalization of the two-gas total (family sum) is intentionally left to a later batch; no runtime projection is claimed."
+    ],
+    "queries": [],
+    "review_notes": "Checks performed: curation validate (schema/grammar/arithmetic/guards); 8 references replayed; 4 domain rejections; inverse substitutions; prose-vs-locator fidelity review; canonical-units review (no inlined x100/x1000; percent display outside expressions; common-unit requirement stated). Checks not performed: central scientific review, lab replication, PDF page verification, legal clearance beyond recorded terms.",
+    "summary": "Batch b02 extends the b01 seed identities with four reusable accounting compositions: (5) two-gas CO2e total, (6) revenue-basis emission intensity, (7) diverted-mass subtotal (recycled+composted), (8) residual disposal mass by generation balance. Each reuses directly-read HTML sources with matching Scope/period/boundary discipline and cross-checks b01 values where stated."
+  },
+  "kit_version": "2026-10-31.6",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: each component is already converted with horizon-consistent GWPs for the same vintage, so the common CO2e unit makes addition valid (EPA GWP page: common unit lets analysts add up estimates across gases).",
+        "Application profile: two named components only (e.g. methane-route and nitrous-oxide-route subtotals); an N-gas generalization is a separate family-sum record."
+      ],
+      "constants": [],
+      "guards": [
+        "Ma >= 0",
+        "Mb >= 0"
+      ],
+      "id": "environmental-accounting--total-co2e-from-two-gas-components",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires new quantity meanings for inventoried CO2e component roles; unit kg exists. Scalar sum fits the engine once meanings exist; N-gas family generalization is future work."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Mtot with Mb determines Ma = Mtot - Mb (needs Mtot >= Mb under the guards); Mtot with Ma determines Mb likewise. Substitution checks: 846 - 546 = 300 recovers case ch4-plus-n2o; 846 - 300 = 546 recovers Mb. Inversion is algebraic only and does not attribute sources.",
+      "kind": "definition",
+      "limitations": [
+        "Components must share gas-to-CO2e horizon and vintage; mixing GWP100 with GWP20 or AR5 with AR6 in one sum is out of scope.",
+        "The sum inherits each component's boundary; it does not reconcile Scopes, periods or double-counted sources."
+      ],
+      "references": [
+        {
+          "expected": 846.0,
+          "id": "ch4-plus-n2o",
+          "inputs": {
+            "Ma": 300.0,
+            "Mb": 546.0
+          },
+          "method": "Independent addition reusing the two derived b01 CO2e totals (10 kg CH4 x 30 and 2 kg N2O x 273) as a cross-record consistency check.",
+          "provenance": "Derived from sibling-batch values; not a published inventory total.",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 546.0,
+          "id": "boundary-absent-component",
+          "inputs": {
+            "Ma": 0.0,
+            "Mb": 546.0
+          },
+          "method": "Boundary identity: an absent gas component contributes zero to the horizon-consistent total.",
+          "provenance": "Definitional boundary check; not an empirical validation.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Ma": -1.0,
+            "Mb": 546.0
+          },
+          "kind": "domain",
+          "reason": "Negative component mass violates the nonnegative-inventory profile; removals need a separate sink definition."
+        }
+      ],
+      "relationship": {
+        "expression": "Ma + Mb",
+        "locator": "Lead definition paragraphs (common-unit aggregation across gases, e.g. national inventory)",
+        "original_equation": "Total CO2e = CO2e of gas route A + CO2e of gas route B (same horizon, vintage and period)",
+        "output_symbol": "Mtot",
+        "source_id": "epa-gwp-page",
+        "translation_notes": "Two-component specialization of the common-unit aggregation: both inputs in kg CO2e for the same horizon/vintage/period, output in kg CO2e. Dimensional check: mass = mass + mass. No conversion inlined; horizon consistency carried in context."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: GWPs give a common unit of measure that lets analysts add up emissions estimates of different gases (for example to compile a national inventory) and compare reduction opportunities.",
+          "id": "epa-gwp-page",
+          "kind": "primary",
+          "license": "U.S. federal government public information; site terms at https://www.epa.gov/privacy/privacy-and-security-notice (accessed 2026-11-03); only a short paraphrase is used.",
+          "locator": "Lead definition paragraphs on the GWP page",
+          "redistribution": "Contains only a short original paraphrase and independent arithmetic checks; no copied text or data.",
+          "title": "Understanding Global Warming Potentials - US EPA",
+          "url": "https://www.epa.gov/ghgemissions/understanding-global-warming-potentials",
+          "version": "Page as accessed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: emissions of each gas are multiplied by that gas's GWP to state them in CO2 equivalent, which is the per-gas input this total sums.",
+          "id": "epa-overview-ghg",
+          "kind": "primary",
+          "license": "U.S. federal government public information; site terms at https://www.epa.gov/privacy/privacy-and-security-notice (accessed 2026-11-03); only a short paraphrase is used.",
+          "locator": "'Explanation of Units' section of the Overview page",
+          "redistribution": "Contains only a short original paraphrase; no copied text or data.",
+          "title": "Overview of Greenhouse Gases - US EPA",
+          "url": "https://www.epa.gov/ghgemissions/overview-greenhouse-gases",
+          "version": "Page as accessed 2026-11-03"
+        }
+      ],
+      "summary": "Horizon-consistent two-gas inventory total: sum of two single-gas CO2e components for the same vintage and period.",
+      "title": "Total CO2-equivalent from two single-gas components",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same horizon (GWP100), vintage, Scope boundary and period as Mb and Mtot",
+          "definition": "CO2-equivalent mass of the first gas route already converted at the stated horizon/vintage",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg CO2e; zero admits the absent-component boundary",
+          "quantity_id": "carbon_dioxide_equivalent",
+          "role": "input",
+          "source_symbol": "CO2e of gas route A",
+          "symbol": "Ma",
+          "unit": "kg"
+        },
+        {
+          "context": "same horizon (GWP100), vintage, Scope boundary and period as Ma and Mtot",
+          "definition": "CO2-equivalent mass of the second gas route already converted at the stated horizon/vintage",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg CO2e; zero admits the absent-component boundary",
+          "quantity_id": "carbon_dioxide_equivalent",
+          "role": "input",
+          "source_symbol": "CO2e of gas route B",
+          "symbol": "Mb",
+          "unit": "kg"
+        },
+        {
+          "context": "same horizon, vintage, Scope boundary and period as inputs",
+          "definition": "Combined CO2-equivalent mass of the two routes",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg CO2e",
+          "quantity_id": "carbon_dioxide_equivalent",
+          "role": "output",
+          "source_symbol": "Total CO2e",
+          "symbol": "Mtot",
+          "unit": "kg"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: numerator and denominator cover the same Scope boundary and annual period with revenue as the stated denominator (TEAM lists tCO2e per revenue; NetNada lists revenue as a standard activity metric).",
+        "Application profile: revenue-basis specialization in nominal reporting currency; state the currency, Scope coverage and whether revenue is total or value-added."
+      ],
+      "constants": [],
+      "guards": [
+        "E >= 0",
+        "R > 0"
+      ],
+      "id": "environmental-accounting--revenue-intensity-from-emissions-and-revenue",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires new quantity meanings: emission_mass (shared), revenue_output, revenue_emission_intensity; new unit kg/USD. Scalar form E/R fits the engine once meanings/units exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "I with positive R determines E = I x R; I with positive E determines R = E / I. R = 0 is excluded (intensity undefined); I = 0 with positive R implies zero emissions. Substitution checks: 0.02 x 250000 = 5000 recovers case mid-revenue; 5000 / 0.02 = 250000 recovers R. Algebraic only; revenue fluctuations can move the ratio without any physical change.",
+      "kind": "definition",
+      "limitations": [
+        "Revenue-basis intensity is sensitive to prices, currency and inflation; it must not be read as physical efficiency without a physical-denominator companion.",
+        "Cross-company comparison requires the same currency basis, Scope coverage and revenue definition."
+      ],
+      "references": [
+        {
+          "expected": 0.02,
+          "id": "mid-revenue",
+          "inputs": {
+            "E": 5000.0,
+            "R": 250000.0
+          },
+          "method": "Independent division in the TEAM/NetNada revenue-basis style (mass per currency); illustrative inputs, computed directly.",
+          "provenance": "Independent arithmetic reasoning from stated illustrative inputs; not a published company figure.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.005,
+          "id": "large-revenue",
+          "inputs": {
+            "E": 5000.0,
+            "R": 1000000.0
+          },
+          "method": "Independent division at a materially larger revenue scale showing denominator sensitivity; same numerator as case mid-revenue.",
+          "provenance": "Independent arithmetic reasoning from stated illustrative inputs; not a published company figure.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "E": 5000.0,
+            "R": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero revenue makes revenue intensity undefined; the R > 0 guard rejects it rather than returning zero."
+        }
+      ],
+      "relationship": {
+        "expression": "E / R",
+        "locator": "TEAM section 'Intensity Ratios' (per-revenue example among intensity forms); NetNada section 'How Emissions Intensity Works' (total-over-activity-metric formula with revenue as a standard denominator)",
+        "original_equation": "Revenue emission intensity = total GHG emissions / revenue (I = E / R)",
+        "output_symbol": "I",
+        "source_id": "team-carbon-reporting",
+        "translation_notes": "Revenue-basis specialization of the generic intensity definition: E in kg CO2e, R in USD for the same period/Scope, I in kg per USD. Dimensional check: mass / currency = mass per currency. No price-level or currency conversion inlined."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: in-scope organisations report intensity ratios of annual emissions to a business metric, with listed examples including tonnes of CO2e per million pounds of revenue alongside per-employee, per-area and per-unit-production forms.",
+          "id": "team-carbon-reporting",
+          "kind": "primary",
+          "license": "Terms not verified on the accessed page (2026-11-03); treated as all rights reserved; only a short paraphrase is used.",
+          "locator": "Section 'Intensity Ratios'",
+          "redistribution": "Contains only a short original paraphrase and independent arithmetic checks; no copied text or data.",
+          "title": "UK Carbon Emission Reporting Requirements Explained - TEAM Energy",
+          "url": "https://www.teamenergy.com/discover/insights/guidance-and-market-research/uk-carbon-reporting-requirements-explained/",
+          "version": "Page as accessed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: intensity is total GHG (tCO2e) divided by the chosen activity metric, with revenue (tonnes per million dollars) as a standard choice alongside production, space and headcount.",
+          "id": "netnada-intensity-guide",
+          "kind": "primary",
+          "license": "Terms not verified on the accessed page (2026-11-03); treated as all rights reserved; only a short paraphrase is used.",
+          "locator": "Section 'How Emissions Intensity Works'",
+          "redistribution": "Contains only a short original paraphrase; no copied text or data.",
+          "title": "What is Emissions Intensity? Definition, Examples and Complete Guide - NetNada",
+          "url": "https://www.netnada.com/post/what-is-emissions-intensity-definition-examples-complete-guide",
+          "version": "Page as accessed 2026-11-03"
+        }
+      ],
+      "summary": "Revenue-basis emission intensity for one Scope boundary and period: emission mass divided by matching revenue.",
+      "title": "Revenue-basis emission intensity from emissions and revenue",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same Scope boundary, gas/CO2e basis and annual period as R and I",
+          "definition": "Total GHG emission mass for the stated Scope boundary and period (numerator)",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg; zero admits the zero-intensity boundary",
+          "quantity_id": "emission_mass",
+          "role": "input",
+          "source_symbol": "Total GHG Emissions",
+          "symbol": "E",
+          "unit": "kg"
+        },
+        {
+          "context": "same annual period and reporting boundary as E",
+          "definition": "Revenue for the matching period in the stated currency",
+          "dimensions": "currency",
+          "domain": "Positive finite revenue in USD; zero is rejected as undefined intensity",
+          "quantity_id": "revenue_output",
+          "role": "input",
+          "source_symbol": "Activity Metric (revenue)",
+          "symbol": "R",
+          "unit": "USD"
+        },
+        {
+          "context": "same Scope boundary, gas/CO2e basis, currency and period as inputs",
+          "definition": "Emission mass per unit of revenue",
+          "dimensions": "mass / currency",
+          "domain": "Nonnegative finite intensity in kg per USD",
+          "quantity_id": "revenue_emission_intensity",
+          "role": "output",
+          "source_symbol": "Emissions Intensity (revenue basis)",
+          "symbol": "I",
+          "unit": "kg/USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: both components share the same reporting period, MSW scope and weight basis, and both count toward the headline diverted aggregate (EPA: 69 Mt recycled plus 25 Mt composted make almost 94 Mt).",
+        "Application profile: subtotal of the accepted diverted streams only; other food-management pathways and combustion with energy recovery are separate aggregates."
+      ],
+      "constants": [],
+      "guards": [
+        "Mr >= 0",
+        "Mc >= 0"
+      ],
+      "id": "environmental-accounting--diverted-mass-from-recycled-and-composted",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires new quantity meanings for recycled, composted and diverted mass roles; new unit t (tonne). Scalar sum fits the engine once meanings/units exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Md with Mc determines Mr = Md - Mc (needs Md >= Mc); Md with Mr determines Mc likewise. Substitution checks: 94 - 25 = 69 recovers case national-2018; 94 - 69 = 25 recovers Mc. Algebraic only; stream eligibility follows the stated method, not the arithmetic.",
+      "kind": "definition",
+      "limitations": [
+        "The subtotal inherits stream-eligibility disputes (contamination, rejected loads, double-counted transfer-station records) and does not certify final recovery.",
+        "Other food-management tonnage (17.7 Mt in 2018) is deliberately outside this subtotal under EPA's headline definition."
+      ],
+      "references": [
+        {
+          "expected": 94.0,
+          "id": "national-2018",
+          "inputs": {
+            "Mc": 25.0,
+            "Mr": 69.0
+          },
+          "method": "EPA National Overview 2018 publishes about 69 Mt recycled and 25 Mt composted with the headline 'almost 94 Mt'; expected is the independent sum.",
+          "provenance": "Values from published EPA figures; the 94 sum is independently added (headline is rounded).",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 24.9,
+          "id": "compost-detail",
+          "inputs": {
+            "Mc": 2.6,
+            "Mr": 22.3
+          },
+          "method": "EPA composting detail: about 22.3 Mt of yard trimmings plus 2.6 Mt of food waste composted gives 24.9 Mt (about 25 Mt headline); materially different scale from case national-2018.",
+          "provenance": "Values from published EPA figures; the 24.9 sum is independently added.",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Mc": 25.0,
+            "Mr": -1.0
+          },
+          "kind": "domain",
+          "reason": "Negative recycled mass violates the nonnegative-ledger profile; corrections belong to revised estimates, not negative entries."
+        }
+      ],
+      "relationship": {
+        "expression": "Mr + Mc",
+        "locator": "Sections 'The Current National Picture' (about 69 Mt recycled, 25 Mt composted, about 94 Mt combined) and 'Composting/Other Food Management' (about 22.3 Mt yard trimmings and 2.6 Mt food waste composted)",
+        "original_equation": "Diverted mass (headline) = recycled mass + composted mass (Md = Mr + Mc)",
+        "output_symbol": "Md",
+        "source_id": "epa-national-overview",
+        "translation_notes": "Headline-aggregate subtotal of the two accepted diverted streams, all in a common mass unit. Dimensional check: mass = mass + mass. Ratio-scale-invariant; ledger inputs must still share one unit and boundary."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: 2018 MSW shows about 69 Mt recycled and 25 Mt composted, together almost 94 Mt; composted detail is about 22.3 Mt yard trimmings and 2.6 Mt food waste; measurement is by weight for post-consumer MSW.",
+          "id": "epa-national-overview",
+          "kind": "primary",
+          "license": "U.S. federal government public information; site terms at https://www.epa.gov/privacy/privacy-and-security-notice (accessed 2026-11-03); only a short paraphrase is used.",
+          "locator": "Sections 'The Current National Picture' and 'Composting/Other Food Management'",
+          "redistribution": "Contains only a short original paraphrase and independent arithmetic checks; no copied text, tables or figures.",
+          "title": "National Overview: Facts and Figures on Materials, Wastes and Recycling - US EPA",
+          "url": "https://www.epa.gov/facts-and-figures-about-materials-waste-and-recycling/national-overview-facts-and-figures-materials",
+          "version": "Page as accessed 2026-11-03 (data through calendar year 2018)"
+        }
+      ],
+      "summary": "Headline diverted-mass subtotal for one boundary and period: recycled plus composted mass.",
+      "title": "Diverted mass from recycled and composted masses",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same reporting period, program boundary, waste scope and weight basis as Mc and Md",
+          "definition": "Mass of waste recycled under the stated method",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass; zero admits the zero-recycling boundary",
+          "quantity_id": "waste_recycled_mass",
+          "role": "input",
+          "source_symbol": "recycled",
+          "symbol": "Mr",
+          "unit": "t"
+        },
+        {
+          "context": "same reporting period, program boundary, waste scope and weight basis as Mr and Md",
+          "definition": "Mass of waste composted under the stated method",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass; zero admits the zero-composting boundary",
+          "quantity_id": "waste_composted_mass",
+          "role": "input",
+          "source_symbol": "composted",
+          "symbol": "Mc",
+          "unit": "t"
+        },
+        {
+          "context": "same reporting period, program boundary, waste scope and stream definitions as inputs",
+          "definition": "Combined diverted mass of the two headline streams",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass",
+          "quantity_id": "waste_diverted_mass",
+          "role": "output",
+          "source_symbol": "recycled and composted together",
+          "symbol": "Md",
+          "unit": "t"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: all four ledger entries share the same reporting period, MSW scope and weight basis, with combustion meaning energy recovery only and landfilling as the residual (EPA 2018: 292.4 = 94 + 17.7 + 34.6 + 146.1).",
+        "Application profile: generation-balance residual; each subtracted aggregate (diverted, other-managed, combusted) must be measured under the same boundary with no double counting across transfer records."
+      ],
+      "constants": [],
+      "guards": [
+        "Mt > 0",
+        "Md >= 0",
+        "Mo >= 0",
+        "Mcb >= 0",
+        "Mt >= Md + Mo + Mcb"
+      ],
+      "id": "environmental-accounting--residual-disposal-from-generation-balance",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires new quantity meanings for total, diverted, other-managed, combusted and disposed mass roles; new unit t (tonne). Scalar difference fits the engine once meanings/units exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Any three knowns with the guard determine the fourth: Mt = Ml + Md + Mo + Mcb; Md = Mt - Ml - Mo - Mcb; and likewise for Mo, Mcb. Needs the unknown's equation to keep all guards (nonnegativity and Mt >= Md + Mo + Mcb). Substitution checks: 146.1 + 94 + 17.7 + 34.6 = 292.4 recovers case epa-2018-balance; 292.4 - 146.1 - 17.7 - 34.6 = 94 recovers Md. Algebraic only; residue quality and stream eligibility are not established by the subtraction.",
+      "kind": "definition",
+      "limitations": [
+        "A balance residual concentrates every ledger error; it must not be reported without the four stated inputs and their estimation methods.",
+        "Methodology changes (EPA's 2018 food-pathway expansion) break year-over-year comparability of the residual unless restated."
+      ],
+      "references": [
+        {
+          "expected": 146.1,
+          "id": "epa-2018-balance",
+          "inputs": {
+            "Mcb": 34.6,
+            "Md": 94.0,
+            "Mo": 17.7,
+            "Mt": 292.4
+          },
+          "method": "EPA 2018 ledger: 292.4 generated minus about 94 recycled-and-composted, 17.7 other food management and 34.6 combusted with energy recovery leaves about 146.1 landfilled (50%); expected independently subtracted.",
+          "provenance": "Values from published EPA figures; the 146.1 residual is independently computed (headline figures rounded).",
+          "tolerance": 0.050000000000000044
+        },
+        {
+          "expected": 100.0,
+          "id": "boundary-all-disposed",
+          "inputs": {
+            "Mcb": 0.0,
+            "Md": 0.0,
+            "Mo": 0.0,
+            "Mt": 100.0
+          },
+          "method": "Boundary identity: with no diversion, other management or combustion, the residual equals total generation.",
+          "provenance": "Definitional boundary check; not an empirical validation.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Mcb": 0.0,
+            "Md": 40.0,
+            "Mo": 20.0,
+            "Mt": 50.0
+          },
+          "kind": "domain",
+          "reason": "Subtracted aggregates (60) exceed generation (50), violating the Mt >= Md + Mo + Mcb balance guard."
+        }
+      ],
+      "relationship": {
+        "expression": "Mt - Md - Mo - Mcb",
+        "locator": "Section 'The Current National Picture' full 2018 ledger: 292.4 generated; almost 94 recycled and composted; 17.7 other food management; nearly 35 (34.6) combusted with energy recovery; more than 146 (146.1) landfilled",
+        "original_equation": "Disposed (landfilled) mass = total generated - diverted - other-managed - combusted (Ml = Mt - Md - Mo - Mcb)",
+        "output_symbol": "Ml",
+        "source_id": "epa-national-overview",
+        "translation_notes": "Generation-balance residual with all terms in a common mass unit. Dimensional check: mass = mass - mass - mass - mass. No allocation across products or years; landfilling is the residual claimant of the stated ledger."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: 2018 MSW ledger in million short tons is 292.4 generated; almost 94 recycled and composted; 17.7 food managed by other pathways; nearly 35 combusted with energy recovery; more than 146 landfilled; hierarchy and methodology notes accompany the ledger.",
+          "id": "epa-national-overview",
+          "kind": "primary",
+          "license": "U.S. federal government public information; site terms at https://www.epa.gov/privacy/privacy-and-security-notice (accessed 2026-11-03); only a short paraphrase is used.",
+          "locator": "Section 'The Current National Picture' with 'Trends - 1960 to Today' cross-check",
+          "redistribution": "Contains only a short original paraphrase and independent arithmetic checks; no copied text, tables or figures.",
+          "title": "National Overview: Facts and Figures on Materials, Wastes and Recycling - US EPA",
+          "url": "https://www.epa.gov/facts-and-figures-about-materials-waste-and-recycling/national-overview-facts-and-figures-materials",
+          "version": "Page as accessed 2026-11-03 (data through calendar year 2018)"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: use the same boundary for numerator and denominator, keep source documents behind every site total, and never average site percentages with unequal denominators; a zero total is a no-data state.",
+          "id": "anchor-diversion-guide",
+          "kind": "primary",
+          "license": "Terms not verified on the accessed page (2026-11-03); treated as all rights reserved; only a short paraphrase is used.",
+          "locator": "Sections 'Start with a clear boundary' and 'Use the basic formula'",
+          "redistribution": "Contains only a short original paraphrase; no copied text or calculator code.",
+          "title": "How to calculate your waste diversion rate - Anchor",
+          "url": "https://myanchorresource.com/resources/waste-diversion-rate",
+          "version": "Page as accessed 2026-11-03"
+        }
+      ],
+      "summary": "Residual disposed mass for one boundary and period: generation minus diverted, other-managed and combusted masses.",
+      "title": "Residual disposal mass from generation balance",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same reporting period, program boundary, waste scope and weight basis as all other ledger terms",
+          "definition": "Total generated waste mass under the stated boundary",
+          "dimensions": "mass",
+          "domain": "Positive finite mass; zero is rejected as a no-data ledger",
+          "quantity_id": "waste_total_mass",
+          "role": "input",
+          "source_symbol": "total generation",
+          "symbol": "Mt",
+          "unit": "t"
+        },
+        {
+          "context": "same reporting period, program boundary, waste scope and weight basis as Mt",
+          "definition": "Diverted mass (headline recycled-and-composted aggregate) under the same boundary",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass not exceeding the stated generation balance",
+          "quantity_id": "waste_diverted_mass",
+          "role": "input",
+          "source_symbol": "recycled and composted",
+          "symbol": "Md",
+          "unit": "t"
+        },
+        {
+          "context": "same reporting period, program boundary, waste scope and weight basis as Mt",
+          "definition": "Food mass managed by other pathways (animal feed, anaerobic digestion, donation and similar) under the same boundary",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass not exceeding the stated generation balance",
+          "quantity_id": "waste_other_managed_mass",
+          "role": "input",
+          "source_symbol": "other food management",
+          "symbol": "Mo",
+          "unit": "t"
+        },
+        {
+          "context": "same reporting period, program boundary, waste scope and weight basis as Mt",
+          "definition": "Mass combusted with energy recovery under the same boundary",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass not exceeding the stated generation balance",
+          "quantity_id": "waste_combusted_mass",
+          "role": "input",
+          "source_symbol": "combusted with energy recovery",
+          "symbol": "Mcb",
+          "unit": "t"
+        },
+        {
+          "context": "same reporting period, program boundary and waste scope as inputs",
+          "definition": "Residual mass directed to disposal (landfill) as the balance claimant",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass",
+          "quantity_id": "waste_disposed_mass",
+          "role": "output",
+          "source_symbol": "landfilled",
+          "symbol": "Ml",
+          "unit": "t"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

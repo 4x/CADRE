@@ -86,7 +86,7 @@ def dimensions(node: ast.AST, names: Mapping[str, Dimensions],
         raise ModelError("Expression has incompatible dimensions or an unsupported operator.")
     if isinstance(node, ast.Call):
         return call_dimensions(node, names, families)
-    raise ModelError("Only declared names, numbers, scalar arithmetic and log/log10/exp/sqrt/sum/prod/len calls are executable.")
+    raise ModelError("Only declared names, registry constants, numbers, scalar arithmetic and log/log10/exp/sqrt/sum/prod/len calls are executable.")
 
 
 def call_arguments(node: ast.Call) -> tuple[str, tuple[ast.AST, ...]]:

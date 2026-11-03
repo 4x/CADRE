@@ -66,7 +66,7 @@ KCAL_IN_JOULES = 4_184
 SECONDS_PER_DAY = 86_400
 BTU_IN_JOULES = 1055.05585262
 KLEIBER_MASS_EXPONENT = Fraction(3, 4)
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1+envacct-1+demography-1+orbital-2+circuits-2+waves-1+waves-2"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1+envacct-1+demography-1+orbital-2+circuits-2+waves-1+waves-2+clinical-2"
 DIMENSION_AXES = ("mass", "length", "time", "currency", "temperature", "current", "amount")
 NUMERICAL_BASIS = f"kWh, m, s, USD, K, A, mol; mass base = {JOULES_PER_KWH} kg"
 
@@ -250,6 +250,11 @@ UNITS = {
     # Waves batch (waves-1): reciprocal length for optical power and surface
     # curvature in the curator spelling.
     "1/m": Unit(INVERSE_LENGTH, 1.0),
+    # Clinical batch (clinical-2): drop counts are dimensionless, so the
+    # administration-set drop factor is a number density and the gravity
+    # drop rate is a reciprocal time, in curator spellings.
+    "drops/m^3": Unit(NUMBER_DENSITY, 1.0),
+    "drops/s": Unit(INVERSE_TIME, 1.0),
 }
 
 
@@ -780,6 +785,31 @@ MEANINGS = {
     "acoustic_beat_frequency": INVERSE_TIME,
     "entrance_pupil_diameter": LENGTH,
     "f_number": DIMENSIONLESS,
+    # Clinical batch (clinical-2): anthropometric, dosing, infusion,
+    # clearance and filtration meanings for reviewed codex b01/b02/b03
+    # records. Includes the Cockcroft-Gault meanings whose r3 reuses them.
+    "administration_set_drop_factor": NUMBER_DENSITY,
+    "body_mass_index": AREAL_DENSITY,
+    "chronological_age_year_index": DIMENSIONLESS,
+    "cockcroft_gault_female_branch_indicator": DIMENSIONLESS,
+    "collected_urine_volume": VOLUME,
+    "creatinine_clearance": VOLUME_FLOW,
+    "glomerular_filtration_rate": VOLUME_FLOW,
+    "glomerular_filtration_rate_per_body_surface_area": VELOCITY,
+    "hip_circumference": LENGTH,
+    "infused_fluid_volume": VOLUME,
+    "labeled_active_drug_reference_mass": MASS,
+    "labeled_liquid_reference_volume": VOLUME,
+    "linear_body_extent": LENGTH,
+    "mass_height_cubed_index": MASS_DENSITY,
+    "mean_gravity_infusion_drop_rate": INVERSE_TIME,
+    "prescribed_drug_mass_per_body_mass": DIMENSIONLESS,
+    "prescribed_liquid_medication_volume": VOLUME,
+    "standing_body_height": LENGTH,
+    "urine_creatinine_mass_concentration": MASS_DENSITY,
+    "waist_circumference": LENGTH,
+    "waist_to_height_ratio": DIMENSIONLESS,
+    "waist_to_hip_ratio": DIMENSIONLESS,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

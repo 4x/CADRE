@@ -345,7 +345,29 @@ class RuntimeTests(unittest.TestCase):
                  "wavelength": ("m", LENGTH),
                  "acoustic_beat_frequency": ("Hz", INVERSE_TIME),
                  "entrance_pupil_diameter": ("m", LENGTH),
-                 "f_number": ("1", DIMENSIONLESS)}
+                 "f_number": ("1", DIMENSIONLESS),
+                 "administration_set_drop_factor": ("drops/m^3", NUMBER_DENSITY),
+                 "body_mass_index": ("kg/m^2", AREAL_DENSITY),
+                 "chronological_age_year_index": ("years", DIMENSIONLESS),
+                 "cockcroft_gault_female_branch_indicator": ("1", DIMENSIONLESS),
+                 "collected_urine_volume": ("m^3", VOLUME),
+                 "creatinine_clearance": ("m^3/s", VOLUME_FLOW),
+                 "glomerular_filtration_rate": ("m^3/s", VOLUME_FLOW),
+                 "glomerular_filtration_rate_per_body_surface_area": ("m/s", VELOCITY),
+                 "hip_circumference": ("m", LENGTH),
+                 "infused_fluid_volume": ("m^3", VOLUME),
+                 "labeled_active_drug_reference_mass": ("kg", MASS),
+                 "labeled_liquid_reference_volume": ("m^3", VOLUME),
+                 "linear_body_extent": ("m", LENGTH),
+                 "mass_height_cubed_index": ("kg/m^3", MASS_DENSITY),
+                 "mean_gravity_infusion_drop_rate": ("drops/s", INVERSE_TIME),
+                 "prescribed_drug_mass_per_body_mass": ("1", DIMENSIONLESS),
+                 "prescribed_liquid_medication_volume": ("m^3", VOLUME),
+                 "standing_body_height": ("m", LENGTH),
+                 "urine_creatinine_mass_concentration": ("kg/m^3", MASS_DENSITY),
+                 "waist_circumference": ("m", LENGTH),
+                 "waist_to_height_ratio": ("1", DIMENSIONLESS),
+                 "waist_to_hip_ratio": ("1", DIMENSIONLESS)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)

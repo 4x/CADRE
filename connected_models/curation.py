@@ -11,6 +11,7 @@ from typing import Any
 from urllib.parse import urlsplit
 import zipfile
 
+from .constants import CONSTANTS, constants_json
 from .contracts import DIMENSIONLESS, DIMENSION_AXES, MAX_FAMILY_SIZE, MEANINGS, NUMERICAL_BASIS, UNITS, UNIT_ALIASES, VOCABULARY_PROFILE, ModelError, NumericalError, encode_dimensions, unit_json
 from .curation_schema import DOMAINS, KIT_VERSION, MAX_BATCH_BYTES, SCHEMA, SCHEMA_VERSION, SUPPORTED_KIT_VERSIONS, validate_schema
 from .expressions import SCALAR_FUNCTIONS, check_guard, dimensions, evaluate, guard_dimensions, parse
@@ -121,9 +122,11 @@ def validate_record(item: dict[str, Any], domain: str) -> dict[str, Any]:
     # Here dimensionless tags enable grammar checks only. Units are never rewritten in the record.
     expression = parse(relationship["expression"])
     dimensions(expression, names, family_tags)
-    require(not (set(variables) & SCALAR_FUNCTIONS), f"{identity}: symbols must not shadow log/log10/exp/sqrt/sum/prod/len.")
+    reserved = SCALAR_FUNCTIONS | set(CONSTANTS)
+    require(not (set(variables) & reserved), f"{identity}: symbols must not shadow scalar functions or registry constants.")
     referenced = {node.id for node in ast.walk(expression) if isinstance(node, ast.Name) and node.id not in SCALAR_FUNCTIONS}
-    require(referenced == set(inputs) | set(fams), f"{identity}: expression must use exactly the declared inputs and families.")
+    require(referenced - set(CONSTANTS) == set(inputs) | set(fams),
+            f"{identity}: expression must use exactly the declared inputs and families plus registry constants.")
     guards = [parse(guard) for guard in item["guards"]]
     for guard in guards:
         guard_dimensions(guard, names, family_tags)
@@ -349,6 +352,7 @@ def build_kit(destination: Path, domain: str | None = None, inventory: Path | No
         "profile": VOCABULARY_PROFILE, "dimension_axes": DIMENSION_AXES, "numerical_basis": NUMERICAL_BASIS,
         "units": {name: unit_json(unit) for name, unit in UNITS.items()},
         "aliases": dict(UNIT_ALIASES),
+        "constants": constants_json(),
         "known_model_ids": ["heat-to-electricity", "electricity-cost", "annual-saving", "uniform-present-value", "net-present-value"],
         "limits": "Bounded mechanics and energy/currency vocabulary. Contexts must match exactly. No automatic vocabulary extension. See guide for known source revisions."})
     if inventory is not None:

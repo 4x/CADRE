@@ -46,6 +46,9 @@ SPECIFIC_HEAT: Dimensions = _dims(0, 2, -2, 0, -1, 0, 0)
 THERMAL_RESISTANCE_AREA: Dimensions = _dims(-1, 0, 3, 0, 1, 0, 0)
 THERMAL_RESISTANCE: Dimensions = _dims(-1, -2, 3, 0, 1, 0, 0)
 THERMAL_CONDUCTIVITY: Dimensions = _dims(1, 1, -3, 0, -1, 0, 0)
+STEFAN_BOLTZMANN: Dimensions = _dims(1, 0, -3, 0, -4, 0, 0)
+GRAVITATION: Dimensions = _dims(-1, 3, -2, 0, 0, 0, 0)
+PER_AMOUNT: Dimensions = _dims(0, 0, 0, 0, 0, 0, -1)
 JOULES_PER_KWH = 3_600_000
 KCAL_IN_JOULES = 4_184
 SECONDS_PER_DAY = 86_400
@@ -190,6 +193,11 @@ UNITS = {
     "mol": Unit(AMOUNT, 1.0),
     "m2*K/W": Unit(THERMAL_RESISTANCE_AREA, JOULES_PER_KWH),
     "J/(kg*K)": Unit(SPECIFIC_HEAT, 1.0),
+    # Registry-constant units: sigma per area per K^4, Newtonian gravitation,
+    # and per-mole counts for Avogadro-scale conversions.
+    "W/(m2*K^4)": Unit(STEFAN_BOLTZMANN, 1 / JOULES_PER_KWH),
+    "m3/(kg*s^2)": Unit(GRAVITATION, JOULES_PER_KWH),
+    "1/mol": Unit(PER_AMOUNT, 1.0),
 }
 
 

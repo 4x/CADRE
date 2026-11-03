@@ -6,6 +6,7 @@ import operator
 from collections.abc import Mapping
 from fractions import Fraction
 
+from .constants import CONSTANT_DIMENSIONS, CONSTANT_VALUES
 from .contracts import DIMENSIONLESS, Dimensions, ModelError, NumericalError, finite
 
 MAX_EXPRESSION_CHARS = 2048
@@ -62,6 +63,8 @@ def dimensions(node: ast.AST, names: Mapping[str, Dimensions],
         return names[node.id]
     if isinstance(node, ast.Name) and node.id in families:
         raise ModelError(f"Family '{node.id}' may only appear inside sum, prod or len.")
+    if isinstance(node, ast.Name) and node.id in CONSTANT_DIMENSIONS:
+        return CONSTANT_DIMENSIONS[node.id]
     if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
         return dimensions(node.operand, names, families)
     if isinstance(node, ast.BinOp):
@@ -152,6 +155,8 @@ def evaluate(node: ast.AST, names: Mapping[str, float],
             return names[node.id]
         if isinstance(node, ast.Name) and node.id in families:
             raise ModelError(f"Family '{node.id}' may only appear inside sum, prod or len.")
+        if isinstance(node, ast.Name) and node.id in CONSTANT_VALUES:
+            return CONSTANT_VALUES[node.id]
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
             result = evaluate(node.operand, names, families)
             return -result if isinstance(node.op, ast.USub) else result

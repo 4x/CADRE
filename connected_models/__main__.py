@@ -6,7 +6,7 @@ import logging
 from pathlib import Path
 import sqlite3
 
-from .contracts import ModelError
+from .contracts import ModelError, describe_units
 from .demo import DEFAULT_CAPEX, DEFAULT_COP, DEFAULT_TARIFF, catalog, composition
 from .inference import BudgetLedger, InferenceSettings, smoke_test
 from .runtime import execute, save_run
@@ -27,6 +27,8 @@ def main() -> int:
     demo.add_argument("--question", choices=("operating-cost", "investment"), default="investment")
     commands.add_parser("meta-smoke", help="One paid structured-output check using META_API_KEY")
     commands.add_parser("usage", help="Report application inference spending and reservations")
+    units = commands.add_parser("units", help="List canonical units with dimensions, scales, and aliases")
+    units.add_argument("filter", nargs="?", default="")
     commands.add_parser("seed-candidates", help="Stage four supporting manual candidates; does not publish")
     commands.add_parser("curate", help="Offline Meta extraction from the bundled NIST source packet")
     commands.add_parser("registry-list", help="List eligible stored versions")
@@ -66,6 +68,9 @@ def main() -> int:
             result = replay_run(args.run_id)
             print(json.dumps(result, indent=2))
             return 0 if result["matched"] else 1
+        if args.command == "units":
+            print(describe_units(args.filter))
+            return 0
         if args.command in {"meta-smoke", "usage"}:
             settings = InferenceSettings.load(Path("inference.toml"))
             ledger = BudgetLedger(Path(".usage/meta.sqlite3"), settings)

@@ -11,7 +11,7 @@ from typing import Any
 from urllib.parse import urlsplit
 import zipfile
 
-from .contracts import DIMENSIONLESS, DIMENSION_AXES, MAX_FAMILY_SIZE, MEANINGS, NUMERICAL_BASIS, UNITS, VOCABULARY_PROFILE, ModelError, NumericalError, encode_dimensions, unit_json
+from .contracts import DIMENSIONLESS, DIMENSION_AXES, MAX_FAMILY_SIZE, MEANINGS, NUMERICAL_BASIS, UNITS, UNIT_ALIASES, VOCABULARY_PROFILE, ModelError, NumericalError, encode_dimensions, unit_json
 from .curation_schema import DOMAINS, KIT_VERSION, MAX_BATCH_BYTES, SCHEMA, SCHEMA_VERSION, SUPPORTED_KIT_VERSIONS, validate_schema
 from .expressions import SCALAR_FUNCTIONS, check_guard, dimensions, evaluate, guard_dimensions, parse
 from .registry import Registry
@@ -348,6 +348,7 @@ def build_kit(destination: Path, domain: str | None = None, inventory: Path | No
         "meanings": {name: encode_dimensions(dims) for name, dims in MEANINGS.items()},
         "profile": VOCABULARY_PROFILE, "dimension_axes": DIMENSION_AXES, "numerical_basis": NUMERICAL_BASIS,
         "units": {name: unit_json(unit) for name, unit in UNITS.items()},
+        "aliases": dict(UNIT_ALIASES),
         "known_model_ids": ["heat-to-electricity", "electricity-cost", "annual-saving", "uniform-present-value", "net-present-value"],
         "limits": "Bounded mechanics and energy/currency vocabulary. Contexts must match exactly. No automatic vocabulary extension. See guide for known source revisions."})
     if inventory is not None:

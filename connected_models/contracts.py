@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 from fractions import Fraction
 import math
+import re
 
 Dimensions = tuple[Fraction, Fraction, Fraction, Fraction, Fraction, Fraction, Fraction]  # Mass, length, time, currency, temperature, current, amount.
 
@@ -190,6 +191,107 @@ UNITS = {
     "m2*K/W": Unit(THERMAL_RESISTANCE_AREA, JOULES_PER_KWH),
     "J/(kg*K)": Unit(SPECIFIC_HEAT, 1.0),
 }
+
+
+def normalize_unit_spelling(unit: str) -> str:
+    """Lowercase and squeeze a lexical unit spelling before alias lookup."""
+    if not isinstance(unit, str):
+        raise ModelError("Unit spellings must be strings.")
+    return re.sub(r"\s+per\s+", "/", unit.strip().lower()).replace(" ", "")
+
+
+# Lexical aliases live with the vocabulary they resolve against, not in the
+# query layer: every target is validated at import, and curation kits ship
+# this map so curators see it offline. Grandfathered duplicate canonicals
+# (m^2/m2) stay canonical because admitted ports pin those exact strings;
+# all future spelling variants enter here, never as parallel canonicals.
+UNIT_ALIASES = {
+    # Query batch 1 (moved from the query layer, minus self-maps now served
+    # by canonical passthrough, plus year folds from the retired YEAR_UNITS).
+    "dimensionless": "1",
+    "ratio": "1",
+    "percentage": "percent",
+    "usd": "USD",
+    "$": "USD",
+    "dollar": "USD",
+    "dollars": "USD",
+    "usd/kwh": "USD/kWh",
+    "$/kwh": "USD/kWh",
+    "dollar/kwh": "USD/kWh",
+    "dollars/kwh": "USD/kWh",
+    "kwh": "kWh",
+    "wh": "Wh",
+    "kilogram": "kg",
+    "kilograms": "kg",
+    "grams": "g",
+    "metre": "m",
+    "metres": "m",
+    "meter": "m",
+    "meters": "m",
+    "second": "s",
+    "seconds": "s",
+    "minute": "min",
+    "minutes": "min",
+    "hour": "h",
+    "hours": "h",
+    "m/s²": "m/s^2",
+    "n": "N",
+    "newton": "N",
+    "newtons": "N",
+    "j": "J",
+    "joule": "J",
+    "joules": "J",
+    "kj": "kJ",
+    "year": "years",
+    "annual-period": "years",
+    "annual-periods": "years",
+}
+
+
+def _validate_unit_aliases() -> None:
+    """Reject alias misconfiguration at import: unknown targets, chains, dead entries."""
+    normalized_canonical: dict[str, str] = {}
+    for unit in UNITS:
+        # SI case pairs (S/s) share a normalized form; exact-first lookup
+        # keeps both usable, so canonical collisions are allowed here.
+        normalized_canonical.setdefault(normalize_unit_spelling(unit), unit)
+    seen: dict[str, str] = {}
+    for alias, canonical in UNIT_ALIASES.items():
+        if canonical not in UNITS:
+            raise ModelError(f"Unit alias {alias!r} targets unknown unit {canonical!r}.")
+        if alias in UNITS:
+            raise ModelError(f"Unit alias {alias!r} shadows a canonical unit; remove it.")
+        if canonical in UNIT_ALIASES:
+            raise ModelError(f"Unit alias {alias!r} targets another alias; point at a canonical unit.")
+        key = normalize_unit_spelling(alias)
+        if key in seen:
+            raise ModelError(f"Unit aliases {seen[key]!r} and {alias!r} normalize identically; one is dead.")
+        seen[key] = alias
+        if key in normalized_canonical and canonical != normalized_canonical[key]:
+            raise ModelError(f"Unit alias {alias!r} shadows canonical {normalized_canonical[key]!r} but points elsewhere.")
+
+
+_validate_unit_aliases()
+
+
+def describe_units(filter: str = "") -> str:
+    """Render canonical units with dimensions, scales, and aliases for inspection."""
+    needle = filter.strip().lower()
+    grouped: dict[str, list[str]] = {}
+    for alias, canonical in UNIT_ALIASES.items():
+        grouped.setdefault(canonical, []).append(alias)
+    lines = []
+    for unit in sorted(UNITS):
+        aliases = sorted(grouped.get(unit, []))
+        if needle and needle not in unit.lower() and not any(needle in item.lower() for item in aliases):
+            continue
+        powers = " ".join(f"{axis}^{power}" for axis, power in zip(DIMENSION_AXES, UNITS[unit].dimensions) if power != 0)
+        line = f"{unit} | {powers or 'dimensionless'} | scale {UNITS[unit].scale!r}"
+        if aliases:
+            line += f" | aliases: {', '.join(aliases)}"
+        lines.append(line)
+    return "\n".join(lines)
+
 
 # Meaning is independent of dimension: heat and electricity cannot bind implicitly.
 MEANINGS = {

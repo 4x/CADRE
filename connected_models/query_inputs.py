@@ -5,34 +5,23 @@ from decimal import Decimal, InvalidOperation
 import re
 from typing import Any
 
-from .contracts import ModelError, Port, UNITS, Value, finite
+from .contracts import UNIT_ALIASES, ModelError, Port, UNITS, Value, finite, normalize_unit_spelling
 from .serialization import object_fields, text
 
 MAX_QUERY_CHARS = 16_384
 MAX_QUERY_FACTS = 64
 NUMBER_PATTERN = re.compile(r"[+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:[eE][+-]?\d+)?")
-UNIT_ALIASES = {
-    "1": "1", "dimensionless": "1", "ratio": "1",
-    "%": "percent", "percent": "percent", "percentage": "percent",
-    "usd": "USD", "$": "USD", "dollar": "USD", "dollars": "USD",
-    "usd/kwh": "USD/kWh", "$/kwh": "USD/kWh", "dollar/kwh": "USD/kWh", "dollars/kwh": "USD/kWh",
-    "kwh": "kWh", "wh": "Wh",
-    "kg": "kg", "kilogram": "kg", "kilograms": "kg", "g": "g", "grams": "g",
-    "m": "m", "metre": "m", "metres": "m", "meter": "m", "meters": "m",
-    "cm": "cm", "km": "km", "s": "s", "second": "s", "seconds": "s",
-    "min": "min", "minute": "min", "minutes": "min", "h": "h", "hour": "h", "hours": "h",
-    "m/s": "m/s", "km/h": "km/h", "m/s^2": "m/s^2", "m/s²": "m/s^2",
-    "n": "N", "newton": "N", "newtons": "N", "j": "J", "joule": "J", "joules": "J", "kj": "kJ",
-}
-YEAR_UNITS = frozenset({"year", "years", "annual-period", "annual-periods"})
-LEXICAL_UNITS = "|".join(re.escape(name) for name in sorted(UNIT_ALIASES, key=len, reverse=True) if name != "1")
+LEXICAL_UNITS = "|".join(re.escape(name) for name in sorted(set(UNIT_ALIASES) | set(UNITS), key=len, reverse=True) if name != "1")
 UNIT_PATTERN = re.compile(r"\s*((?:USD|dollars?)\s*(?:/|per)\s*kWh|" + LEXICAL_UNITS + r"|years?)(?![\w/^²])", re.IGNORECASE)
 
 
 def unit_identity(unit: str) -> str:
-    """Normalize supported lexical aliases without changing a numerical value."""
-    normalized = re.sub(r"\s+per\s+", "/", unit.strip().lower()).replace(" ", "")
-    return "years" if normalized in YEAR_UNITS else UNIT_ALIASES.get(normalized, normalized)
+    """Resolve a lexical spelling to a canonical unit; unknown spellings pass through for explicit rejection."""
+    stripped = unit.strip() if isinstance(unit, str) else ""
+    if stripped in UNITS:
+        return stripped  # Canonical case first: SI case pairs (S/s) would merge under normalization.
+    normalized = normalize_unit_spelling(unit)
+    return UNIT_ALIASES.get(normalized, normalized)
 
 
 def validate_fact(raw: dict[str, Any], question: str) -> dict[str, Any]:

@@ -1,0 +1,1005 @@
+{
+  "batch_id": "environmental-accounting-fuel-b01",
+  "created": "2026-11-04",
+  "curator": "compat-fuel",
+  "deferred": [
+    {
+      "reason": "Covered-shape exclusion per brief-22: a kg/gal-factor variant would re-curate environmental-accounting--emission-mass-from-activity-and-factor@r1 (A * EF) with relabeled ports. No new source investigation done.",
+      "source_urls": [],
+      "title": "Volumetric emission factors (V * EFvol)"
+    },
+    {
+      "reason": "Reciprocal of record 1 (vehicle-fuel-economy); solver-derived, never prescribed as a record. No new source investigation done.",
+      "source_urls": [],
+      "title": "L/100km fuel consumption"
+    },
+    {
+      "reason": "Money scaling over time; owned by the economics money-scaling glue (scaled-money-amount), not prescribable under fuel labels. No new source investigation done.",
+      "source_urls": [],
+      "title": "Annual fuel cost"
+    },
+    {
+      "reason": "Owned by environmental-accounting--fuel-burned-from-purchase-and-inventory@r1 (FuelP + FuelST - FuelSE); no purchase/inventory/burned variants. No new source investigation done.",
+      "source_urls": [],
+      "title": "Tank-refill mass balances"
+    },
+    {
+      "reason": "Price series, not a scalar unit-price relationship; outside the scalar record format. No new source investigation done.",
+      "source_urls": [],
+      "title": "Time-varying fuel prices"
+    }
+  ],
+  "domain": "environmental-accounting",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "Scientific review pending for all 6 records; no review or admission was performed here.",
+      "Vocabulary extension needed before runtime projection: 14 new meanings (trip_distance, trip_fuel_volume, fuel_economy, fuel_unit_price, trip_fuel_cost, fuel_mass, lower_heating_value, fuel_chemical_energy, useful_work_output, heat_input, thermal_efficiency, tank_fuel_volume, vehicle_range, driving_fuel_cost_per_distance) and 3 new units (mi/gal length-volume^-1 scale METERS_PER_MILE/CUBIC_METERS_PER_GALLON; USD/gal currency-volume^-1 scale 1/CUBIC_METERS_PER_GALLON; USD/mi currency-length^-1 scale 1/METERS_PER_MILE).",
+      "Registry reads were read-only on 2026-11-04 (file:.registry/models.sqlite3?mode=ro); nothing was staged, reviewed, admitted, or otherwise touched."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical validation 2026-11-04 with the central package: validate on the bundle JSON -> valid-data-awaiting-review (6 models; 18 arithmetic + 12 rejection checks); pack -> return ZIP with sha256; validate on the return ZIP. Commands: uv --cache-dir .uv-cache run --no-env-file --offline -m connected_models.curation validate|pack ... (equivalently .venv/Scripts/python.exe -m connected_models.curation ...). Zero-leg verification (probe_registry.py, registry read-only): all 6 lane IDs absent from 262 admitted models, all 14 lane meanings absent from admitted ports and from the validator vocabulary, mi/gal/USD/gal/USD/mi absent, and the six do-not-resubmit owner records present. Oracle independence: every record carries 3 references with provenance labels distinguishing published oracles (EPA ratings, EIA weeks, GREET table row), cross-family worked arithmetic (EIA x EPA pairings, eta = 3412 / heatrate inversions, rating x tank range), and curator boundary checks. Brief-22 errata corrected: (1) gas-fleet quotient is 3412/7781 = 0.43850405 (0.4385 at 4dp), not 0.4386 as printed; (2) the lane uses 14 distinct meanings, not 13; (3) all six records are requires-extension because every lane meaning is new vocabulary (the brief's 3/3 runtime-ready forecast considered units only). Checks not performed: independent scientific review; staging, review, or admission (out of scope).",
+    "summary": "Fuel lane batch environmental-accounting-fuel-b01 (curator compat-fuel): 6 definition records per fuel-lane-brief-22 (vehicle-fuel-economy, trip-fuel-cost, fuel-energy-from-mass-and-heating-value, thermal-conversion-efficiency, driving-range-from-economy-and-tank, driving-fuel-cost-per-distance), each r1, with 18 arithmetic references and 12 rejection cases. All six are requires-extension on 14 new quantity meanings (plus mi/gal, USD/gal, USD/mi for records 1, 2, 5, 6); no record binds any existing chain."
+  },
+  "kit_version": "2026-10-31.10",
+  "models": [
+    {
+      "assumptions": [
+        "Source scope: same vehicle, fuel, trip, and distance/volume measurement basis for D, V, and e (measured-trip scope).",
+        "Application profile: D and V are completed-trip totals on one consistent basis; e is the trip average economy, not an instantaneous rate."
+      ],
+      "constants": [],
+      "guards": [
+        "D >= 0",
+        "V > 0"
+      ],
+      "id": "environmental-accounting--vehicle-fuel-economy",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meanings trip_distance, trip_fuel_volume, fuel_economy: absent from the registry vocabulary and from all 262 admitted models' ports (verified 2026-11-04, mode=ro).",
+          "New unit mi/gal for the output port (length-volume^-1; scale METERS_PER_MILE/CUBIC_METERS_PER_GALLON).",
+          "Per-record context binds no existing chain: no admitted record uses these meanings, so the record forms zero legs."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "V = D / e requires e > 0 (with D >= 0 kept); D = e * V needs no exclusion beyond the original guards. Substitution: e = 32, V = 10 gives D = 320, and forward 320 / 10 = 32. e = 0 with D = 0 leaves V underdetermined (any positive V fits 0 / V = 0); e = 0 with D > 0 is incompatible. Per inverse doctrine these rearrangements are solver-derived and are not separate records.",
+      "kind": "definition",
+      "limitations": [
+        "Not an inverse-solver record: V = D / e and D = e * V with trip semantics are solver-derived rearrangements, never separately prescribed.",
+        "Excludes L/100km reciprocal consumption (solver-derived), multi-fuel blends, and test-cycle rating blends."
+      ],
+      "references": [
+        {
+          "expected": 32.0,
+          "id": "camry-combined-replay",
+          "inputs": {
+            "D": 320,
+            "V": 10
+          },
+          "method": "Curator-constructed trip inputs reproducing the published 32-mpg combined rating: 320 / 10 = 32 exactly. Tolerance is float hygiene only.",
+          "provenance": "Rating-anchored cross-check: the 32-mpg combined figure is published at the id=47090 URL above; the 320-mi/10-gal split is constructed, so this is not a published trip measurement.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 46.0,
+          "id": "hybrid-combined-replay",
+          "inputs": {
+            "D": 460,
+            "V": 10
+          },
+          "method": "Curator-constructed trip inputs reproducing the published 46-mpg combined rating: 460 / 10 = 46 exactly. Tolerance is float hygiene only.",
+          "provenance": "Rating-anchored cross-check: the 46-mpg combined figure is published at the id=47093 URL above; the 460-mi/10-gal split is constructed, so this is not a published trip measurement.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.0,
+          "id": "zero-trip-boundary",
+          "inputs": {
+            "D": 0,
+            "V": 10
+          },
+          "method": "Limiting identity: zero distance on fuel consumed (idling limit) yields zero economy. Curator-constructed boundary, not a published figure.",
+          "provenance": "Curator synthetic boundary; no observed data claimed.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "D": 320,
+            "V": 0
+          },
+          "kind": "domain",
+          "reason": "V = 0 violates V > 0: economy against an unmeasured fuel quantity is undefined."
+        },
+        {
+          "inputs": {
+            "D": 320
+          },
+          "kind": "missing-input",
+          "reason": "V is omitted: without the fuel volume there is no ratio to form; the record must not silently assume one gallon."
+        }
+      ],
+      "relationship": {
+        "expression": "D / V",
+        "locator": "Side-by-side spec table: Combined MPG:32, City MPG:28, Highway MPG:39 (id=47090); Combined MPG:46, City MPG:44, Highway MPG:47 (id=47093)",
+        "original_equation": "e = D / V (fuel economy = trip distance / trip fuel volume)",
+        "output_symbol": "e",
+        "source_id": "epa-fueleconomy-camry-2024",
+        "translation_notes": "D, V, and e are introduced symbols (the lane brief prescribes them; the source publishes miles-per-gallon ratings, not symbols). Dimensional check: length / volume = length-volume^-1, displayed as mi/gal. The EPA ratings are miles-per-gallon figures by construction; this record defines the completed-trip ratio that produces such a figure."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The page rates the 2024 Camry LE/SE at 28 city / 39 highway / 32 combined mpg, lists a 15.8-gallon tank (MSRP and tank data supplied by Edmunds.com per the page footnote), shows a 506-mile EPA range, and notes the range assumes 100% of the fuel in the tank is used.",
+          "id": "epa-fueleconomy-camry-2024",
+          "kind": "primary",
+          "license": "U.S. federal government publication (EIA/DOE/EPA); no verbatim text reproduced. Terms page not separately inspected.",
+          "locator": "Spec table (Combined MPG:32, City MPG:28, Highway MPG:39) and tank/range lines (15.8 gallons; EPA range 506 miles)",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "fueleconomy.gov (DOE/EPA): 2024 Toyota Camry LE/SE side-by-side spec page",
+          "url": "https://www.fueleconomy.gov/feg/Find.do?action=sbs&id=47090",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The page rates the 2024 Camry Hybrid SE/XLE/XSE at 44 city / 47 highway / 46 combined mpg and lists a 13.2-gallon tank (Edmunds data per the page footnote).",
+          "id": "epa-fueleconomy-camry-hybrid-2024",
+          "kind": "primary",
+          "license": "U.S. federal government publication (EIA/DOE/EPA); no verbatim text reproduced. Terms page not separately inspected.",
+          "locator": "Spec table (Combined MPG:46, City MPG:44, Highway MPG:47) and tank line (13.2 gallons)",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "fueleconomy.gov (DOE/EPA): 2024 Toyota Camry Hybrid SE/XLE/XSE side-by-side spec page",
+          "url": "https://www.fueleconomy.gov/feg/Find.do?action=sbs&id=47093",
+          "version": "Live HTML inspected 2026-11-04"
+        }
+      ],
+      "summary": "Measured-trip fuel economy: distance traveled per unit of fuel consumed (D / V); the miles-per-gallon figure of one completed trip on one vehicle and fuel.",
+      "title": "Vehicle fuel economy from trip distance and fuel volume",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "vehicle-fuel-economy measured-trip basis: same vehicle, fuel, trip, and distance/volume measurement basis for D, V, and e.",
+          "definition": "Distance traveled on the trip, measured on the same basis as V.",
+          "dimensions": "length",
+          "domain": "Nonnegative finite miles; D = 0 is the admitted zero-trip boundary.",
+          "quantity_id": "trip_distance",
+          "role": "input",
+          "source_symbol": "Introduced D = trip distance",
+          "symbol": "D",
+          "unit": "mi"
+        },
+        {
+          "context": "vehicle-fuel-economy measured-trip basis: same vehicle, fuel, trip, and distance/volume measurement basis for D, V, and e.",
+          "definition": "Fuel volume consumed on the trip, measured on the same basis as D.",
+          "dimensions": "volume",
+          "domain": "Positive finite gallons; V = 0 is excluded (domain case).",
+          "quantity_id": "trip_fuel_volume",
+          "role": "input",
+          "source_symbol": "Introduced V = trip fuel volume",
+          "symbol": "V",
+          "unit": "gal"
+        },
+        {
+          "context": "vehicle-fuel-economy measured-trip basis: same vehicle, fuel, trip, and distance/volume measurement basis for D, V, and e.",
+          "definition": "Average trip fuel economy: distance per unit fuel consumed.",
+          "dimensions": "length / volume",
+          "domain": "Nonnegative finite mi/gal.",
+          "quantity_id": "fuel_economy",
+          "role": "output",
+          "source_symbol": "Introduced e = fuel economy",
+          "symbol": "e",
+          "unit": "mi/gal"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source scope: U.S. regular-grade retail gasoline, cash pump price including taxes as of the EIA Monday 8 a.m. outlet collection; V and p share one transaction basis and price week.",
+        "Application profile: single fill/transaction at a posted price; p is pinned to its EIA release week (oracles use weeks ending 10/26/26 and 11/02/26)."
+      ],
+      "constants": [],
+      "guards": [
+        "V >= 0",
+        "p >= 0"
+      ],
+      "id": "environmental-accounting--trip-fuel-cost",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meanings trip_fuel_volume, fuel_unit_price, trip_fuel_cost: absent from the registry vocabulary and from all 262 admitted models' ports (verified 2026-11-04, mode=ro).",
+          "New unit USD/gal for the price port (currency-volume^-1; scale 1/CUBIC_METERS_PER_GALLON).",
+          "Per-record context binds no existing chain: no admitted record uses these meanings, so the record forms zero legs."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "V = C / p requires p > 0; p = C / V requires V > 0; both keep the original guards. Substitution: C = 41.53, p = 4.153 gives V = 10, and forward 10 x 4.153 = 41.53. p = 0 with C = 0 leaves V underdetermined (any volume is free); p = 0 with C > 0 is incompatible.",
+      "kind": "definition",
+      "limitations": [
+        "No money glue: rescaling, summation, or differencing of money amounts belongs to the economics money records, not this fuel record.",
+        "Excludes taxes-as-line-items, discounts, mid-transaction price changes, and time-varying price series."
+      ],
+      "references": [
+        {
+          "expected": 41.529999999999994,
+          "id": "week-110226-ten-gallons",
+          "inputs": {
+            "V": 10,
+            "p": 4.153
+          },
+          "method": "Published price x stipulated volume: 10 x 4.153 = 41.53 exactly. Tolerance is float hygiene only.",
+          "provenance": "EIA week ending 11/02/26 U.S. regular price ($4.153/gal) from the gasdiesel URL above; the 10-gal volume is stipulated.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 64.035,
+          "id": "week-102626-fifteen-gallons",
+          "inputs": {
+            "V": 15,
+            "p": 4.269
+          },
+          "method": "Published price x stipulated volume: 15 x 4.269 = 64.035 ($64.04 at cent rounding). Tolerance is float hygiene only.",
+          "provenance": "EIA week ending 10/26/26 U.S. regular price ($4.269/gal) from the gasdiesel URL above; the 15-gal volume is stipulated.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-price-boundary",
+          "inputs": {
+            "V": 10,
+            "p": 0
+          },
+          "method": "Limiting identity: free fuel (p = 0) costs nothing at any volume. Curator-constructed boundary, not a published figure.",
+          "provenance": "Curator synthetic boundary; no observed data claimed.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "V": -1,
+            "p": 4.153
+          },
+          "kind": "domain",
+          "reason": "V = -1 violates V >= 0: a negative purchase volume is outside the transaction profile (returns need their own record)."
+        },
+        {
+          "inputs": {
+            "V": 10
+          },
+          "kind": "missing-input",
+          "reason": "p is omitted: without the posted price there is no transaction to cost; the record must not silently assume a price."
+        }
+      ],
+      "relationship": {
+        "expression": "V * p",
+        "locator": "U.S. Regular Gasoline Prices table, U.S. row: 4.284 (10/19/26), 4.269 (10/26/26), 4.153 (11/02/26); release 11/03/2026",
+        "original_equation": "C = V * p (trip fuel cost = fuel volume x unit price)",
+        "output_symbol": "C",
+        "source_id": "eia-gasdiesel-update",
+        "translation_notes": "V, p, and C are introduced symbols (the lane brief prescribes them; the source publishes dollars-per-gallon prices, not symbols). Dimensional check: volume x currency/volume = currency, in USD. Prices are pinned to their EIA release weeks; column dates were read from the page's raw table headers (10/19/26, 10/26/26, 11/02/26)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The table's U.S. row reads 4.284, 4.269, 4.153 dollars per gallon under the raw column headers 10/19/26, 10/26/26, 11/02/26, with week-ago change -0.116 (4.153 - 4.269), confirming the column order. Oracles pin $4.153 to the week ending 11/02/26 and $4.269 to the week ending 10/26/26.",
+          "id": "eia-gasdiesel-update",
+          "kind": "primary",
+          "license": "U.S. federal government publication (EIA/DOE/EPA); no verbatim text reproduced. Terms page not separately inspected.",
+          "locator": "U.S. Regular Gasoline Prices table, U.S. row with raw headers 10/19/26, 10/26/26, 11/02/26",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "EIA Gasoline and Diesel Fuel Update: U.S. regular gasoline prices",
+          "url": "https://www.eia.gov/petroleum/gasdiesel/",
+          "version": "Release 11/03/2026 (next release 11/10/2026); live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Every Monday, EIA collects retail regular/midgrade/premium prices from a national outlet sample on Form EIA-878: the cash pump price including taxes as of 8 a.m. local Monday time. This pins the week-ending-Monday dating used by the oracles.",
+          "id": "eia-gasoline-methods",
+          "kind": "primary",
+          "license": "U.S. federal government publication (EIA/DOE/EPA); no verbatim text reproduced. Terms page not separately inspected.",
+          "locator": "Weekly gasoline price and annual sales volume data collection",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "EIA methodology for weekly retail gasoline price estimates",
+          "url": "https://www.eia.gov/petroleum/gasdiesel/gas_proc-methods.php",
+          "version": "Live HTML inspected 2026-11-04"
+        }
+      ],
+      "summary": "Pump-transaction cost: fuel volume times posted unit price (V * p) on one transaction basis and price week.",
+      "title": "Trip fuel cost from fuel volume and unit price",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "trip-fuel-cost transaction basis: same fill, fuel grade, posted unit price, and week for V, p, and C.",
+          "definition": "Fuel volume purchased in the transaction.",
+          "dimensions": "volume",
+          "domain": "Nonnegative finite gallons; negative volumes are excluded (domain case).",
+          "quantity_id": "trip_fuel_volume",
+          "role": "input",
+          "source_symbol": "Introduced V = trip fuel volume",
+          "symbol": "V",
+          "unit": "gal"
+        },
+        {
+          "context": "trip-fuel-cost transaction basis: same fill, fuel grade, posted unit price, and week for V, p, and C.",
+          "definition": "Posted retail unit price of the fuel grade on the transaction week.",
+          "dimensions": "currency / volume",
+          "domain": "Nonnegative finite USD/gal; p = 0 is the admitted free-fuel boundary.",
+          "quantity_id": "fuel_unit_price",
+          "role": "input",
+          "source_symbol": "Introduced p = fuel unit price",
+          "symbol": "p",
+          "unit": "USD/gal"
+        },
+        {
+          "context": "trip-fuel-cost transaction basis: same fill, fuel grade, posted unit price, and week for V, p, and C.",
+          "definition": "Transaction cost of the fuel volume at the posted price.",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite USD.",
+          "quantity_id": "trip_fuel_cost",
+          "role": "output",
+          "source_symbol": "Introduced C = trip fuel cost",
+          "symbol": "C",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source basis: LHV (net calorific value; latent heat of vaporization of product water not recovered) per the table notes; HHV figures must use the HHV row, not this record's LHV ports.",
+        "Application profile: conventional gasoline LHV 43.448 MJ/kg (table row); other fuels need their own LHV port values, not this record's gasoline figure."
+      ],
+      "constants": [],
+      "guards": [
+        "m >= 0",
+        "LHV > 0"
+      ],
+      "id": "environmental-accounting--fuel-energy-from-mass-and-heating-value",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meanings fuel_mass, lower_heating_value, fuel_chemical_energy: absent from the registry vocabulary and from all 262 admitted models' ports (verified 2026-11-04, mode=ro).",
+          "Units kg, J/kg, and J are pre-provisioned; only the meanings block runtime projection.",
+          "Per-record context binds no existing chain: no admitted record uses these meanings, so the record forms zero legs."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "m = E / LHV needs no exclusion beyond the guarded LHV > 0; LHV = E / m requires m > 0. Substitution: E = 434480000, LHV = 43448000 gives m = 10, and forward 10 x 43448000 = 434480000. m = 0 with E = 0 leaves LHV underdetermined (any heating value fits an empty lot); m = 0 with E > 0 is incompatible.",
+      "kind": "definition",
+      "limitations": [
+        "HHV/LHV confusion is out of scope: entering an HHV figure as LHV silently overstates gasoline energy by about 7%; the basis must be checked before entry.",
+        "Excludes combustion efficiency, unburned fuel, and blend/ethanol-content adjustments to the heating value."
+      ],
+      "references": [
+        {
+          "expected": 434480000,
+          "id": "gasoline-ten-kg",
+          "inputs": {
+            "LHV": 43448000,
+            "m": 10
+          },
+          "method": "Published LHV figure x round mass: 10 kg x 43.448 MJ/kg = 434,480,000 J exactly. Tolerance 1.0 J is float hygiene on exact integer arithmetic.",
+          "provenance": "Published oracle: 43.448 MJ/kg is the table's conventional-gasoline LHV figure at the greet-heating-values-table URL above.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 43447354,
+          "id": "btu-per-lb-closure",
+          "inputs": {
+            "LHV": 43447354,
+            "m": 1
+          },
+          "method": "Unit-closure row: 18,679 Btu/lb x 2326 J/kg-per-Btu/lb (exact) = 43,447,354 J/kg, so 1 kg carries 43,447,354 J; this closes to the table's 43.448 MJ/kg display within its rounding. Tolerance 1.0 J is float hygiene on exact integer arithmetic.",
+          "provenance": "Cross-column arithmetic inside the same published table row (Btu/lb column to MJ/kg display); independent of the LHV-port figure.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "zero-mass-boundary",
+          "inputs": {
+            "LHV": 43448000,
+            "m": 0
+          },
+          "method": "Limiting identity: an empty lot carries zero energy at any heating value. Curator-constructed boundary, not a published figure.",
+          "provenance": "Curator synthetic boundary; no observed data claimed.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "LHV": 0,
+            "m": 10
+          },
+          "kind": "domain",
+          "reason": "LHV = 0 violates LHV > 0: a fuel with no heating value is outside the fuel-energy profile."
+        },
+        {
+          "inputs": {
+            "m": 10
+          },
+          "kind": "missing-input",
+          "reason": "LHV is omitted: without the heating value the mass has no energy content to compute; the record must not silently assume gasoline."
+        }
+      ],
+      "relationship": {
+        "expression": "m * LHV",
+        "locator": "Liquid Fuels row: Conventional gasoline 116,090 Btu/gal, 18,679 Btu/lb, 43.448 MJ/kg (LHV); 124,340 Btu/gal, 20,007 Btu/lb, 46.536 MJ/kg (HHV); density 2,819 grams/gal",
+        "original_equation": "E = m * LHV (fuel chemical energy = mass x lower heating value)",
+        "output_symbol": "E",
+        "source_id": "greet-heating-values-table",
+        "translation_notes": "m, LHV, and E are introduced symbols (the lane brief prescribes them; the source publishes the heating-value row, not symbols). Dimensional check: mass x energy/mass = energy, in J. The LHV/HHV column pair carries the basis scope: only LHV figures may enter the LHV port."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The conventional-gasoline row reads LHV 116,090 Btu/gal, 18,679 Btu/lb, 43.448 MJ/kg and HHV 124,340 Btu/gal, 20,007 Btu/lb, 46.536 MJ/kg, with density 2,819 grams/gal. The notes define LHV as heat released with product water uncondensed (useful calorific value) and HHV with products returned to 25 C. Density closure: 2.819 kg/gal x 43.448 MJ/kg = 122.48 MJ/gal against 116,090 Btu/gal x 1055.06 J/Btu = 122.48 MJ/gal.",
+          "id": "greet-heating-values-table",
+          "kind": "primary",
+          "license": "University-hosted copy of a DOE-lab-sourced table; hosting-page terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Liquid Fuels section, Conventional gasoline row; LHV/HHV definition notes; source line",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "Lower and Higher Heating Values of Gas, Liquid and Solid Fuels (GREET-sourced table; university-hosted copy)",
+          "url": "https://courses.grainger.illinois.edu/npre470/sp2018/web/Lower_and_Higher_Heating_Values_of_Gas_Liquid_and_Solid_Fuels.pdf",
+          "version": "PDF fetched 2026-11-04 (HTTP 200; redirects from courses.engr.illinois.edu); table sourced inside to GREET 1.8d.1 (ANL, released 2010-08-26) and the ORNL Biomass Energy Data Book 2011, Appendix A"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "2007 forward, EIA adopted the thermal conversion factor of 5.222 million Btu per barrel (124,340 Btu per gallon) for gasoline blendstock from Argonne National Laboratory GREET work. This cross-checks the heating-values table HHV row (124,340 Btu/gal).",
+          "id": "eia-mer-appendix-a",
+          "kind": "primary",
+          "license": "U.S. federal government publication (EIA/DOE/EPA); no verbatim text reproduced. Terms page not separately inspected.",
+          "locator": "Motor Gasoline Blending Components note (2007 forward factor)",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "EIA Monthly Energy Review, Appendix A: British Thermal Unit Conversion Factors",
+          "url": "https://www.eia.gov/totalenergy/data/monthly/pdf/mer_A_FULL.pdf",
+          "version": "PDF fetched 2026-11-04 (HTTP 200)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Gasoline/E10 energy content spans 112,114-116,090 Btu/gal (lower) and 120,388-124,340 Btu/gal (higher), corroborating the table's conventional-gasoline endpoints 116,090 and 124,340 Btu/gal.",
+          "id": "doe-afdc-fuel-properties",
+          "kind": "primary",
+          "license": "U.S. federal government publication (EIA/DOE/EPA); no verbatim text reproduced. Terms page not separately inspected.",
+          "locator": "Energy Content rows for Gasoline/E10",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "DOE Alternative Fuels Data Center: Fuel Properties Comparison (gasoline LHV/HHV ranges)",
+          "url": "https://afdc.energy.gov/fuels/properties?fuels=GS%2CHY",
+          "version": "Live HTML inspected 2026-11-04"
+        }
+      ],
+      "summary": "Chemical energy in a fuel mass at its lower heating value (m * LHV); LHV basis only, HHV figures excluded.",
+      "title": "Fuel chemical energy from mass and lower heating value",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "fuel-energy LHV basis: same fuel lot, composition, and lower-heating-value reference state for m, LHV, and E.",
+          "definition": "Mass of the fuel lot whose chemical energy is accounted.",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite kg; m = 0 is the admitted empty-lot boundary.",
+          "quantity_id": "fuel_mass",
+          "role": "input",
+          "source_symbol": "Introduced m = fuel mass",
+          "symbol": "m",
+          "unit": "kg"
+        },
+        {
+          "context": "fuel-energy LHV basis: same fuel lot, composition, and lower-heating-value reference state for m, LHV, and E.",
+          "definition": "Lower (net) heating value of the fuel: heat released per unit mass with product water uncondensed.",
+          "dimensions": "energy / mass",
+          "domain": "Positive finite J/kg; LHV = 0 is excluded (domain case).",
+          "quantity_id": "lower_heating_value",
+          "role": "input",
+          "source_symbol": "Introduced LHV = lower heating value",
+          "symbol": "LHV",
+          "unit": "J/kg"
+        },
+        {
+          "context": "fuel-energy LHV basis: same fuel lot, composition, and lower-heating-value reference state for m, LHV, and E.",
+          "definition": "Chemical energy content of the fuel mass at LHV.",
+          "dimensions": "energy",
+          "domain": "Nonnegative finite J.",
+          "quantity_id": "fuel_chemical_energy",
+          "role": "output",
+          "source_symbol": "Introduced E = fuel chemical energy",
+          "symbol": "E",
+          "unit": "J"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source scope: EIA 2025 fleet-average operating heat rates (utility plus independent-power-producer electric plants; combined-heat-and-power and commercial/industrial plants excluded; nuclear is a tested-heat-rate average), inverted by the curator as eta = 3412 / heatrate with 1 kWh = 3,412 Btu.",
+        "Application profile: fuel-to-work efficiency only; the W <= Q guard enforces the first law fail-closed (mirrors the admitted Md <= Mt balance-guard shape)."
+      ],
+      "constants": [],
+      "guards": [
+        "W >= 0",
+        "Q > 0",
+        "W <= Q"
+      ],
+      "id": "environmental-accounting--thermal-conversion-efficiency",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meanings useful_work_output, heat_input, thermal_efficiency: absent from the registry vocabulary and from all 262 admitted models' ports (verified 2026-11-04, mode=ro).",
+          "Units J and 1 are pre-provisioned; only the meanings block runtime projection.",
+          "Per-record context binds no existing chain: no admitted record uses these meanings, so the record forms zero legs."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "W = eta * Q needs no exclusion beyond the original guards; Q = W / eta requires eta > 0. Substitution: eta = 1, Q = 1 gives W = 1, and forward 1 / 1 = 1. eta = 0 with W = 0 leaves Q underdetermined (any heat input fits zero work); eta = 0 with W > 0 is incompatible. Guard interplay: eta > 1 has no preimage (W <= Q), so over-unity inversions fail closed.",
+      "kind": "definition",
+      "limitations": [
+        "No COP/Carnot restatement: heat-pump/refrigerator coefficients of performance and Carnot bounds are separate records whose values may exceed unity.",
+        "Fleet-average heat rates do not describe any single plant; marginal or single-unit efficiency needs its own heat-rate port value."
+      ],
+      "references": [
+        {
+          "expected": 0.4385040483228377,
+          "id": "gas-fleet-2025",
+          "inputs": {
+            "Q": 7781,
+            "W": 3412
+          },
+          "method": "Curator inversion of the verified EIA figures: 3412 / 7781 = 0.43850405... (0.4385 at 4dp). Brief-22 prints 0.4386, which is a rounding slip against its own inputs; this bundle uses the exact quotient. Tolerance is float hygiene only.",
+          "provenance": "Cross-family worked arithmetic (curator inversion eta = 3412 / heatrate of the published 2025 gas heat rate); not a published efficiency figure.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.3204658589273974,
+          "id": "coal-fleet-2025",
+          "inputs": {
+            "Q": 10647,
+            "W": 3412
+          },
+          "method": "Curator inversion of the verified EIA figures: 3412 / 10647 = 0.32046593... (0.3205 at 4dp, matching brief-22). Tolerance is float hygiene only.",
+          "provenance": "Cross-family worked arithmetic (curator inversion eta = 3412 / heatrate of the published 2025 coal heat rate); not a published efficiency figure.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1.0,
+          "id": "perfect-engine-limit",
+          "inputs": {
+            "Q": 1,
+            "W": 1
+          },
+          "method": "Limiting identity: W = Q gives eta = 1, the perfect-engine bound the W <= Q guard closes at. Curator-constructed boundary.",
+          "provenance": "Curator synthetic boundary; no observed data claimed.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Q": 0,
+            "W": 3412
+          },
+          "kind": "domain",
+          "reason": "Q = 0 violates Q > 0: efficiency against zero heat input is undefined."
+        },
+        {
+          "inputs": {
+            "Q": 1,
+            "W": 2
+          },
+          "kind": "domain",
+          "reason": "W = 2 > Q = 1 violates W <= Q: over-unity conversion fails closed under the first-law guard."
+        }
+      ],
+      "relationship": {
+        "expression": "W / Q",
+        "locator": "Table 8.1, 2025 row: coal 10647, petroleum 10969, natural gas 7781, nuclear 10443 Btu/kWh",
+        "original_equation": "eta = W / Q (thermal efficiency = useful work output / heat input)",
+        "output_symbol": "eta",
+        "source_id": "eia-epa-table-8-1",
+        "translation_notes": "W, Q, and eta are introduced symbols (the lane brief prescribes them; the source publishes heat rates, not symbols). Dimensional check: energy / energy = dimensionless. EIA heat rates are fuel-in per power-out (Btu/kWh); curator oracles invert them as eta = 3412 / heatrate with 1 kWh = 3,412 Btu, labeled cross-family arithmetic, not published efficiency figures."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The 2025 row reads coal 10647, petroleum 10969, natural gas 7781, nuclear 10443 Btu per kilowatthour. Coverage: coal/petroleum/gas rates cover utility and independent-power-producer electric plants (CHP and commercial/industrial excluded); the nuclear rate is the weighted-average tested heat rate from Form EIA-860.",
+          "id": "eia-epa-table-8-1",
+          "kind": "primary",
+          "license": "U.S. federal government publication (EIA/DOE/EPA); no verbatim text reproduced. Terms page not separately inspected.",
+          "locator": "2025 row and coverage notes (Forms EIA-923 and EIA-860)",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "EIA Electric Power Annual, Table 8.1: average operating heat rate by energy source",
+          "url": "https://www.eia.gov/electricity/annual/html/epa_08_01.html",
+          "version": "2015-2025 table; live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The page states 1 kilowatthour = 3,412 Btu, the perfect-plant heat rate used as the inversion numerator (3412 / heatrate).",
+          "id": "eia-btu-kwh",
+          "kind": "primary",
+          "license": "U.S. federal government publication (EIA/DOE/EPA); no verbatim text reproduced. Terms page not separately inspected.",
+          "locator": "Electricity conversion row (also stated in the Monthly Energy Review: 3,412 Btu per kWh)",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "EIA Units and calculators explained: British thermal units (kWh conversion)",
+          "url": "https://www.eia.gov/energyexplained/units-and-calculators/british-thermal-units.php",
+          "version": "Live HTML inspected 2026-11-04"
+        }
+      ],
+      "summary": "First-law fuel-to-work efficiency: useful work out per heat in (W / Q), fail-closed above unity.",
+      "title": "Thermal conversion efficiency from useful work and heat input",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "thermal-conversion first-law basis: same conversion boundary and accounting interval for W, Q, and eta.",
+          "definition": "Useful work (or electrical energy) delivered across the conversion boundary.",
+          "dimensions": "energy",
+          "domain": "Nonnegative finite J, and W <= Q by the first-law guard.",
+          "quantity_id": "useful_work_output",
+          "role": "input",
+          "source_symbol": "Introduced W = useful work output",
+          "symbol": "W",
+          "unit": "J"
+        },
+        {
+          "context": "thermal-conversion first-law basis: same conversion boundary and accounting interval for W, Q, and eta.",
+          "definition": "Heat (fuel chemical energy) supplied across the conversion boundary.",
+          "dimensions": "energy",
+          "domain": "Positive finite J; Q = 0 is excluded (domain case).",
+          "quantity_id": "heat_input",
+          "role": "input",
+          "source_symbol": "Introduced Q = heat input",
+          "symbol": "Q",
+          "unit": "J"
+        },
+        {
+          "context": "thermal-conversion first-law basis: same conversion boundary and accounting interval for W, Q, and eta.",
+          "definition": "Fuel-to-work conversion efficiency: work out per heat in.",
+          "dimensions": "dimensionless",
+          "domain": "Dimensionless in [0, 1] under the guards.",
+          "quantity_id": "thermal_efficiency",
+          "role": "output",
+          "source_symbol": "Introduced eta = thermal efficiency",
+          "symbol": "eta",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source scope: RATED planning (rated economy x usable tank), distinguishing record 1's measured-trip scope; e is a rated figure such as the EPA combined rating and Vt a usable tank volume.",
+        "Application profile: 100%-of-tank planning figure (fueleconomy.gov notes its range display assumes 100% of the fuel in the tank is used); reserve/usable-fraction adjustments are applied externally."
+      ],
+      "constants": [],
+      "guards": [
+        "e > 0",
+        "Vt >= 0"
+      ],
+      "id": "environmental-accounting--driving-range-from-economy-and-tank",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meanings fuel_economy, tank_fuel_volume, vehicle_range: absent from the registry vocabulary and from all 262 admitted models' ports (verified 2026-11-04, mode=ro).",
+          "New unit mi/gal for the economy port (length-volume^-1; scale METERS_PER_MILE/CUBIC_METERS_PER_GALLON).",
+          "Per-record context binds no existing chain: no admitted record uses these meanings, so the record forms zero legs."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "e = R / Vt requires Vt > 0; Vt = R / e needs no exclusion beyond the guarded e > 0. Substitution: R = 320, Vt = 10 gives e = 32, and forward 32 x 10 = 320. Vt = 0 with R = 0 leaves e underdetermined (any rating fits an empty tank); Vt = 0 with R > 0 is incompatible.",
+      "kind": "definition",
+      "limitations": [
+        "Not a trip inverse of record 1: e = 0 is excluded here while record 1 admits D = 0; trip rearrangements of record 1 are solver-derived separately.",
+        "Excludes reserve fuel, gauge error, driving-condition derating, and partial-fill measurement."
+      ],
+      "references": [
+        {
+          "expected": 320,
+          "id": "stipulated-ten-gallon-camry",
+          "inputs": {
+            "Vt": 10,
+            "e": 32
+          },
+          "method": "Published rating x stipulated partial fill: 32 x 10 = 320 exactly. Tolerance is float hygiene only.",
+          "provenance": "Published 32-mpg EPA combined rating from the id=47090 URL above; the 10-gal fill is stipulated.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 460,
+          "id": "stipulated-ten-gallon-hybrid",
+          "inputs": {
+            "Vt": 10,
+            "e": 46
+          },
+          "method": "Published rating x stipulated partial fill: 46 x 10 = 460 exactly. Tolerance is float hygiene only.",
+          "provenance": "Published 46-mpg EPA combined rating from the id=47093 URL above; the 10-gal fill is stipulated.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 505.6,
+          "id": "rated-tank-camry",
+          "inputs": {
+            "Vt": 15.8,
+            "e": 32
+          },
+          "method": "Rated-range oracle on two verified figures: 32 x 15.8 = 505.6, corroborated by the page's rounded 506-mile EPA range display. Tolerance is float hygiene only.",
+          "provenance": "Cross-published-figure arithmetic: EPA combined rating x Edmunds tank size, both from the id=47090 URL above.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Vt": 10,
+            "e": 0
+          },
+          "kind": "domain",
+          "reason": "e = 0 violates e > 0: no rated economy means no plannable range."
+        },
+        {
+          "inputs": {
+            "e": 32
+          },
+          "kind": "missing-input",
+          "reason": "Vt is omitted: without the tank volume there is no range to plan; the record must not silently assume a tank size."
+        }
+      ],
+      "relationship": {
+        "expression": "e * Vt",
+        "locator": "Spec table (Combined MPG:32), tank line (15.8 gallons), and range display (EPA range 506 miles); hybrid page: 46 mpg, 13.2 gal",
+        "original_equation": "R = e * Vt (vehicle range = fuel economy x tank fuel volume)",
+        "output_symbol": "R",
+        "source_id": "epa-fueleconomy-camry-2024",
+        "translation_notes": "e, Vt, and R are introduced symbols (the lane brief prescribes them; the source publishes mpg, tank, and range figures, not symbols). Dimensional check: length/volume x volume = length, in mi. The rated-range oracle multiplies the published 32-mpg rating by the published 15.8-gal tank (505.6), corroborated by the page's rounded 506-mile EPA range display."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The page rates the 2024 Camry LE/SE at 32 combined mpg, lists a 15.8-gallon tank (Edmunds data per the page footnote), displays a 506-mile EPA range, and notes the range assumes 100% of the fuel in the tank is used. Rated arithmetic 32 x 15.8 = 505.6 closes to the displayed 506 within its rounding.",
+          "id": "epa-fueleconomy-camry-2024",
+          "kind": "primary",
+          "license": "U.S. federal government publication (EIA/DOE/EPA); no verbatim text reproduced. Terms page not separately inspected.",
+          "locator": "Spec table (Combined MPG:32), tank line (15.8 gallons), range display (EPA range 506 miles)",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "fueleconomy.gov (DOE/EPA): 2024 Toyota Camry LE/SE side-by-side spec page",
+          "url": "https://www.fueleconomy.gov/feg/Find.do?action=sbs&id=47090",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The page rates the 2024 Camry Hybrid at 46 combined mpg and lists a 13.2-gallon tank (Edmunds data per the page footnote).",
+          "id": "epa-fueleconomy-camry-hybrid-2024",
+          "kind": "primary",
+          "license": "U.S. federal government publication (EIA/DOE/EPA); no verbatim text reproduced. Terms page not separately inspected.",
+          "locator": "Spec table (Combined MPG:46) and tank line (13.2 gallons)",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "fueleconomy.gov (DOE/EPA): 2024 Toyota Camry Hybrid SE/XLE/XSE side-by-side spec page",
+          "url": "https://www.fueleconomy.gov/feg/Find.do?action=sbs&id=47093",
+          "version": "Live HTML inspected 2026-11-04"
+        }
+      ],
+      "summary": "Rated-trip planning range: rated economy times usable tank volume (e * Vt); planning scope, not measured-trip.",
+      "title": "Driving range from economy and tank volume",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "driving-range rated-planning basis: same vehicle rating, usable tank, and planning basis for e, Vt, and R.",
+          "definition": "Rated fuel economy of the vehicle on the planning basis.",
+          "dimensions": "length / volume",
+          "domain": "Positive finite mi/gal; e = 0 is excluded (domain case).",
+          "quantity_id": "fuel_economy",
+          "role": "input",
+          "source_symbol": "Introduced e = fuel economy",
+          "symbol": "e",
+          "unit": "mi/gal"
+        },
+        {
+          "context": "driving-range rated-planning basis: same vehicle rating, usable tank, and planning basis for e, Vt, and R.",
+          "definition": "Usable tank fuel volume on the planning basis.",
+          "dimensions": "volume",
+          "domain": "Nonnegative finite gallons; Vt = 0 is the admitted empty-tank boundary.",
+          "quantity_id": "tank_fuel_volume",
+          "role": "input",
+          "source_symbol": "Introduced Vt = tank fuel volume",
+          "symbol": "Vt",
+          "unit": "gal"
+        },
+        {
+          "context": "driving-range rated-planning basis: same vehicle rating, usable tank, and planning basis for e, Vt, and R.",
+          "definition": "Planned driving range on the usable tank at the rated economy.",
+          "dimensions": "length",
+          "domain": "Nonnegative finite miles.",
+          "quantity_id": "vehicle_range",
+          "role": "output",
+          "source_symbol": "Introduced R = vehicle range",
+          "symbol": "R",
+          "unit": "mi"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source scope: single-trip fuel cost over that trip's distance; the brief-19-deferred physical-measure sibling of economics--money-unit-rate@r1 (counts-only counted_unit_quantity input), with own input/output meanings and unit -- gallons and miles are physical measures and must not enter counted_unit_quantity.",
+        "Application profile: AAA Your Driving Costs 2026 scope reference (fuel budgeted in cents per mile on a $4.152/gal regular-grade 12-month average ending May 2026, within a 5-year/75,000-mile study); oracles below are EIA/EPA cross-arithmetic, not AAA figures."
+      ],
+      "constants": [],
+      "guards": [
+        "C >= 0",
+        "D > 0"
+      ],
+      "id": "environmental-accounting--driving-fuel-cost-per-distance",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meanings trip_fuel_cost, trip_distance, driving_fuel_cost_per_distance: absent from the registry vocabulary and from all 262 admitted models' ports (verified 2026-11-04, mode=ro).",
+          "New unit USD/mi for the output port (currency-length^-1; scale 1/METERS_PER_MILE).",
+          "Per-record context binds no existing chain: no admitted record uses these meanings, so the record forms zero legs."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "C = c * D needs no exclusion beyond the original guards; D = C / c requires c > 0. Substitution: c = 0.12978125, D = 320 gives C = 41.53, and forward 41.53 / 320 = 0.12978125. c = 0 with C = 0 leaves D underdetermined (any distance is free); c = 0 with C > 0 is incompatible.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes non-fuel per-mile costs (maintenance, tires, depreciation, insurance, finance) that AAA bundles into all-in cost per mile.",
+        "A zero-distance trip has no per-distance cost (D = 0 domain case); idling cost needs a time-based record."
+      ],
+      "references": [
+        {
+          "expected": 0.12978125000000001,
+          "id": "camry-week-110226",
+          "inputs": {
+            "C": 41.53,
+            "D": 320
+          },
+          "method": "EIA/EPA cross-arithmetic: $41.53 (10 gal x $4.153, week ending 11/02/26) / 320 mi (32-mpg rating x 10 gal) = 0.12978125 ($0.1298/mi at 4dp). Tolerance is float hygiene only.",
+          "provenance": "Cross-family worked arithmetic from the EIA price week and the EPA rating above; not an observed trip and not an AAA figure.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.13921739130434785,
+          "id": "hybrid-week-102626",
+          "inputs": {
+            "C": 64.04,
+            "D": 460
+          },
+          "method": "EIA/EPA cross-arithmetic: $64.04 (15 gal x $4.269 = $64.035, week ending 10/26/26, at cent rounding) / 460 mi (46-mpg rating x 10 gal) = 0.13921739... ($0.1392/mi at 4dp). Tolerance is float hygiene only.",
+          "provenance": "Cross-family worked arithmetic from the EIA price week and the EPA rating above; not an observed trip and not an AAA figure.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.0,
+          "id": "zero-cost-boundary",
+          "inputs": {
+            "C": 0,
+            "D": 320
+          },
+          "method": "Limiting identity: a free trip costs nothing per mile at any distance. Curator-constructed boundary, not a published figure.",
+          "provenance": "Curator synthetic boundary; no observed data claimed.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "C": 41.53,
+            "D": 0
+          },
+          "kind": "domain",
+          "reason": "D = 0 violates D > 0: a zero-distance trip has no per-distance cost."
+        },
+        {
+          "inputs": {
+            "C": 41.53
+          },
+          "kind": "missing-input",
+          "reason": "D is omitted: without the trip distance there is no per-distance figure to form; the record must not silently assume a mileage."
+        }
+      ],
+      "relationship": {
+        "expression": "C / D",
+        "locator": "U.S. Regular Gasoline Prices table, U.S. row: 4.269 (10/26/26), 4.153 (11/02/26); paired with EPA combined ratings 32/46 mpg (fueleconomy.gov id=47090/id=47093)",
+        "original_equation": "c = C / D (driving fuel cost per distance = trip fuel cost / trip distance)",
+        "output_symbol": "c",
+        "source_id": "eia-gasdiesel-update",
+        "translation_notes": "C, D, and c are introduced symbols (the lane brief prescribes them; the sources publish prices and mpg ratings, not symbols). Dimensional check: currency / length = currency-length^-1, displayed as USD/mi. Oracles are EIA-price x EPA-rating cross-arithmetic; AAA Your Driving Costs 2026 is cited for the cents-per-mile measurement scope only."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The table's U.S. row reads 4.284, 4.269, 4.153 dollars per gallon under the raw column headers 10/19/26, 10/26/26, 11/02/26. Oracles pin $4.153 to the week ending 11/02/26 and $4.269 to the week ending 10/26/26.",
+          "id": "eia-gasdiesel-update",
+          "kind": "primary",
+          "license": "U.S. federal government publication (EIA/DOE/EPA); no verbatim text reproduced. Terms page not separately inspected.",
+          "locator": "U.S. Regular Gasoline Prices table, U.S. row with raw headers 10/19/26, 10/26/26, 11/02/26",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "EIA Gasoline and Diesel Fuel Update: U.S. regular gasoline prices",
+          "url": "https://www.eia.gov/petroleum/gasdiesel/",
+          "version": "Release 11/03/2026 (next release 11/10/2026); live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The pages rate the 2024 Camry at 32 combined mpg and the 2024 Camry Hybrid at 46 combined mpg; oracle distances 320 and 460 mi reproduce those ratings on stipulated 10-gal fills.",
+          "id": "epa-fueleconomy-camry-2024",
+          "kind": "primary",
+          "license": "U.S. federal government publication (EIA/DOE/EPA); no verbatim text reproduced. Terms page not separately inspected.",
+          "locator": "Spec table (Combined MPG:32); hybrid page id=47093 (Combined MPG:46)",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "fueleconomy.gov (DOE/EPA): 2024 Toyota Camry LE/SE side-by-side spec page",
+          "url": "https://www.fueleconomy.gov/feg/Find.do?action=sbs&id=47090",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The sheet budgets the Fuel line in cents per mile on average prices for a 12-month period ending 5/26, during which regular grade gas averaged $4.152/gallon (EV charging at 18 cents/kWh). Cited for the per-distance measurement scope only; no AAA figure enters the oracles.",
+          "id": "aaa-ydc-2026-factsheet",
+          "kind": "primary",
+          "license": "AAA (private) publication; terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Fuel line (cents-per-mile unit) and its basis note",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "AAA Your Driving Costs 2026 fact sheet (fuel cost-per-mile scope)",
+          "url": "https://newsroom.aaa.com/wp-content/uploads/2026/09/AAA_YDC-Fact-Sheet_2026.pdf",
+          "version": "PDF fetched 2026-11-04 (HTTP 200)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The 2026 analysis puts average new-vehicle ownership at $12,863 per year over five years and 75,000 miles, with regular-grade gasoline averaging $4.152 per gallon at study time. Cited for the study scope only; no AAA figure enters the oracles.",
+          "id": "aaa-ydc-2026-release",
+          "kind": "primary",
+          "license": "AAA (private) publication; terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Headline figure, Fuel Prices bullet, methodology paragraph",
+          "redistribution": "Only short original paraphrases and attributed numerical figures; no source text reproduced.",
+          "title": "AAA newsroom release: New Vehicle Ownership Costs Hit $12,863 Annually (study scope)",
+          "url": "https://newsroom.aaa.com/2026/09/aaa-new-vehicle-ownership-costs-hit-12863-annually/",
+          "version": "Release dated 9/15/2026; live HTML inspected 2026-11-04"
+        }
+      ],
+      "summary": "Physical-measure sibling of the counts-only money unit rate: trip fuel cost per mile (C / D).",
+      "title": "Driving fuel cost per distance from trip cost and distance",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "driving-fuel-cost-per-distance trip basis: same trip, cost, and distance basis for C, D, and c.",
+          "definition": "Fuel cost of the trip whose per-distance cost is measured.",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite USD; C = 0 is the admitted free-trip boundary.",
+          "quantity_id": "trip_fuel_cost",
+          "role": "input",
+          "source_symbol": "Introduced C = trip fuel cost",
+          "symbol": "C",
+          "unit": "USD"
+        },
+        {
+          "context": "driving-fuel-cost-per-distance trip basis: same trip, cost, and distance basis for C, D, and c.",
+          "definition": "Distance of the trip whose per-distance cost is measured.",
+          "dimensions": "length",
+          "domain": "Positive finite miles; D = 0 is excluded (domain case).",
+          "quantity_id": "trip_distance",
+          "role": "input",
+          "source_symbol": "Introduced D = trip distance",
+          "symbol": "D",
+          "unit": "mi"
+        },
+        {
+          "context": "driving-fuel-cost-per-distance trip basis: same trip, cost, and distance basis for C, D, and c.",
+          "definition": "Fuel cost per unit distance for the trip.",
+          "dimensions": "currency / length",
+          "domain": "Nonnegative finite USD/mi.",
+          "quantity_id": "driving_fuel_cost_per_distance",
+          "role": "output",
+          "source_symbol": "Introduced c = driving fuel cost per distance",
+          "symbol": "c",
+          "unit": "USD/mi"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

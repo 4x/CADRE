@@ -315,6 +315,38 @@
       ],
       "needs": "none; single glue model. Role selection is the test: budget binds first, spend binds second, and the signed remainder survives.",
       "why_llm_loses": "Ordered subtraction with sign: bare answers report the $4,500 overspend as a positive."
+    },
+    {
+      "id": "t1-branch-times-aloft",
+      "tier": 1,
+      "question": "A ball is thrown straight upward from 1 m above the ground with an initial velocity of 10 m/s. Its vertical acceleration is -9.8 m/s^2. At what times is the ball at 3 m above the ground?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "duration",
+          "unit": "s",
+          "amounts": [0.22475148205641113, 1.816064844474201]
+        }
+      ],
+      "needs": "none; single-model inverse time view, branch 'all' terminal (two verified roots: ascent and descent through 3 m). Oracle via offline runtime.execute scenario plus closed-form quadratic cross-check (bit-identical, zero residual). Battery-verified FIXED 2026-11-04: the composer node schema omitted branch (workflows answer() additionalProperties false), so all proposals rejected with multiple_solutions; schema fix plus re-run green.",
+      "why_llm_loses": "Two-pass timing through one height; bare answers give a single time or solve the forward view."
+    },
+    {
+      "id": "t1-implied-rate-bisection",
+      "tier": 1,
+      "question": "A uniform series of $8,000 received at each year end for 20 years has a present value of $119,016. What annual-effective real discount rate does that imply?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "discount_rate",
+          "unit": "1",
+          "amount": 0.030003452301025392
+        }
+      ],
+      "needs": "none; single-model inverse rate view via scan-then-bisection in the (0,0.1] published-scope bracket (rateguard r2 admitted 2026-11-04). Oracle via offline runtime.execute scenario purpose: 1112 evaluations, forward residual -7.02e-05; corroborated by reviewer Newton root 0.030003452365 (12dp) and residual -1.50e-07.",
+      "why_llm_loses": "Degree-20 rate inversion with no closed form; bare answers guess near 3% but cannot pin the published-case digits."
     }
   ]
 }

@@ -2,12 +2,14 @@
 
 from dataclasses import asdict, replace
 from decimal import Decimal
+import json
 import math
 import unittest
 
 from connected_models.contracts import Composition, Model, Node, Port, Value
 from connected_models.demo import catalog
 from connected_models.runtime import execute
+from connected_models.serialization import composition_from_dict
 from connected_models.solving import OUTPUT_BINDING
 
 SCALAR = Port("seasonal_performance", "1", "algebra-fixture")
@@ -89,6 +91,17 @@ class SolvingTests(unittest.TestCase):
         run = execute(Composition("branched-chain", (branches, consumer), ("consumer",)), {model.key: model})
         self.assertEqual(run["status"], "rejected")
         self.assertIn("terminal", run["error"])
+
+    def test_branch_survives_proposal_decoding(self) -> None:
+        """A composer proposal carrying branch all decodes and executes to amounts."""
+        bindings = {OUTPUT_BINDING: Value(4, SCALAR, "fixture", "known result")}
+        node = Node("inverse", "polynomial@1", bindings, "x", "equal", "all")
+        graph = Composition("proposal", (node,), (node.id,))
+        decoded = replace(composition_from_dict(json.loads(json.dumps(asdict(graph)))), purpose="fixture")
+        self.assertEqual(decoded.nodes[0].branch, "all")
+        run = execute(decoded, {"polynomial@1": polynomial("x ** 2")})
+        self.assertEqual(run["status"], "completed", run.get("error"))
+        self.assertEqual(run["outputs"]["inverse"]["amounts"], [-2, 2])
 
     def test_energy_mass_relation_as_unitless_algebra(self) -> None:
         """E=m*c² yields m and both c branches; no SI vocabulary coverage is implied."""

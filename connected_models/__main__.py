@@ -55,6 +55,8 @@ def main() -> int:
                        help="Let the composer supply question-implied values as documented assumptions")
     query.add_argument("--model", default=None,
                        help="Inference model; overrides LLM and inference.toml (must be priced)")
+    query.add_argument("--retrieval", default="subset", choices=("full", "subset"),
+                       help="Catalog retrieval mode; default sends a retrieved subset.")
     inspect = commands.add_parser("inspect", help="Inspect a saved run's result and actual lineage")
     inspect.add_argument("run_id")
     report = commands.add_parser("report", help="Export saved runs to a readable standalone HTML report")
@@ -136,7 +138,7 @@ def main() -> int:
                 return 0 if record["status"] == "completed" else 1
             else:
                 record = answer(registry, args.question, fill_in_assumptions_enabled(args.fill_in_assumptions),
-                                args.model)
+                                args.model, retrieval=args.retrieval)
                 print(json.dumps({key: record.get(key) for key in ("run_id", "status", "outputs", "assumptions", "clarifications", "solve_diagnostic", "error", "saved_path")}, indent=2))
                 return 0 if record["status"] == "completed" else 1
             return 0

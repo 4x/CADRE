@@ -61,6 +61,14 @@ CURRENT_DENSITY: Dimensions = _dims(0, -2, 0, 0, 0, 1, 0)
 NUMBER_DENSITY: Dimensions = _dims(0, -3, 0, 0, 0, 0, 0)
 MOLAR_MASS: Dimensions = _dims(1, 0, 0, 0, 0, 0, -1)
 INVERSE_LENGTH: Dimensions = _dims(0, -1, 0, 0, 0, 0, 0)
+# Lane intake (fuel-b01, dctco-b01, water-b01): per-volume, per-length,
+# per-energy and per-time ratios for economy, tariff, intensity and cost.
+LENGTH_PER_VOLUME: Dimensions = _dims(0, -2, 0, 0)
+MONEY_PER_VOLUME: Dimensions = _dims(0, -3, 0, 1)
+MONEY_PER_LENGTH: Dimensions = _dims(0, -1, 0, 1)
+VOLUME_PER_ENERGY: Dimensions = _dims(-1, 1, 2, 0)
+MASS_PER_ENERGY: Dimensions = _dims(0, -2, 2, 0)
+MONEY_PER_TIME: Dimensions = _dims(0, 0, -1, 1)
 # Data-quantity convention: byte counts and byte rates are the canonical base
 # (B and B/s at scale 1); one bit is one eighth of a byte everywhere, so every
 # bit-denominated scale carries the /8 explicitly.
@@ -84,7 +92,7 @@ CUBIC_METERS_PER_DECILITER = 1e-4
 NEWTONS_PER_POUND_FORCE = 4.4482216152605
 WATTS_PER_HORSEPOWER = 550 * METERS_PER_FOOT * NEWTONS_PER_POUND_FORCE  # Mechanical hp.
 KLEIBER_MASS_EXPONENT = Fraction(3, 4)
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1+envacct-1+demography-1+orbital-2+circuits-2+waves-1+waves-2+clinical-2+cs-5+clinical-3+mechanics-2+cs-6+be-3+query-2+query-3+query-4+glue-1+economics-6+query-5+glue-2"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1+envacct-1+demography-1+orbital-2+circuits-2+waves-1+waves-2+clinical-2+cs-5+clinical-3+mechanics-2+cs-6+be-3+query-2+query-3+query-4+glue-1+economics-6+query-5+glue-2+envacct-2+cs-7+water-1+economics-7+cs-8"
 DIMENSION_AXES = ("mass", "length", "time", "currency", "temperature", "current", "amount")
 NUMERICAL_BASIS = f"kWh, m, s, USD, K, A, mol; mass base = {JOULES_PER_KWH} kg"
 
@@ -336,6 +344,21 @@ UNITS = {
     "mg/kg": Unit(DIMENSIONLESS, KG_PER_MILLIGRAM),
     "dL": Unit(VOLUME, CUBIC_METERS_PER_DECILITER),
     "mg/dL": Unit(MASS_DENSITY, (KG_PER_MILLIGRAM / CUBIC_METERS_PER_DECILITER) / JOULES_PER_KWH),
+    # Lane intake (fuel-b01, dctco-b01, water-b01): composite scales are the
+    # numerator scale over the denominator scale, as with J/kg and USD/kWh.
+    "mi/gal": Unit(LENGTH_PER_VOLUME, METERS_PER_MILE / CUBIC_METERS_PER_GALLON),
+    "USD/gal": Unit(MONEY_PER_VOLUME, 1.0 / CUBIC_METERS_PER_GALLON),
+    "USD/mi": Unit(MONEY_PER_LENGTH, 1.0 / METERS_PER_MILE),
+    "L/kWh": Unit(VOLUME_PER_ENERGY, CUBIC_METERS_PER_LITER),
+    "kg/kWh": Unit(MASS_PER_ENERGY, 1.0 / JOULES_PER_KWH),
+    "USD/h": Unit(MONEY_PER_TIME, 1.0 / 3600.0),
+    "m3/person": Unit(VOLUME, 1.0),
+    "USD/m3": Unit(MONEY_PER_VOLUME, 1.0),
+    "m3/unit": Unit(VOLUME, 1.0),
+    # R2 intake (computer-science-dctco-b02): per-period money spells the
+    # rate/amount distinction at the unit level; periods are dimensionless
+    # counts, so the dimension stays currency with scale 1.
+    "USD/periods": Unit(MONEY, 1.0),
 }
 
 
@@ -517,6 +540,71 @@ MEANINGS = {
     "named_money_amount": MONEY,
     "plain_multiplier": DIMENSIONLESS,
     "counted_unit_quantity": DIMENSIONLESS,
+    # Lane intake (environmental-accounting-fuel-b01): trip economy, cost,
+    # fuel energy and conversion efficiency vocabulary.
+    "trip_distance": LENGTH,
+    "trip_fuel_volume": VOLUME,
+    "fuel_economy": LENGTH_PER_VOLUME,
+    "fuel_unit_price": MONEY_PER_VOLUME,
+    "trip_fuel_cost": MONEY,
+    "fuel_mass": MASS,
+    "lower_heating_value": SPECIFIC_ENERGY,
+    "fuel_chemical_energy": ENERGY,
+    "useful_work_output": ENERGY,
+    "heat_input": ENERGY,
+    "thermal_efficiency": DIMENSIONLESS,
+    "tank_fuel_volume": VOLUME,
+    "vehicle_range": LENGTH,
+    "driving_fuel_cost_per_distance": MONEY_PER_LENGTH,
+    # Lane intake (computer-science-dctco-b01): xUE efficiency, overhead,
+    # downtime cost and depreciation vocabulary.
+    "total_facility_energy": ENERGY,
+    "it_equipment_energy": ENERGY,
+    "power_usage_effectiveness": DIMENSIONLESS,
+    "site_water_consumption": VOLUME,
+    "water_usage_effectiveness": VOLUME_PER_ENERGY,
+    "attributable_carbon_emissions": MASS,
+    "carbon_usage_effectiveness": MASS_PER_ENERGY,
+    "overhead_energy": ENERGY,
+    "outage_cost_rate": MONEY_PER_TIME,
+    "annual_downtime_cost": MONEY,
+    "asset_cost": MONEY,
+    "salvage_value": MONEY,
+    "recovery_periods": DIMENSIONLESS,
+    "annual_depreciation": MONEY,
+    # Lane intake (water-hydraulics-use-b01): flow, use, cost, harvest and
+    # intensity vocabulary. Counts are dimensionless by convention.
+    "volumetric_flow": VOLUME_FLOW,
+    "flow_duration": TIME,
+    "water_volume": VOLUME,
+    "served_population": DIMENSIONLESS,
+    "per_capita_daily_water_use": VOLUME,
+    "water_tariff": MONEY_PER_VOLUME,
+    "water_cost": MONEY,
+    "catchment_area": AREA,
+    "rainfall_depth": LENGTH,
+    "collection_efficiency": DIMENSIONLESS,
+    "harvested_rainwater": VOLUME,
+    "product_output": DIMENSIONLESS,
+    "water_intensity": VOLUME,
+    # Lane intake (engineering-finance-retire-b01): nest-egg, replacement,
+    # benefit, distribution and coverage vocabulary.
+    "annual_withdrawal": MONEY,
+    "safe_withdrawal_rate": DIMENSIONLESS,
+    "required_nest_egg": MONEY,
+    "retirement_income": MONEY,
+    "preretirement_income": MONEY,
+    "replacement_ratio": DIMENSIONLESS,
+    "primary_insurance_amount": MONEY,
+    "delayed_retirement_years": DIMENSIONLESS,
+    "delayed_benefit": MONEY,
+    "prior_year_balance": MONEY,
+    "rmd_distribution_period": DIMENSIONLESS,
+    "required_minimum_distribution": MONEY,
+    "retirement_savings": MONEY,
+    "annual_expenses": MONEY,
+    "expense_coverage_multiple": DIMENSIONLESS,
+    "annual_depreciation": MONEY,
     "discount_rate": DIMENSIONLESS,
     "period_count": DIMENSIONLESS,
     "present_value": MONEY,

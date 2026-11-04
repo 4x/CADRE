@@ -8,6 +8,7 @@ from connected_models.contracts import ModelError
 from connected_models.demo import RATE, YEARS
 from connected_models.query_inputs import bind_fact, validate_fact
 from connected_models.registry import Registry
+from connected_models.retrieval import RETRIEVAL_VERSION
 from connected_models.workflows import answer, compose_system_prompt, fill_in_assumptions_enabled, seed_candidates
 from test_support import scratch_directory
 
@@ -112,6 +113,34 @@ class QueryTests(unittest.TestCase):
             request.assert_not_called()
             self.assertEqual(run["status"], "blocked")
             self.assertIn("error", run)
+
+    def test_subset_retrieval_logs_its_shortlist(self) -> None:
+        """Subset mode sends a deterministic shortlist and records its provenance."""
+        with scratch_directory() as folder:
+            registry = Registry(Path(folder) / "registry.sqlite3")
+            for candidate_id in seed_candidates(registry):
+                registry.review(candidate_id, "test-reviewer", "Test-only admission.")
+            response = {"content": {"facts": [], "issues": ["Which of the two prices should be used?"],
+                        "status": "needs-input", "graph": {"id": "ambiguous", "nodes": [], "outputs": []},
+                        "reason": "Two prices conflict.", "clarifications": ["Which?"]}, "audit": {}}
+            with patch("connected_models.workflows.live_request", return_value=response), patch("connected_models.workflows.RUNS_PATH", Path(folder) / "runs"):
+                run = answer(registry, "Use $100 or $200 as the price.", retrieval="subset")
+            log = run["retrieval"]
+            self.assertEqual(log["mode"], "subset")
+            self.assertEqual(log["version"], RETRIEVAL_VERSION)
+            self.assertLessEqual(log["retrieved"], len(log["seeds"]) + len(log["expanded"]))
+            self.assertEqual(run["status"], "needs-input")
+
+    def test_unknown_retrieval_mode_is_rejected(self) -> None:
+        """Only full and subset retrieval exist; anything else fails closed."""
+        with scratch_directory() as folder:
+            registry = Registry(Path(folder) / "registry.sqlite3")
+            for candidate_id in seed_candidates(registry):
+                registry.review(candidate_id, "test-reviewer", "Test-only admission.")
+            with patch("connected_models.workflows.RUNS_PATH", Path(folder) / "runs"):
+                run = answer(registry, "What is 2+2?", retrieval="semantic")
+            self.assertEqual(run["status"], "blocked")
+            self.assertIn("Retrieval mode", run["error"])
 
     def test_assumed_facts_need_the_opt_in(self) -> None:
         """Implied values are rejected by default and accepted only when filling is enabled."""

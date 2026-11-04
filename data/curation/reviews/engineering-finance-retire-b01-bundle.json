@@ -1,0 +1,1064 @@
+{
+  "batch_id": "engineering-finance-retire-b01",
+  "created": "2026-11-04",
+  "curator": "compat-retire",
+  "deferred": [
+    {
+      "reason": "Zero-rate branches are separate expressions per the OAFV precedent, not guard relaxations; each needs its own record and is not prescribed in brief 24.",
+      "source_urls": [],
+      "title": "Zero-rate and limit branches (P=A*n and siblings)"
+    },
+    {
+      "reason": "Growing-withdrawal PV is owned by the admitted growing-annuity record; no growing-withdrawal record is prescribed in this lane.",
+      "source_urls": [],
+      "title": "Growing-withdrawal present value"
+    },
+    {
+      "reason": "Same division shape as record 5 with a different table factor; one record per shape, so Table I (beneficiary) and Table II (much-younger sole-beneficiary spouse) variants stay deferred.",
+      "source_urls": [],
+      "title": "RMD Table I/II variants"
+    },
+    {
+      "reason": "Solver-derived inverses of covered records; pure inverses are the wave-2 drift pattern and are not prescribed.",
+      "source_urls": [],
+      "title": "Sinking-fund and lump-sum-PV inverses; log-form term/rate solutions"
+    },
+    {
+      "reason": "Jurisdiction tables, not scalar arithmetic; out of scope for this lane.",
+      "source_urls": [],
+      "title": "Tax treatment of distributions"
+    }
+  ],
+  "domain": "engineering-finance",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "Scientific review pending for all 6 records (brief-24 review): oracles replay published table/rule/regulation numbers, but applicability and scope await review.",
+      "ssa.gov returned 403 to automated fetch (planner, factsheet, press, and OACT pages): SSA-origin facts were verified via the regulation text (20 CFR 404.313 via Cornell LII), the RePEc abstract of the AEI working paper, and attributed secondary reporting (FedWeek, CBPP); no ssa.gov URL is cited.",
+      "The AAII Trinity PDF returned 403 and the archived Bengen PDF rendered a toolbar page only: both primary PDFs are cited indirectly via the verified Wikipedia reference entries (full AAII Journal citation confirmed), not as inspected sources.",
+      "The AEI working paper series number 2023-12 per the brief could not be directly verified (catalog snippets only); the paper is cited as Biggs (2023), AEI Economics Working Paper, August 2023, via its verified RePEc record.",
+      "Record 1 is runtime-ready on pre-provisioned vocabulary; records 2-6 are requires-extension on 15 new meanings unless the vocabulary change ships with the batch.",
+      "Registry reads were read-only on 2026-11-04 (262 admitted models surveyed); no staging, review, or admission was performed."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical validation 2026-11-04 with the central package: `validate` on the bundle JSON -> status valid-data-awaiting-review, 6 models, 19 arithmetic checks (R1:3, R2:3, R3:4 incl. the over-replacement guard-scope admission, R4:3, R5:3, R6:3) and 12 rejection checks (2 per record), record 1 runtime-ready with its runtime contract checked, records 2-6 requires-extension; `pack` -> engineering-finance-retire-b01-return.zip; `validate` on the ZIP -> valid-data-awaiting-review. Cross-record proofs (prove_closures.py, registry read-only): due-PV/(1+i) closure and UPV equality recomputed on matched inputs; rule-of-25 R2/R6 closures recomputed. Orphan survey (probe_registry.py, registry read-only): all 6 lane IDs absent, all 15 new meanings absent, every reused-meaning context byte-distinct from the retirement context. Checks not performed: independent scientific review of the records (brief-24 review pending); no staging, review, or admission (out of scope).",
+    "summary": "Retirement lane batch engineering-finance-retire-b01 (curator compat-retire): 6 brief-24 records (data/curation/corrections/retirement-lane-brief-24.md) -- ordinary-annuity present value (end-of-period withdrawals), withdrawal-rate nest egg (Bengen rule shape), income replacement ratio, delayed-retirement-credit benefit, required minimum distribution, expense-coverage multiple. Record 1 reuses canonical annuity vocabulary under a retirement context; records 2-6 mint 15 retirement-specific meanings. The lane binds no existing chain (brief-19 shape): every reused-meaning port carries a retirement context byte-distinct from all existing producer/consumer contexts."
+  },
+  "kit_version": "2026-10-31.10",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: equal end-of-period payments with the first one full period after time zero at a fixed per-period rate (annuity-immediate/ordinary-annuity timing).",
+        "Application profile: the payment stream is a retirement withdrawal series over a fixed horizon; the retirement context qualifies the ports but does not change the annuity mathematics.",
+        "All amounts on one price basis with the rate on the matching period; convert a quoted nominal rate with the effective-rate record before use.",
+        "The i = 0 limit branch (P = A*n) is a separate expression per the OAFV precedent and is excluded by the i > 0 guard here."
+      ],
+      "constants": [],
+      "guards": [
+        "A >= 0",
+        "i > 0",
+        "n >= 1"
+      ],
+      "id": "engineering-finance--ordinary-annuity-present-value",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "Source assumption: equal end-of-period payments with the first one full period after time zero at a fixed per-period rate (annuity-immediate/ordinary-annuity timing).",
+            "Application profile: the payment stream is a retirement withdrawal series over a fixed horizon; the retirement context qualifies the ports but does not change the annuity mathematics.",
+            "All amounts on one price basis with the rate on the matching period; convert a quoted nominal rate with the effective-rate record before use.",
+            "The i = 0 limit branch (P = A*n) is a separate expression per the OAFV precedent and is excluded by the i > 0 guard here.",
+            "Beginning-of-period (annuity-due) streams need the distinct due factor with the extra (1+i) multiple and are not covered.",
+            "Excludes growing, variable, life-contingent, and indexed withdrawal streams; mortality and longevity risk are out of scope."
+          ],
+          "expression": "A*(1-(1+i)**(-n))/i",
+          "guards": [
+            "A >= 0",
+            "i > 0",
+            "n >= 1"
+          ],
+          "id": "engineering-finance--ordinary-annuity-present-value",
+          "inputs": {
+            "A": {
+              "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+              "meaning": "periodic_payment",
+              "unit": "USD"
+            },
+            "i": {
+              "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+              "meaning": "periodic_rate",
+              "unit": "1"
+            },
+            "n": {
+              "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+              "meaning": "period_count",
+              "unit": "periods"
+            }
+          },
+          "output": {
+            "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+            "meaning": "present_value",
+            "unit": "USD"
+          },
+          "source": "Ordinary-annuity (annuity-immediate) present value; Wikipedia annuity-immediate factor, AccountingTools ordinary-annuity table, UMD present-worth factor.",
+          "version": "r1"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "A=P*i/(1-(1+i)^-n) needs i>0 and n>=1; substitution P=77217.35, i=0.05, n=10 gives A=10000.00 within rounding. At n=1, A=P*(1+i) exactly (checked: 9523.81 x 1.05 = 10000.00 within rounding). A=0 admits P=0; P=0 with i>0, n>=1 forces A=0. Solving for i needs iteration and for n a logarithm, both unsupported by the scalar grammar, so those directions are untested. The i-to-0 limit branch P=A*n is a different expression, never a guard relaxation.",
+      "kind": "definition",
+      "limitations": [
+        "Beginning-of-period (annuity-due) streams need the distinct due factor with the extra (1+i) multiple and are not covered.",
+        "Excludes growing, variable, life-contingent, and indexed withdrawal streams; mortality and longevity risk are out of scope."
+      ],
+      "references": [
+        {
+          "expected": 77217,
+          "id": "pinned-table-10k",
+          "inputs": {
+            "A": 10000,
+            "i": 0.05,
+            "n": 10
+          },
+          "method": "Published-table oracle: AccountingTools factor 7.7217 (n=10, 5%) x $10,000 = $77,217; the expression evaluates 77217.35 (unrounded factor 7.72173) and tolerance 0.5 covers the table's 4-decimal rounding (at most 0.00005 x 10000). Labeled cross-record recomputation on the same value: uniform-present-value@source-3 on matched inputs (annual=10000, rate=0.05, years=10) returns the identical 77217.35 -- a numerical cross-check, never an equivalence claim.",
+          "provenance": "Published annuity-table factor via s-at-oa-table; UPV equality is curator recomputation against the admitted home-A record.",
+          "tolerance": 0.5
+        },
+        {
+          "expected": 57349.61,
+          "id": "due-pv-closure",
+          "inputs": {
+            "A": 5000,
+            "i": 0.06,
+            "n": 20
+          },
+          "method": "Due-PV closure recomputation: the admitted due record returns R*((1-(1+i)^-n)/i)*(1+i) = 60790.08 on matched inputs (R=5000, i=0.06, n=20); dividing by (1+i) = 1.06 per the sourced due/immediate relation reproduces this record's 57349.61. The same matched inputs through uniform-present-value@source-3 (annual=5000, rate=0.06, years=20) return the identical value. Both are labeled cross-record recomputation, never equivalence.",
+          "provenance": "Curator recomputation against admitted records engineering-finance--annuity-due-present-value@r1 and uniform-present-value@source-3; the due/immediate relation is sourced to s-wiki-annuity.",
+          "tolerance": 0.01
+        },
+        {
+          "expected": 9523.81,
+          "id": "single-period-identity",
+          "inputs": {
+            "A": 10000,
+            "i": 0.05,
+            "n": 1
+          },
+          "method": "Limiting identity: at n=1 the factor collapses to 1/(1+i), so P = A/(1+i) = 10000/1.05 = 9523.81 (single-discount check).",
+          "provenance": "Curator identity check from the sourced factor definition; not observed market data.",
+          "tolerance": 0.01
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A": 10000,
+            "i": 0,
+            "n": 10
+          },
+          "kind": "domain",
+          "reason": "Zero periodic rate makes the factor's denominator zero and needs the separate limit branch P=A*n; excluded by i>0."
+        },
+        {
+          "inputs": {
+            "A": 10000,
+            "n": 10
+          },
+          "kind": "missing-input",
+          "reason": "Without the per-period rate the discount factor cannot be formed."
+        }
+      ],
+      "relationship": {
+        "expression": "A*(1-(1+i)**(-n))/i",
+        "locator": "Timing of payments; Valuation > Annuity-certain > Annuity-immediate (present-value factor, proof, PV example); Annuity-due (due-factor relation); Amortization calculations.",
+        "original_equation": "P = A x [1 - (1+i)^-n] / i (present value of an ordinary annuity / annuity-immediate)",
+        "output_symbol": "P",
+        "source_id": "s-wiki-annuity",
+        "translation_notes": "Direct transcription with retirement-series symbols A (level withdrawal), i (rate per period), n (withdrawal count); the factor form mirrors the admitted due-PV exponent shape (1+i)**(-n) minus the due (1+i) multiple. Dimensional check: USD times a dimensionless factor stays USD. Guards A>=0, i>0, n>=1 mirror the admitted OAFV guard shape; i>0 with n>=1 keeps the factor positive. The i=0 limit branch P=A*n is a separate expression per the OAFV precedent, never a guard relaxation. The UMD Equal-Payment-Series Present-Worth Factor P = A*([1+i]^n-1)/(i[1+i]^n) is the same mathematics in multiplied-out form."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Annuity-immediate (ordinary annuity) pays at the end of each period; its unit-payment present-value factor is a-angle-n = (1-(1+i)^-n)/i with PV = R x factor; the due factor is (1+i) times the immediate factor; the loan-amortization section restates P = R*(1-(1+i)^-N)/i.",
+          "id": "s-wiki-annuity",
+          "kind": "primary",
+          "license": "Wikipedia text: CC BY-SA 4.0 (page footer); reuse terms for figures not reviewed.",
+          "locator": "Timing of payments; Valuation > Annuity-certain > Annuity-immediate (factor, proof, PV example); Annuity-due (due-factor relation); Amortization calculations.",
+          "redistribution": "Returns original formalization of the factor arithmetic and minimal attributed formula symbols; no reproduced page text or figures.",
+          "title": "Annuity (Wikipedia): annuity-immediate valuation",
+          "url": "https://en.wikipedia.org/wiki/Annuity",
+          "version": "Article revision fetched 2026-11-04 (CC BY-SA 4.0)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Table factor for 10 periods at 5% is 7.7217 (4-decimal rounding of 7.72173); the article's convention multiplies the factor by the payment (e.g. 3.9927 x $10,000 = $39,927 at 8%, n=5), so $10,000 x 7.7217 = $77,217.",
+          "id": "s-at-oa-table",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Rate Table For the Present Value of an Ordinary Annuity of 1: row n=10, column 5%.",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "AccountingTools: Present value of an ordinary annuity table (Steven Bragg)",
+          "url": "https://www.accountingtools.com/articles/present-value-of-an-ordinary-annuity-table",
+          "version": "Article page dated November 01, 2026; fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Page prints P = A*([1+i]^n-1)/(i[1+i]^n) and works A=100 / i=12% / n=4 to P=303.7, the multiplied-out form of the same ordinary-annuity mathematics.",
+          "id": "s-umd-ence202",
+          "kind": "primary",
+          "license": "Page footer states Copyright (c) 1996-1998, Department of Civil Engineering, University of Maryland; no open-license or terms page found.",
+          "locator": "Equal-Payment-Series Present-Worth Factor (factor and Example 1: A=100, i=12%, n=4 giving P=303.7).",
+          "redistribution": "No verbatim excerpts stored; only short original paraphrases, formula symbols and computed values.",
+          "title": "Introduction to Engineering Economics (ENCE 202 tutorial, Univ. of Maryland)",
+          "url": "https://user.eng.umd.edu/~austin/ence202.d/economics.html",
+          "version": "Tutorial text as printed; last modified February 1, 1998; fetched 2026-11-04"
+        }
+      ],
+      "summary": "Present value P of n equal end-of-period withdrawals A at a fixed per-period rate i over a retirement horizon: the ordinary-annuity (annuity-immediate) factor on a withdrawal stream. Complements the admitted annuity-due present value (beginning-of-period timing) and the home-A uniform-present-value energy-savings identity; binds no existing chain (retirement-qualified context).",
+      "title": "Ordinary-annuity present value for end-of-period retirement withdrawals",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+          "definition": "Equal end-of-period withdrawal per period over the retirement horizon",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite withdrawal; zero admits the no-withdrawal boundary",
+          "quantity_id": "periodic_payment",
+          "role": "input",
+          "source_symbol": "R (level payment; here a retirement withdrawal)",
+          "symbol": "A",
+          "unit": "USD"
+        },
+        {
+          "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+          "definition": "Effective interest rate per withdrawal period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite decimal; zero excluded (separate limit branch)",
+          "quantity_id": "periodic_rate",
+          "role": "input",
+          "source_symbol": "i (effective interest rate per period)",
+          "symbol": "i",
+          "unit": "1"
+        },
+        {
+          "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+          "definition": "Number of equal end-of-period withdrawals",
+          "dimensions": "count",
+          "domain": "At least one withdrawal; integer-valued counts in use",
+          "quantity_id": "period_count",
+          "role": "input",
+          "source_symbol": "n (number of payments)",
+          "symbol": "n",
+          "unit": "periods"
+        },
+        {
+          "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+          "definition": "Single amount at time zero equivalent to the withdrawal stream",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite present value",
+          "quantity_id": "present_value",
+          "role": "output",
+          "source_symbol": "PV (present value of the payment stream)",
+          "symbol": "P",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption (Bengen rule scope): 30-year horizon, inflation-adjusted successor withdrawals, historical-US calibration on 50-75% large-cap stocks with intermediate Treasuries, tax-advantaged account, no taxes or fees.",
+        "Application profile: the record computes the division N = W/s for a stated rate; it does not certify any rate as safe -- safety is claimed only by the cited studies under their own conditions.",
+        "All amounts on one price basis in one currency."
+      ],
+      "constants": [],
+      "guards": [
+        "W >= 0",
+        "s > 0"
+      ],
+      "id": "engineering-finance--required-nest-egg-withdrawal-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new quantity meanings: annual_withdrawal, safe_withdrawal_rate, required_nest_egg; no current-runtime projection attempted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "W=N*s given N>=0 (checked: 1000000 x 0.04 = 40000); s=W/N needs N>0 (checked: 40000/1000000 = 0.04). At N=0, W=0 with s undetermined (0 satisfies W=N*s for every s); N=0 with W>0 is impossible. The s=1 boundary inverts (W=N). No root branches.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes sequence-of-returns risk, fees, taxes, dynamic withdrawal rules, and longer-than-30-year horizons.",
+        "Rates above 1 (spending more than the portfolio in year one) are arithmetically admitted but lie outside every cited study's calibration."
+      ],
+      "references": [
+        {
+          "expected": 1000000,
+          "id": "bengen-rule-25",
+          "inputs": {
+            "W": 40000,
+            "s": 0.04
+          },
+          "method": "Curator-worked rule-of-25 pair on the published Bengen 4% first-year rate: $40,000 / 0.04 = $1,000,000. The source verifies the rate and its scope; the division is curator arithmetic, not a number printed in the source.",
+          "provenance": "Curator-worked arithmetic on the published Bengen rate (s-wiki-4pct); cross-family worked arithmetic per the brief-20 convention.",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 625000,
+          "id": "trinity-pair",
+          "inputs": {
+            "W": 25000,
+            "s": 0.04
+          },
+          "method": "Curator-worked second pair on the Trinity-supported 4% rate: $25,000 / 0.04 = $625,000. The AAII Journal citation is verified in s-wiki-trinity; the division is curator arithmetic.",
+          "provenance": "Curator-worked arithmetic on the published Trinity-supported rate (s-wiki-trinity).",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 40000,
+          "id": "spend-it-all",
+          "inputs": {
+            "W": 40000,
+            "s": 1
+          },
+          "method": "Guard-scope boundary: at s=1 the full starting portfolio is spent in year one, so N=W=$40,000 exactly.",
+          "provenance": "Curator boundary check; outside every cited study's calibration.",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "W": 40000,
+            "s": 0
+          },
+          "kind": "domain",
+          "reason": "Zero withdrawal rate makes the division undefined; no finite portfolio funds a positive withdrawal at a zero rate."
+        },
+        {
+          "inputs": {
+            "W": 40000
+          },
+          "kind": "missing-input",
+          "reason": "Without the withdrawal rate, no portfolio size can be formed."
+        }
+      ],
+      "relationship": {
+        "expression": "W / s",
+        "locator": "Lead and Definition: Bengen 1994 JFP finding -- first-year 4% withdrawal with inflation-adjusted successors over a 30-year retirement; SAFEMAX 4.15%; rule-of-25 name.",
+        "original_equation": "N = W / s (required starting portfolio = first-year withdrawal / safe withdrawal rate; s = 0.04 is the rule of 25)",
+        "output_symbol": "N",
+        "source_id": "s-wiki-4pct",
+        "translation_notes": "Division formalization of the prose rule: the published rate s is the divisor, the desired first-year withdrawal W the dividend. Dimensional check: USD divided by a dimensionless rate stays USD. Guard s>0 preserves the pre-simplification division exclusion; W>=0 admits the zero-withdrawal boundary. The record computes portfolio size for a stated rate; safety of any rate is a property of the cited studies, not of this arithmetic."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Rule credited to William Bengen, published in the Journal of Financial Planning in 1994: a first-year withdrawal of 4%, followed by inflation-adjusted withdrawals, over a 30-year retirement simulated on US markets from 1926 (50-75% stocks, intermediate Treasuries, tax-free account, no taxes/fees); SAFEMAX 4.15%; also called the rule of 25; supported by the 1998 Trinity study.",
+          "id": "s-wiki-4pct",
+          "kind": "primary",
+          "license": "Wikipedia text: CC BY-SA 4.0 (page footer); reuse terms for figures not reviewed.",
+          "locator": "Lead; Definition (Bengen quote); portfolio-allocation passage; Revisions (SAFEMAX 4.15%); Trinity-study support sentence.",
+          "redistribution": "Returns original formalization of the division and minimal attributed rate numbers; no reproduced page text or figures.",
+          "title": "4% rule (Wikipedia): Bengen finding and rule of 25",
+          "url": "https://en.wikipedia.org/wiki/4%25_rule",
+          "version": "Article revision fetched 2026-11-04 (CC BY-SA 4.0)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "1998 paper by Trinity University finance professors; the 4% scenario withdraws 4% in year one with CPI-adjusted successors over 30 years; authors state 3% and 4% level payouts are 'extremely unlikely to exhaust any portfolio' and inflation-paced 3-4% rates keep high success for stock-dominated portfolios. Full citation verified here: Cooley, Hubbard & Walz, 'Retirement Savings: Choosing a Withdrawal Rate That Is Sustainable,' AAII Journal 10(3):16-21, February 1998. The linked AAII PDF returned 403 to automated fetch and the archived Bengen PDF rendered a toolbar page only, so both primary PDFs are cited indirectly via these verified reference entries, not as inspected sources.",
+          "id": "s-wiki-trinity",
+          "kind": "primary",
+          "license": "Wikipedia text: CC BY-SA 4.0 (page footer); reuse terms for figures not reviewed.",
+          "locator": "Lead; Study and conclusions (4% scenario, 3-4% success statements); References (Cooley/Hubbard/Walz AAII citation); Further reading (Bengen 1994 citation).",
+          "redistribution": "Returns original formalization of the division and minimal attributed rate numbers; no reproduced page text or figures.",
+          "title": "Trinity study (Wikipedia): AAII citation and withdrawal-rate findings",
+          "url": "https://en.wikipedia.org/wiki/Trinity_study",
+          "version": "Article revision fetched 2026-11-04 (CC BY-SA 4.0)"
+        }
+      ],
+      "summary": "Rule-of-25 division N = W/s: the starting portfolio that funds a first-year withdrawal W at a safe withdrawal rate s. Scoped by the Bengen rule (30-year horizon, inflation-adjusted successors, historical-US calibration); the record computes the division, it does not certify any rate as safe.",
+      "title": "Required nest egg from annual withdrawal and safe withdrawal rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-plan:withdrawal-rate-rule:one-currency",
+          "definition": "Desired first-year withdrawal from the portfolio",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite withdrawal; zero admits the no-spending boundary",
+          "quantity_id": "annual_withdrawal",
+          "role": "input",
+          "source_symbol": "introduced: first-year withdrawal (desired annual withdrawal)",
+          "symbol": "W",
+          "unit": "USD"
+        },
+        {
+          "context": "same-plan:withdrawal-rate-rule:one-currency",
+          "definition": "First-year withdrawal as a decimal fraction of the starting portfolio, with inflation-adjusted successors per the cited studies",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite decimal; zero and negative rates excluded",
+          "quantity_id": "safe_withdrawal_rate",
+          "role": "input",
+          "source_symbol": "introduced: safe withdrawal rate (first-year rate as a decimal)",
+          "symbol": "s",
+          "unit": "1"
+        },
+        {
+          "context": "same-plan:withdrawal-rate-rule:one-currency",
+          "definition": "Starting portfolio that funds the withdrawal at the stated rate",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite portfolio",
+          "quantity_id": "required_nest_egg",
+          "role": "output",
+          "source_symbol": "introduced: required nest egg (starting portfolio)",
+          "symbol": "N",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: both incomes describe the same household on comparable bases (same currency, same gross-or-net convention, same period); the SSA 40% figure compares benefits to pre-retirement earnings and the 70% guidance to previous income.",
+        "Application profile: the record computes the ratio only; adequacy of any ratio is a planning judgment, and the 40% SSA figure is methodology-sensitive per the cited AEI debate.",
+        "No upper guard: over-replacement (R > 1) is admitted -- retirement income can exceed pre-retirement income -- and is documented by the guard-scope admission check."
+      ],
+      "constants": [],
+      "guards": [
+        "Yret >= 0",
+        "Ypre > 0"
+      ],
+      "id": "engineering-finance--income-replacement-ratio",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new quantity meanings: retirement_income, preretirement_income, replacement_ratio; no current-runtime projection attempted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Yret=R*Ypre given Ypre>0 (checked: 0.4 x 75000 = 30000); Ypre=Yret/R needs R>0 (checked: 30000/0.4 = 75000). At R=0, Yret=0 with Ypre undetermined (any positive pre-retirement income is compatible). R>1 inverts (checked: 1.2 x 75000 = 90000). No root branches.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes taxes, household-size change, and earnings-definition differences (career-average versus final-year bases change the ratio's meaning).",
+        "A ratio alone does not certify retirement readiness; the cited guidance targets 70% or more for a moderate lifestyle."
+      ],
+      "references": [
+        {
+          "expected": 0.4,
+          "id": "ssa-medium-worker",
+          "inputs": {
+            "Ypre": 75000,
+            "Yret": 30000
+          },
+          "method": "Curator-worked pair on the published SSA 40% medium-worker figure: $30,000 / $75,000 = 0.40. The sources verify the rate and its scope; the dollar pair is curator arithmetic.",
+          "provenance": "Curator-worked arithmetic on the published SSA figure (s-cbpp-modest, s-aei-replacement); cross-family worked arithmetic per the brief-20 convention.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.7,
+          "id": "planning-target-70",
+          "inputs": {
+            "Ypre": 75000,
+            "Yret": 52500
+          },
+          "method": "Curator-worked pair on the published 70% planning-need guidance: $52,500 / $75,000 = 0.70. The sources verify the guidance; the dollar pair is curator arithmetic.",
+          "provenance": "Curator-worked arithmetic on the published planning target (s-cbpp-modest, s-smartasset-wrr).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-retirement-income",
+          "inputs": {
+            "Ypre": 75000,
+            "Yret": 0
+          },
+          "method": "Boundary: zero retirement income against positive pre-retirement income gives R = 0 exactly.",
+          "provenance": "Curator boundary check; not observed household data.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1.2,
+          "id": "over-replacement-admission",
+          "inputs": {
+            "Ypre": 75000,
+            "Yret": 90000
+          },
+          "method": "Guard-scope admission: $90,000 / $75,000 = 1.20 is admitted because the guards constrain the incomes only; no upper guard caps the ratio.",
+          "provenance": "Curator guard-scope check on constructed inputs.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Ypre": 0,
+            "Yret": 30000
+          },
+          "kind": "domain",
+          "reason": "Zero pre-retirement income makes the ratio undefined; excluded by Ypre>0."
+        },
+        {
+          "inputs": {
+            "Yret": 30000
+          },
+          "kind": "missing-input",
+          "reason": "Without pre-retirement income there is no base for the ratio."
+        }
+      ],
+      "relationship": {
+        "expression": "Yret / Ypre",
+        "locator": "OECD comparison paragraph (U.S. system replaces about 40% for an average worker); financial-planner 70% rule-of-thumb paragraph with the medium-worker figure.",
+        "original_equation": "R = Yret / Ypre (replacement ratio = retirement income / pre-retirement income)",
+        "output_symbol": "R",
+        "source_id": "s-cbpp-modest",
+        "translation_notes": "Division formalization of the prose ratio: retirement income over pre-retirement income for the same household. Dimensional check: USD divided by USD is dimensionless. Guard Ypre>0 preserves the pre-simplification division exclusion; Yret>=0 admits the zero-retirement-income boundary. No upper guard: ratios above 1 are admitted per the brief, with a guard-scope admission check."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The U.S. public pension replaces about 40% of earnings for an average worker (versus over half OECD-average); financial planners recommend replacing at least 70% of previous income (citing GAO); a medium worker retiring at 65 in 2025 replaces about 37% (citing SSA OCACT), falling as the full retirement age rises to 67.",
+          "id": "s-cbpp-modest",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "OECD comparison paragraph; financial-planner 70% rule-of-thumb paragraph with the medium-worker 37% figure; footnotes 13 (GAO-16-242) and 14 (SSA OCACT).",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "CBPP: Social Security Benefits Are Modest (Van de Water & Romig)",
+          "url": "https://www.cbpp.org/research/social-security/social-security-benefits-are-modest",
+          "version": "Report updated December 7, 2023; fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Abstract: SSA methodology yields the well-known result that Social Security replaces about 40% of a 'medium wage' worker's pre-retirement earnings, but on a stylized worker earning 42% above inflation-adjusted career-average; on an age-adjusted average wage the figure is about 54% of the final 35 years' inflation-adjusted earnings. Cited for scope honesty: the 40% figure is methodology-sensitive.",
+          "id": "s-aei-replacement",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Abstract; Date 2023-08; AEI Economics Working Papers series; download link to the AEI PDF (fetched, HTTP 200, PDF author metadata 'Andrew Biggs' verified).",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "Biggs (2023), Replacement Rates and the Retirement Crisis, AEI Economics Working Paper (RePEc/EconPapers record)",
+          "url": "https://econpapers.repec.org/paper/aeirpaper/100862466323.htm",
+          "version": "EconPapers record, dated 2023-08; fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Wage (income) replacement rate = share of pre-retirement income needed yearly to keep the standard of living; most planners target 70-80%; lifestyle table: basic 60%, moderate 70% ($56,000 on $80,000 pre-retirement income), comfortable 80-90%.",
+          "id": "s-smartasset-wrr",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Definition (percentage of pre-retirement income; planners recommend 70-80%); Typical Wage Replacement Rates by Lifestyle (Moderate 70% = $56,000 on $80,000).",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "SmartAsset: What Is the Typical Wage Replacement Rate?",
+          "url": "https://smartasset.com/retirement/what-is-the-typical-wage-replacement-rate",
+          "version": "Article page fetched 2026-11-04"
+        }
+      ],
+      "summary": "Replacement ratio R = Yret/Ypre: retirement income as a fraction of pre-retirement income for the same household. Carries the SSA medium-worker 40% figure and the 70% planning-need target as curator-worked pairs; over-replacement (R > 1) is admitted.",
+      "title": "Income replacement ratio from retirement and pre-retirement income",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-household:pre-post-retirement-incomes:one-currency",
+          "definition": "Annual household income in retirement on the stated basis",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite income; zero admits the no-retirement-income boundary",
+          "quantity_id": "retirement_income",
+          "role": "input",
+          "source_symbol": "introduced: retirement income (annual income in retirement)",
+          "symbol": "Yret",
+          "unit": "USD"
+        },
+        {
+          "context": "same-household:pre-post-retirement-incomes:one-currency",
+          "definition": "Annual household income before retirement on the matching basis",
+          "dimensions": "currency",
+          "domain": "Positive finite income; zero excluded (ratio undefined)",
+          "quantity_id": "preretirement_income",
+          "role": "input",
+          "source_symbol": "introduced: pre-retirement income (annual income before retirement)",
+          "symbol": "Ypre",
+          "unit": "USD"
+        },
+        {
+          "context": "same-household:pre-post-retirement-incomes:one-currency",
+          "definition": "Retirement income as a decimal fraction of pre-retirement income",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite ratio, including over-replacement above 1",
+          "quantity_id": "replacement_ratio",
+          "role": "output",
+          "source_symbol": "introduced: replacement ratio (retirement share of pre-retirement income)",
+          "symbol": "R",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: the 0.08 annual rate is SSA's delayed-retirement-credit rate for birth years 1943 and later (two-thirds of 1% per month x 12), verified via attributed secondary reporting of SSA's rate and the regulation text of 20 CFR 404.313; ssa.gov itself returned 403 to automated fetch.",
+        "Source assumption: credits accrue from full retirement age through age 70 only; cohort FRA (66 for 1943-1954 births, 67 for 1960-and-later births) caps the applicable delay years (4 versus 3).",
+        "Application profile: whole-year simple form B = PIA*(1+0.08*y); monthly granularity and SSA rounding (10 cents on the increase, $1 on the benefit) are outside this record."
+      ],
+      "constants": [
+        {
+          "literal": 0.08,
+          "locator": "Where the 8% Number Comes From: 8.0% annual (two-thirds of 1% monthly) delayed-retirement increase for birth years 1943+.",
+          "meaning": "delayed_retirement_credit_annual_rate",
+          "source_id": "s-fedweek-drc",
+          "unit": "1"
+        }
+      ],
+      "guards": [
+        "PIA >= 0",
+        "y >= 0",
+        "y <= 4"
+      ],
+      "id": "engineering-finance--delayed-retirement-credit-benefit",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new quantity meanings: primary_insurance_amount, delayed_retirement_years, delayed_benefit; no current-runtime projection attempted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "PIA=B/(1+0.08*y) with denominator >= 1 for all y>=0 (checked: 2480/1.24 = 2000); y=(B/PIA-1)/0.08 needs PIA>0 (checked: (2480/2000-1)/0.08 = 3). At PIA=0, B=0 with y undetermined; B<PIA implies y<0 and is rejected. y=0 inverts (B=PIA). No root branches.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes pre-1943 birth cohorts (lower monthly credit steps), the earnings test, voluntary suspension mechanics, family-maximum interaction, and spousal/survivor benefit rules.",
+        "Delay past 70 earns no further credit; y > 4 is rejected, and y = 4 applies only to the FRA-66 cohort."
+      ],
+      "references": [
+        {
+          "expected": 2480,
+          "id": "fra67-three-year",
+          "inputs": {
+            "PIA": 2000,
+            "y": 3
+          },
+          "method": "Published worked table recomputed: $2,000 x (1+0.24) = $2,480 (124%); the source prints the $480/mo three-year increase on a $2,000 FRA benefit.",
+          "provenance": "Published worked table in s-fedweek-drc (Dollar Value table, FRA-67 to 70 row).",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 2640,
+          "id": "fra66-four-year",
+          "inputs": {
+            "PIA": 2000,
+            "y": 4
+          },
+          "method": "Recomputed from the published 32% four-year maximum for the FRA-66 cohort: $2,000 x (1+0.32) = $2,640. The source works the same 32% on a $1,000 benefit ($1,320); the $2,000 PIA is curator-scaled arithmetic on the published percentage.",
+          "provenance": "Derived from the published FRA-66 maximum in s-fedweek-drc (Maximum Delay section).",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 2000,
+          "id": "no-delay-identity",
+          "inputs": {
+            "PIA": 2000,
+            "y": 0
+          },
+          "method": "Identity: with zero delay years the growth factor is 1, so B = PIA = $2,000 exactly.",
+          "provenance": "Curator identity check; not observed benefit data.",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "PIA": 2000,
+            "y": 5
+          },
+          "kind": "domain",
+          "reason": "Delay beyond 4 years exceeds the FRA-to-70 window (FRA 66 to 70 is the longest applicable span); excluded by y<=4."
+        },
+        {
+          "inputs": {
+            "PIA": 2000,
+            "y": -1
+          },
+          "kind": "domain",
+          "reason": "Negative delay years lie before full retirement age and outside the credit period; excluded by y>=0."
+        }
+      ],
+      "relationship": {
+        "expression": "PIA*(1+0.08*y)",
+        "locator": "Where the 8% Number Comes From (8.0%/yr for 1943+); Dollar Value table ($2,000 + $480 over 3 years); Maximum Delay (124% at 36 months; FRA-66 32%/$1,320).",
+        "original_equation": "B = PIA x (1 + 0.08 x y) (delayed benefit = PIA grown by 8% per whole delay year)",
+        "output_symbol": "B",
+        "source_id": "s-fedweek-drc",
+        "translation_notes": "Whole-year simple form of the prose credit rule: each delay year adds 8% of the PIA, applied simply (never compounded) per the regulation's credits x percentage x benefit computation. Dimensional check: USD times a dimensionless growth factor stays USD. Guards PIA>=0, 0<=y<=4 carry the credit window; the 0.08 literal is the sourced statutory annual rate (see constants and assumptions), not a fitted coefficient."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "DRCs are earned per month from full retirement age through age 70; the increase equals total credits x the applicable monthly percentage x the benefit amount, added to the benefit; the monthly table tops at 2/3 of 1% (the 1943-and-later mapping is verified via s-fedweek-drc); the Alan example (12 credits x 11/24 of 1% = 5.5% of a $782.60 PIA, +$43.00 = $825.60) shows the simple (non-compounding) application to the PIA.",
+          "id": "s-lii-404313",
+          "kind": "primary",
+          "license": "U.S. federal regulation text (public domain); LII page presentation by Cornell; retrieved 2026-11-04.",
+          "locator": "404.313(a) credit period FRA to 70; (b)(1) computation (credits x percentage x benefit, added to benefit); (b)(2) monthly credit table (top step 2/3 of 1%); worked Alan example.",
+          "redistribution": "Returns original formalization of the credit arithmetic and minimal attributed rate numbers; no reproduced regulation text beyond short phrases.",
+          "title": "20 CFR section 404.313 -- Delayed retirement credits (Cornell LII)",
+          "url": "https://www.law.cornell.edu/cfr/text/20/404.313",
+          "version": "eCFR text via LII as fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "For those born in 1943 or later the delayed-retirement increase is 8.0% per year (two-thirds of 1% per month), applied to the PIA from FRA through age 70; table: a $2,000 FRA benefit gains $160/yr ($13.33/mo), so a 3-year FRA-67 to 70 delay adds $480/mo (+24%, 124% of benefit); for FRA-66 (born 1943-1954) the 4-year window reaches +32% (worked $1,000 to $1,320).",
+          "id": "s-fedweek-drc",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Where the 8% Number Comes From; Full Retirement Age: The Starting Line; Dollar Value of Each Month of Delay (table); Maximum Delay (124%; FRA-66 32%/$1,320).",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "How Delayed SSA Retirement Credits Actually Work -- By the Numbers (FedWeek)",
+          "url": "https://www.fedweek.com/retirement-financial-planning/how-delayed-ssa-retirement-credits-actually-work-by-the-numbers/",
+          "version": "Article page dated November 3, 2026; fetched 2026-11-04"
+        }
+      ],
+      "summary": "Delayed benefit B = PIA*(1+0.08*y): the primary insurance amount grown by whole years of delayed-retirement credits at SSA's 8% annual rate for the 1943-and-later birth cohort, claimed between full retirement age and 70.",
+      "title": "Delayed-retirement-credit benefit from PIA and delay years",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-claimant:delayed-retirement-credits:fra-66-or-67-through-70:birth-1943-plus",
+          "definition": "Monthly baseline benefit at full retirement age before credits",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite benefit; zero admits the no-benefit boundary",
+          "quantity_id": "primary_insurance_amount",
+          "role": "input",
+          "source_symbol": "Primary Insurance Amount (SSA baseline benefit)",
+          "symbol": "PIA",
+          "unit": "USD"
+        },
+        {
+          "context": "same-claimant:delayed-retirement-credits:fra-66-or-67-through-70:birth-1943-plus",
+          "definition": "Whole years of delay past full retirement age through age 70; FRA 66 caps at 4, FRA 67 caps at 3",
+          "dimensions": "dimensionless",
+          "domain": "Zero to four whole years; fractional years need the monthly-credit form",
+          "quantity_id": "delayed_retirement_years",
+          "role": "input",
+          "source_symbol": "introduced: delayed retirement years (whole years past FRA)",
+          "symbol": "y",
+          "unit": "1"
+        },
+        {
+          "context": "same-claimant:delayed-retirement-credits:fra-66-or-67-through-70:birth-1943-plus",
+          "definition": "Monthly benefit including delayed-retirement credits",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite benefit",
+          "quantity_id": "delayed_benefit",
+          "role": "output",
+          "source_symbol": "introduced: delayed benefit (monthly benefit with credits)",
+          "symbol": "B",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption (Table III scope): most account owners -- the spouse is not the sole beneficiary, or is not more than 10 years younger; Table II (much-younger sole-beneficiary spouse) and Table I (beneficiaries) are excluded.",
+        "Source assumption: the balance is the account value at the close of business on December 31 of the preceding year (prior-year-end convention).",
+        "Application profile: the record computes the division only; RMD ages, deadlines, aggregation, and penalties are tax-law rules outside this arithmetic."
+      ],
+      "constants": [],
+      "guards": [
+        "Bal >= 0",
+        "L > 0"
+      ],
+      "id": "engineering-finance--required-minimum-distribution",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new quantity meanings: prior_year_balance, rmd_distribution_period, required_minimum_distribution; no current-runtime projection attempted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Bal=R*L given L>0 (checked: 18867.92 x 26.5 = 499999.88, within rounding of 500000); L=Bal/R needs R>0 (checked: 500000/18867.92 = 26.50 within rounding). At R=0, Bal=0 with L undetermined. No root branches.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes 403(b) pre-1987-balance rules, still-working delays, Roth treatment, and beneficiary stretch rules.",
+        "The distribution-period input must come from the current IRS table; stale factors give stale minimums."
+      ],
+      "references": [
+        {
+          "expected": 18867.92,
+          "id": "age-73-table-iii",
+          "inputs": {
+            "Bal": 500000,
+            "L": 26.5
+          },
+          "method": "Curator-worked division on the published Table III factor for age 73: $500,000 / 26.5 = $18,867.92. The source verifies the 26.5 factor and the rule (its own worked pairs: $38,400 / 26.5 = $1,450 and $34,800 / 26.5 = $1,313); the $500,000 balance is curator arithmetic.",
+          "provenance": "Curator-worked arithmetic on the published Table III factor (s-irs-590b, corroborated by s-irs-rmd-faq).",
+          "tolerance": 0.01
+        },
+        {
+          "expected": 24390.24,
+          "id": "age-75-table-iii",
+          "inputs": {
+            "Bal": 600000,
+            "L": 24.6
+          },
+          "method": "Curator-worked division on the published Table III factor for age 75: $600,000 / 24.6 = $24,390.24. The source verifies the 24.6 factor and the rule (its own worked pair: $100,000 / 24.6 = $4,065); the $600,000 balance is curator arithmetic.",
+          "provenance": "Curator-worked arithmetic on the published Table III factor (s-irs-590b, corroborated by s-irs-rmd-faq).",
+          "tolerance": 0.01
+        },
+        {
+          "expected": 0,
+          "id": "zero-balance",
+          "inputs": {
+            "Bal": 0,
+            "L": 26.5
+          },
+          "method": "Boundary: a zero prior-year balance gives R = 0 exactly at the age-73 factor.",
+          "provenance": "Curator boundary check; not observed account data.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Bal": 500000,
+            "L": 0
+          },
+          "kind": "domain",
+          "reason": "Zero distribution period makes the division undefined; no IRS table publishes a zero factor."
+        },
+        {
+          "inputs": {
+            "Bal": 500000
+          },
+          "kind": "missing-input",
+          "reason": "Without the distribution period no minimum can be formed."
+        }
+      ],
+      "relationship": {
+        "expression": "Bal / L",
+        "locator": "Required Minimum Distributions: figure-RMD-by-dividing rule; Table III applicable-denominator examples (age 75 -> 24.6; Justin age 73 -> 26.5); Which Table (Table III scope); Appendix B Uniform Lifetime Table.",
+        "original_equation": "R = Bal / L (required minimum distribution = prior-year-end balance / Table III distribution period)",
+        "output_symbol": "R",
+        "source_id": "s-irs-590b",
+        "translation_notes": "Division formalization of the IRS rule: the prior-year-end balance over the published life-expectancy factor. Dimensional check: USD divided by a dimensionless period stays USD. Guard L>0 preserves the pre-simplification division exclusion; Bal>=0 admits the zero-balance boundary. The record computes the division for a stated factor; RMD ages, deadlines, and aggregation are tax-law rules outside this arithmetic."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "RMD = IRA balance at Dec 31 of the prior year / the Table III applicable denominator for the owner's birthday age; worked: 75-year-old, $100,000 / 24.6 = $4,065; Justin (73), $38,400 / 26.5 = $1,450 and $34,800 / 26.5 = $1,313; Table III used unless the spouse is the sole beneficiary and more than 10 years younger; Appendix B rows verified: 73->26.5, 75->24.6, 80->20.2.",
+          "id": "s-irs-590b",
+          "kind": "primary",
+          "license": "U.S. federal publication (public domain); retrieved 2026-11-04.",
+          "locator": "Required Minimum Distributions: figure-RMD-by-dividing rule; Table III applicable-denominator examples (age 75 -> 24.6, $100,000 -> $4,065; Justin age 73 -> 26.5); Which Table (Table III scope); Appendix B Uniform Lifetime Table (72->27.4 ... 73->26.5 ... 75->24.6 ... 80->20.2).",
+          "redistribution": "Returns original formalization of the division and minimal attributed table numbers; no reproduced publication text beyond short phrases.",
+          "title": "IRS Publication 590-B (2025), Distributions from Individual Retirement Arrangements (IRAs)",
+          "url": "https://www.irs.gov/publications/p590b",
+          "version": "2025 tax-year HTML edition; fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Each account's RMD = prior December 31 balance / the IRS-published life-expectancy factor from Pub. 590-B; Table III (Uniform Lifetime) when the spouse is not the sole beneficiary or not more than 10 years younger; Table II for a much-younger sole-beneficiary spouse; Table I for beneficiaries.",
+          "id": "s-irs-rmd-faq",
+          "kind": "primary",
+          "license": "U.S. federal publication (public domain); retrieved 2026-11-04.",
+          "locator": "Q4 How is the amount of the required minimum distribution calculated (prior-Dec-31 balance / IRS life-expectancy factor; table-choice rules).",
+          "redistribution": "Returns original formalization of the division and minimal attributed rule statements; no reproduced page text beyond short phrases.",
+          "title": "IRS: Retirement plan and IRA required minimum distributions FAQs",
+          "url": "https://www.irs.gov/retirement-plans/retirement-plan-and-ira-required-minimum-distributions-faqs",
+          "version": "FAQ page as fetched 2026-11-04"
+        }
+      ],
+      "summary": "RMD division R = Bal/L: the prior-December-31 account balance divided by the IRS Table III (Uniform Lifetime Table) distribution period for the owner's birthday age. Scoped to most account owners; the spouse-more-than-10-years-younger and beneficiary tables are excluded.",
+      "title": "Required minimum distribution from prior-year balance and Table III period",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-account-owner:table-iii-lifetime:dec-31-prior-year-balance",
+          "definition": "Account balance at the close of business on December 31 of the preceding year",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite balance; zero admits the empty-account boundary",
+          "quantity_id": "prior_year_balance",
+          "role": "input",
+          "source_symbol": "account balance at the end of the preceding year (Dec 31)",
+          "symbol": "Bal",
+          "unit": "USD"
+        },
+        {
+          "context": "same-account-owner:table-iii-lifetime:dec-31-prior-year-balance",
+          "definition": "IRS Table III (Uniform Lifetime Table) distribution period for the owner's birthday age",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite period; zero excluded (division undefined)",
+          "quantity_id": "rmd_distribution_period",
+          "role": "input",
+          "source_symbol": "applicable denominator (Table III distribution period)",
+          "symbol": "L",
+          "unit": "1"
+        },
+        {
+          "context": "same-account-owner:table-iii-lifetime:dec-31-prior-year-balance",
+          "definition": "Minimum amount that must be distributed for the year",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite distribution",
+          "quantity_id": "required_minimum_distribution",
+          "role": "output",
+          "source_symbol": "required minimum distribution for the year",
+          "symbol": "R",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "The multiple is a dimensionless years-of-expenses snapshot: savings divided by one year of spending, with no return, no inflation, no taxes, and no spending growth.",
+        "Application profile: static coverage arithmetic (the rule-of-25 form of the withdrawal-rate records); longevity or safety claims need the cited withdrawal studies, not this division."
+      ],
+      "constants": [],
+      "guards": [
+        "S >= 0",
+        "W > 0"
+      ],
+      "id": "engineering-finance--expense-coverage-multiple",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new quantity meanings: retirement_savings, annual_expenses, expense_coverage_multiple; no current-runtime projection attempted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "S=T*W given W>0 (checked: 25 x 40000 = 1000000); W=S/T needs T>0 (checked: 1000000/25 = 40000). At T=0, S=0 with W undetermined (any positive spending is compatible). No root branches.",
+      "kind": "definition",
+      "limitations": [
+        "Not a retirement plan: ignores returns, inflation, taxes, spending change, and lifespan.",
+        "The zero-spending case is excluded by W > 0 (infinite coverage is undefined here)."
+      ],
+      "references": [
+        {
+          "expected": 25,
+          "id": "rule-25-bengen-closure",
+          "inputs": {
+            "S": 1000000,
+            "W": 40000
+          },
+          "method": "Labeled cross-record closure with the record-2 Bengen check: $1,000,000 / $40,000 = 25 (the rule-of-25 multiple). Input pair shared with bengen-rule-25; recomputation, never equivalence.",
+          "provenance": "Curator cross-record arithmetic closing the record-2 Bengen pair (s-wiki-4pct).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 25,
+          "id": "rule-25-trinity-closure",
+          "inputs": {
+            "S": 625000,
+            "W": 25000
+          },
+          "method": "Labeled cross-record closure with the record-2 Trinity check: $625,000 / $25,000 = 25. Input pair shared with trinity-pair; recomputation, never equivalence.",
+          "provenance": "Curator cross-record arithmetic closing the record-2 Trinity pair (s-wiki-trinity).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-savings",
+          "inputs": {
+            "S": 0,
+            "W": 40000
+          },
+          "method": "Boundary: zero savings against positive annual expenses gives T = 0 exactly.",
+          "provenance": "Curator boundary check; not observed household data.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "S": 1000000,
+            "W": 0
+          },
+          "kind": "domain",
+          "reason": "Zero annual expenses makes the coverage multiple undefined; excluded by W>0."
+        },
+        {
+          "inputs": {
+            "S": 1000000
+          },
+          "kind": "missing-input",
+          "reason": "Without annual expenses there is no base for the multiple."
+        }
+      ],
+      "relationship": {
+        "expression": "S / W",
+        "locator": "Lead and Definition: Bengen 4% first-year rule and rule-of-25 name (the reciprocal multiple).",
+        "original_equation": "T = S / W (years-of-expenses multiple = retirement savings / annual expenses; 25x is the rule-of-25 form)",
+        "output_symbol": "T",
+        "source_id": "s-wiki-4pct",
+        "translation_notes": "Division formalization of the coverage multiple: savings over one year of spending. Dimensional check: USD divided by USD is dimensionless (years of expenses). Guard W>0 preserves the pre-simplification division exclusion; S>=0 admits the zero-savings boundary. Not an inverse of any covered record: no covered record divides two money stocks."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Bengen's 4% first-year rule implies the rule-of-25 multiple: $1,000,000 of savings covers $40,000 of annual spending 25 times over; the $40,000/$1,000,000 pair is the record-2 Bengen check recomputed here as a labeled cross-record closure.",
+          "id": "s-wiki-4pct",
+          "kind": "primary",
+          "license": "Wikipedia text: CC BY-SA 4.0 (page footer); reuse terms for figures not reviewed.",
+          "locator": "Lead and Definition: Bengen 4% first-year rule (1994 JFP) and the rule-of-25 name (the reciprocal multiple).",
+          "redistribution": "Returns original formalization of the division and minimal attributed multiple numbers; no reproduced page text or figures.",
+          "title": "4% rule (Wikipedia): Bengen finding and rule of 25",
+          "url": "https://en.wikipedia.org/wiki/4%25_rule",
+          "version": "Article revision fetched 2026-11-04 (CC BY-SA 4.0)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Trinity-supported 4% rate: $625,000 of savings covers $25,000 of annual spending 25 times over; the pair is the record-2 Trinity check recomputed here as a labeled cross-record closure.",
+          "id": "s-wiki-trinity",
+          "kind": "primary",
+          "license": "Wikipedia text: CC BY-SA 4.0 (page footer); reuse terms for figures not reviewed.",
+          "locator": "Study and conclusions: Trinity-supported 4% rate with CPI-adjusted successors over 30 years.",
+          "redistribution": "Returns original formalization of the division and minimal attributed multiple numbers; no reproduced page text or figures.",
+          "title": "Trinity study (Wikipedia): AAII citation and withdrawal-rate findings",
+          "url": "https://en.wikipedia.org/wiki/Trinity_study",
+          "version": "Article revision fetched 2026-11-04 (CC BY-SA 4.0)"
+        }
+      ],
+      "summary": "Coverage multiple T = S/W: retirement savings as a multiple of one year of expenses (dimensionless years-of-expenses). The rule-of-25 form of the withdrawal-rate records; a static snapshot with no return, no inflation, and no taxes.",
+      "title": "Expense coverage multiple from retirement savings and annual expenses",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-household:annual-expenses:one-currency",
+          "definition": "Retirement savings available to cover expenses",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite savings; zero admits the no-savings boundary",
+          "quantity_id": "retirement_savings",
+          "role": "input",
+          "source_symbol": "introduced: retirement savings (starting portfolio)",
+          "symbol": "S",
+          "unit": "USD"
+        },
+        {
+          "context": "same-household:annual-expenses:one-currency",
+          "definition": "One year of household expenses on the matching basis",
+          "dimensions": "currency",
+          "domain": "Positive finite expenses; zero excluded (coverage undefined)",
+          "quantity_id": "annual_expenses",
+          "role": "input",
+          "source_symbol": "introduced: annual expenses (one year of spending)",
+          "symbol": "W",
+          "unit": "USD"
+        },
+        {
+          "context": "same-household:annual-expenses:one-currency",
+          "definition": "Savings as a multiple of one year of expenses",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite multiple",
+          "quantity_id": "expense_coverage_multiple",
+          "role": "output",
+          "source_symbol": "introduced: expense coverage multiple (years of expenses)",
+          "symbol": "T",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

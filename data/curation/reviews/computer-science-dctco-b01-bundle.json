@@ -1,0 +1,1086 @@
+{
+  "batch_id": "computer-science-dctco-b01",
+  "created": "2026-11-04",
+  "curator": "compat-computer-science-dctco",
+  "deferred": [
+    {
+      "reason": "Owned composition: admitted electricity-cost@1 (energy x tariff) already covers the shape; a relabeled data-center-energy-cost record would be a renamed clone. Left to the solver. No new source investigation done.",
+      "source_urls": [],
+      "title": "Data-center energy cost (E x tariff composition)"
+    },
+    {
+      "reason": "Glue-owned: economics--total-of-two-money-amounts owns two-input money addition and economics--money-unit-rate@r1 owns TCO-per-server division (brief 25 do-not-resubmit boundary). Future relabel adapters deferred, not prescribed.",
+      "source_urls": [],
+      "title": "TCO summation and per-server unit rates"
+    },
+    {
+      "reason": "Same-shape variants (records 1-2 cover one record per shape) and an A-x-EF-owned composition; MACRS declining-balance/table schedules are multi-period schedules outside the scalar format. Not prescribed by brief 25.",
+      "source_urls": [],
+      "title": "PUE-partial / WUE-source-energy variants and carbon from facility energy"
+    }
+  ],
+  "domain": "computer-science",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "Scientific review pending for all 6 records; no review or admission was performed here.",
+      "All 6 records need vocabulary extension (14 new lane meanings; new units L/kWh, kg/kWh, USD/h) before runtime projection.",
+      "Registry reads were read-only on 2026-11-04 (mode=ro, 262 admitted models); nothing was staged, reviewed, admitted or otherwise touched."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical validation 2026-11-04 with the central package: validate on the bundle JSON -> valid-data-awaiting-review (6 models; 20 arithmetic + 12 rejection checks); pack -> return ZIP with sha256; validate on the return ZIP. Zero-edge verification (registry read-only): all 6 lane IDs absent; the one reused meaning (annual_downtime) carries a cost-basis input context differing from the producer context (computer-science--annual-downtime-hours@r2), and per-record contexts keep records 1-4 from forming in-lane legs, so the batch binds no existing chain. Oracle independence: every record carries published oracles from independent publishers (Uptime, ENERGY STAR, EPA, Google, Emerson/Ponemon, IRS, PwC) plus labeled curator arithmetic/boundaries; trade-press and mirror sources are never the formula authority. Deviations from the brief forecast (scope unchanged): record 6 is requires-extension, not runtime-ready, because its four meanings are absent from central MEANINGS (verified); the 'WUE-1 class' label was not used because no fetched Green Grid source states it (site-based WUE per WP#35 carries the scope); the 'Rev. Proc. 87-56 Asset Class 00.12' label is carried by the fetched IRS Publication 946 5-year-computers fact (no citable IRS primary URL for the 00.12 row was found). Checks not performed: independent scientific review; staging, review or admission (out of scope).",
+    "summary": "DC TCO lane batch computer-science-dctco-b01 (curator compat-computer-science-dctco): 6 definition records per brief 25 (PUE, site-WUE, CUE, facility overhead energy, annual downtime cost, straight-line annual depreciation). All six are requires-extension on new lane meanings (plus new units L/kWh, kg/kWh, USD/h); no runtime projection is emitted. 20 arithmetic + 12 rejection checks; every cited URL was fetched 2026-11-04."
+  },
+  "kit_version": "2026-10-31.10",
+  "models": [
+    {
+      "assumptions": [
+        "Source scope: Et and Eit are metered over the same interval at the same facility; WP#35 defines total facility energy as IT equipment energy plus supporting loads, so Et >= Eit.",
+        "Application profile: annual or interval-matched PUE; the 2023/2025 oracles are annualized industry averages while the Google oracle is a 2023 fleet annual average."
+      ],
+      "constants": [],
+      "guards": [
+        "Et >= 0",
+        "Eit > 0",
+        "Et >= Eit"
+      ],
+      "id": "computer-science--power-usage-effectiveness",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning total_facility_energy (energy dimension) for metered facility energy.",
+          "New quantity meaning it_equipment_energy (energy dimension) for metered IT equipment energy.",
+          "New quantity meaning power_usage_effectiveness (dimensionless) for the efficiency ratio.",
+          "New per-record DC-TCO context for same-facility, same-interval efficiency-ratio metering; units kWh and 1 are pre-provisioned."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Et = PUE * Eit given PUE and Eit; Eit = Et / PUE given Et and PUE with PUE > 0 (the guards imply PUE >= 1, so the PUE = 0 singularity is unreachable in scope). Substitution: PUE = 1.58 with Et = 1.58 gives Eit = 1, and forward 1.58 / 1 = 1.58. The Et = Eit = 0 corner is excluded by Eit > 0. Untested direction: none beyond the two stated inverses; rearrangements such as Eit = Et / PUE are views of this record, not separate models.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes partial-load and seasonal shaping: one interval ratio does not describe another interval.",
+        "PUE-partial variants (partial facility boundaries) and source-energy multipliers are separate relationships, not implied here."
+      ],
+      "references": [
+        {
+          "expected": 1.58,
+          "id": "uptime-2023-average",
+          "inputs": {
+            "Eit": 1,
+            "Et": 1.58
+          },
+          "method": "Published industry average kept as expected: 1.58 kWh of facility energy per 1 kWh of IT energy reproduces the Uptime 2023 headline exactly. Tolerance covers floating arithmetic only.",
+          "provenance": "Published oracle: Uptime Institute Global Data Center Survey 2023 via the Uptime journal article.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1.54,
+          "id": "uptime-2025-average",
+          "inputs": {
+            "Eit": 1,
+            "Et": 1.54
+          },
+          "method": "Published weighted average kept as expected: 1.54 / 1 = 1.54.",
+          "provenance": "Published oracle: Uptime Institute Global Data Center Survey 2025 keynote report.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1.1,
+          "id": "google-fleet-2023",
+          "inputs": {
+            "Eit": 1,
+            "Et": 1.1
+          },
+          "method": "Published operator fleet average kept as expected: 1.10 / 1 = 1.10; materially lower than the industry oracles, exercising the efficient end of the range.",
+          "provenance": "Published oracle: Google 2024 Environmental Report (2023 fleet average).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1,
+          "id": "ideal-identity",
+          "inputs": {
+            "Eit": 1,
+            "Et": 1
+          },
+          "method": "Limiting identity: a facility meter equal to its IT meter yields PUE 1, the Green Grid ideal value. Curator-constructed boundary, not a published measurement.",
+          "provenance": "Curator boundary check against the Green Grid ideal value; no observed data claimed.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Eit": 0,
+            "Et": 1.58
+          },
+          "kind": "domain",
+          "reason": "Eit = 0 violates the Eit > 0 guard: PUE has no value without IT equipment energy, and division by zero is undefined."
+        },
+        {
+          "inputs": {
+            "Eit": 1.58,
+            "Et": 1
+          },
+          "kind": "domain",
+          "reason": "Et < Eit violates the Et >= Eit guard: the facility meter includes the IT meter, so facility energy below IT energy is outside the metered scope (guard-scope case, not a domain singularity)."
+        }
+      ],
+      "relationship": {
+        "expression": "Et / Eit",
+        "locator": "Benchmark your efficiency by calculating PUE",
+        "original_equation": "PUE = Total Facility Energy / IT Equipment Energy (same facility, same metering interval)",
+        "output_symbol": "PUE",
+        "source_id": "energy-star-pue-definition",
+        "translation_notes": "Et and Eit are introduced symbols for total facility energy and IT equipment energy over the same interval; PUE is the introduced ratio. Dimensional check: energy / energy = dimensionless. The facility meter boundary includes the IT meter (WP#35 component scope; ENERGY STAR rack-vs-building comparison), which the Et >= Eit guard encodes. Power-based (Uptime) and energy-based (ENERGY STAR) wordings coincide over a common metering interval."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "States PUE is the ratio of total site power to IT power computed yearly from the Global Data Center Survey; industry PUE averaged 1.55 to 1.59 since around 2020 and stood at 1.58 in 2023; the headline 1.58 is weighted per respondent for consistency with historical data.",
+          "id": "uptime-journal-pue-2023",
+          "kind": "primary",
+          "license": "Uptime Institute terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Opening paragraphs: PUE definition and 2023 average",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "Uptime Institute Journal: Large data centers are mostly more efficient, analysis confirms",
+          "url": "https://journal.uptimeinstitute.com/large-data-centers-are-mostly-more-efficient-analysis-confirms/",
+          "version": "Journal article by Jacqueline Davis, 2024-02-07 (live HTML inspected 2026-11-04)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "States that in 2025 respondents' annual PUE had a weighted average of 1.54, the sixth consecutive year the headline figure virtually stood still.",
+          "id": "uptime-survey-2025-keynote",
+          "kind": "primary",
+          "license": "Uptime Institute terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Facility efficiency section (Figure 2)",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "Uptime Institute Global Data Center Survey 2025 (keynote report)",
+          "url": "https://datacenter.uptimeinstitute.com/rs/711-RIA-145/images/2025.Annual.Survey.Report.pdf",
+          "version": "UII Keynote Report 180, July 2025 (PDF inspected 2026-11-04)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "States PUE is the ratio of total energy used by a data center facility to the energy delivered to IT equipment, compares rack power to building power, and notes PUE approaches 1 as the data center becomes more efficient.",
+          "id": "energy-star-pue-definition",
+          "kind": "primary",
+          "license": "US federal publication; no separate terms inspection. No clearance claimed.",
+          "locator": "Benchmark your efficiency by calculating PUE",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "ENERGY STAR: Reduce Energy Losses from Power Distribution Units (PDUs)",
+          "url": "https://www.energystar.gov/products/data_center_equipment/16-more-ways-cut-energy-waste-data-center/reduce-energy-losses-power-distribution-units-pdus",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "States that in 2023 the average annual PUE for Google data centers was 1.10 compared with the industry average of 1.58, about 5.8 times less overhead energy per unit of IT equipment energy; footnotes attribute the 1.58 industry figure to the Uptime Institute 2023 survey.",
+          "id": "google-environmental-report-2024",
+          "kind": "primary",
+          "license": "Google terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Energy-efficient infrastructure section and footnotes 3-4",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "Google 2024 Environmental Report (announcement page)",
+          "url": "https://blog.google/company-news/outreach-and-initiatives/sustainability/2024-environmental-report/",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "States PUE is unit-less (energy divided by energy) with an ideal value of 1.0 and no theoretical upper boundary; defines total facility energy as IT equipment energy plus power-delivery, cooling and miscellaneous support loads, and IT equipment energy as the year-long equipment energy for managing, processing, storing or routing data.",
+          "id": "green-grid-wp35-pue",
+          "kind": "primary",
+          "license": "The Green Grid terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Sections II-III and component definitions",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "The Green Grid White Paper #35: Water Usage Effectiveness (WUE) (PUE scope passages)",
+          "url": "https://www.thegreengrid.org/system/files/store/WUE_v1.pdf",
+          "version": "WP#35, 2011; editor M. Patterson, Intel (PDF inspected 2026-11-04)"
+        }
+      ],
+      "summary": "Ratio of total facility energy to IT equipment energy over the same metering interval (Green Grid PUE; Uptime industry averages 1.58 for 2023 and 1.54 for 2025; Google fleet 1.10 for 2023).",
+      "title": "Power usage effectiveness of a data-center facility",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same data-center facility and metering interval for Et, Eit and PUE; the IT meter sits inside the facility meter boundary (efficiency-ratio scope).",
+          "definition": "Total energy entering the facility meter over the metering interval, including IT equipment and all supporting loads (power delivery, cooling, lighting)",
+          "dimensions": "energy",
+          "domain": "Nonnegative finite energy; at least the IT equipment energy",
+          "quantity_id": "total_facility_energy",
+          "role": "input",
+          "source_symbol": "Introduced Et = total facility energy",
+          "symbol": "Et",
+          "unit": "kWh"
+        },
+        {
+          "context": "Same data-center facility and metering interval for Et, Eit and PUE; the IT meter sits inside the facility meter boundary (efficiency-ratio scope).",
+          "definition": "Energy consumed by IT equipment (compute, storage, network and supporting control equipment) over the same interval",
+          "dimensions": "energy",
+          "domain": "Positive finite energy",
+          "quantity_id": "it_equipment_energy",
+          "role": "input",
+          "source_symbol": "Introduced Eit = IT equipment energy",
+          "symbol": "Eit",
+          "unit": "kWh"
+        },
+        {
+          "context": "Same data-center facility and metering interval for Et, Eit and PUE; the IT meter sits inside the facility meter boundary (efficiency-ratio scope).",
+          "definition": "Power usage effectiveness: facility energy per unit of IT equipment energy",
+          "dimensions": "dimensionless",
+          "domain": "At least 1 under the stated guards; no theoretical upper bound",
+          "quantity_id": "power_usage_effectiveness",
+          "role": "output",
+          "source_symbol": "Introduced PUE = power usage effectiveness",
+          "symbol": "PUE",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source scope: site-based WUE per WP#35 (water used on site for operation, similar to carbon Scope 1); water used off site in energy production belongs to WUEsource and is excluded.",
+        "Application profile: annual accounting year shared by W and Eit; the Google oracle is a calendar-year average freshwater consumptive figure (ISO WUE Category 2)."
+      ],
+      "constants": [],
+      "guards": [
+        "W >= 0",
+        "Eit > 0"
+      ],
+      "id": "computer-science--water-usage-effectiveness",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning site_water_consumption (volume dimension) for annual on-site water use.",
+          "New quantity meaning it_equipment_energy (energy dimension), shared with the PUE/overhead records under a distinct site-WUE context.",
+          "New quantity meaning water_usage_effectiveness (volume/energy dimension) for the water intensity.",
+          "New unit L/kWh with dimension volume/energy.",
+          "New per-record DC-TCO context for same-site, same-year site-water metering."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "W = WUE * Eit given WUE and Eit; Eit = W / WUE given W and WUE with WUE > 0. Substitution: WUE = 1.15 with Eit = 1 gives W = 1.15, and forward 1.15 / 1 = 1.15. Zero case: W = 0 with WUE = 0 leaves Eit underdetermined (any positive IT energy with dry cooling gives WUE 0). Untested direction: none beyond the two stated inverses.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes source-energy water (WUEsource), water quality/locality/temperature effects and life-cycle water, all deferred by WP#35 itself.",
+        "One site-year ratio does not transfer to other sites, years or cooling designs."
+      ],
+      "references": [
+        {
+          "expected": 1.15,
+          "id": "google-wue-2023-2024",
+          "inputs": {
+            "Eit": 1,
+            "W": 1.15
+          },
+          "method": "Published operator figure kept as expected: 1.15 L of site water per 1 kWh of IT energy. Scope note: Google's Category 2 figure is freshwater consumptive site water, aligned with the site-WUE scope; withdrawal-based figures would differ.",
+          "provenance": "Published oracle: Google AI-serving measurement paper (2023 and 2024 fleet value).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1.8,
+          "id": "ewif-illustration",
+          "inputs": {
+            "Eit": 1,
+            "W": 1.8
+          },
+          "method": "Curator arithmetic illustration only: 1.8 / 1 = 1.8 exercises a higher intensity with the US national average EWIF value from WP#35 Appendix A. Not a site-WUE observation: EWIF measures source-energy water intensity, so this case illustrates the division shape, not an observed site ratio.",
+          "provenance": "Curator illustration anchored to a published factor; no observed site WUE claimed.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-water-ideal",
+          "inputs": {
+            "Eit": 1,
+            "W": 0
+          },
+          "method": "Limiting identity: zero site water yields WUE 0, the Green Grid ideal value (for example dry cooling). Curator-constructed boundary.",
+          "provenance": "Curator boundary check against the Green Grid ideal value; no observed data claimed.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Eit": 0,
+            "W": 1.15
+          },
+          "kind": "domain",
+          "reason": "Eit = 0 violates the Eit > 0 guard: water intensity per unit of IT energy has no value without IT energy."
+        },
+        {
+          "inputs": {
+            "W": 1.15
+          },
+          "kind": "missing-input",
+          "reason": "Eit is omitted: site water alone does not determine an intensity; the record must not assume an IT energy value."
+        }
+      ],
+      "relationship": {
+        "expression": "W / Eit",
+        "locator": "Section III, equation (1) and units statement",
+        "original_equation": "WUE = Annual Water Usage / IT Equipment Energy (site-based; litres per kilowatt-hour)",
+        "output_symbol": "WUE",
+        "source_id": "green-grid-wp35",
+        "translation_notes": "W and Eit are introduced symbols for annual site water use and IT equipment energy; WUE is the introduced ratio. Dimensional check: volume / energy = L/kWh. The record formalizes the site-based WUE only: off-site water for energy production enters only the separate WUEsource metric (WP#35 section III), which is excluded by assumption, not by the expression."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Defines WUE as annual water usage over IT equipment energy in L/kWh with ideal 0.0 and no theoretical upper boundary; distinguishes site-based WUE (water used on site for operation) from source-based WUEsource (adding off-site energy-production water); defines IT equipment energy over the year; lists the US national average energy-water intensity factor 1.8 L/kWh in Appendix A.",
+          "id": "green-grid-wp35",
+          "kind": "primary",
+          "license": "The Green Grid terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Sections II-IV, equations (1)-(4), Appendix A",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "The Green Grid White Paper #35: Water Usage Effectiveness (WUE): A Green Grid Data Center Sustainability Metric",
+          "url": "https://www.thegreengrid.org/system/files/store/WUE_v1.pdf",
+          "version": "WP#35, 2011; editor M. Patterson, Intel (PDF inspected 2026-11-04)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "States Google measures water efficiency with WUE, the consumptive-use variant (ISO WUE Category 2, water input minus water returned), and that for both 2023 and 2024 Google's WUE Category 2 value was 1.15 L/kWh (previous calendar-year average freshwater figure for data centers supporting LLM models).",
+          "id": "google-ai-water-wue",
+          "kind": "primary",
+          "license": "arXiv/Google terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Section 3.3, Emissions and Water Metrics Methodology",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "Elsworth et al. (Google), Measuring the environmental impact of delivering AI at Google Scale",
+          "url": "https://arxiv.org/html/2508.15734v1",
+          "version": "arXiv:2508.15734v1, 21 Aug 2025 (full-text HTML inspected 2026-11-04)"
+        }
+      ],
+      "summary": "Ratio of annual site water consumption to IT equipment energy (Green Grid site-WUE; Google fleet 1.15 L/kWh for 2023 and 2024; WUEsource excluded).",
+      "title": "Water usage effectiveness of a data-center site",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same data-center site and accounting year for W, Eit and WUE; site operations water only, excluding off-site energy-production water (site-WUE scope).",
+          "definition": "Annual water consumed on site for data-center operations (humidification, cooling-tower evaporation, blowdown, drift and on-site energy-production water)",
+          "dimensions": "volume",
+          "domain": "Nonnegative finite volume",
+          "quantity_id": "site_water_consumption",
+          "role": "input",
+          "source_symbol": "Introduced W = annual site water consumption",
+          "symbol": "W",
+          "unit": "L"
+        },
+        {
+          "context": "Same data-center site and accounting year for W, Eit and WUE; site operations water only, excluding off-site energy-production water (site-WUE scope).",
+          "definition": "IT equipment energy over the same year (compute, storage, network and control equipment)",
+          "dimensions": "energy",
+          "domain": "Positive finite energy",
+          "quantity_id": "it_equipment_energy",
+          "role": "input",
+          "source_symbol": "Introduced Eit = IT equipment energy",
+          "symbol": "Eit",
+          "unit": "kWh"
+        },
+        {
+          "context": "Same data-center site and accounting year for W, Eit and WUE; site operations water only, excluding off-site energy-production water (site-WUE scope).",
+          "definition": "Water usage effectiveness: site water per unit of IT equipment energy",
+          "dimensions": "volume / energy",
+          "domain": "Nonnegative finite intensity; ideal 0",
+          "quantity_id": "water_usage_effectiveness",
+          "role": "output",
+          "source_symbol": "Introduced WUE = water usage effectiveness",
+          "symbol": "WUE",
+          "unit": "L/kWh"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source scope: emissions caused by total data-center energy per WP#32 (Scope-1-plus-2-from-energy); embodied and Scope 3 emissions are outside the numerator.",
+        "Application profile: CO2-equivalent mass; the eGRID oracle is the US annual total-output CO2e rate converted from lb/MWh to kg/kWh."
+      ],
+      "constants": [],
+      "guards": [
+        "G >= 0",
+        "Eit > 0"
+      ],
+      "id": "computer-science--carbon-usage-effectiveness",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning attributable_carbon_emissions (mass dimension) for energy-attributed CO2e.",
+          "New quantity meaning it_equipment_energy (energy dimension), shared with the PUE/overhead records under a distinct carbon-intensity context.",
+          "New quantity meaning carbon_usage_effectiveness (mass/energy dimension) for the carbon intensity.",
+          "New unit kg/kWh with dimension mass/energy.",
+          "New per-record DC-TCO context for same-site, same-year carbon-intensity metering."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "G = CUE * Eit given CUE and Eit; Eit = G / CUE given G and CUE with CUE > 0. Substitution: CUE = 0.3497 with Eit = 1 gives G = 0.3497, and forward 0.3497 / 1 = 0.3497. Zero case: G = 0 with CUE = 0 leaves Eit underdetermined. Untested direction: none beyond the two stated inverses.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes market-based instruments (PPAs, RECs) and marginal/consequential emission accounting: the numerator is location-attributed energy emissions.",
+        "One site-year intensity does not transfer to other grids, years or procurement structures."
+      ],
+      "references": [
+        {
+          "expected": 0.3497,
+          "id": "egrid-us-average",
+          "inputs": {
+            "Eit": 1,
+            "G": 0.3497
+          },
+          "method": "Published rate converted with a documented factor: 770.9 lb/MWh x 0.45359237 kg/lb / 1000 = 0.349674... kg/kWh, rounded to 0.3497 for the record input. Tolerance 1e-4 covers the table rounding (0.1 lb/MWh band, about 2.3e-5 kg/kWh) and the 4-decimal input rounding.",
+          "provenance": "Derived oracle: EPA eGRID2023 Rev. 2 US-average CO2e rate with documented unit conversion; the conversion factor is exact by definition.",
+          "tolerance": 0.0001
+        },
+        {
+          "expected": 0.34,
+          "id": "grid-class-illustration",
+          "inputs": {
+            "Eit": 1,
+            "G": 0.34
+          },
+          "method": "Curator arithmetic illustration in the published US-average class (about 0.34-0.39 kg/kWh across recent eGRID years): 0.34 / 1 = 0.34. Illustrates the ratio at a second intensity; not a pinned grid observation.",
+          "provenance": "Curator illustration; no observed site CUE claimed.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-carbon-ideal",
+          "inputs": {
+            "Eit": 1,
+            "G": 0
+          },
+          "method": "Limiting identity: zero attributable emissions yields CUE 0, the Green Grid ideal value. Curator-constructed boundary.",
+          "provenance": "Curator boundary check against the Green Grid ideal value; no observed data claimed.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Eit": 0,
+            "G": 0.3497
+          },
+          "kind": "domain",
+          "reason": "Eit = 0 violates the Eit > 0 guard: carbon intensity per unit of IT energy has no value without IT energy."
+        },
+        {
+          "inputs": {
+            "G": 0.3497
+          },
+          "kind": "missing-input",
+          "reason": "Eit is omitted: attributable emissions alone do not determine an intensity; the record must not assume an IT energy value."
+        }
+      ],
+      "relationship": {
+        "expression": "G / Eit",
+        "locator": "Equation (1) and units statement",
+        "original_equation": "CUE = Total CO2 emissions caused by Total Data Center Energy / IT Equipment Energy (kilograms CO2-equivalent per kilowatt-hour)",
+        "output_symbol": "CUE",
+        "source_id": "green-grid-wp32",
+        "translation_notes": "G and Eit are introduced symbols for attributable emissions and IT equipment energy; CUE is the introduced ratio. Dimensional check: mass / energy = kg/kWh. WP#32 phrases the numerator as total CO2 emissions caused by total data-center energy; the record names that quantity attributable carbon emissions in CO2-equivalent mass. The alternate CEF-times-PUE route is descriptive scope, not a second record."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Defines CUE as total CO2 emissions caused by total data-center energy over IT equipment energy, in kilograms of CO2-equivalent per kWh, with ideal 0.0 and no theoretical upper boundary; notes the alternate carbon-emission-factor-times-annual-PUE computation. Mirror access disclosed: the direct Green Grid store URL returned HTTP 404 on 2026-11-04.",
+          "id": "green-grid-wp32",
+          "kind": "primary",
+          "license": "The Green Grid (via airatwork mirror) terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Executive summary, equations (1)-(2) and units statement",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "The Green Grid White Paper #32: Carbon Usage Effectiveness (CUE): A Green Grid Data Center Sustainability Metric",
+          "url": "https://airatwork.com/wp-content/uploads/The-Green-Grid-White-Paper-32-CUE-Usage-Guidelines.pdf",
+          "version": "WP#32, 2010; editor C. Belady, Microsoft (mirror PDF inspected 2026-11-04; Green Grid original URL returned HTTP 404)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Lists the US average annual total-output emission rates as 767.2 lb CO2/MWh and 770.9 lb CO2e/MWh.",
+          "id": "epa-egrid-2023",
+          "kind": "primary",
+          "license": "US federal publication; no separate terms inspection. No clearance claimed.",
+          "locator": "Subregion output emission rates table, U.S. average row (also published on the eGRID summary-data page)",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "US EPA eGRID2023 Summary Tables (Revision 2)",
+          "url": "https://www.epa.gov/system/files/documents/2025-06/summary_tables_rev2.pdf",
+          "version": "eGRID with 2023 data, Revision 2 released 12 Jun 2025 (PDF inspected 2026-11-04)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Corroborates CUE as the xUE carbon metric sharing the IT-equipment-energy denominator, with ideal value 0.0 and no theoretical upper boundary.",
+          "id": "green-grid-wp35-cue",
+          "kind": "primary",
+          "license": "The Green Grid terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Section II (PUE, CUE and WUE)",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "The Green Grid White Paper #35 (CUE scope passages)",
+          "url": "https://www.thegreengrid.org/system/files/store/WUE_v1.pdf",
+          "version": "WP#35, 2011; editor M. Patterson, Intel (PDF inspected 2026-11-04)"
+        }
+      ],
+      "summary": "Ratio of attributable carbon emissions to IT equipment energy (Green Grid CUE; eGRID2023 US average 770.9 lb CO2e/MWh pins 0.3497 kg/kWh).",
+      "title": "Carbon usage effectiveness of a data-center site",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same data-center site and accounting year for G, Eit and CUE; emissions attributed to the site's total energy use (Scope-1-plus-2-from-energy scope).",
+          "definition": "Carbon dioxide-equivalent emissions attributed to the data center's total energy use over the accounting year (Scope-1-plus-2-from-energy scope)",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass",
+          "quantity_id": "attributable_carbon_emissions",
+          "role": "input",
+          "source_symbol": "Introduced G = attributable carbon emissions",
+          "symbol": "G",
+          "unit": "kg"
+        },
+        {
+          "context": "Same data-center site and accounting year for G, Eit and CUE; emissions attributed to the site's total energy use (Scope-1-plus-2-from-energy scope).",
+          "definition": "IT equipment energy over the same year (compute, storage, network and control equipment)",
+          "dimensions": "energy",
+          "domain": "Positive finite energy",
+          "quantity_id": "it_equipment_energy",
+          "role": "input",
+          "source_symbol": "Introduced Eit = IT equipment energy",
+          "symbol": "Eit",
+          "unit": "kWh"
+        },
+        {
+          "context": "Same data-center site and accounting year for G, Eit and CUE; emissions attributed to the site's total energy use (Scope-1-plus-2-from-energy scope).",
+          "definition": "Carbon usage effectiveness: attributable emissions per unit of IT equipment energy",
+          "dimensions": "mass / energy",
+          "domain": "Nonnegative finite intensity; ideal 0",
+          "quantity_id": "carbon_usage_effectiveness",
+          "role": "output",
+          "source_symbol": "Introduced CUE = carbon usage effectiveness",
+          "symbol": "CUE",
+          "unit": "kg/kWh"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source scope: WP#35 component decomposition (total facility energy is IT equipment energy plus supporting loads), shared with the PUE record but under an overhead-difference context.",
+        "Application profile: interval-matched meters; the Uptime oracles reproduce the 2023/2025 industry-average overhead per IT kWh."
+      ],
+      "constants": [],
+      "guards": [
+        "Et >= 0",
+        "Eit >= 0",
+        "Et >= Eit"
+      ],
+      "id": "computer-science--facility-overhead-energy",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning total_facility_energy (energy dimension), shared with the PUE record under a distinct overhead-difference context.",
+          "New quantity meaning it_equipment_energy (energy dimension), shared with the PUE record under a distinct overhead-difference context.",
+          "New quantity meaning overhead_energy (energy dimension) for the support-load remainder.",
+          "New per-record DC-TCO context for same-facility, same-interval overhead metering; units kWh are pre-provisioned."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Et = O + Eit given O and Eit; Eit = Et - O given Et and O. Substitution: O = 0.58 with Eit = 1 gives Et = 1.58, and forward 1.58 - 1 = 0.58. Linear in both inputs: no singularities or branches. Untested direction: none.",
+      "kind": "definition",
+      "limitations": [
+        "Energy-only remainder: it never values the overhead in money (tariff application belongs to the admitted electricity-cost record).",
+        "Excludes sub-metered end-use splits (cooling vs power delivery): those need separate metering records."
+      ],
+      "references": [
+        {
+          "expected": 0.58,
+          "id": "uptime-2023-closure",
+          "inputs": {
+            "Eit": 1,
+            "Et": 1.58
+          },
+          "method": "Cross-family worked arithmetic on a published oracle: 1.58 - 1 = 0.58 kWh of overhead per IT kWh at the Uptime 2023 average. Corroborated by Google's published 5.8x overhead ratio (0.58/0.10 = 5.8 at PUE 1.58 vs 1.10). Curator subtraction, not a published overhead figure.",
+          "provenance": "Curator arithmetic combining the published 2023 PUE oracle with the unit IT meter.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.54,
+          "id": "uptime-2025-closure",
+          "inputs": {
+            "Eit": 1,
+            "Et": 1.54
+          },
+          "method": "Cross-family worked arithmetic: 1.54 - 1 = 0.54 kWh of overhead per IT kWh at the Uptime 2025 average.",
+          "provenance": "Curator arithmetic on the published 2025 PUE oracle.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-overhead-boundary",
+          "inputs": {
+            "Eit": 1,
+            "Et": 1
+          },
+          "method": "Limiting identity: equal meters leave zero overhead (the PUE = 1 ideal). Curator-constructed boundary.",
+          "provenance": "Curator boundary check; no observed data claimed.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Eit": 1.58,
+            "Et": 1
+          },
+          "kind": "domain",
+          "reason": "Et < Eit violates the Et >= Eit guard: support loads cannot be negative within the metered scope (guard-scope case)."
+        },
+        {
+          "inputs": {
+            "Et": 1.58
+          },
+          "kind": "missing-input",
+          "reason": "Eit is omitted: facility energy alone does not determine the support remainder."
+        }
+      ],
+      "relationship": {
+        "expression": "Et - Eit",
+        "locator": "Section III component definitions (Total Facility Energy)",
+        "original_equation": "Overhead energy = Total Facility Energy - IT Equipment Energy (same facility, same interval)",
+        "output_symbol": "O",
+        "source_id": "green-grid-wp35-overhead",
+        "translation_notes": "Et and Eit are introduced symbols as in the PUE record; O is the introduced support-load remainder. Dimensional check: energy - energy = energy. WP#35 defines total facility energy as IT equipment energy plus power-delivery, cooling and miscellaneous support loads, so the support remainder is their difference; no admitted record subtracts energies, so this is a new definition, not a money-difference restatement."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "States industry average PUE stood at 1.58 in 2023; the closure basis 1.58 - 1 = 0.58 kWh of overhead per IT kWh is curator arithmetic on that published figure.",
+          "id": "uptime-journal-pue-2023",
+          "kind": "primary",
+          "license": "Uptime Institute terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Opening paragraphs: 2023 average PUE 1.58",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "Uptime Institute Journal: Large data centers are mostly more efficient, analysis confirms",
+          "url": "https://journal.uptimeinstitute.com/large-data-centers-are-mostly-more-efficient-analysis-confirms/",
+          "version": "Journal article by Jacqueline Davis, 2024-02-07 (live HTML inspected 2026-11-04)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "States the 2025 weighted-average annual PUE of 1.54; the closure basis 1.54 - 1 = 0.54 kWh of overhead per IT kWh is curator arithmetic on that published figure.",
+          "id": "uptime-survey-2025-keynote",
+          "kind": "primary",
+          "license": "Uptime Institute terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Facility efficiency section: 2025 weighted-average PUE 1.54",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "Uptime Institute Global Data Center Survey 2025 (keynote report)",
+          "url": "https://datacenter.uptimeinstitute.com/rs/711-RIA-145/images/2025.Annual.Survey.Report.pdf",
+          "version": "UII Keynote Report 180, July 2025 (PDF inspected 2026-11-04)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Defines total facility energy as all IT equipment energy plus everything supporting the IT load (power delivery, cooling, miscellaneous loads), so the support-load remainder is the difference of the two meters.",
+          "id": "green-grid-wp35-overhead",
+          "kind": "primary",
+          "license": "The Green Grid terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Section III component definitions (Total Facility Energy)",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "The Green Grid White Paper #35 (facility-energy decomposition passages)",
+          "url": "https://www.thegreengrid.org/system/files/store/WUE_v1.pdf",
+          "version": "WP#35, 2011; editor M. Patterson, Intel (PDF inspected 2026-11-04)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Uses overhead-energy language for the same remainder: Google data centers used about 5.8 times less overhead energy per unit of IT equipment energy than the industry average, corroborating the 0.58/0.10 closure ratio at PUE 1.58 vs 1.10.",
+          "id": "google-environmental-report-2024",
+          "kind": "primary",
+          "license": "Google terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Energy-efficient infrastructure section",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "Google 2024 Environmental Report (announcement page)",
+          "url": "https://blog.google/company-news/outreach-and-initiatives/sustainability/2024-environmental-report/",
+          "version": "Live HTML inspected 2026-11-04"
+        }
+      ],
+      "summary": "Support-load remainder of facility energy after IT equipment energy (Uptime closure: 0.58 kWh of overhead per IT kWh at 2023 average efficiency).",
+      "title": "Data-center facility overhead energy",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same data-center facility and metering interval for Et, Eit and O; support-load remainder scope (overhead-difference metering).",
+          "definition": "Total energy entering the facility meter over the metering interval, including IT and support loads",
+          "dimensions": "energy",
+          "domain": "Nonnegative finite energy; at least the IT equipment energy",
+          "quantity_id": "total_facility_energy",
+          "role": "input",
+          "source_symbol": "Introduced Et = total facility energy",
+          "symbol": "Et",
+          "unit": "kWh"
+        },
+        {
+          "context": "Same data-center facility and metering interval for Et, Eit and O; support-load remainder scope (overhead-difference metering).",
+          "definition": "Energy consumed by IT equipment over the same interval",
+          "dimensions": "energy",
+          "domain": "Nonnegative finite energy; at most the facility energy",
+          "quantity_id": "it_equipment_energy",
+          "role": "input",
+          "source_symbol": "Introduced Eit = IT equipment energy",
+          "symbol": "Eit",
+          "unit": "kWh"
+        },
+        {
+          "context": "Same data-center facility and metering interval for Et, Eit and O; support-load remainder scope (overhead-difference metering).",
+          "definition": "Energy consumed by facility support loads (power delivery, cooling, lighting) over the same interval: the facility meter minus the IT meter",
+          "dimensions": "energy",
+          "domain": "Nonnegative finite energy; zero when the meters agree",
+          "quantity_id": "overhead_energy",
+          "role": "output",
+          "source_symbol": "Introduced O = overhead energy",
+          "symbol": "O",
+          "unit": "kWh"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source scope: the rate oracle averages full unplanned-outage costs (63 US organizations, Ponemon/Emerson 2016); the record values expected downtime at that average rate.",
+        "Application profile: linear valuation with no outage-duration shaping; one system, one accounting year, one cost basis."
+      ],
+      "constants": [],
+      "guards": [
+        "D >= 0",
+        "c >= 0"
+      ],
+      "id": "computer-science--annual-downtime-cost",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Reused meaning annual_downtime: the input context adds the outage-cost basis and differs from the producer context of computer-science--annual-downtime-hours@r2, so no binding edge is formed (documented near-miss).",
+          "New quantity meaning outage_cost_rate (currency/time dimension) for the hourly outage cost.",
+          "New quantity meaning annual_downtime_cost (currency dimension) for the valued annual downtime.",
+          "New unit USD/h with dimension currency/time.",
+          "New per-record DC-TCO context for same-system, same-year cost-basis valuation."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "D = C / c given C and c with c > 0; c = C / D given C and D with D > 0. Substitution: C = 1062120 with c = 531060 gives D = 2, and forward 2 x 531060 = 1062120. Zero cases: c = 0 with C = 0 leaves D underdetermined; c = 0 with C > 0 is impossible. Untested direction: none beyond the two stated inverses.",
+      "kind": "definition",
+      "limitations": [
+        "Never re-derives availability: D is consumed as an input meaning, and U x H recomputation under cost labels is out of scope.",
+        "Excludes planned-maintenance valuation, duration-dependent cost shaping and multi-year discounting."
+      ],
+      "references": [
+        {
+          "expected": 1062120,
+          "id": "ponemon-2016-two-hours",
+          "inputs": {
+            "D": 2,
+            "c": 531060
+          },
+          "method": "Published rate converted with a documented factor: $8,851/min x 60 min/h = $531,060/h exactly; 2 h x $531,060/h = $1,062,120. The per-minute figure is kept from the source; only the exact time-unit conversion is applied.",
+          "provenance": "Published oracle (2016 edition) with exact unit conversion; 63-organization US average.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 474480,
+          "id": "ponemon-2013-one-hour",
+          "inputs": {
+            "D": 1,
+            "c": 474480
+          },
+          "method": "Published rate converted: $7,908/min x 60 = $474,480/h; 1 h x $474,480/h = $474,480.",
+          "provenance": "Published oracle (2013 edition) with exact unit conversion.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-downtime-boundary",
+          "inputs": {
+            "D": 0,
+            "c": 531060
+          },
+          "method": "Limiting identity: zero downtime costs nothing at any finite rate. Curator-constructed boundary.",
+          "provenance": "Curator boundary check; no observed data claimed.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "D": -1,
+            "c": 531060
+          },
+          "kind": "domain",
+          "reason": "D = -1 violates the D >= 0 guard: negative downtime is outside the expected-hours domain."
+        },
+        {
+          "inputs": {
+            "D": 2
+          },
+          "kind": "missing-input",
+          "reason": "c is omitted: downtime hours alone do not determine a cost without the outage cost basis."
+        }
+      ],
+      "relationship": {
+        "expression": "D * c",
+        "locator": "Key findings: average total cost per minute",
+        "original_equation": "Annual downtime cost = annual downtime x outage cost rate (unplanned-outage cost basis)",
+        "output_symbol": "C",
+        "source_id": "ponemon-2016",
+        "translation_notes": "D and c are introduced symbols for annual downtime and the outage cost rate; C is the introduced annual cost. Dimensional check: time x currency/time = currency. The multiplicative cost-basis definition is introduced by the curator (derived definition): the Ponemon source supplies the rate oracle and study context, not the formula. D reuses the annual_downtime meaning with a cost-basis context that differs from the availability producer's context (documented near-miss; no binding edge)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "States Emerson and Ponemon polled 63 US data-center organizations with an outage in the past 12 months, and that the average total cost per minute of an unplanned outage rose from $5,617 in 2010 to $7,908 in 2013 to $8,851 in the 2016 report.",
+          "id": "ponemon-2016",
+          "kind": "primary",
+          "license": "Vertiv (Emerson Network Power) terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Headline findings bullets",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "Emerson Network Power / Ponemon Institute: 2016 Cost of Data Center Outages (press release, via Vertiv newsroom)",
+          "url": "https://www.vertiv.com/en-us/about/news-and-events/corporate-news/2016/emerson-network-power-study-says-unplanned-data-center-outages-cost-companies-nearly-$9000-per-minute/",
+          "version": "Press release dated 19 Jan 2016 (live HTML inspected 2026-11-04; reached via redirect from the newsroom corporate-news URL)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Restates the Emerson/Ponemon findings: 63 US organizations polled; average total cost per minute $5,617 (2010), $7,908 (2013), $8,851 (2016).",
+          "id": "ecm-ponemon-2016",
+          "kind": "primary",
+          "license": "Endeavor Business Media terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Opening paragraphs",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "Electrical Construction and Maintenance (EC&M): Data Center Outage Costs Continue to Rise",
+          "url": "https://www.ecmweb.com/power-quality/data-center-outage-costs-continue-rise",
+          "version": "Trade article dated 19 Jan 2016 (live HTML inspected 2026-11-04)"
+        }
+      ],
+      "summary": "Expected annual downtime valued at an unplanned-outage cost rate (Ponemon/Emerson 2016: $8,851/min; consumes annual_downtime with a new cost-basis context, no edge).",
+      "title": "Annual cost of data-center downtime",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same system, stated conditions and accounting year as U, with downtime valued at an unplanned-outage cost basis shared by D, c and C.",
+          "definition": "Expected annual downtime of one system under stated conditions and accounting year, valued at the outage cost basis",
+          "dimensions": "time",
+          "domain": "Nonnegative finite hours",
+          "quantity_id": "annual_downtime",
+          "role": "input",
+          "source_symbol": "Introduced D = annual downtime",
+          "symbol": "D",
+          "unit": "h"
+        },
+        {
+          "context": "Same system, stated conditions and accounting year as U, with downtime valued at an unplanned-outage cost basis shared by D, c and C.",
+          "definition": "Average total cost per hour of unplanned outage for the valued system (2016 Ponemon/Emerson figure converted from per-minute)",
+          "dimensions": "currency / time",
+          "domain": "Nonnegative finite rate",
+          "quantity_id": "outage_cost_rate",
+          "role": "input",
+          "source_symbol": "Introduced c = outage cost rate",
+          "symbol": "c",
+          "unit": "USD/h"
+        },
+        {
+          "context": "Same system, stated conditions and accounting year as U, with downtime valued at an unplanned-outage cost basis shared by D, c and C.",
+          "definition": "Expected annual cost of downtime: downtime hours valued at the outage cost rate",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite cost",
+          "quantity_id": "annual_downtime_cost",
+          "role": "output",
+          "source_symbol": "Introduced C = annual downtime cost",
+          "symbol": "C",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source rule: straight-line depreciation deducts the same amount each period: adjusted basis minus salvage value spread over the useful life (IRS Publication 946).",
+        "Application profile: straight-line book schedule for one asset population; the computers oracle uses the 5-year GDS recovery period for computers and peripheral equipment.",
+        "Second authority: GAAP ASC 360 systematic and rational allocation over benefited periods (inspected via the open PwC guide excerpt; codification full text gated)."
+      ],
+      "constants": [],
+      "guards": [
+        "C >= 0",
+        "S >= 0",
+        "C >= S",
+        "n >= 1"
+      ],
+      "id": "computer-science--straight-line-annual-depreciation",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning asset_cost (currency dimension) for the capitalized asset cost.",
+          "New quantity meaning salvage_value (currency dimension) for the end-of-life residual value.",
+          "New quantity meaning recovery_periods (count dimension) for the straight-line schedule length.",
+          "New quantity meaning annual_depreciation (currency dimension) for the periodic expense.",
+          "New per-record book-depreciation context; units USD and periods are pre-provisioned."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "C = Dep * n + S given Dep, n and S; S = C - Dep * n given C, Dep and n; n = (C - S) / Dep given C, S and Dep with Dep > 0. Substitution: Dep = 2000 with S = 0 and n = 5 gives C = 10000, and forward (10000 - 0) / 5 = 2000. Zero case: Dep = 0 with C = S leaves n underdetermined (any schedule length spreads a zero amount). Untested direction: none beyond the three stated inverses.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes the MACRS 200%-DB default method, half-year/mid-quarter conventions, the special (bonus) depreciation allowance and section 179 expensing.",
+        "Excludes declining-balance and MACRS table schedules (multi-period schedules, not one scalar relationship) and economic-depreciation concepts (NIPA capital consumption).",
+        "National-accounts depreciation (admitted NIPA records) is a different concept and is never bound here."
+      ],
+      "references": [
+        {
+          "expected": 2000,
+          "id": "computers-five-year",
+          "inputs": {
+            "C": 10000,
+            "S": 0,
+            "n": 5
+          },
+          "method": "Worked figure on the published recovery period: ($10,000 - $0)/5 = $2,000/yr for 5-year computers property. Curator arithmetic; the 5-year period is the published IRS fact.",
+          "provenance": "Curator arithmetic on the published IRS recovery period; no observed taxpayer data claimed.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 2000,
+          "id": "salvage-case",
+          "inputs": {
+            "C": 12000,
+            "S": 2000,
+            "n": 5
+          },
+          "method": "Curator arithmetic exercising a nonzero salvage value: ($12,000 - $2,000)/5 = $2,000/yr.",
+          "provenance": "Curator arithmetic; distinct inputs from the computers case.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 300,
+          "id": "viewpoint-computer-example",
+          "inputs": {
+            "C": 900,
+            "S": 0,
+            "n": 3
+          },
+          "method": "Published worked example kept as expected: $900/3 years = $300/yr straight-line depreciation for the guide's computer example.",
+          "provenance": "Published worked example: PwC Viewpoint guide excerpt (GAAP authority).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-depreciable-boundary",
+          "inputs": {
+            "C": 5000,
+            "S": 5000,
+            "n": 5
+          },
+          "method": "Limiting identity: cost equal to salvage leaves no depreciable amount (C = S gives Dep = 0). Curator-constructed boundary.",
+          "provenance": "Curator boundary check; no observed data claimed.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "C": 2000,
+            "S": 10000,
+            "n": 5
+          },
+          "kind": "domain",
+          "reason": "C < S violates the C >= S guard: a depreciable amount cannot be negative (guard-scope case)."
+        },
+        {
+          "inputs": {
+            "C": 10000,
+            "S": 0,
+            "n": 0
+          },
+          "kind": "domain",
+          "reason": "n = 0 violates the n >= 1 guard: spreading over zero periods is undefined (domain case; also a division singularity)."
+        }
+      ],
+      "relationship": {
+        "expression": "(C - S) / n",
+        "locator": "Straight Line Method (chapter 1) and GDS recovery table",
+        "original_equation": "Annual depreciation = (asset cost - salvage value) / recovery periods (straight-line, equal annual amounts)",
+        "output_symbol": "Dep",
+        "source_id": "irs-pub946",
+        "translation_notes": "C, S and n are introduced symbols for asset cost, salvage value and recovery periods; Dep is the introduced annual amount. Dimensional check: (currency - currency) / count = currency per period, reported in USD per year. The straight-line rule (subtract salvage from basis, spread evenly) is the IRS statement; the GAAP excerpt corroborates systematic allocation and an equal-amount worked example. MACRS 200%-DB, conventions, bonus allowance and section 179 are excluded scope, not expression terms."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "States the straight-line method deducts the same amount each year: subtract salvage value from adjusted basis and spread the balance over the useful life (with a $5,100/17-year patent example yielding $300/yr); lists computers and peripheral equipment as 5-year GDS property; lists the 200% declining balance method over the GDS recovery period and the special depreciation allowance as the MACRS features this record excludes.",
+          "id": "irs-pub946",
+          "kind": "primary",
+          "license": "US federal publication; no separate terms inspection. No clearance claimed.",
+          "locator": "Straight Line Method; GDS recovery-period table; MACRS depreciation methods",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "IRS Publication 946 (2025), How To Depreciate Property",
+          "url": "https://www.irs.gov/publications/p946",
+          "version": "2025 web edition (live HTML inspected 2026-11-04)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "States long-lived assets are depreciated over estimated useful lives under ASC 360 and that depreciation accounting allocates cost in a systematic and rational manner; works a straight-line computer example ($900 cost, 3-year life, $300/yr depreciation expense). Indirect access disclosed: asc.fasb.org serves a login-walled landing (fetched 2026-11-04, no full text) and the PPE chapter-4 viewer is read-only-gated, so the ASC 360 rule was inspected in this open guide excerpt.",
+          "id": "pwc-ppe-depreciation",
+          "kind": "primary",
+          "license": "PwC Viewpoint terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Section 10.2 opening paragraphs and gift-of-PPE example",
+          "redistribution": "Only attributed figures and short original paraphrases; no source text reproduced.",
+          "title": "PwC Viewpoint: Not-for-profit entities guide, section 10.2 (PP&E excerpt of GAAP ASC 360 depreciation)",
+          "url": "https://viewpoint.pwc.com/dt/us/en/pwc/accounting_guides/not-for-profit-entities/Not-for-profit-entities/Nfp10_1/102_Property_3.html",
+          "version": "Live HTML guide excerpt inspected 2026-11-04 (open excerpt; codification full text gated)"
+        }
+      ],
+      "summary": "Annual book depreciation as depreciable amount over recovery periods (IRS 5-year computers; GAAP systematic allocation; ($10,000 - $0)/5 = $2,000/yr).",
+      "title": "Straight-line annual depreciation of an asset population",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same asset population, book basis and straight-line schedule for C, S, n and Dep; book depreciation scope (no tax conventions or allowances).",
+          "definition": "Capitalized cost (adjusted basis) of the asset population entering depreciation",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite cost; at least the salvage value",
+          "quantity_id": "asset_cost",
+          "role": "input",
+          "source_symbol": "Introduced C = asset cost",
+          "symbol": "C",
+          "unit": "USD"
+        },
+        {
+          "context": "Same asset population, book basis and straight-line schedule for C, S, n and Dep; book depreciation scope (no tax conventions or allowances).",
+          "definition": "Estimated residual (salvage) value of the population at the end of its recovery periods",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite value; at most the asset cost",
+          "quantity_id": "salvage_value",
+          "role": "input",
+          "source_symbol": "Introduced S = salvage value",
+          "symbol": "S",
+          "unit": "USD"
+        },
+        {
+          "context": "Same asset population, book basis and straight-line schedule for C, S, n and Dep; book depreciation scope (no tax conventions or allowances).",
+          "definition": "Number of straight-line recovery periods (years) over which the depreciable amount is spread",
+          "dimensions": "count",
+          "domain": "At least 1; the computers oracle uses 5",
+          "quantity_id": "recovery_periods",
+          "role": "input",
+          "source_symbol": "Introduced n = recovery periods",
+          "symbol": "n",
+          "unit": "periods"
+        },
+        {
+          "context": "Same asset population, book basis and straight-line schedule for C, S, n and Dep; book depreciation scope (no tax conventions or allowances).",
+          "definition": "Straight-line depreciation expense per period",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite expense; zero when cost equals salvage",
+          "quantity_id": "annual_depreciation",
+          "role": "output",
+          "source_symbol": "Introduced Dep = annual depreciation",
+          "symbol": "Dep",
+          "unit": "USD"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

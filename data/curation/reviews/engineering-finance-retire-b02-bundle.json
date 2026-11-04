@@ -1,0 +1,245 @@
+{
+  "batch_id": "engineering-finance-retire-b02",
+  "created": "2026-11-04",
+  "curator": "compat-retire-r2",
+  "deferred": [],
+  "domain": "engineering-finance",
+  "example_only": false,
+  "handoff": {
+    "connections": [
+      "No in-batch legs (single-record batch).",
+      "No cross-batch legs: the record keeps the r1 retirement-qualified context and its cross-record labels are recomputation, never equivalence (per the r1 review), so it binds no existing chain."
+    ],
+    "gaps": [
+      "Independent re-review pending (intake packets the return): the corrected due intermediate (60790.58) and all three oracle values recompute, but applicability awaits review.",
+      "Registry reads were read-only on 2026-11-04; no staging, review, admission, or modification of the registry, runtime source, or any admitted record was performed."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical validation 2026-11-04 with the central package: `validate` on the bundle JSON -> status valid-data-awaiting-review, the single r2 record runtime-ready with contract checks (3 arithmetic, 2 rejection); `pack` -> engineering-finance-retire-b02-return.zip; `validate` on the ZIP -> valid-data-awaiting-review. Correction proof (prove_fix.py, registry read-only): the packed r2 record equals r1 except the two prescribed fields (60790.08->60790.58 in due-pv-closure method, revision r1->r2); the corrected intermediate recomputes from the admitted due record expression on matched inputs (60790.58) and due/1.06 reproduces the expected 57349.61 within tol 0.01; pinned-table-10k (77217.35 vs 77217, tol 0.5) and single-period-identity (9523.81) recompute; both rejection cases re-checked sound against the corrected text; all three source URLs fetched HTTP 200 on 2026-11-04 with every cited fact reconfirmed; registry survey finds the r2 key absent (no collision) and the 5 admitted r1 records present. Checks not performed: independent scientific re-review of the record (intake packets the return); no staging, review, admission, or modification of the registry, runtime source, or any admitted record (out of scope).",
+    "summary": "Correction batch engineering-finance-retire-b02 (curator compat-retire-r2): single r2 revision of engineering-finance--ordinary-annuity-present-value per brief 27 -- the due-pv-closure method intermediate is corrected from 60790.08 to 60790.58 and the revision bumped r1->r2; every other field is byte-identical to r1. See data/curation/corrections/annuity-pv-r2-brief-27.md."
+  },
+  "kit_version": "2026-10-31.10",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: equal end-of-period payments with the first one full period after time zero at a fixed per-period rate (annuity-immediate/ordinary-annuity timing).",
+        "Application profile: the payment stream is a retirement withdrawal series over a fixed horizon; the retirement context qualifies the ports but does not change the annuity mathematics.",
+        "All amounts on one price basis with the rate on the matching period; convert a quoted nominal rate with the effective-rate record before use.",
+        "The i = 0 limit branch (P = A*n) is a separate expression per the OAFV precedent and is excluded by the i > 0 guard here."
+      ],
+      "constants": [],
+      "guards": [
+        "A >= 0",
+        "i > 0",
+        "n >= 1"
+      ],
+      "id": "engineering-finance--ordinary-annuity-present-value",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "Source assumption: equal end-of-period payments with the first one full period after time zero at a fixed per-period rate (annuity-immediate/ordinary-annuity timing).",
+            "Application profile: the payment stream is a retirement withdrawal series over a fixed horizon; the retirement context qualifies the ports but does not change the annuity mathematics.",
+            "All amounts on one price basis with the rate on the matching period; convert a quoted nominal rate with the effective-rate record before use.",
+            "The i = 0 limit branch (P = A*n) is a separate expression per the OAFV precedent and is excluded by the i > 0 guard here.",
+            "Beginning-of-period (annuity-due) streams need the distinct due factor with the extra (1+i) multiple and are not covered.",
+            "Excludes growing, variable, life-contingent, and indexed withdrawal streams; mortality and longevity risk are out of scope."
+          ],
+          "expression": "A*(1-(1+i)**(-n))/i",
+          "guards": [
+            "A >= 0",
+            "i > 0",
+            "n >= 1"
+          ],
+          "id": "engineering-finance--ordinary-annuity-present-value",
+          "inputs": {
+            "A": {
+              "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+              "meaning": "periodic_payment",
+              "unit": "USD"
+            },
+            "i": {
+              "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+              "meaning": "periodic_rate",
+              "unit": "1"
+            },
+            "n": {
+              "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+              "meaning": "period_count",
+              "unit": "periods"
+            }
+          },
+          "output": {
+            "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+            "meaning": "present_value",
+            "unit": "USD"
+          },
+          "source": "Ordinary-annuity (annuity-immediate) present value; Wikipedia annuity-immediate factor, AccountingTools ordinary-annuity table, UMD present-worth factor.",
+          "version": "r2"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "A=P*i/(1-(1+i)^-n) needs i>0 and n>=1; substitution P=77217.35, i=0.05, n=10 gives A=10000.00 within rounding. At n=1, A=P*(1+i) exactly (checked: 9523.81 x 1.05 = 10000.00 within rounding). A=0 admits P=0; P=0 with i>0, n>=1 forces A=0. Solving for i needs iteration and for n a logarithm, both unsupported by the scalar grammar, so those directions are untested. The i-to-0 limit branch P=A*n is a different expression, never a guard relaxation.",
+      "kind": "definition",
+      "limitations": [
+        "Beginning-of-period (annuity-due) streams need the distinct due factor with the extra (1+i) multiple and are not covered.",
+        "Excludes growing, variable, life-contingent, and indexed withdrawal streams; mortality and longevity risk are out of scope."
+      ],
+      "references": [
+        {
+          "expected": 77217,
+          "id": "pinned-table-10k",
+          "inputs": {
+            "A": 10000,
+            "i": 0.05,
+            "n": 10
+          },
+          "method": "Published-table oracle: AccountingTools factor 7.7217 (n=10, 5%) x $10,000 = $77,217; the expression evaluates 77217.35 (unrounded factor 7.72173) and tolerance 0.5 covers the table's 4-decimal rounding (at most 0.00005 x 10000). Labeled cross-record recomputation on the same value: uniform-present-value@source-3 on matched inputs (annual=10000, rate=0.05, years=10) returns the identical 77217.35 -- a numerical cross-check, never an equivalence claim.",
+          "provenance": "Published annuity-table factor via s-at-oa-table; UPV equality is curator recomputation against the admitted home-A record.",
+          "tolerance": 0.5
+        },
+        {
+          "expected": 57349.61,
+          "id": "due-pv-closure",
+          "inputs": {
+            "A": 5000,
+            "i": 0.06,
+            "n": 20
+          },
+          "method": "Due-PV closure recomputation: the admitted due record returns R*((1-(1+i)^-n)/i)*(1+i) = 60790.58 on matched inputs (R=5000, i=0.06, n=20); dividing by (1+i) = 1.06 per the sourced due/immediate relation reproduces this record's 57349.61. The same matched inputs through uniform-present-value@source-3 (annual=5000, rate=0.06, years=20) return the identical value. Both are labeled cross-record recomputation, never equivalence.",
+          "provenance": "Curator recomputation against admitted records engineering-finance--annuity-due-present-value@r1 and uniform-present-value@source-3; the due/immediate relation is sourced to s-wiki-annuity.",
+          "tolerance": 0.01
+        },
+        {
+          "expected": 9523.81,
+          "id": "single-period-identity",
+          "inputs": {
+            "A": 10000,
+            "i": 0.05,
+            "n": 1
+          },
+          "method": "Limiting identity: at n=1 the factor collapses to 1/(1+i), so P = A/(1+i) = 10000/1.05 = 9523.81 (single-discount check).",
+          "provenance": "Curator identity check from the sourced factor definition; not observed market data.",
+          "tolerance": 0.01
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A": 10000,
+            "i": 0,
+            "n": 10
+          },
+          "kind": "domain",
+          "reason": "Zero periodic rate makes the factor's denominator zero and needs the separate limit branch P=A*n; excluded by i>0."
+        },
+        {
+          "inputs": {
+            "A": 10000,
+            "n": 10
+          },
+          "kind": "missing-input",
+          "reason": "Without the per-period rate the discount factor cannot be formed."
+        }
+      ],
+      "relationship": {
+        "expression": "A*(1-(1+i)**(-n))/i",
+        "locator": "Timing of payments; Valuation > Annuity-certain > Annuity-immediate (present-value factor, proof, PV example); Annuity-due (due-factor relation); Amortization calculations.",
+        "original_equation": "P = A x [1 - (1+i)^-n] / i (present value of an ordinary annuity / annuity-immediate)",
+        "output_symbol": "P",
+        "source_id": "s-wiki-annuity",
+        "translation_notes": "Direct transcription with retirement-series symbols A (level withdrawal), i (rate per period), n (withdrawal count); the factor form mirrors the admitted due-PV exponent shape (1+i)**(-n) minus the due (1+i) multiple. Dimensional check: USD times a dimensionless factor stays USD. Guards A>=0, i>0, n>=1 mirror the admitted OAFV guard shape; i>0 with n>=1 keeps the factor positive. The i=0 limit branch P=A*n is a separate expression per the OAFV precedent, never a guard relaxation. The UMD Equal-Payment-Series Present-Worth Factor P = A*([1+i]^n-1)/(i[1+i]^n) is the same mathematics in multiplied-out form."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Annuity-immediate (ordinary annuity) pays at the end of each period; its unit-payment present-value factor is a-angle-n = (1-(1+i)^-n)/i with PV = R x factor; the due factor is (1+i) times the immediate factor; the loan-amortization section restates P = R*(1-(1+i)^-N)/i.",
+          "id": "s-wiki-annuity",
+          "kind": "primary",
+          "license": "Wikipedia text: CC BY-SA 4.0 (page footer); reuse terms for figures not reviewed.",
+          "locator": "Timing of payments; Valuation > Annuity-certain > Annuity-immediate (factor, proof, PV example); Annuity-due (due-factor relation); Amortization calculations.",
+          "redistribution": "Returns original formalization of the factor arithmetic and minimal attributed formula symbols; no reproduced page text or figures.",
+          "title": "Annuity (Wikipedia): annuity-immediate valuation",
+          "url": "https://en.wikipedia.org/wiki/Annuity",
+          "version": "Article revision fetched 2026-11-04 (CC BY-SA 4.0)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Table factor for 10 periods at 5% is 7.7217 (4-decimal rounding of 7.72173); the article's convention multiplies the factor by the payment (e.g. 3.9927 x $10,000 = $39,927 at 8%, n=5), so $10,000 x 7.7217 = $77,217.",
+          "id": "s-at-oa-table",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Rate Table For the Present Value of an Ordinary Annuity of 1: row n=10, column 5%.",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "AccountingTools: Present value of an ordinary annuity table (Steven Bragg)",
+          "url": "https://www.accountingtools.com/articles/present-value-of-an-ordinary-annuity-table",
+          "version": "Article page dated November 01, 2026; fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Page prints P = A*([1+i]^n-1)/(i[1+i]^n) and works A=100 / i=12% / n=4 to P=303.7, the multiplied-out form of the same ordinary-annuity mathematics.",
+          "id": "s-umd-ence202",
+          "kind": "primary",
+          "license": "Page footer states Copyright (c) 1996-1998, Department of Civil Engineering, University of Maryland; no open-license or terms page found.",
+          "locator": "Equal-Payment-Series Present-Worth Factor (factor and Example 1: A=100, i=12%, n=4 giving P=303.7).",
+          "redistribution": "No verbatim excerpts stored; only short original paraphrases, formula symbols and computed values.",
+          "title": "Introduction to Engineering Economics (ENCE 202 tutorial, Univ. of Maryland)",
+          "url": "https://user.eng.umd.edu/~austin/ence202.d/economics.html",
+          "version": "Tutorial text as printed; last modified February 1, 1998; fetched 2026-11-04"
+        }
+      ],
+      "summary": "Present value P of n equal end-of-period withdrawals A at a fixed per-period rate i over a retirement horizon: the ordinary-annuity (annuity-immediate) factor on a withdrawal stream. Complements the admitted annuity-due present value (beginning-of-period timing) and the home-A uniform-present-value energy-savings identity; binds no existing chain (retirement-qualified context).",
+      "title": "Ordinary-annuity present value for end-of-period retirement withdrawals",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+          "definition": "Equal end-of-period withdrawal per period over the retirement horizon",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite withdrawal; zero admits the no-withdrawal boundary",
+          "quantity_id": "periodic_payment",
+          "role": "input",
+          "source_symbol": "R (level payment; here a retirement withdrawal)",
+          "symbol": "A",
+          "unit": "USD"
+        },
+        {
+          "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+          "definition": "Effective interest rate per withdrawal period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite decimal; zero excluded (separate limit branch)",
+          "quantity_id": "periodic_rate",
+          "role": "input",
+          "source_symbol": "i (effective interest rate per period)",
+          "symbol": "i",
+          "unit": "1"
+        },
+        {
+          "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+          "definition": "Number of equal end-of-period withdrawals",
+          "dimensions": "count",
+          "domain": "At least one withdrawal; integer-valued counts in use",
+          "quantity_id": "period_count",
+          "role": "input",
+          "source_symbol": "n (number of payments)",
+          "symbol": "n",
+          "unit": "periods"
+        },
+        {
+          "context": "same-series:end-of-period-level-withdrawals:fixed-rate:retirement-horizon",
+          "definition": "Single amount at time zero equivalent to the withdrawal stream",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite present value",
+          "quantity_id": "present_value",
+          "role": "output",
+          "source_symbol": "PV (present value of the payment stream)",
+          "symbol": "P",
+          "unit": "USD"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

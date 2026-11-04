@@ -53,6 +53,8 @@ def check_entry(entry: dict, record: dict, tolerance: float) -> dict:
                 values_ok = False
             if "amounts" in expected:
                 actual_list = actual.get("amounts")
+                if actual_list is None and "amount" in actual and len(expected["amounts"]) == 1:
+                    actual_list = [actual["amount"]]
                 if actual_list is None or len(actual_list) != len(expected["amounts"]):
                     failures.append(f"{expected['meaning']}: {actual_list} != {expected['amounts']}")
                     values_ok = False
@@ -64,8 +66,14 @@ def check_entry(entry: dict, record: dict, tolerance: float) -> dict:
                             values_ok = False
                 continue
             scale = max(1.0, abs(expected["amount"]))
-            if abs(actual["amount"] - expected["amount"]) > tolerance * scale:
-                failures.append(f"{expected['meaning']}: {actual['amount']} != {expected['amount']}")
+            actual_amount = actual.get("amount")
+            if actual_amount is None and len(actual.get("amounts") or []) == 1:
+                actual_amount = actual["amounts"][0]
+            if actual_amount is None:
+                failures.append(f"{expected['meaning']}: no single amount in {sorted(actual)}")
+                values_ok = False
+            elif abs(actual_amount - expected["amount"]) > tolerance * scale:
+                failures.append(f"{expected['meaning']}: {actual_amount} != {expected['amount']}")
                 values_ok = False
     fixed = bool(failures) and status == "completed" and values_ok and expected_status != "completed"
     return {"id": entry["id"], "tier": entry["tier"], "status": status,
@@ -80,6 +88,8 @@ def main() -> int:
     """Parse flags, run the selected entries, and save the report."""
     parser = argparse.ArgumentParser(description="Run the chain battery.")
     parser.add_argument("--ids", default="", help="Comma-separated entry IDs; default runs all.")
+    parser.add_argument("--retrieval", default="subset", choices=("full", "subset"),
+                        help="Catalog retrieval mode; default sends a retrieved subset.")
     args = parser.parse_args()
     battery = json.loads(BATTERY.read_bytes())
     wanted = {part.strip() for part in args.ids.split(",") if part.strip()}
@@ -92,7 +102,8 @@ def main() -> int:
     results = []
     for entry in entries:
         record = answer(registry, entry["question"],
-                        fill_in_assumptions=bool(entry.get("fill_in_assumptions", True)))
+                        fill_in_assumptions=bool(entry.get("fill_in_assumptions", True)),
+                        retrieval=args.retrieval)
         results.append(check_entry(entry, record, tolerance))
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     folder = ROOT / ".runs" / f"eval-{stamp}"

@@ -74,3 +74,18 @@ class ChainBatteryTests(unittest.TestCase):
         self.assertEqual(check_entry(entry, swapped, 1e-6)["verdict"], "fail")
         scalar = _record("completed", {"n1": _output("m", "u", 2.0)})
         self.assertEqual(check_entry(entry, scalar, 1e-6)["verdict"], "fail")
+
+    def test_single_root_matches_either_scalar_or_branch_shape(self) -> None:
+        """One admitted root passes whether the run stores amount or amounts."""
+        entry = {"id": "s", "tier": 1, "expected_status": "completed",
+                 "expected_outputs": [{"meaning": "m", "unit": "u", "amount": 3.0}]}
+        port = {"meaning": "m", "unit": "u"}
+        branch = _record("completed", {"n1": {"amounts": [3.0], "excluded": [0.0],
+                                            "port": port, "branch": "all"}})
+        self.assertEqual(check_entry(entry, branch, 1e-6)["verdict"], "pass")
+        ambiguous = _record("completed", {"n1": {"amounts": [3.0, 4.0], "port": port, "branch": "all"}})
+        self.assertEqual(check_entry(entry, ambiguous, 1e-6)["verdict"], "fail")
+        singular = {"id": "s", "tier": 1, "expected_status": "completed",
+                    "expected_outputs": [{"meaning": "m", "unit": "u", "amounts": [3.0]}]}
+        scalar = _record("completed", {"n1": _output("m", "u", 3.0)})
+        self.assertEqual(check_entry(singular, scalar, 1e-6)["verdict"], "pass")

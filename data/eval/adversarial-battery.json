@@ -1,6 +1,6 @@
 {
   "name": "adversarial-battery",
-  "version": 3,
+  "version": 4,
   "tolerance_relative": 1e-06,
   "notes": "Head-to-head entries where a bare LLM is expected to lose: precision traps (rounding fails tolerance), guard traps (no valid completion; the engine must refuse), long fork-join chains, and multi-hop inverses. Trap entries carry trap=true with no expected outputs; the compare runner scores refusal as correct. Compare-runner only (run_chain_battery has no trap branch).",
   "entries": [
@@ -315,6 +315,85 @@
       ],
       "needs": "none; 10-node forward chain through the brief-15+17 bits bridges.",
       "why_llm_loses": "Parity, bits-to-bytes, and conversions in one chain (direct matched it: tie)."
+    },
+    {
+      "id": "ac-cvp-4",
+      "tier": 1,
+      "question": "A product sells for $50 per unit with a $30 variable cost per unit. The shop sells 800 units; fixed operating costs are $10,000 for the period. What is the unit contribution margin, the total contribution income, the break-even unit sales, and the unit sales needed for a $20,000 target profit?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "contribution_margin_per_unit",
+          "unit": "USD/unit",
+          "amount": 20.0
+        },
+        {
+          "meaning": "contribution_margin_income",
+          "unit": "USD",
+          "amount": 16000.0
+        },
+        {
+          "meaning": "break_even_unit_quantity",
+          "unit": "unit",
+          "amount": 500.0
+        },
+        {
+          "meaning": "required_unit_sales_for_target_profit",
+          "unit": "unit",
+          "amount": 1500.0
+        }
+      ],
+      "needs": "none; port of t1-cvp-coherence (live-verified chain entry); all four must match.",
+      "why_llm_loses": "Four-way coherence: bare answers divide by price ($50) instead of margin ($20), giving 200/600."
+    },
+    {
+      "id": "ac-branch-times",
+      "tier": 1,
+      "question": "A ball is thrown straight upward from 1 m above the ground with an initial velocity of 10 m/s. Its vertical acceleration is -9.8 m/s^2. At what times is the ball at 3 m above the ground?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "duration",
+          "unit": "s",
+          "amounts": [0.22475148205641113, 1.816064844474201]
+        }
+      ],
+      "needs": "none; port of t1-branch-times-aloft (passed live 2026-11-04 after the branch-all schema landed); single inverse time view, both roots required.",
+      "why_llm_loses": "Two-pass timing through one height; bare answers give a single time, but both roots must match."
+    },
+    {
+      "id": "ap-fisher-near",
+      "tier": 1,
+      "question": "With a nominal interest rate of 6 percent and inflation of 5.999 percent, what is the exact real interest rate?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "real_rate",
+          "unit": "1",
+          "amount": 9.434051264634036e-06
+        }
+      ],
+      "needs": "none; single forward Fisher model; oracle verified offline via runtime.execute (matches closed form).",
+      "why_llm_loses": "Near-cancellation: the quotient 1.06/1.05999 must hold 8 digits before the -1; subtraction errs by 6%."
+    },
+    {
+      "id": "ai-implied-inflation",
+      "tier": 1,
+      "question": "With a nominal interest rate of 9 percent and a real interest rate of 8.9 percent, what is the inflation rate?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "inflation_rate",
+          "unit": "1",
+          "amount": 0.0009182736455463728
+        }
+      ],
+      "needs": "none; single inverse Fisher view (solve_for f); oracle verified offline via runtime.execute rational solve.",
+      "why_llm_loses": "Implied-value inversion through near-cancellation: 1.09/1.089 needs 6 digits; subtraction errs by 9%."
     }
   ]
 }

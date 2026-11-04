@@ -4,14 +4,17 @@ from dataclasses import asdict, replace
 from datetime import datetime, timezone
 import json
 import os
+import time
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from .compatibility import audit_pairs
 from .contracts import Composition, Model, ModelError, Node, Value
 from .demo import catalog
 from .inference import BudgetLedger, InferenceSettings, load_prompt, structured_request
 from .registry import Registry
+from .retrieval import FALLBACK_CAP, FALLBACK_K, RETRIEVAL_CAP, RETRIEVAL_VERSION, SEED_K, build_index, neighbors_from_audit, retrieve
 from .runtime import execute, save_run
 from .query_inputs import MAX_QUERY_CHARS, MAX_QUERY_FACTS, bind_fact, validate_fact
 from .solving import OUTPUT_BINDING, PROFILE, node_ports
@@ -170,7 +173,8 @@ def _reset_attempt(record: dict[str, Any]) -> None:
 
 
 def answer(registry: Registry, question: str, fill_in_assumptions: bool = False,
-           inference_model: str | None = None) -> dict[str, Any]:
+           inference_model: str | None = None, retrieval: str = "subset",
+           retrieval_k: int = SEED_K, retrieval_cap: int = RETRIEVAL_CAP) -> dict[str, Any]:
     """Answer a self-contained question, repairing machine-rejected proposals.
 
     The composer gets up to MAX_COMPOSE_ATTEMPTS calls: the first attempt
@@ -196,6 +200,7 @@ def answer(registry: Registry, question: str, fill_in_assumptions: bool = False,
             "nodes": {"type": "array", "items": {"type": "object", "properties": {
                 "id": {"type": "string"}, "model": {"type": "string"},
                 "solve_for": {"type": "string"}, "relation": {"type": "string", "enum": ["equal", "at_least"]},
+                "branch": {"type": "string", "enum": ["all"]},
                 "bindings": {"type": "array", "items": {"type": "object", "properties": {
                     "input": {"type": "string"}, "source": {"type": "string", "enum": ["node", "fact"]},
                     "ref": {"type": "string"}}, "required": ["input", "source", "ref"], "additionalProperties": False}}},
@@ -210,8 +215,26 @@ def answer(registry: Registry, question: str, fill_in_assumptions: bool = False,
             "graph": graph_schema, "reason": {"type": "string"},
             "clarifications": {"type": "array", "items": {"type": "string"}}},
             "required": ["facts", "issues", "status", "graph", "reason", "clarifications"], "additionalProperties": False}
+        retrieval_log: dict[str, Any] = {"mode": retrieval, "version": RETRIEVAL_VERSION}
+        subset = dict(models)
+        retrieval_index = None
+        retrieval_neighbors = None
+        if retrieval == "subset":
+            retrieval_started = time.perf_counter()
+            retrieval_index = build_index(models)
+            retrieval_neighbors = neighbors_from_audit(audit_pairs(models))
+            shortlist = retrieve(question, retrieval_index, retrieval_neighbors,
+                                 k=retrieval_k, cap=retrieval_cap)
+            subset = {key: models[key] for key in shortlist.keys}
+            retrieval_log.update({"k": retrieval_k, "cap": retrieval_cap, "retrieved": len(subset),
+                                  "build_ms": round((time.perf_counter() - retrieval_started) * 1000.0, 1),
+                                  "seeds": list(shortlist.seeds), "expanded": list(shortlist.expanded),
+                                  "dropped": list(shortlist.dropped)})
+        elif retrieval != "full":
+            raise ModelError("Retrieval mode must be 'full' or 'subset'.")
+        record["retrieval"] = retrieval_log
         base_user_content = {"question": question, "solver_profile": PROFILE,
-                             "models": {key: catalog_card(model) for key, model in models.items()}}
+                             "models": {key: catalog_card(model) for key, model in subset.items()}}
         base_system = compose_system_prompt(fill_in_assumptions)
         prior: tuple[Any, str] | None = None
         for attempt in range(1, MAX_COMPOSE_ATTEMPTS + 1):
@@ -224,7 +247,15 @@ def answer(registry: Registry, question: str, fill_in_assumptions: bool = False,
                     repair_system = base_system + "\n\n" + load_prompt(REPAIR_PROMPT_FILE)
                 except ModelError:
                     break  # Keep the last attempt's error; repair is unavailable.
-                repair_user = {**base_user_content, "prior_proposal": prior[0], "machine_error": prior[1]}
+                repair_models = base_user_content["models"]
+                if retrieval == "subset" and retrieval_index is not None and retrieval_neighbors is not None:
+                    wide = retrieve(question, retrieval_index, retrieval_neighbors,
+                                    k=FALLBACK_K, cap=FALLBACK_CAP)
+                    repair_models = {key: catalog_card(models[key]) for key in wide.keys}
+                    retrieval_log["repair"] = {"k": FALLBACK_K, "cap": FALLBACK_CAP,
+                                               "retrieved": len(repair_models)}
+                repair_user = {"question": question, "solver_profile": PROFILE, "models": repair_models,
+                               "prior_proposal": prior[0], "machine_error": prior[1]}
                 messages = [{"role": "system", "content": repair_system},
                             {"role": "user", "content": json.dumps(repair_user)}]
             try:

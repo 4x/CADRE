@@ -1,0 +1,894 @@
+{
+  "batch_id": "water-hydraulics-use-b01",
+  "created": "2026-11-04",
+  "curator": "compat-water",
+  "deferred": [
+    {
+      "reason": "The solver composes the admitted building-energy density record over record-1 volumes; no separate water-mass record is prescribed.",
+      "source_urls": [],
+      "title": "Water mass from volume"
+    },
+    {
+      "reason": "Same Q x t shape as record 1; no second record for one shape.",
+      "source_urls": [],
+      "title": "Fixture/shower event volumes"
+    },
+    {
+      "reason": "Same Q x t shape as record 1; no second record for one shape.",
+      "source_urls": [],
+      "title": "Leak-loss volumes"
+    },
+    {
+      "reason": "Mass-balance family, future lane; not a single-interval accumulation.",
+      "source_urls": [],
+      "title": "Storage-tank balances"
+    },
+    {
+      "reason": "Offset-temperature risk; excluded by lane rule.",
+      "source_urls": [],
+      "title": "Water temperature mixing"
+    },
+    {
+      "reason": "Aligned tariff/consumption series, not the flat-tariff scalar definition of record 3.",
+      "source_urls": [],
+      "title": "Time-varying tariffs"
+    }
+  ],
+  "domain": "water-hydraulics",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "Scientific review pending for all 5 records (brief-23 review): oracles replay published figures, but applicability awaits review.",
+      "All 5 records are requires-extension (13 new meanings; 3 new units m3/person, USD/m3, m3/unit): record 1 could not be runtime-ready without a vocabulary change, and the curator is barred from editing runtime source, so the brief's record-1-runtime-ready expectation is not met by this bundle.",
+      "Registry reads were read-only on 2026-11-04; no staging, review, or admission was performed."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical validation 2026-11-04 with the central package: `validate` on the bundle JSON -> status valid-data-awaiting-review (5 models; 16 arithmetic, 10 rejection checks; all requires-extension, so no runtime projection is carried); `pack` -> water-hydraulics-use-b01-return.zip; `validate` on the ZIP -> valid-data-awaiting-review. Orphan survey over all 262 registry models (probe_survey.py, registry read-only): zero water-hydraulics admissions, zero lane-ID collisions, all 13 lane meanings and all 3 new units absent from the registry vocabulary and unused by any admitted port; the water_volume meaning is shared by records 1, 2, 3 and 5 under four different per-record contexts, so no in-lane leg binds. Brief deviations corrected at author time: (1) the lane carries 13 distinct meanings, not 12; (2) the brief's record-3 $999.00 figure is inconsistent with its own rounded inputs (414.5 x 2.41 = 998.945), so the bundle uses the exact conversion (109,500 gal = 414.502590348 m3; implied $2.4125301585/m3; forward $1,000.00); (3) the EPA 300-gal/day family figure was verified on the live How-We-Use-Water page (the Statistics page no longer carries it); (4) record-1 runtime-ready status was not taken because it needs a vocabulary change the curator may not ship. Checks not performed: independent scientific review (brief-23 review pending); no staging, review, or admission (out of scope).",
+    "summary": "Water-use lane batch water-hydraulics-use-b01 (curator compat-water): 5 definition records seeding the empty water-hydraulics domain on the demand/accounting side (flow-duration volume, per-capita use, volumetric cost, harvest volume, process intensity), each with a per-record context so the lane binds no existing chain and forms no in-lane legs. See data/curation/corrections/water-lane-brief-23.md."
+  },
+  "kit_version": "2026-10-31.10",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: the flow is steady (time-constant) over the stated interval; the published ratings used as oracles are capacity ratings, so the oracle volumes are capacity-scale accumulations, not metered deliveries.",
+        "Application profile: one conveyance (pipe, well discharge, pump-station outfall) and one continuous elapsed interval; Q, t and V share that conveyance and interval."
+      ],
+      "constants": [],
+      "guards": [
+        "Q >= 0",
+        "t >= 0"
+      ],
+      "id": "water-hydraulics--water-volume-from-flow-and-duration",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning volumetric_flow (volume-flow dimension) for the flow input.",
+          "New quantity meaning flow_duration (time dimension) for the duration input.",
+          "New quantity meaning water_volume (volume dimension) for the accumulated-volume output.",
+          "New per-record context for same conveyance, flow regime and interval; no admitted port shares it."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Q = V / t requires t > 0 with Q >= 0 re-checked; t = V / Q requires Q > 0 with t >= 0 re-checked. Substitution: V = 180, t = 3600 gives Q = 0.05, and forward 0.05 x 3600 = 180. Q = 0 with V = 0 leaves t underdetermined (any nonnegative duration fits); Q = 0 with V > 0 is impossible. Both rearrangements are solver-derived; no separate records are prescribed.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes time-varying flow, which needs integration over the hydrograph (deferred: no time-series record in this lane).",
+        "Excludes conveyance losses between the measurement point and the point of use; V is the volume passing the rated point.",
+        "Not a pump-selection record: head, efficiency, power and cavitation limits are out of scope."
+      ],
+      "references": [
+        {
+          "expected": 8176.48945344,
+          "id": "west-u-well-day",
+          "inputs": {
+            "Q": 0.0946352946,
+            "t": 86400
+          },
+          "method": "Published West University Place 1,500-GPM groundwater-well rating run for one day: 1500 x 60 x 24 = 2,160,000 gal, converted exactly to 8,176.48945344 m^3. Tolerance covers floating arithmetic only.",
+          "provenance": "Published oracle (capacity rating recomputed): https://www.westutx.gov/1519/Milton-Water-Plant-Improvements, Overview inventory.",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 180,
+          "id": "stipulated-pump-hour",
+          "inputs": {
+            "Q": 0.05,
+            "t": 3600
+          },
+          "method": "Curator-stipulated municipal-pump-scale check per brief 23: 0.05 m^3/s (about 790 gpm) for one hour gives 180 m^3. The scale matches published municipal ratings (West U 1,500-GPM well; Marshall HSPS 1,800-GPM pumps). Tolerance covers floating arithmetic only.",
+          "provenance": "Curator-stipulated scale case; not a metered delivery.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 45.424941408,
+          "id": "unit-closure-100gpm",
+          "inputs": {
+            "Q": 0.00630901964,
+            "t": 7200
+          },
+          "method": "Unit-closure row: 100 gpm for 2 h = 12,000 gal = 45.424941408 m^3 exactly. Tolerance covers floating arithmetic only.",
+          "provenance": "Curator unit-closure arithmetic on the exact gallon definition.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-flow-boundary",
+          "inputs": {
+            "Q": 0,
+            "t": 3600
+          },
+          "method": "Boundary: zero flow over any admitted duration accumulates zero volume.",
+          "provenance": "Curator boundary check; not observed data.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Q": -0.01,
+            "t": 3600
+          },
+          "kind": "domain",
+          "reason": "Q = -0.01 violates Q >= 0: reverse flow through the conveyance is outside this accumulation profile."
+        },
+        {
+          "inputs": {
+            "Q": 0.05
+          },
+          "kind": "missing-input",
+          "reason": "t is omitted: without the interval no accumulation is computable."
+        }
+      ],
+      "relationship": {
+        "expression": "Q * t",
+        "locator": "Overview: pump station inventory list",
+        "original_equation": "V = Q x t (volume accumulated at a steady volumetric flow over an interval)",
+        "output_symbol": "V",
+        "source_id": "west-u-milton-pump",
+        "translation_notes": "Q is the introduced flow symbol; t the introduced duration; V the introduced accumulated volume. Dimensional check: (L^3 T^-1) x T = L^3. Published pump ratings are in gallons per minute; oracle inputs use the exact U.S. gallon (231 cubic inches = 0.003785411784 m^3)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The city states its Milton Street Pump Station (built 1957) comprises one 1,500-GPM groundwater well, a four-booster-pump room rated 5,800 GPM, two ground storage tanks (1.5 MG and 0.4 MG), and a 1,500-GPM City of Houston surface-water connection.",
+          "id": "west-u-milton-pump",
+          "kind": "primary",
+          "license": "Municipal government publication; site terms not separately inspected; rights unknown.",
+          "locator": "Overview: pump station inventory list",
+          "redistribution": "Only short original paraphrases and attributed figures; no page text reproduced.",
+          "title": "City of West University Place, Milton Water Plant Improvements: Milton Street Pump Station inventory",
+          "url": "https://www.westutx.gov/1519/Milton-Water-Plant-Improvements",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The project page states the planned high service pump station will house four pumps each rated 1,800 gpm, with total station capacity 10.5 million gallons per day: corroborating municipal-pump scale for the stipulated case.",
+          "id": "marshall-hsps",
+          "kind": "primary",
+          "license": "Site terms not inspected; rights unknown.",
+          "locator": "Project 1 article body",
+          "redistribution": "Only short original paraphrases and attributed figures; no page text reproduced.",
+          "title": "Choose Marshall infrastructure expansion, Project 1: High Service Pump Station",
+          "url": "https://choosemarshall.com/news/water-and-wastewater-infrastructure-expansion-project-1-high-service-pump-station/",
+          "version": "Live HTML inspected 2026-11-04"
+        }
+      ],
+      "summary": "Accumulated water volume as steady volumetric flow times duration (V = Q t) for one conveyance and interval; municipal-pump scale oracles.",
+      "title": "Water volume from flow and duration",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same conveyance, flow regime and interval as Q, t and V.",
+          "definition": "Steady volumetric flow rate of water through the conveyance over the interval.",
+          "dimensions": "L^3 T^-1",
+          "domain": "Finite nonnegative rate; zero admits the no-flow boundary.",
+          "quantity_id": "volumetric_flow",
+          "role": "input",
+          "source_symbol": "Introduced Q = volumetric flow",
+          "symbol": "Q",
+          "unit": "m^3/s"
+        },
+        {
+          "context": "Same conveyance, flow regime and interval as Q, t and V.",
+          "definition": "Continuous elapsed duration over which the steady flow accumulates.",
+          "dimensions": "T",
+          "domain": "Finite nonnegative duration.",
+          "quantity_id": "flow_duration",
+          "role": "input",
+          "source_symbol": "Introduced t = flow duration",
+          "symbol": "t",
+          "unit": "s"
+        },
+        {
+          "context": "Same conveyance, flow regime and interval as Q, t and V.",
+          "definition": "Water volume passing the rated conveyance point over the interval.",
+          "dimensions": "length^3",
+          "domain": "Finite nonnegative volume.",
+          "quantity_id": "water_volume",
+          "role": "output",
+          "source_symbol": "Introduced V = accumulated volume",
+          "symbol": "V",
+          "unit": "m3"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: USGS public-supply domestic per-capita use, i.e. domestic deliveries divided by served population for the stated year (the release also reports the total-domestic series including self-supplied use).",
+        "Application profile: one served population, one day, one delivery boundary; V is the daily volume delivered inside that boundary."
+      ],
+      "constants": [],
+      "guards": [
+        "V >= 0",
+        "P > 0"
+      ],
+      "id": "water-hydraulics--per-capita-daily-water-use",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning water_volume (volume dimension) for the daily-volume input; shared with records 1, 3 and 5 under different per-record contexts, so no in-lane leg binds.",
+          "New quantity meaning served_population (dimensionless) for the population input.",
+          "New quantity meaning per_capita_daily_water_use (volume-per-count dimension) for the output.",
+          "New unit m3/person (volume dimensions, scale 1.0; person is dimensionless).",
+          "New per-record context for same served population, day and delivery boundary; no admitted port shares it."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "V = q x P given q and P; P = V / q requires q > 0 with P > 0 re-checked. Substitution: q = 0.310403766288, P = 1 gives V = 0.310403766288. q = 0 with V = 0 leaves P underdetermined; q = 0 with V > 0 is impossible. Solver-derived; no separate records.",
+      "kind": "definition",
+      "limitations": [
+        "Averages only: the record carries no per-household or seasonal distribution; peak-day sizing needs its own record.",
+        "Not the waste per-capita record: meanings and unit are water-specific and the records do not substitute."
+      ],
+      "references": [
+        {
+          "expected": 0.310403766288,
+          "id": "usgs-2015-82gpcd",
+          "inputs": {
+            "P": 1,
+            "V": 0.310403766288
+          },
+          "method": "Published USGS 2015 public-supply domestic per-capita use, 82 gal/person/day, converted exactly to 0.310403766288 m^3/person. Tolerance covers floating arithmetic only.",
+          "provenance": "Published oracle (unit-converted): https://www.usgs.gov/news/national-news-release/water-use-across-united-states-declines-levels-not-seen-1970; corroborated by https://www.epa.gov/watersense/statistics-and-facts.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.333116236992,
+          "id": "usgs-2010-88gpcd",
+          "inputs": {
+            "P": 1,
+            "V": 0.333116236992
+          },
+          "method": "Published USGS 2010 public-supply domestic per-capita use, 88 gal/person/day, converted exactly to 0.333116236992 m^3/person: vintage-independent recomputation of the same shape. Tolerance covers floating arithmetic only.",
+          "provenance": "Published oracle (unit-converted): https://www.usgs.gov/news/national-news-release/water-use-across-united-states-declines-levels-not-seen-1970.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "zero-use-boundary",
+          "inputs": {
+            "P": 1,
+            "V": 0
+          },
+          "method": "Boundary: zero delivered volume over any served population gives zero per-capita use.",
+          "provenance": "Curator boundary check; not observed data.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "P": 0,
+            "V": 0.310403766288
+          },
+          "kind": "domain",
+          "reason": "P = 0 violates P > 0 (per-capita use over an empty population is undefined)."
+        },
+        {
+          "inputs": {
+            "V": 0.310403766288
+          },
+          "kind": "missing-input",
+          "reason": "P is omitted: without the served population no per-capita figure is computable."
+        }
+      ],
+      "relationship": {
+        "expression": "V / P",
+        "locator": "Public-supply paragraph",
+        "original_equation": "q = V / P (daily delivered volume divided by served population)",
+        "output_symbol": "q",
+        "source_id": "usgs-2018-release",
+        "translation_notes": "V, P and q are introduced symbols for daily volume, served population and per-capita use. Dimensional check: L^3 / 1 = L^3 per person (person is dimensionless, mirroring the admitted t/person pattern). USGS figures are published in gallons per person per day and converted exactly."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The release states public-supply domestic per-capita use declined to 82 gallons per day in 2015 from 88 gallons per day in 2010, and total domestic per-capita use (public supply and self-supplied combined) fell from 87 to 82 gallons per day.",
+          "id": "usgs-2018-release",
+          "kind": "primary",
+          "license": "U.S. federal government work (17 U.S.C. 105 context); no third-party terms asserted by the page. No clearance claimed beyond the federal-work basis.",
+          "locator": "Public-supply paragraph",
+          "redistribution": "Only short original paraphrases and attributed figures; no page text reproduced.",
+          "title": "USGS National News Release: Water Use Across the United States Declines to Levels Not Seen Since 1970 (June 19, 2018)",
+          "url": "https://www.usgs.gov/news/national-news-release/water-use-across-united-states-declines-levels-not-seen-1970",
+          "version": "Live HTML inspected 2026-11-04; release dated 2018-06-19"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The page states each American uses an average of 82 gallons of water a day at home (citing USGS Estimated Use of Water in the United States in 2015); the average family spends more than $1,000 per year in water costs and can save more than $380 annually with efficient fixtures and appliances.",
+          "id": "epa-watersense-stats",
+          "kind": "primary",
+          "license": "U.S. federal government work (17 U.S.C. 105 context); no third-party terms asserted by the page. No clearance claimed beyond the federal-work basis.",
+          "locator": "Why Save Water? list",
+          "redistribution": "Only short original paraphrases and attributed figures; no page text reproduced.",
+          "title": "EPA WaterSense: Statistics and Facts",
+          "url": "https://www.epa.gov/watersense/statistics-and-facts",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The page identifies Circular 1441 (doi 10.3133/cir1441, Dieter et al.) reporting 2015 withdrawals of about 322 billion gallons per day, 9 percent below 2010, with public-supply withdrawals down 7 percent as population grew 4 percent.",
+          "id": "usgs-circ1441-pub",
+          "kind": "primary",
+          "license": "U.S. federal government work (17 U.S.C. 105 context); no third-party terms asserted by the page. No clearance claimed beyond the federal-work basis.",
+          "locator": "Publication page: citation and abstract",
+          "redistribution": "Only short original paraphrases and attributed figures; no page text reproduced.",
+          "title": "USGS Circular 1441 publication page: Estimated Use of Water in the United States in 2015 (Dieter et al.)",
+          "url": "https://www.usgs.gov/publications/estimated-use-water-united-states-2015",
+          "version": "Live HTML inspected 2026-11-04"
+        }
+      ],
+      "summary": "Daily water volume per served person (q = V / P); the water analogue of the admitted waste per-capita shape with its own meanings and unit.",
+      "title": "Per-capita daily water use",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same served population, day and delivery boundary as V, P and q.",
+          "definition": "Daily water volume delivered inside the stated delivery boundary.",
+          "dimensions": "length^3",
+          "domain": "Finite nonnegative volume; zero admits the no-delivery boundary.",
+          "quantity_id": "water_volume",
+          "role": "input",
+          "source_symbol": "Introduced V = daily volume",
+          "symbol": "V",
+          "unit": "m3"
+        },
+        {
+          "context": "Same served population, day and delivery boundary as V, P and q.",
+          "definition": "Number of persons served inside the delivery boundary on the stated day.",
+          "dimensions": "count",
+          "domain": "Finite strictly positive count.",
+          "quantity_id": "served_population",
+          "role": "input",
+          "source_symbol": "Introduced P = served population",
+          "symbol": "P",
+          "unit": "person"
+        },
+        {
+          "context": "Same served population, day and delivery boundary as V, P and q.",
+          "definition": "Daily delivered water volume per served person.",
+          "dimensions": "length^3 / count",
+          "domain": "Finite nonnegative per-capita use.",
+          "quantity_id": "per_capita_daily_water_use",
+          "role": "output",
+          "source_symbol": "Introduced q = per-capita use",
+          "symbol": "q",
+          "unit": "m3/person"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: a flat volumetric tariff applies to the whole billed volume in the interval; fixed service charges are excluded from C.",
+        "Application profile: one account, one billing interval, one tariff schedule; the EPA cross-arithmetic oracle treats the published $1,000/yr family figure as volumetric for the worked example."
+      ],
+      "constants": [],
+      "guards": [
+        "V >= 0",
+        "p >= 0"
+      ],
+      "id": "water-hydraulics--water-cost-from-volume-and-tariff",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning water_volume (volume dimension) for the billed-volume input; shared with records 1, 2 and 5 under different per-record contexts, so no in-lane leg binds.",
+          "New quantity meaning water_tariff (currency-per-volume dimension) for the tariff input.",
+          "New quantity meaning water_cost (currency dimension) for the output.",
+          "New unit USD/m3 (dimensions (0,-3,0,1,0,0,0), scale 1.0).",
+          "New per-record context for same account, billing interval and tariff schedule; no admitted port shares it."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "V = C / p requires p > 0 with V >= 0 re-checked; p = C / V requires V > 0 with p >= 0 re-checked. Substitution: C = 5.35, V = 2.8316846592 gives p = 1.8893346695996394, and forward 2.8316846592 x 1.8893346695996394 = 5.35. p = 0 with C = 0 leaves V underdetermined; p = 0 with C > 0 is impossible. Solver-derived; no separate records.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes tiered/block tariffs, seasonal rates and fixed charges; time-varying tariffs are a deferred series shape.",
+        "Not an electricity-cost relabel: volumetric water-tariff basis only (cubic meters are physical measures, never counted_unit_quantity)."
+      ],
+      "references": [
+        {
+          "expected": 1000,
+          "id": "epa-family-cross",
+          "inputs": {
+            "V": 414.502590348,
+            "p": 2.4125301585219034
+          },
+          "method": "Cross-family worked arithmetic from two published EPA figures: 300 gal/day x 365 days = 109,500 gal/yr = 414.502590348 m^3; $1,000/yr divided by that volume implies $2.4125301585/m^3; the forward check recovers $1,000.00. Brief 23 rounded the inputs to 414.5 x 2.41 (= 998.945, not its stated $999.00); this bundle uses the exact conversion. Tolerance covers floating arithmetic only.",
+          "provenance": "Cross-family worked arithmetic (labeled as such): https://www.epa.gov/watersense/how-we-use-water (300 gal/day) x https://www.epa.gov/watersense/statistics-and-facts ($1,000/yr).",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 5.35,
+          "id": "nyc-hcf-tariff",
+          "inputs": {
+            "V": 2.8316846592,
+            "p": 1.8893346695996394
+          },
+          "method": "Published NYC DEP metered tariff: 1 HCF at $5.35/HCF. Inputs convert the hundred cubic feet exactly (2.8316846592 m^3) and the tariff to $1.8893346696/m^3; the forward check recovers $5.35. Tolerance covers floating arithmetic only.",
+          "provenance": "Published oracle (unit-converted): https://www.nyc.gov/site/dep/pay-my-bills/how-we-bill-you.page, Water Rates.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-volume-boundary",
+          "inputs": {
+            "V": 0,
+            "p": 1.8893346695996394
+          },
+          "method": "Boundary: zero billed volume at any admitted tariff gives zero volumetric cost.",
+          "provenance": "Curator boundary check; not observed data.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "V": -1,
+            "p": 1.8893346695996394
+          },
+          "kind": "domain",
+          "reason": "V = -1 violates V >= 0: negative billed volume is outside this cost profile."
+        },
+        {
+          "inputs": {
+            "V": 2.8316846592
+          },
+          "kind": "missing-input",
+          "reason": "p is omitted: without the tariff no cost is computable."
+        }
+      ],
+      "relationship": {
+        "expression": "V * p",
+        "locator": "Water Rates section",
+        "original_equation": "C = V x p (billed volume times flat volumetric tariff)",
+        "output_symbol": "C",
+        "source_id": "nyc-dep-how-we-bill-you",
+        "translation_notes": "V, p and C are introduced symbols for billed volume, volumetric tariff and cost. Dimensional check: L^3 x currency L^-3 = currency. The EPA oracle combines two separately published figures (300 gal/day family use; $1,000/yr family cost) into an implied tariff; it is labeled cross-family worked arithmetic, not a published tariff. The NYC oracle converts the published $5.35/HCF tariff with the exact hundred cubic feet (2.8316846592 m^3)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The page states each American uses an average of 82 gallons of water a day at home (citing USGS 2015); the average family spends more than $1,000 per year in water costs and can save more than $380 annually with efficient fixtures and appliances.",
+          "id": "epa-watersense-stats",
+          "kind": "primary",
+          "license": "U.S. federal government work (17 U.S.C. 105 context); no third-party terms asserted by the page. No clearance claimed beyond the federal-work basis.",
+          "locator": "Why Save Water? list",
+          "redistribution": "Only short original paraphrases and attributed figures; no page text reproduced.",
+          "title": "EPA WaterSense: Statistics and Facts",
+          "url": "https://www.epa.gov/watersense/statistics-and-facts",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The page states the average American family uses more than 300 gallons of water per day at home, roughly 70 percent of it indoors.",
+          "id": "epa-how-we-use-water",
+          "kind": "primary",
+          "license": "U.S. federal government work (17 U.S.C. 105 context); no third-party terms asserted by the page. No clearance claimed beyond the federal-work basis.",
+          "locator": "Water in Daily Life section",
+          "redistribution": "Only short original paraphrases and attributed figures; no page text reproduced.",
+          "title": "EPA WaterSense: How We Use Water",
+          "url": "https://www.epa.gov/watersense/how-we-use-water",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The page states that for the fiscal year beginning July 1, 2026 the metered water rate is $5.35 per 100 cubic feet, billed in hundred-cubic-foot units with 1 HCF = 748 gallons.",
+          "id": "nyc-dep-how-we-bill-you",
+          "kind": "primary",
+          "license": "Municipal government publication; site terms not separately inspected; rights unknown.",
+          "locator": "Water Rates section",
+          "redistribution": "Only short original paraphrases and attributed figures; no page text reproduced.",
+          "title": "NYC Department of Environmental Protection: How We Bill You",
+          "url": "https://www.nyc.gov/site/dep/pay-my-bills/how-we-bill-you.page",
+          "version": "Live HTML inspected 2026-11-04; fiscal year beginning July 1, 2026"
+        }
+      ],
+      "summary": "Billed water cost as volume times volumetric tariff (C = V p); volumetric-tariff basis, not an electricity-cost relabel.",
+      "title": "Water cost from volume and tariff",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same account, billing interval and tariff schedule as V, p and C.",
+          "definition": "Billed water volume on the account over the billing interval.",
+          "dimensions": "length^3",
+          "domain": "Finite nonnegative volume; zero admits the no-consumption boundary.",
+          "quantity_id": "water_volume",
+          "role": "input",
+          "source_symbol": "Introduced V = billed volume",
+          "symbol": "V",
+          "unit": "m3"
+        },
+        {
+          "context": "Same account, billing interval and tariff schedule as V, p and C.",
+          "definition": "Flat volumetric water tariff on the account tariff schedule.",
+          "dimensions": "currency length^-3",
+          "domain": "Finite nonnegative tariff.",
+          "quantity_id": "water_tariff",
+          "role": "input",
+          "source_symbol": "Introduced p = volumetric tariff",
+          "symbol": "p",
+          "unit": "USD/m3"
+        },
+        {
+          "context": "Same account, billing interval and tariff schedule as V, p and C.",
+          "definition": "Volumetric water cost on the account over the billing interval, excluding fixed charges.",
+          "dimensions": "currency",
+          "domain": "Finite nonnegative cost.",
+          "quantity_id": "water_cost",
+          "role": "output",
+          "source_symbol": "Introduced C = water cost",
+          "symbol": "C",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: uniform rainfall depth over the catchment and a single collection efficiency covering first-flush diversion, evaporation, splash-out and gutter losses.",
+        "Application profile: one catchment (roof/impervious surface), one storm or accounting event, one collection system."
+      ],
+      "constants": [],
+      "guards": [
+        "A >= 0",
+        "d >= 0",
+        "e >= 0",
+        "e <= 1"
+      ],
+      "id": "water-hydraulics--rainwater-harvest-volume",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning catchment_area (area dimension) for the catchment input.",
+          "New quantity meaning rainfall_depth (length dimension) for the depth input.",
+          "New quantity meaning collection_efficiency (dimensionless) for the efficiency input.",
+          "New quantity meaning harvested_rainwater (volume dimension) for the output.",
+          "New per-record context for same catchment, storm/event and collection system; no admitted port shares it."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "A = V / (d x e) requires d > 0 and e > 0; d = V / (A x e) requires A > 0 and e > 0; e = V / (A x d) requires A > 0, d > 0 and the quotient within [0, 1]. Substitution: V = 2.359737216, d = 0.0254, e = 1 gives A = 92.90304. e = 0 with V = 0 leaves A and d underdetermined. Solver-derived; no separate records.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes storage sizing, overflow routing and water-quality treatment; harvested volume only.",
+        "Efficiency is an aggregate factor, not a per-loss-component model."
+      ],
+      "references": [
+        {
+          "expected": 2.359737216,
+          "id": "ucanr-623-rule",
+          "inputs": {
+            "A": 92.90304,
+            "d": 0.0254,
+            "e": 1
+          },
+          "method": "Published UC ANR rule case: 1,000 sq ft x 1 in at full collection. Exact SI inputs give 2.359737216 m^3 (= 623.38 gal); the published 'about 623 gal' rounds the exact 0.623376 gal/sq-ft/in factor to 0.623. Tolerance covers floating arithmetic only.",
+          "provenance": "Published oracle (unit-converted): https://ucanr.edu/blog/water-supply-security-wss/article/rainwater-home-capture-use-and-safe-overflow; corroborated by https://pamlico.ces.ncsu.edu/news/rainwater-harvesting-rain-barrels/.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 60.4092727296,
+          "id": "texas-80pct-case",
+          "inputs": {
+            "A": 92.90304,
+            "d": 0.8128,
+            "e": 0.8
+          },
+          "method": "Published Texas Water Newsroom case parameters (1,000 sq ft; 32 in/yr Hill Country; 80% efficiency) recomputed in exact SI: 60.4092727296 m^3 (= 15,958.4 gal), inside the published 'about 16,000 gal/yr'. The 0.623-factor recomputation gives 15,948.8 gal; the 9.6-gal gap is the 3-decimal rounding of the 0.623 factor. Tolerance covers floating arithmetic only.",
+          "provenance": "Published oracle (case parameters recomputed): https://texaswaternewsroom.org/articles/start_rainwater_harvesting.html.",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 0,
+          "id": "zero-efficiency-boundary",
+          "inputs": {
+            "A": 92.90304,
+            "d": 0.0254,
+            "e": 0
+          },
+          "method": "Boundary: zero collection efficiency captures nothing (no-capture case).",
+          "provenance": "Curator boundary check; not observed data.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A": 92.90304,
+            "d": 0.0254,
+            "e": 1.2
+          },
+          "kind": "domain",
+          "reason": "e = 1.2 violates e <= 1: efficiency above unity would capture more than falls (guard-scope case)."
+        },
+        {
+          "inputs": {
+            "A": 92.90304,
+            "d": 0.0254
+          },
+          "kind": "missing-input",
+          "reason": "e is omitted: without the collection efficiency no harvested volume is computable."
+        }
+      ],
+      "relationship": {
+        "expression": "A * d * e",
+        "locator": "Estimating roof runoff volume and flow section",
+        "original_equation": "Gallons = Rainfall (inches) x Roof Area (sq ft) x 0.623 (x efficiency)",
+        "output_symbol": "V",
+        "source_id": "ucanr-rainwater-home",
+        "translation_notes": "A, d, e and V are introduced symbols for catchment area, rainfall depth, collection efficiency and harvested volume. Dimensional check: L^2 x L x 1 = L^3. The 0.623 factor in the rainwater literature is the 3-decimal rounding of the exact 144/231 = 0.623376... gal per sq ft per inch; references use exact SI inputs and document the rounding gap."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The article states one inch of rain on a 1,000-square-foot roof drainage area yields about 623 gallons before collection losses, derives 0.623 gal per sq ft per inch from 144 cubic inches per sq ft per inch over 231 cubic inches per gallon, and gives Volume (gal) = area (sq ft) x rainfall (in) x 0.623.",
+          "id": "ucanr-rainwater-home",
+          "kind": "primary",
+          "license": "Site terms not inspected; rights unknown.",
+          "locator": "Estimating roof runoff volume and flow section",
+          "redistribution": "Only short original paraphrases and attributed figures; no page text reproduced.",
+          "title": "UC Agriculture and Natural Resources, Water Supply Security blog: Rainwater at Home: Capture, Use, and Safe Overflow (Esther N. Lofton, Oct 31, 2026)",
+          "url": "https://ucanr.edu/blog/water-supply-security-wss/article/rainwater-home-capture-use-and-safe-overflow",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The article derives 0.623 gallons per square foot per inch from 7.48 gallons per cubic foot, gives Gallons = Rainfall (in) x Roof Area (sq ft) x 0.623, and works the case of a 1,000-sq-ft roof in the 32-inch/yr Texas Hill Country at about 80 percent efficiency collecting about 16,000 gallons annually.",
+          "id": "texas-water-newsroom-harvest",
+          "kind": "primary",
+          "license": "Site terms not inspected; rights unknown.",
+          "locator": "Calculate how much water you can collect section",
+          "redistribution": "Only short original paraphrases and attributed figures; no page text reproduced.",
+          "title": "Texas Water Newsroom (TWDB): Simple steps to harvest rainwater in Texas like a pro (May 15, 2025)",
+          "url": "https://texaswaternewsroom.org/articles/start_rainwater_harvesting.html",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The article states one inch of rainfall depth over 1,000 square feet produces 623 gallons of water: independent third-publisher corroboration of the rule (not the formula authority).",
+          "id": "ncsu-pamlico-rain-barrels",
+          "kind": "primary",
+          "license": "Site terms not inspected; rights unknown.",
+          "locator": "Benefits of rainwater harvesting passage",
+          "redistribution": "Only short original paraphrases and attributed figures; no page text reproduced.",
+          "title": "N.C. Cooperative Extension, Pamlico County Center: Raindrops Are Falling, Catch Them! (Daniel Simpson, Sept 14, 2026)",
+          "url": "https://pamlico.ces.ncsu.edu/news/rainwater-harvesting-rain-barrels/",
+          "version": "Live HTML inspected 2026-11-04"
+        }
+      ],
+      "summary": "Collected rainwater as catchment area times rainfall depth times collection efficiency (V = A d e); the 0.623 gal/sq-ft/in rule in SI.",
+      "title": "Rainwater harvest volume",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same catchment, storm/event and collection system as A, d, e and V.",
+          "definition": "Plan area of the rainwater catchment (roof or impervious surface).",
+          "dimensions": "length^2",
+          "domain": "Finite nonnegative area.",
+          "quantity_id": "catchment_area",
+          "role": "input",
+          "source_symbol": "Introduced A = catchment area",
+          "symbol": "A",
+          "unit": "m2"
+        },
+        {
+          "context": "Same catchment, storm/event and collection system as A, d, e and V.",
+          "definition": "Rainfall depth over the catchment for the storm or accounting event.",
+          "dimensions": "L",
+          "domain": "Finite nonnegative depth.",
+          "quantity_id": "rainfall_depth",
+          "role": "input",
+          "source_symbol": "Introduced d = rainfall depth",
+          "symbol": "d",
+          "unit": "m"
+        },
+        {
+          "context": "Same catchment, storm/event and collection system as A, d, e and V.",
+          "definition": "Fraction of incident rainwater captured, aggregating first-flush, evaporation, splash-out and gutter losses.",
+          "dimensions": "dimensionless",
+          "domain": "Closed unit interval [0, 1]; values above 1 are guard-scope rejections.",
+          "quantity_id": "collection_efficiency",
+          "role": "input",
+          "source_symbol": "Introduced e = collection efficiency",
+          "symbol": "e",
+          "unit": "1"
+        },
+        {
+          "context": "Same catchment, storm/event and collection system as A, d, e and V.",
+          "definition": "Rainwater volume collected from the catchment over the event.",
+          "dimensions": "length^3",
+          "domain": "Finite nonnegative volume.",
+          "quantity_id": "harvested_rainwater",
+          "role": "output",
+          "source_symbol": "Introduced V = harvested volume",
+          "symbol": "V",
+          "unit": "m3"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: published corporate water-use ratios divide total freshwater used for production by total finished-product output over the reporting year; the oracle counting basis is liters of finished beverage.",
+        "Application profile: one facility or reporting system, one process scope, one accounting interval, one output counting basis."
+      ],
+      "constants": [],
+      "guards": [
+        "W >= 0",
+        "Q > 0"
+      ],
+      "id": "water-hydraulics--process-water-intensity",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning water_volume (volume dimension) for the production-water input; shared with records 1, 2 and 3 under different per-record contexts, so no in-lane leg binds.",
+          "New quantity meaning product_output (dimensionless) for the output input.",
+          "New quantity meaning water_intensity (volume-per-count dimension) for the output.",
+          "New unit m3/unit (volume dimensions, scale 1.0).",
+          "New per-record context for same facility, process, accounting interval and output counting basis; no admitted port shares it."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "W = I x Q given I and Q; Q = W / I requires I > 0 with Q > 0 re-checked. Substitution: I = 0.0016, Q = 1000 gives W = 1.6, and forward 1.6 / 1000 = 0.0016. I = 0 with W = 0 leaves Q underdetermined; I = 0 with W > 0 is impossible. Solver-derived; no separate records.",
+      "kind": "definition",
+      "limitations": [
+        "Intensity is an average rate: it carries no marginal or allocation semantics across products or plants.",
+        "Not the emission-intensity record: meanings and unit are water-specific and the records do not substitute."
+      ],
+      "references": [
+        {
+          "expected": 0.0016,
+          "id": "pepsico-2025-beverage",
+          "inputs": {
+            "Q": 1000,
+            "W": 1.6
+          },
+          "method": "Published PepsiCo 2025 high-water-risk beverage efficiency, 1.6 L water per L beverage: 1.6 m^3 over 1,000 liter-units of finished beverage gives 0.0016 m^3/unit. Tolerance covers floating arithmetic only.",
+          "provenance": "Published oracle (unit-converted): https://www.pepsico.com/esg-topics/water.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.00185,
+          "id": "swire-2025-wur",
+          "inputs": {
+            "Q": 1000,
+            "W": 1.85
+          },
+          "method": "Published Swire Coca-Cola overall 2025 water use ratio, 1.85 L per L finished product: 1.85 m^3 over 1,000 liter-units gives 0.00185 m^3/unit. Independent second publisher. Tolerance covers floating arithmetic only.",
+          "provenance": "Published oracle (unit-converted): https://sr.swirepacific.com/en/sr2025/swire-pacific-sd-2050/water.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "dry-process-boundary",
+          "inputs": {
+            "Q": 1000,
+            "W": 0
+          },
+          "method": "Boundary: a dry process (zero production water) has zero intensity at any positive output.",
+          "provenance": "Curator boundary check; not observed data.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Q": 0,
+            "W": 1.6
+          },
+          "kind": "domain",
+          "reason": "Q = 0 violates Q > 0 (intensity over zero output is undefined)."
+        },
+        {
+          "inputs": {
+            "W": 1.6
+          },
+          "kind": "missing-input",
+          "reason": "Q is omitted: without the product output no intensity is computable."
+        }
+      ],
+      "relationship": {
+        "expression": "W / Q",
+        "locator": "2030 goals progress and methodology passages",
+        "original_equation": "I = W / Q (production water use divided by product output on the stated counting basis)",
+        "output_symbol": "I",
+        "source_id": "pepsico-water-esg",
+        "translation_notes": "W, Q and I are introduced symbols for production water use, product output and intensity. Dimensional check: L^3 / 1 = L^3 per unit (unit counts are dimensionless, mirroring the admitted kg/unit pattern). Published beverage ratios are liters of water per liter of finished beverage; oracle Q counts liter-units of finished beverage so the quotient reproduces the published ratio."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The page reports water-use efficiency in high-water-risk beverage facilities of 1.6 liters per liter in 2025 (1.7 in 2024), defines the beverage metric as total liters of freshwater used for beverage production divided by total liters of beverage production, and counts freshwater only.",
+          "id": "pepsico-water-esg",
+          "kind": "primary",
+          "license": "Corporate publication; all rights reserved assumed; site terms not separately inspected.",
+          "locator": "2030 goals progress and methodology passages",
+          "redistribution": "Only short original paraphrases and attributed figures; no page text reproduced.",
+          "title": "PepsiCo ESG Topics: Water (pep+ water stewardship disclosure)",
+          "url": "https://www.pepsico.com/esg-topics/water",
+          "version": "Live HTML inspected 2026-11-04; page last updated June 5, 2026"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The report states Swire Coca-Cola, about 87 percent of group water use, tracks manufacturing efficiency with the water use ratio (litres of water per litre of finished product) and that its overall 2025 WUR was 1.85, up 0.5 percent from 2024.",
+          "id": "swire-coca-cola-sr2025-water",
+          "kind": "primary",
+          "license": "Corporate publication; all rights reserved assumed; site terms not separately inspected.",
+          "locator": "Swire Coca-Cola WUR passage",
+          "redistribution": "Only short original paraphrases and attributed figures; no page text reproduced.",
+          "title": "Swire Pacific Sustainability Report 2025: Water (Swire Coca-Cola water use ratio)",
+          "url": "https://sr.swirepacific.com/en/sr2025/swire-pacific-sd-2050/water",
+          "version": "Live HTML inspected 2026-11-04; 2025 report"
+        }
+      ],
+      "summary": "Water use per unit of product output (I = W / Q); the water analogue of the admitted emission-intensity shape with its own meanings and unit.",
+      "title": "Process water intensity",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same facility, process, accounting interval and output counting basis as W, Q and I.",
+          "definition": "Production water volume used over the accounting interval.",
+          "dimensions": "length^3",
+          "domain": "Finite nonnegative volume; zero admits the dry-process boundary.",
+          "quantity_id": "water_volume",
+          "role": "input",
+          "source_symbol": "Introduced W = production water",
+          "symbol": "W",
+          "unit": "m3"
+        },
+        {
+          "context": "Same facility, process, accounting interval and output counting basis as W, Q and I.",
+          "definition": "Finished-product output over the accounting interval, counted on the stated output counting basis.",
+          "dimensions": "count",
+          "domain": "Finite strictly positive count.",
+          "quantity_id": "product_output",
+          "role": "input",
+          "source_symbol": "Introduced Q = product output",
+          "symbol": "Q",
+          "unit": "unit"
+        },
+        {
+          "context": "Same facility, process, accounting interval and output counting basis as W, Q and I.",
+          "definition": "Production water volume per unit of product output.",
+          "dimensions": "length^3 / count",
+          "domain": "Finite nonnegative intensity.",
+          "quantity_id": "water_intensity",
+          "role": "output",
+          "source_symbol": "Introduced I = water intensity",
+          "symbol": "I",
+          "unit": "m3/unit"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

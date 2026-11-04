@@ -1,0 +1,331 @@
+{
+  "batch_id": "engineering-finance-rateguard-b02",
+  "created": "2026-11-04",
+  "curator": "rate-guard-r2-curator; brief-29 single-record correction batch",
+  "deferred": [
+    {
+      "reason": "Per-period rates above 10% (crisis or hyperinflationary regimes) stay excluded: the published FEMP scope caps the real DOE rate at 10% (10 CFR 436), and such a regime would need its own record with its own sources, never a guard relaxation here.",
+      "source_urls": [],
+      "title": "Above-ceiling periodic rates"
+    },
+    {
+      "reason": "PV = annual * years at rate 0 is a separate expression for a separate record; it must never be folded into this record by relaxing rate > 0.",
+      "source_urls": [],
+      "title": "Zero-rate limit branch"
+    }
+  ],
+  "domain": "engineering-finance",
+  "example_only": false,
+  "handoff": {
+    "connections": [
+      "annual-saving@1 output annual_saving (home-A representative-year context) feeds this record's annual input, and this record's present_value output feeds net-present-value@1 benefit (home-A valuation-date context): the same home-A chain uniform-present-value@source-3 serves, with byte-identical port triples (verified read-only)."
+    ],
+    "gaps": [],
+    "queries": [],
+    "review_notes": "Succession: this record (engineering-finance--uniform-present-value, r2) formally supersedes uniform-present-value@source-3 via duplicate_of; reissue under the original id is impossible (kit requires ID beginning engineering-finance--). ADMISSION NOTE: on admission of this record, retire uniform-present-value@source-3 so the two do not coexist as duplicate relationships; admitted source-3 stands untouched by this batch. Nothing was staged, reviewed, admitted, or modified in the registry, and no runtime source was edited. Byte-identity verified read-only against the registry: expression, all four port triples, guards rate > 0 / years >= 1 / years <= 100, and all 14 source-3 assumption strings are byte-identical; r2 changes are exactly the tightened rate <= 0.1 guard (B3), one scope-justification assumption sentence citing the 10 CFR 436 ceiling, the corrected boundary reference and added 100%-rejection (B3), corrected NIST locators (B1), the retracted stale-fragment claim with #page=61 kept as best single locator (B2), the 12-decimal root with corrected residual (B4), duplicate_of supersession metadata (B5), qualified evidence wording (B6), and new research metadata. NIST lead CHECKED: fresh 2026-11-04 fetch resolves to the live NIST HB 135-2020 PDF (HTTP 200, 6,143,537 bytes, DOI verified in-document); Eq. 3-7 and the $457.97 example verified on PDF p. 61, the 3%-10% bounds on PDF p. 67, Table 5-1/5.1.2/Tables 5-2 to 5-5 on PDF pp. 98-106, and 8.6.6.1 (2.15% non-DOE rate) on PDF p. 160, all by extraction. UMD and Wikipedia URLs re-fetched 200 OK 2026-11-04 with oracle values confirmed. Checks performed: repo validator on bundle JSON and packed return ZIP; all reference arithmetics replayed; bisection rerun over (0, 0.1] (0.0300034523, 1,112 evaluations) and source-3-shaped unsupported_degree refusal both observed; Newton root 0.030003452365 with residual 1.5e-07. Checks not performed: independent re-review of admitted source-3 (out of scope per the brief); live admission battery entry (follows on admission).",
+    "summary": "One rate-guarded revision of uniform-present-value at r2 (4 arithmetic checks including the required implied-rate inversion, 7 rejection checks including the above-ceiling cases). Resolves all six revBP blockers on b01: corrected NIST locators, retracted stale-fragment claim, ceiling tightened to the published 10%, root/residual corrected, formal supersession of source-3, qualified evidence wording."
+  },
+  "kit_version": "2026-10-31.10",
+  "models": [
+    {
+      "assumptions": [
+        "annual is baseline-minus-alternative operating savings for home-A representative year",
+        "annual is constant in real terms without escalation",
+        "annual excludes maintenance differences and replacements",
+        "cashflows occur at year-end for each service year",
+        "rate is an annual-effective real discount rate excluding general inflation",
+        "price bases are not mixed: constant dollars discounted at real rate",
+        "equal-amount factor is applied to the conditional savings stream",
+        "rate lies within (0, 0.1]: 10 CFR 436 via NIST HB 135 section 3.3.2 (PDF p. 67/printed p. 35) bounds the real DOE discount rate between 3% and 10%, so the 10%-per-period ceiling matches the published FEMP application scope"
+      ],
+      "constants": [],
+      "guards": [
+        "rate > 0",
+        "rate <= 0.1",
+        "years >= 1",
+        "years <= 100"
+      ],
+      "id": "engineering-finance--uniform-present-value",
+      "integration": {
+        "duplicate_of": [
+          "uniform-present-value@source-3"
+        ],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "annual is baseline-minus-alternative operating savings for home-A representative year",
+            "annual is constant in real terms without escalation",
+            "annual excludes maintenance differences and replacements",
+            "cashflows occur at year-end for each service year",
+            "rate is an annual-effective real discount rate excluding general inflation",
+            "price bases are not mixed: constant dollars discounted at real rate",
+            "equal-amount factor is applied to the conditional savings stream",
+            "Limitation: only positive annual discount rates are executable; zero rate has no definition and is excluded",
+            "Limitation: only integer years 1 through 100 are executable",
+            "Limitation: only year-end constant real amounts are executable",
+            "Limitation: variable, escalated, maintenance-difference, or replacement cashflows are excluded",
+            "Limitation: application scope is home-A valuation-date in constant real prices; broader homes or periods are not claimed",
+            "Limitation: empirical savings and universal forecasting are not claimed",
+            "Limitation: numerical precision of floating-point evaluation is not guaranteed by source",
+            "rate lies within (0, 0.1]: 10 CFR 436 via NIST HB 135 section 3.3.2 (PDF p. 67/printed p. 35) bounds the real DOE discount rate between 3% and 10%, so the 10%-per-period ceiling matches the published FEMP application scope"
+          ],
+          "expression": "annual * ((1 + rate) ** years - 1) / (rate * (1 + rate) ** years)",
+          "guards": [
+            "rate > 0",
+            "rate <= 0.1",
+            "years >= 1",
+            "years <= 100"
+          ],
+          "id": "engineering-finance--uniform-present-value",
+          "inputs": {
+            "annual": {
+              "context": "home-A:representative-year:constant-real-prices",
+              "meaning": "annual_saving",
+              "unit": "USD"
+            },
+            "rate": {
+              "context": "annual-effective-real:year-end-cashflows",
+              "meaning": "discount_rate",
+              "unit": "1"
+            },
+            "years": {
+              "context": "annual-period-count",
+              "meaning": "period_count",
+              "unit": "1"
+            }
+          },
+          "output": {
+            "context": "home-A:valuation-date:constant-real-prices",
+            "meaning": "present_value",
+            "unit": "USD"
+          },
+          "source": "https://nvlpubs.nist.gov/nistpubs/hb/2020/NIST.HB.135-2020.pdf#page=61",
+          "version": "r2"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "annual is linear given rate and years (exact rational-polynomial view). rate has no exact view: substitution gives degree above two, so exact solving reports unsupported_degree (verified against the source-3-shaped model, which preserves that diagnostic for lack of a finite bracket); with the rate <= 0.1 ceiling the finite bracket (0, 0.1] admits scan-then-bisection, which recovers 0.0300034523 from the published NIST Table 5-3 case (8000, 20 yr, PV 119016) in 1,112 evaluations. years is period_count, so the equal-relation view enumerates the guarded integers 1..100. Substitution check at years = 1 gives annual / (1 + rate) (verified to 1e-13). The rate-to-0 limit branch PV = annual * years is a different expression, never a guard relaxation.",
+      "kind": "theoretical",
+      "limitations": [
+        "Limitation: only positive annual discount rates are executable; zero rate has no definition and is excluded",
+        "Limitation: only integer years 1 through 100 are executable",
+        "Limitation: only year-end constant real amounts are executable",
+        "Limitation: variable, escalated, maintenance-difference, or replacement cashflows are excluded",
+        "Limitation: application scope is home-A valuation-date in constant real prices; broader homes or periods are not claimed",
+        "Limitation: empirical savings and universal forecasting are not claimed",
+        "Limitation: numerical precision of floating-point evaluation is not guaranteed by source"
+      ],
+      "references": [
+        {
+          "expected": 104139,
+          "id": "nist-table5-omr-base-case",
+          "inputs": {
+            "annual": 7000,
+            "rate": 0.03,
+            "years": 20
+          },
+          "method": "Published NIST Table 5-2 row: $7,000/yr OM&R over 20 yr at the 3% real FEMP rate prices at UPV factor 14.877, giving $104,139; the closed form gives 104,142.32 and the tolerance covers the table's 3-decimal factor rounding. Cross-checked by summing twenty individual discounted cash flows.",
+          "provenance": "Published oracle in NIST HB 135-2020 Table 5-2 (Base Case, OM&R row)",
+          "tolerance": 5
+        },
+        {
+          "expected": 533.49,
+          "id": "umd-present-worth-example",
+          "inputs": {
+            "annual": 100,
+            "rate": 0.1,
+            "years": 8
+          },
+          "method": "Published UMD worked example: A=100, i=10%, n=8 gives P=533.49; the closed form gives 533.4926. Cross-checked by summing eight individual discounted cash flows. The 10% rate sits exactly at the published ceiling, so this oracle also exercises the guard boundary.",
+          "provenance": "Published worked example in the UMD tutorial, Equal-Payment-Series Present-Worth Factor section",
+          "tolerance": 0.01
+        },
+        {
+          "expected": 119016,
+          "id": "implied-rate-from-nist-case",
+          "inputs": {
+            "annual": 8000,
+            "rate": 0.03,
+            "years": 20
+          },
+          "method": "Published NIST Table 5-3 case ($8,000/yr, 20 yr, PV $119,016 at 3% real) recomputed by solving for rate: scan-then-bisection over the guarded bracket (0, 0.1] returns 0.0300034523 in 1,112 evaluations (solver output residual 7.0e-05); independent Newton solve gives 0.030003452365 (forward residual 1.5e-07), matching the published 3% to four decimals; the offset reflects the table's 3-decimal factor rounding. Forward replay at the published 3% gives 119,019.80, within the rounding tolerance. r1 correction: the r1 8-decimal quote 0.03000345 has forward residual 2.6e-03, not 7.1e-05 as stated.",
+          "provenance": "Published NIST oracle (Table 5-3, OM&R row) plus curator rate inversion documenting the bisection path the finite ceiling keeps",
+          "tolerance": 5
+        },
+        {
+          "expected": 379.078677,
+          "id": "rate-ceiling-boundary",
+          "inputs": {
+            "annual": 100,
+            "rate": 0.1,
+            "years": 5
+          },
+          "method": "Guard-scope boundary: at the 10%-per-period ceiling the closed form gives 379.0786769, quoted as 379.078677.",
+          "provenance": "Curator boundary check on the tightened upper guard; not a published case",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "annual": 100,
+            "rate": 1.5,
+            "years": 5
+          },
+          "kind": "domain",
+          "reason": "Periodic rate 150% exceeds the 10%-per-period published ceiling (rate <= 0.1); no published FEMP case approaches this regime."
+        },
+        {
+          "inputs": {
+            "annual": 100,
+            "rate": 1.0,
+            "years": 5
+          },
+          "kind": "domain",
+          "reason": "Periodic rate 100% exceeds the 10% ceiling (rate <= 0.1): the r1 100% envelope boundary is outside the published FEMP application scope (10 CFR 436 caps the real DOE rate at 10%)."
+        },
+        {
+          "inputs": {
+            "annual": 100,
+            "rate": 0,
+            "years": 5
+          },
+          "kind": "domain",
+          "reason": "Zero rate makes the divisor zero and needs the separate limit branch PV = annual * years; excluded by rate > 0 (byte-identical to source-3)."
+        },
+        {
+          "inputs": {
+            "annual": 100,
+            "rate": -0.05,
+            "years": 5
+          },
+          "kind": "domain",
+          "reason": "Negative discount rates are outside the FEMP scope and excluded by rate > 0 (byte-identical to source-3)."
+        },
+        {
+          "inputs": {
+            "annual": 100,
+            "rate": 0.05,
+            "years": 0
+          },
+          "kind": "domain",
+          "reason": "Zero years is an empty series; excluded by years >= 1 (byte-identical to source-3)."
+        },
+        {
+          "inputs": {
+            "annual": 100,
+            "rate": 0.05,
+            "years": 101
+          },
+          "kind": "domain",
+          "reason": "Horizons beyond 100 years exceed the study-period scope; excluded by years <= 100 (byte-identical to source-3)."
+        },
+        {
+          "inputs": {
+            "annual": 100,
+            "rate": 0.05
+          },
+          "kind": "missing-input",
+          "reason": "Term count years is required; the horizon is undefined without it."
+        }
+      ],
+      "relationship": {
+        "expression": "annual * ((1 + rate) ** years - 1) / (rate * (1 + rate) ** years)",
+        "locator": "Interest Formulae: Equal-Payment-Series Present-Worth Factor (boxed factor; Example 1 with A=100, i=10%, n=8 giving P=533.49).",
+        "original_equation": "P = A * ([1+i]^n - 1) / (i * [1+i]^n)",
+        "output_symbol": "pv",
+        "source_id": "umd-ence202",
+        "translation_notes": "UMD symbols map A -> annual, i -> rate, n -> years, P -> pv; the boxed factor is transcribed verbatim into scalar syntax. Dimensional check: USD times a dimensionless factor stays USD. Guards rate > 0, years >= 1, years <= 100 are byte-identical to uniform-present-value@source-3; rate <= 0.1 encodes the 10 CFR 436 ceiling on the real DOE discount rate (NIST HB 135 section 3.3.2, PDF p. 67/printed p. 35), matching the published FEMP scope whose Chapter 5 cases price at the 3% floor. NIST HB 135 is the application and scope authority: its published UPV values (Tables 5-2 to 5-5) are reproduced by this expression."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "PDF verified live (DOI 10.6028/NIST.HB.135-2020): section 3.2.2.1 defines the UPV factor with Eq. 3-7 and a $100/5yr/3%=$457.97 worked example (recomputed 457.9707); section 3.3.2 states 10 CFR 436 bounds the real DOE discount rate between 3% and 10%; Table 5-1 sets the FEMP criteria (real DOE discount rate, end-of-year cash flows, constant dollars); section 5.1.2 introduces UPV factors for annually recurring costs; Table 5-2 prices $7,000/yr OM&R over 20 yr at UPV(3%) = 14.877 giving $104,139; Table 5-3 prices $8,000/yr at the same factor giving $119,016; section 8.6.6.1 names UPV the uniform present value of an annuity. Chapter 5 examples use the 3% real DOE rate (floor binding since 2004); section 8.6.6 uses a 2.15% non-DOE real rate.",
+          "id": "nist-hb135-2020",
+          "kind": "primary",
+          "license": "U.S. federal government publication, freely available; no redistribution restriction stated on the fetched document.",
+          "locator": "PDF p. 61 (printed 29): section 3.2.2.1 UPV definition, Eq. 3-7, $100/5yr/3%=$457.97 worked example; the #page=61 fragment lands here and is the best single locator (r1's stale-fragment claim is retracted). PDF p. 67 (printed 35): section 3.3.2, 10 CFR 436 bounds 3%-10% on the real DOE discount rate. PDF pp. 98-106 (printed 66-74): Table 5-1 FEMP criteria, section 5.1.2, Tables 5-2 to 5-5. PDF p. 160 (printed 128): section 8.6.6.1 UPV terminology.",
+          "redistribution": "No verbatim excerpts stored; only short original paraphrases, formula symbols, and published factor values used as recomputed oracles.",
+          "title": "Life-Cycle Costing Manual for the Federal Energy Management Program (NIST Handbook 135, 2020)",
+          "url": "https://nvlpubs.nist.gov/nistpubs/hb/2020/NIST.HB.135-2020.pdf#page=61",
+          "version": "Handbook 135, 2020 edition (DOI 10.6028/NIST.HB.135-2020)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Page derives end-of-year equal-payment factors, prints the boxed Equal-Payment-Series Present-Worth Factor P = A*([(1+i]^n-1)/(i*(1+i)^n)), and works A=100/i=10%/n=8 to P=533.49; a compounding-frequency table illustrates effective rates up to 19.74%.",
+          "id": "umd-ence202",
+          "kind": "primary",
+          "license": "Page footer states Copyright (c) 1996-1998, Department of Civil Engineering, University of Maryland; no open-license statement found on 2026-11-04.",
+          "locator": "Interest Formulae: Equal-Payment-Series Present-Worth Factor (derivation, boxed factor, Example 1); nominal/effective-rate illustration table.",
+          "redistribution": "No verbatim excerpts stored; only short original paraphrases, formula symbols and recomputed values.",
+          "title": "Introduction to Engineering Economics (ENCE 202 tutorial, Univ. of Maryland)",
+          "url": "https://user.eng.umd.edu/~austin/ence202.d/economics.html",
+          "version": "Tutorial text as printed; last modified February 1, 1998"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Annuity-immediate section states the unit-payment present-value factor a-angle-n|i = (1-(1+i)^-n)/i for end-of-period payments and proves it as the sum of per-period discount factors 1/(1+i)^k; works 100 x a-angle-60|0.01 as approximately 4,495.50.",
+          "id": "wikipedia-annuity",
+          "kind": "primary",
+          "license": "Freely licensed encyclopedia text; no excerpts stored beyond short paraphrase.",
+          "locator": "Valuation > Annuity-certain > Annuity-immediate (factor, proof, monthly-payment example).",
+          "redistribution": "No verbatim excerpts stored; only short original paraphrases and formula symbols.",
+          "title": "Annuity (Wikipedia)",
+          "url": "https://en.wikipedia.org/wiki/Annuity",
+          "version": "Article text as fetched 2026-11-04"
+        }
+      ],
+      "summary": "Second research revision (r2) of uniform-present-value@source-3, tightening the finite rate ceiling to the published 10% (rate <= 0.1 per 10 CFR 436 via NIST HB 135 section 3.3.2). Expression, ports, remaining guards, and assumptions are byte-identical to source-3; the ceiling matches the published FEMP scope and keeps the finite bracket the implied-rate bisection path needs. Formally supersedes source-3 on admission (duplicate_of).",
+      "title": "Present value of a uniform year-end series (rate-guarded revision)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "home-A:representative-year:constant-real-prices",
+          "definition": "Constant real annual savings (baseline minus alternative) received at each year end",
+          "dimensions": "currency",
+          "domain": "Finite base-year-dollar amount",
+          "quantity_id": "annual_saving",
+          "role": "input",
+          "source_symbol": "A (annual amount in base-year dollars)",
+          "symbol": "annual",
+          "unit": "USD"
+        },
+        {
+          "context": "annual-effective-real:year-end-cashflows",
+          "definition": "Annual-effective real discount rate as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Positive decimal fraction through 0.1 (10% per period)",
+          "quantity_id": "discount_rate",
+          "role": "input",
+          "source_symbol": "d (NIST discount rate); i (UMD, Wikipedia effective rate per period)",
+          "symbol": "rate",
+          "unit": "1"
+        },
+        {
+          "context": "annual-period-count",
+          "definition": "Number of year-end payments in the study horizon",
+          "dimensions": "dimensionless",
+          "domain": "Integer years from 1 to 100",
+          "quantity_id": "period_count",
+          "role": "input",
+          "source_symbol": "n (number of years)",
+          "symbol": "years",
+          "unit": "1"
+        },
+        {
+          "context": "home-A:valuation-date:constant-real-prices",
+          "definition": "Present value of the uniform year-end series at the valuation date",
+          "dimensions": "currency",
+          "domain": "Finite present-value amount",
+          "quantity_id": "present_value",
+          "role": "output",
+          "source_symbol": "P (present value)",
+          "symbol": "pv",
+          "unit": "USD"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

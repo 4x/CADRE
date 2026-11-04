@@ -99,7 +99,7 @@ def validate_fact(
             tail = fact["quote"][mention.end() :]
             explicit = UNIT_PATTERN.match(tail)
             source_unit = explicit.group(1) if explicit else None
-            if fact["quote"][:mention.start()].rstrip().endswith("$"):
+            if fact["quote"][: mention.start()].rstrip().endswith("$"):
                 # A "$50 per unit" price carries its denominator in the tail;
                 # only phrasing before any further number belongs to this one.
                 head = NUMBER_PATTERN.split(tail, maxsplit=1)[0]

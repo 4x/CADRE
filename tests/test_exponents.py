@@ -2,8 +2,7 @@
 
 import unittest
 
-from connected_models.contracts import MASS, Model
-from connected_models.contracts import ModelError, NumericalError
+from connected_models.contracts import MASS, Model, ModelError, NumericalError
 from connected_models.demo import catalog
 from connected_models.expressions import dimensions, evaluate, parse
 from tests.test_solving import SCALAR, inverse
@@ -35,14 +34,19 @@ class ExponentCapTests(unittest.TestCase):
 
     def test_monthly_mortgage_oracle(self) -> None:
         """30-year monthly payment matches the Decimal oracle to the cent."""
-        amount = evaluate(parse("P*i*(1+i)**n/((1+i)**n - 1)"),
-                          {"P": 300000.0, "i": 0.005, "n": 360}, {}, {})
+        amount = evaluate(
+            parse("P*i*(1+i)**n/((1+i)**n - 1)"),
+            {"P": 300000.0, "i": 0.005, "n": 360},
+            {},
+            {},
+        )
         self.assertAlmostEqual(amount, MORTGAGE_ORACLE, places=2)
 
     def test_monthly_retirement_oracle(self) -> None:
         """40-year monthly annuity matches the Decimal oracle to the cent."""
-        amount = evaluate(parse("A*((1+i)**n - 1)/i"),
-                          {"A": 500.0, "i": 0.07 / 12, "n": 480}, {}, {})
+        amount = evaluate(
+            parse("A*((1+i)**n - 1)/i"), {"A": 500.0, "i": 0.07 / 12, "n": 480}, {}, {}
+        )
         self.assertAlmostEqual(amount, RETIRE_ORACLE, places=0)
 
     def test_cancellation_pattern_regressed(self) -> None:
@@ -58,8 +62,15 @@ class ExponentCapTests(unittest.TestCase):
     def test_threshold_search_covers_500_domain(self) -> None:
         """Bounded-integer search evaluates through the raised cap."""
         years = catalog()["uniform-present-value@1"].inputs["years"]
-        model = Model("growth500", "1", {"years": years}, SCALAR,
-                      "100 * (1.01 ** years)", ("years >= 1", "years <= 500"),
-                      "Synthetic wide-domain fixture", ("Finite integer domain only.",))
+        model = Model(
+            "growth500",
+            "1",
+            {"years": years},
+            SCALAR,
+            "100 * (1.01 ** years)",
+            ("years >= 1", "years <= 500"),
+            "Synthetic wide-domain fixture",
+            ("Finite integer domain only.",),
+        )
         run = inverse(model, "years", {}, 14000, "at_least")
         self.assertEqual(run["outputs"]["inverse"]["amount"], 497)

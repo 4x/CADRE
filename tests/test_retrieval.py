@@ -3,22 +3,40 @@
 import unittest
 
 from connected_models.contracts import Model, Port
-from connected_models.retrieval import (RETRIEVAL_VERSION, build_index, neighbors_from_audit,
-                                        retrieve, tokenize)
+from connected_models.retrieval import (
+    RETRIEVAL_VERSION,
+    build_index,
+    neighbors_from_audit,
+    retrieve,
+    tokenize,
+)
 
 
-def toy_model(id: str, inputs: dict, output: Port, assumptions: tuple = (), guards: tuple = ()) -> Model:
+def toy_model(
+    id: str, inputs: dict, output: Port, assumptions: tuple = (), guards: tuple = ()
+) -> Model:
     """Build a minimal catalog model with distinctive vocabulary per field."""
     return Model(id, "1", inputs, output, "x + 1", guards, "Test-only.", assumptions)
 
 
-ALPHA = toy_model("alpha--heat-flow", {"hot": Port("temperature", "K", "alpha furnace context")},
-                  Port("heat", "J", "alpha furnace context"), ("Conduction moves heat downhill.",))
-BETA = toy_model("beta--cold-flow", {"cold": Port("temperature", "K", "beta cryostat context")},
-                 Port("coldness", "J", "beta cryostat context"),
-                 ("Heat flow language appears here repeatedly without endorsement.",))
-GAMMA = toy_model("gamma--pump", {"work": Port("heat", "J", "gamma pump context")},
-                  Port("pressure", "Pa", "gamma pump context"), ("Unrelated test filler.",))
+ALPHA = toy_model(
+    "alpha--heat-flow",
+    {"hot": Port("temperature", "K", "alpha furnace context")},
+    Port("heat", "J", "alpha furnace context"),
+    ("Conduction moves heat downhill.",),
+)
+BETA = toy_model(
+    "beta--cold-flow",
+    {"cold": Port("temperature", "K", "beta cryostat context")},
+    Port("coldness", "J", "beta cryostat context"),
+    ("Heat flow language appears here repeatedly without endorsement.",),
+)
+GAMMA = toy_model(
+    "gamma--pump",
+    {"work": Port("heat", "J", "gamma pump context")},
+    Port("pressure", "Pa", "gamma pump context"),
+    ("Unrelated test filler.",),
+)
 
 
 class RetrievalTests(unittest.TestCase):
@@ -39,8 +57,12 @@ class RetrievalTests(unittest.TestCase):
 
     def test_ties_break_by_key_deterministically(self) -> None:
         """Equal scores order by model key; repeats are identical."""
-        twin = toy_model("alpha--heat-flow", {"hot": Port("temperature", "K", "alpha furnace context")},
-                         Port("heat", "J", "alpha furnace context"), ("Conduction moves heat downhill.",))
+        twin = toy_model(
+            "alpha--heat-flow",
+            {"hot": Port("temperature", "K", "alpha furnace context")},
+            Port("heat", "J", "alpha furnace context"),
+            ("Conduction moves heat downhill.",),
+        )
         index = build_index({"b-key": ALPHA, "a-key": twin})
         first = retrieve("heat flow furnace", index, k=2)
         second = retrieve("heat flow furnace", index, k=2)
@@ -84,5 +106,7 @@ class RetrievalTests(unittest.TestCase):
     def test_neighbors_reduce_audit_edges(self) -> None:
         """Audit from/to pairs become undirected neighbor sets."""
         audit = {"edges": [{"from": "a", "to": "b"}, {"from": "b", "to": "c"}]}
-        self.assertEqual(neighbors_from_audit(audit), {"a": {"b"}, "b": {"a", "c"}, "c": {"b"}})
+        self.assertEqual(
+            neighbors_from_audit(audit), {"a": {"b"}, "b": {"a", "c"}, "c": {"b"}}
+        )
         self.assertEqual(neighbors_from_audit({}), {})

@@ -80,8 +80,12 @@ class ChainBatteryTests(unittest.TestCase):
 
     def test_multi_expected_amounts_compare_elementwise(self) -> None:
         """Branch-all oracles match the full root list in order, not one root."""
-        entry = {"id": "m", "tier": 1, "expected_status": "completed",
-                 "expected_outputs": [{"meaning": "m", "unit": "u", "amounts": [-2.0, 2.0]}]}
+        entry = {
+            "id": "m",
+            "tier": 1,
+            "expected_status": "completed",
+            "expected_outputs": [{"meaning": "m", "unit": "u", "amounts": [-2.0, 2.0]}],
+        }
         port = {"meaning": "m", "unit": "u"}
         good = _record("completed", {"n1": {"amounts": [-2.0, 2.0], "port": port}})
         self.assertEqual(check_entry(entry, good, 1e-6)["verdict"], "pass")
@@ -92,15 +96,34 @@ class ChainBatteryTests(unittest.TestCase):
 
     def test_single_root_matches_either_scalar_or_branch_shape(self) -> None:
         """One admitted root passes whether the run stores amount or amounts."""
-        entry = {"id": "s", "tier": 1, "expected_status": "completed",
-                 "expected_outputs": [{"meaning": "m", "unit": "u", "amount": 3.0}]}
+        entry = {
+            "id": "s",
+            "tier": 1,
+            "expected_status": "completed",
+            "expected_outputs": [{"meaning": "m", "unit": "u", "amount": 3.0}],
+        }
         port = {"meaning": "m", "unit": "u"}
-        branch = _record("completed", {"n1": {"amounts": [3.0], "excluded": [0.0],
-                                            "port": port, "branch": "all"}})
+        branch = _record(
+            "completed",
+            {
+                "n1": {
+                    "amounts": [3.0],
+                    "excluded": [0.0],
+                    "port": port,
+                    "branch": "all",
+                }
+            },
+        )
         self.assertEqual(check_entry(entry, branch, 1e-6)["verdict"], "pass")
-        ambiguous = _record("completed", {"n1": {"amounts": [3.0, 4.0], "port": port, "branch": "all"}})
+        ambiguous = _record(
+            "completed", {"n1": {"amounts": [3.0, 4.0], "port": port, "branch": "all"}}
+        )
         self.assertEqual(check_entry(entry, ambiguous, 1e-6)["verdict"], "fail")
-        singular = {"id": "s", "tier": 1, "expected_status": "completed",
-                    "expected_outputs": [{"meaning": "m", "unit": "u", "amounts": [3.0]}]}
+        singular = {
+            "id": "s",
+            "tier": 1,
+            "expected_status": "completed",
+            "expected_outputs": [{"meaning": "m", "unit": "u", "amounts": [3.0]}],
+        }
         scalar = _record("completed", {"n1": _output("m", "u", 3.0)})
         self.assertEqual(check_entry(singular, scalar, 1e-6)["verdict"], "pass")

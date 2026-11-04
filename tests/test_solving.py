@@ -106,11 +106,17 @@ class SolvingTests(unittest.TestCase):
     def test_branch_all_output_cannot_feed_downstream(self) -> None:
         """A multi-root envelope is terminal; referencing it rejects the graph."""
         from connected_models.contracts import Reference
+
         model = polynomial("x ** 2")
         target = Value(4, SCALAR, "fixture", "known result")
-        branches = Node("branches", model.key, {OUTPUT_BINDING: target}, "x", "equal", "all")
+        branches = Node(
+            "branches", model.key, {OUTPUT_BINDING: target}, "x", "equal", "all"
+        )
         consumer = Node("consumer", model.key, {"x": Reference("branches")})
-        run = execute(Composition("branched-chain", (branches, consumer), ("consumer",)), {model.key: model})
+        run = execute(
+            Composition("branched-chain", (branches, consumer), ("consumer",)),
+            {model.key: model},
+        )
         self.assertEqual(run["status"], "rejected")
         self.assertIn("terminal", run["error"])
 
@@ -119,7 +125,10 @@ class SolvingTests(unittest.TestCase):
         bindings = {OUTPUT_BINDING: Value(4, SCALAR, "fixture", "known result")}
         node = Node("inverse", "polynomial@1", bindings, "x", "equal", "all")
         graph = Composition("proposal", (node,), (node.id,))
-        decoded = replace(composition_from_dict(json.loads(json.dumps(asdict(graph)))), purpose="fixture")
+        decoded = replace(
+            composition_from_dict(json.loads(json.dumps(asdict(graph)))),
+            purpose="fixture",
+        )
         self.assertEqual(decoded.nodes[0].branch, "all")
         run = execute(decoded, {"polynomial@1": polynomial("x ** 2")})
         self.assertEqual(run["status"], "completed", run.get("error"))
@@ -187,8 +196,16 @@ class SolvingTests(unittest.TestCase):
 
     def test_bracketed_bisection_inverts_logarithm(self) -> None:
         """B0*log(M) inverts for M under explicit bounds; the unguarded form stays unsupported."""
-        model = Model("log-bracket", "1", {"B0": SCALAR, "M": SCALAR}, SCALAR, "B0 * log(M)",
-                      ("B0 > 0", "M > 0", "M <= 100"), "Synthetic logarithm fixture", ("Unitless mathematical test only.",))
+        model = Model(
+            "log-bracket",
+            "1",
+            {"B0": SCALAR, "M": SCALAR},
+            SCALAR,
+            "B0 * log(M)",
+            ("B0 > 0", "M > 0", "M <= 100"),
+            "Synthetic logarithm fixture",
+            ("Unitless mathematical test only.",),
+        )
         run = inverse(model, "M", {"B0": 3}, 3 * math.log(10))
         self.assertEqual(run["status"], "completed", run.get("error"))
         self.assertAlmostEqual(run["outputs"]["inverse"]["amount"], 10.0, places=6)

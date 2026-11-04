@@ -5,8 +5,8 @@ string evaluation. It solves after substituting all other numerical quantities.
 """
 
 import ast
-from collections.abc import Callable
 import math
+from collections.abc import Callable
 from fractions import Fraction
 from typing import Any
 
@@ -151,8 +151,14 @@ def rational(
             "Inverse view requires supported scalar rational arithmetic.",
         )
     if isinstance(node.op, ast.Pow):
-        if any(isinstance(item, ast.Name) and item.id == target for item in ast.walk(node.right)):
-            raise SolveError("unsupported_expression", "Unknown exponents are not polynomial inversions; bounded search needs explicit finite guard bounds.")
+        if any(
+            isinstance(item, ast.Name) and item.id == target
+            for item in ast.walk(node.right)
+        ):
+            raise SolveError(
+                "unsupported_expression",
+                "Unknown exponents are not polynomial inversions; bounded search needs explicit finite guard bounds.",
+            )
         exponent = evaluate(node.right, known)
         if not exponent.is_integer() or abs(exponent) > MAX_SOLVE_DEGREE:
             raise SolveError(
@@ -287,34 +293,67 @@ def integer_bounds(
     return lower, upper
 
 
-def continuous_bounds(target: str, guards: tuple[ast.Compare, ...], known: dict[str, float]) -> tuple[float, float]:
+def continuous_bounds(
+    target: str, guards: tuple[ast.Compare, ...], known: dict[str, float]
+) -> tuple[float, float]:
     """Find a finite continuous bracket from explicit original model guards, never a guessed horizon."""
     lower, upper = None, None
     for guard in guards:
         left, right, operation = guard.left, guard.comparators[0], guard.ops[0]
         if isinstance(right, ast.Name) and right.id == target:
             left, right = right, left
-            inverse = {ast.Gt: ast.Lt, ast.GtE: ast.LtE, ast.Lt: ast.Gt, ast.LtE: ast.GtE, ast.Eq: ast.Eq}
+            inverse = {
+                ast.Gt: ast.Lt,
+                ast.GtE: ast.LtE,
+                ast.Lt: ast.Gt,
+                ast.LtE: ast.GtE,
+                ast.Eq: ast.Eq,
+            }
             operation = inverse[type(operation)]()
-        if not isinstance(left, ast.Name) or left.id != target or any(isinstance(item, ast.Name) and item.id == target for item in ast.walk(right)):
+        if (
+            not isinstance(left, ast.Name)
+            or left.id != target
+            or any(
+                isinstance(item, ast.Name) and item.id == target
+                for item in ast.walk(right)
+            )
+        ):
             continue
         bound = evaluate(right, known)
         if not math.isfinite(bound):
-            raise SolveError("unbounded_search", "Continuous inversion requires explicit finite lower and upper bounds in the model's guards.")
+            raise SolveError(
+                "unbounded_search",
+                "Continuous inversion requires explicit finite lower and upper bounds in the model's guards.",
+            )
         if isinstance(operation, (ast.Gt, ast.GtE, ast.Eq)):
-            candidate = math.nextafter(bound, math.inf) if isinstance(operation, ast.Gt) else bound
+            candidate = (
+                math.nextafter(bound, math.inf)
+                if isinstance(operation, ast.Gt)
+                else bound
+            )
             lower = max(lower, candidate) if lower is not None else candidate
         if isinstance(operation, (ast.Lt, ast.LtE, ast.Eq)):
-            candidate = math.nextafter(bound, -math.inf) if isinstance(operation, ast.Lt) else bound
+            candidate = (
+                math.nextafter(bound, -math.inf)
+                if isinstance(operation, ast.Lt)
+                else bound
+            )
             upper = min(upper, candidate) if upper is not None else candidate
     if lower is None or upper is None:
-        raise SolveError("unbounded_search", "Continuous inversion requires explicit finite lower and upper bounds in the model's guards.")
+        raise SolveError(
+            "unbounded_search",
+            "Continuous inversion requires explicit finite lower and upper bounds in the model's guards.",
+        )
     if lower > upper:
-        raise SolveError("invalid_domain", "The declared continuous search interval is empty.")
+        raise SolveError(
+            "invalid_domain", "The declared continuous search interval is empty."
+        )
     return lower, upper
 
 
-def has_finite_bracket(target: str, guards: tuple[ast.Compare, ...], known: dict[str, float]) -> bool:
+def has_finite_bracket(
+    target: str, guards: tuple[ast.Compare, ...], known: dict[str, float]
+) -> bool:
     """Peek for an explicit finite bracket without disturbing the exact-method diagnostic."""
     try:
         continuous_bounds(target, guards, known)
@@ -323,25 +362,39 @@ def has_finite_bracket(target: str, guards: tuple[ast.Compare, ...], known: dict
     return True
 
 
-def _iterative_matches(expression: ast.AST, guards: tuple[ast.Compare, ...], target: str,
-                       known: dict[str, float], expected: float, evidence: dict[str, Any],
-                       valid: Callable[[float], tuple[bool, float | None]]
-                       ) -> tuple[list[tuple[float, float]], list[float], dict[str, Any]]:
+def _iterative_matches(
+    expression: ast.AST,
+    guards: tuple[ast.Compare, ...],
+    target: str,
+    known: dict[str, float],
+    expected: float,
+    evidence: dict[str, Any],
+    valid: Callable[[float], tuple[bool, float | None]],
+) -> tuple[list[tuple[float, float]], list[float], dict[str, Any]]:
     """Scan an explicit finite bracket for sign changes, then bisect each one.
 
     Every proposed root is verified against the original equation, guards and
     residual tolerances through the caller-provided check; this search proposes.
     """
     lower, upper = continuous_bounds(target, guards, known)
-    evidence.update({"method": "scan-then-bisection", "domain": [lower, upper],
-                     "detection": ("Sign-changing crossings and on-sample hits only; "
-                                   "sub-resolution gaps, guard-interrupted intervals "
-                                   "and touching zeros may be missed.")})
+    evidence.update(
+        {
+            "method": "scan-then-bisection",
+            "domain": [lower, upper],
+            "detection": (
+                "Sign-changing crossings and on-sample hits only; "
+                "sub-resolution gaps, guard-interrupted intervals "
+                "and touching zeros may be missed."
+            ),
+        }
+    )
     matches: list[tuple[float, float]] = []
     proposed: list[float] = []
     evaluations = 0
 
-    def bisect(left: float, out_left: float, right: float, out_right: float) -> float | None:
+    def bisect(
+        left: float, out_left: float, right: float, out_right: float
+    ) -> float | None:
         """Bisect one sign-change interval; gaps abort the interval without a claim."""
         nonlocal evaluations
         best, best_output = left, out_left
@@ -352,29 +405,47 @@ def _iterative_matches(expression: ast.AST, guards: tuple[ast.Compare, ...], tar
             try:
                 output = evaluate(expression, {**known, target: middle})
             except NumericalError as exc:
-                raise SolveError("numerical_limit", "Cannot verify all required candidates within numerical limits; no root or earliest-crossing claim is made.", evidence=evidence) from exc
+                raise SolveError(
+                    "numerical_limit",
+                    "Cannot verify all required candidates within numerical limits; no root or earliest-crossing claim is made.",
+                    evidence=evidence,
+                ) from exc
             except ModelError:
                 return None
             evaluations += 1
             if evaluations > MAX_ITERATIVE_EVALUATIONS:
-                raise SolveError("unsupported_complexity", "Bracketed search exceeds the evaluation limit.", evidence=evidence)
+                raise SolveError(
+                    "unsupported_complexity",
+                    "Bracketed search exceeds the evaluation limit.",
+                    evidence=evidence,
+                )
             if abs(output - expected) < abs(best_output - expected):
                 best, best_output = middle, output
-            if math.isclose(output, expected, rel_tol=RESIDUAL_REL_TOL, abs_tol=RESIDUAL_ABS_TOL):
+            if math.isclose(
+                output, expected, rel_tol=RESIDUAL_REL_TOL, abs_tol=RESIDUAL_ABS_TOL
+            ):
                 return middle
             if (output < expected) == (out_left < expected):
                 left, out_left = middle, output
             else:
-                right, out_right = middle, output
+                right = middle
         return best
 
     if lower == upper:
         accepted, output = valid(lower)
         evaluations += 1
-        if accepted and output is not None and math.isclose(output, expected, rel_tol=RESIDUAL_REL_TOL, abs_tol=RESIDUAL_ABS_TOL):
+        if (
+            accepted
+            and output is not None
+            and math.isclose(
+                output, expected, rel_tol=RESIDUAL_REL_TOL, abs_tol=RESIDUAL_ABS_TOL
+            )
+        ):
             proposed.append(lower)
             matches.append((lower, output))
-        evidence.update({"scan_intervals": 0, "scan_width": 0.0, "evaluations": evaluations})
+        evidence.update(
+            {"scan_intervals": 0, "scan_width": 0.0, "evaluations": evaluations}
+        )
         return matches, proposed, evidence
     intervals = MAX_SEARCH_POINTS
     width = (upper - lower) / intervals
@@ -386,7 +457,13 @@ def _iterative_matches(expression: ast.AST, guards: tuple[ast.Compare, ...], tar
         samples.append((point, accepted, output))
     hits: set[float] = set()
     for point, accepted, output in samples:
-        if accepted and output is not None and math.isclose(output, expected, rel_tol=RESIDUAL_REL_TOL, abs_tol=RESIDUAL_ABS_TOL):
+        if (
+            accepted
+            and output is not None
+            and math.isclose(
+                output, expected, rel_tol=RESIDUAL_REL_TOL, abs_tol=RESIDUAL_ABS_TOL
+            )
+        ):
             hits.add(point)
             proposed.append(point)
             matches.append((point, output))
@@ -404,15 +481,28 @@ def _iterative_matches(expression: ast.AST, guards: tuple[ast.Compare, ...], tar
         proposed.append(root)
         accepted, output = valid(root)
         evaluations += 1
-        if accepted and output is not None and math.isclose(output, expected, rel_tol=RESIDUAL_REL_TOL, abs_tol=RESIDUAL_ABS_TOL):
+        if (
+            accepted
+            and output is not None
+            and math.isclose(
+                output, expected, rel_tol=RESIDUAL_REL_TOL, abs_tol=RESIDUAL_ABS_TOL
+            )
+        ):
             matches.append((root, output))
-    evidence.update({"scan_intervals": intervals, "scan_width": width, "evaluations": evaluations})
+    evidence.update(
+        {"scan_intervals": intervals, "scan_width": width, "evaluations": evaluations}
+    )
     return matches, proposed, evidence
 
 
-def _verified_matches(model: Model, expression: ast.AST, guards: tuple[ast.Compare, ...], target: str,
-                      bindings: dict[str, float], relation: str
-                      ) -> tuple[list[tuple[float, float]], list[float], dict[str, Any]]:
+def _verified_matches(
+    model: Model,
+    expression: ast.AST,
+    guards: tuple[ast.Compare, ...],
+    target: str,
+    bindings: dict[str, float],
+    relation: str,
+) -> tuple[list[tuple[float, float]], list[float], dict[str, Any]]:
     """Verify every candidate against the original equation; the caller makes the terminal choice."""
     if model.families:
         raise SolveError(
@@ -461,7 +551,10 @@ def _verified_matches(model: Model, expression: ast.AST, guards: tuple[ast.Compa
         try:
             converted = rational(expression, target, known)
         except SolveError as exc:
-            if exc.diagnostic["code"] not in {"unsupported_expression", "unsupported_degree"}:
+            if exc.diagnostic["code"] not in {
+                "unsupported_expression",
+                "unsupported_degree",
+            }:
                 raise
             if port.meaning == "period_count":
                 use_integer_search = True
@@ -471,41 +564,86 @@ def _verified_matches(model: Model, expression: ast.AST, guards: tuple[ast.Compa
                 raise
     if use_integer_search:
         lower, upper = integer_bounds(target, guards, known)
-        evidence.update({"method": "bounded-integer-enumeration", "domain": [lower, upper]})
+        evidence.update(
+            {"method": "bounded-integer-enumeration", "domain": [lower, upper]}
+        )
         matches: list[tuple[float, float]] = []
         for candidate in range(lower, upper + 1):
             accepted, output = valid(float(candidate))
-            if accepted and ((relation == "at_least" and output >= expected) or
-                             (relation == "equal" and math.isclose(output, expected, rel_tol=RESIDUAL_REL_TOL, abs_tol=RESIDUAL_ABS_TOL))):
+            if accepted and (
+                (relation == "at_least" and output >= expected)
+                or (
+                    relation == "equal"
+                    and math.isclose(
+                        output,
+                        expected,
+                        rel_tol=RESIDUAL_REL_TOL,
+                        abs_tol=RESIDUAL_ABS_TOL,
+                    )
+                )
+            ):
                 if relation == "at_least":
-                    evidence.update({"original_output": output, "evaluations": candidate - lower + 1})
+                    evidence.update(
+                        {
+                            "original_output": output,
+                            "evaluations": candidate - lower + 1,
+                        }
+                    )
                     return [(float(candidate), output)], [], evidence
                 matches.append((float(candidate), output))
         if relation == "at_least":
-            raise SolveError("no_crossing_in_domain", f"No threshold crossing in the model's declared integer domain {lower}..{upper}; this is not a claim of no crossing outside it.", evidence=evidence)
+            raise SolveError(
+                "no_crossing_in_domain",
+                f"No threshold crossing in the model's declared integer domain {lower}..{upper}; this is not a claim of no crossing outside it.",
+                evidence=evidence,
+            )
         evidence["evaluations"] = upper - lower + 1
         return matches, [], evidence
     if use_iterative_search:
-        return _iterative_matches(expression, guards, target, known, expected, evidence, valid)
+        return _iterative_matches(
+            expression, guards, target, known, expected, evidence, valid
+        )
     numerator, denominator = converted
     if denominator == (Fraction(0),):
-        raise SolveError("invalid_domain", "The original relationship is undefined for the supplied known values.")
-    equation = add(numerator, tuple(Fraction(str(expected)) * coefficient for coefficient in denominator), -1)
-    evidence.update({"method": "rational-polynomial", "coefficients_ascending": [str(value) for value in equation]})
+        raise SolveError(
+            "invalid_domain",
+            "The original relationship is undefined for the supplied known values.",
+        )
+    equation = add(
+        numerator,
+        tuple(Fraction(str(expected)) * coefficient for coefficient in denominator),
+        -1,
+    )
+    evidence.update(
+        {
+            "method": "rational-polynomial",
+            "coefficients_ascending": [str(value) for value in equation],
+        }
+    )
     proposed = roots(equation)
     matches = []
     for candidate in proposed:
         accepted, output = valid(candidate)
-        if accepted and math.isclose(output, expected, rel_tol=RESIDUAL_REL_TOL, abs_tol=RESIDUAL_ABS_TOL):
+        if accepted and math.isclose(
+            output, expected, rel_tol=RESIDUAL_REL_TOL, abs_tol=RESIDUAL_ABS_TOL
+        ):
             matches.append((candidate, output))
     evidence["candidate_roots"] = proposed
     return matches, proposed, evidence
 
 
-def solve(model: Model, expression: ast.AST, guards: tuple[ast.Compare, ...], target: str,
-          bindings: dict[str, float], relation: str) -> tuple[float, dict[str, Any]]:
+def solve(
+    model: Model,
+    expression: ast.AST,
+    guards: tuple[ast.Compare, ...],
+    target: str,
+    bindings: dict[str, float],
+    relation: str,
+) -> tuple[float, dict[str, Any]]:
     """Solve in canonical units and verify candidates against the unmodified original equation."""
-    matches, _, evidence = _verified_matches(model, expression, guards, target, bindings, relation)
+    matches, _, evidence = _verified_matches(
+        model, expression, guards, target, bindings, relation
+    )
     if not matches:
         raise SolveError(
             "no_admissible_solution",
@@ -513,30 +651,65 @@ def solve(model: Model, expression: ast.AST, guards: tuple[ast.Compare, ...], ta
             evidence=evidence,
         )
     if len(matches) != 1:
-        raise SolveError("multiple_solutions", f"Multiple admissible solutions remain; set branch to 'all' to inspect all {len(matches)} candidates.", sorted(amount for amount, _ in matches), evidence)
+        raise SolveError(
+            "multiple_solutions",
+            f"Multiple admissible solutions remain; set branch to 'all' to inspect all {len(matches)} candidates.",
+            sorted(amount for amount, _ in matches),
+            evidence,
+        )
     candidate, _ = matches[0]
     known = {name: value for name, value in bindings.items() if name != OUTPUT_BINDING}
-    evidence.update({"original_output": evaluate(expression, {**known, target: candidate}),
-                     "residual_relative_tolerance": RESIDUAL_REL_TOL, "residual_absolute_tolerance": RESIDUAL_ABS_TOL})
+    evidence.update(
+        {
+            "original_output": evaluate(expression, {**known, target: candidate}),
+            "residual_relative_tolerance": RESIDUAL_REL_TOL,
+            "residual_absolute_tolerance": RESIDUAL_ABS_TOL,
+        }
+    )
     return candidate, evidence
 
 
-def solve_all(model: Model, expression: ast.AST, guards: tuple[ast.Compare, ...], target: str,
-              bindings: dict[str, float], relation: str) -> tuple[dict[str, Any], dict[str, Any]]:
+def solve_all(
+    model: Model,
+    expression: ast.AST,
+    guards: tuple[ast.Compare, ...],
+    target: str,
+    bindings: dict[str, float],
+    relation: str,
+) -> tuple[dict[str, Any], dict[str, Any]]:
     """Return every verified root in ascending order; never select a branch silently."""
-    matches, proposed, evidence = _verified_matches(model, expression, guards, target, bindings, relation)
+    matches, proposed, evidence = _verified_matches(
+        model, expression, guards, target, bindings, relation
+    )
     if not matches:
-        raise SolveError("no_admissible_solution", "No candidate passed the original equation, guards, types and numerical checks at this precision.", evidence=evidence)
+        raise SolveError(
+            "no_admissible_solution",
+            "No candidate passed the original equation, guards, types and numerical checks at this precision.",
+            evidence=evidence,
+        )
     ordered = sorted(matches, key=lambda pair: pair[0])
     admitted = {amount for amount, _ in ordered}
     excluded = sorted({float(candidate) for candidate in proposed} - admitted)
     evaluated = evidence.get("evaluations", len(proposed))
-    evidence.update({"admitted_roots": len(ordered), "excluded_roots": evaluated - len(ordered),
-                     "candidate_roots": proposed})
+    evidence.update(
+        {
+            "admitted_roots": len(ordered),
+            "excluded_roots": evaluated - len(ordered),
+            "candidate_roots": proposed,
+        }
+    )
     diagnostics = []
     for _, output in ordered:
-        diagnostics.append({**evidence, "original_output": output,
-                            "residual_relative_tolerance": RESIDUAL_REL_TOL,
-                            "residual_absolute_tolerance": RESIDUAL_ABS_TOL})
-    return {"amounts": [amount for amount, _ in ordered], "excluded": excluded,
-            "diagnostics": diagnostics}, evidence
+        diagnostics.append(
+            {
+                **evidence,
+                "original_output": output,
+                "residual_relative_tolerance": RESIDUAL_REL_TOL,
+                "residual_absolute_tolerance": RESIDUAL_ABS_TOL,
+            }
+        )
+    return {
+        "amounts": [amount for amount, _ in ordered],
+        "excluded": excluded,
+        "diagnostics": diagnostics,
+    }, evidence

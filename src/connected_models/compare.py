@@ -86,7 +86,10 @@ def numeric_agreement(
     for node_id, value in (grounded.get("outputs") or {}).items():
         if value.get("amounts") is not None:
             for position, amount in enumerate(value["amounts"]):
-                expanded[f"{node_id}[{position}]"] = {"amount": amount, "port": value["port"]}
+                expanded[f"{node_id}[{position}]"] = {
+                    "amount": amount,
+                    "port": value["port"],
+                }
         else:
             expanded[node_id] = value
     for node_id, value in expanded.items():

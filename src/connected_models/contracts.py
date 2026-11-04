@@ -655,7 +655,6 @@ MEANINGS = {
     "retirement_savings": MONEY,
     "annual_expenses": MONEY,
     "expense_coverage_multiple": DIMENSIONLESS,
-    "annual_depreciation": MONEY,
     "discount_rate": DIMENSIONLESS,
     "period_count": DIMENSIONLESS,
     "present_value": MONEY,

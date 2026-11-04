@@ -15,8 +15,15 @@ sys.path.insert(0, str(ROOT))
 
 from connected_models.compatibility import audit_pairs  # noqa: E402
 from connected_models.registry import Registry  # noqa: E402
-from connected_models.retrieval import (FALLBACK_CAP, FALLBACK_K, RETRIEVAL_CAP, SEED_K,  # noqa: E402
-                                        build_index, neighbors_from_audit, retrieve)
+from connected_models.retrieval import (  # noqa: E402
+    FALLBACK_CAP,
+    FALLBACK_K,
+    RETRIEVAL_CAP,
+    SEED_K,
+    build_index,
+    neighbors_from_audit,
+    retrieve,
+)
 from connected_models.workflows import REGISTRY_PATH, catalog_card  # noqa: E402
 
 BATTERY = ROOT / "data" / "eval" / "chain-battery.json"
@@ -49,7 +56,9 @@ def main() -> int:
     models, _ = Registry(REGISTRY_PATH).snapshot()
     index = build_index(models)
     neighbors = neighbors_from_audit(audit_pairs(models))
-    full_bytes = len(json.dumps({key: catalog_card(model) for key, model in models.items()}).encode())
+    full_bytes = len(
+        json.dumps({key: catalog_card(model) for key, model in models.items()}).encode()
+    )
     rows = latest_passing_rows()
     failures = []
     uncovered = []
@@ -60,20 +69,33 @@ def main() -> int:
             uncovered.append(entry["id"])
             continue
         need = executed_models(row["run_id"])
-        got = set(retrieve(entry["question"], index, neighbors, k=SEED_K, cap=RETRIEVAL_CAP).keys)
+        got = set(
+            retrieve(
+                entry["question"], index, neighbors, k=SEED_K, cap=RETRIEVAL_CAP
+            ).keys
+        )
         missed = sorted(need - got)
         recall = len(need & got) / len(need) if need else 1.0
         worst_recall = min(worst_recall, recall)
-        subset_bytes = len(json.dumps({key: catalog_card(models[key]) for key in sorted(got)}).encode())
-        print(f"{entry['id']:<24} recall={recall:.2f} retrieved={len(got):>3} "
-              f"bytes={subset_bytes / 1024:6.1f}KB missed={missed}")
+        subset_bytes = len(
+            json.dumps({key: catalog_card(models[key]) for key in sorted(got)}).encode()
+        )
+        print(
+            f"{entry['id']:<24} recall={recall:.2f} retrieved={len(got):>3} "
+            f"bytes={subset_bytes / 1024:6.1f}KB missed={missed}"
+        )
         if missed:
-            wide = set(retrieve(entry["question"], index, neighbors,
-                                k=FALLBACK_K, cap=FALLBACK_CAP).keys)
+            wide = set(
+                retrieve(
+                    entry["question"], index, neighbors, k=FALLBACK_K, cap=FALLBACK_CAP
+                ).keys
+            )
             print(f"  fallback retrieves {sorted(need - wide) or 'all'}")
             failures.append(entry["id"])
-    print(f"catalog: {len(models)} models, {full_bytes / 1024:.1f}KB full cards; "
-          f"worst recall {worst_recall:.2f}")
+    print(
+        f"catalog: {len(models)} models, {full_bytes / 1024:.1f}KB full cards; "
+        f"worst recall {worst_recall:.2f}"
+    )
     if uncovered:
         print(f"UNCOVERED (no passing run): {uncovered}")
     if failures:

@@ -97,19 +97,24 @@ class QueryTests(unittest.TestCase):
 
     def test_dollar_per_phrasing_and_unit_plurals(self) -> None:
         """'$50 per unit' reads USD/unit (adjacent or not); '800 units' reads unit."""
-        for literal, unit, quote in (("50", "USD/unit", "sells for $50 per unit"),
-                                     ("30", "USD/unit", "$30 variable cost per unit"),
-                                     ("800", "unit", "sells 800 units"),
-                                     ("50", "USD/unit", "50 dollars per unit"),
-                                     ("0.30", "USD/kWh", "$0.30/kWh"),
-                                     ("10,000", "USD", "costs are $10,000 for the period"),
-                                     ("100", "USD", "$100 super saver deal"),
-                                     ("1,000", "USD", "$1,000 first, growing at 10 percent per period")):
+        for literal, unit, quote in (
+            ("50", "USD/unit", "sells for $50 per unit"),
+            ("30", "USD/unit", "$30 variable cost per unit"),
+            ("800", "unit", "sells 800 units"),
+            ("50", "USD/unit", "50 dollars per unit"),
+            ("0.30", "USD/kWh", "$0.30/kWh"),
+            ("10,000", "USD", "costs are $10,000 for the period"),
+            ("100", "USD", "$100 super saver deal"),
+            ("1,000", "USD", "$1,000 first, growing at 10 percent per period"),
+        ):
             with self.subTest(quote=quote):
                 fact = validate_fact(self.fact(literal, unit, quote), quote)
                 self.assertEqual(fact["unit"], unit)
         with self.assertRaisesRegex(ModelError, "unit contradicts"):
-            validate_fact(self.fact("50", "USD", "sells for $50 per unit"), "sells for $50 per unit")
+            validate_fact(
+                self.fact("50", "USD", "sells for $50 per unit"),
+                "sells for $50 per unit",
+            )
 
     def test_ambiguous_question_is_saved_without_composition(self) -> None:
         """Conflicting user statements need clarification; no preset fills the gap."""
@@ -160,15 +165,30 @@ class QueryTests(unittest.TestCase):
             registry = Registry(Path(folder) / "registry.sqlite3")
             for candidate_id in seed_candidates(registry):
                 registry.review(candidate_id, "test-reviewer", "Test-only admission.")
-            response = {"content": {"facts": [], "issues": ["Which of the two prices should be used?"],
-                        "status": "needs-input", "graph": {"id": "ambiguous", "nodes": [], "outputs": []},
-                        "reason": "Two prices conflict.", "clarifications": ["Which?"]}, "audit": {}}
-            with patch("connected_models.workflows.live_request", return_value=response), patch("connected_models.workflows.RUNS_PATH", Path(folder) / "runs"):
-                run = answer(registry, "Use $100 or $200 as the price.", retrieval="subset")
+            response = {
+                "content": {
+                    "facts": [],
+                    "issues": ["Which of the two prices should be used?"],
+                    "status": "needs-input",
+                    "graph": {"id": "ambiguous", "nodes": [], "outputs": []},
+                    "reason": "Two prices conflict.",
+                    "clarifications": ["Which?"],
+                },
+                "audit": {},
+            }
+            with (
+                patch("connected_models.workflows.live_request", return_value=response),
+                patch("connected_models.workflows.RUNS_PATH", Path(folder) / "runs"),
+            ):
+                run = answer(
+                    registry, "Use $100 or $200 as the price.", retrieval="subset"
+                )
             log = run["retrieval"]
             self.assertEqual(log["mode"], "subset")
             self.assertEqual(log["version"], RETRIEVAL_VERSION)
-            self.assertLessEqual(log["retrieved"], len(log["seeds"]) + len(log["expanded"]))
+            self.assertLessEqual(
+                log["retrieved"], len(log["seeds"]) + len(log["expanded"])
+            )
             self.assertEqual(run["status"], "needs-input")
 
     def test_unknown_retrieval_mode_is_rejected(self) -> None:

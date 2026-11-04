@@ -139,7 +139,9 @@ def compile_graph(
                 if element.node not in nodes:
                     raise ModelError(f"{label}: unknown upstream node {element.node}.")
                 if nodes[element.node].branch == "all":
-                    raise ModelError(f"{label}: branch 'all' outputs are terminal and cannot feed another node.")
+                    raise ModelError(
+                        f"{label}: branch 'all' outputs are terminal and cannot feed another node."
+                    )
                 upstream = catalog.get(nodes[element.node].model)
                 if upstream is None:
                     raise ModelError(f"Missing upstream model for {element.node}.")
@@ -285,16 +287,42 @@ def execute(
                 )
             solve_evidence = None
             if node.solve_for is not None and node.branch == "all":
-                roots, solve_evidence = solve_all(model, compiled.expression, compiled.guards, node.solve_for, numbers, node.relation)
+                roots, solve_evidence = solve_all(
+                    model,
+                    compiled.expression,
+                    compiled.guards,
+                    node.solve_for,
+                    numbers,
+                    node.relation,
+                )
                 scale = UNITS[compiled.output.unit].scale
-                envelope = {"amounts": [finite(amount / scale, "Output") for amount in roots["amounts"]],
-                            "excluded": [finite(amount / scale, "Output") for amount in roots["excluded"]],
-                            "port": asdict(compiled.output), "origin": "derived",
-                            "source": f"{manifest['run_id']}/{node.id}", "branch": "all"}
+                envelope = {
+                    "amounts": [
+                        finite(amount / scale, "Output") for amount in roots["amounts"]
+                    ],
+                    "excluded": [
+                        finite(amount / scale, "Output") for amount in roots["excluded"]
+                    ],
+                    "port": asdict(compiled.output),
+                    "origin": "derived",
+                    "source": f"{manifest['run_id']}/{node.id}",
+                    "branch": "all",
+                }
                 envelopes[node.id], reliance[node.id] = envelope, origins
-                manifest["steps"].append({"node": node.id, "model": model.key, "normalized_inputs": numbers,
-                                          "normalized_family_inputs": {name: list(values) for name, values in family_numbers.items()},
-                                          "result": envelope, "relies_on": origins, "solve": solve_evidence})
+                manifest["steps"].append(
+                    {
+                        "node": node.id,
+                        "model": model.key,
+                        "normalized_inputs": numbers,
+                        "normalized_family_inputs": {
+                            name: list(values)
+                            for name, values in family_numbers.items()
+                        },
+                        "result": envelope,
+                        "relies_on": origins,
+                        "solve": solve_evidence,
+                    }
+                )
                 continue
             if node.solve_for is not None:
                 canonical_result, solve_evidence = solve(

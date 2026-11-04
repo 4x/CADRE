@@ -70,9 +70,13 @@ class CompareTests(unittest.TestCase):
 
     def test_agreement_requires_every_branch_root(self) -> None:
         """A branch-all oracle agrees only when the prose names all roots."""
-        both = _grounded("completed", {"n1": {"amounts": [1.0, 3.0],
-                                              "port": {"unit": "1", "meaning": "root"}}})
-        self.assertEqual(numeric_agreement(both, "roots are 1 and 3")["verdict"], "agree")
+        both = _grounded(
+            "completed",
+            {"n1": {"amounts": [1.0, 3.0], "port": {"unit": "1", "meaning": "root"}}},
+        )
+        self.assertEqual(
+            numeric_agreement(both, "roots are 1 and 3")["verdict"], "agree"
+        )
         partial = numeric_agreement(both, "the root is 3")
         self.assertEqual(partial["verdict"], "disagree")
         self.assertIsNone(partial["details"][0]["matched"])

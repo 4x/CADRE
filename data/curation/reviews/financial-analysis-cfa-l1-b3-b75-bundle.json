@@ -1,0 +1,586 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b75",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--credit-rating-funds-from-operations",
+      "revision": "r1",
+      "title": "Historical credit-rating funds from operations",
+      "summary": "The historical rating methodology deducts net interest and current tax from EBITDA, subject to applicable adjustments.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ffo",
+        "expression": "ebitda - interest - tax + adjustments",
+        "original_equation": "FFO = EBITDA − net interest expense − current tax expense + other adjustments",
+        "source_id": "sp-2013-corporate-ratios",
+        "locator": "Paragraphs 245–247, 259–260, printed pp35–37",
+        "translation_notes": "All inputs share one currency; a tax benefit or net interest income may be negative."
+      },
+      "variables": [
+        {
+          "symbol": "ebitda",
+          "source_symbol": "adjusted EBITDA",
+          "role": "input",
+          "quantity_id": "credit_rating_adjusted_ebitda",
+          "definition": "adjusted EBITDA",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "interest",
+          "source_symbol": "net interest expense",
+          "role": "input",
+          "quantity_id": "credit_rating_net_interest_expense",
+          "definition": "net interest expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "tax",
+          "source_symbol": "current tax expense",
+          "role": "input",
+          "quantity_id": "credit_rating_current_tax_expense",
+          "definition": "current tax expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "adjustments",
+          "source_symbol": "other signed adjustments",
+          "role": "input",
+          "quantity_id": "credit_rating_ffo_other_adjustments",
+          "definition": "other signed adjustments",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ffo",
+          "source_symbol": "funds from operations",
+          "role": "output",
+          "quantity_id": "credit_rating_funds_from_operations",
+          "definition": "funds from operations",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "All inputs refer to the same entity and period and follow the selected historical credit-rating methodology.",
+        "Adjustments not already reflected in the other inputs are combined once in the signed adjustment input."
+      ],
+      "limitations": [
+        "FFO definitions vary by methodology and industry, including real estate; this is not automatically GAAP operating cash flow.",
+        "This historical 2013 definition does not establish current rating-agency practice."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Credit Analysis, printed pp236–237 (PDF pp250–251), Exhibit 22 and footnotes",
+          "evidence": "The historical rating methodology deducts net interest and current tax from EBITDA, subject to applicable adjustments.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sp-2013-corporate-ratios",
+          "kind": "primary",
+          "title": "Corporate Methodology: Ratios And Adjustments",
+          "url": "https://www.maalot.co.il/publications/mt20131127143756a.pdf",
+          "version": "Standard & Poor’s Ratings Services, 19 November 2013",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 245–247, 259–260, printed pp35–37",
+          "evidence": "The historical methodology defines FFO, free operating cash flow and their corresponding debt ratios, subject to adjustments.",
+          "license": "S&P copyright; formula-level facts and original paraphrase only; historical methodology is not asserted to be current.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "ebitda": 100,
+            "interest": 10,
+            "tax": 20,
+            "adjustments": 0
+          },
+          "expected": 70,
+          "tolerance": 1e-09,
+          "method": "100 less 10 and 20 gives 70.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "signed-adjustment",
+          "inputs": {
+            "ebitda": 100,
+            "interest": 10,
+            "tax": 20,
+            "adjustments": -5
+          },
+          "expected": 65,
+          "tolerance": 1e-09,
+          "method": "A further signed adjustment of minus 5 reduces FFO to 65.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "interest": 10,
+            "tax": 20,
+            "adjustments": 0
+          },
+          "reason": "ebitda is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ebitda=ffo+interest+tax-adjustments.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--credit-rating-funds-from-operations-to-debt",
+      "revision": "r1",
+      "title": "Credit-rating funds from operations to debt",
+      "summary": "Exhibit 22 divides funds from operations by total debt for credit analysis.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "coverage",
+        "expression": "ffo / debt",
+        "original_equation": "FFO-to-debt ratio = funds from operations / adjusted debt",
+        "source_id": "sp-2013-corporate-ratios",
+        "locator": "Paragraphs 245–247, 259–260, printed pp35–37",
+        "translation_notes": "The ratio is dimensionless for a specified FFO period."
+      },
+      "variables": [
+        {
+          "symbol": "ffo",
+          "source_symbol": "funds from operations",
+          "role": "input",
+          "quantity_id": "credit_rating_funds_from_operations",
+          "definition": "funds from operations",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "debt",
+          "source_symbol": "adjusted debt",
+          "role": "input",
+          "quantity_id": "credit_rating_adjusted_debt",
+          "definition": "adjusted debt",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "coverage",
+          "source_symbol": "FFO-to-debt ratio",
+          "role": "output",
+          "quantity_id": "credit_rating_ffo_to_debt",
+          "definition": "FFO-to-debt ratio",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "debt > 0"
+      ],
+      "assumptions": [
+        "FFO and debt use the same entity, currency and consistent rating adjustments.",
+        "Debt is measured using the chosen methodology and is strictly positive."
+      ],
+      "limitations": [
+        "Definitions and adjustments differ across agencies and dates; coverage is not a default probability.",
+        "The period of FFO must be specified when comparing ratios."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Credit Analysis, printed pp236–237 (PDF pp250–251), Exhibit 22 and footnotes",
+          "evidence": "Exhibit 22 divides funds from operations by total debt for credit analysis.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sp-2013-corporate-ratios",
+          "kind": "primary",
+          "title": "Corporate Methodology: Ratios And Adjustments",
+          "url": "https://www.maalot.co.il/publications/mt20131127143756a.pdf",
+          "version": "Standard & Poor’s Ratings Services, 19 November 2013",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 245–247, 259–260, printed pp35–37",
+          "evidence": "The historical methodology defines FFO, free operating cash flow and their corresponding debt ratios, subject to adjustments.",
+          "license": "S&P copyright; formula-level facts and original paraphrase only; historical methodology is not asserted to be current.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "ffo": 70,
+            "debt": 350
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "70 FFO over 350 debt gives 0.2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "loss",
+          "inputs": {
+            "ffo": -10,
+            "debt": 100
+          },
+          "expected": -0.1,
+          "tolerance": 1e-09,
+          "method": "Negative FFO can yield a negative coverage ratio.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "debt": 350
+          },
+          "reason": "ffo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ffo=coverage*debt; debt=ffo/coverage when coverage is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--credit-rating-free-operating-cash-flow",
+      "revision": "r1",
+      "title": "Credit-rating free operating cash flow",
+      "summary": "The footnote and ratio numerator use adjusted operating cash flow less capital expenditures.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "focf",
+        "expression": "cfo - capex + adjustments",
+        "original_equation": "Free operating cash flow = CFO − capital expenditures + other adjustments",
+        "source_id": "sp-2013-corporate-ratios",
+        "locator": "Paragraphs 245–247, 259–260, printed pp35–37",
+        "translation_notes": "All inputs share one currency and the result may be negative."
+      },
+      "variables": [
+        {
+          "symbol": "cfo",
+          "source_symbol": "adjusted operating cash flow",
+          "role": "input",
+          "quantity_id": "credit_rating_adjusted_cfo",
+          "definition": "adjusted operating cash flow",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "capex",
+          "source_symbol": "capital expenditures",
+          "role": "input",
+          "quantity_id": "credit_rating_capital_expenditures",
+          "definition": "capital expenditures",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "adjustments",
+          "source_symbol": "other signed adjustments",
+          "role": "input",
+          "quantity_id": "credit_rating_focf_other_adjustments",
+          "definition": "other signed adjustments",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "focf",
+          "source_symbol": "free operating cash flow",
+          "role": "output",
+          "quantity_id": "credit_rating_free_operating_cash_flow",
+          "definition": "free operating cash flow",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "capex >= 0"
+      ],
+      "assumptions": [
+        "Capital expenditures are positive cash outflow magnitudes and all amounts use the same entity and period.",
+        "Other adjustments are signed and exclude items already included in the input measures."
+      ],
+      "limitations": [
+        "Agency adjustment policies and cash-flow classifications can change; no current methodology is implied.",
+        "This measure is not automatically equivalent to FCFF or FCFE."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Credit Analysis, printed pp236–237 (PDF pp250–251), Exhibit 22 and footnotes",
+          "evidence": "The footnote and ratio numerator use adjusted operating cash flow less capital expenditures.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sp-2013-corporate-ratios",
+          "kind": "primary",
+          "title": "Corporate Methodology: Ratios And Adjustments",
+          "url": "https://www.maalot.co.il/publications/mt20131127143756a.pdf",
+          "version": "Standard & Poor’s Ratings Services, 19 November 2013",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 245–247, 259–260, printed pp35–37",
+          "evidence": "The historical methodology defines FFO, free operating cash flow and their corresponding debt ratios, subject to adjustments.",
+          "license": "S&P copyright; formula-level facts and original paraphrase only; historical methodology is not asserted to be current.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "cfo": 100,
+            "capex": 35,
+            "adjustments": 0
+          },
+          "expected": 65,
+          "tolerance": 1e-09,
+          "method": "100 operating cash flow less 35 capital expenditures yields 65.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative",
+          "inputs": {
+            "cfo": 20,
+            "capex": 30,
+            "adjustments": 0
+          },
+          "expected": -10,
+          "tolerance": 1e-09,
+          "method": "20 less 30 yields negative 10.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "capex": 35,
+            "adjustments": 0
+          },
+          "reason": "cfo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cfo=focf+capex-adjustments.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--credit-rating-free-operating-cash-flow-to-debt",
+      "revision": "r1",
+      "title": "Credit-rating free operating cash flow to debt",
+      "summary": "Exhibit 22 divides adjusted operating cash flow less capital expenditures by total debt.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "coverage",
+        "expression": "focf / debt",
+        "original_equation": "Free operating cash flow-to-debt ratio = free operating cash flow / adjusted debt",
+        "source_id": "sp-2013-corporate-ratios",
+        "locator": "Paragraphs 245–247, 259–260, printed pp35–37",
+        "translation_notes": "The ratio is dimensionless for a specified cash-flow period."
+      },
+      "variables": [
+        {
+          "symbol": "focf",
+          "source_symbol": "free operating cash flow",
+          "role": "input",
+          "quantity_id": "credit_rating_free_operating_cash_flow",
+          "definition": "free operating cash flow",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "debt",
+          "source_symbol": "adjusted debt",
+          "role": "input",
+          "quantity_id": "credit_rating_adjusted_debt",
+          "definition": "adjusted debt",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "coverage",
+          "source_symbol": "free operating cash flow-to-debt ratio",
+          "role": "output",
+          "quantity_id": "credit_rating_focf_to_debt",
+          "definition": "free operating cash flow-to-debt ratio",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "debt > 0"
+      ],
+      "assumptions": [
+        "Cash flow and debt share an entity, currency and consistent credit-rating adjustments.",
+        "Debt is strictly positive."
+      ],
+      "limitations": [
+        "The result depends on the definition of debt and on the period of the cash flow.",
+        "Historical methodology and illustrative values do not establish current criteria."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Credit Analysis, printed pp236–237 (PDF pp250–251), Exhibit 22 and footnotes",
+          "evidence": "Exhibit 22 divides adjusted operating cash flow less capital expenditures by total debt.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sp-2013-corporate-ratios",
+          "kind": "primary",
+          "title": "Corporate Methodology: Ratios And Adjustments",
+          "url": "https://www.maalot.co.il/publications/mt20131127143756a.pdf",
+          "version": "Standard & Poor’s Ratings Services, 19 November 2013",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 245–247, 259–260, printed pp35–37",
+          "evidence": "The historical methodology defines FFO, free operating cash flow and their corresponding debt ratios, subject to adjustments.",
+          "license": "S&P copyright; formula-level facts and original paraphrase only; historical methodology is not asserted to be current.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "focf": 65,
+            "debt": 325
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "65 over 325 gives 0.2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative",
+          "inputs": {
+            "focf": -10,
+            "debt": 100
+          },
+          "expected": -0.1,
+          "tolerance": 1e-09,
+          "method": "Negative 10 over 100 gives negative 0.1.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "debt": 325
+          },
+          "reason": "focf is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "focf=coverage*debt; debt=focf/coverage when coverage is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

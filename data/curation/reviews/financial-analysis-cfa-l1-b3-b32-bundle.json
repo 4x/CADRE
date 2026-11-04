@@ -1,0 +1,433 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b32",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. The generic loan interest portion is an assignment exclusion; this batch instead records the distinct accounting carrying-value rollforward."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--bond-amortised-cost-carrying-rollforward",
+      "revision": "r1",
+      "title": "Bond carrying amount after interest and coupon",
+      "summary": "Opening carrying amount rises by discount amortization, which is interest expense less cash interest.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "closing",
+        "expression": "opening + expense - coupon",
+        "original_equation": "Closing carrying amount = opening carrying amount + interest expense - cash coupon",
+        "source_id": "openstax-accounting-13-2",
+        "locator": "Section 13.2, effective-interest bond amortization tables",
+        "translation_notes": "All amounts use the same reporting currency and period; interest expense and cash coupon are positive."
+      },
+      "variables": [
+        {
+          "symbol": "opening",
+          "source_symbol": "opening bond carrying amount",
+          "role": "input",
+          "quantity_id": "opening_bond_carrying_amount",
+          "definition": "opening bond carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expense",
+          "source_symbol": "period interest expense",
+          "role": "input",
+          "quantity_id": "bond_interest_expense",
+          "definition": "period interest expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "coupon",
+          "source_symbol": "period cash coupon",
+          "role": "input",
+          "quantity_id": "bond_coupon_payment",
+          "definition": "period cash coupon",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "closing",
+          "source_symbol": "closing bond carrying amount",
+          "role": "output",
+          "quantity_id": "closing_bond_carrying_amount",
+          "definition": "closing bond carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "opening >= 0",
+        "expense >= 0",
+        "coupon >= 0"
+      ],
+      "assumptions": [
+        "One coupon period, with interest expense and coupon for the same bond and period.",
+        "No principal repayment, modification, foreign exchange, or other carrying-value change occurs."
+      ],
+      "limitations": [
+        "An effective-interest calculation of interest expense is separate from this rollforward.",
+        "The calculation does not apply to fair-value remeasurement or a period with principal settlement."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 8, Accounting for Bond Amortisation, Interest Expense, and Interest Payments, printed pp451–452 (PDF pp465–466), Example 3",
+          "evidence": "Opening carrying amount rises by discount amortization, which is interest expense less cash interest.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-accounting-13-2",
+          "kind": "primary",
+          "title": "Principles of Accounting, Volume 1, section 13.2",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/13-2-compute-amortization-of-long-term-liabilities-using-the-effective-interest-method",
+          "version": "Rice University, 2019",
+          "accessed": "2026-11-03",
+          "locator": "Section 13.2, effective-interest bond amortization tables",
+          "evidence": "The tables reconcile opening carrying value, interest expense and cash coupon to closing carrying value for discount and premium bonds.",
+          "license": "OpenStax page displays CC BY-NC-SA and additional usage terms; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "discount",
+          "inputs": {
+            "opening": 91800,
+            "expense": 6426,
+            "coupon": 5000
+          },
+          "expected": 93226,
+          "tolerance": 1e-09,
+          "method": "A discounted bond rises by the 1,426 amortized discount.",
+          "provenance": "OpenStax section 13.2 discount table."
+        },
+        {
+          "id": "premium",
+          "inputs": {
+            "opening": 104460,
+            "expense": 4178,
+            "coupon": 5000
+          },
+          "expected": 103638,
+          "tolerance": 1e-09,
+          "method": "A premium bond falls by the 822 amortized premium.",
+          "provenance": "OpenStax section 13.2 premium table."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "expense": 6426,
+            "coupon": 5000
+          },
+          "reason": "opening is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "opening=closing-expense+coupon; each other term can be recovered given the remaining terms.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--debt-extinguishment-gain",
+      "revision": "r1",
+      "title": "Gain or loss on extinguishment of debt",
+      "summary": "The example calculates a loss as carrying amount less cash paid on redemption.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "gain",
+        "expression": "carrying - consideration",
+        "original_equation": "Gain on debt extinguishment = extinguished carrying amount - consideration",
+        "source_id": "ifrs9-2022",
+        "locator": "Paragraphs 3.3.3–3.3.4",
+        "translation_notes": "Gain is positive and loss negative; all amounts use the same currency."
+      },
+      "variables": [
+        {
+          "symbol": "carrying",
+          "source_symbol": "carrying amount of debt extinguished",
+          "role": "input",
+          "quantity_id": "extinguished_debt_carrying_amount",
+          "definition": "carrying amount of debt extinguished",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "consideration",
+          "source_symbol": "consideration paid",
+          "role": "input",
+          "quantity_id": "debt_extinguishment_consideration",
+          "definition": "consideration paid",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "gain",
+          "source_symbol": "gain on debt extinguishment",
+          "role": "output",
+          "quantity_id": "debt_extinguishment_gain",
+          "definition": "gain on debt extinguishment",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "carrying >= 0",
+        "consideration >= 0"
+      ],
+      "assumptions": [
+        "The carrying amount and consideration relate to the same extinguished part of the liability.",
+        "Applicable unamortized issuance costs and transaction costs are appropriately incorporated."
+      ],
+      "limitations": [
+        "A partial extinguishment requires allocation; complex debt modifications require separate accounting analysis.",
+        "The gain is before tax and excludes unrelated transaction effects."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 8, Derecognition of Debt, printed p459 (PDF p473), unnumbered redemption example",
+          "evidence": "The example calculates a loss as carrying amount less cash paid on redemption.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ifrs9-2022",
+          "kind": "primary",
+          "title": "IFRS 9 Financial Instruments",
+          "url": "https://www.ifrs.org/content/dam/ifrs/publications/pdf-standards/english/2022/issued/part-a/ifrs-9-financial-instruments.pdf?bypass=on",
+          "version": "IFRS Foundation, 2022 issued edition",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs 3.3.3–3.3.4",
+          "evidence": "The carrying amount of extinguished financial liability is compared with consideration paid and the difference is recognized in profit or loss.",
+          "license": "IFRS Foundation copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "loss",
+          "inputs": {
+            "carrying": 10000000,
+            "consideration": 10300000
+          },
+          "expected": -300000,
+          "tolerance": 1e-09,
+          "method": "A 10.3 million redemption of debt carried at 10 million produces a 0.3 million loss.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "gain",
+          "inputs": {
+            "carrying": 1000,
+            "consideration": 950
+          },
+          "expected": 50,
+          "tolerance": 1e-09,
+          "method": "Debt carried at 1,000 extinguished for 950 produces a gain of 50.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "consideration": 10300000
+          },
+          "reason": "carrying is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "consideration=carrying-gain and carrying=gain+consideration.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--defined-benefit-plan-deficit",
+      "revision": "r1",
+      "title": "Defined benefit plan deficit or surplus",
+      "summary": "The example subtracts plan asset fair value from the present value of the defined benefit obligation.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "deficit",
+        "expression": "obligation - assets",
+        "original_equation": "Defined benefit deficit = present value of obligation - fair value of plan assets",
+        "source_id": "ias19-2021",
+        "locator": "Paragraphs 63–64 and 113",
+        "translation_notes": "Positive deficit is underfunding; a negative value is surplus. Values can be scaled consistently."
+      },
+      "variables": [
+        {
+          "symbol": "obligation",
+          "source_symbol": "present value of defined benefit obligation",
+          "role": "input",
+          "quantity_id": "defined_benefit_obligation_present_value",
+          "definition": "present value of defined benefit obligation",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "assets",
+          "source_symbol": "fair value of plan assets",
+          "role": "input",
+          "quantity_id": "defined_benefit_plan_assets_fair_value",
+          "definition": "fair value of plan assets",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "deficit",
+          "source_symbol": "defined benefit plan deficit",
+          "role": "output",
+          "quantity_id": "defined_benefit_plan_deficit",
+          "definition": "defined benefit plan deficit",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "obligation >= 0",
+        "assets >= 0"
+      ],
+      "assumptions": [
+        "The obligation and eligible plan assets are measured at the same reporting date for the same plan.",
+        "Inputs follow the applicable accounting definitions and are stated in the same currency."
+      ],
+      "limitations": [
+        "A negative output denotes a surplus before application of any asset ceiling, not necessarily the recognized net pension asset.",
+        "Reimbursement rights that do not qualify as plan assets are excluded."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 8, Employee Compensation: Post-Employment and Share-Based, printed p479 (PDF p493), Example 10 solution 3",
+          "evidence": "The example subtracts plan asset fair value from the present value of the defined benefit obligation.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ias19-2021",
+          "kind": "primary",
+          "title": "IAS 19 Employee Benefits",
+          "url": "https://www.ifrs.org/content/dam/ifrs/publications/pdf-standards/english/2021/issued/part-a/ias-19-employee-benefits.pdf",
+          "version": "IFRS Foundation, 2021 issued edition",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs 63–64 and 113",
+          "evidence": "The defined benefit deficit or surplus deducts plan asset fair value from the present value of the obligation; the asset ceiling can limit a recognized surplus.",
+          "license": "IFRS Foundation copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "deficit",
+          "inputs": {
+            "obligation": 57327,
+            "assets": 50956
+          },
+          "expected": 6371,
+          "tolerance": 1e-09,
+          "method": "The obligation of 57,327 less assets of 50,956 yields a 6,371 deficit in consistent units.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "surplus",
+          "inputs": {
+            "obligation": 100,
+            "assets": 120
+          },
+          "expected": -20,
+          "tolerance": 1e-09,
+          "method": "Plan assets of 120 exceed an obligation of 100 by 20.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "assets": 50956
+          },
+          "reason": "obligation is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "obligation=deficit+assets; assets=obligation-deficit.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

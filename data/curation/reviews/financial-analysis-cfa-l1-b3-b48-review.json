@@ -1,0 +1,153 @@
+{
+ "schema_version": "cm-scientific-review/1",
+ "batch_id": "financial-analysis-cfa-l1-b3-b48",
+ "batch_sha256": "aa4daa6f45ace1c7cb49fb0cc60e7f013cf245cb589bd15d0ef7152bcd08d3bd",
+ "reviewer": "ingest-cfa-b3a",
+ "reviewed": "2026-11-04",
+ "models": [
+  {
+   "id": "financial-analysis--trailing-price-to-earnings-per-share",
+   "revision": "r1",
+   "record_sha256": "407f7adf2528fcc43b94248259e6c768bf48cb6c683eff8c412c406bd2482fab",
+   "checks": {
+    "source-fidelity": {
+     "status": "passed",
+     "evidence": "Worker investor.gov URL verified live (HTTP 200) but definition body is JavaScript-rendered; the P/E = price/EPS form is confirmed on the opened OpenStax 6.5 page."
+    },
+    "scope": {
+     "status": "passed",
+     "evidence": "Trailing earnings multiple; positive-EPS scope follows the guard."
+    },
+    "dimensions": {
+     "status": "passed",
+     "evidence": "Dimensionless; consistent."
+    },
+    "reference-independence": {
+     "status": "passed",
+     "evidence": "Independent recomputation reproduces both references; CFA-example and constructed oracles honestly distinguished."
+    },
+    "guards-inverses": {
+     "status": "passed",
+     "evidence": "Guards (eps>0) satisfied."
+    },
+    "rights-provenance": {
+     "status": "passed",
+     "evidence": "No invented clearance; CFA excerpt purchased-copy/no-redistribution; SEC-glossary terms recorded as unreviewed without clearance claims."
+    }
+   },
+   "sources": [
+    {
+     "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/price-earnings-or-pe-ratio",
+     "locator": "P/E glossary entry",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer fetched the URL (HTTP 200, live) but the definition body is JavaScript-rendered and not in static text; the P/E = price/EPS form is corroborated via o6-5 (OpenStax 6.5, opened)."
+    },
+    {
+     "url": "https://openstax.org/books/principles-finance-2e/pages/6-5-market-value-ratios",
+     "locator": "Calculating earnings per share, equation 6.27; P/E paragraph",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer opened the page (full text searched): equation 6.27 'Earnings per Share = Net Income - Preferred Dividends / Weighted Average Common Shares Outstanding' confirmed verbatim; P/E defined as market price relative to EPS."
+    }
+   ],
+   "blockers": [],
+   "recommendation": "recommend-admit",
+   "permitted_use": "Bounded local computation of trailing P/E (price/EPS)."
+  },
+  {
+   "id": "financial-analysis--enterprise-value-to-ebitda",
+   "revision": "r1",
+   "record_sha256": "7060cdac50f0e75aad6e7520ae03ee38a39084fcf9703b2a56aef1ca3258a891",
+   "checks": {
+    "source-fidelity": {
+     "status": "passed",
+     "evidence": "Worker SEC glossary URL bot-blocked for this reviewer (see edgar-blocked probe); formula verified verbatim against the opened CFI page ('EBITDA Multiple = Enterprise Value / EBITDA')."
+    },
+    "scope": {
+     "status": "passed",
+     "evidence": "Firm-value multiple; trailing EBITDA input."
+    },
+    "dimensions": {
+     "status": "passed",
+     "evidence": "Dimensionless; consistent."
+    },
+    "reference-independence": {
+     "status": "passed",
+     "evidence": "Independent recomputation reproduces both references; CFA-example and constructed oracles honestly distinguished."
+    },
+    "guards-inverses": {
+     "status": "passed",
+     "evidence": "Guards (ebitda>0) satisfied."
+    },
+    "rights-provenance": {
+     "status": "passed",
+     "evidence": "No invented clearance; CFA excerpt purchased-copy/no-redistribution; SEC-glossary terms recorded as unreviewed without clearance claims."
+    }
+   },
+   "sources": [
+    {
+     "url": "https://corporatefinanceinstitute.com/resources/capital_markets/ebitda-multiple/",
+     "locator": "EBITDA Multiple; Enterprise Value; EBITDA formulas",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer opened the CFI page (full text searched): 'EBITDA Multiple = Enterprise Value / EBITDA', 'Enterprise Value = (market capitalization + value of debt + minority interest + preferred shares) - (cash and cash equivalents)', 'EBITDA = Earnings Before Tax + Interest + Depreciation + Amortization' all confirmed verbatim."
+    },
+    {
+     "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=&type=10-K",
+     "locator": "N/A (access-control probe)",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer probe: sec.gov returns HTTP 403 to this reviewer's fetcher for every URL including a deliberately-nonexistent Archives path, so EDGAR-hosted worker primaries (filings, R10.htm) are bot-blocked rather than verifiably dead; formulas corroborated via alternate opened sources per record, worker locators (page/note/figure) recorded as precise-but-unopened."
+    }
+   ],
+   "blockers": [],
+   "recommendation": "recommend-admit",
+   "permitted_use": "Bounded local computation of the EV/EBITDA multiple."
+  },
+  {
+   "id": "financial-analysis--ebitda-from-ebit-and-depreciation-amortization",
+   "revision": "r1",
+   "record_sha256": "49b62433f20a6118a8b9947171f8129a3d92bccf57b7573c37907830d67ae63d",
+   "checks": {
+    "source-fidelity": {
+     "status": "passed",
+     "evidence": "Worker EDGAR filing URL bot-blocked for this reviewer (see edgar-blocked probe; locator MD&A p28 precise-but-unopened); formula verified against the opened CFI page (EBIT + D&A with EBIT = EBT + Interest; the record takes EBIT directly)."
+    },
+    "scope": {
+     "status": "passed",
+     "evidence": "EBITDA proxy build; no non-recurring adjustments."
+    },
+    "dimensions": {
+     "status": "passed",
+     "evidence": "Currency; consistent."
+    },
+    "reference-independence": {
+     "status": "passed",
+     "evidence": "Independent recomputation reproduces both references; filing-figure and constructed oracles honestly labeled."
+    },
+    "guards-inverses": {
+     "status": "passed",
+     "evidence": "Guards (depreciation/amortization nonneg) satisfied."
+    },
+    "rights-provenance": {
+     "status": "passed",
+     "evidence": "No invented clearance; CFA excerpt purchased-copy/no-redistribution; filing terms honestly recorded as issuer-assumed with no redistribution."
+    }
+   },
+   "sources": [
+    {
+     "url": "https://corporatefinanceinstitute.com/resources/capital_markets/ebitda-multiple/",
+     "locator": "EBITDA Multiple; Enterprise Value; EBITDA formulas",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer opened the CFI page (full text searched): 'EBITDA Multiple = Enterprise Value / EBITDA', 'Enterprise Value = (market capitalization + value of debt + minority interest + preferred shares) - (cash and cash equivalents)', 'EBITDA = Earnings Before Tax + Interest + Depreciation + Amortization' all confirmed verbatim."
+    },
+    {
+     "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=&type=10-K",
+     "locator": "N/A (access-control probe)",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer probe: sec.gov returns HTTP 403 to this reviewer's fetcher for every URL including a deliberately-nonexistent Archives path, so EDGAR-hosted worker primaries (filings, R10.htm) are bot-blocked rather than verifiably dead; formulas corroborated via alternate opened sources per record, worker locators (page/note/figure) recorded as precise-but-unopened."
+    }
+   ],
+   "blockers": [],
+   "recommendation": "recommend-admit",
+   "permitted_use": "Bounded local EBITDA build from EBIT (EBIT + depreciation + amortization)."
+  }
+ ]
+}

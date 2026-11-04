@@ -1,0 +1,301 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b44",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. Distinct lease-accounting quantities are retained; the excluded generic loan-interest and principal models are not resubmitted. The source lease table typo and overgeneralization are recorded in the session discrepancies."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--lessee-finance-lease-liability-rollforward",
+      "revision": "r1",
+      "title": "Lessee finance lease liability rollforward",
+      "summary": "The liability is increased by interest and reduced by the payment.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "closing",
+        "expression": "opening + interest - payments",
+        "original_equation": "Closing lease liability = opening liability + interest accretion - lease payments",
+        "source_id": "fasb-asu-2016-02-a",
+        "locator": "Paragraph 842-20-35-1(a), subsequent measurement of finance lease liability",
+        "translation_notes": "All inputs are amounts in the same currency; interest and payments are nonnegative."
+      },
+      "variables": [
+        {
+          "symbol": "opening",
+          "source_symbol": "opening lease liability",
+          "role": "input",
+          "quantity_id": "opening_finance_lease_liability",
+          "definition": "opening lease liability",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "interest",
+          "source_symbol": "interest on lease liability",
+          "role": "input",
+          "quantity_id": "finance_lease_liability_interest",
+          "definition": "interest on lease liability",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "payments",
+          "source_symbol": "lease payments applied to liability",
+          "role": "input",
+          "quantity_id": "lease_liability_payments",
+          "definition": "lease payments applied to liability",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "closing",
+          "source_symbol": "closing lease liability",
+          "role": "output",
+          "quantity_id": "closing_finance_lease_liability",
+          "definition": "closing lease liability",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "opening >= 0",
+        "interest >= 0",
+        "payments >= 0"
+      ],
+      "assumptions": [
+        "Interest and payments relate to the same finance lease and reporting period.",
+        "No modification, reassessment, foreign exchange or other balance movement occurs."
+      ],
+      "limitations": [
+        "The liability excludes payments not included in its measurement.",
+        "Lease principal and interest calculations themselves overlap the loan-family models excluded by the assignment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 8, Lessee Accounting—IFRS, printed pp469–470 (PDF pp483–484), Example 11 lease liability table",
+          "evidence": "The liability is increased by interest and reduced by the payment.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "fasb-asu-2016-02-a",
+          "kind": "primary",
+          "title": "Accounting Standards Update 2016-02, Leases (Topic 842), Section A",
+          "url": "https://storage.fasb.org/ASU%202016-02_Section%20A.pdf",
+          "version": "Financial Accounting Standards Board, February 2016",
+          "accessed": "2026-11-03",
+          "locator": "Paragraph 842-20-35-1(a), subsequent measurement of finance lease liability",
+          "evidence": "The lessee increases the lease liability for interest and reduces it for lease payments.",
+          "license": "FASB copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "year-one",
+          "inputs": {
+            "opening": 379079,
+            "interest": 37908,
+            "payments": 100000
+          },
+          "expected": 316987,
+          "tolerance": 1e-09,
+          "method": "379,079 plus 37,908 interest less the 100,000 payment gives 316,987.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "year-two-rounded",
+          "inputs": {
+            "opening": 316987,
+            "interest": 31699,
+            "payments": 100000
+          },
+          "expected": 248686,
+          "tolerance": 1e-09,
+          "method": "Using rounded inputs, 316,987 plus 31,699 less 100,000 is 248,686; the PDF table uses unrounded amounts and shows 248,685.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "interest": 37908,
+            "payments": 100000
+          },
+          "reason": "opening is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "opening=closing-interest+payments; any other single component is similarly recoverable.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--operating-lease-rou-amortization-from-lease-cost",
+      "revision": "r1",
+      "title": "Operating lease right-of-use amortization from lease cost",
+      "summary": "In the example, right-of-use amortization is the payment less the interest component; the fixed payment equals the single lease cost.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "amortization",
+        "expression": "cost - interest",
+        "original_equation": "ROU amortization = straight-line lease cost - lease liability interest accretion",
+        "source_id": "johnson-controls-2020-leases",
+        "locator": "Leases note, operating lease subsequent measurement",
+        "translation_notes": "The interest component is an input to the combined operating lease cost and is not separately presented as interest expense."
+      },
+      "variables": [
+        {
+          "symbol": "cost",
+          "source_symbol": "single operating lease cost",
+          "role": "input",
+          "quantity_id": "operating_lease_single_cost",
+          "definition": "single operating lease cost",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "interest",
+          "source_symbol": "lease liability interest accretion",
+          "role": "input",
+          "quantity_id": "operating_lease_liability_interest_accretion",
+          "definition": "lease liability interest accretion",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "amortization",
+          "source_symbol": "right-of-use asset amortization",
+          "role": "output",
+          "quantity_id": "operating_lease_rou_amortization",
+          "definition": "right-of-use asset amortization",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "cost >= 0",
+        "interest >= 0"
+      ],
+      "assumptions": [
+        "The operating lease is unmodified, not impaired and its single lease cost is measured on the stated straight-line basis.",
+        "Amounts refer to the same lessee, period and lease."
+      ],
+      "limitations": [
+        "Expense need not equal the cash payment for uneven payments, incentives or other timing differences.",
+        "The ROU asset need not equal the liability when there are prepaid payments, incentives, initial direct costs or impairment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 8, Lessee Accounting—Operating Lease under US GAAP, printed pp471–472 (PDF pp485–486), Example 12 table",
+          "evidence": "In the example, right-of-use amortization is the payment less the interest component; the fixed payment equals the single lease cost.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "johnson-controls-2020-leases",
+          "kind": "primary",
+          "title": "Johnson Controls International 2020 Annual Report, Leases Note",
+          "url": "https://www.sec.gov/Archives/edgar/data/54381/000005438120000008/R10.htm",
+          "version": "Johnson Controls International plc, 2020 filing",
+          "accessed": "2026-11-03",
+          "locator": "Leases note, operating lease subsequent measurement",
+          "evidence": "Operating lease right-of-use asset amortization is the difference between straight-line lease cost and liability accretion.",
+          "license": "Issuer filing; copyright and permissions not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "year-one",
+          "inputs": {
+            "cost": 100000,
+            "interest": 37908
+          },
+          "expected": 62092,
+          "tolerance": 1e-09,
+          "method": "100,000 lease cost less 37,908 liability accretion gives 62,092 amortization.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "year-two",
+          "inputs": {
+            "cost": 100000,
+            "interest": 31699
+          },
+          "expected": 68301,
+          "tolerance": 1e-09,
+          "method": "100,000 lease cost less 31,699 liability accretion gives 68,301 amortization.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "interest": 37908
+          },
+          "reason": "cost is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cost=amortization+interest; interest=cost-amortization.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

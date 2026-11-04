@@ -1,0 +1,605 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b37",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 1 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--binomial-mean",
+      "revision": "r2",
+      "title": "Mean success count of a binomial distribution",
+      "summary": "The binomial expected success count is trial count times the common success probability.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "mean",
+        "expression": "n * p",
+        "original_equation": "E(X)=np",
+        "source_id": "nist-binomial",
+        "locator": "Section1.3.6.6.18, Binomial Distribution, PMF and Common Statistics",
+        "translation_notes": "Dimensionless probability times event-count cardinality gives expected count. Bernoulli meanp is the n1 specialization, not a separate record. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "n",
+          "source_symbol": "n",
+          "role": "input",
+          "quantity_id": "bernoulli_trial_count",
+          "definition": "Nonnegative number of independent binary trials",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same binomial trial count, fixed success probability, independent Bernoulli trials and defined success event",
+          "domain": "Nonnegative integer"
+        },
+        {
+          "symbol": "p",
+          "source_symbol": "p",
+          "role": "input",
+          "quantity_id": "bernoulli_success_probability",
+          "definition": "Common probability of success on every trial",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same binomial trial count, fixed success probability, independent Bernoulli trials and defined success event",
+          "domain": "0<=p<=1"
+        },
+        {
+          "symbol": "mean",
+          "source_symbol": "np",
+          "role": "output",
+          "quantity_id": "binomial_mean_success_count",
+          "definition": "Expected number of successes in the specified trials",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same binomial trial count, fixed success probability, independent Bernoulli trials and defined success event",
+          "domain": "0<=mean<=n"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "n >= 0",
+        "p >= 0",
+        "p <= 1"
+      ],
+      "assumptions": [
+        "Source assumption: binomial model with fixed trial count and common success probability.",
+        "Linearity makes the mean expression valid even without independence when every trial has the same marginalp; independence is needed for the full binomial law and variance."
+      ],
+      "limitations": [
+        "Expected counts need not be integers and are not claims about any specific financial outcome."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Binomial Distribution, printed p252 (PDF p262), Exhibit7; Example4 printed p253/PDF263",
+          "evidence": "The binomial expected success count is trial count times the common success probability.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-binomial",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda366i.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.6.6.18, Binomial Distribution, PMF and Common Statistics",
+          "evidence": "A fixed-p binomial law has combination-weighted Bernoulli sequence probabilities, meannp and variancenp(1-p).",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-default-count",
+          "inputs": {
+            "n": 25,
+            "p": 0.107
+          },
+          "expected": 2.675,
+          "tolerance": 1e-09,
+          "method": "Published expected count2.675; expectation counts twenty-five identical.107 contributions.",
+          "provenance": "CFA Example4 printed p253/PDF263."
+        },
+        {
+          "id": "certain-successes",
+          "inputs": {
+            "n": 3,
+            "p": 1
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "Three certain successes give expected count3.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "p": 0.107
+          },
+          "reason": "n is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "p=mean/n requiresn>0 and feasible mean; n=mean/p requiresp>0 and a nonnegative integern. Firstcase2.675/25=.107. Withp0, mean0 leavesn unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--binomial-variance",
+      "revision": "r2",
+      "title": "Variance of a binomial success count",
+      "summary": "Under independent fixed-probability trials, the variance of total successes is np(1-p).",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "variance",
+        "expression": "n * p * (1 - p)",
+        "original_equation": "Var(X)=np(1-p)",
+        "source_id": "nist-binomial",
+        "locator": "Section1.3.6.6.18, Binomial Distribution, PMF and Common Statistics",
+        "translation_notes": "Counts are dimensionless cardinalities; statistical variance is labeled squared-count for semantics. Bernoulli variancep(1-p) is included atn1. The literal1 is the complementary probability baseline. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "n",
+          "source_symbol": "n",
+          "role": "input",
+          "quantity_id": "bernoulli_trial_count",
+          "definition": "Nonnegative number of independent binary trials",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same binomial trial count, fixed success probability, independent Bernoulli trials and defined success event",
+          "domain": "Nonnegative integer"
+        },
+        {
+          "symbol": "p",
+          "source_symbol": "p",
+          "role": "input",
+          "quantity_id": "bernoulli_success_probability",
+          "definition": "Common probability of success on every trial",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same binomial trial count, fixed success probability, independent Bernoulli trials and defined success event",
+          "domain": "0<=p<=1"
+        },
+        {
+          "symbol": "variance",
+          "source_symbol": "np(1-p)",
+          "role": "output",
+          "quantity_id": "binomial_success_count_variance",
+          "definition": "Population variance of the binomial success count",
+          "unit": "unit^2",
+          "dimensions": "squared event-count cardinality",
+          "context": "Same binomial trial count, fixed success probability, independent Bernoulli trials and defined success event",
+          "domain": "Nonnegative"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "n >= 0",
+        "p >= 0",
+        "p <= 1"
+      ],
+      "assumptions": [
+        "Source assumption: independent Bernoulli trials with common probabilityp and fixed countn."
+      ],
+      "limitations": [
+        "Dependent defaults or heterogeneous probabilities invalidate this binomial variance expression."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Binomial Distribution, printed p252 (PDF p262), Exhibit7; Example4 printed p253/PDF263",
+          "evidence": "Under independent fixed-probability trials, the variance of total successes is np(1-p).",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-binomial",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda366i.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.6.6.18, Binomial Distribution, PMF and Common Statistics",
+          "evidence": "A fixed-p binomial law has combination-weighted Bernoulli sequence probabilities, meannp and variancenp(1-p).",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-default-variance",
+          "inputs": {
+            "n": 25,
+            "p": 0.107
+          },
+          "expected": 2.388775,
+          "tolerance": 1e-09,
+          "method": "Published variance; independent Bernoulli variance.107*.893 summed across twenty-five independent indicators.",
+          "provenance": "CFA Example4 printed p253/PDF263."
+        },
+        {
+          "id": "certain-success-boundary",
+          "inputs": {
+            "n": 3,
+            "p": 1
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "When every trial is certain, total success count has no variance.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "p": 0.107
+          },
+          "reason": "n is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "For knownn>0, p=(1 +/-sqrt(1-4*variance/n))/2 when0<=variance<=n/4; both roots are generally valid. n=variance/[p(1-p)] requires0<p<1 and an integer result. Examplevariance1.25,n5 recoversp.5; variance0 withnpositive permitsp0orp1.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--binomial-price-tree-terminal-node",
+      "revision": "r2",
+      "title": "Terminal stock price at a recombining two-factor tree node",
+      "summary": "A recombining price tree reaches the same terminal price after any order of a fixed number of up and down multipliers.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "terminal",
+        "expression": "S * u ** x * d ** (n - x)",
+        "original_equation": "S_n=S*u^x*d^(n-x)",
+        "source_id": "uci-binomial-tree",
+        "locator": "Three-period binomial stock model and terminal-node prices",
+        "translation_notes": "Derived compact notation from the explicit source nodesuuuuS,uuudS,uuddS,... . Gross factors and financial period counts are dimensionless, leaving the initial price unit intact. Do not assumed=1/u; the source tree does not impose that restriction. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "S",
+          "source_symbol": "S",
+          "role": "input",
+          "quantity_id": "equity_price_per_share",
+          "definition": "Initial stock price per share",
+          "unit": "USD/share",
+          "dimensions": "currency/share count",
+          "context": "Same stock, currency and fixed-multiplier tree",
+          "domain": "Positive"
+        },
+        {
+          "symbol": "u",
+          "source_symbol": "u",
+          "role": "input",
+          "quantity_id": "up_move_gross_factor",
+          "definition": "Constant gross price multiplier on an up branch",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same stock, currency and fixed-multiplier tree",
+          "domain": "u>d>0"
+        },
+        {
+          "symbol": "d",
+          "source_symbol": "d",
+          "role": "input",
+          "quantity_id": "down_move_gross_factor",
+          "definition": "Constant gross price multiplier on a down branch",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same stock, currency and fixed-multiplier tree",
+          "domain": "0<d<u"
+        },
+        {
+          "symbol": "x",
+          "source_symbol": "x",
+          "role": "input",
+          "quantity_id": "up_move_count",
+          "definition": "Number of up moves to the node",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same stock, currency and fixed-multiplier tree",
+          "domain": "Integer0<=x<=n"
+        },
+        {
+          "symbol": "n",
+          "source_symbol": "n",
+          "role": "input",
+          "quantity_id": "period_count",
+          "definition": "Total number of moves",
+          "unit": "periods",
+          "dimensions": "dimensionless",
+          "context": "Same stock, currency and fixed-multiplier tree",
+          "domain": "Nonnegative integer"
+        },
+        {
+          "symbol": "terminal",
+          "source_symbol": "terminal node price",
+          "role": "output",
+          "quantity_id": "terminal_equity_price_per_share",
+          "definition": "Stock price afterxup moves andn-xdown moves",
+          "unit": "USD/share",
+          "dimensions": "currency/share count",
+          "context": "Same stock, currency and fixed-multiplier tree",
+          "domain": "Positive"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "S > 0",
+        "u > d",
+        "d > 0",
+        "n >= 0",
+        "x >= 0",
+        "x <= n"
+      ],
+      "assumptions": [
+        "Source assumption: constant multiplicative up/down factors, so order of moves does not affect the terminal node.",
+        "No dividends, splits or other price adjustments occur within this stated price-path model."
+      ],
+      "limitations": [
+        "This computes a conditional node value, not an option price or forecast; transition probabilities and risk-neutral valuation are separate.",
+        "Large move counts may exceed the scalar evaluator exponent bound."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Binomial Distribution, printed pp248-249 (PDF pp258-259), Exhibit5 and terminal-price explanation",
+          "evidence": "A recombining price tree reaches the same terminal price after any order of a fixed number of up and down multipliers.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "uci-binomial-tree",
+          "kind": "primary",
+          "title": "Introduction to Julia: Stock Problem",
+          "url": "https://ucidatascienceinitiative.github.io/IntroToJulia/Html/StockProblem",
+          "version": "UC Irvine Data Science Initiative authored teaching page, edition unstated",
+          "accessed": "2026-11-03",
+          "locator": "Three-period binomial stock model and terminal-node prices",
+          "evidence": "Terminal prices combine the initial stock price with the appropriate powers of up and down multipliers.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "two-move-round-trip",
+          "inputs": {
+            "S": 100,
+            "u": 1.2,
+            "d": 0.8,
+            "x": 1,
+            "n": 2
+          },
+          "expected": 96,
+          "tolerance": 1e-09,
+          "method": "Independent sequential multiplication:up to120 then down by twenty percent to96; reversing order also reaches96.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "initial-node",
+          "inputs": {
+            "S": 100,
+            "u": 1.2,
+            "d": 0.8,
+            "x": 0,
+            "n": 0
+          },
+          "expected": 100,
+          "tolerance": 1e-09,
+          "method": "Before any moves, the terminal node is the initial price.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "u": 1.2,
+            "d": 0.8,
+            "x": 1,
+            "n": 2
+          },
+          "reason": "S is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "S=terminal/[u^x*d^(n-x)] with positive factors. Foru!=d, x=[log(terminal/S)-n*log(d)]/[log(u)-log(d)] requires an integer in[0,n]. The firstcase recoversx1 fromthe logarithmic relation. Withn0, x0 andterminalS, factors are unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--normal-probability-density",
+      "revision": "r2",
+      "title": "Normal probability density",
+      "summary": "The normal density is a normalized Gaussian exponential with locationmuand positive scalesigma.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "density",
+        "expression": "exp(-((x - mu) / sigma) ** 2 / 2) / (sigma * sqrt(2 * pi))",
+        "original_equation": "f(x)=exp[-(x-mu)^2/(2sigma^2)]/[sigma*sqrt(2pi)]",
+        "source_id": "nist-normal",
+        "locator": "Section1.3.6.6.1, Normal Distribution, general PDF",
+        "translation_notes": "Standardizing before squaring makes the exp argument dimensionless. Density then hasU^-1. The expression names registry constantpi rather than inlining it. Arithmetic2 factors come from the stated Gaussian normalization. No registryconstant is duplicated in constants metadata. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "x",
+          "source_symbol": "x",
+          "role": "input",
+          "quantity_id": "random_variable_threshold",
+          "definition": "Point at which the normal density is evaluated",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "mu",
+          "source_symbol": "mu",
+          "role": "input",
+          "quantity_id": "population_mean",
+          "definition": "Normal location parameter",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "sigma",
+          "source_symbol": "sigma",
+          "role": "input",
+          "quantity_id": "population_standard_deviation",
+          "definition": "Strictly positive normal scale parameter",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "density",
+          "source_symbol": "f(x)",
+          "role": "output",
+          "quantity_id": "probability_density",
+          "definition": "Normal probability density, distinct from point probability",
+          "unit": "1/data-unit",
+          "dimensions": "U^-1",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Positive"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sigma > 0"
+      ],
+      "assumptions": [
+        "Source assumption: a normal law withfinite meanand strictly positive scale."
+      ],
+      "limitations": [
+        "A density value is not the probability of one exact continuous outcome; normal CDF evaluation requires an unavailable operator."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, The Normal Distribution, printed p256 (PDF p266), Equation(3)",
+          "evidence": "The normal density is a normalized Gaussian exponential with locationmuand positive scalesigma.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-normal",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda3661.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.6.6.1, Normal Distribution, general PDF",
+          "evidence": "Normal density normalizes the Gaussian exponential by sigma times the square root of2pi.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "normal-center-cdf-derivative",
+          "inputs": {
+            "x": 0,
+            "mu": 0,
+            "sigma": 1
+          },
+          "expected": 0.39894227973611507,
+          "tolerance": 1e-08,
+          "method": "Independent central difference of Python statistics.NormalDist.cdf usingh=.0001. CDF uses an erf route rather than this PDF expression; finite-difference truncation/roundoff is below1e-8.",
+          "provenance": "Executed2026-11-03 via uv run --no-env-file; cdf(h)-cdf(-h) over2h."
+        },
+        {
+          "id": "one-scale-cdf-derivative",
+          "inputs": {
+            "x": 1,
+            "mu": 0,
+            "sigma": 1
+          },
+          "expected": 0.24197072451981372,
+          "tolerance": 1e-08,
+          "method": "Independent CDF central difference at1 withh=.0001;1e-8 tolerance covers bounded derivative truncation and floating roundoff.",
+          "provenance": "Executed2026-11-03 via uv run --no-env-file using statistics.NormalDist.cdf."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "mu": 0,
+            "sigma": 1
+          },
+          "reason": "x is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "At fixedmu,sigma, a density below the peak generally has two symmetricxvalues:mu +/-sigma*sqrt(-2*log(density*sigma*sqrt(2*pi))). The peak hasx=mu. For density atx1, the mirrorx-1 reproduces the same value; no unique location inverse is claimed.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

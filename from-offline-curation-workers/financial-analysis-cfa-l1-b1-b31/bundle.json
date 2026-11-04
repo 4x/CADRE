@@ -1,0 +1,560 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b31",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 1 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--sample-target-downside-deviation",
+      "revision": "r2",
+      "title": "Sample target downside deviation with full n-1 denominator",
+      "summary": "Target downside deviation sums only squared shortfalls but divides by the full sample count minus one.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "s",
+        "expression": "sqrt(sum(shortfall_squares) / (len(shortfall_squares) - 1))",
+        "original_equation": "s_Target = sqrt(sum_{X_i<=B}(X_i-B)^2/(n-1))",
+        "source_id": "analystprep-downside",
+        "locator": "Target Downside Deviation section and sample n-1 formula",
+        "translation_notes": "Exact zero-filled reparameterization preserves the full denominator through len(shortfall_squares); equality at target contributes0. U^2 under sqrt yieldsU. This source-specific statistic is not asserted to be an unbiased variance estimator. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "shortfall_squares",
+          "source_symbol": "introduced q_i=(X_i-B)^2 if X_i<=B, else0",
+          "role": "family",
+          "quantity_id": "squared_target_shortfall",
+          "definition": "One nonnegative element per original observation, including zero for every nonshortfall",
+          "unit": "data-unit^2",
+          "dimensions": "U^2",
+          "context": "Same dataset and numerical variable, measurement unit U, observation window and sample estimator convention",
+          "domain": "Finite value under the stated source transformation",
+          "max_size": 256
+        },
+        {
+          "symbol": "s",
+          "source_symbol": "s_Target",
+          "role": "output",
+          "quantity_id": "sample_target_downside_deviation",
+          "definition": "Root mean-square shortfall with full sample n-1 denominator",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset and numerical variable, measurement unit U, observation window and sample estimator convention",
+          "domain": "Nonnegative finite value"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "len(shortfall_squares) > 1",
+        "sum(shortfall_squares) >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: one fixed target B applies to the whole sample.",
+        "Source assumption: n counts all observations, including those above the target; n>1."
+      ],
+      "limitations": [
+        "Conditional squared-shortfall preprocessing is external to the family grammar; raw returns and target provenance must be retained.",
+        "Other downside-risk conventions divide by n or by downside count; they are not interchangeable with this n-1 source convention."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Downside Deviation, printed p128 (PDF p138), Equation(12); Example18 printed p129/PDF139",
+          "evidence": "Target downside deviation sums only squared shortfalls but divides by the full sample count minus one.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-downside",
+          "kind": "primary",
+          "title": "Semi-Deviation and Coefficient of Variation: Downside Risk and Risk per Unit of Return",
+          "url": "https://analystprep.com/cfa-level-1-exam/uncategorized/semi-deviation-and-coefficient-of-variation-downside-risk-and-risk-per-unit-of-return/",
+          "version": "AnalystPrep authored study notes, live page inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Target Downside Deviation section and sample n-1 formula",
+          "evidence": "Squared shortfalls from the target are aggregated using the full sample-size-minus-one denominator.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-three-percent-target",
+          "inputs": {
+            "shortfall_squares": [
+              0,
+              0,
+              16,
+              49,
+              0,
+              1,
+              9,
+              0,
+              0,
+              9,
+              0,
+              0
+            ]
+          },
+          "expected": 2.7634,
+          "tolerance": 5e-05,
+          "method": "Published2.7634 percentage-point result with sum84 and full n12; tolerance.00005.",
+          "provenance": "CFA Example18 printed p129/PDF139."
+        },
+        {
+          "id": "no-shortfalls",
+          "inputs": {
+            "shortfall_squares": [
+              0,
+              0,
+              0
+            ]
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "If all observations meet the target, every downside contribution is0 and downside deviation vanishes.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "shortfall_squares is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Known n and s recover total squared shortfall=(n-1)*s^2, but not individual returns or the target. Zero s means no positive shortfall term. Multiple targets or return histories can produce the same statistic.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--coefficient-of-variation",
+      "revision": "r2",
+      "title": "Coefficient of variation for a positive-mean dataset",
+      "summary": "The coefficient of variation scales sample standard deviation by the positive sample mean.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "CV",
+        "expression": "s / mean",
+        "original_equation": "CV = s/X_bar",
+        "source_id": "nist-cv",
+        "locator": "COEFFICIENT OF VARIATION, Description",
+        "translation_notes": "U/U is dimensionless; no100 multiplier is applied. CV1.4 is a ratio, not a1.4% value. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "s",
+          "source_symbol": "s",
+          "role": "input",
+          "quantity_id": "sample_standard_deviation",
+          "definition": "Sample standard deviation of the numerical observations",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset and numerical variable, measurement unit U, observation window and sample estimator convention",
+          "domain": "Finite value under the stated source transformation"
+        },
+        {
+          "symbol": "mean",
+          "source_symbol": "X_bar",
+          "role": "input",
+          "quantity_id": "arithmetic_mean",
+          "definition": "Positive arithmetic mean of the same observations",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset and numerical variable, measurement unit U, observation window and sample estimator convention",
+          "domain": "Finite value under the stated source transformation"
+        },
+        {
+          "symbol": "CV",
+          "source_symbol": "CV",
+          "role": "output",
+          "quantity_id": "coefficient_of_variation",
+          "definition": "Standard deviation per unit of positive mean",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same dataset and numerical variable, measurement unit U, observation window and sample estimator convention",
+          "domain": "Nonnegative dimensionless ratio"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "s >= 0",
+        "mean > 0"
+      ],
+      "assumptions": [
+        "Source assumption: mean is positive for the source financial interpretation.",
+        "Source assumption: mean and standard deviation use the same numerical scale; meaningful comparisons require a ratio scale with meaningful zero."
+      ],
+      "limitations": [
+        "Undefined for mean0; a negative-mean signed quotient is excluded from this positive-mean profile.",
+        "Near-zero positive means make the statistic highly sensitive."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Coefficient of Variation, printed p131 (PDF p141), Equation(13); Example20 printed pp132-133/PDF142-143",
+          "evidence": "The coefficient of variation scales sample standard deviation by the positive sample mean.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-cv",
+          "kind": "primary",
+          "title": "NIST Dataplot Reference Manual",
+          "url": "https://www.itl.nist.gov/div898/software/dataplot/refman2/auxillar/coefvari.htm",
+          "version": "Live page inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "COEFFICIENT OF VARIATION, Description",
+          "evidence": "The sample coefficient of variation divides sample standard deviation by the sample mean.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-industry-a",
+          "inputs": {
+            "s": 5.6,
+            "mean": 4
+          },
+          "expected": 1.4,
+          "tolerance": 1e-09,
+          "method": "Published ratio1.40 from sample dispersion and mean in matching percentage-point units.",
+          "provenance": "CFA Example20 printed p132/PDF142."
+        },
+        {
+          "id": "zero-dispersion",
+          "inputs": {
+            "s": 0,
+            "mean": 2
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Constant positive data have no relative dispersion.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "mean": 4
+          },
+          "reason": "s is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "s=CV*mean; mean=s/CV requires CV>0. CV1.4 and mean4 recover s5.6. If CV=s=0, positive mean is not identifiable.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--sample-covariance",
+      "revision": "r2",
+      "title": "Sample covariance of paired observations",
+      "summary": "Sample covariance averages paired centered cross products using n-1 degrees of freedom.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cov",
+        "expression": "sum(cross) / (len(cross) - 1)",
+        "original_equation": "s_XY=sum_i((X_i-X_bar)(Y_i-Y_bar))/(n-1)",
+        "source_id": "numpy-cov",
+        "locator": "numpy.cov, bias parameter, Notes and covariance algorithm",
+        "translation_notes": "c_i is introduced as an exact paired transformation. n=len(cross), and the1 represents the mean-estimation degree-of-freedom correction. U*V remainsU*V after division by a count. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "cross",
+          "source_symbol": "introduced c_i=(X_i-X_bar)(Y_i-Y_bar)",
+          "role": "family",
+          "quantity_id": "centered_cross_product",
+          "definition": "One centered product for each matched observation pair",
+          "unit": "data-unit-x*data-unit-y",
+          "dimensions": "U*V",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Finite real scalar",
+          "max_size": 256
+        },
+        {
+          "symbol": "cov",
+          "source_symbol": "s_XY",
+          "role": "output",
+          "quantity_id": "sample_covariance",
+          "definition": "Signed paired-sample covariance using n-1",
+          "unit": "data-unit-x*data-unit-y",
+          "dimensions": "U*V",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "len(cross) > 1"
+      ],
+      "assumptions": [
+        "Source assumption: every centered product uses the matching pair and the corresponding sample means.",
+        "Independent identically distributed pairs with finite second moments justify the unbiased-population-covariance interpretation."
+      ],
+      "limitations": [
+        "Precomputed centered cross products are required; covariance alone does not imply causation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Correlation between Two Variables, printed p140 (PDF p150), Equation(14)",
+          "evidence": "Sample covariance averages paired centered cross products using n-1 degrees of freedom.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "numpy-cov",
+          "kind": "primary",
+          "title": "NumPy covariance documentation",
+          "url": "https://numpy.org/doc/stable/reference/generated/numpy.cov.html",
+          "version": "NumPy v2.5 manual as served2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "numpy.cov, bias parameter, Notes and covariance algorithm",
+          "evidence": "Unweighted centered cross products are normalized by N-1 for default sample covariance.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "perfect-positive-pairing",
+          "inputs": {
+            "cross": [
+              2,
+              0,
+              2
+            ]
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "Independent identity:for X=[1,2,3] andY=2X, covariance=2*Var(X)=2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "perfect-negative-pairing",
+          "inputs": {
+            "cross": [
+              -2,
+              0,
+              -2
+            ]
+          },
+          "expected": -2,
+          "tolerance": 1e-09,
+          "method": "ForY=-2X with the sameX, signed covariance=-2*Var(X)=-2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "cross is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Known n and covariance recover the total centered cross product. In the first case n3,cov2 gives total4. Original pairs, scales and signs are not uniquely recoverable from covariance alone.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--pearson-correlation-from-covariance",
+      "revision": "r2",
+      "title": "Pearson sample correlation from covariance and standard deviations",
+      "summary": "The correlation coefficient standardizes paired-sample covariance by the two sample standard deviations.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "r",
+        "expression": "cov / (sx * sy)",
+        "original_equation": "r_XY=s_XY/(s_X*s_Y)",
+        "source_id": "numpy-correlation",
+        "locator": "numpy.corrcoef, R_ij=C_ij/sqrt(C_ii*C_jj)",
+        "translation_notes": "U*V/(U*V) is dimensionless. The denominator is strictly positive; sign comes entirely from covariance. The same standardization also describes population covariance when all three moments have consistent population semantics; no separate clone is minted. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "cov",
+          "source_symbol": "s_XY",
+          "role": "input",
+          "quantity_id": "sample_covariance",
+          "definition": "Covariance of the paired sample",
+          "unit": "data-unit-x*data-unit-y",
+          "dimensions": "U*V",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "sx",
+          "source_symbol": "s_X",
+          "role": "input",
+          "quantity_id": "sample_standard_deviation",
+          "definition": "Positive sample standard deviation of X",
+          "unit": "data-unit-x",
+          "dimensions": "U",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Positive"
+        },
+        {
+          "symbol": "sy",
+          "source_symbol": "s_Y",
+          "role": "input",
+          "quantity_id": "sample_standard_deviation",
+          "definition": "Positive sample standard deviation of Y",
+          "unit": "data-unit-y",
+          "dimensions": "V",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Positive"
+        },
+        {
+          "symbol": "r",
+          "source_symbol": "r_XY",
+          "role": "output",
+          "quantity_id": "pearson_sample_correlation",
+          "definition": "Dimensionless linear association for the same paired sample",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "-1<=r<=1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sx > 0",
+        "sy > 0",
+        "cov <= sx * sy",
+        "cov >= -sx * sy"
+      ],
+      "assumptions": [
+        "Source assumption: covariance and both standard deviations use the same paired sample and compatible estimator normalization.",
+        "Source assumption: neither variable is constant."
+      ],
+      "limitations": [
+        "Correlation measures linear association and can miss nonlinear dependence; no causal inference follows.",
+        "The covariance magnitude must satisfy the Cauchy bound implied by the supplied variances."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Correlation between Two Variables, printed p140 (PDF p150), Equation(15)",
+          "evidence": "The correlation coefficient standardizes paired-sample covariance by the two sample standard deviations.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "numpy-correlation",
+          "kind": "primary",
+          "title": "NumPy Pearson correlation documentation",
+          "url": "https://numpy.org/doc/stable/reference/generated/numpy.corrcoef.html",
+          "version": "NumPy v2.5 manual as served2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "numpy.corrcoef, R_ij=C_ij/sqrt(C_ii*C_jj)",
+          "evidence": "Pearson correlation divides covariance by the matching standard-deviation product.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "perfect-positive",
+          "inputs": {
+            "cov": 2,
+            "sx": 1,
+            "sy": 2
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "ForY=2X all centered pairs lie exactly on a positive-slope line.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "perfect-negative",
+          "inputs": {
+            "cov": -2,
+            "sx": 1,
+            "sy": 2
+          },
+          "expected": -1,
+          "tolerance": 1e-09,
+          "method": "ForY=-2X all centered pairs lie exactly on a negative-slope line.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "sx": 1,
+            "sy": 2
+          },
+          "reason": "cov is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cov=r*sx*sy always with positive scales. Solving sx=cov/(r*sy) requires r nonzero and a positive result. If cov=r=0, sx is not identified. The first example recovers covariance2 from1*1*2.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

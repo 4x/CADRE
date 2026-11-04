@@ -1,0 +1,587 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b44",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 1 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--simple-regression-residual-standard-error",
+      "revision": "r2",
+      "title": "Residual standard error of simple OLS with intercept",
+      "summary": "The simple-regression residual standard error is the square root of residual sum of squares divided by n minus two fitted coefficients.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "se",
+        "expression": "sqrt(SSE / (n - 2))",
+        "original_equation": "s_e=sqrt(MSE)=sqrt(SSE/(n-2))",
+        "source_id": "nist-ls-diagnostics",
+        "locator": "Section4.4.3.1, General LS Criterion and Quality of Least Squares Estimates",
+        "translation_notes": "MSE=SSE/(n-2) hasYU^2 andits square root hasYU. Equation13 MSE is this relationship squared; no separate copy is submitted. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "SSE",
+          "source_symbol": "SSE",
+          "role": "input",
+          "quantity_id": "residual_response_sum_of_squares",
+          "definition": "Nonnegative residual sum of squares from the supplied fit",
+          "unit": "response-unit^2",
+          "dimensions": "YU^2",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "n",
+          "source_symbol": "n",
+          "role": "input",
+          "quantity_id": "regression_sample_count",
+          "definition": "Integer sample size>=3",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "se",
+          "source_symbol": "se",
+          "role": "output",
+          "quantity_id": "regression_residual_standard_error",
+          "definition": "Residual standard-deviation estimate after fitting an intercept and one slope",
+          "unit": "response-unit",
+          "dimensions": "YU",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "SSE >= 0",
+        "n >= 3"
+      ],
+      "assumptions": [
+        "The supplied fit is full-rank unweighted OLS with an intercept and one varying predictor; two coefficients consume two degrees of freedom.",
+        "Homoskedastic zero-conditional-mean errors support interpreting this as an error-scale estimate; normal errors are needed for exact t/F inference."
+      ],
+      "limitations": [
+        "This usesn-2, unlike ordinary sampleSDn-1 or unadjustedRMSEn.",
+        "Perfect fit giveszero but cannot support tests that divide by this scale."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module7, ANOVA and Standard Error of Estimate, printed p451 (PDF p461), Equation(15)",
+          "evidence": "The simple-regression residual standard error is the square root of residual sum of squares divided by n minus two fitted coefficients.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-ls-diagnostics",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/pmd/section4/pmd431.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section4.4.3.1, General LS Criterion and Quality of Least Squares Estimates",
+          "evidence": "Least-squares Q sums squared response residuals, and the residual standard deviation is sqrt(Q/(n-p)).",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "four-residual-df",
+          "inputs": {
+            "SSE": 16,
+            "n": 6
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "Residual mean square16/4=4 has square root2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "perfect-fit",
+          "inputs": {
+            "SSE": 0,
+            "n": 6
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "A perfect deterministic sample fit has residual standard error0.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "n": 6
+          },
+          "reason": "SSE is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "SSE=se^2*(n-2),n>2,se>=0. se2,n6 recoversSSE16. n=2+SSE/se^2 requiresse>0 and integern>=3. se=SSE0 leavesn unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--simple-regression-anova-f-statistic",
+      "revision": "r2",
+      "title": "Simple-regression ANOVA F-statistic from sums of squares",
+      "summary": "Simple-regression ANOVA compares explained mean square with residual mean square.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "F",
+        "expression": "SSR / (SSE / (n - 2))",
+        "original_equation": "F=(SSR/1)/(SSE/(n-2))",
+        "source_id": "ucd-slr-uncertainty",
+        "locator": "Chapter13 sections13.4-13.5, ANOVA table and Equations13.4,13.5,13.9",
+        "translation_notes": "Both sums haveYU^2 and theirdf are dimensionless, so the ratio is dimensionless. MSR=SSR since one slope is fitted. For the same zero-slope hypothesisF=t_slope^2; it loses the sign and does not provide a directional test. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "SSR",
+          "source_symbol": "SSR",
+          "role": "input",
+          "quantity_id": "explained_response_sum_of_squares",
+          "definition": "Nonnegative explained sum of squares for this fitted sample",
+          "unit": "response-unit^2",
+          "dimensions": "YU^2",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "SSE",
+          "source_symbol": "SSE",
+          "role": "input",
+          "quantity_id": "residual_response_sum_of_squares",
+          "definition": "Strictly positive residual sum of squares for the same fitted sample",
+          "unit": "response-unit^2",
+          "dimensions": "YU^2",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "n",
+          "source_symbol": "n",
+          "role": "input",
+          "quantity_id": "regression_sample_count",
+          "definition": "Integer sample size>=3",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "F",
+          "source_symbol": "F",
+          "role": "output",
+          "quantity_id": "simple_regression_anova_f_statistic",
+          "definition": "Nonnegative model-slope test statistic with1,n-2df under a zero-slope null",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "SSR >= 0",
+        "SSE > 0",
+        "n >= 3"
+      ],
+      "assumptions": [
+        "Full-rank unweighted OLS with an intercept and one varying predictor.",
+        "Exact F(1,n-2) law under zero slope requires conditionally independent homoskedastic normal errors with zero conditional mean."
+      ],
+      "limitations": [
+        "No model fitting, p-value or significance decision is performed.",
+        "A perfect fit withSSE0 makes the finite ratio undefined."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module7, Analysis of Variance, printed p450 (PDF p460), Equation(14)",
+          "evidence": "Simple-regression ANOVA compares explained mean square with residual mean square.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ucd-slr-uncertainty",
+          "kind": "primary",
+          "title": "Applied Statistics in Agricultural and Life Sciences with R",
+          "url": "https://psfaculty.plantsciences.ucdavis.edu/PLS120/PLS120Book/docs/chLinReg.html",
+          "version": "UC Davis institutional course text, version/date unstated; inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Chapter13 sections13.4-13.5, ANOVA table and Equations13.4,13.5,13.9",
+          "evidence": "Regression ANOVA compares explained and residual mean squares; slope uncertainty uses predictor sum of squares; individual-response uncertainty adds observation variance.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "four-to-one-mean-squares",
+          "inputs": {
+            "SSR": 16,
+            "SSE": 16,
+            "n": 6
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "One regressiondf givesMSR16;four residualdf giveMSE4;the ratio is4.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero-explained-variation",
+          "inputs": {
+            "SSR": 0,
+            "SSE": 16,
+            "n": 6
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Zero explained variation produces zero ANOVAF.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "SSE": 16,
+            "n": 6
+          },
+          "reason": "SSR is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "SSR=F*SSE/(n-2),n>2. SSE=SSR*(n-2)/F requiresF>0 and positive result. F4,SSE16,n6 recoversSSR16. SSR=F0 leavespositiveSSE unidentifiable.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--simple-regression-slope-standard-error",
+      "revision": "r2",
+      "title": "Standard error of a supplied simple-regression slope estimate",
+      "summary": "Slope standard error divides residual response scale by the square root of predictor centered sum of squares.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "slope_se",
+        "expression": "se / sqrt(Sxx)",
+        "original_equation": "s_bhat1=s_e/sqrt(sum((Xi-Xbar)^2))",
+        "source_id": "ucd-slr-uncertainty",
+        "locator": "Chapter13 sections13.4-13.5, ANOVA table and Equations13.4,13.5,13.9",
+        "translation_notes": "YU/sqrt(XU^2)=YU/XU,matching slope units. UC Davis Equation13.4 has sqrt(MSE/Sxx);s_e=sqrt(MSE) is the exact translation. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "se",
+          "source_symbol": "se",
+          "role": "input",
+          "quantity_id": "regression_residual_standard_error",
+          "definition": "Nonnegative residual standard error",
+          "unit": "response-unit",
+          "dimensions": "YU",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "Sxx",
+          "source_symbol": "Sxx",
+          "role": "input",
+          "quantity_id": "predictor_centered_sum_of_squares",
+          "definition": "Strictly positive centered predictor sum of squares",
+          "unit": "predictor-unit^2",
+          "dimensions": "XU^2",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "slope_se",
+          "source_symbol": "slope_se",
+          "role": "output",
+          "quantity_id": "regression_slope_standard_error",
+          "definition": "Estimated standard deviation of the fitted slope",
+          "unit": "response-unit/predictor-unit",
+          "dimensions": "YU/XU",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "se >= 0",
+        "Sxx > 0"
+      ],
+      "assumptions": [
+        "Homoskedastic uncorrelated zero-conditional-mean errors and a full-rank simple OLS design;Sxx>0.",
+        "The fitted summaries are supplied; no coefficient is estimated here. Exact finite-sample inference additionally needs normal errors."
+      ],
+      "limitations": [
+        "Heteroskedastic or correlated errors need different covariance estimators.",
+        "Nonvarying predictors haveSxx0 and cannot identify a slope."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module7, Hypothesis Testing of Linear Regression Coefficients, printed p453 (PDF p463), Equation(17)",
+          "evidence": "Slope standard error divides residual response scale by the square root of predictor centered sum of squares.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ucd-slr-uncertainty",
+          "kind": "primary",
+          "title": "Applied Statistics in Agricultural and Life Sciences with R",
+          "url": "https://psfaculty.plantsciences.ucdavis.edu/PLS120/PLS120Book/docs/chLinReg.html",
+          "version": "UC Davis institutional course text, version/date unstated; inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Chapter13 sections13.4-13.5, ANOVA table and Equations13.4,13.5,13.9",
+          "evidence": "Regression ANOVA compares explained and residual mean squares; slope uncertainty uses predictor sum of squares; individual-response uncertainty adds observation variance.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "residual-scale-over-spread",
+          "inputs": {
+            "se": 2,
+            "Sxx": 16
+          },
+          "expected": 0.5,
+          "tolerance": 1e-09,
+          "method": "ResidualSD2 divided by predictor Euclidean spread4 gives slopeSE.5.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "perfect-fit-scale",
+          "inputs": {
+            "se": 0,
+            "Sxx": 16
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Zero residual scale gives zero estimated slope uncertainty, making a t-test denominator degenerate.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "Sxx": 16
+          },
+          "reason": "se is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "se=slope_se*sqrt(Sxx),Sxx>0. Sxx=(se/slope_se)^2 requiresslope_se>0 andse>0. .5*sqrt16=2. Atse=slope_se0,Sxx is unidentifiable.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--supplied-regression-coefficient-t-statistic",
+      "revision": "r3",
+      "title": "t-statistic for a supplied regression coefficient estimate",
+      "summary": "A regression coefficient t-statistic scales its deviation from a hypothesized value by its supplied standard error.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "t",
+        "expression": "(estimate - null_value) / coefficient_se",
+        "original_equation": "t=(bhat_j-B_j)/s_bhat_j",
+        "source_id": "ucd-slr-uncertainty",
+        "locator": "Chapter13 sections13.4-13.5, ANOVA table and Equations13.4,13.5,13.9",
+        "translation_notes": "All three coefficient-valued ports share one explicitly declared unit Uc. Uc is response-unit YU for an intercept or response-unit/predictor-unit YU/XU for a slope, selected uniformly before binding. (Uc-Uc)/Uc is dimensionless. This r2 replaces r1 placeholder response-unit metadata; arithmetic, source locator and independent reference oracles are unchanged. The null port is a coefficient hypothesis and the denominator its estimation uncertainty, not an observation population scale. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "estimate",
+          "source_symbol": "estimate",
+          "role": "input",
+          "quantity_id": "fitted_regression_coefficient",
+          "definition": "Supplied coefficient estimate; bind intercept or slope units consistently",
+          "unit": "coefficient-unit",
+          "dimensions": "coefficient dimension Uc; Uc=YU for intercept or YU/XU for slope, fixed uniformly within each binding",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU; one explicitly declared coefficient dimension Uc applies identically to estimate, null_value and coefficient_se",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "null_value",
+          "source_symbol": "null_value",
+          "role": "input",
+          "quantity_id": "hypothesized_regression_coefficient",
+          "definition": "Null-boundary value of that same coefficient",
+          "unit": "coefficient-unit",
+          "dimensions": "coefficient dimension Uc; Uc=YU for intercept or YU/XU for slope, fixed uniformly within each binding",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU; one explicitly declared coefficient dimension Uc applies identically to estimate, null_value and coefficient_se",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "coefficient_se",
+          "source_symbol": "coefficient_se",
+          "role": "input",
+          "quantity_id": "regression_coefficient_standard_error",
+          "definition": "Strictly positive valid estimated standard error of that coefficient",
+          "unit": "coefficient-unit",
+          "dimensions": "coefficient dimension Uc; Uc=YU for intercept or YU/XU for slope, fixed uniformly within each binding",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU; one explicitly declared coefficient dimension Uc applies identically to estimate, null_value and coefficient_se",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "t",
+          "source_symbol": "t",
+          "role": "output",
+          "quantity_id": "regression_coefficient_test_statistic",
+          "definition": "Signed coefficient test statistic; simple-regressiondf=n-2 bound externally",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "coefficient_se > 0"
+      ],
+      "assumptions": [
+        "Coefficient estimate, null and standard error refer to the same coefficient, model, units and covariance estimator.",
+        "Declared generic coefficient-unit binding isYU forintercept orYU/XU forslope; all three must match.",
+        "For exact simple-OLS t(n-2) inference require the classical conditional normal error assumptions andn>=3."
+      ],
+      "limitations": [
+        "A supplied erroneous standard error invalidates inference; CFA Equation18 intercept standard error is separately flagged and must not be used as a verified input.",
+        "No p-value or model validity probability is returned."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module7, Hypothesis Testing of Linear Regression Coefficients, printed p453 (PDF p463), Equation(16); intercept counterpart p456/PDF466",
+          "evidence": "A regression coefficient t-statistic scales its deviation from a hypothesized value by its supplied standard error.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ucd-slr-uncertainty",
+          "kind": "primary",
+          "title": "Applied Statistics in Agricultural and Life Sciences with R",
+          "url": "https://psfaculty.plantsciences.ucdavis.edu/PLS120/PLS120Book/docs/chLinReg.html",
+          "version": "UC Davis institutional course text, version/date unstated; inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Chapter13 sections13.4-13.5, ANOVA table and Equations13.4,13.5,13.9",
+          "evidence": "Regression ANOVA compares explained and residual mean squares; slope uncertainty uses predictor sum of squares; individual-response uncertainty adds observation variance.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "nonzero-null-slope",
+          "inputs": {
+            "estimate": 1.25,
+            "null_value": 1,
+            "coefficient_se": 0.3125
+          },
+          "expected": 0.8,
+          "tolerance": 1e-09,
+          "method": "A quarter-unit deviation is.8 of a.3125-unit coefficientSE.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "estimate-at-null",
+          "inputs": {
+            "estimate": 1,
+            "null_value": 1,
+            "coefficient_se": 0.2
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "A coefficient estimate exactly at its null value has zero signed statistic.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "null_value": 1,
+            "coefficient_se": 0.3125
+          },
+          "reason": "estimate is required; no value is inferred from other inputs."
+        },
+        {
+          "kind": "domain",
+          "inputs": {
+            "estimate": 1,
+            "null_value": 0,
+            "coefficient_se": 0
+          },
+          "reason": "A coefficient standard error of zero makes the statistic undefined and violates its positive-denominator guard."
+        }
+      ],
+      "inverse_notes": "estimate=null_value+t*coefficient_se;null_value=estimate-t*coefficient_se. t.8,SE.3125,null1 recoverestimate1.25. SE=(estimate-null_value)/t requirestnonzero and positive result;zero difference andt0 cannot identifySE.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

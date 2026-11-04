@@ -1,0 +1,515 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b28",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 1 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--normalized-weighted-mean",
+      "revision": "r2",
+      "title": "Weighted mean with normalized, possibly signed weights",
+      "summary": "The weighted mean sums each observation times its normalized weight; the text permits negative weights for short positions.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "mean",
+        "expression": "sum(contributions)",
+        "original_equation": "X_bar_w = sum_i(w_i X_i), sum_i(w_i)=1",
+        "source_id": "numpy-average",
+        "locator": "numpy.average, weights parameter and avg=sum(a*weights)/sum(weights)",
+        "translation_notes": "Exact reparameterization c_i=w_i X_i; no approximation. The kit explicitly permits pretransformed family values. Each contribution has unit U, so its sum has U. For probability-weighted expectations the underlying weights additionally satisfy nonnegativity; that is a qualified use of this definition, not a clone. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "contributions",
+          "source_symbol": "introduced c_i=w_i X_i",
+          "role": "family",
+          "quantity_id": "weighted_observation_contribution",
+          "definition": "Each element is one correctly paired product w_i*X_i; the underlying weights sum to1",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same numerical variable, measurement unit U, dataset and observation support; transformations preserve element correspondence",
+          "domain": "Finite real scalar",
+          "max_size": 256
+        },
+        {
+          "symbol": "mean",
+          "source_symbol": "X_bar_w",
+          "role": "output",
+          "quantity_id": "normalized_weighted_mean",
+          "definition": "Weighted mean over the observations represented by the contribution family",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same numerical variable, measurement unit U, dataset and observation support; transformations preserve element correspondence",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Source assumption: the underlying weights sum to1 and pair with the intended observations.",
+        "Source assumption: negative weights may encode short positions; results need not lie between observations."
+      ],
+      "limitations": [
+        "The scalar grammar cannot multiply paired input families; contributions must be bound as precomputed w_i X_i terms with weight provenance.",
+        "Normalization and element alignment are binding conditions and cannot be inferred from the contribution values alone."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, The Weighted Mean, printed p108 (PDF p118), Equation(3); Example9 solution printed p109/PDF119",
+          "evidence": "The weighted mean sums each observation times its normalized weight; the text permits negative weights for short positions.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "numpy-average",
+          "kind": "primary",
+          "title": "NumPy average documentation",
+          "url": "https://numpy.org/doc/stable/reference/generated/numpy.average.html",
+          "version": "NumPy v2.5 manual as served on2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "numpy.average, weights parameter and avg=sum(a*weights)/sum(weights)",
+          "evidence": "The weighted mean sums observation-weight products and divides by total weight; normalized weights give the stated CFA form.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "portfolio-three-funds",
+          "inputs": {
+            "contributions": [
+              0.003,
+              0.030150000000000003,
+              0.0102
+            ]
+          },
+          "expected": 0.0434,
+          "tolerance": 5e-05,
+          "method": "Published4.34% Year2 return; tolerance half of .01 percentage point. Products bind the exact source observations and weights. The Year1 reported10.50% is inconsistent with its10.49% arithmetic and is recorded separately.",
+          "provenance": "CFA Example9 Year2 printed pp108-109/PDF118-119."
+        },
+        {
+          "id": "signed-weights",
+          "inputs": {
+            "contributions": [
+              6.0,
+              -1.0
+            ]
+          },
+          "expected": 5,
+          "tolerance": 1e-09,
+          "method": "Independent allocation of1.5 long units of value4 less.5 short units of value2 gives6-1=5; weights sum1.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "contributions is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "With all but one contribution and the mean known, the residual identifies that contribution only. In the signed check mean5 and contribution6 imply-1. Separate weight and observation cannot be recovered from their product. Family inverse views remain unsupported.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--geometric-mean",
+      "revision": "r2",
+      "title": "Geometric mean of nonnegative observations",
+      "summary": "The geometric mean is the root of the product of nonnegative observations; positive observations also admit a mean-log representation.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "G",
+        "expression": "prod(x) ** (1 / len(x))",
+        "original_equation": "X_bar_G = (X_1 X_2 ... X_n)^(1/n), X_i>=0",
+        "source_id": "scipy-gmean",
+        "locator": "scipy.stats.gmean, equal-weight formula",
+        "translation_notes": "n is len(x). Symbolic dimensional check: product has U^n and its nth root has U. Research-only record uses a generic U; runtime dimensional projection requires dedicated family support/review. Do not infer all Xi>=0 from product>=0; that implication would be false for an even number of negatives. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "x",
+          "source_symbol": "X_i",
+          "role": "family",
+          "quantity_id": "nonnegative_numerical_observation",
+          "definition": "Nonnegative observations of one numerical variable",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same numerical variable, measurement unit U, dataset and observation support; transformations preserve element correspondence",
+          "domain": "Each element finite and >=0;1-256 elements",
+          "max_size": 256
+        },
+        {
+          "symbol": "G",
+          "source_symbol": "X_bar_G",
+          "role": "output",
+          "quantity_id": "geometric_mean",
+          "definition": "Equal-weight multiplicative mean of the observations",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same numerical variable, measurement unit U, dataset and observation support; transformations preserve element correspondence",
+          "domain": "Nonnegative"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "prod(x) >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: every observation is nonnegative; negative observations are not accepted even when their product happens to be positive.",
+        "Source assumption: the observations share one numerical meaning and unit."
+      ],
+      "limitations": [
+        "Per-element nonnegativity requires binding validation; the product guard alone is necessary but insufficient.",
+        "The log representation requires strictly positive observations; the product form retains the admitted zero boundary."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, The Geometric Mean, printed pp109-110 (PDF pp119-120), Equation(4) and logarithmic equivalents",
+          "evidence": "The geometric mean is the root of the product of nonnegative observations; positive observations also admit a mean-log representation.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "scipy-gmean",
+          "kind": "primary",
+          "title": "SciPy geometric mean documentation",
+          "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gmean.html",
+          "version": "SciPy v1.18.0 manual as served on2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "scipy.stats.gmean, equal-weight formula",
+          "evidence": "For equal weights the geometric mean is the nth root of the product of observations.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "square-product",
+          "inputs": {
+            "x": [
+              2,
+              8
+            ]
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "Independent square-area identity:4 squared equals the product16.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero-boundary",
+          "inputs": {
+            "x": [
+              0,
+              4,
+              9
+            ]
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Any zero factor makes the product zero and its positive-index root zero.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "x is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "With n, positive G and all but one positive observation known, missing value is G^n divided by the other-product. For G4 and observation2, missing8 and substitution recovers4. If G=0, at least one zero is known but its location is not identified. Family inverse unsupported.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--geometric-mean-periodic-return",
+      "revision": "r2",
+      "title": "Geometric mean of linked periodic returns",
+      "summary": "A geometric return compounds the gross periodic factors and converts their root back to a net return.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "R",
+        "expression": "prod(gross) ** (1 / len(gross)) - 1",
+        "original_equation": "R_G = [product_t(1+R_t)]^(1/T)-1",
+        "source_id": "scipy-gmean",
+        "locator": "scipy.stats.gmean, equal-weight formula",
+        "translation_notes": "Introduced gross family maps exactly to1+R_t. All factors and the root are dimensionless. The final1 subtracts the gross-return principal baseline; it is not a percent conversion. This record defines a statistic of a return history; the covered discrete lump-sum rate inverse instead relates a fixed rate and endpoint amounts. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "gross",
+          "source_symbol": "introduced gross_t=1+R_t",
+          "role": "family",
+          "quantity_id": "periodic_gross_return_factor",
+          "definition": "One plus each decimal holding-period return; matched equal-length sequential periods",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same portfolio, equal-length linked periods, cash-flow treatment and currency basis",
+          "domain": "Each element >=0; periods in temporal order",
+          "max_size": 256
+        },
+        {
+          "symbol": "R",
+          "source_symbol": "R_G",
+          "role": "output",
+          "quantity_id": "geometric_mean_periodic_return",
+          "definition": "Constant per-period net return reproducing the linked wealth growth",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same return basis and frequency as gross",
+          "domain": "R>=-1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "prod(gross) >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: returns are decimal simple net returns with corresponding gross factors>=0.",
+        "Source assumption: periods have equal duration and the cash-flow treatment permits geometric linking."
+      ],
+      "limitations": [
+        "Prebind gross factors; the engine cannot add1 to every member of a raw-return family.",
+        "The mean is per input period, not annual unless periods are annual. No money-weighted rate is solved.",
+        "Every factor must be nonnegative; product-level guard does not fully enforce that semantic condition."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, The Geometric Mean, printed p110 (PDF p120), Equation(5); linked-wealth interpretation printed p112/PDF122",
+          "evidence": "A geometric return compounds the gross periodic factors and converts their root back to a net return.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "scipy-gmean",
+          "kind": "primary",
+          "title": "SciPy geometric mean documentation",
+          "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gmean.html",
+          "version": "SciPy v1.18.0 manual as served on2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "scipy.stats.gmean, equal-weight formula",
+          "evidence": "For equal weights the geometric mean is the nth root of the product of observations.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "round-trip-wealth",
+          "inputs": {
+            "gross": [
+              2,
+              0.5
+            ]
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Independent wealth path100->200->100 has zero compound mean, unlike its25% arithmetic mean.",
+          "provenance": "CFA printed p112/PDF122."
+        },
+        {
+          "id": "constant-ten-percent",
+          "inputs": {
+            "gross": [
+              1.1,
+              1.1
+            ]
+          },
+          "expected": 0.1,
+          "tolerance": 1e-09,
+          "method": "A constant10% in each period must have10% compound mean; repeated rate recovers itself.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "gross is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "The output and T determine total gross wealth factor=(1+R)^T. They do not identify individual period returns; e.g. mean0 permits both[1,1] and[2,.5]. With all but one nonzero gross factor supplied, the remaining factor is the total divided by their product. At a zero factor, mean=-1 and locations of total loss are ambiguous.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--harmonic-mean",
+      "revision": "r2",
+      "title": "Harmonic mean of positive observations",
+      "summary": "For positive observations the harmonic mean divides the observation count by the sum of their reciprocals.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "H",
+        "expression": "len(reciprocals) / sum(reciprocals)",
+        "original_equation": "X_bar_H = n / sum_i(1/X_i), X_i>0",
+        "source_id": "scipy-hmean",
+        "locator": "scipy.stats.hmean, equal-weight formula and Notes",
+        "translation_notes": "Exact substitution q_i=1/X_i preserves the original definition. Dimensionless n divided by U^-1 yields U. Sum positivity alone does not prove all reciprocals positive; the element domain is checked at binding. Negative or zero original values are outside this source model. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "reciprocals",
+          "source_symbol": "introduced q_i=1/X_i",
+          "role": "family",
+          "quantity_id": "reciprocal_numerical_observation",
+          "definition": "Reciprocals of the original strictly positive observations, each with paired source provenance",
+          "unit": "1/data-unit",
+          "dimensions": "U^-1",
+          "context": "Same numerical variable, measurement unit U, dataset and observation support; transformations preserve element correspondence",
+          "domain": "Each element strictly positive",
+          "max_size": 256
+        },
+        {
+          "symbol": "H",
+          "source_symbol": "X_bar_H",
+          "role": "output",
+          "quantity_id": "harmonic_mean",
+          "definition": "Reciprocal of the arithmetic mean of the observation reciprocals",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same numerical variable, measurement unit U, dataset and observation support; transformations preserve element correspondence",
+          "domain": "Positive"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sum(reciprocals) > 0"
+      ],
+      "assumptions": [
+        "Source assumption: all original observations are strictly positive.",
+        "Source assumption: equal-cash cost averaging is a use case only when the cash amount invested each period is constant."
+      ],
+      "limitations": [
+        "Reciprocal inputs must be prepared outside the family expression; this is not a raw-array reciprocal operator.",
+        "Does not apply the generally false all-sample identity A*H=G^2 printed later in the source."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, The Harmonic Mean, printed p113 (PDF p123), Equation(6); cost-averaging Example12 printed p114/PDF124",
+          "evidence": "For positive observations the harmonic mean divides the observation count by the sum of their reciprocals.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "scipy-hmean",
+          "kind": "primary",
+          "title": "SciPy harmonic mean documentation",
+          "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.hmean.html",
+          "version": "SciPy v1.18.0 manual as served on2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "scipy.stats.hmean, equal-weight formula and Notes",
+          "evidence": "For equal weights the harmonic mean is n divided by the sum of reciprocal observations.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "equal-cash-purchases",
+          "inputs": {
+            "reciprocals": [
+              0.1,
+              0.06666666666666667
+            ]
+          },
+          "expected": 12,
+          "tolerance": 1e-09,
+          "method": "Independent cost basis: equal1000-unit cash purchases acquire100 and66.666... shares;2000 divided by total shares equals12.",
+          "provenance": "CFA Example12 printed p114/PDF124."
+        },
+        {
+          "id": "equal-values",
+          "inputs": {
+            "reciprocals": [
+              0.25,
+              0.25,
+              0.25
+            ]
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "Three identical original observations of4 must have harmonic mean4.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "reciprocals is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Known n and H determine reciprocal sum=n/H but not individual observations. With H12,n2 and first reciprocal.1, remaining reciprocal=1/6-.1=1/15, giving original15. Multiple unobserved reciprocals are underdetermined.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

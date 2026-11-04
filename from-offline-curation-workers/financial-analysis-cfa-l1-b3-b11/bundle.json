@@ -1,0 +1,546 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b11",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. CFO ratios have independently meaningful denominators and explicitly distinguish flows, average stocks, and accounting classifications."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--cash-flow-to-revenue-ratio",
+      "revision": "r1",
+      "title": "Cash flow to revenue",
+      "summary": "Cash flow to revenue divides operating cash flow by net revenue.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "cfo / base",
+        "original_equation": "Cash flow to revenue = CFO / net revenue",
+        "source_id": "cfa-revenue-recognition",
+        "locator": "Printed p14 (PDF p16), Figure 9, Performance Ratios",
+        "translation_notes": "Both inputs are matching currency amounts. The denominator quantity differs across the named ratios; financial reporting periods are contextual, not physical time units."
+      },
+      "variables": [
+        {
+          "symbol": "cfo",
+          "source_symbol": "CFO",
+          "role": "input",
+          "quantity_id": "cash_flow_from_operating_activities",
+          "definition": "Signed cash flow from operating activities during the reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "base",
+          "source_symbol": "net revenue",
+          "role": "input",
+          "quantity_id": "net_period_revenue",
+          "definition": "net revenue for the same entity and specified period or average balance",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Cash flow to revenue",
+          "role": "output",
+          "quantity_id": "cash_flow_to_revenue_ratio",
+          "definition": "Operating cash flow relative to net revenue",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "base > 0"
+      ],
+      "assumptions": [
+        "The entity, currency and reporting period match; balance-sheet averages use the specified observation convention.",
+        "Cash-flow classification and accounting basis are stated externally."
+      ],
+      "limitations": [
+        "Operating cash-flow classification can differ across accounting standards and entities.",
+        "The ratio is a historical arithmetic measure, not a forecast or investment recommendation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Cash Flow Ratios, printed p165 (PDF p179), Exhibit 16",
+          "evidence": "Cash flow to revenue divides operating cash flow by net revenue.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-revenue-recognition",
+          "kind": "primary",
+          "title": "Revenue Recognition: Top Ten Questions Investors Should Ask",
+          "url": "https://rpc.cfainstitute.org/sites/default/files/-/media/documents/article/position-paper/revenue-recognition-top-ten-questions-investors-should-ask.pdf",
+          "version": "CFA Institute, 2018 position paper",
+          "accessed": "2026-11-03",
+          "locator": "Printed p14 (PDF p16), Figure 9, Performance Ratios",
+          "evidence": "Figure 9 defines cash-flow-to-revenue, cash return on assets and equity, and cash-to-operating-income ratios.",
+          "license": "Copyright CFA Institute; short factual formula descriptions only; full document not redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "cfo": 200,
+            "base": 1000
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "Direct quotient of the declared period amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "cfo": -50,
+            "base": 500
+          },
+          "expected": -0.1,
+          "tolerance": 1e-09,
+          "method": "Independent signed quotient of the declared period amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "base": 1000
+          },
+          "reason": "cfo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cfo=ratio*base; base=cfo/ratio requires a nonzero ratio. A zero denominator is excluded; a negative CFO is allowed.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--cash-return-on-average-assets",
+      "revision": "r1",
+      "title": "Cash return on average total assets",
+      "summary": "Cash return on average total assets divides operating cash flow by average total assets.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "cfo / base",
+        "original_equation": "Cash return on average total assets = CFO / average total assets",
+        "source_id": "cfa-revenue-recognition",
+        "locator": "Printed p14 (PDF p16), Figure 9, Performance Ratios",
+        "translation_notes": "Both inputs are matching currency amounts. The denominator quantity differs across the named ratios; financial reporting periods are contextual, not physical time units."
+      },
+      "variables": [
+        {
+          "symbol": "cfo",
+          "source_symbol": "CFO",
+          "role": "input",
+          "quantity_id": "cash_flow_from_operating_activities",
+          "definition": "Signed cash flow from operating activities during the reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "base",
+          "source_symbol": "average total assets",
+          "role": "input",
+          "quantity_id": "average_total_assets",
+          "definition": "average total assets for the same entity and specified period or average balance",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Cash return on average total assets",
+          "role": "output",
+          "quantity_id": "cash_return_on_average_assets",
+          "definition": "Operating cash flow relative to average total assets",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "base > 0"
+      ],
+      "assumptions": [
+        "The entity, currency and reporting period match; balance-sheet averages use the specified observation convention.",
+        "Cash-flow classification and accounting basis are stated externally."
+      ],
+      "limitations": [
+        "Operating cash-flow classification can differ across accounting standards and entities.",
+        "The ratio is a historical arithmetic measure, not a forecast or investment recommendation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Cash Flow Ratios, printed p165 (PDF p179), Exhibit 16",
+          "evidence": "Cash return on average total assets divides operating cash flow by average total assets.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-revenue-recognition",
+          "kind": "primary",
+          "title": "Revenue Recognition: Top Ten Questions Investors Should Ask",
+          "url": "https://rpc.cfainstitute.org/sites/default/files/-/media/documents/article/position-paper/revenue-recognition-top-ten-questions-investors-should-ask.pdf",
+          "version": "CFA Institute, 2018 position paper",
+          "accessed": "2026-11-03",
+          "locator": "Printed p14 (PDF p16), Figure 9, Performance Ratios",
+          "evidence": "Figure 9 defines cash-flow-to-revenue, cash return on assets and equity, and cash-to-operating-income ratios.",
+          "license": "Copyright CFA Institute; short factual formula descriptions only; full document not redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "cfo": 200,
+            "base": 1000
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "Direct quotient of the declared period amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "cfo": -30,
+            "base": 600
+          },
+          "expected": -0.05,
+          "tolerance": 1e-09,
+          "method": "Independent signed quotient of the declared period amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "base": 1000
+          },
+          "reason": "cfo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cfo=ratio*base; base=cfo/ratio requires a nonzero ratio. A zero denominator is excluded; a negative CFO is allowed.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--cash-return-on-average-equity",
+      "revision": "r1",
+      "title": "Cash return on average shareholders equity",
+      "summary": "Cash return on average shareholders equity divides operating cash flow by average shareholders equity.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "cfo / base",
+        "original_equation": "Cash return on average shareholders equity = CFO / average shareholders equity",
+        "source_id": "cfa-revenue-recognition",
+        "locator": "Printed p14 (PDF p16), Figure 9, Performance Ratios",
+        "translation_notes": "Both inputs are matching currency amounts. The denominator quantity differs across the named ratios; financial reporting periods are contextual, not physical time units."
+      },
+      "variables": [
+        {
+          "symbol": "cfo",
+          "source_symbol": "CFO",
+          "role": "input",
+          "quantity_id": "cash_flow_from_operating_activities",
+          "definition": "Signed cash flow from operating activities during the reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "base",
+          "source_symbol": "average shareholders equity",
+          "role": "input",
+          "quantity_id": "average_shareholders_equity",
+          "definition": "average shareholders equity for the same entity and specified period or average balance",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Cash return on average shareholders equity",
+          "role": "output",
+          "quantity_id": "cash_return_on_average_equity",
+          "definition": "Operating cash flow relative to average shareholders equity",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "base > 0"
+      ],
+      "assumptions": [
+        "The entity, currency and reporting period match; balance-sheet averages use the specified observation convention.",
+        "Cash-flow classification and accounting basis are stated externally."
+      ],
+      "limitations": [
+        "Operating cash-flow classification can differ across accounting standards and entities.",
+        "The ratio is a historical arithmetic measure, not a forecast or investment recommendation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Cash Flow Ratios, printed p165 (PDF p179), Exhibit 16",
+          "evidence": "Cash return on average shareholders equity divides operating cash flow by average shareholders equity.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-revenue-recognition",
+          "kind": "primary",
+          "title": "Revenue Recognition: Top Ten Questions Investors Should Ask",
+          "url": "https://rpc.cfainstitute.org/sites/default/files/-/media/documents/article/position-paper/revenue-recognition-top-ten-questions-investors-should-ask.pdf",
+          "version": "CFA Institute, 2018 position paper",
+          "accessed": "2026-11-03",
+          "locator": "Printed p14 (PDF p16), Figure 9, Performance Ratios",
+          "evidence": "Figure 9 defines cash-flow-to-revenue, cash return on assets and equity, and cash-to-operating-income ratios.",
+          "license": "Copyright CFA Institute; short factual formula descriptions only; full document not redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "cfo": 150,
+            "base": 600
+          },
+          "expected": 0.25,
+          "tolerance": 1e-09,
+          "method": "Direct quotient of the declared period amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "cfo": -40,
+            "base": 200
+          },
+          "expected": -0.2,
+          "tolerance": 1e-09,
+          "method": "Independent signed quotient of the declared period amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "base": 600
+          },
+          "reason": "cfo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cfo=ratio*base; base=cfo/ratio requires a nonzero ratio. A zero denominator is excluded; a negative CFO is allowed.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--cash-flow-to-operating-income",
+      "revision": "r1",
+      "title": "Cash flow to operating income",
+      "summary": "Cash flow to operating income divides operating cash flow by operating income.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "cfo / base",
+        "original_equation": "Cash flow to operating income = CFO / operating income",
+        "source_id": "cfa-revenue-recognition",
+        "locator": "Printed p14 (PDF p16), Figure 9, Performance Ratios",
+        "translation_notes": "Both inputs are matching currency amounts. The denominator quantity differs across the named ratios; financial reporting periods are contextual, not physical time units."
+      },
+      "variables": [
+        {
+          "symbol": "cfo",
+          "source_symbol": "CFO",
+          "role": "input",
+          "quantity_id": "cash_flow_from_operating_activities",
+          "definition": "Signed cash flow from operating activities during the reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "base",
+          "source_symbol": "operating income",
+          "role": "input",
+          "quantity_id": "operating_income",
+          "definition": "operating income for the same entity and specified period or average balance",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Cash flow to operating income",
+          "role": "output",
+          "quantity_id": "cash_flow_to_operating_income",
+          "definition": "Operating cash flow relative to operating income",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "base > 0"
+      ],
+      "assumptions": [
+        "The entity, currency and reporting period match; balance-sheet averages use the specified observation convention.",
+        "Cash-flow classification and accounting basis are stated externally."
+      ],
+      "limitations": [
+        "Operating cash-flow classification can differ across accounting standards and entities.",
+        "The ratio is a historical arithmetic measure, not a forecast or investment recommendation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Cash Flow Ratios, printed p165 (PDF p179), Exhibit 16",
+          "evidence": "Cash flow to operating income divides operating cash flow by operating income.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-revenue-recognition",
+          "kind": "primary",
+          "title": "Revenue Recognition: Top Ten Questions Investors Should Ask",
+          "url": "https://rpc.cfainstitute.org/sites/default/files/-/media/documents/article/position-paper/revenue-recognition-top-ten-questions-investors-should-ask.pdf",
+          "version": "CFA Institute, 2018 position paper",
+          "accessed": "2026-11-03",
+          "locator": "Printed p14 (PDF p16), Figure 9, Performance Ratios",
+          "evidence": "Figure 9 defines cash-flow-to-revenue, cash return on assets and equity, and cash-to-operating-income ratios.",
+          "license": "Copyright CFA Institute; short factual formula descriptions only; full document not redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "cfo": 200,
+            "base": 100
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "Direct quotient of the declared period amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "cfo": -50,
+            "base": 100
+          },
+          "expected": -0.5,
+          "tolerance": 1e-09,
+          "method": "Independent signed quotient of the declared period amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "base": 100
+          },
+          "reason": "cfo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cfo=ratio*base; base=cfo/ratio requires a nonzero ratio. A zero denominator is excluded; a negative CFO is allowed.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

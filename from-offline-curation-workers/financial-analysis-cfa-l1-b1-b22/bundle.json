@@ -1,0 +1,573 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b22",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [
+    {
+      "title": "Further statement arithmetic discovered in structured-data exhibit",
+      "reason": "LM2 p66/PDF76 Exhibit3 also adds products+services for sales/cost totals,addsR&D+SG&Aforoperatingexpense total,andadds netotherincome tooperatingincome forpretax income. These are aggregation/signed-subtotal identities; preserve aliases and scope rather than mint every two-line addition as a separate model. Full statement policy context remains limited.",
+      "source_urls": []
+    },
+    {
+      "title": "First-passage liquidity pool exhaustion probability needs normal CDF and path assumptions",
+      "reason": "LM4 practice19 p291-292/PDF301-302:probability=2[1-Phi(lambda/(sigma*sqrt(T)))],solutionp299/PDF309. This is a path-hitting rather than terminal-loss probability;requires unavailable normalCDFand qualified continuous-time zero-drift Gaussian path assumptions beyond merely normal terminal returns. Retain exact expression/locator without approximation.",
+      "source_urls": []
+    },
+    {
+      "title": "One-period binomial up-probability is an expectation inverse",
+      "reason": "LM4 practice16 p291/PDF301 andsolutionp298/PDF308:E(ST)=p*u*S+(1-p)*d*S, hencep=(E(ST)/S-d)/(u-d). It is the two-state normalized expectation inverse,not a new risk-neutral pricing probability; no rate/measure assumptions supplied.",
+      "source_urls": []
+    }
+  ],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic relationships from the assigned CFA Quantitative Methods volume, with exact PDF locators and inspected corroboration.",
+    "gaps": [
+      "Most financial/statistical quantity meanings require registry extension.",
+      "Duplicate checking is limited to the supplied catalog/vocabulary, assignment exclusions and this curator's public records; no global uniqueness claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: official validator rejects primary source url:null, which the CFA source brief explicitly requires for the purchased PDF. Toolkit left unchanged. Independent schema, expression/reference arithmetic, guard and rejection checks pass; ZIP checksum/membership checked. No passing official validation or intake-ready return claimed. Source fidelity, dimensions, contexts and inverse notes manually reviewed. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--benjamini-hochberg-rank-critical-value",
+      "revision": "r1",
+      "title": "Benjamini-Hochberg critical value at a supplied ordered rank",
+      "summary": "The BH step-up critical line scales the chosen FDR level by ordered rank over complete family size.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "critical",
+        "expression": "alpha * rank / tests",
+        "original_equation": "BHcritical_i=alpha*i/m",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module6, Multiple Tests and Significance Interpretation, printed pp370-372 (PDF pp380-382), displayed rank criterion and Exhibits12,14",
+        "translation_notes": "All quantities are dimensionless. The alpha port is a targetFDR rather than an observation probability. No automatic multiple-test decision is returned, and a single failed comparison does not imply stopping the step-up search."
+      },
+      "variables": [
+        {
+          "symbol": "alpha",
+          "source_symbol": "alpha",
+          "role": "input",
+          "quantity_id": "target_false_discovery_rate",
+          "definition": "TargetFDRlevel in[0,1]",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One prespecified complete family of mtests and ascendingly ordered p-values",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "rank",
+          "source_symbol": "i",
+          "role": "input",
+          "quantity_id": "ordered_p_value_rank",
+          "definition": "Integer ordered rank1..m; p-values sorted ascending externally",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same complete testfamily and ordering",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "tests",
+          "source_symbol": "m",
+          "role": "input",
+          "quantity_id": "multiple_test_family_size",
+          "definition": "Positive integer total number of hypotheses in the prespecified family",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same complete testfamily,including unreported nonsignificant tests",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "critical",
+          "source_symbol": "alpha*i/m",
+          "role": "output",
+          "quantity_id": "bh_rank_critical_value",
+          "definition": "Rank-specific probability threshold,not an adjusted p-value",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same targetFDR,testfamily and ordering",
+          "domain": "[0,1]"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "alpha >= 0",
+        "alpha <= 1",
+        "tests >= 1",
+        "rank >= 1",
+        "rank <= tests"
+      ],
+      "assumptions": [
+        "Rank and family size are integers with1<=rank<=tests; all p-values belong to one prespecified complete testfamily.",
+        "FDR control needs the appropriate independent/positive-dependence assumptions of BH; arbitrary dependent families need a qualified alternative."
+      ],
+      "limitations": [
+        "Sorting, selecting the largest passing rank, and rejecting all ranks up to that index are separate algorithmic steps,not performed here.",
+        "CFA calls these adjusted p-values in Exhibit14; they are critical values.",
+        "FDR is expected false discoveries among rejections,not the unconditional per-test false-positive probability."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module6, Multiple Tests and Significance Interpretation, printed pp370-372 (PDF pp380-382), displayed rank criterion and Exhibits12,14",
+          "evidence": "The BH step-up critical line scales the chosen FDR level by ordered rank over complete family size.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "r-mutoss-bh",
+          "kind": "primary",
+          "title": "R mutoss: Benjamini-Hochberg linear step-up procedure",
+          "url": "https://search.r-project.org/CRAN/refmans/mutoss/html/BH.html",
+          "version": "Package mutossv0.1-13, Werft Wiebke; inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Description, largest passing ordered p-value index and i*alpha/m condition",
+          "evidence": "The BH critical line for ordered test rank i is i times the target FDR divided by the complete test-family size.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-first-of-twenty",
+          "inputs": {
+            "alpha": 0.05,
+            "rank": 1,
+            "tests": 20
+          },
+          "expected": 0.0025,
+          "tolerance": 1e-09,
+          "method": "Published first-rank threshold.0025.",
+          "provenance": "CFA printed p371/PDF381, Exhibit12."
+        },
+        {
+          "id": "last-rank",
+          "inputs": {
+            "alpha": 0.05,
+            "rank": 20,
+            "tests": 20
+          },
+          "expected": 0.05,
+          "tolerance": 1e-09,
+          "method": "At the final rank the critical line equals the targetFDRlevel.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "rank": 1,
+            "tests": 20
+          },
+          "reason": "alpha is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "alpha=critical*tests/rank,rank>0,retainingalpha in[0,1]. .0025*20/1=.05. rank=critical*tests/alpha requiresalpha>0 and a valid integer rank. Atalpha=critical0 the rank cannot be inferred.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--income-statement-gross-profit",
+      "revision": "r1",
+      "title": "Gross profit amount from net sales and cost of sales",
+      "summary": "The displayed income statement subtracts cost of sales from net sales to form gross margin as a currency amount.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "gross_profit",
+        "expression": "sales - cost",
+        "original_equation": "Gross profit=net sales-cost of sales",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, Data Types, printed p66 (PDF p76), Exhibit3 Condensed Consolidated Statements of Operations",
+        "translation_notes": "Currency minuscurrency givescurrency. CFA values stated in millions are normalized in reference inputs only; no unit conversion factor is embedded."
+      },
+      "variables": [
+        {
+          "symbol": "sales",
+          "source_symbol": "sales",
+          "role": "input",
+          "quantity_id": "net_sales_revenue",
+          "definition": "Signed net sales revenue after relevant returns/allowances",
+          "unit": "currency",
+          "dimensions": "currency",
+          "context": "Same reporting entity, currency, accounting period and income-statement scope; expense inputs use deduction-positive sign convention",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "cost",
+          "source_symbol": "cost",
+          "role": "input",
+          "quantity_id": "cost_of_sales",
+          "definition": "Cost of sales for the same sold goods/services,positive when deducted",
+          "unit": "currency",
+          "dimensions": "currency",
+          "context": "Same reporting entity, currency, accounting period and income-statement scope; expense inputs use deduction-positive sign convention",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "gross_profit",
+          "source_symbol": "gross_profit",
+          "role": "output",
+          "quantity_id": "gross_profit_amount",
+          "definition": "Gross profit or gross margin amount before separately reported operating expenses",
+          "unit": "currency",
+          "dimensions": "currency",
+          "context": "Same reporting entity, currency, accounting period and income-statement scope; expense inputs use deduction-positive sign convention",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Both amounts cover the same entity, period, currency and revenue/cost recognition basis. Cost uses a deduction-positive sign."
+      ],
+      "limitations": [
+        "Gross margin here is an amount,not gross margin percentage.",
+        "This is the line-item subtotal for the displayed statement scope; detailed recognition/accounting policies are not inferred."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Data Types, printed p66 (PDF p76), Exhibit3 Condensed Consolidated Statements of Operations",
+          "evidence": "The displayed income statement subtracts cost of sales from net sales to form gross margin as a currency amount.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sec-income-subtotals",
+          "kind": "primary",
+          "title": "Beginners' Guide to Financial Statement",
+          "url": "https://www.sec.gov/about/reports-publications/investorpubsbegfinstmtguide",
+          "version": "US SEC,2007-02-04; inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Income Statements, cost-of-sales, operating-expense and income-tax deductions",
+          "evidence": "Gross profit deducts cost of sales from net revenue; operating profit deducts operating expenses; net income deducts tax from pretax income.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-displayed-statement",
+          "inputs": {
+            "sales": 58015000000,
+            "cost": 36194000000
+          },
+          "expected": 21821000000,
+          "tolerance": 1e-09,
+          "method": "Displayed subtotal21821million is the independently transcribed statement oracle.",
+          "provenance": "CFA printed p66/PDF76, Exhibit3."
+        },
+        {
+          "id": "gross-loss",
+          "inputs": {
+            "sales": 100,
+            "cost": 120
+          },
+          "expected": -20,
+          "tolerance": 1e-09,
+          "method": "Costs20greater than sales give a signed gross loss20.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "cost": 36194000000
+          },
+          "reason": "sales is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "sales=gross_profit+cost;cost=sales-gross_profit. Firstcase21.821billion+36.194billion=58.015billion. Grossprofit0 meanssales=cost,not that either input vanishes.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--income-statement-operating-income",
+      "revision": "r1",
+      "title": "Operating income from gross profit and operating expenses",
+      "summary": "The displayed statement deducts separately reported operating expenses from gross margin to form operating income.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "operating_income",
+        "expression": "gross_profit - expenses",
+        "original_equation": "Operating income=gross profit-total operating expenses",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, Data Types, printed p66 (PDF p76), Exhibit3 operating-expense and operating-income lines",
+        "translation_notes": "This preserves source statement presentation: R&DplusSG&Aare the shown separately reported expense components. Different presentations may classify depreciation differently;the externally bound complete expense aggregate must respect that scope."
+      },
+      "variables": [
+        {
+          "symbol": "gross_profit",
+          "source_symbol": "gross_profit",
+          "role": "input",
+          "quantity_id": "gross_profit_amount",
+          "definition": "Gross profit after cost of sales",
+          "unit": "currency",
+          "dimensions": "currency",
+          "context": "Same reporting entity, currency, accounting period and income-statement scope; expense inputs use deduction-positive sign convention",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expenses",
+          "source_symbol": "expenses",
+          "role": "input",
+          "quantity_id": "separately_reported_operating_expenses",
+          "definition": "Complete operating expenses separately deducted after gross profit; includes all applicable R&D,SG&A,depreciation within that presentation scope",
+          "unit": "currency",
+          "dimensions": "currency",
+          "context": "Same reporting entity, currency, accounting period and income-statement scope; expense inputs use deduction-positive sign convention",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "operating_income",
+          "source_symbol": "operating_income",
+          "role": "output",
+          "quantity_id": "operating_income_amount",
+          "definition": "Signed income from operations",
+          "unit": "currency",
+          "dimensions": "currency",
+          "context": "Same reporting entity, currency, accounting period and income-statement scope; expense inputs use deduction-positive sign convention",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "The expense aggregate contains all and only operating expenses deducted after this gross profit; do not duplicate costs already included in cost of sales.",
+        "Entity,currency,period and recognition basis match."
+      ],
+      "limitations": [
+        "Operating income does not include separately presented nonoperating income/expense or income tax."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Data Types, printed p66 (PDF p76), Exhibit3 operating-expense and operating-income lines",
+          "evidence": "The displayed statement deducts separately reported operating expenses from gross margin to form operating income.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sec-income-subtotals",
+          "kind": "primary",
+          "title": "Beginners' Guide to Financial Statement",
+          "url": "https://www.sec.gov/about/reports-publications/investorpubsbegfinstmtguide",
+          "version": "US SEC,2007-02-04; inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Income Statements, cost-of-sales, operating-expense and income-tax deductions",
+          "evidence": "Gross profit deducts cost of sales from net revenue; operating profit deducts operating expenses; net income deducts tax from pretax income.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-displayed-subtotal",
+          "inputs": {
+            "gross_profit": 21821000000,
+            "expenses": 8406000000
+          },
+          "expected": 13415000000,
+          "tolerance": 1e-09,
+          "method": "Displayed operating income13415million supplies the oracle.",
+          "provenance": "CFA printed p66/PDF76, Exhibit3."
+        },
+        {
+          "id": "operating-loss",
+          "inputs": {
+            "gross_profit": 20,
+            "expenses": 30
+          },
+          "expected": -10,
+          "tolerance": 1e-09,
+          "method": "Operating expenses exceeding gross profit by10produce operating loss10.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "expenses": 8406000000
+          },
+          "reason": "gross_profit is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "gross_profit=operating_income+expenses;expenses=gross_profit-operating_income. 13.415billion+8.406billion=21.821billion. Operatingincome0meansgrossprofit=expenseswithout identifying either.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--income-statement-net-income-after-tax",
+      "revision": "r1",
+      "title": "Net income from pretax income and income tax expense",
+      "summary": "The statement deducts its income tax provision from pretax income to obtain net income.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "net_income",
+        "expression": "pretax - tax",
+        "original_equation": "Net income=income before income taxes-income tax provision",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, Data Types, printed p66 (PDF p76), Exhibit3 final three income-statement lines",
+        "translation_notes": "Both inputs and output are currency amounts; signed tax benefits are preserved. No effective-tax-rate denominator is invented from one displayed statement."
+      },
+      "variables": [
+        {
+          "symbol": "pretax",
+          "source_symbol": "pretax",
+          "role": "input",
+          "quantity_id": "income_before_income_taxes",
+          "definition": "Signed pretax income for this complete statement scope",
+          "unit": "currency",
+          "dimensions": "currency",
+          "context": "Same reporting entity, currency, accounting period and income-statement scope; expense inputs use deduction-positive sign convention",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "tax",
+          "source_symbol": "tax",
+          "role": "input",
+          "quantity_id": "income_tax_expense",
+          "definition": "Signed income-tax provision:positive for expense,negative for benefit",
+          "unit": "currency",
+          "dimensions": "currency",
+          "context": "Same reporting entity, currency, accounting period and income-statement scope; expense inputs use deduction-positive sign convention",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "net_income",
+          "source_symbol": "net_income",
+          "role": "output",
+          "quantity_id": "net_income_amount",
+          "definition": "Signed income after the specified tax provision",
+          "unit": "currency",
+          "dimensions": "currency",
+          "context": "Same reporting entity, currency, accounting period and income-statement scope; expense inputs use deduction-positive sign convention",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Pretax and tax amounts share the entity,currency,period and operations scope.",
+        "The presented scope has no additional separately deducted post-tax/discontinued/minority lines between the named pretax and net totals."
+      ],
+      "limitations": [
+        "This does not estimate a tax rate or apply tax law; deferred/current components must already be included in the provision.",
+        "Attributing income to owners/noncontrolling interests requires separate explicitly supplied scope."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Data Types, printed p66 (PDF p76), Exhibit3 final three income-statement lines",
+          "evidence": "The statement deducts its income tax provision from pretax income to obtain net income.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sec-income-subtotals",
+          "kind": "primary",
+          "title": "Beginners' Guide to Financial Statement",
+          "url": "https://www.sec.gov/about/reports-publications/investorpubsbegfinstmtguide",
+          "version": "US SEC,2007-02-04; inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Income Statements, cost-of-sales, operating-expense and income-tax deductions",
+          "evidence": "Gross profit deducts cost of sales from net revenue; operating profit deducts operating expenses; net income deducts tax from pretax income.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-displayed-net-income",
+          "inputs": {
+            "pretax": 13793000000,
+            "tax": 2232000000
+          },
+          "expected": 11561000000,
+          "tolerance": 1e-09,
+          "method": "Displayed net income11561million is the transcribed subtotal oracle.",
+          "provenance": "CFA printed p66/PDF76, Exhibit3."
+        },
+        {
+          "id": "loss-with-tax-benefit",
+          "inputs": {
+            "pretax": -100,
+            "tax": -20
+          },
+          "expected": -80,
+          "tolerance": 1e-09,
+          "method": "A tax benefit20reduces the magnitude of a pretax loss100to net loss80.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "tax": 2232000000
+          },
+          "reason": "pretax is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "pretax=net_income+tax;tax=pretax-net_income. 11.561billion+2.232billion=13.793billion. Netincome0meanspretax=tax and identifies neither alone.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

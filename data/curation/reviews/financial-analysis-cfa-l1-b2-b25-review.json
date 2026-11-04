@@ -1,0 +1,177 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b2-b25",
+  "batch_sha256": "15fe069d5864779897daff7fb677784148692c42ec2c36722c15282c2ad6add3",
+  "reviewer": "ingest-circuits",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--gdp-expenditure-identity",
+      "revision": "r2",
+      "record_sha256": "5c6663fd26d2cbe9e966f142879a7f4f54c096ea036dbdd01c91185acdcefa84",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed UBEA on 2026-11-04 (HTTP 200): C+I+G+X-M formula verified. Record math matches with the disclosed signed-I and transfer-excluded-G profile. Owner CFA excerpt not inspectable per track protocol; corroboration carries the math."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is complete final-expenditure categories with imports pre-included then subtracted (assumptions). Limitations exclude causal import readings and chained-real additivity. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "C+I+G+X-M all [EUR] closes to [EUR], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: open-economy (600,150,200,100,80) -> 970 exact; inventory-liquidation (100,-10,20,0,5) -> 105 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards C/G/X/M>=0 and C+I+G+X>=M hold on both references (evaluated). Missing-C rejection leaves the expression unevaluable as stated. Inverse notes correctly isolate each component with domain rechecks."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. BEA primary: curator records government page with terms unknown and no clearance asserted; accurate and conservative. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.bea.gov/news/blog/2025-06-03/expenditures-approach-measuring-gdp",
+          "locator": "Expenditure formula and production-approach paragraph",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. BEA states GDP as C+I+G+X-M and defines production value added as gross output minus intermediate inputs. Record implements the expenditure identity with signed investment and transfer-excluded G."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the expenditure identity GDP=C+I+G+X-M with complete final-expenditure categories; not as a causal claim about imports, and not with chained real components treated as additive."
+    },
+    {
+      "id": "financial-analysis--gdp-implicit-price-deflator",
+      "revision": "r2",
+      "record_sha256": "b8013cbb36c174ff872896e23fcac4753b65ea3138f53e410944d4ffdfbf7b60",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed U192 on 2026-11-04 (HTTP 200): nominal/real conversion and index-table context verified; formulae are rendered (not machine-readable text). Record math is the base-one form of the page relation with the display convention disclosed. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is same output/coverage with declared real basis (assumptions). Limitations exclude CPI readings and treat rebasing as level-only. Price-basis contexts distinguished in translation. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "nominal [EUR] / real [EUR] closes to dimensionless [1], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: cfa-price-increase (6018750000,5625000000) -> 1.07 exact; below-reference-prices (90,100) -> 0.9 exact; tol 1e-09. First case cites CFA p129 (curator-reported); second honestly labeled curator-constructed."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards nominal>0, real>0 hold on both references (evaluated). Missing-nominal rejection leaves the expression unevaluable as stated. Inverse notes correctly handle real=0 and D=0 singularities."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. OpenStax primary carries inspected CC BY-NC-SA footer plus AI/commercial-restriction note; I verified the CC BY-NC-SA 4.0 footer with commercial-use restriction on the OpenStax economics-3e site on 2026-11-04. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://openstax.org/books/principles-economics-3e/pages/19-2-adjusting-nominal-values-to-real-values",
+          "locator": "Converting Nominal to Real GDP; base-100 index table",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Page converts nominal to real GDP via the price index with a base-100 index table; rendered formulae state real=nominal/index. Record implements the base-one ratio nominal/real with the /100 display convention disclosed in translation."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the base-one implicit deflator nominal/real for the same output and coverage; not as CPI inflation, and not across rebased series without re-referencing."
+    },
+    {
+      "id": "financial-analysis--real-gdp-per-capita",
+      "revision": "r3",
+      "record_sha256": "8037a5cb037d307d371c3d92e3f2ab26502f3384a179f6479ea330b2ea08970e",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed UWB1 on 2026-11-04 (HTTP 200): per-capita division definition verified verbatim. Record math matches exactly. Owner CFA excerpt not inspectable per track protocol; corroboration carries the math. Cosmetic: r3 translation note still says 'Revision r2 replaces ...'; harmless staleness."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is matched coverage/dates with population>0 (assumptions). Limitations exclude welfare readings, PPP, and currency conversion. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "GDP [EUR] / population [persons] closes to [EUR/person], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: small-economy (1000000,100) -> 10000 exact; double-population (1000000,200) -> 5000 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards GDP>=0, population>0 hold on both references (evaluated). Missing-GDP rejection leaves the expression unevaluable as stated. Inverse notes correctly handle GDP=0 underdetermination."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. World Bank primary: curator records CC BY 4.0 indicator terms with no data redistributed; accurate. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://databank.worldbank.org/metadataglossary/world-development-indicators/series/NY.GDP.PCAP.KD",
+          "locator": "Short/Long definition and methodology: per-capita division",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. World Bank metadata states the constant-price GDP aggregate is divided by the general population to produce the per-capita measure. Record implements GDP/population exactly."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as real GDP per resident GDP/population for matched geographic coverage and dates; not as a welfare/distribution measure, and not with PPP or currency conversion implied."
+    },
+    {
+      "id": "financial-analysis--production-stage-value-added",
+      "revision": "r2",
+      "record_sha256": "9add9510201071940128c975b2f58edbcde7f38fd08eadc9f027919f17252173",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed UBEA on 2026-11-04 (HTTP 200): value-added definition verified. Record math matches. Owner CFA excerpt not inspectable per track protocol; corroboration carries the math."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is consistent valuation/periods with intermediates as consumed inputs (assumptions). Limitations allow negative value added and exclude gross-profit readings. Translation bars receipts-as-output overreach. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "output [EUR] - intermediate [EUR] closes to [EUR], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: car-assembly (15000,5000) -> 10000 exact; bread-miller (0.46,0.15) -> 0.31 exact; tol 1e-09. Both cite CFA published examples (curator-reported; printed page not inspected by me); arithmetic verified independently."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "No guards by design (signed flows allowed). Missing-output rejection leaves the expression unevaluable as stated. Inverse notes correctly state neither input is identifiable from VA alone."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. BEA primary: curator records government page with terms unknown and no clearance asserted; accurate and conservative. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.bea.gov/news/blog/2025-06-03/expenditures-approach-measuring-gdp",
+          "locator": "Concluding production-approach paragraph: gross output minus intermediate inputs",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. BEA defines production value added as gross output minus intermediate inputs. Record implements output-intermediate with consistent-valuation scope."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as stage value added output-intermediate with consistent valuation and periods; not as gross profit, and not for GDP aggregation without valuation adjustments."
+    }
+  ]
+}

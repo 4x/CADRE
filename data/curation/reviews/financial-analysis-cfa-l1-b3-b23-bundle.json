@@ -1,0 +1,540 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b23",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--fixed-charge-coverage-ratio",
+      "revision": "r1",
+      "title": "Fixed-charge coverage ratio",
+      "summary": "Fixed-charge coverage adds lease payments to EBIT and compares the result with interest plus lease payments.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "(ebit + lease) / (interest + lease)",
+        "original_equation": "Fixed-charge coverage = (EBIT + lease payments) / (interest payments + lease payments)",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 34–37",
+        "translation_notes": "Interest payments and EBIT are distinct cash and accrual measures; their conventions must be matched to the source definition."
+      },
+      "variables": [
+        {
+          "symbol": "ebit",
+          "source_symbol": "earnings before interest and taxes",
+          "role": "input",
+          "quantity_id": "earnings_before_interest_and_taxes",
+          "definition": "earnings before interest and taxes",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "lease",
+          "source_symbol": "lease payments",
+          "role": "input",
+          "quantity_id": "period_lease_payments",
+          "definition": "lease payments",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "interest",
+          "source_symbol": "interest payments",
+          "role": "input",
+          "quantity_id": "period_interest_payments",
+          "definition": "interest payments",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "fixed charge coverage",
+          "role": "output",
+          "quantity_id": "fixed_charge_coverage_ratio",
+          "definition": "Coverage of interest and lease payments by EBIT plus lease payments",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "lease >= 0",
+        "interest >= 0",
+        "interest + lease > 0"
+      ],
+      "assumptions": [
+        "All quantities cover the same entity, currency and reporting period.",
+        "Lease expense treatment is consistent with adding back the specified lease payments."
+      ],
+      "limitations": [
+        "Different lease accounting or other fixed obligations require additional adjustments.",
+        "Positive denominator is required; negative EBIT is permitted."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Solvency Ratios, printed p215 (PDF p229), Exhibit 16",
+          "evidence": "Fixed-charge coverage adds lease payments to EBIT and compares the result with interest plus lease payments.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 34–37",
+          "evidence": "The public list defines fixed-charge coverage, payout, retention and sustainable growth relationships.",
+          "license": "CFA Institute rights reserved; isolated formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "ebit": 100,
+            "lease": 20,
+            "interest": 40
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "120 divided by 60 gives two.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "loss",
+          "inputs": {
+            "ebit": -20,
+            "lease": 10,
+            "interest": 40
+          },
+          "expected": -0.2,
+          "tolerance": 1e-09,
+          "method": "Negative ten divided by fifty gives -0.2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "lease": 20,
+            "interest": 40
+          },
+          "reason": "ebit is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ebit=ratio*(interest+lease)-lease. Solving for lease requires ratio not equal to one; the denominator must remain positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--common-dividend-payout-ratio",
+      "revision": "r1",
+      "title": "Common dividend payout ratio",
+      "summary": "Payout compares common dividends with net income attributable to common shares.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "payout",
+        "expression": "dividends / income",
+        "original_equation": "Dividend payout ratio = common dividends / net income attributable to common shares",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 34–37",
+        "translation_notes": "The output is a fraction; common dividends and common earnings must align."
+      },
+      "variables": [
+        {
+          "symbol": "dividends",
+          "source_symbol": "common share dividends",
+          "role": "input",
+          "quantity_id": "common_share_dividends",
+          "definition": "common share dividends",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "income",
+          "source_symbol": "net income attributable to common shares",
+          "role": "input",
+          "quantity_id": "net_income_attributable_to_common",
+          "definition": "net income attributable to common shares",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "payout",
+          "source_symbol": "dividend payout ratio",
+          "role": "output",
+          "quantity_id": "common_dividend_payout_ratio",
+          "definition": "Common dividends as a fraction of common earnings",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "dividends >= 0",
+        "income > 0"
+      ],
+      "assumptions": [
+        "Numerator and denominator cover the same entity, currency and financial period.",
+        "Positive income is an explicit analytical profile."
+      ],
+      "limitations": [
+        "A negative-income payout ratio is excluded from this profile; distributions may exceed current earnings."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Equity Analysis and Valuation Ratios, printed p230 (PDF p244), Exhibit 20",
+          "evidence": "Payout compares common dividends with net income attributable to common shares.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 34–37",
+          "evidence": "The public list defines fixed-charge coverage, payout, retention and sustainable growth relationships.",
+          "license": "CFA Institute rights reserved; isolated formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "dividends": 40,
+            "income": 100
+          },
+          "expected": 0.4,
+          "tolerance": 1e-09,
+          "method": "40 common dividends divided by 100 common income equals 0.4.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "dividends": 120,
+            "income": 100
+          },
+          "expected": 1.2,
+          "tolerance": 1e-09,
+          "method": "Payout may exceed current earnings: 120/100 = 1.2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "income": 100
+          },
+          "reason": "dividends is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "dividends=payout*income; income=dividends/payout when payout is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--earnings-retention-fraction",
+      "revision": "r1",
+      "title": "Earnings retention fraction",
+      "summary": "The retention rate is the complement of the dividend payout ratio.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "retention",
+        "expression": "1 - payout",
+        "original_equation": "Retention rate = 1 - dividend payout ratio",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 34–37",
+        "translation_notes": "This distinct named earnings quantity is derived from payout; the literal one is a dimensionless arithmetic identity."
+      },
+      "variables": [
+        {
+          "symbol": "payout",
+          "source_symbol": "dividend payout ratio",
+          "role": "input",
+          "quantity_id": "common_dividend_payout_ratio",
+          "definition": "Common dividends divided by common earnings for the same period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "retention",
+          "source_symbol": "retention rate",
+          "role": "output",
+          "quantity_id": "earnings_retention_fraction",
+          "definition": "Fraction of common earnings retained",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Payout and retention use matching common-share income and dividends."
+      ],
+      "limitations": [
+        "Payout above one implies negative retention and is not silently clamped."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Equity Analysis and Valuation Ratios, printed pp230–232 (PDF pp244–246), Exhibit 20",
+          "evidence": "The retention rate is the complement of the dividend payout ratio.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 34–37",
+          "evidence": "The public list defines fixed-charge coverage, payout, retention and sustainable growth relationships.",
+          "license": "CFA Institute rights reserved; isolated formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "typical",
+          "inputs": {
+            "payout": 0.4
+          },
+          "expected": 0.6,
+          "tolerance": 1e-09,
+          "method": "One less 0.4 equals 0.6.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "over-distribution",
+          "inputs": {
+            "payout": 1.2
+          },
+          "expected": -0.2,
+          "tolerance": 1e-09,
+          "method": "One less 1.2 equals -0.2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "payout is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "payout=1-retention; the inverse is unique.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--retention-based-sustainable-growth",
+      "revision": "r1",
+      "title": "Retention-based sustainable growth rate",
+      "summary": "The reading defines sustainable growth as the retention rate multiplied by return on equity.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "growth",
+        "expression": "retention * roe",
+        "original_equation": "Sustainable growth rate = retention rate × return on equity",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 34–37",
+        "translation_notes": "Both factors and the output are base-one fractions for the same financial period."
+      },
+      "variables": [
+        {
+          "symbol": "retention",
+          "source_symbol": "retention rate",
+          "role": "input",
+          "quantity_id": "earnings_retention_fraction",
+          "definition": "Share of earnings retained under the model",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "roe",
+          "source_symbol": "return on equity",
+          "role": "input",
+          "quantity_id": "return_on_average_equity",
+          "definition": "Return on compatible equity over the stated period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "growth",
+          "source_symbol": "sustainable growth rate",
+          "role": "output",
+          "quantity_id": "retention_based_sustainable_growth_rate",
+          "definition": "Growth rate under the retained-earnings model",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Return, retention and growth use compatible equity, accounting and period conventions.",
+        "The simplifying model assumes internally retained earnings finance the modeled equity growth with compatible profitability."
+      ],
+      "limitations": [
+        "The relation is a stylized identity and does not predict realized growth; external equity issuance, changing leverage and valuation affect outcomes."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Equity Analysis and Valuation Ratios, printed pp230–232 (PDF pp244–246), Exhibit 20",
+          "evidence": "The reading defines sustainable growth as the retention rate multiplied by return on equity.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 34–37",
+          "evidence": "The public list defines fixed-charge coverage, payout, retention and sustainable growth relationships.",
+          "license": "CFA Institute rights reserved; isolated formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "retention": 0.6,
+            "roe": 0.1
+          },
+          "expected": 0.06,
+          "tolerance": 1e-09,
+          "method": "Retaining 60% of earnings at 10% ROE gives 6%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative",
+          "inputs": {
+            "retention": 0.5,
+            "roe": -0.2
+          },
+          "expected": -0.1,
+          "tolerance": 1e-09,
+          "method": "Retaining half of a negative 20% return gives negative 10%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "roe": 0.1
+          },
+          "reason": "retention is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "roe=growth/retention if retention is nonzero; retention=growth/roe if ROE is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

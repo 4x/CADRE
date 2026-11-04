@@ -1,0 +1,191 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b1-b43",
+  "batch_sha256": "8c25dcaf87b17896a336cd172ee6e3fd65387002a5fc283aa723ba347416f039",
+  "reviewer": "ingest-clinical",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--supplied-affine-regression-response",
+      "revision": "r2",
+      "record_sha256": "9ed86b79c0a0b8fe0510fbc52ad65d729c7b3bca1e1c0fa799f323dfb6fd74ea",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating NIST linear-least-squares-model page (pmd141) not opened by reviewer."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Deterministic evaluation of supplied coefficients (not fitting); conditional model output, not a forecast; error term not silently zeroed; extrapolation/coefficient uncertainty separate."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "intercept[response-unit]+slope[response-unit/predictor-unit]*x[predictor-unit] gives fitted[response-unit]. All response/predictor units and fitted_regression_intercept, fitted_regression_slope, regression_predictor_value, fitted_regression_response are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: .04875+1.25*.06=.12375; 3+0*10=3, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "No guards (total function). Inverses x=(fitted-intercept)/slope needs slope nonzero; slope 0 leaves x unidentified; no stochastic/causal inverse claimed, correctly."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating source not opened by reviewer (https://www.itl.nist.gov/div898/handbook/pmd/section1/pmd141.htm).",
+        "Requires runtime extension (response/predictor units and new meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    },
+    {
+      "id": "financial-analysis--regression-response-residual",
+      "revision": "r2",
+      "record_sha256": "25fa5c61a0a35a0251d8372b537fecc48b21e5373b9b49a760656fbe34f48cba",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH section 4.4.4 verified live 2026-11-04: residual e_i=y_i-f(x_i;beta-hat) displayed with the observed-vs-fitted definition; matches exactly."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Same-case/model/unit residual; sample residuals distinguished from unobservable population errors (constrained, not independent)."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "observed[response-unit]-fitted[response-unit] gives residual[response-unit]. response-unit, observed_regression_response, fitted_regression_response, regression_response_residual are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: .15-.11125=.03875; 1-3=-2, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "No guards (total function). Inverses observed=fitted+residual and symmetric; residual 0 means on-line without identifying coefficients, correctly."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH handbook corroboration only: short equations and numerical facts; no handbook text redistributed. NIST employee works are not subject to US copyright (17 USC 105) with foreign rights possible and acknowledgment required, verified live 2026-11-04 at the NIST license page. No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.itl.nist.gov/div898/handbook/pmd/section4/pmd44.htm",
+          "locator": "Section 4.4.4, Residuals",
+          "accessed": "2026-11-04",
+          "finding": "Live page: e_i=y_i-f(x_i;beta-hat) residual definition displayed."
+        },
+        {
+          "url": "https://www.nist.gov/open/copyright-fair-use-and-licensing-statements-srd-data-software-and-technical-series-publications",
+          "locator": "Fair Use of Other NIST Data/Works",
+          "accessed": "2026-11-04",
+          "finding": "Live page: 17 USC 105, no US copyright for employee works, foreign rights possible, acknowledgment required."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Signed regression response residual, for qualified fit review."
+    },
+    {
+      "id": "financial-analysis--regression-sum-of-squared-deviations",
+      "revision": "r2",
+      "record_sha256": "476da5409a4b058247969000db2b24fa80492e6cdf5d8607c2db58d403cf9317",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH section 4.4.3.1 verified live 2026-11-04: LS criterion Q=sum[y_i-f(x_i;beta-hat)]^2 displayed as the minimized sum of squared deviations; matches the record sum form."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "One deviation definition per use (SSE/SST/SSR are context-qualified uses, not interchangeable ports); no coefficient/mean estimation; elementwise-square binding external."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "sum over a response-unit^2 squared-deviation family gives SS[response-unit^2]. response-unit^2, squared_response_deviation_terms, regression_sum_of_squares are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 1+4+1=6; 0+0+0=0, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "len(q)>=1, sum(q)>=0. Inverse: one missing square is SS-minus-others (nonnegative) with roots +/-1; SS=0 forces all terms 0, correctly."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH handbook corroboration only: short equations and numerical facts; no handbook text redistributed. NIST employee works are not subject to US copyright (17 USC 105) with foreign rights possible and acknowledgment required, verified live 2026-11-04 at the NIST license page. No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.itl.nist.gov/div898/handbook/pmd/section4/pmd431.htm",
+          "locator": "Section 4.4.3.1, General LS Criterion",
+          "accessed": "2026-11-04",
+          "finding": "Live page: Q=sum[y_i-f(x_i;beta-hat)]^2 least-squares criterion displayed."
+        },
+        {
+          "url": "https://www.nist.gov/open/copyright-fair-use-and-licensing-statements-srd-data-software-and-technical-series-publications",
+          "locator": "Fair Use of Other NIST Data/Works",
+          "accessed": "2026-11-04",
+          "finding": "Live page: 17 USC 105, no US copyright for employee works, foreign rights possible, acknowledgment required."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Regression sum of squared deviations for one declared deviation definition, for qualified fit review."
+    },
+    {
+      "id": "financial-analysis--regression-coefficient-of-determination",
+      "revision": "r2",
+      "record_sha256": "d82a60ea79c74978aebeadb340efd7f34679b683aaeae1fbb80567d2d11f70fb",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH section 4.4.4 verified live 2026-11-04: R^2 as the fraction of total response variability accounted for by the model, with residual definition. Weighed thin point: the exact SSR/SST quotient is the standard formalization of that displayed fraction concept but is not itself displayed on the corroborating page; the record guards enforce the OLS-intercept profile the quotient needs."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "OLS with intercept on one sample/scale (SST=SSR+SSE, SST>0); constant responses (SST=0) undefined; out-of-sample/no-intercept/weighted scores differ; high R2 alone proves nothing (disclosed)."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "explained[response-unit^2]/total[response-unit^2] gives unit-1 R2. response-unit^2, explained_response_sum_of_squares, total_response_sum_of_squares, regression_coefficient_of_determination are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 80/100=.8; 0/100=0, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "total>0 with 0<=explained<=total (OLS-with-intercept profile). Inverses explained=R2*total; total=explained/R2 needs R2>0; R2=explained=0 leaves total unidentified, correctly. Correlation sign lost on squaring (noted)."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH handbook corroboration only: short equations and numerical facts; no handbook text redistributed. NIST employee works are not subject to US copyright (17 USC 105) with foreign rights possible and acknowledgment required, verified live 2026-11-04 at the NIST license page. No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.itl.nist.gov/div898/handbook/pmd/section4/pmd44.htm",
+          "locator": "Section 4.4.4, R-squared and Residuals",
+          "accessed": "2026-11-04",
+          "finding": "Live page: R^2 as fraction of total variability accounted for, with residual definition; exact SSR/SST quotient standard but not displayed (thin point, weighed)."
+        },
+        {
+          "url": "https://www.nist.gov/open/copyright-fair-use-and-licensing-statements-srd-data-software-and-technical-series-publications",
+          "locator": "Fair Use of Other NIST Data/Works",
+          "accessed": "2026-11-04",
+          "finding": "Live page: 17 USC 105, no US copyright for employee works, foreign rights possible, acknowledgment required."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "OLS-with-intercept coefficient of determination, for qualified fit review. Not a validity proof."
+    }
+  ]
+}

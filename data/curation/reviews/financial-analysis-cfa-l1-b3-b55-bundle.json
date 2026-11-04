@@ -1,0 +1,171 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b55",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. Strengthens b44 lease liability rollforward by guarding against overpayment in the simple no-other-adjustments profile; original remains preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--lessee-finance-lease-liability-rollforward",
+      "revision": "r2",
+      "title": "Lessee finance lease liability rollforward",
+      "summary": "The liability is increased by interest and reduced by the payment.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "closing",
+        "expression": "opening + interest - payments",
+        "original_equation": "Closing lease liability = opening liability + interest accretion - lease payments",
+        "source_id": "fasb-asu-2016-02-a",
+        "locator": "Paragraph 842-20-35-1(a), subsequent measurement of finance lease liability",
+        "translation_notes": "All inputs are amounts in the same currency; interest and payments are nonnegative."
+      },
+      "variables": [
+        {
+          "symbol": "opening",
+          "source_symbol": "opening lease liability",
+          "role": "input",
+          "quantity_id": "opening_finance_lease_liability",
+          "definition": "opening lease liability",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "interest",
+          "source_symbol": "interest on lease liability",
+          "role": "input",
+          "quantity_id": "finance_lease_liability_interest",
+          "definition": "interest on lease liability",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "payments",
+          "source_symbol": "lease payments applied to liability",
+          "role": "input",
+          "quantity_id": "lease_liability_payments",
+          "definition": "lease payments applied to liability",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "closing",
+          "source_symbol": "closing lease liability",
+          "role": "output",
+          "quantity_id": "closing_finance_lease_liability",
+          "definition": "closing lease liability",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "opening >= 0",
+        "interest >= 0",
+        "payments >= 0",
+        "opening + interest >= payments"
+      ],
+      "assumptions": [
+        "Interest and payments relate to the same finance lease and reporting period.",
+        "No modification, reassessment, foreign exchange or other balance movement occurs."
+      ],
+      "limitations": [
+        "The liability excludes payments not included in its measurement.",
+        "Lease principal and interest calculations themselves overlap the loan-family models excluded by the assignment.",
+        "Payments exceeding the opening liability plus accrued interest need separate allocation and are outside this simple lease-liability profile."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 8, Lessee Accounting—IFRS, printed pp469–470 (PDF pp483–484), Example 11 lease liability table",
+          "evidence": "The liability is increased by interest and reduced by the payment.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "fasb-asu-2016-02-a",
+          "kind": "primary",
+          "title": "Accounting Standards Update 2016-02, Leases (Topic 842), Section A",
+          "url": "https://storage.fasb.org/ASU%202016-02_Section%20A.pdf",
+          "version": "Financial Accounting Standards Board, February 2016",
+          "accessed": "2026-11-03",
+          "locator": "Paragraph 842-20-35-1(a), subsequent measurement of finance lease liability",
+          "evidence": "The lessee increases the lease liability for interest and reduces it for lease payments.",
+          "license": "FASB copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "year-one",
+          "inputs": {
+            "opening": 379079,
+            "interest": 37908,
+            "payments": 100000
+          },
+          "expected": 316987,
+          "tolerance": 1e-09,
+          "method": "379,079 plus 37,908 interest less the 100,000 payment gives 316,987.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "year-two-rounded",
+          "inputs": {
+            "opening": 316987,
+            "interest": 31699,
+            "payments": 100000
+          },
+          "expected": 248686,
+          "tolerance": 1e-09,
+          "method": "Using rounded inputs, 316,987 plus 31,699 less 100,000 is 248,686; the PDF table uses unrounded amounts and shows 248,685.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "interest": 37908,
+            "payments": 100000
+          },
+          "reason": "opening is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "opening=closing-interest+payments; any other single component is similarly recoverable.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

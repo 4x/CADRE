@@ -1,0 +1,154 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b92",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations. All records use inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; public corroboration carries the relationship when available, and documented owner-only fallbacks remain blocked for review. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--net-sales-after-returns-and-allowances",
+      "revision": "r1",
+      "title": "Net sales after returns and allowances",
+      "summary": "The practice solution subtracts returns and allowances from the amount charged for goods sold to determine recognized net revenue.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "net_sales",
+        "expression": "gross - contra",
+        "original_equation": "Net sales = gross sales − sales returns and allowances",
+        "source_id": "penn-state-income-statement-sales",
+        "locator": "Income Statement, operating revenue",
+        "translation_notes": "All values are monetary flows for the same reporting period."
+      },
+      "variables": [
+        {
+          "symbol": "gross",
+          "source_symbol": "gross sales before contra-revenue",
+          "role": "input",
+          "quantity_id": "gross_sales",
+          "definition": "gross sales before contra-revenue",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same reporting entity, accounting basis, reporting period and currency",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "contra",
+          "source_symbol": "sales returns and allowances",
+          "role": "input",
+          "quantity_id": "sales_returns_and_allowances",
+          "definition": "sales returns and allowances",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same reporting entity, accounting basis, reporting period and currency",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "net_sales",
+          "source_symbol": "net sales",
+          "role": "output",
+          "quantity_id": "net_sales_revenue",
+          "definition": "net sales",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same reporting entity, accounting basis, reporting period and currency",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "gross >= 0",
+        "contra >= 0"
+      ],
+      "assumptions": [
+        "Gross sales and contra-revenue have matching entity, accounting period and sales scope; amounts are measured in the same currency.",
+        "Returns and allowances are positive deductions, included only once; any separately applicable sales discounts must also be included in contra-revenue."
+      ],
+      "limitations": [
+        "The calculation does not by itself establish whether a transaction meets revenue-recognition criteria.",
+        "Industry and accounting-policy definitions of gross sales and discounts can differ."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 1, Revenue Recognition, printed pp53–54 and p58 (PDF pp67–68 and p72), practice problem 5 and solution",
+          "evidence": "The practice solution subtracts returns and allowances from the amount charged for goods sold to determine recognized net revenue.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "penn-state-income-statement-sales",
+          "kind": "primary",
+          "title": "Financial Statements and Startup Financial Model",
+          "url": "https://propel.smeal.psu.edu/digital-resources/financial-statements-and-startup-financial-model/",
+          "version": "Penn State Smeal College of Business, Propel Business, publication year not established",
+          "accessed": "2026-11-04",
+          "locator": "Income Statement, operating revenue",
+          "evidence": "The university guide describes operating sales after discounts or returns.",
+          "license": "Penn State educational resource; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner",
+          "inputs": {
+            "gross": 1000000,
+            "contra": 100000
+          },
+          "expected": 900000,
+          "tolerance": 1e-09,
+          "method": "Gross sales of 1,000,000 less returns and allowances of 100,000 give net sales of 900,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "no-returns",
+          "inputs": {
+            "gross": 250000,
+            "contra": 0
+          },
+          "expected": 250000,
+          "tolerance": 1e-09,
+          "method": "With no returns or allowances, net sales equal the 250,000 gross amount.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "contra": 100000
+          },
+          "reason": "gross is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "gross=net_sales+contra.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

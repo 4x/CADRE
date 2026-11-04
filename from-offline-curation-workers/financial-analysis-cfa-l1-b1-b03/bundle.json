@@ -1,0 +1,549 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b03",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic relationships from the assigned CFA Quantitative Methods volume, with exact PDF locators and inspected corroboration.",
+    "gaps": [
+      "Most financial/statistical quantity meanings require registry extension.",
+      "Duplicate checking is limited to the supplied catalog/vocabulary, assignment exclusions and this curator's public records; no global uniqueness claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: official validator rejects primary source url:null, which the CFA source brief explicitly requires for the purchased PDF. Toolkit left unchanged. Independent schema, expression/reference arithmetic, guard and rejection checks pass; ZIP checksum/membership checked. No passing official validation or intake-ready return claimed. Source fidelity, dimensions, contexts and inverse notes manually reviewed. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--disjoint-observation-count-additivity",
+      "revision": "r1",
+      "title": "Additivity of disjoint observation counts",
+      "summary": "Joint frequencies add to marginal counts, and ordered bins accumulate to cumulative counts.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "total",
+        "expression": "sum(counts)",
+        "original_equation": "Marginal frequency = sum of joint frequencies over the complementary categories; cumulative frequency = ordered prefix sum.",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, Summarizing Data Using Frequency Distributions, printed p74/PDF84 Exhibit11; Contingency Table printed p78/PDF88 Exhibit14",
+        "translation_notes": "One generic count-union definition captures both marginal and cumulative variants, avoiding separate sum-only clones. Counts are dimensionless numbers of observations and sum to counts. Financial cash-flow additivity uses a different scientific quantity and currency units."
+      },
+      "variables": [
+        {
+          "symbol": "counts",
+          "source_symbol": "absolute/joint frequencies",
+          "role": "family",
+          "quantity_id": "category_observation_count",
+          "definition": "Counts in mutually disjoint subsets of one dataset",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same dataset/population, observation support, measurement units and category partition as the output",
+          "domain": "Each element a nonnegative integer",
+          "max_size": 256
+        },
+        {
+          "symbol": "total",
+          "source_symbol": "marginal/cumulative frequency",
+          "role": "output",
+          "quantity_id": "aggregate_observation_count",
+          "definition": "Count in the union of those subsets",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same dataset/population, observation support, measurement units and category partition as the output",
+          "domain": "Nonnegative integer"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Source assumption: subsets are disjoint and use the same observation unit.",
+        "Source assumption: category ordering is retained when interpreting a prefix sum as cumulative frequency."
+      ],
+      "limitations": [
+        "No classification or counting of raw observations is performed here.",
+        "Per-element nonnegative integrality must be checked at binding; the current guard grammar cannot quantify over a family."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Summarizing Data Using Frequency Distributions, printed p74/PDF84 Exhibit11; Contingency Table printed p78/PDF88 Exhibit14",
+          "evidence": "Joint frequencies add to marginal counts, and ordered bins accumulate to cumulative counts.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-frequency",
+          "kind": "primary",
+          "title": "Introductory Statistics 2e",
+          "url": "https://openstax.org/books/introductory-statistics-2e/pages/1-3-frequency-frequency-tables-and-levels-of-measurement",
+          "version": "OpenStax, 2e",
+          "accessed": "2026-11-03",
+          "locator": "Section 1.3, Frequency and cumulative relative frequency, Tables1.10-1.12",
+          "evidence": "Disjoint category frequencies sum to the total; ordered prefix sums are cumulative frequencies.",
+          "license": "CC BY 4.0 identified in page footer; https://creativecommons.org/licenses/by/4.0/; inspected2026-11-03.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "healthcare-margin",
+          "inputs": {
+            "counts": [
+              275,
+              105,
+              55
+            ]
+          },
+          "expected": 435,
+          "tolerance": 1e-09,
+          "method": "Published marginal count; independent count grouping275+100+5+50+5=435.",
+          "provenance": "CFA Exhibit14 printed p78/PDF88."
+        },
+        {
+          "id": "prefix-three-bins",
+          "inputs": {
+            "counts": [
+              1,
+              7,
+              23
+            ]
+          },
+          "expected": 31,
+          "tolerance": 1e-09,
+          "method": "Published prefix count31 in the third ordered bin.",
+          "provenance": "CFA Exhibit11 printed p74/PDF84."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "counts is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "One missing category count is total minus all other disjoint counts and must be a nonnegative integer. With total435 and counts275,55 the residual105 substitutes back. Two missing counts cannot be identified separately.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--equity-market-capitalization",
+      "revision": "r1",
+      "title": "Equity market capitalization from outstanding shares",
+      "summary": "The text defines company market capitalization as outstanding share count multiplied by price per share.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cap",
+        "expression": "shares * price",
+        "original_equation": "Market capitalization = number of shares outstanding times price per share",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, Summarizing Data Using a Contingency Table, printed p78 (PDF p88), opening unnumbered market-capitalization definition",
+        "translation_notes": "Source prose formalized directly. USD/share times shares yields USD. Fractional share counts can arise in units/scale conventions; counts and price must use matching per-share scale. No exchange-rate conversion included."
+      },
+      "variables": [
+        {
+          "symbol": "shares",
+          "source_symbol": "number of shares outstanding",
+          "role": "input",
+          "quantity_id": "shares_outstanding",
+          "definition": "Outstanding shares represented by the matching public share price",
+          "unit": "shares",
+          "dimensions": "share count",
+          "context": "Same issuer, share class and date as price",
+          "domain": "Positive finite share count"
+        },
+        {
+          "symbol": "price",
+          "source_symbol": "price per share",
+          "role": "input",
+          "quantity_id": "equity_price_per_share",
+          "definition": "Public market price for one matching outstanding share",
+          "unit": "USD/share",
+          "dimensions": "currency/share count",
+          "context": "Same issuer, share class, date and currency as shares/cap",
+          "domain": "Nonnegative finite price"
+        },
+        {
+          "symbol": "cap",
+          "source_symbol": "market capitalization",
+          "role": "output",
+          "quantity_id": "equity_market_capitalization",
+          "definition": "Public market value of outstanding equity represented by the inputs",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same issuer, equity perimeter, date and currency",
+          "domain": "Nonnegative finite value"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "shares > 0",
+        "price >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: current share price and outstanding-share count refer to the same equity perimeter and valuation instant.",
+        "Application profile: one homogeneous share class and one currency; aggregate multiple classes only after separately valuing them."
+      ],
+      "limitations": [
+        "Not enterprise value, book value, free-float-adjusted capitalization or shares authorized."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Summarizing Data Using a Contingency Table, printed p78 (PDF p88), opening unnumbered market-capitalization definition",
+          "evidence": "The text defines company market capitalization as outstanding share count multiplied by price per share.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sec-market-cap",
+          "kind": "primary",
+          "title": "Investor.gov: Market Capitalization",
+          "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/market-capitalization",
+          "version": "US SEC glossary; no dated edition stated",
+          "accessed": "2026-11-03",
+          "locator": "Market Capitalization glossary entry, definition",
+          "evidence": "Corporation market capitalization multiplies the current public share price by outstanding shares.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "ten-million-shares",
+          "inputs": {
+            "shares": 10000000,
+            "price": 25
+          },
+          "expected": 250000000,
+          "tolerance": 1e-09,
+          "method": "Independent lot accounting: ten million lots valued at25 each total250 million.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero-price",
+          "inputs": {
+            "shares": 1000,
+            "price": 0
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "A zero market price assigns no market value to each outstanding share; company legal existence is outside this definition.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "price": 25
+          },
+          "reason": "shares is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "price=cap/shares requires shares>0; shares=cap/price requires price>0. First case recovers25 from250000000/10000000. If price=cap=0, outstanding shares are underdetermined.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--contingency-expected-cell-count",
+      "revision": "r1",
+      "title": "Expected contingency-table cell count under independence",
+      "summary": "Under the independence hypothesis each expected cell count is the product of its row and column totals divided by the overall count.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "E",
+        "expression": "row * column / n",
+        "original_equation": "Expected Value_i,j = (Total Row_i * Total Column_j)/Overall Total",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, Contingency Tables and Association, printed p81 (PDF p91), Equation(1), Example5 Step2",
+        "translation_notes": "Count*count/count yields count. E can be fractional even when all observed margins are integers. Row and column margins must come from one consistent table. This is not a forecast of a future financial event."
+      },
+      "variables": [
+        {
+          "symbol": "row",
+          "source_symbol": "Total Row_i",
+          "role": "input",
+          "quantity_id": "contingency_row_count",
+          "definition": "Observed marginal count in the selected row",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same dataset/population, observation support, measurement units and category partition as the output",
+          "domain": "Integer0<=row<=n"
+        },
+        {
+          "symbol": "column",
+          "source_symbol": "Total Column_j",
+          "role": "input",
+          "quantity_id": "contingency_column_count",
+          "definition": "Observed marginal count in the selected column",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same dataset/population, observation support, measurement units and category partition as the output",
+          "domain": "Integer0<=column<=n"
+        },
+        {
+          "symbol": "n",
+          "source_symbol": "Overall Total",
+          "role": "input",
+          "quantity_id": "record_count",
+          "definition": "Grand total count in the contingency table",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same dataset/population, observation support, measurement units and category partition as the output",
+          "domain": "Positive integer"
+        },
+        {
+          "symbol": "E",
+          "source_symbol": "Expected Value_i,j",
+          "role": "output",
+          "quantity_id": "expected_cell_frequency",
+          "definition": "Fitted cell count implied by marginal proportions under independence",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same dataset/population, observation support, measurement units and category partition as the output",
+          "domain": "Nonnegative real count, need not be integral"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "n > 0",
+        "row >= 0",
+        "column >= 0",
+        "row <= n",
+        "column <= n"
+      ],
+      "assumptions": [
+        "Source assumption: expected counts are calculated under row/column independence with fitted observed margins."
+      ],
+      "limitations": [
+        "The formula itself is defined below five expected observations; minimum expected-cell rules apply to chi-square approximation validity, not this count definition."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Contingency Tables and Association, printed p81 (PDF p91), Equation(1), Example5 Step2",
+          "evidence": "Under the independence hypothesis each expected cell count is the product of its row and column totals divided by the overall count.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-contingency",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/prc/section4/prc45.htm",
+          "version": "Live handbook inspected2026-11-03; section revision date unstated",
+          "accessed": "2026-11-03",
+          "locator": "Section7.4.5, Expected cell frequencies",
+          "evidence": "Under independence the estimated expected cell frequency is row total times column total divided by grand total.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "growth-low-risk",
+          "inputs": {
+            "row": 99,
+            "column": 256,
+            "n": 315
+          },
+          "expected": 80.46,
+          "tolerance": 0.005,
+          "method": "Published expected count rounded to two decimals; half-unit in the last place is .005.",
+          "provenance": "CFA Example5 Step2 printed p81/PDF91."
+        },
+        {
+          "id": "independent-balanced-table",
+          "inputs": {
+            "row": 20,
+            "column": 30,
+            "n": 100
+          },
+          "expected": 6,
+          "tolerance": 1e-09,
+          "method": "Independent proportions:20% of all100 observations belong to the row;30% of those20 gives6.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "column": 256,
+            "n": 315
+          },
+          "reason": "row is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "row=E*n/column requires column>0; column=E*n/row requires row>0; n=row*column/E requires E>0 plus feasible margins. Example E=6,n=100,column=30 gives row20. If either margin is0, E=0 leaves the other margin underdetermined.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--arithmetic-mean",
+      "revision": "r1",
+      "title": "Arithmetic mean of a finite numerical dataset",
+      "summary": "The arithmetic mean divides the observation sum by the sample size; the same definition applies to a complete finite population.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "mean",
+        "expression": "sum(x) / len(x)",
+        "original_equation": "X_bar = sum(X_i)/n",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, The Arithmetic Mean, printed p101 (PDF p111), Equation(2); properties printed p103/PDF113",
+        "translation_notes": "n becomes len(x), avoiding a freely supplied count inconsistent with data. Sum of U-valued observations divided by dimensionless n retains U. Generic data-unit requires extension; return-valued uses bind decimal returns with unit1, without changing the relationship. Sum of deviations equals0 is a consequence of this record, not new coverage."
+      },
+      "variables": [
+        {
+          "symbol": "x",
+          "source_symbol": "X_i, i=1,...,n",
+          "role": "family",
+          "quantity_id": "numerical_observation",
+          "definition": "Homogeneously measured numerical observations",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset/population, observation support, measurement units and category partition as the output",
+          "domain": "Finite real scalar",
+          "max_size": 256
+        },
+        {
+          "symbol": "mean",
+          "source_symbol": "X_bar",
+          "role": "output",
+          "quantity_id": "arithmetic_mean",
+          "definition": "Equally weighted average of the supplied observations",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset/population, observation support, measurement units and category partition as the output",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Source assumption: numerical observations have comparable meaning, unit and support; categorical labels are not arithmetically averaged.",
+        "No random-sampling assumption is needed to define a mean; population inference requires additional assumptions."
+      ],
+      "limitations": [
+        "Not a geometric compound return; observations may have unequal economic exposure even though this definition weights them equally.",
+        "Family length1-256; empty dataset excluded by the family contract."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, The Arithmetic Mean, printed p101 (PDF p111), Equation(2); properties printed p103/PDF113",
+          "evidence": "The arithmetic mean divides the observation sum by the sample size; the same definition applies to a complete finite population.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-location",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda351.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.5.1, Definition of Location, mean",
+          "evidence": "An arithmetic mean divides the sum of numerical observations by their count.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-market-cap-values",
+          "inputs": {
+            "x": [
+              35,
+              30,
+              22,
+              18,
+              15,
+              12
+            ]
+          },
+          "expected": 22,
+          "tolerance": 1e-09,
+          "method": "Published mean22 in AUD billions: total132 shared equally among6. Generic data-unit is one AUD billion in this reference.",
+          "provenance": "CFA printed p101/PDF111."
+        },
+        {
+          "id": "signed-symmetric-data",
+          "inputs": {
+            "x": [
+              -3,
+              0,
+              3
+            ]
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Symmetry about zero makes positive and negative observations cancel.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "x is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "If n and all but one observation are known, the missing observation equals n*mean minus the known sum. For [1,2,6] mean3, residual9-1-2=6 substitutes back. Several missing observations are underdetermined; engine family inverse views are not supported.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

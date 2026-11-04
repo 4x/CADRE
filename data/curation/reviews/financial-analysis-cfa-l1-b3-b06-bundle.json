@@ -1,0 +1,677 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b06",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for financial-analysis-cfa-l1-b3-b03: revised records cite the owner PDF as project-derivation and point to accessible corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Revision r2 corrects source classification and relationship locator/source ID for financial-analysis-cfa-l1-b3-b03; original draft preserved. Validation and packaging recorded separately."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--income-statement-common-size-fraction",
+      "revision": "r2",
+      "title": "Income-statement common-size fraction",
+      "summary": "Income-statement common-size fraction expresses income-statement line item relative to revenue.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "amount / revenue",
+        "original_equation": "Income-statement common-size fraction = income-statement line item / revenue",
+        "source_id": "openstax-vertical",
+        "locator": "Vertical Analysis; common-size percentage",
+        "translation_notes": "Currency cancels and the output is a base-one fraction. The gross, operating, pretax and net margins are meaningful named selections of the comparison item; each is also described separately. The owner PDF locator is retained on the project-derivation source; relationship locator identifies the accessible corroborating source."
+      },
+      "variables": [
+        {
+          "symbol": "amount",
+          "source_symbol": "income-statement line item",
+          "role": "input",
+          "quantity_id": "income_statement_line_item",
+          "definition": "Signed income-statement line item for the chosen entity and reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "revenue",
+          "source_symbol": "revenue",
+          "role": "input",
+          "quantity_id": "income_statement_revenue",
+          "definition": "Positive revenue for the same entity and reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Income-statement common-size fraction",
+          "role": "output",
+          "quantity_id": "income_statement_common_size_fraction",
+          "definition": "income-statement line item as a fraction of revenue",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "revenue > 0"
+      ],
+      "assumptions": [
+        "The numerator and revenue use the same currency, entity, accounting basis and period.",
+        "Revenue is positive in this analytical profile."
+      ],
+      "limitations": [
+        "Changes in classification or reporting scope can affect comparisons across statements.",
+        "Negative numerator values are permitted; percent display is not part of the calculation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 1, Common-Size Analysis, printed p43 (PDF p57), Exhibit 15",
+          "evidence": "Income-statement common-size fraction expresses income-statement line item relative to revenue.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-vertical",
+          "kind": "primary",
+          "title": "Financial Statement Analysis",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/a-financial-statement-analysis",
+          "version": "OpenStax Principles of Accounting Volume 1, Appendix A",
+          "accessed": "2026-11-03",
+          "locator": "Vertical Analysis; common-size percentage",
+          "evidence": "An income statement uses net sales as the base and divides each comparison item by the base.",
+          "license": "OpenStax terms include restrictions; formula-level facts only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "sales-cost",
+          "inputs": {
+            "amount": 3000000,
+            "revenue": 10000000
+          },
+          "expected": 0.3,
+          "tolerance": 1e-09,
+          "method": "Company A cost of sales is 30% of sales.",
+          "provenance": "CFA Exhibit 15, printed p43/PDF p57."
+        },
+        {
+          "id": "operating-profit",
+          "inputs": {
+            "amount": 400000,
+            "revenue": 2000000
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "Company C operating profit is 20% of sales.",
+          "provenance": "CFA Exhibit 15, printed p43/PDF p57."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "revenue": 10000000
+          },
+          "reason": "amount is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "amount=ratio*revenue. revenue=amount/ratio requires a nonzero ratio; if amount and ratio are both zero, revenue is unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--gross-profit-margin",
+      "revision": "r2",
+      "title": "Gross profit margin",
+      "summary": "Gross profit margin expresses gross profit relative to revenue.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "amount / revenue",
+        "original_equation": "Gross profit margin = gross profit / revenue",
+        "source_id": "openstax-gross-margin",
+        "locator": "Gross profit margin ratio",
+        "translation_notes": "Currency cancels and the output is a base-one fraction. This is a named common-size fraction; gross profit itself is already covered by financial-analysis--gross-profit. The owner PDF locator is retained on the project-derivation source; relationship locator identifies the accessible corroborating source."
+      },
+      "variables": [
+        {
+          "symbol": "amount",
+          "source_symbol": "gross profit",
+          "role": "input",
+          "quantity_id": "gross_profit",
+          "definition": "Signed gross profit for the chosen entity and reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "revenue",
+          "source_symbol": "revenue",
+          "role": "input",
+          "quantity_id": "income_statement_revenue",
+          "definition": "Positive revenue for the same entity and reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Gross profit margin",
+          "role": "output",
+          "quantity_id": "gross_profit_margin",
+          "definition": "gross profit as a fraction of revenue",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "revenue > 0"
+      ],
+      "assumptions": [
+        "The numerator and revenue use the same currency, entity, accounting basis and period.",
+        "Revenue is positive in this analytical profile."
+      ],
+      "limitations": [
+        "Changes in classification or reporting scope can affect comparisons across statements.",
+        "Negative numerator values are permitted; percent display is not part of the calculation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 1, Income Statement Ratios, printed pp45–46 (PDF pp59–60), Exhibit 17",
+          "evidence": "Gross profit margin expresses gross profit relative to revenue.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-gross-margin",
+          "kind": "primary",
+          "title": "Key Terms",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/6-key-terms",
+          "version": "OpenStax Principles of Accounting Volume 1, chapter 6",
+          "accessed": "2026-11-03",
+          "locator": "Gross profit margin ratio",
+          "evidence": "Gross profit divided by net revenue defines gross profit margin.",
+          "license": "OpenStax terms include restrictions; formula-level facts only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "company-a",
+          "inputs": {
+            "amount": 7000000,
+            "revenue": 10000000
+          },
+          "expected": 0.7,
+          "tolerance": 1e-09,
+          "method": "Company A gross profit divided by sales is 70%.",
+          "provenance": "CFA Exhibit 15, printed p43/PDF p57."
+        },
+        {
+          "id": "company-b",
+          "inputs": {
+            "amount": 2500000,
+            "revenue": 10000000
+          },
+          "expected": 0.25,
+          "tolerance": 1e-09,
+          "method": "Company B gross profit divided by sales is 25%.",
+          "provenance": "CFA Exhibit 15, printed p43/PDF p57."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "revenue": 10000000
+          },
+          "reason": "amount is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "amount=ratio*revenue. revenue=amount/ratio requires a nonzero ratio; if amount and ratio are both zero, revenue is unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--net-profit-margin",
+      "revision": "r2",
+      "title": "Net profit margin",
+      "summary": "Net profit margin expresses net income relative to revenue.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "amount / revenue",
+        "original_equation": "Net profit margin = net income / revenue",
+        "source_id": "openstax-net-margin",
+        "locator": "Table 14.4 and Profitability Ratios",
+        "translation_notes": "Currency cancels and the output is a base-one fraction. This is a named common-size fraction; net income is already covered by financial-analysis--net-income. The owner PDF locator is retained on the project-derivation source; relationship locator identifies the accessible corroborating source."
+      },
+      "variables": [
+        {
+          "symbol": "amount",
+          "source_symbol": "net income",
+          "role": "input",
+          "quantity_id": "net_income",
+          "definition": "Signed net income for the chosen entity and reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "revenue",
+          "source_symbol": "revenue",
+          "role": "input",
+          "quantity_id": "income_statement_revenue",
+          "definition": "Positive revenue for the same entity and reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Net profit margin",
+          "role": "output",
+          "quantity_id": "net_profit_margin",
+          "definition": "net income as a fraction of revenue",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "revenue > 0"
+      ],
+      "assumptions": [
+        "The numerator and revenue use the same currency, entity, accounting basis and period.",
+        "Revenue is positive in this analytical profile."
+      ],
+      "limitations": [
+        "Changes in classification or reporting scope can affect comparisons across statements.",
+        "Negative numerator values are permitted; percent display is not part of the calculation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 1, Income Statement Ratios, printed p45 (PDF p59), unnumbered definition",
+          "evidence": "Net profit margin expresses net income relative to revenue.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-net-margin",
+          "kind": "primary",
+          "title": "Analyzing Financial Statements",
+          "url": "https://openstax.org/books/introduction-business/pages/14-7-analyzing-financial-statements",
+          "version": "OpenStax Introduction to Business, section 14.7",
+          "accessed": "2026-11-03",
+          "locator": "Table 14.4 and Profitability Ratios",
+          "evidence": "Net profit divided by net sales defines the net profit margin.",
+          "license": "OpenStax terms include restrictions; formula-level facts only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "constructed",
+          "inputs": {
+            "amount": 250000,
+            "revenue": 1000000
+          },
+          "expected": 0.25,
+          "tolerance": 1e-09,
+          "method": "A 250000 net profit on 1000000 revenue yields 25%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "loss",
+          "inputs": {
+            "amount": -50000,
+            "revenue": 500000
+          },
+          "expected": -0.1,
+          "tolerance": 1e-09,
+          "method": "A 50000 loss on 500000 revenue yields minus 10%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "revenue": 1000000
+          },
+          "reason": "amount is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "amount=ratio*revenue. revenue=amount/ratio requires a nonzero ratio; if amount and ratio are both zero, revenue is unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--operating-profit-margin",
+      "revision": "r2",
+      "title": "Operating profit margin",
+      "summary": "Operating profit margin expresses profit from operations relative to revenue.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "amount / revenue",
+        "original_equation": "Operating profit margin = profit from operations / revenue",
+        "source_id": "openstax-vertical",
+        "locator": "Vertical Analysis; common-size percentage",
+        "translation_notes": "Currency cancels and the output is a base-one fraction. This is the common-size fraction for the reported operating-profit subtotal; EBIT and operating profit are not universally identical. The owner PDF locator is retained on the project-derivation source; relationship locator identifies the accessible corroborating source."
+      },
+      "variables": [
+        {
+          "symbol": "amount",
+          "source_symbol": "profit from operations",
+          "role": "input",
+          "quantity_id": "operating_profit",
+          "definition": "Signed profit from operations for the chosen entity and reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "revenue",
+          "source_symbol": "revenue",
+          "role": "input",
+          "quantity_id": "income_statement_revenue",
+          "definition": "Positive revenue for the same entity and reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Operating profit margin",
+          "role": "output",
+          "quantity_id": "operating_profit_margin",
+          "definition": "profit from operations as a fraction of revenue",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "revenue > 0"
+      ],
+      "assumptions": [
+        "The numerator and revenue use the same currency, entity, accounting basis and period.",
+        "Revenue is positive in this analytical profile."
+      ],
+      "limitations": [
+        "Changes in classification or reporting scope can affect comparisons across statements.",
+        "Negative numerator values are permitted; percent display is not part of the calculation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 1, Income Statement Ratios, printed p46 (PDF p60), Exhibit 17",
+          "evidence": "Operating profit margin expresses profit from operations relative to revenue.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-vertical",
+          "kind": "primary",
+          "title": "Financial Statement Analysis",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/a-financial-statement-analysis",
+          "version": "OpenStax Principles of Accounting Volume 1, Appendix A",
+          "accessed": "2026-11-03",
+          "locator": "Vertical Analysis; common-size percentage",
+          "evidence": "An income statement uses net sales as the base and divides each comparison item by the base.",
+          "license": "OpenStax terms include restrictions; formula-level facts only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "company-a",
+          "inputs": {
+            "amount": 2000000,
+            "revenue": 10000000
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "Company A operating profit is 20% of sales.",
+          "provenance": "CFA Exhibit 15, printed p43/PDF p57."
+        },
+        {
+          "id": "company-b",
+          "inputs": {
+            "amount": 1500000,
+            "revenue": 10000000
+          },
+          "expected": 0.15,
+          "tolerance": 1e-09,
+          "method": "Company B operating profit is 15% of sales.",
+          "provenance": "CFA Exhibit 15, printed p43/PDF p57."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "revenue": 10000000
+          },
+          "reason": "amount is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "amount=ratio*revenue. revenue=amount/ratio requires a nonzero ratio; if amount and ratio are both zero, revenue is unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--pretax-profit-margin",
+      "revision": "r2",
+      "title": "Pretax profit margin",
+      "summary": "Pretax profit margin expresses profit before tax relative to revenue.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "amount / revenue",
+        "original_equation": "Pretax profit margin = profit before tax / revenue",
+        "source_id": "openstax-vertical",
+        "locator": "Vertical Analysis; common-size percentage",
+        "translation_notes": "Currency cancels and the output is a base-one fraction. This is the common-size fraction for profit before tax; its component accounting conventions are stated externally. The owner PDF locator is retained on the project-derivation source; relationship locator identifies the accessible corroborating source."
+      },
+      "variables": [
+        {
+          "symbol": "amount",
+          "source_symbol": "profit before tax",
+          "role": "input",
+          "quantity_id": "profit_before_income_tax",
+          "definition": "Signed profit before tax for the chosen entity and reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "revenue",
+          "source_symbol": "revenue",
+          "role": "input",
+          "quantity_id": "income_statement_revenue",
+          "definition": "Positive revenue for the same entity and reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Pretax profit margin",
+          "role": "output",
+          "quantity_id": "pretax_profit_margin",
+          "definition": "profit before tax as a fraction of revenue",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "revenue > 0"
+      ],
+      "assumptions": [
+        "The numerator and revenue use the same currency, entity, accounting basis and period.",
+        "Revenue is positive in this analytical profile."
+      ],
+      "limitations": [
+        "Changes in classification or reporting scope can affect comparisons across statements.",
+        "Negative numerator values are permitted; percent display is not part of the calculation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 1, Income Statement Ratios, printed p46 (PDF p60), Exhibit 17",
+          "evidence": "Pretax profit margin expresses profit before tax relative to revenue.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-vertical",
+          "kind": "primary",
+          "title": "Financial Statement Analysis",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/a-financial-statement-analysis",
+          "version": "OpenStax Principles of Accounting Volume 1, Appendix A",
+          "accessed": "2026-11-03",
+          "locator": "Vertical Analysis; common-size percentage",
+          "evidence": "An income statement uses net sales as the base and divides each comparison item by the base.",
+          "license": "OpenStax terms include restrictions; formula-level facts only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "constructed-profit",
+          "inputs": {
+            "amount": 200000,
+            "revenue": 1000000
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "Pretax profit is 20% of revenue.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "constructed-loss",
+          "inputs": {
+            "amount": -100000,
+            "revenue": 500000
+          },
+          "expected": -0.2,
+          "tolerance": 1e-09,
+          "method": "A pretax loss of 100000 is minus 20% of revenue.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "revenue": 1000000
+          },
+          "reason": "amount is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "amount=ratio*revenue. revenue=amount/ratio requires a nonzero ratio; if amount and ratio are both zero, revenue is unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

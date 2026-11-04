@@ -1,0 +1,542 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b17",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [
+    {
+      "title": "Historical country monetary aggregates and neutral-rate heuristic",
+      "reason": "LM5 printed pp286-287/PDF298-299 Exhibit3 country definitions and printed p315/PDF327 Equation4: monetary aggregate definitions are versioned jurisdictional classifications; neutral-rate=trend-growth+inflation-target is a simplified heuristic requiring an independently inspected matching model, not a general identity. Deferred for historical-definition/corroboration review; no present policy assertion.",
+      "source_urls": []
+    }
+  ],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 2 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: purchased-PDF primary URL null is required by source brief but rejected by installed official validator. Toolkit unchanged. Independent checks and ZIP checksum pass; no official intake approval claimed. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--required-bank-reserves",
+      "revision": "r1",
+      "title": "Required bank reserves for covered deposit liabilities",
+      "summary": "Required reserves are the applicable reserve fraction of covered customer deposits.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "required",
+        "expression": "deposits * ratio",
+        "original_equation": "Required reserves = covered deposits * reserve requirement",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module3, Monetary Policy, printed p153 (PDF p165), unnumbered reserve requirement statement; LM5 printed p283/PDF295 Exhibit2",
+        "translation_notes": "Currency times a fraction gives currency. Zero reserve requirement is permitted for this accounting identity; it is outside the positive-ratio simple multiplier model. No present-day jurisdictional requirement is asserted."
+      },
+      "variables": [
+        {
+          "symbol": "deposits",
+          "source_symbol": "customer deposits",
+          "role": "input",
+          "quantity_id": "reserve_eligible_deposit_liabilities",
+          "definition": "Deposit liabilities subject to the declared reserve requirement",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite deposits"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "required reserve ratio",
+          "role": "input",
+          "quantity_id": "required_bank_reserve_fraction",
+          "definition": "Reserve fraction applicable to these deposits",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite fraction in[0,1]"
+        },
+        {
+          "symbol": "required",
+          "source_symbol": "required reserves",
+          "role": "output",
+          "quantity_id": "required_bank_reserve_amount",
+          "definition": "Minimum reserve amount for the covered deposit category",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite amount"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "deposits >= 0",
+        "ratio >= 0",
+        "ratio <= 1"
+      ],
+      "assumptions": [
+        "Source assumption: one reserve fraction applies to the specified eligible-deposit category.",
+        "Source assumption: required reserve amounts are distinguished from total actual reserves."
+      ],
+      "limitations": [
+        "This accounting requirement does not predict lending, actual reserve demand or solvency.",
+        "Multiple reserve tiers require explicitly separate covered amounts and requirements."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Monetary Policy, printed p153 (PDF p165), unnumbered reserve requirement statement; LM5 printed p283/PDF295 Exhibit2",
+          "evidence": "Required reserves are the applicable reserve fraction of covered customer deposits.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-27-4",
+          "kind": "primary",
+          "title": "Principles of Economics 3e",
+          "url": "https://openstax.org/books/principles-economics-3e/pages/27-4-how-banks-create-money",
+          "version": "Greenlaw, Shapiro and MacDonald; 3e published 2022; live 2026 page",
+          "accessed": "2026-11-03",
+          "locator": "Section 27.4: 27-4-how-banks-create-money; exact subsection stated in evidence",
+          "evidence": "Money Creation by a Single Bank and The Money Multiplier and a Multi-Bank System illustrate reserve requirements and the reciprocal multiplier; Cautions about the Money Multiplier gives its leakage/excess-reserve limitations.",
+          "license": "Inspected page footer identifies CC BY-NC-SA and additional AI/commercial-use restrictions; terms displayed on the cited section, inspected 2026-11-03. No broader permission inferred. Formula-level facts and original paraphrase only; no source passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "source-first-bank",
+          "inputs": {
+            "deposits": 100,
+            "ratio": 0.1
+          },
+          "expected": 10,
+          "tolerance": 1e-09,
+          "method": "First bank source balance sheet reports10 reserves against100 deposits.",
+          "provenance": "CFA printed p283/PDF295 Exhibit2."
+        },
+        {
+          "id": "zero-requirement",
+          "inputs": {
+            "deposits": 1000,
+            "ratio": 0
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "A zero contractual reserve fraction imposes zero minimum reserves; actual reserves may still be positive.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "ratio": 0.1
+          },
+          "reason": "deposits is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ratio=required/deposits requiresdeposits>0 andratio in[0,1]; deposits=required/ratio requiresratio>0. First reference reconstructs deposits100 from10/.1. Atzero ratio required0 does not identify deposits.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--simple-reserve-money-multiplier",
+      "revision": "r1",
+      "title": "Simple limiting deposit multiplier under full redeposit",
+      "summary": "The simple reciprocal-reserve multiplier is a maximum expansion under the stated absence of currency leakage and excess reserves.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "multiplier",
+        "expression": "1 / ratio",
+        "original_equation": "Simple money multiplier = 1/reserve requirement",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module5, Paper Money and the Money Creation Process, printed p284 (PDF p296), unnumbered money-multiplier definition and footnote3",
+        "translation_notes": "The pure1 is one unit of reserves; ratio and multiplier are dimensionless. Geometric-series justification sums successive deposits with ratio1-requiredfraction; footnote3 explicitly qualifies the maximum. Required-reserve accounting is a dependency but the limiting multiplier requires these additional behavioral assumptions."
+      },
+      "variables": [
+        {
+          "symbol": "ratio",
+          "source_symbol": "reserve requirement",
+          "role": "input",
+          "quantity_id": "required_bank_reserve_fraction",
+          "definition": "Constant positive fraction retained by every bank in the simplified chain",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite fraction in(0,1]"
+        },
+        {
+          "symbol": "multiplier",
+          "source_symbol": "money multiplier",
+          "role": "output",
+          "quantity_id": "simple_reserve_deposit_multiplier",
+          "definition": "Limiting total deposit expansion per unit of newly available reserves under the model",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite multiplier at least1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "ratio > 0",
+        "ratio <= 1"
+      ],
+      "assumptions": [
+        "Source assumption: banks retain exactly the same reserve fraction, lend all the rest and all proceeds are redeposited.",
+        "Source assumption: no cash leakage, excess reserve holdings, defaults or other lending constraints in this theoretical limiting chain."
+      ],
+      "limitations": [
+        "Not a forecast of modern bank lending or a general policy-control rule. A zero reserve ratio does not imply an economically attainable infinite expansion."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module5, Paper Money and the Money Creation Process, printed p284 (PDF p296), unnumbered money-multiplier definition and footnote3",
+          "evidence": "The simple reciprocal-reserve multiplier is a maximum expansion under the stated absence of currency leakage and excess reserves.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-27-4",
+          "kind": "primary",
+          "title": "Principles of Economics 3e",
+          "url": "https://openstax.org/books/principles-economics-3e/pages/27-4-how-banks-create-money",
+          "version": "Greenlaw, Shapiro and MacDonald; 3e published 2022; live 2026 page",
+          "accessed": "2026-11-03",
+          "locator": "Section 27.4: 27-4-how-banks-create-money; exact subsection stated in evidence",
+          "evidence": "Money Creation by a Single Bank and The Money Multiplier and a Multi-Bank System illustrate reserve requirements and the reciprocal multiplier; Cautions about the Money Multiplier gives its leakage/excess-reserve limitations.",
+          "license": "Inspected page footer identifies CC BY-NC-SA and additional AI/commercial-use restrictions; terms displayed on the cited section, inspected 2026-11-03. No broader permission inferred. Formula-level facts and original paraphrase only; no source passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "ten-percent",
+          "inputs": {
+            "ratio": 0.1
+          },
+          "expected": 10,
+          "tolerance": 1e-09,
+          "method": "Source explicitly reports multiplier10 for a10percent retained fraction.",
+          "provenance": "CFA printed p284/PDF296."
+        },
+        {
+          "id": "full-reserves",
+          "inputs": {
+            "ratio": 1
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "Full retention permits only the initial deposit and no subsequent lending rounds.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "ratio is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ratio=1/multiplier requiresmultiplier>=1. Multiplier10 recoversratio.1 and substitutes10. Ratio0 is excluded; multiplier0 cannot be inverted into a valid reserve fraction.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--limiting-deposit-expansion",
+      "revision": "r1",
+      "title": "Limiting total deposits supported by an initial reserve injection",
+      "summary": "The limiting sum includes the original deposit and all subsequent redeposits under the simple reserve model.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "total",
+        "expression": "initial / ratio",
+        "original_equation": "Total deposits = new initial deposit / reserve requirement",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module5, Paper Money and the Money Creation Process, printed p284 (PDF p296), Equation(1) and footnote3",
+        "translation_notes": "Derived from the source simple multiplier times the initial injection; currency divided by fraction gives currency. This output is an independently defined system-wide limiting deposit amount, unlike a single bank minimum required reserve. Quantity equation monetary turnover does not equate this model output with GDP growth."
+      },
+      "variables": [
+        {
+          "symbol": "initial",
+          "source_symbol": "New deposit",
+          "role": "input",
+          "quantity_id": "initial_reserve_backed_deposit_injection",
+          "definition": "Initial externally reserve-backed deposit/new reserves entering the simplified banking system",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite injection"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Reserve requirement",
+          "role": "input",
+          "quantity_id": "required_bank_reserve_fraction",
+          "definition": "Constant positive reserve fraction applied throughout the chain",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite fraction in(0,1]"
+        },
+        {
+          "symbol": "total",
+          "source_symbol": "sum of all deposits",
+          "role": "output",
+          "quantity_id": "limiting_total_deposit_expansion",
+          "definition": "Limiting sum of deposits including the original injection, not additional lending alone",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite total"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "initial >= 0",
+        "ratio > 0",
+        "ratio <= 1"
+      ],
+      "assumptions": [
+        "Source assumption: injection adds reserves available to support deposits, rather than merely transferring an existing deposit between banks.",
+        "Source assumption: exactly the stated reserve fraction retained, full lending/redeposit, no cash leakage or other constraints."
+      ],
+      "limitations": [
+        "Additional deposits beyond the original injection equal total-initial; do not call total itself incremental lending.",
+        "Observed monetary expansion can be much smaller and need not follow this limiting model."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module5, Paper Money and the Money Creation Process, printed p284 (PDF p296), Equation(1) and footnote3",
+          "evidence": "The limiting sum includes the original deposit and all subsequent redeposits under the simple reserve model.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-27-4",
+          "kind": "primary",
+          "title": "Principles of Economics 3e",
+          "url": "https://openstax.org/books/principles-economics-3e/pages/27-4-how-banks-create-money",
+          "version": "Greenlaw, Shapiro and MacDonald; 3e published 2022; live 2026 page",
+          "accessed": "2026-11-03",
+          "locator": "Section 27.4: 27-4-how-banks-create-money; exact subsection stated in evidence",
+          "evidence": "Money Creation by a Single Bank and The Money Multiplier and a Multi-Bank System illustrate reserve requirements and the reciprocal multiplier; Cautions about the Money Multiplier gives its leakage/excess-reserve limitations.",
+          "license": "Inspected page footer identifies CC BY-NC-SA and additional AI/commercial-use restrictions; terms displayed on the cited section, inspected 2026-11-03. No broader permission inferred. Formula-level facts and original paraphrase only; no source passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "source-chain",
+          "inputs": {
+            "initial": 100,
+            "ratio": 0.1
+          },
+          "expected": 1000,
+          "tolerance": 1e-09,
+          "method": "Source Equation1 independently reports1000 total deposits, including the original100.",
+          "provenance": "CFA printed p284/PDF296."
+        },
+        {
+          "id": "full-retention",
+          "inputs": {
+            "initial": 500,
+            "ratio": 1
+          },
+          "expected": 500,
+          "tolerance": 1e-09,
+          "method": "No further loan round occurs, so the limiting sum equals the initial500.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "ratio": 0.1
+          },
+          "reason": "initial is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "initial=total*ratio. ratio=initial/total requirestotal>0 andratio in(0,1]. First case reconstructs initial100 from1000*.1 and restores1000. Initial0,total0 leave ratio unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--government-debt-gdp-ratio",
+      "revision": "r1",
+      "title": "Government debt stock relative to period nominal GDP",
+      "summary": "The reading compares the stock of outstanding public debt with nominal economic output over the declared period.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "debt / GDP",
+        "original_equation": "Debt-to-GDP ratio=government debt/nominalGDP",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module5, Introduction to Monetary and Fiscal Policy and Deficits and the National Debt, printed pp279,325-326 (PDF pp291,337-338), Exhibits1 and18",
+        "translation_notes": "Monetary dimensions cancel, but stock/flow temporal support remains in context; the financial output period is not a physical seconds duration. Currency conversion, if necessary to consolidate foreign debt, must be completed explicitly upstream before this single-currency record."
+      },
+      "variables": [
+        {
+          "symbol": "debt",
+          "source_symbol": "public debt",
+          "role": "input",
+          "quantity_id": "government_debt_stock",
+          "definition": "Outstanding government debt at the stated fiscal observation date and consolidation/valuation basis",
+          "unit": "GBP",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite debt"
+        },
+        {
+          "symbol": "GDP",
+          "source_symbol": "GDP",
+          "role": "input",
+          "quantity_id": "nominal_gross_domestic_product",
+          "definition": "Positive nominalGDP for the explicitly matched fiscal/calendar period",
+          "unit": "GBP",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite nominalGDP"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "ratio of public debt toGDP",
+          "role": "output",
+          "quantity_id": "government_debt_gdp_ratio",
+          "definition": "Government debt stock as a fraction of one declared period nominalGDP",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite ratio"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "debt >= 0",
+        "GDP > 0"
+      ],
+      "assumptions": [
+        "Source assumption: government boundary, gross/net treatment, consolidation, debt valuation and observation date are stated before binding.",
+        "Application profile: WorldBank corroborating indicator is central-government debt; CFA exhibits also discuss general-government/public debt, which require matching scope explicitly."
+      ],
+      "limitations": [
+        "Debt is a stock andGDP a period flow; changing the GDP annualization period changes the ratio.",
+        "The ratio alone does not establish sustainability or default probability."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module5, Introduction to Monetary and Fiscal Policy and Deficits and the National Debt, printed pp279,325-326 (PDF pp291,337-338), Exhibits1 and18",
+          "evidence": "The reading compares the stock of outstanding public debt with nominal economic output over the declared period.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "worldbank-government-debt",
+          "kind": "primary",
+          "title": "World Development Indicators metadata: Central government debt, total(%ofGDP)",
+          "url": "https://databank.worldbank.org/metadataglossary/world-development-indicators/series/GC.DOD.TOTL.GD.ZS",
+          "version": "WorldBank WDI, live metadata",
+          "accessed": "2026-11-03",
+          "locator": "Short/Long definition, Periodicity and debt-stock timing",
+          "evidence": "The indicator relates debt outstanding at a stated date toGDP for the declared fiscal period.",
+          "license": "Metadata specifies CC BY4.0 and links https://datacatalog.worldbank.org/public-licenses#cc-by; inspected2026-11-03. No data table redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "debt-below-annual-output",
+          "inputs": {
+            "debt": 600,
+            "GDP": 1000
+          },
+          "expected": 0.6,
+          "tolerance": 1e-09,
+          "method": "Debt600 is60percent of annual nominal output1000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "debt-above-output",
+          "inputs": {
+            "debt": 1500,
+            "GDP": 1000
+          },
+          "expected": 1.5,
+          "tolerance": 1e-09,
+          "method": "Debt1500 is150percent of annual nominal output1000; no clipping at1.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "GDP": 1000
+          },
+          "reason": "debt is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "debt=ratio*GDP; GDP=debt/ratio requiresratio>0 and positiveGDP. First case reconstructs debt600 and substitutes.6. Debt0,ratio0 do not identifyGDP.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,161 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b1-b38",
+  "batch_sha256": "534824fb91889de49b5d6533cbaa26f45f9a09d5646aae33fa2b0f026902ccd1",
+  "reviewer": "ingest-clinical",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--standardized-score",
+      "revision": "r2",
+      "record_sha256": "1455c77aff5f75cb26a6ff4ecc751c8c149dc6ada49242de89a3f39e180b29c3",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating scipy.stats.zscore page not opened by reviewer."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Unit-sharing observation/mean/scale; normality needed only for standard-normal interpretation, not the score itself. Sample-moment substitution changes the sampling distribution (disclosed)."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "(x-mu)[data-unit]/sigma[data-unit] gives unit-1 z. data-unit, numerical_observation, population_mean, population_standard_deviation, standardized_score are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: (9.5-5)/1.5=3; (-2-1)/3=-1, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "sigma>0. Inverses x=mu+sigma*z; mu=x-sigma*z; sigma=(x-mu)/z needs z nonzero with positive result; z=0 with x=mu leaves scale unidentified, correctly."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating source not opened by reviewer (https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.zscore.html).",
+        "Requires runtime extension (data-unit and new meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    },
+    {
+      "id": "financial-analysis--roy-safety-first-ratio",
+      "revision": "r2",
+      "record_sha256": "fead0da2ba60ee891138919e079dc4b12b932967b0ae0ea3f753da6a396ad785",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating Wall Street Oasis safety-first page not opened by reviewer."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Matched-horizon return ratio; not a probability; shortfall-probability identity needs normality plus a deferred CDF operator; no portfolio selection returned."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "(mean-threshold)[1]/sigma[1] gives unit-1 ratio; dimensionless throughout. expected_periodic_return, minimum_return_threshold, portfolio_return_standard_deviation, safety_first_ratio are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: (.14-.02)/.16=.75; (.01-.03)/.1=-.2, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "sigma>0. Inverses mean=threshold+ratio*sigma; threshold=mean-ratio*sigma; sigma=(mean-threshold)/ratio needs ratio nonzero; mean=threshold leaves sigma unidentified, correctly."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating source not opened by reviewer (https://www.wallstreetoasis.com/resources/skills/trading-investing/roys-safety-first-criterion).",
+        "Requires runtime extension (new return/ratio meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    },
+    {
+      "id": "financial-analysis--lognormal-mean-from-log-moments",
+      "revision": "r2",
+      "record_sha256": "2e76f6db0dc973fb6a38473769ba7a41d7e80376e5ba589a3ca7f7c329453ac8",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating NIST lognormal page (eda3669) not opened by reviewer."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Y=exp(X) with normal X on a dimensionless/normalized variable; asset-price use needs a separately declared S0 scale (no log of dimensional currency)."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "exp(mu[1]+variance[1]/2) gives unit-1 lognormal mean; dimensionless log-moment inputs. normal_log_mean, normal_log_variance, lognormal_mean are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: e^(0+.6931/2)=sqrt(2)=1.41421356; e^.6931=2, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "variance>=0 (degenerate variance-0 limit admitted for constant Y). Inverses mu=log(mean)-variance/2; variance=2*(log(mean)-mu) nonnegative; mean alone cannot determine both parameters, correctly."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating source not opened by reviewer (https://www.itl.nist.gov/div898/handbook/eda/section3/eda3669.htm).",
+        "Requires runtime extension (new log-moment meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    },
+    {
+      "id": "financial-analysis--lognormal-variance-from-log-moments",
+      "revision": "r2",
+      "record_sha256": "721e0288b08d61aff8baf35a1ba5e5d6b3fe778a4d9a14b3f5f721b133a59c09",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating NIST lognormal page (eda3669) not opened by reviewer."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Same-horizon X-normal/Y-exp(X) pair; explicitly not exp(Var X); Y-moments must not be mistaken for log parameters."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "exp(2*mu+variance)*(exp(variance)-1) in unit-1 log-moment inputs gives unit-1 V. normal_log_mean, normal_log_variance, lognormal_variance are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: e^.6931*(e^.6931-1)=2*1=2; e^(2*.6931)*(1-1)=0, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "variance>=0. Inverse from Y-mean M and V: logvariance=log(1+V/M^2), logmean=log(M)-logvariance/2 for M>0; without M underdetermined, correctly."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating source not opened by reviewer (https://www.itl.nist.gov/div898/handbook/eda/section3/eda3669.htm).",
+        "Requires runtime extension (new log-moment meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    }
+  ]
+}

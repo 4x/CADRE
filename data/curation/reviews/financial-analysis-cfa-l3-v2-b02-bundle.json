@@ -1,0 +1,823 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.9",
+  "batch_id": "financial-analysis-cfa-l3-v2-b02",
+  "domain": "financial-analysis",
+  "curator": "buffy",
+  "created": "2026-11-04",
+  "example_only": false,
+  "models": [
+    {
+      "id": "financial-analysis--bond-price-change-duration-convexity",
+      "revision": "r1",
+      "title": "Duration-convexity price change approximation",
+      "summary": "Expected price change from a yield shift as duration plus convexity terms.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "dP",
+        "expression": "-md * dy + 0.5 * cx * dy ** 2",
+        "original_equation": "E(ΔPrice based on views of yields) = (−ModDur × ΔYield) + [½ × Convexity × (ΔYield)²]",
+        "source_id": "cfa-institute-yield-curve-strategies",
+        "locator": "PDF: LM2 Views of Benchmark Yields, printed p. 67 (PDF p. 77); Smith example (−3.70 × 0.0026) + [½ × 18 × (0.0026)²] = −0.0096",
+        "translation_notes": "First-order Taylor (duration) plus second-order (convexity) terms of the price–yield curve; for embedded options use effective duration/convexity (per source). 0.5 is the Taylor-series constant (pure arithmetic literal). Decimal form throughout. Dimensional check: (1 × dimensionless) + (dimensionless × dimensionless) = dimensionless fractional change."
+      },
+      "variables": [
+        {
+          "symbol": "md",
+          "source_symbol": "ModDur",
+          "role": "input",
+          "quantity_id": "modified_duration",
+          "definition": "Modified (or effective, for embedded options) duration",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond or portfolio and yield shift as dy",
+          "domain": "Finite duration measure"
+        },
+        {
+          "symbol": "dy",
+          "source_symbol": "ΔYield",
+          "role": "input",
+          "quantity_id": "yield_change",
+          "definition": "Expected change in yield to maturity, in decimal form (signed)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond or portfolio and horizon as md",
+          "domain": "Finite signed change"
+        },
+        {
+          "symbol": "cx",
+          "source_symbol": "Convexity",
+          "role": "input",
+          "quantity_id": "bond_convexity",
+          "definition": "Convexity statistic on the same scaling as the duration (raw, undivided) so the ½·C·(Δy)² term is consistent",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond or portfolio and horizon as md",
+          "domain": "Finite convexity measure"
+        },
+        {
+          "symbol": "dP",
+          "source_symbol": "E(ΔPrice based on investor's views of yields)",
+          "role": "output",
+          "quantity_id": "expected_price_change",
+          "definition": "Expected fractional price change from the yield view, in decimal form (signed)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond or portfolio and horizon as inputs",
+          "domain": "Signed finite change above −1"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Yield shift is modest so the second-order expansion summarizes the price–yield curve (per source limitations).",
+        "Convexity scaling matches the duration measure (raw statistic; vendor-divided-by-100 figures must be rescaled first, per source scaling note)."
+      ],
+      "limitations": [
+        "Approximation only: duration and convexity alone summarize the curve (per source); large shifts and curve-shape changes escape it.",
+        "Assumes reinvestment at YTM and ignores richness/cheapness and financing effects (per source)."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-durconv-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Views of Benchmark Yields, printed p. 67 (PDF p. 77); Smith example evaluates to −0.0096 (−0.96%)",
+          "evidence": "Passage states the duration-plus-convexity formula with all terms defined and evaluates the Smith example at −0.0096.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-institute-yield-curve-strategies",
+          "kind": "primary",
+          "title": "Yield Curve Strategies (CFA Institute refresher reading)",
+          "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/yield-curve-strategies",
+          "version": "2026 refresher reading, Summary section",
+          "accessed": "2026-11-04",
+          "locator": "Summary: managers approximate actual and anticipated bond portfolio value changes using portfolio duration and convexity measures; convexity is the second-order effect for larger moves",
+          "evidence": "Official summary confirms the same duration-plus-second-order-convexity approximation structure for yield-driven value changes.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        },
+        {
+          "id": "wikipedia-bond-convexity",
+          "kind": "primary",
+          "title": "Bond convexity (Wikipedia)",
+          "url": "https://en.wikipedia.org/wiki/Bond_convexity",
+          "version": "Article revision accessed 2026-11-04, Calculation and Mathematical-definition sections",
+          "accessed": "2026-11-04",
+          "locator": "Duration as first derivative and convexity as second derivative of price with respect to rates; duration-linear plus convexity-curvature structure",
+          "evidence": "Article derives duration as the first-order and convexity as the second-order price sensitivity, the mathematical foundation of the two-term approximation.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-smith-rate-view",
+          "inputs": {
+            "md": 3.7,
+            "dy": 0.0026,
+            "cx": 18.0
+          },
+          "expected": -0.0096,
+          "tolerance": 0.0001,
+          "method": "Source: (−3.70 × 0.0026) + [0.5 × 18 × (0.0026)²] = −0.009559, reported as −0.0096. Tolerance covers rounding.",
+          "provenance": "Published result: LM2 Smith example, printed pp. 69–70 (PDF pp. 79–80)"
+        },
+        {
+          "id": "constructed-rate-decline",
+          "inputs": {
+            "md": 5.0,
+            "dy": -0.01,
+            "cx": 30.0
+          },
+          "expected": 0.0515,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: −5.0×(−0.01) + 0.5×30×0.0001 = 0.05 + 0.0015 = 0.0515. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "md": 3.7,
+            "dy": 0.0026
+          },
+          "reason": "Convexity term is required; duration alone is the first-order estimate, not this second-order approximation."
+        }
+      ],
+      "inverse_notes": "Quadratic in dy: dy = [md ± sqrt(md² + 2·cx·dP)]/cx for cx ≠ 0; linear solve md = (0.5·cx·dy² − dP)/dy requires dy ≠ 0. Substitution check: dP=−0.0096, md=3.7, cx=18 recovers dy=0.0026 via the negative root within rounding. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings modified_duration, yield_change, bond_convexity, expected_price_change are not in the runtime vocabulary snapshot and require extension.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--bond-spread-price-change",
+      "revision": "r1",
+      "title": "Spread duration-convexity price change approximation",
+      "summary": "Expected price change from a spread shift as spread-duration plus convexity terms.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "dP",
+        "expression": "-msd * ds + 0.5 * cx * ds ** 2",
+        "original_equation": "E(ΔPrice based on views of yield spreads) = (−ModSpreadDur × ΔSpread) + [½ × Convexity × (ΔSpread)²]",
+        "source_id": "cfa-institute-yield-curve-strategies",
+        "locator": "PDF: LM2 Views of Yield Spreads, printed p. 68 (PDF p. 78); Smith example [−3.70 × (−0.0010)] + [½ × 18 × (−0.0010)²] = 0.37%",
+        "translation_notes": "Same two-term structure as the benchmark-yield record with spread duration in place of modified duration (per source: idiosyncratic credit-migration impacts computed the same way). 0.5 is the Taylor-series constant. Decimal form. Dimensional check matches the sibling record."
+      },
+      "variables": [
+        {
+          "symbol": "msd",
+          "source_symbol": "ModSpreadDur",
+          "role": "input",
+          "quantity_id": "spread_duration",
+          "definition": "Modified spread duration: approximate percentage price effect per unit spread change",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond or portfolio and spread shift as ds",
+          "domain": "Finite duration measure"
+        },
+        {
+          "symbol": "ds",
+          "source_symbol": "ΔSpread",
+          "role": "input",
+          "quantity_id": "spread_change",
+          "definition": "Expected change in credit spread, in decimal form (signed; negative = tightening)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond or portfolio and horizon as msd",
+          "domain": "Finite signed change"
+        },
+        {
+          "symbol": "cx",
+          "source_symbol": "Convexity",
+          "role": "input",
+          "quantity_id": "bond_convexity",
+          "definition": "Convexity statistic on the same scaling as the duration (same meaning as sibling record)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond or portfolio and horizon as msd",
+          "domain": "Finite convexity measure"
+        },
+        {
+          "symbol": "dP",
+          "source_symbol": "E(ΔPrice based on investor's views of yield spreads)",
+          "role": "output",
+          "quantity_id": "expected_price_change",
+          "definition": "Expected fractional price change from the spread view, in decimal form (signed)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond or portfolio and horizon as inputs",
+          "domain": "Signed finite change above −1"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Market (non-idiosyncratic) spread view; issuer-specific migration uses the same computation (per source).",
+        "Same modest-shift and scaling assumptions as the benchmark-yield sibling."
+      ],
+      "limitations": [
+        "Duration-times-spread (DTS) proportionality refinement for wide credit spectrum is outside this record (noted as related, not recorded).",
+        "Same approximation limits as the sibling record."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-spread-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Views of Yield Spreads, printed p. 68 (PDF p. 78); Smith spread-narrowing example evaluates to 0.37%",
+          "evidence": "Passage states the spread duration-plus-convexity formula and evaluates the −0.10% spread-change example at +0.37%.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-institute-yield-curve-strategies",
+          "kind": "primary",
+          "title": "Yield Curve Strategies (CFA Institute refresher reading)",
+          "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/yield-curve-strategies",
+          "version": "2026 refresher reading, Summary section",
+          "accessed": "2026-11-04",
+          "locator": "Summary: expected active-portfolio return combines coupon, rolldown, benchmark-yield, credit and currency changes; duration and convexity approximate value changes",
+          "evidence": "Official summary confirms the credit-change component structure within the same expected-return build.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        },
+        {
+          "id": "wikipedia-bond-convexity",
+          "kind": "primary",
+          "title": "Bond convexity (Wikipedia)",
+          "url": "https://en.wikipedia.org/wiki/Bond_convexity",
+          "version": "Article revision accessed 2026-11-04, Calculation and Mathematical-definition sections",
+          "accessed": "2026-11-04",
+          "locator": "Duration as first derivative and convexity as second derivative of price with respect to rates",
+          "evidence": "Article derives the two-term sensitivity structure underlying both the yield and spread approximations.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-smith-spread-view",
+          "inputs": {
+            "msd": 3.7,
+            "ds": -0.001,
+            "cx": 18.0
+          },
+          "expected": 0.0037,
+          "tolerance": 0.00001,
+          "method": "Source: [−3.70 × (−0.0010)] + [0.5 × 18 × (−0.0010)²] = 0.003709, reported as 0.37%. Tolerance covers rounding.",
+          "provenance": "Published result: LM2 Smith example, printed pp. 69–70 (PDF pp. 79–80)"
+        },
+        {
+          "id": "constructed-spread-widening",
+          "inputs": {
+            "msd": 4.0,
+            "ds": 0.02,
+            "cx": 20.0
+          },
+          "expected": -0.076,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: −4.0×0.02 + 0.5×20×0.0004 = −0.08 + 0.004 = −0.076. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "msd": 3.7,
+            "ds": -0.001
+          },
+          "reason": "Convexity term is required; spread duration alone is the first-order estimate, not this second-order approximation."
+        }
+      ],
+      "inverse_notes": "Quadratic in ds with the same branch structure as the sibling record; msd = (0.5·cx·ds² − dP)/ds requires ds ≠ 0. Substitution check: dP=0.0037, msd=3.7, cx=18 recovers ds=−0.001 within rounding. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings spread_duration, spread_change, bond_convexity (shared), expected_price_change (shared) are not in the runtime vocabulary snapshot and require extension.",
+          "Sibling of financial-analysis--bond-price-change-duration-convexity@r1 with spread duration replacing modified duration; distinct input meaning, not a duplicate."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--fixed-income-expected-return-build",
+      "revision": "r1",
+      "title": "Fixed-income expected return decomposition",
+      "summary": "Total expected return as the signed sum of income, rolldown, yield, spread and currency components.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "er",
+        "expression": "ci + rr + dpy + dps + fx",
+        "original_equation": "E(R) ≈ Coupon income +/− Rolldown return +/− E(ΔPrice: benchmark yield) +/− E(ΔPrice: spreads) +/− E(currency value changes)",
+        "source_id": "cfa-institute-yield-curve-strategies",
+        "locator": "PDF: LM2 Decomposing Expected Returns, printed p. 66 (PDF p. 76); Smith total 2.83% + 0.17% − 0.96% + 0.37% − 0.50% = 1.91%",
+        "translation_notes": "Approximate additive build (per source); each signed input is computed by its own record or view. Decimal form. Dimensional check: five dimensionless terms sum to a dimensionless return."
+      },
+      "variables": [
+        {
+          "symbol": "ci",
+          "source_symbol": "Coupon income",
+          "role": "input",
+          "quantity_id": "bond_current_yield",
+          "definition": "Coupon (current-yield) income component, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and horizon as all components",
+          "domain": "Nonnegative finite yield"
+        },
+        {
+          "symbol": "rr",
+          "source_symbol": "Rolldown return",
+          "role": "input",
+          "quantity_id": "bond_rolldown_return",
+          "definition": "Rolldown price-change component, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and horizon as all components",
+          "domain": "Signed finite return above −1"
+        },
+        {
+          "symbol": "dpy",
+          "source_symbol": "E(ΔPrice based on benchmark yield view)",
+          "role": "input",
+          "quantity_id": "expected_price_change",
+          "definition": "Benchmark-yield-view price change (duration-convexity estimate), in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and horizon as all components",
+          "domain": "Signed finite change above −1"
+        },
+        {
+          "symbol": "dps",
+          "source_symbol": "E(ΔPrice based on yield spread view)",
+          "role": "input",
+          "quantity_id": "expected_price_change",
+          "definition": "Spread-view price change (spread duration-convexity estimate), in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and horizon as all components",
+          "domain": "Signed finite change above −1"
+        },
+        {
+          "symbol": "fx",
+          "source_symbol": "E(currency gains or losses)",
+          "role": "input",
+          "quantity_id": "expected_fx_change",
+          "definition": "Expected currency gain or loss, in decimal form (negative = home-currency loss)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and horizon as all components",
+          "domain": "Signed finite change above −1"
+        },
+        {
+          "symbol": "er",
+          "source_symbol": "Total expected return",
+          "role": "output",
+          "quantity_id": "expected_total_return",
+          "definition": "Total expected fixed-income return, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and horizon as all components",
+          "domain": "Finite decimal return"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Additive approximation; ignores taxes and assumes reinvestment at YTM (per source limitations)."
+      ],
+      "limitations": [
+        "Components estimated with very different precision: coupon income is easy, yield/spread/currency views are normally qualitative or model-based (per source).",
+        "dpy and dps share one quantity meaning but are distinct view inputs; both are required."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-erbuild-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Decomposing Expected Returns, printed p. 66 (PDF p. 76); Smith total in Exhibit 12, printed p. 70 (PDF p. 80): 1.91%",
+          "evidence": "Passage states the five-component approximate decomposition and Exhibit 12 evaluates the Smith total at 1.91%.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-institute-yield-curve-strategies",
+          "kind": "primary",
+          "title": "Yield Curve Strategies (CFA Institute refresher reading)",
+          "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/yield-curve-strategies",
+          "version": "2026 refresher reading, Summary section",
+          "accessed": "2026-11-04",
+          "locator": "Summary: expected return on an active fixed-income strategy evaluated by combining coupon income and rolldown return with benchmark-yield, credit and currency changes",
+          "evidence": "Official summary confirms the identical five-part combination structure.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-smith-total",
+          "inputs": {
+            "ci": 0.0283,
+            "rr": 0.0017,
+            "dpy": -0.0096,
+            "dps": 0.0037,
+            "fx": -0.005
+          },
+          "expected": 0.0191,
+          "tolerance": 1e-09,
+          "method": "Source's rounded components: 2.83 + 0.17 − 0.96 + 0.37 − 0.50 = 1.91, exact on published rounded inputs.",
+          "provenance": "Published result: LM2 Exhibit 12, printed p. 70 (PDF p. 80)"
+        },
+        {
+          "id": "constructed-domestic-only",
+          "inputs": {
+            "ci": 0.04,
+            "rr": 0.005,
+            "dpy": -0.01,
+            "dps": 0.002,
+            "fx": 0.0
+          },
+          "expected": 0.037,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 0.04 + 0.005 − 0.01 + 0.002 + 0 = 0.037. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "ci": 0.0283,
+            "rr": 0.0017,
+            "dpy": -0.0096
+          },
+          "reason": "All five signed components are required; omitting spread and currency views understates the decomposition."
+        }
+      ],
+      "inverse_notes": "Any one component is recoverable as er minus the other four; no singularities. Substitution check: er=0.0191 with the other four published inputs recovers fx=−0.005. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings bond_current_yield, bond_rolldown_return, expected_price_change (all shared), expected_fx_change, expected_total_return are not in the runtime vocabulary snapshot and require extension.",
+          "Named composition of b01 records plus the two price-change records; recorded as the PDF's headline decomposition, not a duplicate."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--levered-portfolio-return",
+      "revision": "r1",
+      "title": "Levered portfolio return decomposition",
+      "summary": "Levered return as invested return plus leverage-scaled excess over borrowing cost.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "rp",
+        "expression": "ri + (vb / ve) * (ri - rb)",
+        "original_equation": "rP = rI + (VB/VE)(rI − rB); equivalently rP = [rI(VE + VB) − VB·rB]/VE",
+        "source_id": "analystprep-leverage-fi",
+        "locator": "PDF: LM2 Using Leverage, printed p. 72 (PDF p. 82); Aschel solution 6.20% + (42/94.33)(6.20% − 2.80%) = 7.71%",
+        "translation_notes": "Records the decomposed form (leverage effect isolated); the fractional form is the same identity rearranged. Decimal form. Dimensional check: dimensionless + (currency/currency × dimensionless) = dimensionless return."
+      },
+      "variables": [
+        {
+          "symbol": "ri",
+          "source_symbol": "rI",
+          "role": "input",
+          "quantity_id": "invested_return",
+          "definition": "Return on the invested funds, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and period as rp",
+          "domain": "Finite decimal return"
+        },
+        {
+          "symbol": "vb",
+          "source_symbol": "VB",
+          "role": "input",
+          "quantity_id": "borrowed_funds",
+          "definition": "Amount borrowed (leverage), in currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and period as rp",
+          "domain": "Nonnegative finite amount"
+        },
+        {
+          "symbol": "ve",
+          "source_symbol": "VE",
+          "role": "input",
+          "quantity_id": "portfolio_equity",
+          "definition": "Portfolio equity (invested capital), in the same currency units as vb",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and period as rp",
+          "domain": "Positive finite amount"
+        },
+        {
+          "symbol": "rb",
+          "source_symbol": "rB",
+          "role": "input",
+          "quantity_id": "borrowing_rate",
+          "definition": "Borrowing rate (cost of borrowing), in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and period as rp",
+          "domain": "Finite decimal rate"
+        },
+        {
+          "symbol": "rp",
+          "source_symbol": "rP",
+          "role": "output",
+          "quantity_id": "levered_return",
+          "definition": "Return on the levered portfolio (per unit of equity), in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and period as inputs",
+          "domain": "Finite decimal return"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "ve > 0",
+        "vb >= 0"
+      ],
+      "assumptions": [
+        "Borrowing cost is a single certain rate over the period; no margin calls or financing frictions modeled."
+      ],
+      "limitations": [
+        "Sign of the leverage term follows rI − rB: leverage amplifies losses when invested return trails borrowing cost (per source).",
+        "Unlevered boundary (vb = 0) recovers rp = ri by construction."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-leverage-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Using Leverage, printed p. 72 (PDF p. 82); Aschel solution, printed p. 100 (PDF p. 110): 7.71%",
+          "evidence": "Passage derives both the fractional and decomposed forms and the solutions evaluate the Aschel case at 7.71%.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-leverage-fi",
+          "kind": "primary",
+          "title": "Leverage in Fixed-Income Portfolios (AnalystPrep CFA Level III notes)",
+          "url": "https://analystprep.com/study-notes/cfa-level-iii/leverage-in-fixed-income-portfolios/",
+          "version": "Study notes, 22 Nov 2023",
+          "accessed": "2026-11-04",
+          "locator": "Formula section: Rp = Ri + [(VB/VE) × (Ri − RB)] with all five terms defined",
+          "evidence": "Page states the identical decomposed formula with the same five quantities defined.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-aschel-levered",
+          "inputs": {
+            "ri": 0.062,
+            "vb": 42.0,
+            "ve": 94.33,
+            "rb": 0.028
+          },
+          "expected": 0.0771,
+          "tolerance": 0.0001,
+          "method": "Source: 0.062 + (42/94.33)(0.062 − 0.028) = 0.077138, reported as 7.71%. Tolerance covers rounding.",
+          "provenance": "Published result: LM2 solutions, printed p. 100 (PDF p. 110)"
+        },
+        {
+          "id": "constructed-positive-carry",
+          "inputs": {
+            "ri": 0.08,
+            "vb": 50.0,
+            "ve": 100.0,
+            "rb": 0.03
+          },
+          "expected": 0.105,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 0.08 + 0.5×0.05 = 0.105. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "ri": 0.062,
+            "vb": 42.0,
+            "ve": 0.0,
+            "rb": 0.028
+          },
+          "reason": "Zero equity is inadmissible (guard ve > 0); return per unit of equity is undefined."
+        }
+      ],
+      "inverse_notes": "ri = (rp·ve + vb·rb)/(ve + vb) requires ve + vb ≠ 0; rb = ri − (rp − ri)·ve/vb requires vb ≠ 0 and ri known; vb/ve ratio recoverable given ri, rb, rp. Substitution check: rp=0.0771, vb=42, ve=94.33, rb=0.028 recovers ri=0.062 within rounding. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings invested_return, borrowed_funds, portfolio_equity, borrowing_rate, levered_return are not in the runtime vocabulary snapshot and require extension.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--repo-dollar-interest",
+      "revision": "r1",
+      "title": "Repo dollar interest (Actual/360)",
+      "summary": "Repo interest as principal times rate times days over 360.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "I",
+        "expression": "P * r * (days / 360)",
+        "original_equation": "Dollar interest = Principal amount × Repo rate × (Term of repo in days/360)",
+        "source_id": "roc-repo-calculator",
+        "locator": "PDF: LM2 Repurchase Agreements, printed p. 73 (PDF p. 83); EUR15m × 5% × (1/360) = EUR2,083.33",
+        "translation_notes": "360 is the Actual/360 money-market day-count literal (pure arithmetic literal, not a unit conversion). Rate in decimal form (5% as 0.05); days is a dimensionless day count. Dimensional check: currency × dimensionless × (count/count) = currency interest."
+      },
+      "variables": [
+        {
+          "symbol": "P",
+          "source_symbol": "Principal amount",
+          "role": "input",
+          "quantity_id": "repo_principal",
+          "definition": "Cash principal of the repo, in currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same repo contract and term as r and days",
+          "domain": "Nonnegative finite principal"
+        },
+        {
+          "symbol": "r",
+          "source_symbol": "Repo rate",
+          "role": "input",
+          "quantity_id": "repo_rate",
+          "definition": "Annualized repo rate, in decimal form (signed to admit negative-rate regimes)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same repo contract and term as P and days",
+          "domain": "Finite decimal rate"
+        },
+        {
+          "symbol": "days",
+          "source_symbol": "Term of repo in days",
+          "role": "input",
+          "quantity_id": "day_count",
+          "definition": "Term of the repo measured in days (dimensionless count, Actual leg of Actual/360)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same repo contract as P and r",
+          "domain": "Nonnegative finite count"
+        },
+        {
+          "symbol": "I",
+          "source_symbol": "Dollar interest",
+          "role": "output",
+          "quantity_id": "repo_interest",
+          "definition": "Repo interest amount (repurchase minus sale price), in the same currency units as P",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same repo contract as inputs",
+          "domain": "Finite signed interest (negative if rate negative)"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "P >= 0",
+        "days >= 0"
+      ],
+      "assumptions": [
+        "Actual/360 day-count convention and simple interest with no intra-term compounding (per corroborating source).",
+        "Single fixed term; rolled overnight repos reapply per roll."
+      ],
+      "limitations": [
+        "Convention-specific: 365-day or other day-count regimes need their own literal (not recorded).",
+        "Haircuts affect fundable principal, not this interest arithmetic."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-repo-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Repurchase Agreements, printed p. 73 (PDF p. 83); overnight EUR15m at 5% gives EUR2,083.33",
+          "evidence": "Passage states the dollar-interest formula and evaluates the overnight example at EUR2,083.33.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "roc-repo-calculator",
+          "kind": "primary",
+          "title": "Repo Rate Calculator (Ryan O'Connell, CFA)",
+          "url": "https://ryanoconnellfinance.com/calculators/repo-rate-calculator/",
+          "version": "Calculator page, Formula section, accessed 2026-11-04",
+          "accessed": "2026-11-04",
+          "locator": "Formula 1: Repo Interest = Principal × (Rate/100) × (Days/360) with $10m/5.25%/1-day worked $1,458.33; Actual/360 stated as money-market standard",
+          "evidence": "Page states the identical Actual/360 interest formula with a worked numerical example.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-overnight-repo",
+          "inputs": {
+            "P": 15000000.0,
+            "r": 0.05,
+            "days": 1.0
+          },
+          "expected": 2083.33,
+          "tolerance": 0.01,
+          "method": "Source: 15,000,000 × 0.05 × (1/360) = 2083.333, reported as EUR2,083.33. Tolerance covers rounding.",
+          "provenance": "Published result: LM2 repo example, printed p. 73 (PDF p. 83)"
+        },
+        {
+          "id": "published-calculator-crosscheck",
+          "inputs": {
+            "P": 10000000.0,
+            "r": 0.0525,
+            "days": 1.0
+          },
+          "expected": 1458.33,
+          "tolerance": 0.01,
+          "method": "Corroborating source's worked calculator example: 10,000,000 × 0.0525 × (1/360) = 1458.333, reported as $1,458.33.",
+          "provenance": "Published result: Ryan O'Connell repo calculator example"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "P": 15000000.0,
+            "r": 0.05
+          },
+          "reason": "Term in days is required; principal and rate alone do not determine time-proportional interest."
+        }
+      ],
+      "inverse_notes": "P = I/(r·(days/360)) requires r ≠ 0 and days ≠ 0; r = I/(P·(days/360)) requires P ≠ 0 and days ≠ 0; days = 360·I/(P·r) requires P·r ≠ 0. Zero-day boundary gives zero interest. Substitution check: I=2083.33, r=0.05, days=1 recovers P=15,000,000 within rounding. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings repo_principal, repo_rate, day_count, repo_interest are not in the runtime vocabulary snapshot and require extension.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "deferred": [
+    {
+      "title": "Futures leverage (Notional − Margin)/Margin",
+      "reason": "Stated without worked numbers in the PDF; corroboration not yet inspected. Candidate for a later batch with a futures-margin source.",
+      "source_urls": []
+    },
+    {
+      "title": "Rebate rate = collateral earnings − securities lending rate",
+      "reason": "Stated without worked numbers; needs a securities-lending corroborating source. Candidate for a later batch.",
+      "source_urls": []
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b02 (L3V2): 5 records (duration-convexity price change, spread price change, FI expected-return build, levered return, repo interest) each with PDF locator plus directly inspected accessible corroboration. Nine of ten references are published oracles.",
+    "gaps": [
+      "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+      "Queue: effective duration/convexity closed forms (no worked oracle in PDF — may need constructed-only or defer), DTS, RDC currency compounding, LM5 bank-equity Eqs 3–9, LM6 spreads/shortfall/VWAP, LM4 human-capital and FVIF family."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity — verified locators and corroboration pages by direct inspection 2026-11-04."
+  }
+}

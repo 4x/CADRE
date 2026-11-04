@@ -1,0 +1,433 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b50",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. Bond straight-line amortization is a limited analytical profile; the effective-interest approach and its overlap with the excluded loan-interest family are separately documented."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--straight-line-bond-discount-premium-amortization",
+      "revision": "r1",
+      "title": "Straight-line bond discount or premium amortization",
+      "summary": "The examples allocate the initial discount or premium evenly across five annual periods.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "amortization",
+        "expression": "(face - initial) / periods",
+        "original_equation": "Signed amortization per period = (face amount - initial carrying amount) / number of periods",
+        "source_id": "openstax-accounting-13-2-straight",
+        "locator": "Section 13.2, straight-line bond premium amortization",
+        "translation_notes": "The financial-period count is dimensionless. Positive amortization raises a discounted liability; negative amortization lowers a premium liability."
+      },
+      "variables": [
+        {
+          "symbol": "face",
+          "source_symbol": "bond face amount",
+          "role": "input",
+          "quantity_id": "bond_face_amount",
+          "definition": "bond face amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "initial",
+          "source_symbol": "initial bond carrying amount",
+          "role": "input",
+          "quantity_id": "initial_bond_carrying_amount",
+          "definition": "initial bond carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "periods",
+          "source_symbol": "number of equal payment periods",
+          "role": "input",
+          "quantity_id": "bond_amortization_period_count",
+          "definition": "Number of equal-length periods to maturity",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "amortization",
+          "source_symbol": "signed bond amortization",
+          "role": "output",
+          "quantity_id": "bond_discount_premium_amortization_per_period",
+          "definition": "signed bond amortization",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "face >= 0",
+        "initial >= 0",
+        "periods > 0"
+      ],
+      "assumptions": [
+        "A fixed-rate bond remains outstanding for equal-length periods through maturity.",
+        "No modification, early redemption or other carrying-value change occurs."
+      ],
+      "limitations": [
+        "IFRS requires effective interest; straight-line is a limited US GAAP approximation when results are not materially different.",
+        "Unequal periods and changing estimates require another schedule."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 8, Accounting for Bond Amortisation, printed pp453–454 (PDF pp467–468), Examples 3 and 4 solutions 4",
+          "evidence": "The examples allocate the initial discount or premium evenly across five annual periods.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-accounting-13-2-straight",
+          "kind": "primary",
+          "title": "Principles of Accounting, Volume 1: Financial Accounting",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/13-2-compute-amortization-of-long-term-liabilities-using-the-effective-interest-method",
+          "version": "Rice University, 2019",
+          "accessed": "2026-11-03",
+          "locator": "Section 13.2, straight-line bond premium amortization",
+          "evidence": "The straight-line example divides bond premium by the number of payment periods and subtracts the amortized premium from cash interest.",
+          "license": "OpenStax page displays CC BY-NC-SA and additional usage terms; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "discount",
+          "inputs": {
+            "face": 1000000,
+            "initial": 957876,
+            "periods": 5
+          },
+          "expected": 8424.8,
+          "tolerance": 1e-09,
+          "method": "The 42,124 discount divided by five periods yields positive 8,424.80.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "premium",
+          "inputs": {
+            "face": 1000000,
+            "initial": 1044518,
+            "periods": 5
+          },
+          "expected": -8903.6,
+          "tolerance": 1e-09,
+          "method": "The 44,518 premium divided by five periods yields signed amortization of -8,903.60.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "initial": 957876,
+            "periods": 5
+          },
+          "reason": "face is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "face=initial+periods*amortization; initial=face-periods*amortization.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--bond-interest-expense-from-coupon-and-amortization",
+      "revision": "r1",
+      "title": "Bond interest expense from coupon and signed amortization",
+      "summary": "Interest expense equals coupon plus discount amortization or coupon less premium amortization.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "expense",
+        "expression": "coupon + amortization",
+        "original_equation": "Interest expense = cash coupon + signed bond discount/premium amortization",
+        "source_id": "openstax-accounting-13-2-straight",
+        "locator": "Section 13.2, straight-line bond premium amortization",
+        "translation_notes": "A discount amortization is positive and a premium amortization negative; all terms use a common currency."
+      },
+      "variables": [
+        {
+          "symbol": "coupon",
+          "source_symbol": "cash coupon payment",
+          "role": "input",
+          "quantity_id": "bond_coupon_payment",
+          "definition": "cash coupon payment",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "amortization",
+          "source_symbol": "signed bond discount or premium amortization",
+          "role": "input",
+          "quantity_id": "bond_discount_premium_amortization_per_period",
+          "definition": "signed bond discount or premium amortization",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expense",
+          "source_symbol": "bond interest expense",
+          "role": "output",
+          "quantity_id": "bond_interest_expense",
+          "definition": "bond interest expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "coupon >= 0"
+      ],
+      "assumptions": [
+        "Coupon and signed amortization relate to the same bond and period.",
+        "No other components of interest expense occur."
+      ],
+      "limitations": [
+        "The amortization method must be chosen separately under the applicable reporting framework.",
+        "This equation does not calculate the coupon or effective periodic rate."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 8, Accounting for Bond Amortisation, printed pp453–454 (PDF pp467–468), Examples 3 and 4 solutions 4",
+          "evidence": "Interest expense equals coupon plus discount amortization or coupon less premium amortization.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-accounting-13-2-straight",
+          "kind": "primary",
+          "title": "Principles of Accounting, Volume 1: Financial Accounting",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/13-2-compute-amortization-of-long-term-liabilities-using-the-effective-interest-method",
+          "version": "Rice University, 2019",
+          "accessed": "2026-11-03",
+          "locator": "Section 13.2, straight-line bond premium amortization",
+          "evidence": "The straight-line example divides bond premium by the number of payment periods and subtracts the amortized premium from cash interest.",
+          "license": "OpenStax page displays CC BY-NC-SA and additional usage terms; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "discount",
+          "inputs": {
+            "coupon": 50000,
+            "amortization": 8424.8
+          },
+          "expected": 58424.8,
+          "tolerance": 1e-09,
+          "method": "50,000 coupon plus 8,424.80 discount amortization gives 58,424.80.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "premium",
+          "inputs": {
+            "coupon": 50000,
+            "amortization": -8903.6
+          },
+          "expected": 41096.4,
+          "tolerance": 1e-09,
+          "method": "50,000 coupon less 8,903.60 premium amortization gives 41,096.40.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "amortization": 8424.8
+          },
+          "reason": "coupon is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "coupon=expense-amortization; amortization=expense-coupon.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--current-income-tax-from-taxable-profit",
+      "revision": "r1",
+      "title": "Current income tax from taxable profit",
+      "summary": "The example multiplies taxable income by the applicable tax rate to determine the period’s current tax.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "current",
+        "expression": "taxable * rate",
+        "original_equation": "Current tax = taxable profit × applicable tax rate",
+        "source_id": "ifrs-sme-income-tax-2019",
+        "locator": "Introduction and examples 5–6, current tax calculation",
+        "translation_notes": "Taxable profit and current tax are monetary amounts; rate is a base-one fraction."
+      },
+      "variables": [
+        {
+          "symbol": "taxable",
+          "source_symbol": "taxable profit",
+          "role": "input",
+          "quantity_id": "taxable_profit",
+          "definition": "taxable profit",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "rate",
+          "source_symbol": "applicable tax rate",
+          "role": "input",
+          "quantity_id": "current_income_tax_rate",
+          "definition": "Uniform income tax rate for the taxable profit",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "current",
+          "source_symbol": "current income tax for period",
+          "role": "output",
+          "quantity_id": "current_income_tax_expense",
+          "definition": "current income tax for period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "taxable >= 0",
+        "rate >= 0",
+        "rate <= 1"
+      ],
+      "assumptions": [
+        "A single uniform rate applies to the full positive taxable profit for this period.",
+        "There are no tax credits, minimum taxes, prior-period adjustments or other tax components."
+      ],
+      "limitations": [
+        "Current tax expense is not necessarily the ending tax payable: prepayments, refunds and prior balances must be considered.",
+        "Tax-loss carryforwards, tiered rates and jurisdiction-specific rules need additional treatment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 7, Current and Deferred Tax Assets and Liabilities, printed p410 (PDF p424), Example 1",
+          "evidence": "The example multiplies taxable income by the applicable tax rate to determine the period’s current tax.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ifrs-sme-income-tax-2019",
+          "kind": "primary",
+          "title": "IFRS for SMEs Supporting Material, Module 29: Income Tax",
+          "url": "https://www.ifrs.org/content/dam/ifrs/supporting-implementation/smes/module-29.pdf",
+          "version": "IFRS Foundation, version 2019",
+          "accessed": "2026-11-03",
+          "locator": "Introduction and examples 5–6, current tax calculation",
+          "evidence": "The tax rate is applied to taxable profit to determine current tax, subject to applicable tax rules and payments.",
+          "license": "IFRS Foundation copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "year-two",
+          "inputs": {
+            "taxable": 14423,
+            "rate": 0.3
+          },
+          "expected": 4326.9,
+          "tolerance": 1e-09,
+          "method": "Taxable income 14,423 at 30% yields 4,326.9, rounded to 4,327 in the example.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero",
+          "inputs": {
+            "taxable": 0,
+            "rate": 0.25
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Zero taxable profit produces zero tax before credits or other adjustments.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "rate": 0.3
+          },
+          "reason": "taxable is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "taxable=current/rate when rate is positive; rate=current/taxable when taxable profit is positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,324 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b76",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--credit-rating-capital-including-deferred-taxes",
+      "revision": "r1",
+      "title": "Historical credit-rating capital including noncurrent deferred taxes",
+      "summary": "The historical methodology defines capital as debt, noncurrent deferred taxes and equity, with applicable adjustments.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "capital",
+        "expression": "debt + tax + equity + adjustments",
+        "original_equation": "Capital = debt + noncurrent deferred taxes + equity + other adjustments",
+        "source_id": "sp-2013-corporate-ratios",
+        "locator": "Paragraphs 247–248, printed pp35–36",
+        "translation_notes": "All values use one currency and adjustments are signed."
+      },
+      "variables": [
+        {
+          "symbol": "debt",
+          "source_symbol": "debt",
+          "role": "input",
+          "quantity_id": "credit_rating_adjusted_debt",
+          "definition": "debt",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "tax",
+          "source_symbol": "noncurrent deferred taxes",
+          "role": "input",
+          "quantity_id": "credit_rating_noncurrent_deferred_taxes",
+          "definition": "noncurrent deferred taxes",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "equity",
+          "source_symbol": "equity",
+          "role": "input",
+          "quantity_id": "credit_rating_equity",
+          "definition": "equity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "adjustments",
+          "source_symbol": "other signed adjustments",
+          "role": "input",
+          "quantity_id": "credit_rating_capital_other_adjustments",
+          "definition": "other signed adjustments",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "capital",
+          "source_symbol": "credit-rating capital",
+          "role": "output",
+          "quantity_id": "credit_rating_capital",
+          "definition": "credit-rating capital",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Components refer to the same entity and balance-sheet date.",
+        "Any signed adjustment excludes items already reflected in the other components."
+      ],
+      "limitations": [
+        "This historical credit-rating definition differs from other definitions of invested capital.",
+        "The applicable agency methodology, classifications and adjustments may change over time."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Credit Analysis, printed p237 (PDF p251), Exhibit 22 and footnote f",
+          "evidence": "The historical methodology defines capital as debt, noncurrent deferred taxes and equity, with applicable adjustments.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sp-2013-corporate-ratios",
+          "kind": "primary",
+          "title": "Corporate Methodology: Ratios And Adjustments",
+          "url": "https://www.maalot.co.il/publications/mt20131127143756a.pdf",
+          "version": "Standard & Poor’s Ratings Services, 19 November 2013",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 247–248, printed pp35–36",
+          "evidence": "The methodology defines capital and divides EBIT by average beginning and ending capital to determine return on capital.",
+          "license": "S&P copyright; formula-level facts and original paraphrase only; historical methodology is not asserted to be current.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "debt": 100,
+            "tax": 10,
+            "equity": 200,
+            "adjustments": 0
+          },
+          "expected": 310,
+          "tolerance": 1e-09,
+          "method": "100 debt plus 10 deferred taxes and 200 equity yields 310.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "adjusted",
+          "inputs": {
+            "debt": 100,
+            "tax": 10,
+            "equity": 200,
+            "adjustments": -20
+          },
+          "expected": 290,
+          "tolerance": 1e-09,
+          "method": "A negative 20 adjustment reduces the result to 290.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "tax": 10,
+            "equity": 200,
+            "adjustments": 0
+          },
+          "reason": "debt is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "equity=capital-debt-tax-adjustments.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--credit-rating-return-on-average-capital",
+      "revision": "r1",
+      "title": "Historical credit-rating return on average capital",
+      "summary": "Exhibit 22 divides EBIT by average beginning- and end-of-year capital.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "return",
+        "expression": "ebit / ((beginning + ending) / 2)",
+        "original_equation": "Return on capital = EBIT / average beginning and ending capital",
+        "source_id": "sp-2013-corporate-ratios",
+        "locator": "Paragraphs 247–248, printed pp35–36",
+        "translation_notes": "The output is a base-one period return; EBIT and capital share one currency."
+      },
+      "variables": [
+        {
+          "symbol": "ebit",
+          "source_symbol": "earnings before interest and taxes",
+          "role": "input",
+          "quantity_id": "credit_rating_ebit",
+          "definition": "earnings before interest and taxes",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "beginning",
+          "source_symbol": "beginning capital",
+          "role": "input",
+          "quantity_id": "credit_rating_beginning_capital",
+          "definition": "beginning capital",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ending",
+          "source_symbol": "ending capital",
+          "role": "input",
+          "quantity_id": "credit_rating_ending_capital",
+          "definition": "ending capital",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "return",
+          "source_symbol": "return on capital",
+          "role": "output",
+          "quantity_id": "credit_rating_return_on_average_capital",
+          "definition": "EBIT divided by average beginning and ending capital",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "beginning + ending > 0"
+      ],
+      "assumptions": [
+        "EBIT covers the period between the two capital measurement dates.",
+        "Capital follows the historical credit-rating definition including noncurrent deferred taxes and consistent adjustments."
+      ],
+      "limitations": [
+        "An arithmetic average of two endpoints may not reflect changing capital throughout the period.",
+        "This pretax EBIT ratio differs from after-tax return on invested capital."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Credit Analysis, printed p237 (PDF p251), Exhibit 22 and footnote f",
+          "evidence": "Exhibit 22 divides EBIT by average beginning- and end-of-year capital.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sp-2013-corporate-ratios",
+          "kind": "primary",
+          "title": "Corporate Methodology: Ratios And Adjustments",
+          "url": "https://www.maalot.co.il/publications/mt20131127143756a.pdf",
+          "version": "Standard & Poor’s Ratings Services, 19 November 2013",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 247–248, printed pp35–36",
+          "evidence": "The methodology defines capital and divides EBIT by average beginning and ending capital to determine return on capital.",
+          "license": "S&P copyright; formula-level facts and original paraphrase only; historical methodology is not asserted to be current.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "ebit": 30,
+            "beginning": 200,
+            "ending": 400
+          },
+          "expected": 0.1,
+          "tolerance": 1e-09,
+          "method": "30 EBIT divided by average capital of 300 yields 10%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "loss",
+          "inputs": {
+            "ebit": -20,
+            "beginning": 200,
+            "ending": 200
+          },
+          "expected": -0.1,
+          "tolerance": 1e-09,
+          "method": "Negative 20 EBIT over 200 capital gives negative 10%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "beginning": 200,
+            "ending": 400
+          },
+          "reason": "ebit is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ebit=return*(beginning+ending)/2.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

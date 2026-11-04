@@ -1,0 +1,280 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b50",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 Volume 1 relationships with owner-PDF provenance and inspected public corroboration.",
+    "gaps": [
+      "Scientific fidelity and finance/statistics quantity semantics require independent registry review.",
+      "Deduplication is limited to supplied and locally curated inventories."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The PDF is project-derivation with a null URL; public corroboration carries each relationship."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--signed-sampling-estimation-error",
+      "revision": "r1",
+      "title": "Signed error of a sample estimate",
+      "summary": "The owner defines sampling error as the difference between a sample statistic and the population quantity estimated.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "error",
+        "expression": "estimate - parameter",
+        "original_equation": "Signed sampling error = sample estimate − population parameter",
+        "source_id": "mit-introduction-probability-estimation-error-bias",
+        "locator": "Chapter 9, Classical Parameter Estimation, printed p69, Terminology Regarding Estimators",
+        "translation_notes": "This profile uses dimensionless quantities; a monetary or physical parameter needs a corresponding shared-unit profile."
+      },
+      "variables": [
+        {
+          "symbol": "estimate",
+          "source_symbol": "observed statistic",
+          "role": "input",
+          "quantity_id": "observed_sample_estimate",
+          "definition": "observed statistic",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same estimand, population, sampling design and dimensionless unit profile",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "parameter",
+          "source_symbol": "population parameter",
+          "role": "input",
+          "quantity_id": "population_parameter",
+          "definition": "population parameter",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same estimand, population, sampling design and dimensionless unit profile",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "error",
+          "source_symbol": "signed estimation error",
+          "role": "output",
+          "quantity_id": "signed_sample_estimation_error",
+          "definition": "signed estimation error",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same estimand, population, sampling design and dimensionless unit profile",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "The statistic and parameter estimate the same population quantity with the same units and reference period.",
+        "The parameter is supplied or known for the calculation; it is generally unknown in a real application."
+      ],
+      "limitations": [
+        "The sign convention is explicitly estimate minus parameter; reversing the convention reverses the sign.",
+        "A realized estimation error is not the estimator’s sampling bias, standard error, or total survey error."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Quantitative Methods Learning Module 5, Sampling and Estimation, printed p306 (PDF p316), Definition of Sampling Error",
+          "evidence": "The owner defines sampling error as the difference between a sample statistic and the population quantity estimated.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "mit-introduction-probability-estimation-error-bias",
+          "kind": "primary",
+          "title": "Introduction to Probability, Second Edition: Selected Textbook Summary Material",
+          "url": "https://ocw.mit.edu/courses/res-6-012-introduction-to-probability-spring-2018/d973b10c2587781f86ca4f2aff49098f_MITRES_6_012S18_Textbook.pdf",
+          "version": "Dimitri P. Bertsekas and John N. Tsitsiklis, MIT OpenCourseWare summary, Spring 2018",
+          "accessed": "2026-11-04",
+          "locator": "Chapter 9, Classical Parameter Estimation, printed p69, Terminology Regarding Estimators",
+          "evidence": "The authors define realized estimation error as estimate minus parameter and estimator bias as expected estimate minus parameter.",
+          "license": "MIT OpenCourseWare textbook excerpt; specific reuse terms for this excerpt not independently established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "above",
+          "inputs": {
+            "estimate": 0.12,
+            "parameter": 0.1
+          },
+          "expected": 0.02,
+          "tolerance": 1e-09,
+          "method": "An estimate of 0.12 less a parameter of 0.10 gives positive error 0.02.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "below",
+          "inputs": {
+            "estimate": 0.08,
+            "parameter": 0.1
+          },
+          "expected": -0.02,
+          "tolerance": 1e-09,
+          "method": "An estimate of 0.08 less a parameter of 0.10 gives negative error −0.02.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "parameter": 0.1
+          },
+          "reason": "estimate is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "estimate=parameter+error.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--estimator-bias-from-expected-estimate",
+      "revision": "r1",
+      "title": "Bias of an estimator",
+      "summary": "The owner describes unbiasedness by equality of the estimator’s sampling expectation and its target parameter; signed bias is their difference.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "bias",
+        "expression": "expected - parameter",
+        "original_equation": "Estimator bias = expected estimator value − population parameter",
+        "source_id": "mit-introduction-probability-estimation-error-bias",
+        "locator": "Chapter 9, Classical Parameter Estimation, printed p69, Terminology Regarding Estimators",
+        "translation_notes": "This profile uses dimensionless quantities; other estimands need corresponding shared-unit profiles."
+      },
+      "variables": [
+        {
+          "symbol": "expected",
+          "source_symbol": "expected value of estimator",
+          "role": "input",
+          "quantity_id": "expected_estimator_value",
+          "definition": "expected value of estimator",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same estimand, population, sampling design and dimensionless unit profile",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "parameter",
+          "source_symbol": "population parameter",
+          "role": "input",
+          "quantity_id": "population_parameter",
+          "definition": "population parameter",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same estimand, population, sampling design and dimensionless unit profile",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "bias",
+          "source_symbol": "estimator bias",
+          "role": "output",
+          "quantity_id": "estimator_sampling_bias",
+          "definition": "estimator bias",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same estimand, population, sampling design and dimensionless unit profile",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "The expectation exists and is computed over the declared sampling distribution for the specified estimator and population parameter.",
+        "Expected estimate and parameter use the same unit profile and estimand."
+      ],
+      "limitations": [
+        "Bias is a property of an estimator under a sampling model, not the realized error of one sample.",
+        "Zero bias alone does not imply low variance, consistency, efficiency or absence of other error."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Quantitative Methods Learning Module 5, Point Estimates of the Population Mean, printed pp320–321 (PDF pp330–331), Unbiasedness definition",
+          "evidence": "The owner describes unbiasedness by equality of the estimator’s sampling expectation and its target parameter; signed bias is their difference.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "mit-introduction-probability-estimation-error-bias",
+          "kind": "primary",
+          "title": "Introduction to Probability, Second Edition: Selected Textbook Summary Material",
+          "url": "https://ocw.mit.edu/courses/res-6-012-introduction-to-probability-spring-2018/d973b10c2587781f86ca4f2aff49098f_MITRES_6_012S18_Textbook.pdf",
+          "version": "Dimitri P. Bertsekas and John N. Tsitsiklis, MIT OpenCourseWare summary, Spring 2018",
+          "accessed": "2026-11-04",
+          "locator": "Chapter 9, Classical Parameter Estimation, printed p69, Terminology Regarding Estimators",
+          "evidence": "The authors define realized estimation error as estimate minus parameter and estimator bias as expected estimate minus parameter.",
+          "license": "MIT OpenCourseWare textbook excerpt; specific reuse terms for this excerpt not independently established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "biased",
+          "inputs": {
+            "expected": 0.11,
+            "parameter": 0.1
+          },
+          "expected": 0.01,
+          "tolerance": 1e-09,
+          "method": "Expected estimate 0.11 less parameter 0.10 gives bias 0.01.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "unbiased",
+          "inputs": {
+            "expected": 0.1,
+            "parameter": 0.1
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Equal expected estimate and parameter give zero bias.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "parameter": 0.1
+          },
+          "reason": "expected is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "expected=parameter+bias.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

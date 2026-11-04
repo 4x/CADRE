@@ -1,0 +1,162 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b1-b25",
+  "batch_sha256": "b78044adaa9da8c25b091e722964c25a65204adfbbb38a412e30e25daacf3d9d",
+  "reviewer": "ingest-clinical",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--interest-rate-premium-decomposition",
+      "revision": "r2",
+      "record_sha256": "eec55ba351eb780c327393922fe15d51e2c0dbea01a6914de1cc062a591b099f",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating Anderson 2012 PDF not opened by reviewer; equation matches the owner-excerpt locator only."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Same-currency/maturity/basis additive approximation; record explicitly distinguishes the exact multiplicative Fisher adjustment and claims no calibrated forecast."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "Five unit-1 rates sum to a unit-1 required return; dimensionless addition with no conversion literal. Extension note: real_risk_free_rate, inflation_premium, default_risk_premium, liquidity_risk_premium, maturity_risk_premium meanings are new to the registry."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2 oracles via an independent Decimal route: .02+.03+.01+.005+.015=.08 and -.01+0+0+0+0=-.01, both within tol 1e-9. Checks are definitional; no published numeric oracle is claimed."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "No guards; additive identity admits signed components (negative real rate exercised). Inverse: each component is the total minus the other four; record check default=.08-(.02+.03+.005+.015)=.01 verified arithmetically."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating source not independently re-verified (Anderson 2012 PDF, https://aaec.vt.edu/content/dam/aaec_vt_edu/extension/use-value/Ag-Use-Value-Property-Tax-Assessment-Anderson-2012.pdf).",
+        "Requires runtime extension (new rate meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    },
+    {
+      "id": "financial-analysis--simple-interest-total",
+      "revision": "r2",
+      "record_sha256": "a07afb4e790c23d8f83d5da2c5ad5af88ea3b7ab9a3fa9319b8b21cd86536622",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating Pearson PDF fetched as binary 2026-11-04 but not text-verified (no PDF tooling available offline)."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Fixed-principal, no-capitalization profile in one currency (USD-pinned record; same formula applies per currency). No day-count convention supplied."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "P[USD]*r[1]*N[periods] gives USD; periods are dimensionless counts by design. period_count exists; original_principal, simple_interest_rate, total_simple_interest are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 100*.05*2=10 exact; 5000*.08*.9166666666666666=366.6667 vs 366.67 within tol .005 (half-cent rounding). Fractional-term day-count honestly disclaimed."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "P>=0, N>=0 admit zero-principal/term boundaries; r unsigned permits negative-rate arithmetic. Inverses P=I/(rN), r=I/(PN), N=I/(Pr) with stated nonzero requirements; P=0 or r=0 leaves N unidentified, correctly."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating Pearson PDF not text-verified (binary fetched 2026-11-04, 3754667 bytes, unreadable without PDF tooling).",
+        "Requires runtime extension (new principal/rate/interest meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    },
+    {
+      "id": "financial-analysis--lump-sum-future-value-continuous",
+      "revision": "r2",
+      "record_sha256": "6e82b26e22788727a35aa286cc160a5cfbf152741e94732917689cf7e905b590",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating OpenStax precalculus page not opened by reviewer."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Constant-rate continuous accumulation with no interim flows in one currency/basis; explicitly distinct from the discrete lump-sum record (no rate substitution)."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "PV[USD]*exp(r[1]*N[years]) gives USD; dimensionless exponent. present_value, future_value, period_count exist; only continuous_interest_rate is new, but projection still needs the extension."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 10000*e^.16=11735.11 and 1000*e^.1=1105.17, both within tol .005 (cent rounding)."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "PV>0, N>=0. Inverses PV=FV*exp(-rN); r=log(FV/PV)/N needs N>0; N=log(FV/PV)/r needs r nonzero; N=0 (FV=PV for all r) and r=0 degeneracies correctly analyzed."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer; worker claims CC BY 4.0 for OpenStax but a spot-check of Intro Stats 2e showed CC BY-NC-SA 4.0, so the license string must be verified."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating OpenStax page not opened by reviewer (https://openstax.org/books/precalculus-2e/pages/4-1-exponential-functions).",
+        "Worker records OpenStax license as CC BY 4.0; spot-check of Intro Stats 2e showed CC BY-NC-SA 4.0 - verify/correct the license string.",
+        "Requires runtime extension (continuous_interest_rate); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification, license-string check, and runtime extension."
+    },
+    {
+      "id": "financial-analysis--effective-annual-rate-continuous",
+      "revision": "r2",
+      "record_sha256": "ce3055fb80197a502f3068442bb786c89d891c746571a1ca527eb5e9e2238f25",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating Pearson PDF fetched as binary 2026-11-04 but not text-verified (no PDF tooling)."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Continuous-quoted annual rate over one financial year; explicitly not the discrete nominal-to-effective record."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "exp(r[1])-1 gives unit-1 EAR; dimensionless throughout. effective_rate exists; continuous_interest_rate is new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: e^.08-1=.083287 and e^.0525-1=.0539, within stated tolerances."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "No guards; inverse r=log(1+EAR) needs EAR>-1 as stated; EAR<=-1 correctly has no finite rate."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating Pearson PDF not text-verified (binary fetched 2026-11-04, unreadable without PDF tooling).",
+        "Requires runtime extension (continuous_interest_rate); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    }
+  ]
+}

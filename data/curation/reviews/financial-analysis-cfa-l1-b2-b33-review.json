@@ -1,0 +1,177 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b2-b33",
+  "batch_sha256": "846581d038c7e22160e63b60c532cfce3a63788a4d397b713c3977ca4d25467e",
+  "reviewer": "ingest-circuits",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--government-debt-gdp-ratio",
+      "revision": "r2",
+      "record_sha256": "3ee5ed5924331ad9bfa284b168919a913ddbefa784c1e1ed962e7f4fab4b0631",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed UWB2 on 2026-11-04 (HTTP 200): debt-to-GDP definition verified. Record math matches as a base-one ratio; output unit is 1 with refs at 0.6/1.5, so no percent is smuggled (display convention unstated in translation but unambiguous from units). Owner CFA excerpt not inspectable per track protocol; corroboration carries the math."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is stated government boundary/gross-net/consolidation/valuation/date with single-currency consolidation upstream (assumptions). Limitations exclude sustainability verdicts and cross-period comparison. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "debt [GBP] / GDP [GBP] closes to dimensionless [1], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: debt-below-annual-output (600,1000) -> 0.6 exact; debt-above-output (1500,1000) -> 1.5 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards debt>=0, GDP>0 hold on both references (evaluated). Missing-debt rejection leaves the expression unevaluable as stated. Inverse notes correctly handle debt=0 underdetermination."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. World Bank primary: curator records CC BY 4.0 metadata terms with no data redistributed; accurate. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://databank.worldbank.org/metadataglossary/world-development-indicators/series/GC.DOD.TOTL.GD.ZS",
+          "locator": "Short/Long definition, periodicity and debt-stock timing",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. World Bank metadata defines the indicator as debt outstanding at a stated date relative to GDP for the declared fiscal period (percent-of-GDP display). Record implements debt/GDP as a base-one ratio with stock/flow timing in context."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the debt/GDP base-one ratio for stated government boundary and GDP period; not as a sustainability or default verdict, and not across GDP annualization periods."
+    },
+    {
+      "id": "financial-analysis--fiscal-spending-multiplier-observed",
+      "revision": "r2",
+      "record_sha256": "d48f7eaf902236f09a90eb0f99b2ce2e1a6b13132dea77fb4708b781dd3b14df",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed UEXD on 2026-11-04 (HTTP 200): multiplier-as-output-response-over-spending-change verified with worked ratio. Record math matches. Owner CFA excerpt not inspectable per track protocol; corroboration carries the math."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is matched real units/horizon with independently identified autonomous spending (assumptions). Limitations exclude causation and counterfactuals. Signed changes allowed by design. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "dy [USD] / da [USD] closes to dimensionless [1], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: doubling (200,100) -> 2 exact; contraction (-150,-50) -> 3 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guard da**2>0 (engine has no != operator) holds on both references (evaluated). Missing-dy rejection leaves the expression unevaluable as stated. Inverse notes correctly exclude zero spending change."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. OpenStax primary carries noncommercial/AI-restriction terms note; I verified the CC BY-NC-SA 4.0 footer with commercial-use restriction on the OpenStax economics-3e site on 2026-11-04. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://openstax.org/books/principles-economics-3e/pages/d-the-expenditure-output-model",
+          "locator": "Multiplier effect and calculating the multiplier",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Page relates the change in equilibrium output to the initial expenditure change with a worked ratio ($213/$100=2.13). Record implements dy/da as the observed definitional ratio."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the observed ratio dy/da for matched real units and horizon; not as causation or a policy counterfactual."
+    },
+    {
+      "id": "financial-analysis--tax-adjusted-spending-multiplier",
+      "revision": "r2",
+      "record_sha256": "8f543ec4db9e032fd1fdea25ab8050a3b6236ceff5f63832e8d897185cedb6f5",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed UEXD on 2026-11-04 (HTTP 200): tax-adjusted multiplier formula verified. Record math is the closed-economy specialization with disclosed scope. Owner CFA excerpt not inspectable per track protocol; corroboration carries the math."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is closed economy, constant MPC/tax, fixed prices, spare capacity (assumptions). Limitations exclude import leakages and monetary responses. t=1 edge (output 1 regardless of c) documented. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "All quantities dimensionless [1]; closed form closes to [1], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: taxed (0.9,0.2) -> 3.5714285714285716 exact; no-tax (0.9,0) -> 10 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards 0<=c<1, 0<=t<=1 hold on both references (evaluated). Missing-c rejection leaves the expression unevaluable as stated. Inverse notes correctly handle t=1 and positive-denominator requirements."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. OpenStax primary carries noncommercial/AI-restriction terms note; I verified the CC BY-NC-SA 4.0 footer with commercial-use restriction on the OpenStax economics-3e site on 2026-11-04. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://openstax.org/books/principles-economics-3e/pages/d-the-expenditure-output-model",
+          "locator": "Multiplier with proportional taxes; general 1/(1-(MPC(1-t)-MPI)) form",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Page gives the tax-adjusted multiplier 1/(1-(MPC*(1-tax rate)-MPI)) with worked numbers. Record implements the closed-economy MPI=0 specialization 1/(1-c*(1-t)) with fixed prices and spare capacity."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the closed-economy multiplier 1/(1-c*(1-t)) with constant MPC and proportional tax; not with import leakages, and not under endogenous monetary response."
+    },
+    {
+      "id": "financial-analysis--government-primary-budget-deficit",
+      "revision": "r2",
+      "record_sha256": "906739d21cdde3929c7e7d2fcc7c688b154fe38e4a0eccf70d61fcc9299ad326",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed U301 on 2026-11-04 (HTTP 200): deficit definition verified. Record math G-T+B matches with B as transfer benefits (verified from variable definitions, not interest). The 'primary' qualifier is carried by interest exclusion in limitations; stated here. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is common coverage/period with purchases excluding transfers (assumptions). Limitations require explicit inclusion of interest and other components; surplus sign convention stated. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "G-T+B all [USD] closes to [USD], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: deficit (100,90,20) -> 30 exact; surplus (80,120,10) -> -30 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards G/T/B>=0 hold on both references (evaluated). Missing-G rejection leaves the expression unevaluable as stated. Inverse notes correctly read negative results as surplus."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. OpenStax primary carries noncommercial/AI-restriction terms note; I verified the CC BY-NC-SA 4.0 footer with commercial-use restriction on the OpenStax economics-3e site on 2026-11-04. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://openstax.org/books/principles-economics-3e/pages/30-1-government-spending",
+          "locator": "Opening definition of deficit and surplus; interest-payment category context",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Page defines a deficit as spending exceeding taxes over the period, with interest payments as a separate spending category. Record implements G-T+B; its primary nature comes from interest exclusion stated in limitations."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the simplified deficit G-T+B with purchases excluding transfers and interest excluded by scope; negative results denote surplus. Not with interest or other components silently assumed included."
+    }
+  ]
+}

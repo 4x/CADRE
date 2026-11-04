@@ -1,0 +1,286 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b79",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--bank-approved-liquid-securities-to-specified-deposits",
+      "revision": "r1",
+      "title": "Approved liquid securities to specified deposit liabilities",
+      "summary": "The exhibit divides approved readily marketable securities by specified deposit liabilities.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "securities / deposits",
+        "original_equation": "Liquid securities ratio = approved readily marketable securities / specified deposit liabilities",
+        "source_id": "rbi-liquidity-bulletin-guide",
+        "locator": "Section 3.2 Statutory Liquidity Ratio",
+        "translation_notes": "The result is a base-one fraction and can exceed one."
+      },
+      "variables": [
+        {
+          "symbol": "securities",
+          "source_symbol": "approved readily marketable securities",
+          "role": "input",
+          "quantity_id": "bank_approved_liquid_securities",
+          "definition": "approved readily marketable securities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "deposits",
+          "source_symbol": "specified deposit liabilities",
+          "role": "input",
+          "quantity_id": "bank_specified_deposit_liabilities",
+          "definition": "specified deposit liabilities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "liquid securities ratio",
+          "role": "output",
+          "quantity_id": "bank_approved_liquid_securities_to_deposits",
+          "definition": "Approved marketable securities divided by specified deposits",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "securities >= 0",
+        "deposits > 0"
+      ],
+      "assumptions": [
+        "Securities and specified deposits refer to the same institution, measurement date and currency.",
+        "Eligibility, valuation and deposit base are explicitly defined for the intended analysis."
+      ],
+      "limitations": [
+        "This narrow securities-only ratio is not necessarily a statutory liquidity ratio or a compliance test.",
+        "Rules may include cash and gold or use liabilities beyond deposits; consult the applicable framework."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Industry-Specific Financial Ratios, printed pp233–234 (PDF pp247–248), Exhibit 21",
+          "evidence": "The exhibit divides approved readily marketable securities by specified deposit liabilities.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "rbi-liquidity-bulletin-guide",
+          "kind": "primary",
+          "title": "Comprehensive Guide for Monthly Bulletin",
+          "url": "https://dbieold.rbi.org.in/DBIE/doc/Comprehensive%20Guide%20for%20Monthly%20Bulletin.pdf",
+          "version": "Reserve Bank of India, historical bulletin guide",
+          "accessed": "2026-11-04",
+          "locator": "Section 3.2 Statutory Liquidity Ratio",
+          "evidence": "The guide describes eligible government and approved securities in relation to specified bank liabilities, while recognizing additional eligible assets.",
+          "license": "Reserve Bank of India publication; formula-level facts and original paraphrase only; historical rules are not asserted to be current.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "securities": 200,
+            "deposits": 1000
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "200 eligible securities over 1,000 specified deposits gives 20%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero",
+          "inputs": {
+            "securities": 0,
+            "deposits": 1000
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Zero securities over a positive deposit base gives zero.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "deposits": 1000
+          },
+          "reason": "securities is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "securities=ratio*deposits.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--same-store-sales-growth-aggregate",
+      "revision": "r1",
+      "title": "Comparable-store aggregate sales growth",
+      "summary": "The exhibit describes year-over-year sales growth for stores open in both periods.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "growth",
+        "expression": "current / prior - 1",
+        "original_equation": "Comparable-store sales growth = current comparable-store sales / prior comparable-store sales − 1",
+        "source_id": "dominos-same-store-sales-2022",
+        "locator": "Statistical Measures, Same Store Sales Growth",
+        "translation_notes": "Growth is a signed base-one fraction for the comparison period."
+      },
+      "variables": [
+        {
+          "symbol": "current",
+          "source_symbol": "current comparable-store sales",
+          "role": "input",
+          "quantity_id": "current_comparable_store_sales",
+          "definition": "current comparable-store sales",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "prior",
+          "source_symbol": "prior comparable-store sales",
+          "role": "input",
+          "quantity_id": "prior_comparable_store_sales",
+          "definition": "prior comparable-store sales",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "growth",
+          "source_symbol": "comparable-store sales growth",
+          "role": "output",
+          "quantity_id": "aggregate_same_store_sales_growth",
+          "definition": "Growth in aggregate sales for the same set of stores",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "current >= 0",
+        "prior > 0"
+      ],
+      "assumptions": [
+        "Current and prior sales cover the same eligible set of stores, comparable periods and a consistent currency basis.",
+        "Prior aggregate sales are positive."
+      ],
+      "limitations": [
+        "This aggregate method weights individual store growth by prior sales and need not equal the simple average of individual store growth rates.",
+        "Store eligibility, closures, online revenue, currency and 53-week adjustments vary by operator."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Industry-Specific Financial Ratios, printed pp233–234 (PDF pp247–248), Exhibit 21",
+          "evidence": "The exhibit describes year-over-year sales growth for stores open in both periods.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "dominos-same-store-sales-2022",
+          "kind": "primary",
+          "title": "Domino’s Pizza 2022 annual report",
+          "url": "https://www.sec.gov/Archives/edgar/data/1286681/000119312523071985/d409740dars.pdf",
+          "version": "Domino’s Pizza, 2022 annual report",
+          "accessed": "2026-11-04",
+          "locator": "Statistical Measures, Same Store Sales Growth",
+          "evidence": "The company compares sales from stores present in comparable weeks in both periods.",
+          "license": "Issuer filing; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "increase",
+          "inputs": {
+            "current": 110,
+            "prior": 100
+          },
+          "expected": 0.1,
+          "tolerance": 1e-09,
+          "method": "Comparable sales rising from 100 to 110 gives 10% growth.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "decline",
+          "inputs": {
+            "current": 80,
+            "prior": 100
+          },
+          "expected": -0.2,
+          "tolerance": 1e-09,
+          "method": "Comparable sales falling from 100 to 80 gives negative 20%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "prior": 100
+          },
+          "reason": "current is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "current=prior*(1+growth).",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

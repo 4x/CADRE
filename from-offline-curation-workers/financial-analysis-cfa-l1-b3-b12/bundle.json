@@ -1,0 +1,557 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b12",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--operating-cash-flow-debt-coverage",
+      "revision": "r1",
+      "title": "Operating cash-flow debt coverage",
+      "summary": "Operating cash-flow debt coverage divides operating cash flow by total debt.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "cfo / base",
+        "original_equation": "Operating cash-flow debt coverage = operating cash flow / total debt",
+        "source_id": "cfa-cash-coverage",
+        "locator": "Printed p14, Figures 9–10: performance and coverage ratios",
+        "translation_notes": "Currency cancels; debt is a balance while payments are flows and must be bound according to their definitions."
+      },
+      "variables": [
+        {
+          "symbol": "cfo",
+          "source_symbol": "cash flow from operations",
+          "role": "input",
+          "quantity_id": "cash_flow_from_operating_activities",
+          "definition": "cash flow from operations",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "base",
+          "source_symbol": "total debt",
+          "role": "input",
+          "quantity_id": "total_interest_bearing_debt",
+          "definition": "total debt",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Operating cash-flow debt coverage",
+          "role": "output",
+          "quantity_id": "operating_cash_flow_debt_coverage",
+          "definition": "Operating cash flow divided by total debt",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "base > 0"
+      ],
+      "assumptions": [
+        "CFO and the denominator refer to the same entity and consistent financial period; the debt balance is measured at the chosen reporting date.",
+        "The denominator is a positive amount on the declared accounting basis."
+      ],
+      "limitations": [
+        "Classification differences and nonrecurring items affect comparisons; negative CFO is permitted."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Cash Flow Ratios, printed p165 (PDF p179), Exhibit 16",
+          "evidence": "Operating cash-flow debt coverage divides operating cash flow by total debt.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-cash-coverage",
+          "kind": "primary",
+          "title": "Revenue Recognition: Top Ten Questions Investors Should Ask",
+          "url": "https://rpc.cfainstitute.org/sites/default/files/-/media/documents/article/position-paper/revenue-recognition-top-ten-questions-investors-should-ask.pdf",
+          "version": "CFA Institute, 2018 position paper",
+          "accessed": "2026-11-03",
+          "locator": "Printed p14, Figures 9–10: performance and coverage ratios",
+          "evidence": "The source identifies cash flow per share, debt coverage, reinvestment and dividend coverage as ratios involving operating cash flow.",
+          "license": "Copyright CFA Institute; factual formulas and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "cfo": 200,
+            "base": 1000
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "Direct quotient for the specified financial amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "cfo": -50,
+            "base": 500
+          },
+          "expected": -0.1,
+          "tolerance": 1e-09,
+          "method": "A separately chosen direct quotient.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "base": 1000
+          },
+          "reason": "cfo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cfo=ratio*base; base=cfo/ratio requires a nonzero ratio. A zero denominator is undefined.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--operating-cash-flow-reinvestment-coverage",
+      "revision": "r1",
+      "title": "Operating cash-flow reinvestment coverage",
+      "summary": "Operating cash-flow reinvestment coverage divides operating cash flow by cash paid for long-term assets.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "cfo / base",
+        "original_equation": "Operating cash-flow reinvestment coverage = operating cash flow / cash paid for long-term assets",
+        "source_id": "cfa-cash-coverage",
+        "locator": "Printed p14, Figures 9–10: performance and coverage ratios",
+        "translation_notes": "Currency cancels; debt is a balance while payments are flows and must be bound according to their definitions."
+      },
+      "variables": [
+        {
+          "symbol": "cfo",
+          "source_symbol": "cash flow from operations",
+          "role": "input",
+          "quantity_id": "cash_flow_from_operating_activities",
+          "definition": "cash flow from operations",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "base",
+          "source_symbol": "cash paid for long-term assets",
+          "role": "input",
+          "quantity_id": "cash_paid_for_long_term_assets",
+          "definition": "cash paid for long-term assets",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Operating cash-flow reinvestment coverage",
+          "role": "output",
+          "quantity_id": "operating_cash_flow_reinvestment_coverage",
+          "definition": "Operating cash flow divided by cash paid for long-term assets",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "base > 0"
+      ],
+      "assumptions": [
+        "CFO and the denominator refer to the same entity and consistent financial period; the debt balance is measured at the chosen reporting date.",
+        "The denominator is a positive amount on the declared accounting basis."
+      ],
+      "limitations": [
+        "Classification differences and nonrecurring items affect comparisons; negative CFO is permitted."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Cash Flow Ratios, printed p165 (PDF p179), Exhibit 16",
+          "evidence": "Operating cash-flow reinvestment coverage divides operating cash flow by cash paid for long-term assets.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-cash-coverage",
+          "kind": "primary",
+          "title": "Revenue Recognition: Top Ten Questions Investors Should Ask",
+          "url": "https://rpc.cfainstitute.org/sites/default/files/-/media/documents/article/position-paper/revenue-recognition-top-ten-questions-investors-should-ask.pdf",
+          "version": "CFA Institute, 2018 position paper",
+          "accessed": "2026-11-03",
+          "locator": "Printed p14, Figures 9–10: performance and coverage ratios",
+          "evidence": "The source identifies cash flow per share, debt coverage, reinvestment and dividend coverage as ratios involving operating cash flow.",
+          "license": "Copyright CFA Institute; factual formulas and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "cfo": 200,
+            "base": 100
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "Direct quotient for the specified financial amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "cfo": 50,
+            "base": 200
+          },
+          "expected": 0.25,
+          "tolerance": 1e-09,
+          "method": "A separately chosen direct quotient.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "base": 100
+          },
+          "reason": "cfo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cfo=ratio*base; base=cfo/ratio requires a nonzero ratio. A zero denominator is undefined.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--operating-cash-flow-dividend-coverage",
+      "revision": "r1",
+      "title": "Operating cash-flow dividend coverage",
+      "summary": "Operating cash-flow dividend coverage divides operating cash flow by dividends paid.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "cfo / base",
+        "original_equation": "Operating cash-flow dividend coverage = operating cash flow / dividends paid",
+        "source_id": "cfa-cash-coverage",
+        "locator": "Printed p14, Figures 9–10: performance and coverage ratios",
+        "translation_notes": "Currency cancels; debt is a balance while payments are flows and must be bound according to their definitions."
+      },
+      "variables": [
+        {
+          "symbol": "cfo",
+          "source_symbol": "cash flow from operations",
+          "role": "input",
+          "quantity_id": "cash_flow_from_operating_activities",
+          "definition": "cash flow from operations",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "base",
+          "source_symbol": "dividends paid",
+          "role": "input",
+          "quantity_id": "dividends_paid",
+          "definition": "dividends paid",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Operating cash-flow dividend coverage",
+          "role": "output",
+          "quantity_id": "operating_cash_flow_dividend_coverage",
+          "definition": "Operating cash flow divided by dividends paid",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "base > 0"
+      ],
+      "assumptions": [
+        "CFO and the denominator refer to the same entity and consistent financial period; the debt balance is measured at the chosen reporting date.",
+        "The denominator is a positive amount on the declared accounting basis."
+      ],
+      "limitations": [
+        "Classification differences and nonrecurring items affect comparisons; negative CFO is permitted."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Cash Flow Ratios, printed p165 (PDF p179), Exhibit 16",
+          "evidence": "Operating cash-flow dividend coverage divides operating cash flow by dividends paid.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-cash-coverage",
+          "kind": "primary",
+          "title": "Revenue Recognition: Top Ten Questions Investors Should Ask",
+          "url": "https://rpc.cfainstitute.org/sites/default/files/-/media/documents/article/position-paper/revenue-recognition-top-ten-questions-investors-should-ask.pdf",
+          "version": "CFA Institute, 2018 position paper",
+          "accessed": "2026-11-03",
+          "locator": "Printed p14, Figures 9–10: performance and coverage ratios",
+          "evidence": "The source identifies cash flow per share, debt coverage, reinvestment and dividend coverage as ratios involving operating cash flow.",
+          "license": "Copyright CFA Institute; factual formulas and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "cfo": 300,
+            "base": 100
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "Direct quotient for the specified financial amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "cfo": -50,
+            "base": 100
+          },
+          "expected": -0.5,
+          "tolerance": 1e-09,
+          "method": "A separately chosen direct quotient.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "base": 100
+          },
+          "reason": "cfo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cfo=ratio*base; base=cfo/ratio requires a nonzero ratio. A zero denominator is undefined.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--operating-cash-flow-per-common-share",
+      "revision": "r1",
+      "title": "Operating cash flow per common share",
+      "summary": "Cash flow per share deducts preferred dividends from CFO and divides by the specified common-share count.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "result",
+        "expression": "(cfo - preferred) / shares",
+        "original_equation": "Cash flow per share = (CFO - preferred dividends) / number of common shares outstanding",
+        "source_id": "cfa-cash-coverage",
+        "locator": "Printed p14, Figures 9–10: performance and coverage ratios",
+        "translation_notes": "Shares are dimensionless counts; output is currency per share. Prevent double-counting preferred dividends when operating cash flow already includes them."
+      },
+      "variables": [
+        {
+          "symbol": "cfo",
+          "source_symbol": "operating cash flow",
+          "role": "input",
+          "quantity_id": "cash_flow_from_operating_activities",
+          "definition": "operating cash flow",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "preferred",
+          "source_symbol": "preferred dividends",
+          "role": "input",
+          "quantity_id": "preferred_dividends_paid",
+          "definition": "preferred dividends",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "shares",
+          "source_symbol": "number of common shares outstanding",
+          "role": "input",
+          "quantity_id": "common_shares_outstanding",
+          "definition": "Positive common-share count, with date or averaging convention specified",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "result",
+          "source_symbol": "cash flow per share",
+          "role": "output",
+          "quantity_id": "operating_cash_flow_per_common_share",
+          "definition": "Cash flow after preferred dividends per common share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "shares > 0"
+      ],
+      "assumptions": [
+        "CFO is adjusted for any total dividends already included as operating outflow before subtracting preferred dividends.",
+        "Share count convention, entity, period and currency are explicit and compatible."
+      ],
+      "limitations": [
+        "The source formula names shares outstanding; weighted-average and ending-share variants are not interchangeable without a declared convention.",
+        "Other distributions and participating equity require separate treatment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Cash Flow Ratios, printed p165 (PDF p179), Exhibit 16 and note a",
+          "evidence": "Cash flow per share deducts preferred dividends from CFO and divides by the specified common-share count.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-cash-coverage",
+          "kind": "primary",
+          "title": "Revenue Recognition: Top Ten Questions Investors Should Ask",
+          "url": "https://rpc.cfainstitute.org/sites/default/files/-/media/documents/article/position-paper/revenue-recognition-top-ten-questions-investors-should-ask.pdf",
+          "version": "CFA Institute, 2018 position paper",
+          "accessed": "2026-11-03",
+          "locator": "Printed p14, Figures 9–10: performance and coverage ratios",
+          "evidence": "The source identifies cash flow per share, debt coverage, reinvestment and dividend coverage as ratios involving operating cash flow.",
+          "license": "Copyright CFA Institute; factual formulas and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "cfo": 1000000,
+            "preferred": 100000,
+            "shares": 300000
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "900000 available amount divided by 300000 common shares.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative",
+          "inputs": {
+            "cfo": -100000,
+            "preferred": 0,
+            "shares": 200000
+          },
+          "expected": -0.5,
+          "tolerance": 1e-09,
+          "method": "Negative 100000 cash flow divided by 200000 common shares.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "preferred": 100000,
+            "shares": 300000
+          },
+          "reason": "cfo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cfo=result*shares+preferred; shares=(cfo-preferred)/result requires nonzero result; zero numerator and result do not identify shares.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

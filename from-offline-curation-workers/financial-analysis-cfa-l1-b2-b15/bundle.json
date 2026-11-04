@@ -1,0 +1,585 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b15",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 2 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: purchased-PDF primary URL null is required by source brief but rejected by installed official validator. Toolkit unchanged. Independent checks and ZIP checksum pass; no official intake approval claimed. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--laspeyres-price-index",
+      "revision": "r1",
+      "title": "Laspeyres bilateral price index",
+      "summary": "The reading constructs a laspeyres bilateral price index by valuing one base-period basket at current and base prices.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "index",
+        "expression": "sum(current_values) / sum(base_values)",
+        "original_equation": "L=sum(p_t*q_0)/sum(p_0*q_0)",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module4, Measuring Inflation: The Construction of Price Indexes, printed p249 (PDF p261), Exhibit20 and unnumbered fixed-basket price-index example",
+        "translation_notes": "Both sums have currency dimensions, yielding a base-one price ratio. Published base100 scaling is a display convention and not inlined. Laspeyres and Paasche define distinct basket weighting quantities, even though their evaluated sum-ratio serialization is the same."
+      },
+      "variables": [
+        {
+          "symbol": "current_values",
+          "source_symbol": "introduced: current-price values of base-period quantities",
+          "role": "family",
+          "quantity_id": "base_period_basket_current_price_value_terms",
+          "definition": "Per-item current price multiplied externally by that item base-period quantity; each term is monetary value",
+          "unit": "CNY",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "1-256 finite nonnegative values; exact same items and quantities as paired base_values",
+          "max_size": 256
+        },
+        {
+          "symbol": "base_values",
+          "source_symbol": "introduced: base-price values of base-period quantities",
+          "role": "family",
+          "quantity_id": "base_period_basket_base_price_value_terms",
+          "definition": "Per-item base price multiplied externally by that item base-period quantity",
+          "unit": "CNY",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "1-256 finite nonnegative values with positive sum; matched item identities/order",
+          "max_size": 256
+        },
+        {
+          "symbol": "index",
+          "source_symbol": "Laspeyres bilateral price index /100",
+          "role": "output",
+          "quantity_id": "bilateral_laspeyres_price_index",
+          "definition": "Price ratio normalized to1 at the base period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite base-one price index"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "len(current_values) == len(base_values)",
+        "sum(current_values) >= 0",
+        "sum(base_values) > 0"
+      ],
+      "assumptions": [
+        "Source assumption: the same base-period quantity basket is priced in both periods.",
+        "Source assumption: matched item quality, quantity units, currency and coverage; upstream multiplication is checked externally."
+      ],
+      "limitations": [
+        "No elementwise family arithmetic is available; paired monetary contributions are explicit upstream inputs.",
+        "Equality of lengths does not prove item identity or correct basket choice; per-element nonnegativity requires external validation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Measuring Inflation: The Construction of Price Indexes, printed p249 (PDF p261), Exhibit20 and unnumbered fixed-basket price-index example",
+          "evidence": "The reading constructs a laspeyres bilateral price index by valuing one base-period basket at current and base prices.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "abs-price-index-theory",
+          "kind": "primary",
+          "title": "Consumer Price Index: Concepts, Sources and Methods, Price index theory",
+          "url": "https://www.abs.gov.au/statistics/detailed-methodology-information/concepts-sources-methods/consumer-price-index-concepts-sources-and-methods/2018/price-index-theory",
+          "version": "Australian Bureau of Statistics,2018 reference; releasedFebruary27,2019",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs4.16-4.17 and4.22, Equations4.4-4.6",
+          "evidence": "Laspeyres uses base quantities, Paasche uses current quantities, and Fisher takes their geometric mean; price relatives compare prices between periods.",
+          "license": "Exact page reuse terms not inspected; no source tables or passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-two-good-basket",
+          "inputs": {
+            "current_values": [
+              200,
+              315
+            ],
+            "base_values": [
+              150,
+              308
+            ]
+          },
+          "expected": 1.1245,
+          "tolerance": 5e-05,
+          "method": "Source index is rounded to two decimal display points; base-one tolerance.00005 accounts for that reporting precision.",
+          "provenance": "CFA printed pp249-250/PDF261-262 Exhibit20."
+        },
+        {
+          "id": "unchanged-prices",
+          "inputs": {
+            "current_values": [
+              20,
+              30
+            ],
+            "base_values": [
+              20,
+              30
+            ]
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "Each basket item has unchanged price, so current and base basket costs coincide.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "base_values": [
+              150,
+              308
+            ]
+          },
+          "reason": "current_values is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Forward-only family aggregation. Total current basket cost=index*total base cost, but individual prices/quantities cannot be inferred from an aggregate. The unchanged-price reference substitutes equal total50 into both sums and returns1; denominator zero is excluded before evaluation.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--paasche-price-index",
+      "revision": "r1",
+      "title": "Paasche bilateral price index",
+      "summary": "The reading constructs a paasche bilateral price index by valuing one current-period basket at current and base prices.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "index",
+        "expression": "sum(current_values) / sum(base_values)",
+        "original_equation": "P=sum(p_t*q_t)/sum(p_0*q_t)",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module4, Measuring Inflation: The Construction of Price Indexes, printed pp249-250 (PDF pp261-262), Exhibit20 and unnumbered Paasche formula",
+        "translation_notes": "Both sums have currency dimensions, yielding a base-one price ratio. Published base100 scaling is a display convention and not inlined. Laspeyres and Paasche define distinct basket weighting quantities, even though their evaluated sum-ratio serialization is the same."
+      },
+      "variables": [
+        {
+          "symbol": "current_values",
+          "source_symbol": "introduced: current-price values of current-period quantities",
+          "role": "family",
+          "quantity_id": "current_period_basket_current_price_value_terms",
+          "definition": "Per-item current price multiplied externally by that item current-period quantity; each term is monetary value",
+          "unit": "CNY",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "1-256 finite nonnegative values; exact same items and quantities as paired base_values",
+          "max_size": 256
+        },
+        {
+          "symbol": "base_values",
+          "source_symbol": "introduced: base-price values of current-period quantities",
+          "role": "family",
+          "quantity_id": "current_period_basket_base_price_value_terms",
+          "definition": "Per-item base price multiplied externally by that item current-period quantity",
+          "unit": "CNY",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "1-256 finite nonnegative values with positive sum; matched item identities/order",
+          "max_size": 256
+        },
+        {
+          "symbol": "index",
+          "source_symbol": "Paasche bilateral price index /100",
+          "role": "output",
+          "quantity_id": "bilateral_paasche_price_index",
+          "definition": "Price ratio normalized to1 at the base period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite base-one price index"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "len(current_values) == len(base_values)",
+        "sum(current_values) >= 0",
+        "sum(base_values) > 0"
+      ],
+      "assumptions": [
+        "Source assumption: the same current-period quantity basket is priced in both periods.",
+        "Source assumption: matched item quality, quantity units, currency and coverage; upstream multiplication is checked externally."
+      ],
+      "limitations": [
+        "No elementwise family arithmetic is available; paired monetary contributions are explicit upstream inputs.",
+        "Equality of lengths does not prove item identity or correct basket choice; per-element nonnegativity requires external validation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Measuring Inflation: The Construction of Price Indexes, printed pp249-250 (PDF pp261-262), Exhibit20 and unnumbered Paasche formula",
+          "evidence": "The reading constructs a paasche bilateral price index by valuing one current-period basket at current and base prices.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "abs-price-index-theory",
+          "kind": "primary",
+          "title": "Consumer Price Index: Concepts, Sources and Methods, Price index theory",
+          "url": "https://www.abs.gov.au/statistics/detailed-methodology-information/concepts-sources-methods/consumer-price-index-concepts-sources-and-methods/2018/price-index-theory",
+          "version": "Australian Bureau of Statistics,2018 reference; releasedFebruary27,2019",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs4.16-4.17 and4.22, Equations4.4-4.6",
+          "evidence": "Laspeyres uses base quantities, Paasche uses current quantities, and Fisher takes their geometric mean; price relatives compare prices between periods.",
+          "license": "Exact page reuse terms not inspected; no source tables or passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-two-good-basket",
+          "inputs": {
+            "current_values": [
+              280,
+              270
+            ],
+            "base_values": [
+              210,
+              264
+            ]
+          },
+          "expected": 1.1603,
+          "tolerance": 5e-05,
+          "method": "Source index is rounded to two decimal display points; base-one tolerance.00005 accounts for that reporting precision.",
+          "provenance": "CFA printed pp249-250/PDF261-262 Exhibit20."
+        },
+        {
+          "id": "unchanged-prices",
+          "inputs": {
+            "current_values": [
+              20,
+              30
+            ],
+            "base_values": [
+              20,
+              30
+            ]
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "Each basket item has unchanged price, so current and base basket costs coincide.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "base_values": [
+              210,
+              264
+            ]
+          },
+          "reason": "current_values is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Forward-only family aggregation. Total current basket cost=index*total base cost, but individual prices/quantities cannot be inferred from an aggregate. The unchanged-price reference substitutes equal total50 into both sums and returns1; denominator zero is excluded before evaluation.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--fisher-ideal-price-index",
+      "revision": "r1",
+      "title": "Fisher ideal bilateral price index",
+      "summary": "Fisher combines the corresponding Laspeyres and Paasche indexes by their geometric mean.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "F",
+        "expression": "sqrt(L * P)",
+        "original_equation": "I_F=sqrt(I_L*I_P)",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module4, Measuring Inflation: The Construction of Price Indexes, printed p250 (PDF p262), unnumbered Fisher formula",
+        "translation_notes": "Both inputs are dimensionless base-one ratios. The square root preserves a dimensionless price index. V1 geometric-mean arithmetic is a dependency; this record defines the independently meaningful Fisher weighting construction rather than a renamed generic mean."
+      },
+      "variables": [
+        {
+          "symbol": "L",
+          "source_symbol": "I_L",
+          "role": "input",
+          "quantity_id": "bilateral_laspeyres_price_index",
+          "definition": "Nonnegative Laspeyres index on the declared base-one normalization",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite index"
+        },
+        {
+          "symbol": "P",
+          "source_symbol": "I_P",
+          "role": "input",
+          "quantity_id": "bilateral_paasche_price_index",
+          "definition": "Nonnegative Paasche index for the same two periods, items and base-one normalization",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite index"
+        },
+        {
+          "symbol": "F",
+          "source_symbol": "FisherIndex",
+          "role": "output",
+          "quantity_id": "bilateral_fisher_price_index",
+          "definition": "Nonnegative geometric mean of the two compatible bilateral price indexes",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite index"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "L >= 0",
+        "P >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: both indexes concern the same periods, item coverage and normalization.",
+        "Source assumption: choose the nonnegative square-root branch."
+      ],
+      "limitations": [
+        "The bilateral Fisher formula alone does not chain multiple periods; chaining requires a separate product of compatible adjacent index relatives."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Measuring Inflation: The Construction of Price Indexes, printed p250 (PDF p262), unnumbered Fisher formula",
+          "evidence": "Fisher combines the corresponding Laspeyres and Paasche indexes by their geometric mean.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "abs-price-index-theory",
+          "kind": "primary",
+          "title": "Consumer Price Index: Concepts, Sources and Methods, Price index theory",
+          "url": "https://www.abs.gov.au/statistics/detailed-methodology-information/concepts-sources-methods/consumer-price-index-concepts-sources-and-methods/2018/price-index-theory",
+          "version": "Australian Bureau of Statistics,2018 reference; releasedFebruary27,2019",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs4.16-4.17 and4.22, Equations4.4-4.6",
+          "evidence": "Laspeyres uses base quantities, Paasche uses current quantities, and Fisher takes their geometric mean; price relatives compare prices between periods.",
+          "license": "Exact page reuse terms not inspected; no source tables or passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-rounded-indices",
+          "inputs": {
+            "L": 1.1245,
+            "P": 1.1603
+          },
+          "expected": 1.1423,
+          "tolerance": 5e-05,
+          "method": "Published displayed Fisher114.23 corresponds to base-one1.1423; tolerance covers rounded input/output indexes.",
+          "provenance": "CFA printed p250/PDF262."
+        },
+        {
+          "id": "exact-square",
+          "inputs": {
+            "L": 0.81,
+            "P": 1
+          },
+          "expected": 0.9,
+          "tolerance": 1e-09,
+          "method": "Geometric mean of.81 and1 is.9 because.9 squared=.81.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "P": 1.1603
+          },
+          "reason": "L is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "L=F**2/P requiresP>0; P=F**2/L requiresL>0. F.9,P1 recoversL.81 and substitutes.9. AtP0,F0 does not identifyL; negative indexes are excluded, so no negative-root inverse branch is admissible.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--price-index-inflation-rate",
+      "revision": "r1",
+      "title": "Inflation from a consistent price-index series",
+      "summary": "Inflation is the proportional change in the chosen aggregate price index between the stated periods.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "inflation",
+        "expression": "current / previous - 1",
+        "original_equation": "Inflation rate=price index_t/price index_(t-1)-1",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module4, Inflation / Measuring Inflation, printed pp246,249 (PDF pp258,261), unnumbered definition and Exhibit20 example",
+        "translation_notes": "Dimensionless index ratio minus pure1 is a base fractional inflation rate. The same arithmetic as output growth has a different independently defined quantity: aggregate price change rather than real output change. No percent conversion factor is inserted."
+      },
+      "variables": [
+        {
+          "symbol": "current",
+          "source_symbol": "current price index",
+          "role": "input",
+          "quantity_id": "current_aggregate_price_index",
+          "definition": "Current value of the selected aggregate price-index series",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite index"
+        },
+        {
+          "symbol": "previous",
+          "source_symbol": "previous price index",
+          "role": "input",
+          "quantity_id": "previous_aggregate_price_index",
+          "definition": "Prior value from the same index series and reference normalization",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite index"
+        },
+        {
+          "symbol": "inflation",
+          "source_symbol": "Inflation rate",
+          "role": "output",
+          "quantity_id": "aggregate_price_inflation_rate",
+          "definition": "Signed proportional aggregate price change over the explicitly specified interval",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite inflation greater than-1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "current > 0",
+        "previous > 0"
+      ],
+      "assumptions": [
+        "Source assumption: same index scope, basket methodology and normalization for both dates.",
+        "Source assumption: interval/frequency is explicit; monthly and year-on-year changes are different observations."
+      ],
+      "limitations": [
+        "A one-good relative price change does not by itself measure aggregate inflation.",
+        "Changing index reference units cancels in the ratio; rebasing only one observation does not."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Inflation / Measuring Inflation, printed pp246,249 (PDF pp258,261), unnumbered definition and Exhibit20 example",
+          "evidence": "Inflation is the proportional change in the chosen aggregate price index between the stated periods.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "abs-price-index-theory",
+          "kind": "primary",
+          "title": "Consumer Price Index: Concepts, Sources and Methods, Price index theory",
+          "url": "https://www.abs.gov.au/statistics/detailed-methodology-information/concepts-sources-methods/consumer-price-index-concepts-sources-and-methods/2018/price-index-theory",
+          "version": "Australian Bureau of Statistics,2018 reference; releasedFebruary27,2019",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs4.16-4.17 and4.22, Equations4.4-4.6",
+          "evidence": "Laspeyres uses base quantities, Paasche uses current quantities, and Fisher takes their geometric mean; price relatives compare prices between periods.",
+          "license": "Exact page reuse terms not inspected; no source tables or passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-fixed-basket",
+          "inputs": {
+            "current": 1.1245,
+            "previous": 1
+          },
+          "expected": 0.1245,
+          "tolerance": 1e-09,
+          "method": "Displayed price index112.45 versus100 gives12.45percent inflation.",
+          "provenance": "CFA printed p249/PDF261."
+        },
+        {
+          "id": "deflation",
+          "inputs": {
+            "current": 0.98,
+            "previous": 1
+          },
+          "expected": -0.02,
+          "tolerance": 1e-09,
+          "method": "Prices98 relative to100 represent a2percent decline.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "previous": 1
+          },
+          "reason": "current is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "current=previous*(1+inflation); previous=current/(1+inflation) requiresinflation>-1. Second case givescurrent.98 fromprevious1 andinflation-.02 and restores-.02. Zero previous index is singular and excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

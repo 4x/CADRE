@@ -1,0 +1,155 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b48",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 1 existing Volume 1 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--price-book-equity-ratio",
+      "revision": "r2",
+      "title": "Price-to-book-equity ratio",
+      "summary": "The sampling-bias discussion defines P/B as a company share market price divided by book equity per share.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "pb",
+        "expression": "price / book_per_share",
+        "original_equation": "P/B=share market price/book equity per share",
+        "source_id": "cfi-price-book",
+        "locator": "Market to Book Ratio Formula, share-price/net-book-value-per-share equation",
+        "translation_notes": "The two currency/share ports cancel to a dimensionless multiple. Market cap/book equity is equivalent only if share/equity attribution and share counts match. It is distinct from forwardP/E because its denominator is a point-in-time book-equity stock,not future earnings flow. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "price",
+          "source_symbol": "market price",
+          "role": "input",
+          "quantity_id": "current_equity_share_price",
+          "definition": "Nonnegative market price per share at the declared date",
+          "unit": "currency/share",
+          "dimensions": "currency per share",
+          "context": "Same entity,currency,share class and share-count basis; market-price date and book-equity measurement/publication dates explicitly declared",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "book_per_share",
+          "source_symbol": "book equity per share",
+          "role": "input",
+          "quantity_id": "book_equity_per_share",
+          "definition": "Nonzero book equity attributable to that share class per matching share",
+          "unit": "currency/share",
+          "dimensions": "currency per share",
+          "context": "Same entity,currency,share class and share-count basis; market-price date and book-equity measurement/publication dates explicitly declared",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "pb",
+          "source_symbol": "P/B",
+          "role": "output",
+          "quantity_id": "price_book_equity_multiple",
+          "definition": "Signed price relative to matching book equity per share",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same entity,currency,share class and share-count basis; market-price date and book-equity measurement/publication dates explicitly declared",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "price >= 0",
+        "book_per_share ** 2 > 0"
+      ],
+      "assumptions": [
+        "Market price and book equity per share use the same currency,share class,share adjustments and entity scope.",
+        "Application boundary: nonnegative price and nonzero book equity per share; positive-book interpretation additionally needs positivebook equity.",
+        "For backtests use book-equity data only after the actual publication date; fiscal period-end is not an information-availability date."
+      ],
+      "limitations": [
+        "Book equity is an accounting measurement,not a guaranteed liquidation price or intrinsic value.",
+        "Zero book equity makes the ratio undefined;negative book equity changes interpretation.",
+        "No valuation or trading recommendation follows from the quotient."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module5, Sample Selection Bias, printed p338 (PDF p348), explicit parenthetical price-to-book definition; Look-Ahead Bias p339/PDF349",
+          "evidence": "The sampling-bias discussion defines P/B as a company share market price divided by book equity per share.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfi-price-book",
+          "kind": "primary",
+          "title": "Market to Book Ratio",
+          "url": "https://corporatefinanceinstitute.com/resources/valuation/market-to-book-ratio-price-book/",
+          "version": "CFI Team,published2018-02-18;inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Market to Book Ratio Formula, share-price/net-book-value-per-share equation",
+          "evidence": "The price/book multiple divides share price by matching net book value per share; equity market capitalization over the matching equity book value is the equivalent whole-equity form.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "twice-book-equity",
+          "inputs": {
+            "price": 20,
+            "book_per_share": 10
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "A share price20with book equity10per share costs twice book.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative-book-equity",
+          "inputs": {
+            "price": 20,
+            "book_per_share": -10
+          },
+          "expected": -2,
+          "tolerance": 1e-09,
+          "method": "The arithmetic quotient is-2 for negative book equity; positive-book comparisons do not apply.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "book_per_share": 10
+          },
+          "reason": "price is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "price=pb*book_per_share,retainingprice>=0. book_per_share=price/pb requirespb nonzero andnonzero result. pb2,book10givesprice20. price=pb0cannot identify a nonzero book value.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

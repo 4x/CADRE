@@ -1,0 +1,170 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b71",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--equipment-gross-cost-removed-on-disposal",
+      "revision": "r1",
+      "title": "Gross equipment cost removed on disposal",
+      "summary": "The example subtracts ending gross equipment cost from beginning cost plus equipment purchased.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "removed",
+        "expression": "beginning + additions - ending",
+        "original_equation": "Gross cost removed = beginning equipment cost + additions - ending equipment cost",
+        "source_id": "understanding-accounting-cash-flow-draft",
+        "locator": "Calculate cash paid and received for equipment, equipment cost reconciliation",
+        "translation_notes": "Amounts are nonnegative gross monetary magnitudes; depreciation is tracked separately."
+      },
+      "variables": [
+        {
+          "symbol": "beginning",
+          "source_symbol": "beginning gross equipment cost",
+          "role": "input",
+          "quantity_id": "beginning_gross_equipment_cost",
+          "definition": "beginning gross equipment cost",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "additions",
+          "source_symbol": "gross equipment additions",
+          "role": "input",
+          "quantity_id": "gross_equipment_cost_additions",
+          "definition": "gross equipment additions",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ending",
+          "source_symbol": "ending gross equipment cost",
+          "role": "input",
+          "quantity_id": "ending_gross_equipment_cost",
+          "definition": "ending gross equipment cost",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "removed",
+          "source_symbol": "gross cost removed on disposal",
+          "role": "output",
+          "quantity_id": "gross_equipment_cost_removed_on_disposal",
+          "definition": "gross cost removed on disposal",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "beginning >= 0",
+        "additions >= 0",
+        "ending >= 0",
+        "beginning + additions >= ending"
+      ],
+      "assumptions": [
+        "Beginning and ending balances and additions use the same gross historical-cost basis, entity and currency.",
+        "All other changes to the asset-cost account are absent; additions include cash and noncash acquisitions."
+      ],
+      "limitations": [
+        "Other removals, exchange differences, transfers, revaluations and business combinations require explicit reconciliation.",
+        "This recovers historical cost removed, not cash sale proceeds or the net carrying amount."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Preparing the Cash Flow Statement: Investing Activities, printed pp146–147 (PDF pp160–161), Example 6 solution",
+          "evidence": "The example subtracts ending gross equipment cost from beginning cost plus equipment purchased.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "understanding-accounting-cash-flow-draft",
+          "kind": "primary",
+          "title": "Preparing the Statement of Cash Flows",
+          "url": "https://understandingaccounting.org/book-preview/4-1/",
+          "version": "Understanding Accounting, draft chapter 11, live page inspected 2026-11-04",
+          "accessed": "2026-11-04",
+          "locator": "Calculate cash paid and received for equipment, equipment cost reconciliation",
+          "evidence": "The example reconciles beginning equipment cost and cash and noncash additions to ending equipment cost after removal of assets sold.",
+          "license": "Author-hosted draft; copyright and reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "copper",
+          "inputs": {
+            "beginning": 100,
+            "additions": 15,
+            "ending": 109
+          },
+          "expected": 6,
+          "tolerance": 1e-09,
+          "method": "100 beginning cost plus 15 additions less 109 ending cost yields 6 disposed.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "pinehaven",
+          "inputs": {
+            "beginning": 100000,
+            "additions": 55000,
+            "ending": 135000
+          },
+          "expected": 20000,
+          "tolerance": 1e-09,
+          "method": "100,000 beginning cost plus 55,000 cash and noncash additions less 135,000 ending gives 20,000 removed.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "additions": 15,
+            "ending": 109
+          },
+          "reason": "beginning is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ending=beginning+additions-removed; other single terms follow by rearrangement.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

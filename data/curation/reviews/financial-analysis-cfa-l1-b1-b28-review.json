@@ -1,0 +1,181 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b1-b28",
+  "batch_sha256": "5d5b020f4a5f242b025ca72e109d6d3fda482bd0ccc84422e885a83d03a5812b",
+  "reviewer": "ingest-clinical",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--normalized-weighted-mean",
+      "revision": "r2",
+      "record_sha256": "f11f24b54bd941b2bea54ff730f562fbc5c20cc62734173a5e8df7f37b14570c",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating numpy.average page not opened by reviewer."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Normalized (sum w=1) weights including signed short positions; normalization and element alignment are binding conditions, not inferred."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "sum over a data-unit contribution family gives data-unit; contributions are precomputed w_i*X_i because the grammar cannot multiply paired families (disclosed). data-unit, weighted_observation_contribution, normalized_weighted_mean are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: .003+.03015+.0102=.04335 vs .0434 within tol 5e-5; 6.0-1.0=5 exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "No scalar guards; residual identifies one missing contribution only; weight and observation inseparable from their product, correctly stated."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating source not opened by reviewer (https://numpy.org/doc/stable/reference/generated/numpy.average.html).",
+        "Requires runtime extension (data-unit and new meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    },
+    {
+      "id": "financial-analysis--geometric-mean",
+      "revision": "r2",
+      "record_sha256": "928926fe36a1da8ca3a4a54317428ae3d1fea42188982b062e4d40fc40e80cec",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "scipy.stats.gmean documentation verified live 2026-11-04: equal-weight formula n-th root of prod(a_i) displayed; matches the record expression."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Nonnegative equal-weight geometric mean; log representation needs strict positivity while the product form retains the admitted zero boundary."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "prod over a data-unit family raised to 1/len gives data-unit; root-of-product preserves the unit. data-unit, nonnegative_numerical_observation, geometric_mean are new, so admission awaits a runtime extension (projection, not science, pending)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2 via an independent Decimal route: (2*8)^.5=4; (0*4*9)^(1/3)=0, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "prod(x)>=0 is necessary but insufficient; per-element nonnegativity is a disclosed binding condition, and negative observations are explicitly rejected even with positive product. Inverse: missing positive value is G^n/other-product; G=0 locates no single zero, correctly."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "BSD 3-clause terms verified live 2026-11-04 (scipy LICENSE.txt: redistribution with notice, no endorsement). Only the displayed formula is reused. No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gmean.html",
+          "locator": "scipy.stats.gmean, equal-weight formula",
+          "accessed": "2026-11-04",
+          "finding": "Live page: equal-weight geometric mean as n-th root of the product."
+        },
+        {
+          "url": "https://raw.githubusercontent.com/scipy/scipy/main/LICENSE.txt",
+          "locator": "BSD license text",
+          "accessed": "2026-11-04",
+          "finding": "Live text: BSD 3-clause redistribution terms."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Equal-weight geometric mean of nonnegative observations, for qualified data review with binding-checked nonnegativity."
+    },
+    {
+      "id": "financial-analysis--geometric-mean-periodic-return",
+      "revision": "r2",
+      "record_sha256": "e5a09ba52a7f39de67c5eb4445185ec8f54ec936a47e56136c1d79d3e9eafbd0",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "scipy.stats.gmean equal-weight form verified live 2026-11-04 as the mean basis; the record -1 return linkage is the standard net-return definition applied to that verified mean."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Equal-length linked periods with prebound gross factors (engine cannot add 1 to a raw-return family); per-input-period mean, not annualized; no money-weighted solving."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "prod over a unit-1 gross-factor family raised to 1/len, minus 1, gives a unit-1 return; dimensionless throughout. periodic_gross_return_factor and geometric_mean_periodic_return are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: (2*.5)^.5-1=0; (1.1*1.1)^.5-1=.1, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "prod(gross)>=0 with per-factor nonnegativity as a disclosed binding condition. Inverses: output and T determine total wealth (1+R)^T only (example [1,1] vs [2,.5] both give mean 0); individuals unidentified except single-missing-factor, correctly."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "BSD 3-clause terms verified live 2026-11-04 (scipy LICENSE.txt). Only the displayed formula is reused. No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gmean.html",
+          "locator": "scipy.stats.gmean, equal-weight formula",
+          "accessed": "2026-11-04",
+          "finding": "Live page: equal-weight geometric mean as n-th root of the product; record applies the standard -1 return linkage."
+        },
+        {
+          "url": "https://raw.githubusercontent.com/scipy/scipy/main/LICENSE.txt",
+          "locator": "BSD license text",
+          "accessed": "2026-11-04",
+          "finding": "Live text: BSD 3-clause redistribution terms."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Geometric mean of linked periodic gross returns for equal-length periods, for qualified return review. Not annualized unless periods are annual."
+    },
+    {
+      "id": "financial-analysis--harmonic-mean",
+      "revision": "r2",
+      "record_sha256": "012685e2dcd5c216b26196e005c219122c641b913a936fa6d0a889281bb17160",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating scipy.stats.hmean page not opened by reviewer."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Strictly positive observations with prebound reciprocals (not a raw-array reciprocal operator); cost-averaging needs constant cash; record rightly rejects the false A*H=G^2 identity."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "len/sum over a 1/data-unit reciprocal family gives data-unit. 1/data-unit, data-unit, reciprocal_numerical_observation, harmonic_mean are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 2/(.1+.0666667)=12; 3/.75=4, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "sum(reciprocals)>0. Inverses: known n and H determine the reciprocal sum n/H only (example H=12,n=2 with first reciprocal .1 recovers 1/15); individuals otherwise unidentified, correctly."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating source not opened by reviewer (https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.hmean.html).",
+        "Requires runtime extension (reciprocal/data units and new meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    }
+  ]
+}

@@ -1,0 +1,417 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b16",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [
+    {
+      "title": "Fisher nominal/real rate and additive rate decompositions",
+      "reason": "LM5 printed pp291-292/PDF303-304 Equation3: overlaps engineering-finance--fisher-real-rate and V1 financial-analysis--interest-rate-premium-decomposition. Additive form is an approximation/profile; not resubmitted as new coverage.",
+      "source_urls": []
+    }
+  ],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 2 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: purchased-PDF primary URL null is required by source brief but rejected by installed official validator. Toolkit unchanged. Independent checks and ZIP checksum pass; no official intake approval claimed. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--economic-component-diffusion-index",
+      "revision": "r1",
+      "title": "Diffusion index from externally classified component directions",
+      "summary": "The diffusion index averages direction codes rather than the magnitudes of component growth.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "index",
+        "expression": "sum(scores) / len(scores)",
+        "original_equation": "Diffusion index=(sum of1,0.5,0 component scores / number of components)*100 in published display",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module4, Economic Indicators / Diffusion Indexes, printed p239 (PDF p251), unnumbered four-component example",
+        "translation_notes": "Uses the previously covered arithmetic-mean operator on an independently defined economic breadth quantity. This is explicitly a derived index definition with classified-score inputs; it neither duplicates raw observations nor claims to estimate GDP. Base100 display scaling is external; count is a dimensionless integer supplied by len."
+      },
+      "variables": [
+        {
+          "symbol": "scores",
+          "source_symbol": "assigned component values",
+          "role": "family",
+          "quantity_id": "economic_indicator_direction_score",
+          "definition": "Preclassified direction scores for the chosen index components and horizon:1 positive contribution,.5 essentially unchanged,0 negative; threshold/direction transformations external",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "1-256 values each exactly0,.5or1; endpoint and indicator-sign rules explicitly set upstream",
+          "max_size": 256
+        },
+        {
+          "symbol": "index",
+          "source_symbol": "diffusion index divided by100",
+          "role": "output",
+          "quantity_id": "economic_component_diffusion_fraction",
+          "definition": "Mean classified directional breadth normalized to[0,1]",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite fraction in[0,1]"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sum(scores) >= 0",
+        "sum(scores) <= len(scores)"
+      ],
+      "assumptions": [
+        "Source assumption: component direction codes follow a consistent horizon and positive-contribution sign convention.",
+        "Source assumption: near-zero thresholds and inversions such as declining unemployment claims are resolved before binding."
+      ],
+      "limitations": [
+        "Individual score membership cannot be enforced with the scalar guards; external binding must check the discrete set.",
+        "No conditional classification or threshold boundary is implemented; this is not a raw-growth arithmetic mean."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Economic Indicators / Diffusion Indexes, printed p239 (PDF p251), unnumbered four-component example",
+          "evidence": "The diffusion index averages direction codes rather than the magnitudes of component growth.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "tcb-diffusion",
+          "kind": "primary",
+          "title": "How to Compute Diffusion Indexes",
+          "url": "https://www.conference-board.org/data/bci/index.cfm?id=2180",
+          "version": "The Conference Board, methodology page with2012 revision link; inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Opening computation procedure and one-month example",
+          "evidence": "Preclassified component scores are summed and divided by their count; published index points use a factor100 for display.",
+          "license": "Exact reuse terms unknown; no source table or passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-first-month",
+          "inputs": {
+            "scores": [
+              1,
+              1,
+              0.5,
+              0
+            ]
+          },
+          "expected": 0.625,
+          "tolerance": 1e-09,
+          "method": "Source example independently reports62.5 displayed points for the four classified contributions.",
+          "provenance": "CFA printed p239/PDF251."
+        },
+        {
+          "id": "cfa-next-month",
+          "inputs": {
+            "scores": [
+              0,
+              1,
+              1,
+              1
+            ]
+          },
+          "expected": 0.75,
+          "tolerance": 1e-09,
+          "method": "Source next-month example independently reports75 displayed points.",
+          "provenance": "CFA printed p239/PDF251."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "scores is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Family inversion is unsupported. Aggregate index alone does not identify component directions; many distinct score patterns have identical means. First source case has total2.5 over4 components, giving.625. A missing component score is not inferred without a separate binding and discrete-set check.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--income-velocity-of-money",
+      "revision": "r1",
+      "title": "Income velocity of a specified money stock",
+      "summary": "Income velocity divides nominal output by a specified money stock; the quantity equation is the equivalent accounting identity.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "V",
+        "expression": "GDP / money",
+        "original_equation": "V=nominalGDP/M; M*V=P*Y",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module4, Inflation and Velocity, printed p257 (PDF p269), unnumbered definition; Learning Module5, Quantity Theory, printed p287 (PDF p299), Equation(2)",
+        "translation_notes": "The financial period is a dimensionless convention fixed in context; no seconds conversion is made. The quotient cancels currency dimensions. M*V=P*Y follows by nominalGDP=P*realGDP from the deflator record and is not independently counted as another equation."
+      },
+      "variables": [
+        {
+          "symbol": "GDP",
+          "source_symbol": "nominalGDP=P*Y",
+          "role": "input",
+          "quantity_id": "nominal_gross_domestic_product",
+          "definition": "Nominal final-output value for the explicitly stated income period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite nominalGDP"
+        },
+        {
+          "symbol": "money",
+          "source_symbol": "M",
+          "role": "input",
+          "quantity_id": "nominal_money_stock",
+          "definition": "Positive stock/period-average measure of the selected monetary aggregate, in the same currency",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite money stock"
+        },
+        {
+          "symbol": "V",
+          "source_symbol": "velocity ofmoney",
+          "role": "output",
+          "quantity_id": "income_velocity_money",
+          "definition": "Income turnover count of the selected stock per declared financial output period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite turnover count"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "GDP >= 0",
+        "money > 0"
+      ],
+      "assumptions": [
+        "Source assumption: money aggregate, GDP coverage, average/observation date and income period are explicitly selected.",
+        "Source assumption: GDP is nominal, not reference-price realGDP."
+      ],
+      "limitations": [
+        "Velocity need not be stable and is not a causal money-to-inflation forecast.",
+        "A broad money stock is not interchangeable with the monetary base; annualized quarterly GDP affects the turnover period."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Inflation and Velocity, printed p257 (PDF p269), unnumbered definition; Learning Module5, Quantity Theory, printed p287 (PDF p299), Equation(2)",
+          "evidence": "Income velocity divides nominal output by a specified money stock; the quantity equation is the equivalent accounting identity.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "fred-velocity",
+          "kind": "primary",
+          "title": "The velocity of money",
+          "url": "https://fred.stlouisfed.org/blog/2015/01/the-velocity-of-money/",
+          "version": "Federal Reserve Bank of StLouis FRED Blog, January8,2015",
+          "accessed": "2026-11-03",
+          "locator": "Definition V=(PY)/M and GDP/money-stock frequency discussion",
+          "evidence": "Income velocity is nominalGDP divided by the chosen compatible money-stock measure.",
+          "license": "Federal Reserve page terms unknown; no broader permission asserted.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "four-turnovers",
+          "inputs": {
+            "GDP": 1000,
+            "money": 250
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "Four sequential income turnovers of a250 stock account for1000 period output value.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "two-turnovers",
+          "inputs": {
+            "GDP": 600,
+            "money": 300
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "The600 period income is twice the300 money stock.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "money": 250
+          },
+          "reason": "GDP is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "GDP=V*money. money=GDP/V requiresV>0. First case recoversGDP1000 from4*250; V0,GDP0 leaves positive money stock unidentified. Money0 is excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--matched-maturity-breakeven-inflation",
+      "revision": "r1",
+      "title": "Observed nominal-minus-inflation-linked yield spread",
+      "summary": "The reading compares nominal and inflation-protected yields to obtain an inflation-compensation proxy and cautions that other market factors affect it.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "breakeven",
+        "expression": "nominal - linked",
+        "original_equation": "Implied inflation compensation=nominal bond yield - inflation-protected bond yield",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module4, Inflation Expectations, printed p258 (PDF p270), unnumbered10-year bond-yield example and caveat",
+        "translation_notes": "Both yields are decimal fractions on a shared annual convention; subtraction returns a decimal yield spread. No positive-only guard is imposed because observed compensation can be negative."
+      },
+      "variables": [
+        {
+          "symbol": "nominal",
+          "source_symbol": "nominal bond yield",
+          "role": "input",
+          "quantity_id": "matched_nominal_bond_yield",
+          "definition": "Annual nominal government-bond yield on the chosen maturity, pricing and compounding convention",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "linked",
+          "source_symbol": "inflation-protected bond yield",
+          "role": "input",
+          "quantity_id": "matched_inflation_linked_bond_yield",
+          "definition": "Real quoted yield of the comparable inflation-linked government bond, same maturity and yield convention",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "breakeven",
+          "source_symbol": "implied inflation rate",
+          "role": "output",
+          "quantity_id": "observed_breakeven_inflation_spread",
+          "definition": "Observed inflation-compensation yield difference, which is not pure expected inflation",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Source assumption: matched currency, issuer credit, maturity and yield/compounding conventions.",
+        "Source assumption: quoted inflation-linkage terms, lags and deflation protections are specified externally."
+      ],
+      "limitations": [
+        "The spread includes inflation-risk and relative-liquidity effects and therefore cannot be labeled a pure inflation expectation.",
+        "The simple yield difference is a market spread convention; it is not the exact one-period Fisher conversion already covered by engineering-finance--fisher-real-rate."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Inflation Expectations, printed p258 (PDF p270), unnumbered10-year bond-yield example and caveat",
+          "evidence": "The reading compares nominal and inflation-protected yields to obtain an inflation-compensation proxy and cautions that other market factors affect it.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "fed-breakeven",
+          "kind": "primary",
+          "title": "Tips from TIPS: Update and Discussions",
+          "url": "https://www.federalreserve.gov/econres/notes/feds-notes/tips-from-tips-update-and-discussions-20190521.html",
+          "version": "Kim, Walsh and Wei, FEDS Notes, May21,2019",
+          "accessed": "2026-11-03",
+          "locator": "Introduction and Equations(1),(3),(4)",
+          "evidence": "Nominal Treasury yield minus comparable TIPS yield is inflation compensation; inflation-risk and liquidity components can separate it from expected inflation.",
+          "license": "Federal Reserve page exact reuse terms unknown; factual equation definitions paraphrased only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-ten-year",
+          "inputs": {
+            "nominal": 0.035,
+            "linked": 0.015
+          },
+          "expected": 0.02,
+          "tolerance": 1e-09,
+          "method": "Source example reports two percentage points from3.5percent minus1.5percent.",
+          "provenance": "CFA printed p258/PDF270."
+        },
+        {
+          "id": "negative-spread",
+          "inputs": {
+            "nominal": 0.005,
+            "linked": 0.01
+          },
+          "expected": -0.005,
+          "tolerance": 1e-09,
+          "method": "A.5percent nominal yield below a1percent linked yield gives-.5percentage-point compensation.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "linked": 0.015
+          },
+          "reason": "nominal is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "nominal=breakeven+linked and linked=nominal-breakeven. First case recoversnominal.035 and restores.02. Expected inflation cannot be inferred uniquely without additional risk/liquidity assumptions; those components are not silently set to zero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

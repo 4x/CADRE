@@ -1,0 +1,561 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b19",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--dupont-tax-burden",
+      "revision": "r1",
+      "title": "DuPont tax burden",
+      "summary": "DuPont tax burden is the stated ratio of income-statement subtotals.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "factor",
+        "expression": "numerator / denominator",
+        "original_equation": "DuPont tax burden = net income / earnings before tax",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 22, 25, 26 and 27",
+        "translation_notes": "Monetary dimensions cancel. The factor is a component of five-way DuPont decomposition."
+      },
+      "variables": [
+        {
+          "symbol": "numerator",
+          "source_symbol": "net income",
+          "role": "input",
+          "quantity_id": "net_income",
+          "definition": "net income",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "denominator",
+          "source_symbol": "earnings before tax",
+          "role": "input",
+          "quantity_id": "pretax_income",
+          "definition": "earnings before tax",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "factor",
+          "source_symbol": "DuPont tax burden",
+          "role": "output",
+          "quantity_id": "dupont_tax_burden",
+          "definition": "DuPont tax burden",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "denominator ** 2 > 0"
+      ],
+      "assumptions": [
+        "Inputs cover the same reporting entity, currency and period.",
+        "Income subtotals follow consistent accounting definitions."
+      ],
+      "limitations": [
+        "The factor need not lie between zero and one when earnings or taxes have unusual signs.",
+        "A zero denominator makes this factor undefined even if a combined ROE ratio exists."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, DuPont Analysis, printed p227 (PDF p241), Equation (3)",
+          "evidence": "DuPont tax burden is the stated ratio of income-statement subtotals.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 22, 25, 26 and 27",
+          "evidence": "The public list defines pretax return on invested capital, tax burden, interest burden and EBIT margin.",
+          "license": "CFA Institute rights reserved; isolated formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "numerator": 70,
+            "denominator": 100
+          },
+          "expected": 0.7,
+          "tolerance": 1e-09,
+          "method": "70 divided by 100 is 0.7.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "signed",
+          "inputs": {
+            "numerator": -20,
+            "denominator": 100
+          },
+          "expected": -0.2,
+          "tolerance": 1e-09,
+          "method": "A negative numerator produces a signed factor.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "denominator": 100
+          },
+          "reason": "numerator is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "numerator=factor*denominator; denominator=numerator/factor requires a nonzero factor.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--dupont-interest-burden",
+      "revision": "r1",
+      "title": "DuPont interest burden",
+      "summary": "DuPont interest burden is the stated ratio of income-statement subtotals.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "factor",
+        "expression": "numerator / denominator",
+        "original_equation": "DuPont interest burden = earnings before tax / earnings before interest and taxes",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 22, 25, 26 and 27",
+        "translation_notes": "Monetary dimensions cancel. The factor is a component of five-way DuPont decomposition."
+      },
+      "variables": [
+        {
+          "symbol": "numerator",
+          "source_symbol": "earnings before tax",
+          "role": "input",
+          "quantity_id": "pretax_income",
+          "definition": "earnings before tax",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "denominator",
+          "source_symbol": "earnings before interest and taxes",
+          "role": "input",
+          "quantity_id": "earnings_before_interest_and_taxes",
+          "definition": "earnings before interest and taxes",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "factor",
+          "source_symbol": "DuPont interest burden",
+          "role": "output",
+          "quantity_id": "dupont_interest_burden",
+          "definition": "DuPont interest burden",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "denominator ** 2 > 0"
+      ],
+      "assumptions": [
+        "Inputs cover the same reporting entity, currency and period.",
+        "Income subtotals follow consistent accounting definitions."
+      ],
+      "limitations": [
+        "The factor need not lie between zero and one when earnings or taxes have unusual signs.",
+        "A zero denominator makes this factor undefined even if a combined ROE ratio exists."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, DuPont Analysis, printed p227 (PDF p241), Equation (3)",
+          "evidence": "DuPont interest burden is the stated ratio of income-statement subtotals.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 22, 25, 26 and 27",
+          "evidence": "The public list defines pretax return on invested capital, tax burden, interest burden and EBIT margin.",
+          "license": "CFA Institute rights reserved; isolated formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "numerator": 70,
+            "denominator": 100
+          },
+          "expected": 0.7,
+          "tolerance": 1e-09,
+          "method": "70 divided by 100 is 0.7.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "signed",
+          "inputs": {
+            "numerator": -20,
+            "denominator": 100
+          },
+          "expected": -0.2,
+          "tolerance": 1e-09,
+          "method": "A negative numerator produces a signed factor.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "denominator": 100
+          },
+          "reason": "numerator is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "numerator=factor*denominator; denominator=numerator/factor requires a nonzero factor.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--dupont-ebit-margin",
+      "revision": "r1",
+      "title": "DuPont EBIT margin",
+      "summary": "DuPont EBIT margin is the stated ratio of income-statement subtotals.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "factor",
+        "expression": "numerator / denominator",
+        "original_equation": "DuPont EBIT margin = earnings before interest and taxes / revenue",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 22, 25, 26 and 27",
+        "translation_notes": "Monetary dimensions cancel. The factor is a component of five-way DuPont decomposition."
+      },
+      "variables": [
+        {
+          "symbol": "numerator",
+          "source_symbol": "earnings before interest and taxes",
+          "role": "input",
+          "quantity_id": "earnings_before_interest_and_taxes",
+          "definition": "earnings before interest and taxes",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "denominator",
+          "source_symbol": "revenue",
+          "role": "input",
+          "quantity_id": "net_period_revenue",
+          "definition": "revenue",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "factor",
+          "source_symbol": "DuPont EBIT margin",
+          "role": "output",
+          "quantity_id": "dupont_ebit_margin",
+          "definition": "DuPont EBIT margin",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "denominator ** 2 > 0"
+      ],
+      "assumptions": [
+        "Inputs cover the same reporting entity, currency and period.",
+        "Income subtotals follow consistent accounting definitions."
+      ],
+      "limitations": [
+        "The factor need not lie between zero and one when earnings or taxes have unusual signs.",
+        "A zero denominator makes this factor undefined even if a combined ROE ratio exists."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, DuPont Analysis, printed p227 (PDF p241), Equation (3)",
+          "evidence": "DuPont EBIT margin is the stated ratio of income-statement subtotals.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 22, 25, 26 and 27",
+          "evidence": "The public list defines pretax return on invested capital, tax burden, interest burden and EBIT margin.",
+          "license": "CFA Institute rights reserved; isolated formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "numerator": 70,
+            "denominator": 100
+          },
+          "expected": 0.7,
+          "tolerance": 1e-09,
+          "method": "70 divided by 100 is 0.7.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "signed",
+          "inputs": {
+            "numerator": -20,
+            "denominator": 100
+          },
+          "expected": -0.2,
+          "tolerance": 1e-09,
+          "method": "A negative numerator produces a signed factor.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "denominator": 100
+          },
+          "reason": "numerator is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "numerator=factor*denominator; denominator=numerator/factor requires a nonzero factor.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--pretax-return-on-total-capital",
+      "revision": "r1",
+      "title": "Pretax return on total capital",
+      "summary": "Pretax return on total capital compares EBIT with average debt and shareholders equity.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "ebit / (debt + equity)",
+        "original_equation": "Return on total capital = EBIT / average short- and long-term debt and equity",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 22, 25, 26 and 27",
+        "translation_notes": "This return uses pretax EBIT and an average invested capital balance, not net income or total assets."
+      },
+      "variables": [
+        {
+          "symbol": "ebit",
+          "source_symbol": "earnings before interest and taxes",
+          "role": "input",
+          "quantity_id": "earnings_before_interest_and_taxes",
+          "definition": "earnings before interest and taxes",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "debt",
+          "source_symbol": "average interest-bearing debt",
+          "role": "input",
+          "quantity_id": "average_interest_bearing_debt",
+          "definition": "average interest-bearing debt",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "equity",
+          "source_symbol": "average shareholders equity",
+          "role": "input",
+          "quantity_id": "average_shareholders_equity",
+          "definition": "average shareholders equity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "pretax return on total capital",
+          "role": "output",
+          "quantity_id": "pretax_return_on_total_capital",
+          "definition": "EBIT relative to average debt and equity capital",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "debt >= 0",
+        "debt + equity > 0"
+      ],
+      "assumptions": [
+        "Debt and equity averages use consistent dates, entity, currency and period.",
+        "Capital means interest-bearing debt plus shareholders equity in this definition."
+      ],
+      "limitations": [
+        "Other invested-capital definitions can treat cash, leases and operating liabilities differently.",
+        "The denominator must be positive under this analytical profile."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Profitability Ratios, printed p219 (PDF p233), Exhibit 17",
+          "evidence": "Pretax return on total capital compares EBIT with average debt and shareholders equity.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 22, 25, 26 and 27",
+          "evidence": "The public list defines pretax return on invested capital, tax burden, interest burden and EBIT margin.",
+          "license": "CFA Institute rights reserved; isolated formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "ebit": 100,
+            "debt": 300,
+            "equity": 200
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "100 divided by 500 total capital gives 0.2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "loss",
+          "inputs": {
+            "ebit": -50,
+            "debt": 200,
+            "equity": 300
+          },
+          "expected": -0.1,
+          "tolerance": 1e-09,
+          "method": "Negative 50 divided by 500 total capital gives -0.1.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "debt": 300,
+            "equity": 200
+          },
+          "reason": "ebit is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ebit=ratio*(debt+equity); individual capital components cannot be identified from their sum without more information.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

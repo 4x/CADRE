@@ -1,0 +1,201 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b52",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [
+    {
+      "title": "IRR and yield-to-maturity root solving",
+      "reason": "Corporate Issuers LM4, printed pp739–741/PDF pp753–755, equations 3–4; Financial Statement Analysis LM8 printed pp448–449/PDF pp462–463: finding IRR or yield from price and a nontrivial stream generally requires numerical root finding, which is outside the engine. Nonconventional cash flows can have multiple IRRs.",
+      "source_urls": [
+        "https://openstax.org/books/principles-finance/pages/16-key-terms"
+      ]
+    },
+    {
+      "title": "Uneven raw-cash-flow net present value in a single expression",
+      "reason": "Corporate Issuers LM4 printed pp737–739/PDF pp751–753, equations 1–2: the full arbitrary-time raw-cash-flow formula requires elementwise discounting of indexed cash flows before summation, which the present family grammar cannot express directly. Existing Volume 1 cash-flow additivity supports a precomputed same-date value family and the supplied lump-sum model discounts each element externally.",
+      "source_urls": [
+        "https://openstax.org/books/principles-finance/pages/16-key-terms"
+      ]
+    }
+  ],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. Replaces b51 in full: corrects inaccessible deferred NPV and IRR source URLs to the directly inspected OpenStax key terms. The bond formula is unchanged."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--fixed-coupon-bond-price-flat-periodic-yield",
+      "revision": "r2",
+      "title": "Fixed coupon bond price at a flat periodic yield",
+      "summary": "Bond proceeds are the present value of the coupon annuity plus the present value of principal.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "price",
+        "expression": "coupon * (1 - (1 + rate) ** (-periods)) / rate + face / (1 + rate) ** periods",
+        "original_equation": "Bond price = present value of level coupons + present value of face value",
+        "source_id": "openstax-finance-bond-10-2",
+        "locator": "Section 10.2, equations 10.3–10.7 and bond-pricing discussion",
+        "translation_notes": "The rate is per coupon period and base one; the number of periods is a dimensionless count. Coupon and principal are in one currency. This combines two supplied time-value primitives into a distinct bond-price quantity."
+      },
+      "variables": [
+        {
+          "symbol": "coupon",
+          "source_symbol": "coupon payment per period",
+          "role": "input",
+          "quantity_id": "bond_coupon_payment_per_period",
+          "definition": "coupon payment per period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "face",
+          "source_symbol": "face amount paid at maturity",
+          "role": "input",
+          "quantity_id": "bond_face_amount",
+          "definition": "face amount paid at maturity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "rate",
+          "source_symbol": "discount rate per coupon period",
+          "role": "input",
+          "quantity_id": "bond_periodic_discount_rate",
+          "definition": "Flat effective market discount rate per coupon period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "periods",
+          "source_symbol": "remaining coupon periods",
+          "role": "input",
+          "quantity_id": "bond_remaining_coupon_periods",
+          "definition": "Positive integer number of equal coupon periods",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "price",
+          "source_symbol": "bond price",
+          "role": "output",
+          "quantity_id": "fixed_coupon_bond_price",
+          "definition": "bond price",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "coupon >= 0",
+        "face >= 0",
+        "periods > 0",
+        "rate > -1",
+        "rate ** 2 > 0"
+      ],
+      "assumptions": [
+        "Coupons are equal and paid at the end of each of the stated positive integer number of periods; face is paid at the final coupon date.",
+        "One flat effective discount rate applies to all periods and there are no transaction costs."
+      ],
+      "limitations": [
+        "The closed form excludes a zero periodic rate; its separate continuous limit is coupon times periods plus face.",
+        "Fractional-period pricing, default, embedded options, taxes and term-structure variation require other models.",
+        "Integer period count is a documented domain requirement; the scalar grammar cannot enforce integrality."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 8, Bonds Payable and Accounting for Bond Issuance, printed pp448–449 (PDF pp462–463), Examples 1–2",
+          "evidence": "Bond proceeds are the present value of the coupon annuity plus the present value of principal.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-finance-bond-10-2",
+          "kind": "primary",
+          "title": "Principles of Finance",
+          "url": "https://openstax.org/books/principles-finance/pages/10-2-bond-valuation",
+          "version": "Rice University, 2022",
+          "accessed": "2026-11-03",
+          "locator": "Section 10.2, equations 10.3–10.7 and bond-pricing discussion",
+          "evidence": "The bond price adds the present value of a level coupon annuity to the present value of face value at maturity.",
+          "license": "OpenStax page displays CC BY-NC-SA and additional usage terms; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "par",
+          "inputs": {
+            "coupon": 50,
+            "face": 1000,
+            "rate": 0.05,
+            "periods": 5
+          },
+          "expected": 1000,
+          "tolerance": 1e-09,
+          "method": "A five-year 5% coupon bond discounted at 5% per period sells at par.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "discount",
+          "inputs": {
+            "coupon": 50000,
+            "face": 1000000,
+            "rate": 0.06,
+            "periods": 5
+          },
+          "expected": 957876.362144343,
+          "tolerance": 1e-09,
+          "method": "Five 50,000 coupons and 1 million principal discounted at 6% have a value of approximately 957,876.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "face": 1000,
+            "rate": 0.05,
+            "periods": 5
+          },
+          "reason": "coupon is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Price is determined forward given the cash flows and yield. Solving yield from price generally requires a numerical root finder, which is outside the engine.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

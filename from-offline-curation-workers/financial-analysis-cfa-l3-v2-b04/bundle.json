@@ -1,0 +1,686 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.9",
+  "batch_id": "financial-analysis-cfa-l3-v2-b04",
+  "domain": "financial-analysis",
+  "curator": "buffy",
+  "created": "2026-11-04",
+  "example_only": false,
+  "models": [
+    {
+      "id": "financial-analysis--tax-drag-proportion",
+      "revision": "r1",
+      "title": "Tax-drag proportion of potential gains",
+      "summary": "Share of pretax gains consumed by taxes as the after-tax shortfall over the pretax gain.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "td",
+        "expression": "(fvpt - fvat) / (fvpt - p)",
+        "original_equation": "Tax drag = (Pretax future value − After-tax future value)/(Pretax future value − Initial investment)",
+        "source_id": "analystprep-inflation-tax",
+        "locator": "PDF: LM4 Kozlowska cases, printed pp. 257–260 (PDF pp. 267–270): 89,611/286,968 = 31% (accrual) and 57,392/286,968 = 20% (deferred)",
+        "translation_notes": "Inputs are accumulations/FVs (outputs of the FVIF siblings scaled by principal); td exceeds the nominal rate under accrual compounding and equals the rate under pure deferral (per source). Decimal form. Dimensional check: currency / currency = dimensionless share."
+      },
+      "variables": [
+        {
+          "symbol": "fvpt",
+          "source_symbol": "FV ignoring taxes",
+          "role": "input",
+          "quantity_id": "pretax_future_value",
+          "definition": "Pretax future accumulation, in currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, horizon and return as fvat",
+          "domain": "Above p (positive gains exist)"
+        },
+        {
+          "symbol": "fvat",
+          "source_symbol": "after-tax amount accumulated",
+          "role": "input",
+          "quantity_id": "after_tax_future_value",
+          "definition": "After-tax future accumulation, in currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, horizon and return as fvpt",
+          "domain": "At least p and at most fvpt"
+        },
+        {
+          "symbol": "p",
+          "source_symbol": "Initial investment",
+          "role": "input",
+          "quantity_id": "initial_principal",
+          "definition": "Initial amount invested, in the same currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment as fvpt",
+          "domain": "Positive finite principal"
+        },
+        {
+          "symbol": "td",
+          "source_symbol": "proportion of potential investment gains consumed by taxes",
+          "role": "output",
+          "quantity_id": "tax_drag_share",
+          "definition": "Proportion of potential pretax gains consumed by taxes, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, horizon and return as inputs",
+          "domain": "Closed interval 0 to 1 under non-adverse taxation"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "fvpt > p",
+        "fvat >= p",
+        "fvat <= fvpt"
+      ],
+      "assumptions": [
+        "Same gross return path with and without taxes; the comparison isolates the tax effect (per source case studies)."
+      ],
+      "limitations": [
+        "Ex post attribution, not a forward rate: the share depends on horizon and return (per source Exhibit 25).",
+        "Adverse cases (after-tax below principal) fall outside the guarded domain."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-taxdrag-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Kozlowska accrual case, printed p. 257 (PDF p. 267): 31%; deferral case, printed p. 259 (PDF p. 269): 20%",
+          "evidence": "Passage computes the gain share consumed by taxes in both cases (31% under accrual, 20% under deferral) from the stated pretax/after-tax accumulations.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-inflation-tax",
+          "kind": "primary",
+          "title": "Inflation & Taxes on Investments (AnalystPrep CFA Level III notes)",
+          "url": "https://analystprep.com/study-notes/cfa-level-iii/inflation-and-tax-on-investments/",
+          "version": "Study notes, 11 Jan 2025, John Davids example",
+          "accessed": "2026-11-04",
+          "locator": "Tax Drag = Difference/(Pretax Future Value − Initial Investment) = 383,490.66/877,271.27 = 43.7%",
+          "evidence": "Page states the identical proportion formula with a fully worked independent example at 43.7%.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-davids-drag",
+          "inputs": {
+            "fvpt": 1027271.27,
+            "fvat": 643780.61,
+            "p": 150000.0
+          },
+          "expected": 0.4371,
+          "tolerance": 0.0001,
+          "method": "Corroborating source: 383,490.66/877,271.27 = 0.4371456, reported as 43.7%. Tolerance covers rounding.",
+          "provenance": "Published result: AnalystPrep John Davids example"
+        },
+        {
+          "id": "published-kozlowska-accrual-drag",
+          "inputs": {
+            "fvpt": 386968.0,
+            "fvat": 297357.0,
+            "p": 100000.0
+          },
+          "expected": 0.3123,
+          "tolerance": 0.0001,
+          "method": "Source: 89,611/286,968 = 0.3122522, reported as 31%. Tolerance covers rounding.",
+          "provenance": "Published result: LM4 Kozlowska accrual case, printed p. 257 (PDF p. 267)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "fvpt": 100000.0,
+            "fvat": 100000.0,
+            "p": 100000.0
+          },
+          "reason": "No gains exist (guard fvpt > p violated); the consumed share of zero gains is undefined."
+        }
+      ],
+      "inverse_notes": "fvat = fvpt − td·(fvpt − p) always; fvpt = (fvat − td·p)/(1 − td) requires td ≠ 1. Substitution check: td=0.4371 with Davids inputs recovers fvat=643,780.61 within rounding. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings pretax_future_value, after_tax_future_value, initial_principal, tax_drag_share are not in the runtime vocabulary snapshot and require extension.",
+          "Downstream consumer of the FVIF sibling outputs; distinct attribution definition, not a duplicate."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--human-capital-present-value",
+      "revision": "r1",
+      "title": "Mortality-weighted human capital present value",
+      "summary": "Human capital as survival-weighted discounted lifetime labor income.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "hc0",
+        "expression": "sum(H)",
+        "original_equation": "HC0 = Σ p(st)·w_{t−1}(1 + g_t)/(1 + r_f + y)^t",
+        "source_id": "analystprep-human-capital",
+        "locator": "PDF: LM4 Life-Cycle View, printed p. 235 (PDF p. 245), Equation 1; Taylor case HC EUR636,156 at age 25",
+        "translation_notes": "Family H holds the precomputed per-year summands h_t = p(st)·w_{t−1}(1+g_t)/(1+r_f+y)^t (currency present values; no elementwise family arithmetic in the grammar, so elements bind as computed values). Mortality weighting p(st), wage growth g_t and occupational-risk-adjusted discount r_f+y documented here. Dimensional check: sum of currency values."
+      },
+      "variables": [
+        {
+          "symbol": "H",
+          "source_symbol": "per-year survival-weighted discounted income (introduced family)",
+          "role": "family",
+          "max_size": 60,
+          "quantity_id": "discounted_survival_income",
+          "definition": "Each year's survival-probability-weighted labor income discounted at the occupational-risk-adjusted rate, in currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same individual, mortality table, wage path and discount rate; one element per working year",
+          "domain": "Nonnegative finite present values"
+        },
+        {
+          "symbol": "hc0",
+          "source_symbol": "HC0",
+          "role": "output",
+          "quantity_id": "human_capital_value",
+          "definition": "Human capital: mortality-weighted net present value of future labor income, in currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same individual, mortality table, wage path and discount rate as H",
+          "domain": "Nonnegative finite value"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Actuarial survival probabilities from mortality tables; wage growth and occupational-risk premium y fixed over the horizon (per source).",
+        "Working life of N years; post-retirement pension values are separate (per source discussion)."
+      ],
+      "limitations": [
+        "Inputs are hard to estimate in practice (per source); the record formalizes the model, not the calibration.",
+        "Family size capped at 60 elements; longer horizons must be pre-aggregated.",
+        "Reference checks exercise aggregation of precomputed summands; the full 40-year Taylor evaluation (EUR636,156) is cited as evidence, not replayed element-by-element."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-hc-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Life-Cycle View of Human Capital, printed p. 235 (PDF p. 245), Equation 1 with all six terms defined; Taylor case table, printed p. 237 (PDF p. 247): HC EUR636,156 at 25",
+          "evidence": "Passage defines HC0 as the survival-weighted discounted income sum and the case study evaluates the 40-year Taylor path at EUR636,156.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-human-capital",
+          "kind": "primary",
+          "title": "Human Capital vs Financial Capital Characteristics (AnalystPrep CFA Level III notes)",
+          "url": "https://analystprep.com/study-notes/cfa-level-iii/characteristics-of-human-capital-and-financial-capital/",
+          "version": "Study notes, 9 Nov 2023, Human Capital Valuation section",
+          "accessed": "2026-11-04",
+          "locator": "Valuation table: per-year survival probability × projected income = probability-weighted income, discounted to PV; five-year total HC £1,152,779 (year-1 PV 241,856)",
+          "evidence": "Page applies the identical per-year survival-weighting and discounting construction with a fully worked five-year table summing to £1,152,779.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-five-year-first-three",
+          "inputs": {
+            "H": [
+              241856.0,
+              236069.0,
+              230421.0
+            ]
+          },
+          "expected": 708346.0,
+          "tolerance": 1.0,
+          "method": "Corroborating source's year-1..3 PV column: 241,856 + 236,069 + 230,421 = 708,346. Tolerance covers whole-unit rounding of published pounds.",
+          "provenance": "Published result: AnalystPrep human-capital valuation table (first three PVs)"
+        },
+        {
+          "id": "published-five-year-last-two",
+          "inputs": {
+            "H": [
+              224907.0,
+              219526.0
+            ]
+          },
+          "expected": 444433.0,
+          "tolerance": 1.0,
+          "method": "Corroborating source's year-4..5 PV column: 224,907 + 219,526 = 444,433 (with the first-three sum gives the published £1,152,779 total). Tolerance covers whole-unit rounding.",
+          "provenance": "Published result: AnalystPrep human-capital valuation table (last two PVs)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "No per-year summands supplied; the lifetime sum is undefined on an empty family."
+        }
+      ],
+      "inverse_notes": "No scalar inverse: the sum does not identify individual years. Forward-only; family inverse views are not supported.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings discounted_survival_income, human_capital_value are not in the runtime vocabulary snapshot and require extension.",
+          "Family input (max_size 60) with precomputed per-year summands; per-year construction documented in translation notes.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--domestic-currency-return-compounding",
+      "revision": "r1",
+      "title": "Domestic-currency return from foreign return and FX move",
+      "summary": "Home-currency return as the product of foreign-asset and currency gross returns minus one.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "rdc",
+        "expression": "(1 + rfc) * (1 + rfx) - 1",
+        "original_equation": "RDC = (1 + RFC)(1 + RFX) − 1",
+        "source_id": "cfa-l3-v2-rdc-pdf",
+        "locator": "PDF: LM2 Views of Currency Value Changes, printed p. 68 (PDF p. 78); portfolio form RDC = Σ ω_i(1 + R_FC,i)(1 + R_FX,i) − 1",
+        "translation_notes": "Single-asset form recorded (the portfolio form is the weight-weighted sum of the same per-asset construction). Decimal form. Falls back to PDF-only provenance: no independent accessible corroboration found after textbook/curriculum-note searches. Dimensional check: dimensionless product minus one."
+      },
+      "variables": [
+        {
+          "symbol": "rfc",
+          "source_symbol": "RFC",
+          "role": "input",
+          "quantity_id": "foreign_currency_return",
+          "definition": "Return on the foreign-currency asset in its own currency, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset and period as rfx",
+          "domain": "Above −1"
+        },
+        {
+          "symbol": "rfx",
+          "source_symbol": "RFX",
+          "role": "input",
+          "quantity_id": "fx_move_return",
+          "definition": "Percentage change of the domestic currency versus the foreign currency (positive when the foreign currency strengthens), in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset and period as rfc",
+          "domain": "Above −1"
+        },
+        {
+          "symbol": "rdc",
+          "source_symbol": "RDC",
+          "role": "output",
+          "quantity_id": "domestic_currency_return",
+          "definition": "Return in domestic (functional) currency terms, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset and period as inputs",
+          "domain": "Above −1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "rfc > -1",
+        "rfx > -1"
+      ],
+      "assumptions": [
+        "Single period; no hedging overlay (hedged proceeds follow interest parity, not this record)."
+      ],
+      "limitations": [
+        "First-order approximation RDC ≈ RFC + RFX drops the cross term; this record keeps it.",
+        "Portfolio form needs position weights summing to 1 (stated but not separately recorded)."
+      ],
+      "unresolved": [
+        "No accessible corroboration found after reasonable searches (textbook treatments state the economics without the formula; accessible hits were same-curriculum copies); formula verified only against the owner PDF, which reviewers cannot open."
+      ],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-rdc-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Views of Currency Value Changes, printed p. 68 (PDF p. 78): single-asset and portfolio RDC forms",
+          "evidence": "Passage states the domestic-currency return as the product of foreign-asset and currency gross returns minus one, plus the weight-weighted portfolio form.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        }
+      ],
+      "references": [
+        {
+          "id": "constructed-foreign-gain-home-loss",
+          "inputs": {
+            "rfc": 0.08,
+            "rfx": -0.02
+          },
+          "expected": 0.0584,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 1.08 × 0.98 − 1 = 0.0584. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        },
+        {
+          "id": "constructed-dual-gain",
+          "inputs": {
+            "rfc": 0.05,
+            "rfx": 0.03
+          },
+          "expected": 0.0815,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 1.05 × 1.03 − 1 = 0.0815. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "rfc": 0.08
+          },
+          "reason": "Currency move is required; the foreign-asset return alone is not the domestic return."
+        }
+      ],
+      "inverse_notes": "rfc = (1 + rdc)/(1 + rfx) − 1 requires rfx ≠ −1; rfx = (1 + rdc)/(1 + rfc) − 1 requires rfc ≠ −1. Substitution check: rdc=0.0584, rfx=−0.02 recovers rfc=0.08. Algebraic only.",
+      "integration": {
+        "status": "blocked",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings foreign_currency_return, fx_move_return, domestic_currency_return are not in the runtime vocabulary snapshot and require extension.",
+          "Fallback record per the source brief: no primary source; PDF cited as project-derivation with the corroboration gap in unresolved; review decides.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--balance-sheet-identity",
+      "revision": "r1",
+      "title": "Institutional balance-sheet identity",
+      "summary": "Market value of assets equals liabilities plus residual equity.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "E",
+        "expression": "A - L",
+        "original_equation": "A = L + E",
+        "source_id": "wikipedia-accounting-equation",
+        "locator": "PDF: LM5 bank model, printed p. 375 (PDF p. 385), Equation 1; market (economic) values",
+        "translation_notes": "Records the solved form E = A − L of the stated identity (algebraically identical; rearrangement documented, not a new model). Currency units throughout. Dimensional check: currency − currency = currency equity."
+      },
+      "variables": [
+        {
+          "symbol": "A",
+          "source_symbol": "A",
+          "role": "input",
+          "quantity_id": "institution_assets",
+          "definition": "Market (economic) value of the institution's assets, in currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same institution and valuation date as L",
+          "domain": "Nonnegative finite value"
+        },
+        {
+          "symbol": "L",
+          "source_symbol": "L",
+          "role": "input",
+          "quantity_id": "institution_liabilities",
+          "definition": "Market (economic) value of contractual claims, in the same currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same institution and valuation date as A",
+          "domain": "Nonnegative finite value"
+        },
+        {
+          "symbol": "E",
+          "source_symbol": "E",
+          "role": "output",
+          "quantity_id": "institution_equity",
+          "definition": "Residual equity (shareholder/member capitalization), in the same currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same institution and valuation date as inputs",
+          "domain": "Signed finite value (negative = insolvent on a market-value basis)"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "A >= 0",
+        "L >= 0"
+      ],
+      "assumptions": [
+        "Current market (economic) values, which need not coincide with GAAP/IFRS/regulatory values (per source)."
+      ],
+      "limitations": [
+        "Identity, not a behavioral model: it constrains but does not determine any side.",
+        "Off-balance-sheet and franchise values outside the stated A/L scope are excluded."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-ale-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM5 bank balance-sheet model, printed p. 375 (PDF p. 385), Equation 1",
+          "evidence": "Passage defines the asset/liability/equity relationship and its market-value basis as the model's first equation.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "wikipedia-accounting-equation",
+          "kind": "primary",
+          "title": "Accounting equation (Wikipedia)",
+          "url": "https://en.wikipedia.org/wiki/Accounting_equation",
+          "version": "Article revision accessed 2026-11-04, The-equation section",
+          "accessed": "2026-11-04",
+          "locator": "A = L + E with rearrangements including A − L = Equity explicitly shown",
+          "evidence": "Article states the identical identity and explicitly shows the solved A − L = Equity rearrangement used here.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "constructed-solvent-bank",
+          "inputs": {
+            "A": 1000.0,
+            "L": 900.0
+          },
+          "expected": 100.0,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 1000 − 900 = 100. Identity check constructed for this record.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed balance-sheet data claimed"
+        },
+        {
+          "id": "constructed-high-leverage",
+          "inputs": {
+            "A": 1000.0,
+            "L": 950.0
+          },
+          "expected": 50.0,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 1000 − 950 = 50 (5% equity-to-assets, the high-leverage row of the source's Exhibit 22/23 frame).",
+          "provenance": "Independent arithmetic check constructed for this record, calibrated to the source's exhibit leverage grid"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "A": 1000.0
+          },
+          "reason": "Liabilities are required; assets alone do not determine residual equity."
+        }
+      ],
+      "inverse_notes": "A = E + L; L = A − E; no singularities. Substitution check: E=100, L=900 recovers A=1000. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings institution_assets, institution_liabilities, institution_equity are not in the runtime vocabulary snapshot and require extension.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--balance-sheet-change-identity",
+      "revision": "r1",
+      "title": "Balance-sheet change identity",
+      "summary": "Change in assets equals change in liabilities plus change in equity.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "dE",
+        "expression": "dA - dL",
+        "original_equation": "ΔA = ΔL + ΔE",
+        "source_id": "wikipedia-accounting-equation",
+        "locator": "PDF: LM5 bank model, printed p. 375 (PDF p. 385), Equation 2; first difference of Equation 1",
+        "translation_notes": "Records the solved form ΔE = ΔA − ΔL of the stated change identity. Applies to market-value changes, earnings effects, asset sales and capital-structure changes (per source). Dimensional check: currency − currency = currency change."
+      },
+      "variables": [
+        {
+          "symbol": "dA",
+          "source_symbol": "ΔA",
+          "role": "input",
+          "quantity_id": "asset_value_change",
+          "definition": "Change in market value of assets, in currency units (signed)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same institution and interval as dL",
+          "domain": "Finite signed change"
+        },
+        {
+          "symbol": "dL",
+          "source_symbol": "ΔL",
+          "role": "input",
+          "quantity_id": "liability_value_change",
+          "definition": "Change in market value of liabilities, in the same currency units (signed)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same institution and interval as dA",
+          "domain": "Finite signed change"
+        },
+        {
+          "symbol": "dE",
+          "source_symbol": "ΔE",
+          "role": "output",
+          "quantity_id": "equity_value_change",
+          "definition": "Change in equity capitalization, in the same currency units (signed)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same institution and interval as inputs",
+          "domain": "Finite signed change"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Same market-value basis and interval on all three changes."
+      ],
+      "limitations": [
+        "Identity only: decomposing a change into asset vs liability drivers needs the leverage-weighted forms (Eqs 3–4, queued next).",
+        "Signed changes can mask offsetting gross flows."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-dale-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM5 bank balance-sheet model, printed p. 375 (PDF p. 385), Equation 2",
+          "evidence": "Passage states the change identity as the model's second equation covering market moves, earnings, sales and capital changes.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "wikipedia-accounting-equation",
+          "kind": "primary",
+          "title": "Accounting equation (Wikipedia)",
+          "url": "https://en.wikipedia.org/wiki/Accounting_equation",
+          "version": "Article revision accessed 2026-11-04, The-equation section",
+          "accessed": "2026-11-04",
+          "locator": "A = L + E identity and transaction table showing balanced changes",
+          "evidence": "Article states the identity whose first difference is this record; its transaction table demonstrates balanced co-movement of the three changes.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "constructed-asset-impairment",
+          "inputs": {
+            "dA": -10.0,
+            "dL": 0.0
+          },
+          "expected": -10.0,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: −10 − 0 = −10 (asset loss with unchanged liabilities falls entirely on equity).",
+          "provenance": "Independent arithmetic check constructed for this record; no observed balance-sheet data claimed"
+        },
+        {
+          "id": "constructed-joint-move",
+          "inputs": {
+            "dA": 30.0,
+            "dL": 20.0
+          },
+          "expected": 10.0,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 30 − 20 = 10. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed balance-sheet data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "dA": -10.0
+          },
+          "reason": "Liability change is required; the equity impact of an asset move depends on the liability co-move."
+        }
+      ],
+      "inverse_notes": "dA = dE + dL; dL = dA − dE; no singularities. Substitution check: dE=−10, dL=0 recovers dA=−10. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings asset_value_change, liability_value_change, equity_value_change are not in the runtime vocabulary snapshot and require extension.",
+          "First difference of financial-analysis--balance-sheet-identity@r1; recorded as the distinct Eq2 relationship, not a duplicate."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "deferred": [
+    {
+      "title": "Effective duration / effective convexity closed forms (PDF p. 68)",
+      "reason": "Stated without worked oracle in the PDF; corroborating lesson describes the V−/V+ procedure. Candidate for a later batch with constructed-only verification or defer.",
+      "source_urls": []
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b04 (L3V2): 5 records (tax-drag proportion, human-capital PV, domestic-currency compounding (fallback), balance-sheet identity, change identity) each with PDF locator; four with directly inspected accessible corroboration, one fallback per the source brief.",
+    "gaps": [
+      "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+      "Family record (HC0) binds precomputed per-year summands; construction documented in translation notes.",
+      "Queue: LM5 bank Eqs 3–9 (leverage-weighted changes, equity duration, equity volatility with Exhibits 22/23/26 oracles), LM6 effective spread/VWAP/implementation shortfall, DTS, futures leverage, rebate rate."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity — verified locators and corroboration pages by direct inspection 2026-11-04."
+  }
+}

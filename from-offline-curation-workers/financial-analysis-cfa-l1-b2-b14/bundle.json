@@ -1,0 +1,550 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b14",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 2 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: purchased-PDF primary URL null is required by source brief but rejected by installed official validator. Toolkit unchanged. Independent checks and ZIP checksum pass; no official intake approval claimed. Three new labor-market definitions plus signed-real-output-gap r2 citation correction to b13; original b13 archive retained. No new count for the correction revision."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--labor-force-population-partition",
+      "revision": "r1",
+      "title": "Labor force from mutually exclusive employed and unemployed counts",
+      "summary": "The labor force consists of people with employment and those without work who are actively seeking it.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "LF",
+        "expression": "employed + unemployed",
+        "original_equation": "Labor force=employed+actively seeking unemployed",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module4, Unemployment, printed p243 (PDF p255), labor-market definitions",
+        "translation_notes": "Person counts add; no generic observation-count record is substituted because the labor-market classification boundary is independently defined. Underemployed workers remain in employment in this official-style partition."
+      },
+      "variables": [
+        {
+          "symbol": "employed",
+          "source_symbol": "Employed",
+          "role": "input",
+          "quantity_id": "employed_population",
+          "definition": "Covered people classified as employed",
+          "unit": "persons",
+          "dimensions": "person_count",
+          "context": "Same date, geographic area and explicitly declared age/civilian/institutional cohort; employed/unemployed are mutually exclusive and use one statistical definition",
+          "domain": "Nonnegative finite survey count/estimate"
+        },
+        {
+          "symbol": "unemployed",
+          "source_symbol": "Unemployed",
+          "role": "input",
+          "quantity_id": "unemployed_population",
+          "definition": "Covered people without a job who actively seek and are available for work",
+          "unit": "persons",
+          "dimensions": "person_count",
+          "context": "Same date, geographic area and explicitly declared age/civilian/institutional cohort; employed/unemployed are mutually exclusive and use one statistical definition",
+          "domain": "Nonnegative finite survey count/estimate"
+        },
+        {
+          "symbol": "LF",
+          "source_symbol": "Labor force",
+          "role": "output",
+          "quantity_id": "labor_force_population",
+          "definition": "Employed plus unemployed within the same covered cohort",
+          "unit": "persons",
+          "dimensions": "person_count",
+          "context": "Same date, geographic area and explicitly declared age/civilian/institutional cohort; employed/unemployed are mutually exclusive and use one statistical definition",
+          "domain": "Nonnegative finite survey count/estimate"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "employed >= 0",
+        "unemployed >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: employment and unemployment use the same population coverage and non-overlapping classification.",
+        "Source assumption: discouraged workers no longer seeking work are excluded from the labor force."
+      ],
+      "limitations": [
+        "Survey-weighted estimates may be noninteger; household labor-force concepts differ from payroll jobs counts."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Unemployment, printed p243 (PDF p255), labor-market definitions",
+          "evidence": "The labor force consists of people with employment and those without work who are actively seeking it.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bls-labor-force",
+          "kind": "primary",
+          "title": "How the Government Measures Unemployment",
+          "url": "https://www.bls.gov/cps/cps_htgm.htm",
+          "version": "US Bureau of Labor Statistics, live CPS explanation",
+          "accessed": "2026-11-03",
+          "locator": "What are the unemployment rate, labor force participation rate, and employment-population ratio?",
+          "evidence": "The section defines labor force as employed plus unemployed, unemployment as a share of that force, and participation as labor force divided by the covered population.",
+          "license": "Government source; exact reuse terms unknown; equation definitions paraphrased only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive-employment",
+          "inputs": {
+            "employed": 90,
+            "unemployed": 10
+          },
+          "expected": 100,
+          "tolerance": 1e-09,
+          "method": "Disjoint groups of90 working and10 actively job-seeking people give100 force participants.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "all-employed",
+          "inputs": {
+            "employed": 50,
+            "unemployed": 0
+          },
+          "expected": 50,
+          "tolerance": 1e-09,
+          "method": "No unemployed people leaves the labor force equal to employed50.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "unemployed": 10
+          },
+          "reason": "employed is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "employed=LF-unemployed and unemployed=LF-employed, requiring nonnegative residuals. First reference LF100-unemployed10 recovers employed90 and restores100. LF alone cannot identify both categories.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--unemployment-rate",
+      "revision": "r1",
+      "title": "Unemployment as a fraction of the labor force",
+      "summary": "The unemployment rate compares actively job-seeking unemployed people with the labor force rather than the whole population.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "u",
+        "expression": "unemployed / LF",
+        "original_equation": "Unemployment rate=unemployed/labor force",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module4, Unemployment and The Unemployment Rate, printed pp243-244 (PDF pp255-256), unnumbered definition",
+        "translation_notes": "Person_count/person_count gives a base fraction. This ratio is a defined labor-market indicator, distinct from generic relative frequency because its statistical inclusion rules are integral to the quantity meaning."
+      },
+      "variables": [
+        {
+          "symbol": "unemployed",
+          "source_symbol": "Unemployed",
+          "role": "input",
+          "quantity_id": "unemployed_population",
+          "definition": "People without work actively seeking and available for employment",
+          "unit": "persons",
+          "dimensions": "person_count",
+          "context": "Same date, geographic area and explicitly declared age/civilian/institutional cohort; employed/unemployed are mutually exclusive and use one statistical definition",
+          "domain": "Nonnegative finite survey count/estimate"
+        },
+        {
+          "symbol": "LF",
+          "source_symbol": "Labor force",
+          "role": "input",
+          "quantity_id": "labor_force_population",
+          "definition": "Positive total of employed and unemployed on the same cohort",
+          "unit": "persons",
+          "dimensions": "person_count",
+          "context": "Same date, geographic area and explicitly declared age/civilian/institutional cohort; employed/unemployed are mutually exclusive and use one statistical definition",
+          "domain": "Nonnegative finite survey count/estimate"
+        },
+        {
+          "symbol": "u",
+          "source_symbol": "Unemployment rate",
+          "role": "output",
+          "quantity_id": "unemployment_rate",
+          "definition": "Fraction of covered labor force classified as unemployed",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite fraction in[0,1]"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "LF > 0",
+        "unemployed >= 0",
+        "unemployed <= LF"
+      ],
+      "assumptions": [
+        "Source assumption: numerator is a subset of the labor-force denominator under the same classification.",
+        "Source assumption: labor force is strictly positive."
+      ],
+      "limitations": [
+        "Discouraged people outside the labor force and underemployed workers are not added to the numerator.",
+        "Cross-country unemployment definitions can differ; no harmonization is performed here."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Unemployment and The Unemployment Rate, printed pp243-244 (PDF pp255-256), unnumbered definition",
+          "evidence": "The unemployment rate compares actively job-seeking unemployed people with the labor force rather than the whole population.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bls-labor-force",
+          "kind": "primary",
+          "title": "How the Government Measures Unemployment",
+          "url": "https://www.bls.gov/cps/cps_htgm.htm",
+          "version": "US Bureau of Labor Statistics, live CPS explanation",
+          "accessed": "2026-11-03",
+          "locator": "What are the unemployment rate, labor force participation rate, and employment-population ratio?",
+          "evidence": "The section defines labor force as employed plus unemployed, unemployment as a share of that force, and participation as labor force divided by the covered population.",
+          "license": "Government source; exact reuse terms unknown; equation definitions paraphrased only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "ten-percent",
+          "inputs": {
+            "unemployed": 10,
+            "LF": 100
+          },
+          "expected": 0.1,
+          "tolerance": 1e-09,
+          "method": "Ten of100 force members are unemployed.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "all-unemployed",
+          "inputs": {
+            "unemployed": 40,
+            "LF": 40
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "All40 labor-force members seek work without employment, giving fraction1.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "LF": 100
+          },
+          "reason": "unemployed is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "unemployed=u*LF; LF=unemployed/u requiresu>0. First case recovers10 unemployed and substitutes.1. Atu0 andunemployed0 every positive LF fits; LF0 excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--labor-force-participation-rate",
+      "revision": "r1",
+      "title": "Labor-force participation within a declared population cohort",
+      "summary": "Participation compares labor-force members with the full population in a defined working-age cohort.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "p",
+        "expression": "LF / population",
+        "original_equation": "Participation rate=labor force/working-age population",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module4, Unemployment, printed p243 (PDF p255), participation-rate definition; LM3 printed p178/PDF190 Exhibit28",
+        "translation_notes": "Both counts must use exactly the same age and residency definition; no implicit conversion between CFA and BLS coverage. Person counts cancel; percentage display remains external. The inverse labor-force=population*participation also covers the population/participation portion of LM3 Exhibit28."
+      },
+      "variables": [
+        {
+          "symbol": "LF",
+          "source_symbol": "Labor force",
+          "role": "input",
+          "quantity_id": "labor_force_population",
+          "definition": "Covered cohort members employed or actively seeking and available for work",
+          "unit": "persons",
+          "dimensions": "person_count",
+          "context": "Same date, geographic area and explicitly declared age/civilian/institutional cohort; employed/unemployed are mutually exclusive and use one statistical definition",
+          "domain": "Nonnegative finite survey count/estimate"
+        },
+        {
+          "symbol": "population",
+          "source_symbol": "Total population of working age",
+          "role": "input",
+          "quantity_id": "working_age_population",
+          "definition": "Positive total population in the explicitly declared working-age/civilian/noninstitutional cohort",
+          "unit": "persons",
+          "dimensions": "person_count",
+          "context": "Same date, geographic area and explicitly declared age/civilian/institutional cohort; employed/unemployed are mutually exclusive and use one statistical definition",
+          "domain": "Nonnegative finite survey count/estimate"
+        },
+        {
+          "symbol": "p",
+          "source_symbol": "Participation rate/activity ratio",
+          "role": "output",
+          "quantity_id": "labor_force_participation_rate",
+          "definition": "Share of covered population in the labor force",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite fraction in[0,1]"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "population > 0",
+        "LF >= 0",
+        "LF <= population"
+      ],
+      "assumptions": [
+        "Source assumption: labor force is a subset of the declared population cohort.",
+        "Application profile: fix the cohort before binding; CFA illustration says ages16-64 while US BLS uses civilian noninstitutional people16and over with no upper age limit."
+      ],
+      "limitations": [
+        "The cohort discrepancy does not change ratio arithmetic but prevents direct unqualified comparison of series.",
+        "Retirees and students are not categorically excluded if they meet the chosen employment/seeking-work definition."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Unemployment, printed p243 (PDF p255), participation-rate definition; LM3 printed p178/PDF190 Exhibit28",
+          "evidence": "Participation compares labor-force members with the full population in a defined working-age cohort.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bls-labor-force",
+          "kind": "primary",
+          "title": "How the Government Measures Unemployment",
+          "url": "https://www.bls.gov/cps/cps_htgm.htm",
+          "version": "US Bureau of Labor Statistics, live CPS explanation",
+          "accessed": "2026-11-03",
+          "locator": "What are the unemployment rate, labor force participation rate, and employment-population ratio?",
+          "evidence": "The section defines labor force as employed plus unemployed, unemployment as a share of that force, and participation as labor force divided by the covered population.",
+          "license": "Government source; exact reuse terms unknown; equation definitions paraphrased only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "three-fifths",
+          "inputs": {
+            "LF": 60,
+            "population": 100
+          },
+          "expected": 0.6,
+          "tolerance": 1e-09,
+          "method": "Sixty force participants among100 covered people represent three fifths.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "no-participation",
+          "inputs": {
+            "LF": 0,
+            "population": 80
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "No employed or active job-seeking people among80 covered residents gives zero participation.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "population": 100
+          },
+          "reason": "LF is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "LF=p*population. population=LF/p requiresp>0 and consistent subset coverage. First case .6*100 recoversLF60 and substitutes.6. Atp0,LF0 any positive population fits.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--signed-real-output-gap",
+      "revision": "r2",
+      "title": "Signed level gap between actual and potential real output",
+      "summary": "Citation correction: IMF page could not be fetched; replaced with directly inspected central-bank definition. The cycle discussion measures actual output relative to potential, with negative recessionary gaps and positive above-potential gaps.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "gap",
+        "expression": "actual - potential",
+        "original_equation": "Output gap = actualGDP - potentialGDP",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module3, Recessionary Gap and Inflationary Gap, printed pp164,167 (PDF pp176,179), Exhibits22,24; LM4 printed pp206-209/PDF218-221 Exhibits3-5",
+        "translation_notes": "Currency subtraction preserves reference-output units. Normalized gap=(actual-potential)/potential and log-gap variants require explicit convention choice; no such variant is silently substituted for the defined level gap. Revisionr2 preserves the equation and cases, replacing the inaccessible IMF corroboration with the directly inspected Banco de la Republica glossary."
+      },
+      "variables": [
+        {
+          "symbol": "actual",
+          "source_symbol": "actualGDP",
+          "role": "input",
+          "quantity_id": "actual_real_output",
+          "definition": "Observed actual realGDP at the specified date/period",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite real output"
+        },
+        {
+          "symbol": "potential",
+          "source_symbol": "potentialGDP",
+          "role": "input",
+          "quantity_id": "potential_real_output",
+          "definition": "Externally estimated potentialGDP on the same reference-price basis",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite potential output"
+        },
+        {
+          "symbol": "gap",
+          "source_symbol": "gap between actualGDP andtrendGDP",
+          "role": "output",
+          "quantity_id": "signed_real_output_level_gap",
+          "definition": "Actual minus potential output in reference-currency units",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "actual >= 0",
+        "potential > 0"
+      ],
+      "assumptions": [
+        "Source assumption: actual and potential quantities share output coverage and reference prices.",
+        "Source assumption: potential output is independently estimated and not directly observed."
+      ],
+      "limitations": [
+        "Absolute currency gap is not a percentage gap; relative display uses gap/potential. Potential estimates can be substantially revised."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Recessionary Gap and Inflationary Gap, printed pp164,167 (PDF pp176,179), Exhibits22,24; LM4 printed pp206-209/PDF218-221 Exhibits3-5",
+          "evidence": "The cycle discussion measures actual output relative to potential, with negative recessionary gaps and positive above-potential gaps.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "banrep-output-gap",
+          "kind": "primary",
+          "title": "Output Gap, central-bank glossary",
+          "url": "https://www.banrep.gov.co/en/glossary/output-gap",
+          "version": "Banco de la Republica, live glossary",
+          "accessed": "2026-11-03",
+          "locator": "OutputGap definition and positive/negative gap paragraphs",
+          "evidence": "Output gap is observedGDP minus estimated potentialGDP; excess actual production has a positive sign.",
+          "license": "Central bank exact page reuse terms unknown; formula facts only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "recessionary-gap",
+          "inputs": {
+            "actual": 90,
+            "potential": 100
+          },
+          "expected": -10,
+          "tolerance": 1e-09,
+          "method": "Actual90 is10 below the potential100.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "above-potential",
+          "inputs": {
+            "actual": 105,
+            "potential": 100
+          },
+          "expected": 5,
+          "tolerance": 1e-09,
+          "method": "Actual105 exceeds potential100 by5.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "potential": 100
+          },
+          "reason": "actual is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "actual=gap+potential; potential=actual-gap must remain positive. First case recovers actual90 via-10+100. The sign alone does not identify either level or cycle phase.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

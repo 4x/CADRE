@@ -1,0 +1,155 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b55",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 Volume 1 relationships with owner-PDF provenance and inspected public corroboration.",
+    "gaps": [
+      "Scientific fidelity and finance/statistics quantity semantics require independent registry review.",
+      "Deduplication is limited to supplied and locally curated inventories."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The PDF is project-derivation with a null URL; public corroboration carries each relationship."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--short-interest-days-to-cover",
+      "revision": "r2",
+      "title": "Short interest days to cover",
+      "summary": "The owner defines short interest ratio as short interest divided by average daily share volume, expressed in days.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "days",
+        "expression": "short / daily_volume",
+        "original_equation": "Days to cover = shares sold short / average shares traded per day",
+        "source_id": "nasdaq-short-interest-report-2021",
+        "locator": "Data Fields and Definitions, Days to Cover, printed p2",
+        "translation_notes": "Shares divided by shares per trading day gives trading-day duration. Both custom units require registry review; no conversion to calendar days is implied."
+      },
+      "variables": [
+        {
+          "symbol": "short",
+          "source_symbol": "short interest shares",
+          "role": "input",
+          "quantity_id": "short_interest_share_count",
+          "definition": "Number of reported shares held short for the security as of the selected reporting date",
+          "unit": "share",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "daily_volume",
+          "source_symbol": "average daily share volume",
+          "role": "input",
+          "quantity_id": "average_daily_share_trading_volume",
+          "definition": "Average shares traded per trading day over the stated measurement window",
+          "unit": "share_per_trading_day",
+          "dimensions": "count/time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "days",
+          "source_symbol": "days to cover",
+          "role": "output",
+          "quantity_id": "short_interest_days_to_cover",
+          "definition": "Unrounded short interest divided by average daily trading volume",
+          "unit": "trading_day",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "short >= 0",
+        "daily_volume > 0"
+      ],
+      "assumptions": [
+        "Short shares and trading volume refer to the same security and use consistent split adjustments.",
+        "Average daily share volume is positive and its measurement window and trading-day convention are disclosed."
+      ],
+      "limitations": [
+        "This is an approximation using recent average total volume, not a prediction of how quickly short positions can actually be closed.",
+        "Nasdaq’s cited report rounds to hundredths and displays a one-day floor for ratios at or below one; this model returns the unrounded mathematical ratio.",
+        "Short-interest data are periodic and can be stale; the result does not imply every trade is available for covering."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Quantitative Methods Learning Module 7, Practice Problems, printed p480 (PDF p490), questions 18–26 introduction",
+          "evidence": "The owner defines short interest ratio as short interest divided by average daily share volume, expressed in days.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nasdaq-short-interest-report-2021",
+          "kind": "primary",
+          "title": "Nasdaq Short Interest Report",
+          "url": "https://www.nasdaq.com/docs/2021/03/01/0529-Q21_Short%20Interest%20Fact%20Sheet_II.pdf",
+          "version": "Nasdaq, Short Interest fact sheet, 2021",
+          "accessed": "2026-11-04",
+          "locator": "Data Fields and Definitions, Days to Cover, printed p2",
+          "evidence": "Nasdaq defines days to cover as short interest divided by average daily share volume, while its report applies rounding and a one-day display floor.",
+          "license": "Nasdaq copyright 2021; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "four-days",
+          "inputs": {
+            "short": 2000000,
+            "daily_volume": 500000
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "Two million short shares divided by 500,000 shares per trading day gives four trading days.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "half-day",
+          "inputs": {
+            "short": 50000,
+            "daily_volume": 100000
+          },
+          "expected": 0.5,
+          "tolerance": 1e-09,
+          "method": "Fifty thousand short shares over 100,000 per trading day gives 0.5 trading day before provider-specific display adjustments.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "daily_volume": 500000
+          },
+          "reason": "short is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "short=days*daily_volume.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

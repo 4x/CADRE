@@ -1,0 +1,155 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b95",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations. All records use inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; public corroboration carries the relationship when available, and documented owner-only fallbacks remain blocked for review. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--doubtful-accounts-allowance-fraction-from-net-receivables",
+      "revision": "r1",
+      "title": "Allowance for doubtful accounts as a fraction of gross receivables",
+      "summary": "The owner reconstructs gross receivables by adding the allowance to net receivables, then divides the allowance by that gross amount.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "fraction",
+        "expression": "allowance / (net + allowance)",
+        "original_equation": "Allowance fraction = allowance / (net receivables + allowance)",
+        "source_id": "hershey-2008-allowance-to-gross-receivables",
+        "locator": "Management discussion and analysis, accrued liabilities and allowance for doubtful accounts, printed p40",
+        "translation_notes": "Both inputs are same-date monetary balances; the output is dimensionless and equals the displayed percentage divided by 100."
+      },
+      "variables": [
+        {
+          "symbol": "allowance",
+          "source_symbol": "allowance for doubtful accounts",
+          "role": "input",
+          "quantity_id": "allowance_for_doubtful_accounts",
+          "definition": "Positive contra-asset balance deducted from gross receivables",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "net",
+          "source_symbol": "net accounts receivable",
+          "role": "input",
+          "quantity_id": "net_accounts_receivable",
+          "definition": "Reported receivables after the same allowance and before any other unmodeled offsets",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fraction",
+          "source_symbol": "allowance share of gross receivables",
+          "role": "output",
+          "quantity_id": "doubtful_accounts_allowance_to_gross_receivables",
+          "definition": "Allowance divided by reconstructed gross accounts receivable",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "allowance >= 0",
+        "net >= 0",
+        "net + allowance > 0"
+      ],
+      "assumptions": [
+        "Allowance is the nonnegative positive magnitude of the same contra-asset deduction from the net receivables figure.",
+        "The net amount does not contain additional offsets that would prevent gross reconstruction, and both inputs use the same reporting date, currency and entity."
+      ],
+      "limitations": [
+        "A reported allowance is an estimate and need not equal realized credit losses.",
+        "If other valuation offsets are included in net receivables, add back the correct offsets separately before calculating the fraction."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Current Assets: Trade Receivables, printed pp71–72 (PDF pp85–86), Example 1 solution 1",
+          "evidence": "The owner reconstructs gross receivables by adding the allowance to net receivables, then divides the allowance by that gross amount.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "hershey-2008-allowance-to-gross-receivables",
+          "kind": "primary",
+          "title": "The Hershey Company 2008 Annual Report",
+          "url": "https://www.sec.gov/Archives/edgar/vprr/0903/09037368.pdf",
+          "version": "The Hershey Company, 2008 annual report filed 2009",
+          "accessed": "2026-11-04",
+          "locator": "Management discussion and analysis, accrued liabilities and allowance for doubtful accounts, printed p40",
+          "evidence": "The issuer reports its allowance for doubtful accounts as a percentage of gross accounts receivable and discusses its estimation uncertainty.",
+          "license": "Issuer SEC filing; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "apple",
+          "inputs": {
+            "allowance": 58,
+            "net": 17874
+          },
+          "expected": 0.003234441222395717,
+          "tolerance": 1e-09,
+          "method": "58 divided by the reconstructed gross balance of 17,932 is approximately 0.00323444.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "simple",
+          "inputs": {
+            "allowance": 10,
+            "net": 90
+          },
+          "expected": 0.1,
+          "tolerance": 1e-09,
+          "method": "A 10 allowance and 90 net receivables imply 100 gross receivables and a 0.1 allowance fraction.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "net": 17874
+          },
+          "reason": "allowance is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "allowance=fraction*net/(1-fraction) for fraction below one; gross=net+allowance.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,413 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b34",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--degree-of-operating-leverage",
+      "revision": "r1",
+      "title": "Degree of operating leverage",
+      "summary": "Operating leverage is contribution divided by EBIT.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "degree",
+        "expression": "contribution / ebit",
+        "original_equation": "Operating leverage = contribution / EBIT",
+        "source_id": "openstax-managerial-3-5",
+        "locator": "Section 3.5, operating leverage formula and example",
+        "translation_notes": "The ratio is dimensionless; numerator and denominator share a currency and period."
+      },
+      "variables": [
+        {
+          "symbol": "contribution",
+          "source_symbol": "total contribution margin",
+          "role": "input",
+          "quantity_id": "total_contribution_margin",
+          "definition": "total contribution margin",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ebit",
+          "source_symbol": "operating profit before interest and taxes",
+          "role": "input",
+          "quantity_id": "earnings_before_interest_and_taxes",
+          "definition": "operating profit before interest and taxes",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "degree",
+          "source_symbol": "degree of operating leverage",
+          "role": "output",
+          "quantity_id": "degree_operating_leverage",
+          "definition": "degree of operating leverage",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "ebit ** 2 > 0"
+      ],
+      "assumptions": [
+        "Contribution and EBIT refer to the same activity level and period.",
+        "For the elasticity interpretation, unit economics and fixed costs stay constant over the comparison."
+      ],
+      "limitations": [
+        "At zero EBIT this ratio is undefined; a loss can give a negative algebraic ratio that requires careful interpretation.",
+        "Financial leverage based on EBIT/EBT is a distinct concept."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 3, Financial Risk, printed p718 (PDF p732), equation 2",
+          "evidence": "Operating leverage is contribution divided by EBIT.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-managerial-3-5",
+          "kind": "primary",
+          "title": "Principles of Accounting, Volume 2: Managerial Accounting",
+          "url": "https://openstax.org/books/principles-managerial-accounting/pages/3-5-calculate-and-interpret-a-companys-margin-of-safety-and-operating-leverage",
+          "version": "Rice University, 2019",
+          "accessed": "2026-11-03",
+          "locator": "Section 3.5, operating leverage formula and example",
+          "evidence": "Operating leverage equals contribution margin divided by net operating income.",
+          "license": "OpenStax page displays CC BY-NC-SA and additional usage terms; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "company-a",
+          "inputs": {
+            "contribution": 148000,
+            "ebit": 85000
+          },
+          "expected": 1.7411764705882353,
+          "tolerance": 1e-09,
+          "method": "The 148,000 contribution divided by 85,000 operating income is approximately 1.74.",
+          "provenance": "OpenStax section 3.5 company A."
+        },
+        {
+          "id": "two",
+          "inputs": {
+            "contribution": 200,
+            "ebit": 100
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "Contribution of 200 divided by operating profit of 100 gives 2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "ebit": 85000
+          },
+          "reason": "contribution is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "contribution=degree*ebit; ebit=contribution/degree when degree is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--degree-of-financial-leverage-ebit-ebt",
+      "revision": "r1",
+      "title": "Degree of financial leverage from EBIT and EBT",
+      "summary": "Financial leverage is EBIT divided by EBT.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "degree",
+        "expression": "ebit / ebt",
+        "original_equation": "Financial leverage = EBIT / EBT",
+        "source_id": "tnou-financial-management",
+        "locator": "Unit 10, sections 10.7 and 10.10, printed pp114–117",
+        "translation_notes": "The ratio is dimensionless; both earnings figures share currency and period."
+      },
+      "variables": [
+        {
+          "symbol": "ebit",
+          "source_symbol": "earnings before interest and tax",
+          "role": "input",
+          "quantity_id": "earnings_before_interest_and_taxes",
+          "definition": "earnings before interest and tax",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ebt",
+          "source_symbol": "earnings before tax",
+          "role": "input",
+          "quantity_id": "earnings_before_tax",
+          "definition": "earnings before tax",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "degree",
+          "source_symbol": "degree of financial leverage",
+          "role": "output",
+          "quantity_id": "degree_financial_leverage",
+          "definition": "degree of financial leverage",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "ebt ** 2 > 0"
+      ],
+      "assumptions": [
+        "EBIT and EBT are for the same entity and period.",
+        "The sensitivity interpretation assumes fixed financing charges and a stable tax and share structure."
+      ],
+      "limitations": [
+        "Zero EBT is undefined; negative or nonstandard earnings require interpretation.",
+        "This income-based sensitivity differs from assets/equity balance-sheet leverage."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 3, Financial Risk, printed p718 (PDF p732), equation 3",
+          "evidence": "Financial leverage is EBIT divided by EBT.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "tnou-financial-management",
+          "kind": "primary",
+          "title": "Financial Management, MCOS-21",
+          "url": "https://tnou.ac.in/NAAC/SSR/C1/1.1.5/MCOS-21.pdf",
+          "version": "Tamil Nadu Open University; publication year not established",
+          "accessed": "2026-11-03",
+          "locator": "Unit 10, sections 10.7 and 10.10, printed pp114–117",
+          "evidence": "Financial leverage is EBIT divided by EBT, and combined leverage is operating leverage times financial leverage.",
+          "license": "University-hosted educational text; copyright permissions not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "financed",
+          "inputs": {
+            "ebit": 120,
+            "ebt": 80
+          },
+          "expected": 1.5,
+          "tolerance": 1e-09,
+          "method": "120 EBIT divided by 80 EBT gives 1.5.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "unlevered",
+          "inputs": {
+            "ebit": 100,
+            "ebt": 100
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "Equal EBIT and EBT give 1.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "ebt": 80
+          },
+          "reason": "ebit is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ebit=degree*ebt; ebt=ebit/degree when degree is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--degree-of-combined-leverage",
+      "revision": "r1",
+      "title": "Combined operating and financial leverage",
+      "summary": "The reading expresses total leverage as operating leverage multiplied by financial leverage.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "combined",
+        "expression": "operating * financial",
+        "original_equation": "Total leverage = operating leverage × financial leverage",
+        "source_id": "tnou-financial-management",
+        "locator": "Unit 10, sections 10.7 and 10.10, printed pp114–117",
+        "translation_notes": "All leverage measures are dimensionless."
+      },
+      "variables": [
+        {
+          "symbol": "operating",
+          "source_symbol": "degree of operating leverage",
+          "role": "input",
+          "quantity_id": "degree_operating_leverage",
+          "definition": "degree of operating leverage",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "financial",
+          "source_symbol": "degree of financial leverage",
+          "role": "input",
+          "quantity_id": "degree_financial_leverage",
+          "definition": "degree of financial leverage",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "combined",
+          "source_symbol": "degree of combined leverage",
+          "role": "output",
+          "quantity_id": "degree_combined_leverage",
+          "definition": "degree of combined leverage",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Both measures refer to the same firm, period and activity level.",
+        "The component degrees are defined and share the same EBIT basis."
+      ],
+      "limitations": [
+        "Near zero EBIT or EBT the underlying ratios may be unstable or undefined.",
+        "The sensitivity interpretation assumes the component leverage assumptions hold."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 3, Financial Risk, printed p718 (PDF p732), equation 1",
+          "evidence": "The reading expresses total leverage as operating leverage multiplied by financial leverage.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "tnou-financial-management",
+          "kind": "primary",
+          "title": "Financial Management, MCOS-21",
+          "url": "https://tnou.ac.in/NAAC/SSR/C1/1.1.5/MCOS-21.pdf",
+          "version": "Tamil Nadu Open University; publication year not established",
+          "accessed": "2026-11-03",
+          "locator": "Unit 10, sections 10.7 and 10.10, printed pp114–117",
+          "evidence": "Financial leverage is EBIT divided by EBT, and combined leverage is operating leverage times financial leverage.",
+          "license": "University-hosted educational text; copyright permissions not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "leveraged",
+          "inputs": {
+            "operating": 2,
+            "financial": 1.5
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "Operating leverage 2 times financial leverage 1.5 gives combined leverage 3.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "unlevered",
+          "inputs": {
+            "operating": 1,
+            "financial": 1
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "Both degrees equal to one give combined leverage one.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "financial": 1.5
+          },
+          "reason": "operating is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Either factor can be recovered by dividing by the other when the divisor is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

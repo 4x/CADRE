@@ -1,0 +1,167 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b69",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. This extends the earlier accrued-expense-only reconciliation by explicitly accounting for prepaid expense movements."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--cash-paid-operating-expenses-prepaid-and-accrued",
+      "revision": "r1",
+      "title": "Cash paid for operating expenses with prepaid and accrued changes",
+      "summary": "Cash paid equals operating expense plus the increase in prepaid expenses less the increase in accrued liabilities.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "paid",
+        "expression": "expense + prepaid - accrued",
+        "original_equation": "Cash paid = operating expense + change in prepaids - change in accrued liabilities",
+        "source_id": "analystprep-cash-operating-expenses",
+        "locator": "Direct method, cash paid for other operating expenses",
+        "translation_notes": "Changes in prepaid assets and accrued liabilities are signed; expense and paid amounts are expressed in one currency."
+      },
+      "variables": [
+        {
+          "symbol": "expense",
+          "source_symbol": "operating expense",
+          "role": "input",
+          "quantity_id": "other_operating_expense",
+          "definition": "operating expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "prepaid",
+          "source_symbol": "change in prepaid operating expenses",
+          "role": "input",
+          "quantity_id": "change_in_prepaid_operating_expenses",
+          "definition": "change in prepaid operating expenses",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "accrued",
+          "source_symbol": "change in accrued operating liabilities",
+          "role": "input",
+          "quantity_id": "change_in_accrued_operating_expenses",
+          "definition": "change in accrued operating liabilities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "paid",
+          "source_symbol": "cash paid for operating expenses",
+          "role": "output",
+          "quantity_id": "cash_paid_other_operating_expenses",
+          "definition": "cash paid for operating expenses",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "expense >= 0"
+      ],
+      "assumptions": [
+        "Both balance changes are ending less beginning and match the expenses and reporting period.",
+        "No noncash expense, acquisition, currency translation or other unmodeled account movement is included."
+      ],
+      "limitations": [
+        "The generic accrued-expense-only model is the special case of zero prepaid change.",
+        "Taxes, interest and lease cash-flow classification depend on the applicable reporting framework."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Preparing the Cash Flow Statement: Direct Method, printed p144 (PDF p158), Example 5 and unnumbered Acme calculation",
+          "evidence": "Cash paid equals operating expense plus the increase in prepaid expenses less the increase in accrued liabilities.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-cash-operating-expenses",
+          "kind": "primary",
+          "title": "Understanding Cash Flow Statements lecture notes",
+          "url": "https://s3.amazonaws.com/app.analystprep.com/videos/cfa-level-1/Reading_19_-_Understanding_Cash_Flow_Statements-1649876835265.pdf",
+          "version": "AnalystPrep, publisher-hosted lecture notes; publication year not established",
+          "accessed": "2026-11-04",
+          "locator": "Direct method, cash paid for other operating expenses",
+          "evidence": "The notes adjust operating expense for changes in prepaid expenses and accrued expenses.",
+          "license": "AnalystPrep copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "black-ice",
+          "inputs": {
+            "expense": 30,
+            "prepaid": 4,
+            "accrued": -7
+          },
+          "expected": 41,
+          "tolerance": 1e-09,
+          "method": "30 expense plus a 4 increase in prepaid costs and 7 decrease in accruals gives 41.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "acme",
+          "inputs": {
+            "expense": 3577,
+            "prepaid": -23,
+            "accrued": 22
+          },
+          "expected": 3532,
+          "tolerance": 1e-09,
+          "method": "3,577 expense less 23 decrease in prepaids and 22 increase in accruals gives 3,532.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "prepaid": 4,
+            "accrued": -7
+          },
+          "reason": "expense is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "expense=paid-prepaid+accrued; either change can be recovered given the other terms.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

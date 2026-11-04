@@ -1,0 +1,725 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b13",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [
+    {
+      "title": "Normal/lognormal CDFs, quantiles and shortfall risk probabilities",
+      "reason": "LM4 printed pp258-265/PDF268-275 usesnormalCDFPhiandinversePhi;shortfall probabilityPhi(-SFRatio)and normalVaRquantiles require those unavailable operators. Density,standardization andSFRare curated without substituting an approximation.",
+      "source_urls": []
+    },
+    {
+      "title": "Normality of arbitrary sums requires joint normality or independence",
+      "reason": "LM4 printed p255/PDF265 says a linear combination of normal variables is normal without qualifying joint normality; printed p256/PDF266 correctly discusses jointly normal returns. Preserve the stronger required joint condition in any derived distribution claim.",
+      "source_urls": []
+    }
+  ],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "5 atomic relationships from the assigned CFA Quantitative Methods volume, with exact PDF locators and inspected corroboration.",
+    "gaps": [
+      "Most financial/statistical quantity meanings require registry extension.",
+      "Duplicate checking is limited to the supplied catalog/vocabulary, assignment exclusions and this curator's public records; no global uniqueness claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: official validator rejects primary source url:null, which the CFA source brief explicitly requires for the purchased PDF. Toolkit left unchanged. Independent schema, expression/reference arithmetic, guard and rejection checks pass; ZIP checksum/membership checked. No passing official validation or intake-ready return claimed. Source fidelity, dimensions, contexts and inverse notes manually reviewed. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--normal-probability-density",
+      "revision": "r1",
+      "title": "Normal probability density",
+      "summary": "The normal density is a normalized Gaussian exponential with locationmuand positive scalesigma.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "density",
+        "expression": "exp(-((x - mu) / sigma) ** 2 / 2) / (sigma * sqrt(2 * pi))",
+        "original_equation": "f(x)=exp[-(x-mu)^2/(2sigma^2)]/[sigma*sqrt(2pi)]",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module4, The Normal Distribution, printed p256 (PDF p266), Equation(3)",
+        "translation_notes": "Standardizing before squaring makes the exp argument dimensionless. Density then hasU^-1. The expression names registry constantpi rather than inlining it. Arithmetic2 factors come from the stated Gaussian normalization. No registryconstant is duplicated in constants metadata."
+      },
+      "variables": [
+        {
+          "symbol": "x",
+          "source_symbol": "x",
+          "role": "input",
+          "quantity_id": "random_variable_threshold",
+          "definition": "Point at which the normal density is evaluated",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "mu",
+          "source_symbol": "mu",
+          "role": "input",
+          "quantity_id": "population_mean",
+          "definition": "Normal location parameter",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "sigma",
+          "source_symbol": "sigma",
+          "role": "input",
+          "quantity_id": "population_standard_deviation",
+          "definition": "Strictly positive normal scale parameter",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "density",
+          "source_symbol": "f(x)",
+          "role": "output",
+          "quantity_id": "probability_density",
+          "definition": "Normal probability density, distinct from point probability",
+          "unit": "1/data-unit",
+          "dimensions": "U^-1",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Positive"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sigma > 0"
+      ],
+      "assumptions": [
+        "Source assumption: a normal law withfinite meanand strictly positive scale."
+      ],
+      "limitations": [
+        "A density value is not the probability of one exact continuous outcome; normal CDF evaluation requires an unavailable operator."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, The Normal Distribution, printed p256 (PDF p266), Equation(3)",
+          "evidence": "The normal density is a normalized Gaussian exponential with locationmuand positive scalesigma.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-normal",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda3661.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.6.6.1, Normal Distribution, general PDF",
+          "evidence": "Normal density normalizes the Gaussian exponential by sigma times the square root of2pi.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "normal-center-cdf-derivative",
+          "inputs": {
+            "x": 0,
+            "mu": 0,
+            "sigma": 1
+          },
+          "expected": 0.39894227973611507,
+          "tolerance": 1e-08,
+          "method": "Independent central difference of Python statistics.NormalDist.cdf usingh=.0001. CDF uses an erf route rather than this PDF expression; finite-difference truncation/roundoff is below1e-8.",
+          "provenance": "Executed2026-11-03 via uv run --no-env-file; cdf(h)-cdf(-h) over2h."
+        },
+        {
+          "id": "one-scale-cdf-derivative",
+          "inputs": {
+            "x": 1,
+            "mu": 0,
+            "sigma": 1
+          },
+          "expected": 0.24197072451981372,
+          "tolerance": 1e-08,
+          "method": "Independent CDF central difference at1 withh=.0001;1e-8 tolerance covers bounded derivative truncation and floating roundoff.",
+          "provenance": "Executed2026-11-03 via uv run --no-env-file using statistics.NormalDist.cdf."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "mu": 0,
+            "sigma": 1
+          },
+          "reason": "x is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "At fixedmu,sigma, a density below the peak generally has two symmetricxvalues:mu +/-sigma*sqrt(-2*log(density*sigma*sqrt(2*pi))). The peak hasx=mu. For density atx1, the mirrorx-1 reproduces the same value; no unique location inverse is claimed.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--standardized-score",
+      "revision": "r1",
+      "title": "Standardized deviation or z-score",
+      "summary": "Standardization subtracts the variable mean and divides by its positive standard deviation.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "z",
+        "expression": "(x - mu) / sigma",
+        "original_equation": "Z=(X-mu)/sigma",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module4, Standardizing a Random Variable, printed p260 (PDF p270), Equation(4)",
+        "translation_notes": "(U-U)/U cancels to a dimensionless score. No normal CDF or inverse-CDF approximation is embedded."
+      },
+      "variables": [
+        {
+          "symbol": "x",
+          "source_symbol": "X",
+          "role": "input",
+          "quantity_id": "numerical_observation",
+          "definition": "Value to standardize",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "mu",
+          "source_symbol": "mu",
+          "role": "input",
+          "quantity_id": "population_mean",
+          "definition": "Center of the same random variable",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "sigma",
+          "source_symbol": "sigma",
+          "role": "input",
+          "quantity_id": "population_standard_deviation",
+          "definition": "Positive scale of the same variable",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "z",
+          "source_symbol": "Z",
+          "role": "output",
+          "quantity_id": "standardized_score",
+          "definition": "Signed number of standard deviations from the mean",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sigma > 0"
+      ],
+      "assumptions": [
+        "Source assumption: observation, mean and standard deviation share units and support.",
+        "Normality is needed to interpretZas a standard normal random variable, but not to define the standardized score itself."
+      ],
+      "limitations": [
+        "Replacing population moments with estimated sample moments changes the sampling distribution; the score alone is not a probability."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Standardizing a Random Variable, printed p260 (PDF p270), Equation(4)",
+          "evidence": "Standardization subtracts the variable mean and divides by its positive standard deviation.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "scipy-zscore",
+          "kind": "primary",
+          "title": "SciPy zscore documentation",
+          "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.zscore.html",
+          "version": "SciPyv1.18.0 manual as served2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "scipy.stats.zscore, standardized score definition",
+          "evidence": "A z-score expresses observation distance from the mean in units of standard deviation.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-three-standard-deviations",
+          "inputs": {
+            "x": 9.5,
+            "mu": 5,
+            "sigma": 1.5
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "Published standardized value3;9.5 is4.5 above5, corresponding to three1.5-unit deviations.",
+          "provenance": "CFA printed p260/PDF270."
+        },
+        {
+          "id": "below-mean",
+          "inputs": {
+            "x": -2,
+            "mu": 1,
+            "sigma": 3
+          },
+          "expected": -1,
+          "tolerance": 1e-09,
+          "method": "The value is one complete standard deviation below the center.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "mu": 5,
+            "sigma": 1.5
+          },
+          "reason": "x is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "x=mu+sigma*z; mu=x-sigma*z. sigma=(x-mu)/z requiresznonzero and a positive result. Firstcase5+1.5*3=9.5. Whenz0andx=mu, scale is not identified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--roy-safety-first-ratio",
+      "revision": "r1",
+      "title": "Roy safety-first ratio for a specified return threshold",
+      "summary": "The safety-first ratio measures the expected return above a specified threshold relative to return standard deviation.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "(mean - threshold) / sigma",
+        "original_equation": "SFRatio=[E(Rp)-R_L]/sigma_P",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module4, Applications of the Normal Distribution, printed p264 (PDF p274), Equation(5)",
+        "translation_notes": "Decimal return differences divided by matching decimal-return standard deviation are dimensionless. It equals the negative standardized threshold; its named economic meaning and threshold port distinguish the source risk statistic. Sharpe ratio is the qualified risk-free-threshold case, not an added clone."
+      },
+      "variables": [
+        {
+          "symbol": "mean",
+          "source_symbol": "E(Rp)",
+          "role": "input",
+          "quantity_id": "expected_periodic_return",
+          "definition": "Expected portfolio return over the declared horizon",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same portfolio,return horizon,currency and nominal/real basis",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "threshold",
+          "source_symbol": "R_L",
+          "role": "input",
+          "quantity_id": "minimum_return_threshold",
+          "definition": "Specified shortfall threshold for that same horizon",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same portfolio,return horizon,currency and nominal/real basis",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "sigma",
+          "source_symbol": "sigma_P",
+          "role": "input",
+          "quantity_id": "portfolio_return_standard_deviation",
+          "definition": "Strictly positive standard deviation of the portfolio return",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same portfolio,return horizon,currency and nominal/real basis",
+          "domain": "Positive"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "SFRatio",
+          "role": "output",
+          "quantity_id": "safety_first_ratio",
+          "definition": "Expected-return surplus above threshold in portfolio standard-deviation units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same portfolio,return horizon,currency and nominal/real basis",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sigma > 0"
+      ],
+      "assumptions": [
+        "Source assumption: horizon and return basis match across all threeinputs.",
+        "Normality is required for the specific shortfall probability identityPhi(-ratio); it is not required for the ratio arithmetic."
+      ],
+      "limitations": [
+        "The ratio is not a probability and no portfolio selection or investment recommendation is returned.",
+        "Shortfall probability needs a normalCDFoperator, deferred separately."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Applications of the Normal Distribution, printed p264 (PDF p274), Equation(5)",
+          "evidence": "The safety-first ratio measures the expected return above a specified threshold relative to return standard deviation.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "wso-safety",
+          "kind": "primary",
+          "title": "Roy Safety-first Criterion: Overview, Formula, Example",
+          "url": "https://www.wallstreetoasis.com/resources/skills/trading-investing/roys-safety-first-criterion",
+          "version": "WallStreetOasis authored educational page, updated2025-01-31",
+          "accessed": "2026-11-03",
+          "locator": "Formula for Roy Safety-first Criterion, displayed SF Ratio equation",
+          "evidence": "The safety-first ratio subtracts threshold return from expected return and divides by portfolio standard deviation.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-second-portfolio",
+          "inputs": {
+            "mean": 0.14,
+            "threshold": 0.02,
+            "sigma": 0.16
+          },
+          "expected": 0.75,
+          "tolerance": 1e-09,
+          "method": "Published ratio.75.",
+          "provenance": "CFA printed p264/PDF274."
+        },
+        {
+          "id": "mean-below-threshold",
+          "inputs": {
+            "mean": 0.01,
+            "threshold": 0.03,
+            "sigma": 0.1
+          },
+          "expected": -0.2,
+          "tolerance": 1e-09,
+          "method": "A2-percentage-point shortfall of the mean is one-fifth of10-percentage-point volatility, with negative sign.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "threshold": 0.02,
+            "sigma": 0.16
+          },
+          "reason": "mean is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "mean=threshold+ratio*sigma;threshold=mean-ratio*sigma. sigma=(mean-threshold)/ratio requiresrationonzero and positive result. Firstcase.02+.75*.16=.14. Atmean=threshold,ratio0cannot identify volatility.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--lognormal-mean-from-log-moments",
+      "revision": "r1",
+      "title": "Mean of an exponential normal variable",
+      "summary": "Exponentiating a normal variable gives a lognormal mean that includes half the log variance in the exponent.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "mean",
+        "expression": "exp(mu + variance / 2)",
+        "original_equation": "mu_L=exp(mu+0.50sigma^2)",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module4, The Lognormal Distribution, printed p268 (PDF p278), unnumbered mean formula",
+        "translation_notes": "NIST unit-scale meanexp(sigma^2/2) multiplied by scaleexp(mu) gives this exact parameterization. All exponent arguments and outputs are dimensionless. The divisor2is an arithmetic theoretical factor."
+      },
+      "variables": [
+        {
+          "symbol": "mu",
+          "source_symbol": "mu",
+          "role": "input",
+          "quantity_id": "normal_log_mean",
+          "definition": "Mean of dimensionless normalX=log(Y)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "variance",
+          "source_symbol": "sigma^2",
+          "role": "input",
+          "quantity_id": "normal_log_variance",
+          "definition": "Variance of normalX=log(Y)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Nonnegative"
+        },
+        {
+          "symbol": "mean",
+          "source_symbol": "mu_L",
+          "role": "output",
+          "quantity_id": "lognormal_mean",
+          "definition": "Expected value of dimensionlessY=exp(X)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Positive"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "variance >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: Xis normal andY=exp(X);the logarithm is of a dimensionless variable or explicitly normalized quantity.",
+        "Application boundary:variance0is the continuous degenerate limit, included for a constantY."
+      ],
+      "limitations": [
+        "For asset prices S=S0*Y,a separately declared price scaleS0is needed; the formula does not take the log of dimensional currency."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, The Lognormal Distribution, printed p268 (PDF p278), unnumbered mean formula",
+          "evidence": "Exponentiating a normal variable gives a lognormal mean that includes half the log variance in the exponent.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-lognormal",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda3669.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.6.6.9, scale parameterization and Common Statistics",
+          "evidence": "For unit lognormal scale the mean is exp(sigma-squared/2) and variance is exp(sigma-squared) times its excess above1; scale changes multiply moments appropriately.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "unit-lognormal-mgf",
+          "inputs": {
+            "mu": 0,
+            "variance": 0.6931471805599453
+          },
+          "expected": 1.4142135623730951,
+          "tolerance": 1e-09,
+          "method": "Independent normal moment-generating function at1 givesE(expX)=sqrt2 whenVarX=log2; exact radical supplies the oracle.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "constant-limit",
+          "inputs": {
+            "mu": 0.6931471805599453,
+            "variance": 0
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "At zero log varianceXis constantlog2, soYis constantly2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "variance": 0.6931471805599453
+          },
+          "reason": "mu is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "mu=log(mean)-variance/2 withmean>0;variance=2*(log(mean)-mu) must be nonnegative. Mean2,variance0recoversmulog2. A mean alone cannot determine both log parameters.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--lognormal-variance-from-log-moments",
+      "revision": "r1",
+      "title": "Variance of an exponential normal variable",
+      "summary": "Lognormal variance depends on the mean and variance of the associated normal logarithm.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "V",
+        "expression": "exp(2 * mu + variance) * (exp(variance) - 1)",
+        "original_equation": "sigma_L^2=exp(2mu+sigma^2)*[exp(sigma^2)-1]",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module4, The Lognormal Distribution, printed p269 (PDF p279), unnumbered variance formula",
+        "translation_notes": "NIST scale1variance isexp(v)*(exp(v)-1);multiplication by scaleexp(mu)^2 gives the stated expression. Output and exponent arguments are dimensionless. Arithmetic2and1are source algebraic factors, not fitted coefficients."
+      },
+      "variables": [
+        {
+          "symbol": "mu",
+          "source_symbol": "mu",
+          "role": "input",
+          "quantity_id": "normal_log_mean",
+          "definition": "Mean of dimensionless normalX=log(Y)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "variance",
+          "source_symbol": "sigma^2",
+          "role": "input",
+          "quantity_id": "normal_log_variance",
+          "definition": "Variance of normalX=log(Y)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Nonnegative"
+        },
+        {
+          "symbol": "V",
+          "source_symbol": "sigma_L^2",
+          "role": "output",
+          "quantity_id": "lognormal_variance",
+          "definition": "Population variance of dimensionlessY=exp(X)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same random variable, population/model moment convention, numerical unit and horizon",
+          "domain": "Nonnegative"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "variance >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: Xnormal,Y=exp(X),and both input parameters refer toXat the same horizon.",
+        "Application boundary:variance0is the constant-distribution limit."
+      ],
+      "limitations": [
+        "This is not exp(VarX) and cannot use the mean/variance ofYas if they were the log parameters."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, The Lognormal Distribution, printed p269 (PDF p279), unnumbered variance formula",
+          "evidence": "Lognormal variance depends on the mean and variance of the associated normal logarithm.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-lognormal",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda3669.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.6.6.9, scale parameterization and Common Statistics",
+          "evidence": "For unit lognormal scale the mean is exp(sigma-squared/2) and variance is exp(sigma-squared) times its excess above1; scale changes multiply moments appropriately.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "moment-difference",
+          "inputs": {
+            "mu": 0,
+            "variance": 0.6931471805599453
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "Independent raw moments via the normal MGF:E(Y^2)=4 andE(Y)^2=2;variance4-2=2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero-log-variance",
+          "inputs": {
+            "mu": 0.6931471805599453,
+            "variance": 0
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "A constant exponential-normal variable has zero population variance.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "variance": 0.6931471805599453
+          },
+          "reason": "mu is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Given meanMofYandV, logvariance=log(1+V/M^2) andlogmean=log(M)-logvariance/2 forM>0,V>=0. WithM=sqrt2,V2this recoversvlog2,mu0. V0andM2givev0,mulog2;withoutM, the two log parameters are underdetermined.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

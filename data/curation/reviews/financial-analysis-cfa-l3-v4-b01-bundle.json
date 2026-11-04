@@ -1,0 +1,715 @@
+{
+ "batch_id": "financial-analysis-cfa-l3-v4-b01",
+ "created": "2026-11-04",
+ "curator": "buffy",
+ "deferred": [],
+ "domain": "financial-analysis",
+ "example_only": false,
+ "handoff": {
+  "summary": "Batch b01 (L3V4): 5 records (covered-call max gain, covered-call breakeven, bull-spread breakeven/max-profit/max-loss) each with PDF locator and directly inspected accessible corroboration.",
+  "gaps": [
+   "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+   "Queue: LM1 calendar/collar/straddle closed forms (need second oracles), put-call parity numerics, LM2 swaps/forwards/futures equations."
+  ],
+  "connections": [],
+  "queries": [],
+  "review_notes": "Validation and packing to be run after writing; verified locators and corroboration pages by direct inspection 2026-11-04."
+ },
+ "kit_version": "2026-10-31.9",
+ "schema_version": "cm-curation-batch/1",
+ "models": [
+  {
+   "id": "financial-analysis--covered-call-max-gain",
+   "revision": "r1",
+   "title": "Covered call maximum gain",
+   "summary": "Maximum gain on a covered call as appreciation to the strike plus the call premium (negative when written in the money).",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "g",
+    "expression": "(x-s)+c",
+    "original_equation": "Maximum gain = (X - S0) + c0",
+    "source_id": "analystprep-covered-call",
+    "locator": "PDF: LM1 covered calls, printed pp. 16-18 (PDF pp. 24-26): Maximum gain = (X-S0)+c0; worked gain 1.16+1.44 = 2.60; in-text Q1 answer (30.00-25.00)+1.55 = 6.55; ITM example -(50-45)+7 = 2; breakeven S0-c0 with 15.84-1.44 = 14.40",
+    "translation_notes": "Decimals. The PDF's ITM example subtracts depreciation, which is the same signed form."
+   },
+   "variables": [
+    {
+     "symbol": "x",
+     "source_symbol": "X",
+     "role": "input",
+     "quantity_id": "call_strike",
+     "definition": "Call exercise (strike) price, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one covered call at inception",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "s",
+     "source_symbol": "S0",
+     "role": "input",
+     "quantity_id": "stock_price_at_inception",
+     "definition": "Stock price when the covered call is opened, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same covered call",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "c",
+     "source_symbol": "c0",
+     "role": "input",
+     "quantity_id": "call_premium_received",
+     "definition": "Call premium received, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same covered call",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "g",
+     "source_symbol": "Maximum gain",
+     "role": "output",
+     "quantity_id": "covered_call_max_gain",
+     "definition": "Maximum gain at expiration, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same covered call",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "European-style exercise at expiration; long stock plus one short call, same expiry."
+   ],
+   "limitations": [
+    "Maximum only; profit below the strike is lower; transaction costs ignored."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-cc-gain-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 covered calls, printed pp. 16-18 (PDF pp. 24-26): Maximum gain = (X-S0)+c0; worked gain 1.16+1.44 = 2.60; in-text Q1 answer (30.00-25.00)+1.55 = 6.55; ITM example -(50-45)+7 = 2; breakeven S0-c0 with 15.84-1.44 = 14.40",
+     "evidence": "Maximum-gain formula with the 6.55 in-text answer and the ITM 2.00 example.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-covered-call",
+     "kind": "primary",
+     "title": "Covered Call Strategy and Payoff Analysis (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/covered-call-position/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Covered-call construction (long stock + short call); payoff table with value of call = Max(0, stock-strike); premium added to position value at expiration.",
+     "evidence": "Page states the same covered-call payoff structure corroborating the maximum-gain and breakeven linear forms.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-max-gain-oracle",
+     "inputs": {
+      "x": 30.0,
+      "s": 25.0,
+      "c": 1.55
+     },
+     "expected": 6.55,
+     "tolerance": 1e-09,
+     "method": "(30.00-25.00)+1.55 = 6.55.",
+     "provenance": "Published result: LM1 in-text question 1 answer C, printed p. 18 (PDF p. 26)"
+    },
+    {
+     "id": "published-itm-max-gain-oracle",
+     "inputs": {
+      "x": 45.0,
+      "s": 50.0,
+      "c": 7.0
+     },
+     "expected": 2.0,
+     "tolerance": 1e-09,
+     "method": "(45-50)+7 = 2.",
+     "provenance": "Published result: LM1 ITM covered-call example, printed p. 17 (PDF p. 25)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "x": 30.0,
+      "s": 25.0
+     },
+     "reason": "Premium received is structurally required; without it there is no covered-call gain."
+    }
+   ],
+   "inverse_notes": "c = g-(x-s). Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings strike, inception stock price, premium, and covered-call gain are not in the runtime vocabulary snapshot and require extension.",
+     "The 2.60 worked gain (1.16+1.44) is a supporting oracle of the same form."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--covered-call-breakeven",
+   "revision": "r1",
+   "title": "Covered call breakeven price",
+   "summary": "Breakeven stock price at expiration for a covered call as inception price minus premium received.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "b",
+    "expression": "s-c",
+    "original_equation": "Breakeven price = S0 - c0",
+    "source_id": "analystprep-covered-call",
+    "locator": "PDF: LM1 covered calls, printed pp. 16-18 (PDF pp. 24-26): Maximum gain = (X-S0)+c0; worked gain 1.16+1.44 = 2.60; in-text Q1 answer (30.00-25.00)+1.55 = 6.55; ITM example -(50-45)+7 = 2; breakeven S0-c0 with 15.84-1.44 = 14.40",
+    "translation_notes": "Decimals. The PDF notes breakeven and maximum loss coincide for a covered call."
+   },
+   "variables": [
+    {
+     "symbol": "s",
+     "source_symbol": "S0",
+     "role": "input",
+     "quantity_id": "stock_price_at_inception",
+     "definition": "Stock price when the covered call is opened, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one covered call at inception",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "c",
+     "source_symbol": "c0",
+     "role": "input",
+     "quantity_id": "call_premium_received",
+     "definition": "Call premium received, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same covered call",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "b",
+     "source_symbol": "Breakeven price",
+     "role": "output",
+     "quantity_id": "covered_call_breakeven",
+     "definition": "Stock price at expiration with zero profit, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same covered call",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Long stock plus one short call, same expiry; premium cushions the downside one-for-one."
+   ],
+   "limitations": [
+    "Expiration only; American-style early exercise and dividends ignored."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-cc-be-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 covered calls, printed pp. 16-18 (PDF pp. 24-26): Maximum gain = (X-S0)+c0; worked gain 1.16+1.44 = 2.60; in-text Q1 answer (30.00-25.00)+1.55 = 6.55; ITM example -(50-45)+7 = 2; breakeven S0-c0 with 15.84-1.44 = 14.40",
+     "evidence": "Breakeven formula with the 14.40 worked example.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-covered-call",
+     "kind": "primary",
+     "title": "Covered Call Strategy and Payoff Analysis (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/covered-call-position/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Covered-call construction (long stock + short call); payoff table with value of call = Max(0, stock-strike); premium added to position value at expiration.",
+     "evidence": "Page states the same covered-call payoff structure corroborating the maximum-gain and breakeven linear forms.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-breakeven-oracle",
+     "inputs": {
+      "s": 15.84,
+      "c": 1.44
+     },
+     "expected": 14.4,
+     "tolerance": 1e-09,
+     "method": "15.84-1.44 = 14.40.",
+     "provenance": "Published result: LM1 covered-call text, printed p. 17 (PDF p. 25)"
+    },
+    {
+     "id": "published-izd-breakeven-oracle",
+     "inputs": {
+      "s": 93.93,
+      "c": 2.67
+     },
+     "expected": 91.26,
+     "tolerance": 1e-09,
+     "method": "93.93-2.67 = 91.26.",
+     "provenance": "Published result: LM1 practice-problem solution 2, printed p. 78 (PDF p. 86)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "s": 15.84
+     },
+     "reason": "Premium received is structurally required; breakeven is defined by the cushion it provides."
+    }
+   ],
+   "inverse_notes": "c = s-b. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings inception stock price, premium, and covered-call breakeven are not in the runtime vocabulary snapshot and require extension."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--bull-call-spread-breakeven",
+   "revision": "r1",
+   "title": "Bull call spread breakeven",
+   "summary": "Breakeven underlying price for a call bull spread as the lower strike plus the net cost of the spread.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "b",
+    "expression": "xl+cl-ch",
+    "original_equation": "Breakeven ST* = XL + cL - cH",
+    "source_id": "analystprep-spreads-combos",
+    "locator": "PDF: LM1 bull spreads, printed pp. 33-34 (PDF pp. 41-42), Exhibit 17: Alternative 1 (buy SEP 15 at 1.64, write SEP 17 at 0.51): cost 1.13, max profit 0.87, breakeven 16.13; Alternative 2 (buy SEP 16 at 0.97, write SEP 17 at 0.51): max profit 0.54, max loss 0.46, breakeven 16.46",
+    "translation_notes": "Decimals. XL < XH; cL > cH so the spread has positive cost."
+   },
+   "variables": [
+    {
+     "symbol": "xl",
+     "source_symbol": "XL",
+     "role": "input",
+     "quantity_id": "lower_strike",
+     "definition": "Lower (long-call) strike price, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one bull call spread at inception",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "cl",
+     "source_symbol": "cL",
+     "role": "input",
+     "quantity_id": "long_call_premium",
+     "definition": "Premium paid for the lower-strike call, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same spread",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "ch",
+     "source_symbol": "cH",
+     "role": "input",
+     "quantity_id": "short_call_premium",
+     "definition": "Premium received for the higher-strike call, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same spread",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "b",
+     "source_symbol": "ST*",
+     "role": "output",
+     "quantity_id": "bull_spread_breakeven",
+     "definition": "Underlying price at expiration with zero profit, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same spread",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "European-style calls, same expiry and underlying; spread opened at a net debit."
+   ],
+   "limitations": [
+    "Expiration only; the breakeven lies between the strikes when cost is below the strike width."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-bull-be-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 bull spreads, printed pp. 33-34 (PDF pp. 41-42), Exhibit 17: Alternative 1 (buy SEP 15 at 1.64, write SEP 17 at 0.51): cost 1.13, max profit 0.87, breakeven 16.13; Alternative 2 (buy SEP 16 at 0.97, write SEP 17 at 0.51): max profit 0.54, max loss 0.46, breakeven 16.46",
+     "evidence": "Breakeven formula with Alternatives 1 (16.13) and 2 (16.46).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-spreads-combos",
+     "kind": "primary",
+     "title": "Option Spreads and Combinations (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/spreads-and-combinations/",
+     "version": "Study notes, 12 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Bull call spread: maximum profit = K2-K1-c1+c2; maximum loss = c1-c2; breakeven = K1+c1-c2. Bear put spread: maximum profit = K2-K1-p2+p1.",
+     "evidence": "Page states the same bull-spread maximum-profit, maximum-loss, and breakeven formulas used across the three spread records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-alt1-breakeven-oracle",
+     "inputs": {
+      "xl": 15.0,
+      "cl": 1.64,
+      "ch": 0.51
+     },
+     "expected": 16.13,
+     "tolerance": 1e-09,
+     "method": "15+1.64-0.51 = 16.13.",
+     "provenance": "Published result: LM1 Exhibit 17 Alternative 1, printed p. 34 (PDF p. 42)"
+    },
+    {
+     "id": "published-alt2-breakeven-oracle",
+     "inputs": {
+      "xl": 16.0,
+      "cl": 0.97,
+      "ch": 0.51
+     },
+     "expected": 16.46,
+     "tolerance": 1e-09,
+     "method": "16+0.97-0.51 = 16.46.",
+     "provenance": "Published result: LM1 Exhibit 17 Alternative 2, printed p. 34 (PDF p. 42)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "xl": 15.0,
+      "cl": 1.64
+     },
+     "reason": "Premium of the written call is structurally required; net cost defines the breakeven."
+    }
+   ],
+   "inverse_notes": "ch = xl+cl-b. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings strikes, leg premiums, and bull-spread breakeven are not in the runtime vocabulary snapshot and require extension.",
+     "Practice Q3 (OCT 45/50 spread, 45+1.10 = 46.10) is a supporting oracle of the same form."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--bull-call-spread-max-profit",
+   "revision": "r1",
+   "title": "Bull call spread maximum profit",
+   "summary": "Maximum profit of a call bull spread as the strike width minus the net cost of the spread.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "p",
+    "expression": "(xh-xl)-(cl-ch)",
+    "original_equation": "Maximum profit = (XH - XL) - (cL - cH)",
+    "source_id": "analystprep-spreads-combos",
+    "locator": "PDF: LM1 bull spreads, printed pp. 33-34 (PDF pp. 41-42), Exhibit 17: Alternative 1 (buy SEP 15 at 1.64, write SEP 17 at 0.51): cost 1.13, max profit 0.87, breakeven 16.13; Alternative 2 (buy SEP 16 at 0.97, write SEP 17 at 0.51): max profit 0.54, max loss 0.46, breakeven 16.46",
+    "translation_notes": "Decimals. Realized when the underlying closes at or above the higher strike."
+   },
+   "variables": [
+    {
+     "symbol": "xh",
+     "source_symbol": "XH",
+     "role": "input",
+     "quantity_id": "higher_strike",
+     "definition": "Higher (short-call) strike price, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one bull call spread at inception",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "xl",
+     "source_symbol": "XL",
+     "role": "input",
+     "quantity_id": "lower_strike",
+     "definition": "Lower (long-call) strike price, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same spread",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "cl",
+     "source_symbol": "cL",
+     "role": "input",
+     "quantity_id": "long_call_premium",
+     "definition": "Premium paid for the lower-strike call, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same spread",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "ch",
+     "source_symbol": "cH",
+     "role": "input",
+     "quantity_id": "short_call_premium",
+     "definition": "Premium received for the higher-strike call, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same spread",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "p",
+     "source_symbol": "Maximum profit",
+     "role": "output",
+     "quantity_id": "bull_spread_max_profit",
+     "definition": "Maximum profit at expiration, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same spread",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "European-style calls, same expiry and underlying; spread opened at a net debit."
+   ],
+   "limitations": [
+    "Maximum only, at ST >= XH; transaction costs ignored."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-bull-mp-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 bull spreads, printed pp. 33-34 (PDF pp. 41-42), Exhibit 17: Alternative 1 (buy SEP 15 at 1.64, write SEP 17 at 0.51): cost 1.13, max profit 0.87, breakeven 16.13; Alternative 2 (buy SEP 16 at 0.97, write SEP 17 at 0.51): max profit 0.54, max loss 0.46, breakeven 16.46",
+     "evidence": "Maximum-profit values for Alternatives 1 (0.87) and 2 (0.54).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-spreads-combos",
+     "kind": "primary",
+     "title": "Option Spreads and Combinations (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/spreads-and-combinations/",
+     "version": "Study notes, 12 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Bull call spread: maximum profit = K2-K1-c1+c2; maximum loss = c1-c2; breakeven = K1+c1-c2. Bear put spread: maximum profit = K2-K1-p2+p1.",
+     "evidence": "Page states the same bull-spread maximum-profit, maximum-loss, and breakeven formulas used across the three spread records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-alt1-maxprofit-oracle",
+     "inputs": {
+      "xh": 17.0,
+      "xl": 15.0,
+      "cl": 1.64,
+      "ch": 0.51
+     },
+     "expected": 0.87,
+     "tolerance": 1e-09,
+     "method": "(17-15)-(1.64-0.51) = 0.87.",
+     "provenance": "Published result: LM1 Exhibit 17 Alternative 1, printed p. 34 (PDF p. 42)"
+    },
+    {
+     "id": "published-alt2-maxprofit-oracle",
+     "inputs": {
+      "xh": 17.0,
+      "xl": 16.0,
+      "cl": 0.97,
+      "ch": 0.51
+     },
+     "expected": 0.54,
+     "tolerance": 1e-09,
+     "method": "(17-16)-(0.97-0.51) = 0.54.",
+     "provenance": "Published result: LM1 Exhibit 17 Alternative 2, printed p. 34 (PDF p. 42)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "xh": 17.0,
+      "xl": 15.0,
+      "cl": 1.64
+     },
+     "reason": "Both leg premiums are structurally required; net cost defines the maximum."
+    }
+   ],
+   "inverse_notes": "No single-input inverse without fixing the other three. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings strikes, leg premiums, and bull-spread maximum profit are not in the runtime vocabulary snapshot and require extension."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--bull-call-spread-max-loss",
+   "revision": "r1",
+   "title": "Bull call spread maximum loss (net cost)",
+   "summary": "Maximum loss of a call bull spread as the net premium paid (long-call cost minus short-call receipt).",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "l",
+    "expression": "cl-ch",
+    "original_equation": "Maximum loss = cL - cH (spread cost)",
+    "source_id": "analystprep-spreads-combos",
+    "locator": "PDF: LM1 bull spreads, printed pp. 33-34 (PDF pp. 41-42), Exhibit 17: Alternative 1 (buy SEP 15 at 1.64, write SEP 17 at 0.51): cost 1.13, max profit 0.87, breakeven 16.13; Alternative 2 (buy SEP 16 at 0.97, write SEP 17 at 0.51): max profit 0.54, max loss 0.46, breakeven 16.46",
+    "translation_notes": "Decimals. Realized when the underlying closes at or below the lower strike."
+   },
+   "variables": [
+    {
+     "symbol": "cl",
+     "source_symbol": "cL",
+     "role": "input",
+     "quantity_id": "long_call_premium",
+     "definition": "Premium paid for the lower-strike call, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one bull call spread at inception",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "ch",
+     "source_symbol": "cH",
+     "role": "input",
+     "quantity_id": "short_call_premium",
+     "definition": "Premium received for the higher-strike call, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same spread",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "l",
+     "source_symbol": "Maximum loss",
+     "role": "output",
+     "quantity_id": "bull_spread_max_loss",
+     "definition": "Maximum loss at expiration, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same spread",
+     "domain": "Non-negative finite"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "European-style calls, same expiry and underlying; spread opened at a net debit."
+   ],
+   "limitations": [
+    "Maximum loss only; equals the initial outlay, realized at ST <= XL."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-bull-ml-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 bull spreads, printed pp. 33-34 (PDF pp. 41-42), Exhibit 17: Alternative 1 (buy SEP 15 at 1.64, write SEP 17 at 0.51): cost 1.13, max profit 0.87, breakeven 16.13; Alternative 2 (buy SEP 16 at 0.97, write SEP 17 at 0.51): max profit 0.54, max loss 0.46, breakeven 16.46",
+     "evidence": "Spread-cost values for Alternatives 1 (1.13) and 2 (0.46).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-spreads-combos",
+     "kind": "primary",
+     "title": "Option Spreads and Combinations (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/spreads-and-combinations/",
+     "version": "Study notes, 12 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Bull call spread: maximum profit = K2-K1-c1+c2; maximum loss = c1-c2; breakeven = K1+c1-c2. Bear put spread: maximum profit = K2-K1-p2+p1.",
+     "evidence": "Page states the same bull-spread maximum-profit, maximum-loss, and breakeven formulas used across the three spread records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-alt1-maxloss-oracle",
+     "inputs": {
+      "cl": 1.64,
+      "ch": 0.51
+     },
+     "expected": 1.13,
+     "tolerance": 1e-09,
+     "method": "1.64-0.51 = 1.13.",
+     "provenance": "Published result: LM1 Exhibit 17 Alternative 1, printed p. 34 (PDF p. 42)"
+    },
+    {
+     "id": "published-alt2-maxloss-oracle",
+     "inputs": {
+      "cl": 0.97,
+      "ch": 0.51
+     },
+     "expected": 0.46,
+     "tolerance": 1e-09,
+     "method": "0.97-0.51 = 0.46.",
+     "provenance": "Published result: LM1 Exhibit 17 Alternative 2, printed p. 34 (PDF p. 42)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "cl": 1.64
+     },
+     "reason": "Both leg premiums are structurally required; the loss is their net."
+    }
+   ],
+   "inverse_notes": "ch = cl-l. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings leg premiums and bull-spread maximum loss are not in the runtime vocabulary snapshot and require extension."
+    ],
+    "duplicate_of": []
+   }
+  }
+ ]
+}

@@ -1,0 +1,549 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b86",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--unit-contribution-margin",
+      "revision": "r1",
+      "title": "Unit contribution margin",
+      "summary": "The bottle-cap example subtracts variable cost per unit from selling price per unit.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "contribution",
+        "expression": "price - variable",
+        "original_equation": "Unit contribution margin = unit selling price − unit variable cost",
+        "source_id": "ung-managerial-accounting-2017",
+        "locator": "Section 5.2.1, Contribution Margin, printed pp55–56",
+        "translation_notes": "Inputs and output are currency per unit."
+      },
+      "variables": [
+        {
+          "symbol": "price",
+          "source_symbol": "selling price per unit",
+          "role": "input",
+          "quantity_id": "unit_selling_price",
+          "definition": "selling price per unit",
+          "unit": "USD_per_unit",
+          "dimensions": "currency/count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "variable",
+          "source_symbol": "variable cost per unit",
+          "role": "input",
+          "quantity_id": "unit_variable_cost",
+          "definition": "variable cost per unit",
+          "unit": "USD_per_unit",
+          "dimensions": "currency/count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "contribution",
+          "source_symbol": "contribution margin per unit",
+          "role": "output",
+          "quantity_id": "unit_contribution_margin",
+          "definition": "contribution margin per unit",
+          "unit": "USD_per_unit",
+          "dimensions": "currency/count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "price >= 0",
+        "variable >= 0"
+      ],
+      "assumptions": [
+        "Unit price and variable cost refer to the same product, currency and activity basis.",
+        "The cost classification is appropriate over the relevant activity range."
+      ],
+      "limitations": [
+        "A negative contribution is possible when variable unit cost exceeds price.",
+        "Contribution margin is not the same as gross profit under absorption costing."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 3, What Is a Business Model?, printed pp699–700 (PDF pp713–714), unnumbered bottle-cap, restaurant and homebuilder examples",
+          "evidence": "The bottle-cap example subtracts variable cost per unit from selling price per unit.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ung-managerial-accounting-2017",
+          "kind": "primary",
+          "title": "Principles of Managerial Accounting",
+          "url": "https://web.ung.edu/media/university-press/Principles%20of%20Managerial%20Accounting.pdf",
+          "version": "Christine Jonick, University of North Georgia Press, 2017",
+          "accessed": "2026-11-04",
+          "locator": "Section 5.2.1, Contribution Margin, printed pp55–56",
+          "evidence": "The textbook distinguishes unit and total contribution and subtracts fixed costs from contribution to determine operating income.",
+          "license": "Original University System of Georgia text states CC BY-SA 4.0 with attribution and share-alike; third-party materials may have separate terms. Formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "bottle-cap",
+          "inputs": {
+            "price": 0.025,
+            "variable": 0.02
+          },
+          "expected": 0.005,
+          "tolerance": 1e-09,
+          "method": "2.5 cents less 2.0 cents gives 0.5 cents per cap.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "university-example",
+          "inputs": {
+            "price": 25,
+            "variable": 10
+          },
+          "expected": 15,
+          "tolerance": 1e-09,
+          "method": "25 selling price less 10 variable cost gives 15 per unit.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "variable": 0.02
+          },
+          "reason": "price is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "price=contribution+variable.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--total-contribution-margin",
+      "revision": "r1",
+      "title": "Total contribution margin",
+      "summary": "The restaurant example subtracts variable ingredient costs from revenue before deducting fixed costs.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "contribution",
+        "expression": "sales - variable",
+        "original_equation": "Total contribution margin = sales revenue − total variable costs",
+        "source_id": "ung-managerial-accounting-2017",
+        "locator": "Section 5.2.1, Contribution Margin, printed pp55–56",
+        "translation_notes": "All values share one currency; contribution is signed."
+      },
+      "variables": [
+        {
+          "symbol": "sales",
+          "source_symbol": "sales revenue",
+          "role": "input",
+          "quantity_id": "sales_revenue",
+          "definition": "sales revenue",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "variable",
+          "source_symbol": "total variable costs",
+          "role": "input",
+          "quantity_id": "total_variable_costs",
+          "definition": "total variable costs",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "contribution",
+          "source_symbol": "total contribution margin",
+          "role": "output",
+          "quantity_id": "total_contribution_margin",
+          "definition": "total contribution margin",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sales >= 0",
+        "variable >= 0"
+      ],
+      "assumptions": [
+        "Sales and total variable costs cover the same entity, product scope and period.",
+        "Only costs variable with the selected activity are included."
+      ],
+      "limitations": [
+        "The resulting contribution can be negative and is not net income.",
+        "Cost classification may vary with the relevant range and time horizon."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 3, What Is a Business Model?, printed pp699–700 (PDF pp713–714), unnumbered bottle-cap, restaurant and homebuilder examples",
+          "evidence": "The restaurant example subtracts variable ingredient costs from revenue before deducting fixed costs.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ung-managerial-accounting-2017",
+          "kind": "primary",
+          "title": "Principles of Managerial Accounting",
+          "url": "https://web.ung.edu/media/university-press/Principles%20of%20Managerial%20Accounting.pdf",
+          "version": "Christine Jonick, University of North Georgia Press, 2017",
+          "accessed": "2026-11-04",
+          "locator": "Section 5.2.1, Contribution Margin, printed pp55–56",
+          "evidence": "The textbook distinguishes unit and total contribution and subtracts fixed costs from contribution to determine operating income.",
+          "license": "Original University System of Georgia text states CC BY-SA 4.0 with attribution and share-alike; third-party materials may have separate terms. Formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "restaurant",
+          "inputs": {
+            "sales": 1000000,
+            "variable": 500000
+          },
+          "expected": 500000,
+          "tolerance": 1e-09,
+          "method": "1,000,000 revenue less 500,000 variable costs gives 500,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "university-example",
+          "inputs": {
+            "sales": 25000,
+            "variable": 10000
+          },
+          "expected": 15000,
+          "tolerance": 1e-09,
+          "method": "25,000 revenue less 10,000 variable costs gives 15,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "variable": 500000
+          },
+          "reason": "sales is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "sales=contribution+variable.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--operating-profit-from-contribution-and-fixed-costs",
+      "revision": "r1",
+      "title": "Operating profit from total contribution and fixed costs",
+      "summary": "The restaurant example deducts fixed costs from the contribution remaining after variable costs.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "profit",
+        "expression": "contribution - fixed",
+        "original_equation": "Operating profit = total contribution margin − fixed operating costs",
+        "source_id": "ung-managerial-accounting-2017",
+        "locator": "Section 5.2.1, Contribution Margin, printed pp55–56",
+        "translation_notes": "The output and contribution are signed amounts; fixed costs are nonnegative."
+      },
+      "variables": [
+        {
+          "symbol": "contribution",
+          "source_symbol": "total contribution margin",
+          "role": "input",
+          "quantity_id": "total_contribution_margin",
+          "definition": "total contribution margin",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fixed",
+          "source_symbol": "fixed operating costs",
+          "role": "input",
+          "quantity_id": "fixed_operating_costs",
+          "definition": "fixed operating costs",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "profit",
+          "source_symbol": "operating profit",
+          "role": "output",
+          "quantity_id": "cost_volume_profit_operating_income",
+          "definition": "operating profit",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "fixed >= 0"
+      ],
+      "assumptions": [
+        "Contribution and fixed operating costs use the same reporting period and operating scope.",
+        "All relevant operating costs are classified exactly once as variable or fixed."
+      ],
+      "limitations": [
+        "Operating profit can be negative and excludes interest and tax in this simplified analysis.",
+        "The owner example mistakenly prints 50,000 in one subtraction; its stated fixed cost and result support 250,000."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 3, What Is a Business Model?, printed pp699–700 (PDF pp713–714), unnumbered bottle-cap, restaurant and homebuilder examples",
+          "evidence": "The restaurant example deducts fixed costs from the contribution remaining after variable costs.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ung-managerial-accounting-2017",
+          "kind": "primary",
+          "title": "Principles of Managerial Accounting",
+          "url": "https://web.ung.edu/media/university-press/Principles%20of%20Managerial%20Accounting.pdf",
+          "version": "Christine Jonick, University of North Georgia Press, 2017",
+          "accessed": "2026-11-04",
+          "locator": "Section 5.2.1, Contribution Margin, printed pp55–56",
+          "evidence": "The textbook distinguishes unit and total contribution and subtracts fixed costs from contribution to determine operating income.",
+          "license": "Original University System of Georgia text states CC BY-SA 4.0 with attribution and share-alike; third-party materials may have separate terms. Formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "restaurant",
+          "inputs": {
+            "contribution": 500000,
+            "fixed": 250000
+          },
+          "expected": 250000,
+          "tolerance": 1e-09,
+          "method": "500,000 contribution less stated 250,000 fixed costs gives 250,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "university-example",
+          "inputs": {
+            "contribution": 15000,
+            "fixed": 8000
+          },
+          "expected": 7000,
+          "tolerance": 1e-09,
+          "method": "15,000 contribution less 8,000 fixed costs gives 7,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "fixed": 250000
+          },
+          "reason": "contribution is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "contribution=profit+fixed.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--cost-plus-markup-selling-price",
+      "revision": "r1",
+      "title": "Selling price using a markup on cost",
+      "summary": "The homebuilder example states a cost-plus percentage markup.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "price",
+        "expression": "cost * (1 + markup)",
+        "original_equation": "Selling price = cost × (1 + markup on cost)",
+        "source_id": "maine-basic-pricing",
+        "locator": "Markup Based on Cost and Components of Selling Price",
+        "translation_notes": "Markup is a base-one fraction and 1 is the identity multiplier on cost."
+      },
+      "variables": [
+        {
+          "symbol": "cost",
+          "source_symbol": "cost basis",
+          "role": "input",
+          "quantity_id": "cost_plus_pricing_cost_basis",
+          "definition": "cost basis",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "markup",
+          "source_symbol": "markup on cost",
+          "role": "input",
+          "quantity_id": "cost_based_markup_fraction",
+          "definition": "Markup amount divided by the specified cost basis",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "price",
+          "source_symbol": "selling price",
+          "role": "output",
+          "quantity_id": "cost_plus_selling_price",
+          "definition": "selling price",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "cost >= 0",
+        "markup >= 0"
+      ],
+      "assumptions": [
+        "The markup fraction uses cost, rather than selling price, as its denominator.",
+        "Cost and price refer to the same unit or project scope and currency."
+      ],
+      "limitations": [
+        "A markup on cost is not a profit margin on sales.",
+        "The formula does not decide which costs, taxes or overheads should be included."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 3, What Is a Business Model?, printed pp699–700 (PDF pp713–714), unnumbered bottle-cap, restaurant and homebuilder examples",
+          "evidence": "The homebuilder example states a cost-plus percentage markup.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "maine-basic-pricing",
+          "kind": "primary",
+          "title": "Basic Pricing Strategies for Small Businesses",
+          "url": "https://extension.umaine.edu/publications/3000e/",
+          "version": "University of Maine Cooperative Extension, bulletin 3000e",
+          "accessed": "2026-11-04",
+          "locator": "Markup Based on Cost and Components of Selling Price",
+          "evidence": "The extension bulletin defines cost-based markup and adds the markup to cost.",
+          "license": "University of Maine publication; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "homebuilder",
+          "inputs": {
+            "cost": 100,
+            "markup": 0.2
+          },
+          "expected": 120,
+          "tolerance": 1e-09,
+          "method": "A 20% markup on 100 cost gives a price of 120.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "maine",
+          "inputs": {
+            "cost": 1,
+            "markup": 0.5
+          },
+          "expected": 1.5,
+          "tolerance": 1e-09,
+          "method": "A 50% markup on 1 cost gives a price of 1.50.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "markup": 0.2
+          },
+          "reason": "cost is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cost=price/(1+markup) when the denominator is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

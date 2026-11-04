@@ -1,0 +1,155 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b100",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations. All records use inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; public corroboration carries the relationship when available, and documented owner-only fallbacks remain blocked for review. The inputs make the prior-rate restatement explicit; this is not interchangeable with reported nominal growth or the reverse restatement convention."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--revenue-growth-constant-prior-period-exchange-rates",
+      "revision": "r1",
+      "title": "Revenue growth at prior-period exchange rates",
+      "summary": "The owner distinguishes reported revenue growth from the issuer’s comparison at constant prior-period exchange rates.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "growth",
+        "expression": "current / prior - 1",
+        "original_equation": "Constant-currency revenue growth = current revenue translated at prior-period exchange rates / prior revenue − 1",
+        "source_id": "convatec-2016-constant-currency-release",
+        "locator": "Full Year Highlights footnote 2; Operating Review revenue table and footnote 2",
+        "translation_notes": "Both inputs are same-currency monetary flows and the output is a base-one growth fraction."
+      },
+      "variables": [
+        {
+          "symbol": "current",
+          "source_symbol": "current-period revenue at prior-period exchange rates",
+          "role": "input",
+          "quantity_id": "current_revenue_at_prior_exchange_rates",
+          "definition": "Current-period revenue already translated using the relevant prior-period exchange rates",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "prior",
+          "source_symbol": "prior-period reported revenue",
+          "role": "input",
+          "quantity_id": "prior_period_revenue",
+          "definition": "Comparable prior-period revenue in the same reporting currency and exchange-rate basis",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "growth",
+          "source_symbol": "constant-currency revenue growth",
+          "role": "output",
+          "quantity_id": "prior_rate_constant_currency_revenue_growth",
+          "definition": "Current revenue at prior exchange rates relative to prior revenue, less one",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "current >= 0",
+        "prior > 0"
+      ],
+      "assumptions": [
+        "Current revenue is translated at the relevant prior-period rates and aggregates consistently with the prior-period reporting basis.",
+        "Both amounts cover comparable entities, activity scope, measurement periods and reporting currency; prior revenue is positive."
+      ],
+      "limitations": [
+        "This formula consumes a separately restated current-period figure; it does not itself construct the currency translation.",
+        "Other issuers may instead restate the prior period at current rates or adjust for acquisitions and divestitures, so definitions are not interchangeable.",
+        "Constant-currency growth is an alternative performance measure and does not eliminate other comparability changes."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 9, Biased Accounting Choices, printed pp507–509 (PDF pp521–523), Example 2, Exhibit 9 and solution 1",
+          "evidence": "The owner distinguishes reported revenue growth from the issuer’s comparison at constant prior-period exchange rates.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "convatec-2016-constant-currency-release",
+          "kind": "primary",
+          "title": "ConvaTec Full Year 2016 Results",
+          "url": "https://www.convatecgroup.com/globalassets/global-assets/pdf/convatec-plc-press-release-3-01-17-final-v1.pdf",
+          "version": "ConvaTec Group Plc, results release dated 2 March 2017",
+          "accessed": "2026-11-04",
+          "locator": "Full Year Highlights footnote 2; Operating Review revenue table and footnote 2",
+          "evidence": "The issuer reports constant-currency revenue growth after translating 2016 results at the relevant 2015 exchange rates; reported and constant-currency growth differ.",
+          "license": "Issuer-hosted results release; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "increase",
+          "inputs": {
+            "current": 104000000,
+            "prior": 100000000
+          },
+          "expected": 0.04,
+          "tolerance": 1e-09,
+          "method": "Current revenue translated at prior rates of 104 million over 100 million prior revenue gives 4% growth.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "decrease",
+          "inputs": {
+            "current": 90000000,
+            "prior": 100000000
+          },
+          "expected": -0.1,
+          "tolerance": 1e-09,
+          "method": "A translated current amount of 90 million over 100 million prior revenue gives −10% growth.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "prior": 100000000
+          },
+          "reason": "current is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "current=prior*(1+growth).",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

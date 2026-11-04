@@ -1,0 +1,177 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b2-b32",
+  "batch_sha256": "c694bb9d7562ade9e0baedbeb35f45c40a65b80700e345480b31a4c5b398c45e",
+  "reviewer": "ingest-circuits",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--matched-maturity-breakeven-inflation",
+      "revision": "r2",
+      "record_sha256": "35f23d953cbe48e60f556712c44a7b3aed8d5680554abbedb5527a5509c29b55",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed UTIPS on 2026-11-04 (HTTP 200): breakeven-spread definition and proxy caveats verified. Record math matches with matching-convention scope. Owner CFA excerpt not inspectable per track protocol; corroboration carries the math."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is matched currency/issuer/maturity/conventions with specified linkage terms (assumptions). Limitations bar pure-expectation labeling and exact-Fisher readings. Signed spreads allowed by design. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "nominal [1] - linked [1] closes to dimensionless [1], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: cfa-ten-year (0.035,0.015) -> 0.02 exact; negative-spread (0.005,0.01) -> -0.005 exact; tol 1e-09. First case cites CFA p258 (curator-reported); second honestly labeled curator-constructed."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "No guards by design (signed yields allowed). Missing-nominal rejection leaves the expression unevaluable as stated. Inverse notes correctly state expected inflation is not uniquely inferable."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. Fed primary: curator records exact terms unknown with factual definitions paraphrased only; accurate and conservative. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.federalreserve.gov/econres/notes/feds-notes/tips-from-tips-update-and-discussions-20190521.html",
+          "locator": "Introduction and Equations (1),(3),(4): nominal minus TIPS compensation",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Fed FEDS Notes state nominal Treasury yield minus comparable TIPS yield is inflation compensation, with inflation-risk and liquidity components separating it from expected inflation. Record implements nominal-linked as a market spread with the same caveats."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the observed spread nominal-linked for matched currency/issuer/maturity/conventions; not as pure expected inflation, and not as the exact one-period Fisher conversion."
+    },
+    {
+      "id": "financial-analysis--required-bank-reserves",
+      "revision": "r2",
+      "record_sha256": "466a146d36dc9e6312340dbd7c32df001a8982384ca596524797878367c42079",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed U274 on 2026-11-04 (HTTP 200): reserve-requirement arithmetic verified. Record math matches. Owner CFA excerpt not inspectable per track protocol; corroboration carries the math."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is one reserve fraction on one eligible category with required-vs-actual distinguished (assumptions). Limitations exclude lending/solvency prediction and multi-tier blending. Zero ratio permitted for the accounting identity. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "deposits [EUR] x ratio [1] closes to [EUR], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: source-first-bank (100,0.1) -> 10 exact; zero-requirement (1000,0) -> 0 exact; tol 1e-09. First case cites CFA Exhibit2 (curator-reported); second honestly labeled curator-constructed."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards deposits>=0, 0<=ratio<=1 hold on both references (evaluated). Missing-deposits rejection leaves the expression unevaluable as stated. Inverse notes correctly handle zero-ratio underdetermination."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. OpenStax primary carries inspected CC BY-NC-SA footer plus AI/commercial-restriction note; I verified the CC BY-NC-SA 4.0 footer with commercial-use restriction on the OpenStax economics-3e site on 2026-11-04. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://openstax.org/books/principles-economics-3e/pages/27-4-how-banks-create-money",
+          "locator": "Money Creation by a Single Bank; reserve-requirement arithmetic",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Page illustrates reserve requirements with worked balance-sheet arithmetic (10% of deposits held as reserves). Record implements deposits*ratio with the eligible-category scope."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as required reserves deposits*ratio for one eligible-deposit category; not as a lending/solvency predictor, and not across multiple reserve tiers without separation."
+    },
+    {
+      "id": "financial-analysis--simple-reserve-money-multiplier",
+      "revision": "r2",
+      "record_sha256": "d4aed09a028fd193c936af8fd0b02da3a38c130580777424aa85f9a90a2f109e",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed U274 on 2026-11-04 (HTTP 200): multiplier mechanism and cautions verified in text; the 1/rr formula itself is rendered (equation image, not machine-readable). Record math is the standard mechanism formalization. Owner CFA excerpt not inspectable per track protocol; boundary stated here."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is full redeposit with identical retention and no leakage/excess/defaults (assumptions). Limitations exclude modern-lending forecasts and infinite-expansion readings. Geometric-series justification documented. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "1 / ratio [1] closes to dimensionless [1], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: ten-percent (0.1) -> 10 exact; full-reserves (1) -> 1 exact; tol 1e-09. First case cites CFA p284 (curator-reported); second honestly labeled curator-constructed."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards 0<ratio<=1 hold on both references (evaluated). Empty-input rejection leaves the expression unevaluable as stated. Inverse notes correctly exclude ratio=0."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. OpenStax primary carries inspected CC BY-NC-SA footer plus AI/commercial-restriction note; I verified the CC BY-NC-SA 4.0 footer with commercial-use restriction on the OpenStax economics-3e site on 2026-11-04. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://openstax.org/books/principles-economics-3e/pages/27-4-how-banks-create-money",
+          "locator": "The Money Multiplier and a Multi-Bank System; Cautions subsection",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Page presents the reciprocal reserve multiplier mechanism with a worked multi-bank chain and an explicit cautions subsection (leakage, excess reserves). Record implements 1/ratio as the limiting maximum with the same behavioral assumptions."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the limiting multiplier 1/ratio under full redeposit with no leakage; not as a forecast of modern lending, and not implying attainable infinite expansion at zero ratio."
+    },
+    {
+      "id": "financial-analysis--limiting-deposit-expansion",
+      "revision": "r2",
+      "record_sha256": "cd0b6406437c9e45372153c133062a36408480a562baf98e29a35980fa760be0",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed U274 on 2026-11-04 (HTTP 200): deposit-chain totaling verified in text; formulae rendered (equation images). Record math is the standard chain formalization including the original deposit. Owner CFA excerpt not inspectable per track protocol; boundary stated here."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is a reserve-adding injection with full lending/redeposit and no leakage (assumptions). Limitations distinguish total from incremental lending and bar observed-expansion readings. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "initial [EUR] / ratio [1] closes to [EUR], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: source-chain (100,0.1) -> 1000 exact; full-retention (500,1) -> 500 exact; tol 1e-09. First case cites CFA Equation 1 p284 (curator-reported); second honestly labeled curator-constructed."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards initial>=0, 0<ratio<=1 hold on both references (evaluated). Missing-initial rejection leaves the expression unevaluable as stated. Inverse notes correctly handle zero-zero underdetermination."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. OpenStax primary carries inspected CC BY-NC-SA footer plus AI/commercial-restriction note; I verified the CC BY-NC-SA 4.0 footer with commercial-use restriction on the OpenStax economics-3e site on 2026-11-04. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://openstax.org/books/principles-economics-3e/pages/27-4-how-banks-create-money",
+          "locator": "Multi-bank chain total with worked deposit expansion",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Page walks through the multi-bank deposit chain totaling initial/ratio including the original deposit. Record implements initial/ratio as the system-wide limiting total with the same behavioral assumptions."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as limiting total deposits initial/ratio for a reserve-adding injection under the simple model; not as incremental lending (subtract initial), and not as observed monetary expansion."
+    }
+  ]
+}

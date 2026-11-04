@@ -1,0 +1,424 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b22",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. Corrects b21 corroborating-source publication metadata: the excerpt identifies 2011 copyright and does not establish a 2015 publication date. Original records remain preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--lifo-reserve-definition",
+      "revision": "r2",
+      "title": "LIFO inventory reserve",
+      "summary": "The LIFO reserve is the difference between FIFO and reported LIFO inventory carrying amounts.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "reserve",
+        "expression": "fifo - lifo",
+        "original_equation": "LIFO reserve = FIFO inventory - LIFO inventory",
+        "source_id": "wiley-inventory-excerpt",
+        "locator": "Reading 16, The LIFO Method, LIFO Reserve; practice solution 3 for after-tax income conversion",
+        "translation_notes": "The FIFO adjustment fifo=lifo+reserve is the inverse of this definition, not a separate relationship."
+      },
+      "variables": [
+        {
+          "symbol": "fifo",
+          "source_symbol": "FIFO inventory",
+          "role": "input",
+          "quantity_id": "fifo_inventory_carrying_amount",
+          "definition": "FIFO inventory",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "lifo",
+          "source_symbol": "LIFO inventory",
+          "role": "input",
+          "quantity_id": "lifo_inventory_carrying_amount",
+          "definition": "LIFO inventory",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "reserve",
+          "source_symbol": "LIFO reserve",
+          "role": "output",
+          "quantity_id": "lifo_inventory_reserve",
+          "definition": "LIFO reserve",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Inventory amounts refer to the same entity, date, scope and currency."
+      ],
+      "limitations": [
+        "The reserve need not always be positive; definition and disclosure conventions must be checked."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 5, LIFO Reserve, printed p269 (PDF p283), unnumbered definition",
+          "evidence": "The LIFO reserve is the difference between FIFO and reported LIFO inventory carrying amounts.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "wiley-inventory-excerpt",
+          "kind": "primary",
+          "title": "Inventories: Implications for Financial Statements and Ratios",
+          "url": "https://catalogimages.wiley.com/images/db/pdf/9781942471042.excerpt.pdf",
+          "version": "Michael A. Broihahn; CFA Institute copyright 2011; publisher-hosted excerpt, publication date not established",
+          "accessed": "2026-11-03",
+          "locator": "Reading 16, The LIFO Method, LIFO Reserve; practice solution 3 for after-tax income conversion",
+          "evidence": "The excerpt defines the LIFO reserve and explains adjustments of inventory and cost of sales to a FIFO basis.",
+          "license": "Publisher copyright retained; single-formula transcription and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "rising-cost",
+          "inputs": {
+            "fifo": 120,
+            "lifo": 100
+          },
+          "expected": 20,
+          "tolerance": 1e-09,
+          "method": "120 FIFO inventory less 100 LIFO inventory gives 20.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "declining-cost",
+          "inputs": {
+            "fifo": 90,
+            "lifo": 100
+          },
+          "expected": -10,
+          "tolerance": 1e-09,
+          "method": "A negative reserve of 10 is permitted when FIFO inventory is lower.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "lifo": 100
+          },
+          "reason": "fifo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "fifo=lifo+reserve; lifo=fifo-reserve.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--fifo-cost-of-sales-from-lifo-reserve",
+      "revision": "r2",
+      "title": "FIFO cost of sales from LIFO cost and reserve changes",
+      "summary": "FIFO cost of sales is LIFO cost of sales less the change in the reserve.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "fifo",
+        "expression": "lifo - change",
+        "original_equation": "FIFO cost of sales = LIFO cost of sales - change in LIFO reserve",
+        "source_id": "wiley-inventory-excerpt",
+        "locator": "Reading 16, The LIFO Method, LIFO Reserve; practice solution 3 for after-tax income conversion",
+        "translation_notes": "Reserve change is ending less beginning and may be negative. This relation adjusts expense, not inventory balance."
+      },
+      "variables": [
+        {
+          "symbol": "lifo",
+          "source_symbol": "LIFO cost of sales",
+          "role": "input",
+          "quantity_id": "lifo_cost_of_sales",
+          "definition": "LIFO cost of sales",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "change",
+          "source_symbol": "ending minus beginning LIFO reserve",
+          "role": "input",
+          "quantity_id": "lifo_reserve_change",
+          "definition": "ending minus beginning LIFO reserve",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fifo",
+          "source_symbol": "FIFO cost of sales",
+          "role": "output",
+          "quantity_id": "fifo_cost_of_sales",
+          "definition": "FIFO cost of sales",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "The reserve uses FIFO inventory less LIFO inventory at both period endpoints.",
+        "Inventory costs and other adjustments match the same entity, reporting period and scope."
+      ],
+      "limitations": [
+        "Inventory write-downs, acquisitions and other reserve movements outside cost of sales require separate treatment.",
+        "A disclosed reserve can compare LIFO with a cost method other than FIFO; the comparator must be verified."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 5, LIFO Reserve, printed p269 (PDF p283); Example 5 printed p272 (PDF p286)",
+          "evidence": "FIFO cost of sales is LIFO cost of sales less the change in the reserve.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "wiley-inventory-excerpt",
+          "kind": "primary",
+          "title": "Inventories: Implications for Financial Statements and Ratios",
+          "url": "https://catalogimages.wiley.com/images/db/pdf/9781942471042.excerpt.pdf",
+          "version": "Michael A. Broihahn; CFA Institute copyright 2011; publisher-hosted excerpt, publication date not established",
+          "accessed": "2026-11-03",
+          "locator": "Reading 16, The LIFO Method, LIFO Reserve; practice solution 3 for after-tax income conversion",
+          "evidence": "The excerpt defines the LIFO reserve and explains adjustments of inventory and cost of sales to a FIFO basis.",
+          "license": "Publisher copyright retained; single-formula transcription and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "reserve-increase",
+          "inputs": {
+            "lifo": 1000,
+            "change": 100
+          },
+          "expected": 900,
+          "tolerance": 1e-09,
+          "method": "A 100 increase in reserve reduces FIFO cost of sales to 900.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "reserve-decrease",
+          "inputs": {
+            "lifo": 31049000000,
+            "change": -215000000
+          },
+          "expected": 31264000000,
+          "tolerance": 1e-09,
+          "method": "A 215 million reserve decline raises FIFO cost of sales to 31264 million.",
+          "provenance": "CFA printed p272/PDF p286."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "change": 100
+          },
+          "reason": "lifo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "lifo=fifo+change; change=lifo-fifo.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--fifo-net-income-from-lifo-reserve-change",
+      "revision": "r2",
+      "title": "FIFO net income from LIFO income and reserve change",
+      "summary": "The source adjusts income for the change in cost of sales and the associated tax effect.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "fifo_income",
+        "expression": "income + change * (1 - tax)",
+        "original_equation": "FIFO net income = LIFO net income + change in LIFO reserve × (1 - tax rate)",
+        "source_id": "wiley-inventory-excerpt",
+        "locator": "Reading 16, The LIFO Method, LIFO Reserve; practice solution 3 for after-tax income conversion",
+        "translation_notes": "The rate is a base-one fraction. The reserve is FIFO less LIFO; a fall is negative."
+      },
+      "variables": [
+        {
+          "symbol": "income",
+          "source_symbol": "LIFO net income",
+          "role": "input",
+          "quantity_id": "lifo_basis_net_income",
+          "definition": "LIFO net income",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "change",
+          "source_symbol": "ending minus beginning LIFO reserve",
+          "role": "input",
+          "quantity_id": "lifo_reserve_change",
+          "definition": "ending minus beginning LIFO reserve",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "tax",
+          "source_symbol": "tax rate",
+          "role": "input",
+          "quantity_id": "inventory_adjustment_tax_rate",
+          "definition": "Applicable tax rate to the incremental profit adjustment",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fifo_income",
+          "source_symbol": "FIFO net income",
+          "role": "output",
+          "quantity_id": "fifo_basis_net_income",
+          "definition": "FIFO net income",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "tax >= 0",
+        "tax <= 1"
+      ],
+      "assumptions": [
+        "Only the inventory cost-flow assumption changes and the indicated effective tax rate applies to its incremental effect.",
+        "The reserve change corresponds to the same reporting period and entity."
+      ],
+      "limitations": [
+        "This is a hypothetical comparable accounting adjustment; it does not claim the company actually changed methods or taxes paid.",
+        "Complex tax effects, valuation allowances and unrelated reserve movements require further reconciliation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 5, LIFO Liquidations, printed pp272–273 (PDF pp286–287), Example 5 solution 3",
+          "evidence": "The source adjusts income for the change in cost of sales and the associated tax effect.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "wiley-inventory-excerpt",
+          "kind": "primary",
+          "title": "Inventories: Implications for Financial Statements and Ratios",
+          "url": "https://catalogimages.wiley.com/images/db/pdf/9781942471042.excerpt.pdf",
+          "version": "Michael A. Broihahn; CFA Institute copyright 2011; publisher-hosted excerpt, publication date not established",
+          "accessed": "2026-11-03",
+          "locator": "Reading 16, The LIFO Method, LIFO Reserve; practice solution 3 for after-tax income conversion",
+          "evidence": "The excerpt defines the LIFO reserve and explains adjustments of inventory and cost of sales to a FIFO basis.",
+          "license": "Publisher copyright retained; single-formula transcription and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "reserve-increase",
+          "inputs": {
+            "income": 1000,
+            "change": 100,
+            "tax": 0.3
+          },
+          "expected": 1070,
+          "tolerance": 1e-09,
+          "method": "A 100 reserve increase adds 70 after-tax profit.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "reserve-decrease",
+          "inputs": {
+            "income": 754000000,
+            "change": -215000000,
+            "tax": 0.28
+          },
+          "expected": 599200000,
+          "tolerance": 1e-09,
+          "method": "A 215 million decline reduces profit by 154.8 million; source rounds to 599 million.",
+          "provenance": "CFA Example 5 printed pp272–273/PDF pp286–287."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "change": 100,
+            "tax": 0.3
+          },
+          "reason": "income is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "income=fifo_income-change*(1-tax); change=(fifo_income-income)/(1-tax) requires tax not equal to one.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

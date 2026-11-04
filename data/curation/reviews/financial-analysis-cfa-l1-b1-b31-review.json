@@ -1,0 +1,171 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b1-b31",
+  "batch_sha256": "ce613659a23741d67fa9d309c2c9e4f4d347033266d78cb1984a72eb35eb0388",
+  "reviewer": "ingest-clinical",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--sample-target-downside-deviation",
+      "revision": "r2",
+      "record_sha256": "4bc43e4d17f568edf133e00ea225f455602cc63e9d1c25bf7724c585329a59c3",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating AnalystPrep page not opened by reviewer."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Fixed-target shortfall risk with full-sample n-1 denominator (n counts all observations); n- and downside-count conventions explicitly not interchangeable."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "sqrt(sum over a data-unit^2 shortfall-square family/(len-1)) gives data-unit s. data-unit^2, data-unit, squared_target_shortfall, sample_target_downside_deviation are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: sqrt(84/11)=2.7634 within tol 5e-5; sqrt(0/2)=0 exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "len>1 and sum>=0. Inverse recovers total squared shortfall (n-1)*s^2 only; individuals and target unidentified; s=0 means no positive shortfall term, correctly."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating source not opened by reviewer (https://analystprep.com/cfa-level-1-exam/uncategorized/semi-deviation-and-coefficient-of-variation-downside-risk-and-risk-per-unit-of-return/).",
+        "Requires runtime extension (data units and new meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    },
+    {
+      "id": "financial-analysis--coefficient-of-variation",
+      "revision": "r2",
+      "record_sha256": "1a95a98f7bd25587d489dd188ef9688efe61e23a6908d231079b36163b2def67",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating NIST DATAPLOT coefficient-of-variation page not opened by reviewer."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Positive-mean ratio-scale CV; mean 0 undefined and negative-mean quotients excluded; near-zero sensitivity disclosed."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "s[data-unit]/mean[data-unit] gives unit-1 CV. data-unit, sample_standard_deviation, arithmetic_mean, coefficient_of_variation are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 5.6/4=1.4; 0/2=0, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "s>=0, mean>0 (positive-mean profile). Inverses s=CV*mean; mean=s/CV needs CV>0; CV=s=0 leaves mean unidentified, correctly."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating source not opened by reviewer (https://www.itl.nist.gov/div898/software/dataplot/refman2/auxillar/coefvari.htm).",
+        "Requires runtime extension (data-unit and new meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    },
+    {
+      "id": "financial-analysis--sample-covariance",
+      "revision": "r2",
+      "record_sha256": "6077c5e2864f33cf5d6acedd6c9086214c512c29145d55c71d4d4c3920ee339e",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "numpy.cov documentation verified live 2026-11-04: default normalization by (N-1) stated as the unbiased estimate, bias/ddof overrides documented; matches the record denominator."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Paired-sample covariance with matching means and n-1 normalization; precomputed centered products required; no causation implied."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "sum over a data-unit-x*data-unit-y cross-product family divided by (len-1) gives sample covariance in the product unit. All units and centered_cross_product/sample_covariance meanings are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: (2+0+2)/2=2; (-2+0-2)/2=-2, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "len(cross)>1 enforces the Bessel denominator. Inverse recovers total centered cross product only (n=3, cov=2 gives total 4); pairs/scales/signs unidentified, correctly."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "BSD 3-clause terms verified live 2026-11-04 (numpy LICENSE.txt: redistribution with notice, no endorsement). Only the normalization rule is reused. No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://numpy.org/doc/stable/reference/generated/numpy.cov.html",
+          "locator": "numpy.cov, bias parameter",
+          "accessed": "2026-11-04",
+          "finding": "Live page: default normalization by (N-1) as the unbiased estimate."
+        },
+        {
+          "url": "https://raw.githubusercontent.com/numpy/numpy/main/LICENSE.txt",
+          "locator": "BSD license text",
+          "accessed": "2026-11-04",
+          "finding": "Live text: BSD 3-clause redistribution terms."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Sample covariance from precomputed centered cross products with n-1 normalization, for qualified association review."
+    },
+    {
+      "id": "financial-analysis--pearson-correlation-from-covariance",
+      "revision": "r2",
+      "record_sha256": "7cd4c0d5fd4b71ef521a1fd0d17a4d5e88f3588aa3d76f89d3bbbdd4b42764fa",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating numpy.corrcoef page not opened by reviewer (numpy.cov was verified, but not this page)."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Linear association for one paired sample with compatible normalization; nonlinear dependence and causation explicitly excluded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "cov[X*Y]/(sx[X]*sy[Y]) gives unit-1 r. Product and scale units plus sample_covariance, sample_standard_deviation, pearson_sample_correlation are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 2/(1*2)=1; -2/(1*2)=-1, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "sx>0, sy>0 with |cov|<=sx*sy (Cauchy bound enforced). Inverses cov=r*sx*sy; sx=cov/(r*sy) needs r nonzero; cov=r=0 leaves sx unidentified, correctly."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating source not opened by reviewer (https://numpy.org/doc/stable/reference/generated/numpy.corrcoef.html).",
+        "Requires runtime extension (product/scale units and new meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    }
+  ]
+}

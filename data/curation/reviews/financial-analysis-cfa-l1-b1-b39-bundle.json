@@ -1,0 +1,530 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b39",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 1 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--aggregate-continuously-compounded-return",
+      "revision": "r2",
+      "title": "Aggregate continuously compounded return",
+      "summary": "Successive log returns sum to the log return over their combined horizon.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "total",
+        "expression": "sum(r)",
+        "original_equation": "r(0,T)=sum[t=1..T]r(t-1,t)",
+        "source_id": "openstax-log-product",
+        "locator": "Section4.5, Product Rule and Quotient Rule for Logarithms",
+        "translation_notes": "The sum is exactly the logarithm of the telescoping product of positive gross returns. Family order must follow the declared consecutive intervals. No percent conversion factors occur. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "r",
+          "source_symbol": "r(t-1,t)",
+          "role": "family",
+          "quantity_id": "successive_log_returns",
+          "definition": "Finite family of log returns over successive nonoverlapping intervals",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One asset and return basis, consecutive equal-length observation periods; periods are dimensionless counts",
+          "domain": "Finite real scalar",
+          "max_size": 256
+        },
+        {
+          "symbol": "total",
+          "source_symbol": "r(0,T)",
+          "role": "output",
+          "quantity_id": "aggregate_log_return",
+          "definition": "Log return over the entire sequence",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One asset and return basis, consecutive equal-length observation periods; periods are dimensionless counts",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "len(r) >= 1"
+      ],
+      "assumptions": [
+        "Source assumption: strictly positive endpoint prices and a consistent definition of reinvested distributions if total returns are used.",
+        "Application boundary: at least one interval; no independence or normality is needed for this identity."
+      ],
+      "limitations": [
+        "The engine consumes already computed log returns; it does not match price timestamps or adjust dividends."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Continuously Compounded Rates of Return, printed p270 (PDF p280), Equation(7)",
+          "evidence": "Successive log returns sum to the log return over their combined horizon.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-log-product",
+          "kind": "primary",
+          "title": "Precalculus 2e",
+          "url": "https://openstax.org/books/precalculus-2e/pages/4-5-logarithmic-properties",
+          "version": "OpenStax second edition, inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section4.5, Product Rule and Quotient Rule for Logarithms",
+          "evidence": "Logarithms turn products of positive factors into sums; successive positive price relatives telescope.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "telescoping-prices",
+          "inputs": {
+            "r": [
+              0.6931471805599453,
+              -0.6931471805599453
+            ]
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Price path1,2,1 has total price relative1 and log return0.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "two-doublings",
+          "inputs": {
+            "r": [
+              0.6931471805599453,
+              0.6931471805599453
+            ]
+          },
+          "expected": 1.3862943611198906,
+          "tolerance": 1e-09,
+          "method": "Two doublings give total price relative4, whose natural logarithm islog4.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "r is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "One missing component equals total minus all other components; the other components must be known. Total0 with componentlog2 implies the other component-log2, reproducing the firstcase. Multiple missing components are not identified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--equal-period-log-return-mean-scaling",
+      "revision": "r2",
+      "title": "Mean of an equal-period aggregate log return",
+      "summary": "The expected aggregate log return is the common interval mean multiplied by the number of intervals.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "mean",
+        "expression": "mu * T",
+        "original_equation": "E[r(0,T)]=mu*T",
+        "source_id": "pishro-linearity",
+        "locator": "Section3.2.2, Expectation is linear theorem",
+        "translation_notes": "Linearity of expectation applied to Equation7 produces T identical mean terms. The common-period mean and aggregate mean have distinct horizons. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "mu",
+          "source_symbol": "mu",
+          "role": "input",
+          "quantity_id": "single_period_expected_log_return",
+          "definition": "Common finite expected log return per observation interval",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One asset and return basis, consecutive equal-length observation periods; periods are dimensionless counts",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "T",
+          "source_symbol": "T",
+          "role": "input",
+          "quantity_id": "return_period_count",
+          "definition": "Positive integer number of consecutive equal-length observation intervals",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One asset and return basis, consecutive equal-length observation periods; periods are dimensionless counts",
+          "domain": "Positive integer"
+        },
+        {
+          "symbol": "mean",
+          "source_symbol": "E[r(0,T)]",
+          "role": "output",
+          "quantity_id": "aggregate_expected_log_return",
+          "definition": "Expected aggregate log return",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One asset and return basis, consecutive equal-length observation periods; periods are dimensionless counts",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "T >= 1"
+      ],
+      "assumptions": [
+        "Source uses independent identically distributed log returns. Equal finite means alone suffice for this expectation identity; no normality is needed.",
+        "T is a dimensionless integer count, not elapsed physical seconds."
+      ],
+      "limitations": [
+        "This gives expected log return, not expected simple return; exponentiating the expectation does not commute with expectation.",
+        "Input integrability and integer-period semantics require external binding checks."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Continuously Compounded Rates of Return, printed p270 (PDF p280), Equation(8)",
+          "evidence": "The expected aggregate log return is the common interval mean multiplied by the number of intervals.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "pishro-linearity",
+          "kind": "primary",
+          "title": "Introduction to Probability, Statistics, and Random Processes",
+          "url": "https://www.probabilitycourse.com/chapter3/3_2_2_expectation.php",
+          "version": "Hossein Pishro-Nik author-hosted textbook, inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section3.2.2, Expectation is linear theorem",
+          "evidence": "The expectation of a finite sum is the sum of its expectations.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "daily-to-year",
+          "inputs": {
+            "mu": 0.0001,
+            "T": 250
+          },
+          "expected": 0.025,
+          "tolerance": 1e-09,
+          "method": "Adding250 identical interval expectations of one basis point gives.025.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero-drift",
+          "inputs": {
+            "mu": 0,
+            "T": 12
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "A sum of finite zero expectations has zero expectation.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "T": 250
+          },
+          "reason": "mu is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "mu=mean/T forT>0;T=mean/mu requiresmu nonzero and a positive integer result. Mean.025,T250 recovers.0001. Atmu0,mean0 does not identifyT.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--uncorrelated-return-volatility-horizon-scaling",
+      "revision": "r2",
+      "title": "Volatility scaling for uncorrelated equal-variance log returns",
+      "summary": "Equal-variance uncorrelated log-return increments have aggregate volatility equal to interval volatility times the square root of the interval count.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "volatility",
+        "expression": "sigma * sqrt(T)",
+        "original_equation": "SD[r(0,T)]=sigma*sqrt(T); Var[r(0,T)]=sigma^2*T",
+        "source_id": "pishro-variance-sum",
+        "locator": "Section5.3.1, Variance of a sum, Equation5.21 and following pairwise-uncorrelated generalization",
+        "translation_notes": "The variance equation and its nonnegative square root are one canonical relationship, not separate copies. Signed log-return means do not restrict volatility. No normality is needed for the variance identity. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "sigma",
+          "source_symbol": "sigma",
+          "role": "input",
+          "quantity_id": "single_period_log_return_standard_deviation",
+          "definition": "Nonnegative common interval log-return standard deviation",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One asset and return basis, consecutive equal-length observation periods; periods are dimensionless counts",
+          "domain": "Nonnegative"
+        },
+        {
+          "symbol": "T",
+          "source_symbol": "T",
+          "role": "input",
+          "quantity_id": "return_period_count",
+          "definition": "Positive integer number of equal-length observation intervals",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One asset and return basis, consecutive equal-length observation periods; periods are dimensionless counts",
+          "domain": "Positive integer"
+        },
+        {
+          "symbol": "volatility",
+          "source_symbol": "sigma*sqrt(T)",
+          "role": "output",
+          "quantity_id": "aggregate_log_return_standard_deviation",
+          "definition": "Standard deviation of aggregate log return",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One asset and return basis, consecutive equal-length observation periods; periods are dimensionless counts",
+          "domain": "Nonnegative"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sigma >= 0",
+        "T >= 1"
+      ],
+      "assumptions": [
+        "Source uses independent identically distributed increments. Pairwise zero covariance and identical finite variance suffice for variance addition.",
+        "The aggregation horizon uses the same observation frequency as the suppliedsigma."
+      ],
+      "limitations": [
+        "Serial correlation invalidates this square-root rule; generic portfolio/covariance aggregation must include covariance terms.",
+        "A trading-day count is a caller-supplied convention, not a universal250 constant."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Continuously Compounded Rates of Return, printed pp270-271 (PDF pp280-281), Equation(9) and following square-root rule",
+          "evidence": "Equal-variance uncorrelated log-return increments have aggregate volatility equal to interval volatility times the square root of the interval count.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "pishro-variance-sum",
+          "kind": "primary",
+          "title": "Introduction to Probability, Statistics, and Random Processes",
+          "url": "https://www.probabilitycourse.com/chapter5/5_3_1_covariance_correlation.php",
+          "version": "Hossein Pishro-Nik author-hosted textbook, inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section5.3.1, Variance of a sum, Equation5.21 and following pairwise-uncorrelated generalization",
+          "evidence": "Variances of pairwise uncorrelated finite-variance variables add; taking a square root yields total standard deviation.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "four-periods",
+          "inputs": {
+            "sigma": 0.01,
+            "T": 4
+          },
+          "expected": 0.02,
+          "tolerance": 1e-09,
+          "method": "Independent variances.0001 added four times give.0004, whose positive square root is.02.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "deterministic-returns",
+          "inputs": {
+            "sigma": 0,
+            "T": 250
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "The sum of deterministic increments has zero variance regardless of their means.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "T": 4
+          },
+          "reason": "sigma is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "sigma=volatility/sqrt(T),T>0. T=(volatility/sigma)^2 requiressigma>0 and positive integerT. Volatility.02,T4 recoverssigma.01. Both volatilities0 do not identifyT.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--chi-square-realization-from-normal-squares",
+      "revision": "r2",
+      "title": "Chi-square realization from independent standard normal squares",
+      "summary": "The sum of independent standard normal squares is a chi-square realization with degrees of freedom equal to the number of terms.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "chi_square",
+        "expression": "sum(q)",
+        "original_equation": "chi^2=sum[i=1..k]Z_i^2, Z_i iid N(0,1)",
+        "source_id": "nist-chi-construction",
+        "locator": "Section1.3.6.6.6, opening definition",
+        "translation_notes": "Prebinding squares permits a finite-family sum without adding an unsupported random generator. The distributional scope distinguishes this from a generic sum or sample variance. Nonnegative family members are required externally. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "q",
+          "source_symbol": "Z_i^2",
+          "role": "family",
+          "quantity_id": "squared_standard_normal_realizations",
+          "definition": "Finite family of nonnegative squared realizations of independent standard normal variables",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same independent standard-normal experiment; k=len(q)",
+          "domain": "Nonnegative elements",
+          "max_size": 256
+        },
+        {
+          "symbol": "chi_square",
+          "source_symbol": "chi^2",
+          "role": "output",
+          "quantity_id": "chi_square_realization",
+          "definition": "Nonnegative chi-square realization with k degrees of freedom",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same independent standard-normal experiment; k=len(q)",
+          "domain": "Nonnegative"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "len(q) >= 1",
+        "sum(q) >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: originalZvariables are mutually independent and each is standard normal; k is a positive integer.",
+        "Binding contract: eachq_i isZ_i squared, nonnegative, and dimensionless; the family length determinesdf."
+      ],
+      "limitations": [
+        "Arithmetic cannot verify normality or independence, and the guard cannot quantify elementwise binding checks.",
+        "This does not compute a density, CDF, quantile, or generate random draws."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Chi-Square Distribution, printed p274 (PDF p284), unnumbered sum-of-squares definition",
+          "evidence": "The sum of independent standard normal squares is a chi-square realization with degrees of freedom equal to the number of terms.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-chi-construction",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda3666.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.6.6.6, opening definition",
+          "evidence": "A sum of squares of independent standard normal variables has a chi-square distribution with degrees of freedom equal to the number of variables.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "three-realizations",
+          "inputs": {
+            "q": [
+              1,
+              4,
+              0
+            ]
+          },
+          "expected": 5,
+          "tolerance": 1e-09,
+          "method": "RealizationsZ=[-1,2,0] have squared Euclidean length5, withdf3.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "one-zero-realization",
+          "inputs": {
+            "q": [
+              0
+            ]
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "The possible realizationZ0 has square0, withdf1; a continuous singleton still has probability0.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "q is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "One missing square equals chi_square minus the other squares, requiring a nonnegative result. With total5 and known squares4,0 the missing square is1; its originalZhas roots-1,+1, so signs are unidentifiable. Multiple missing squares remain underdetermined.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

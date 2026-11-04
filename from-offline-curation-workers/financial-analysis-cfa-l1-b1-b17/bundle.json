@@ -1,0 +1,685 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b17",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [
+    {
+      "title": "Ties and approximate Spearman tests require stronger qualification",
+      "reason": "LM6 printed pp397-398/PDF407-408 combines tied average ranks with a no-ties shortcut and treats a t transform for n>30 as if exact. General tied Spearman uses Pearson of ranks; significance approximation accuracy depends on sample/data, not a universal30 threshold. SciPy spearmanr notes asymptotic p-value accuracy only for very large samples, suggesting permutation for smaller ones.",
+      "source_urls": [
+        "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.spearmanr.html"
+      ]
+    },
+    {
+      "title": "BH significance line and multiple-testing source terminology pending",
+      "reason": "LM6 printed pp370-372/PDF380-382 thresholdalpha*i/m is not an adjusted p-value, despite Exhibit14 labeling. FDR isE[V/max(R,1)], not simply unconditional false-positive fraction. Sorting and selecting maximum passing index are unsupported; scalar threshold can be curated with direct algorithm evidence in a later batch.",
+      "source_urls": []
+    }
+  ],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "5 atomic relationships from the assigned CFA Quantitative Methods volume, with exact PDF locators and inspected corroboration.",
+    "gaps": [
+      "Most financial/statistical quantity meanings require registry extension.",
+      "Duplicate checking is limited to the supplied catalog/vocabulary, assignment exclusions and this curator's public records; no global uniqueness claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: official validator rejects primary source url:null, which the CFA source brief explicitly requires for the purchased PDF. Toolkit left unchanged. Independent schema, expression/reference arithmetic, guard and rejection checks pass; ZIP checksum/membership checked. No passing official validation or intake-ready return claimed. Source fidelity, dimensions, contexts and inverse notes manually reviewed. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--zero-correlation-t-statistic",
+      "revision": "r1",
+      "title": "t-statistic for zero Pearson population correlation",
+      "summary": "A zero-correlation test scales the sample correlation by its sample-size-dependent null standard-error factor.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "t",
+        "expression": "r * sqrt(n - 2) / sqrt(1 - r ** 2)",
+        "original_equation": "t=r*sqrt(n-2)/sqrt(1-r^2)",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module6, Tests Concerning Correlation, printed p395 (PDF p405), Equation(10)",
+        "translation_notes": "All quantities are dimensionless. The magnitude denominator is positive for-1<r<1. Source t-statistic references for small-sample Spearman should not be interpreted as exact."
+      },
+      "variables": [
+        {
+          "symbol": "r",
+          "source_symbol": "r",
+          "role": "input",
+          "quantity_id": "sample_pearson_correlation",
+          "definition": "Sample Pearson correlation strictly between-1 and1",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One paired sample of n observations; common missing-data, ordering, rank and population conventions",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "n",
+          "source_symbol": "n",
+          "role": "input",
+          "quantity_id": "paired_sample_count",
+          "definition": "Integer number of independent observed pairs>=3",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One paired sample of n observations; common missing-data, ordering, rank and population conventions",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "t",
+          "source_symbol": "t",
+          "role": "output",
+          "quantity_id": "zero_correlation_test_statistic",
+          "definition": "Signed correlation statistic with n-2df under the joint-normal zero-correlation null",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One paired sample of n observations; common missing-data, ordering, rank and population conventions",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "n >= 3",
+        "r > -1",
+        "r < 1"
+      ],
+      "assumptions": [
+        "Exact Pearson null t distribution requires iid pairs from a jointly bivariate normal population with zero correlation, positive marginal variances and n>=3.",
+        "Source use for Spearman is an asymptotic approximation, not the same exact Pearson null law."
+      ],
+      "limitations": [
+        "Marginal normality alone does not imply joint normality.",
+        "Perfect sample correlations make the finite statistic singular; no infinite output is supplied.",
+        "No CDF or critical-value calculation is included."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module6, Tests Concerning Correlation, printed p395 (PDF p405), Equation(10)",
+          "evidence": "A zero-correlation test scales the sample correlation by its sample-size-dependent null standard-error factor.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "r-biotools-correlation-test",
+          "kind": "primary",
+          "title": "R biotools: Pairwise Correlation t-Test",
+          "url": "https://search.r-project.org/CRAN/refmans/biotools/html/multcor.test.html",
+          "version": "Package biotoolsv4.2, inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Description, displayed t statistic and df=n-2",
+          "evidence": "The correlation statistic is r times the square root of df/(1-r squared), normally withdf=n-2.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "pythagorean-correlation",
+          "inputs": {
+            "r": 0.6,
+            "n": 18
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "r.6 andsqrt(1-r squared).8 withsqrt(df)4 give statistic3.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "no-sample-correlation",
+          "inputs": {
+            "r": 0,
+            "n": 12
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Zero sample correlation gives zero signed statistic.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "n": 18
+          },
+          "reason": "r is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "r=t/sqrt(t^2+n-2),n>2. Statistic3,n18 givesr3/sqrt25=.6; t0 givesr0. n=2+t^2*(1-r^2)/r^2 requiresr nonzero, matching sign betweenr andt, and integern>=3. r=t=0 leaves n unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--spearman-correlation-without-ties",
+      "revision": "r1",
+      "title": "Spearman correlation shortcut for untied ranks",
+      "summary": "For untied paired ranks, Spearman correlation is determined by the sum of squared rank differences.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "r_s",
+        "expression": "1 - 6 * sum(q) / (len(q) * (len(q) ** 2 - 1))",
+        "original_equation": "r_s=1-6*sum(d_i^2)/[n(n^2-1)]",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module6, Tests Concerning Correlation: Spearman Rank Correlation Coefficient, printed p397 (PDF p407), Equation(11)",
+        "translation_notes": "The integer6 comes from exact untied-rank sum-of-squares algebra. n is the family length and all quantities are dimensionless; no percent conversion. Guarded total imposes the feasible[-1,1] bound but is not a full rank-realizability check."
+      },
+      "variables": [
+        {
+          "symbol": "q",
+          "source_symbol": "d_i^2",
+          "role": "family",
+          "quantity_id": "squared_paired_rank_differences",
+          "definition": "Nonnegative squares of paired differences between two permutations of the ranks1..n; no ties",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One paired sample of n observations; common missing-data, ordering, rank and population conventions",
+          "domain": "Finite real scalar",
+          "max_size": 256
+        },
+        {
+          "symbol": "r_s",
+          "source_symbol": "r_s",
+          "role": "output",
+          "quantity_id": "sample_spearman_correlation",
+          "definition": "Spearman rank correlation for these untied paired ranks",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One paired sample of n observations; common missing-data, ordering, rank and population conventions",
+          "domain": "[-1,1]"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "len(q) >= 2",
+        "sum(q) >= 0",
+        "6 * sum(q) <= 2 * len(q) * (len(q) ** 2 - 1)"
+      ],
+      "assumptions": [
+        "Application profile: neither original variable has ties; both rank lists are permutations1..n with the same paired ordering, n>=2.",
+        "Both variables must use the same increasing or decreasing rank convention. Squared rank differences are prebound."
+      ],
+      "limitations": [
+        "CFA preceding instructions allow average ranks for ties without restricting this shortcut; the general tied case instead needs Pearson correlation of the average ranks.",
+        "No sorting/rank-generation operator is provided. Family validity cannot be enforced by aggregate guards alone."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module6, Tests Concerning Correlation: Spearman Rank Correlation Coefficient, printed p397 (PDF p407), Equation(11)",
+          "evidence": "For untied paired ranks, Spearman correlation is determined by the sum of squared rank differences.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "prins-semstat-spearman",
+          "kind": "primary",
+          "title": "The Student's SEMSTAT",
+          "url": "https://www.itl.nist.gov/div898/handbook/semstat/semstat-doc.pdf",
+          "version": "Jack Prins, edition/date unstated in inspected version",
+          "accessed": "2026-11-03",
+          "locator": "Chapter7, printed p158 (PDF p159), The Spearman Rank Correlation Coefficient, no-ties formula",
+          "evidence": "With no tied ranks, Spearman correlation is one minus six times the sum of squared rank differences divided by n(n squared minus one).",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "reverse-three-ranks",
+          "inputs": {
+            "q": [
+              4,
+              0,
+              4
+            ]
+          },
+          "expected": -1,
+          "tolerance": 1e-09,
+          "method": "Ranks[1,2,3] versus[3,2,1] have a perfectly reversed ordering, hence correlation-1.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "one-adjacent-swap",
+          "inputs": {
+            "q": [
+              0,
+              1,
+              1
+            ]
+          },
+          "expected": 0.5,
+          "tolerance": 1e-09,
+          "method": "Independent Pearson calculation on ranks[1,2,3] and[1,3,2] gives covariance numerator1 and both centered square sums2, hence.5.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "q is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "sum(q)=(1-r_s)*n*(n^2-1)/6 forknownn>=2. r_s-1,n3 returns8, matching the reverse-rank case. Sum0 givesr_s1; neither the individual paired ranks nor signs of differences are identified by the coefficient.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--categorical-pearson-chi-square-statistic",
+      "revision": "r1",
+      "title": "Pearson chi-square statistic for a contingency table",
+      "summary": "Pearson contingency-table chi-square adds each cell squared observed-minus-expected residual divided by its expected count.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "chi_square",
+        "expression": "sum(q)",
+        "original_equation": "chi^2=sum_cells[(O_ij-E_ij)^2/E_ij]",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module6, Test of Independence Using Contingency Table Data, printed p400 (PDF p410), Equation(12)",
+        "translation_notes": "All observation counts are dimensionless. Prebinding the complete cell contributions permits a sum without unsupported two-index mapping. Degrees of freedom have their own quantity definition; a sample-variance chi-square statistic is a distinct target."
+      },
+      "variables": [
+        {
+          "symbol": "q",
+          "source_symbol": "(O_ij-E_ij)^2/E_ij",
+          "role": "family",
+          "quantity_id": "pearson_cell_chi_square_contributions",
+          "definition": "One nonnegative squared count residual divided by positive expected count for every cell",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One r by c contingency table, mutually exclusive categories and independently sampled classified observations",
+          "domain": "Finite real scalar",
+          "max_size": 256
+        },
+        {
+          "symbol": "chi_square",
+          "source_symbol": "chi^2",
+          "role": "output",
+          "quantity_id": "categorical_independence_chi_square_statistic",
+          "definition": "Uncorrected nonnegative Pearson contingency-table statistic",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same table and independence-null expected-cell convention",
+          "domain": "Nonnegative"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "len(q) >= 4",
+        "sum(q) >= 0"
+      ],
+      "assumptions": [
+        "Bind every cell exactly once, withE_ij>0 and expected counts based on the independence null; observed counts are nonnegative integers.",
+        "Chi-square reference distribution is an asymptotic approximation requiring suitable expected-cell sizes and the proper independent sampling design."
+      ],
+      "limitations": [
+        "No Yates continuity correction, structural-zero adjustment, exact test, or Monte Carlo p-value is included.",
+        "The finite-family guard cannot verify each bound contribution or the consistency of the original table margins."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module6, Test of Independence Using Contingency Table Data, printed p400 (PDF p410), Equation(12)",
+          "evidence": "Pearson contingency-table chi-square adds each cell squared observed-minus-expected residual divided by its expected count.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-contingency-test",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/prc/section4/prc45.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section7.4.5, Test statistic and Degrees of freedom",
+          "evidence": "The independence statistic sums squared observed-minus-expected counts divided by expected counts, with (rows-1)(columns-1) degrees of freedom.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "two-by-two",
+          "inputs": {
+            "q": [
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "Table[[12,4],[4,12]] has expected8 in each cell, so each residual contribution is16/8=2; this oracle instead uses table[[6,2],[2,6]], expected4, giving four contributions1 and total4.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "exact-independence-table",
+          "inputs": {
+            "q": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Table[[4,4],[4,4]] equals its independence expectations, so all contributions vanish.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "q is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "One missing contribution equals the total minus the remaining terms and must be nonnegative. Total4 and three unit contributions recover the fourth1. Individual cell counts are not identifiable; total0 requires all correctly bound nonnegative contributions to be0.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--contingency-independence-degrees-of-freedom",
+      "revision": "r1",
+      "title": "Degrees of freedom for a full two-way independence table",
+      "summary": "A full r-by-c two-way independence table has (r-1)(c-1) reference-distribution degrees of freedom.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "df",
+        "expression": "(rows - 1) * (columns - 1)",
+        "original_equation": "df=(r-1)(c-1)",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module6, Test of Independence Using Contingency Table Data, printed p400 (PDF p410), text following Equation(12)",
+        "translation_notes": "Dimensionless category counts produce an integer count of independent deviations. This is not the number of cellsr*c."
+      },
+      "variables": [
+        {
+          "symbol": "rows",
+          "source_symbol": "r",
+          "role": "input",
+          "quantity_id": "contingency_row_count",
+          "definition": "Integer number of nonempty row categories>=2",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One complete two-way independence table with no structural zeros",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "columns",
+          "source_symbol": "c",
+          "role": "input",
+          "quantity_id": "contingency_column_count",
+          "definition": "Integer number of nonempty column categories>=2",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One complete two-way independence table with no structural zeros",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "df",
+          "source_symbol": "df",
+          "role": "output",
+          "quantity_id": "contingency_independence_degrees_of_freedom",
+          "definition": "Number of unconstrained cell deviations after estimating row/column margins",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same complete table and independence model",
+          "domain": "Positive integer"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "rows >= 2",
+        "columns >= 2"
+      ],
+      "assumptions": [
+        "Both category counts are integers>=2, margins are estimated, and no structural-zero or extra fitted-parameter constraints apply."
+      ],
+      "limitations": [
+        "Structural zeros, collapsed categories, or additional parameter fitting can change the degrees of freedom."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module6, Test of Independence Using Contingency Table Data, printed p400 (PDF p410), text following Equation(12)",
+          "evidence": "A full r-by-c two-way independence table has (r-1)(c-1) reference-distribution degrees of freedom.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-contingency-test",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/prc/section4/prc45.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section7.4.5, Test statistic and Degrees of freedom",
+          "evidence": "The independence statistic sums squared observed-minus-expected counts divided by expected counts, with (rows-1)(columns-1) degrees of freedom.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-three-by-three",
+          "inputs": {
+            "rows": 3,
+            "columns": 3
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "Published ETF example has fourdf.",
+          "provenance": "CFA printed p401/PDF411, Exhibit30."
+        },
+        {
+          "id": "binary-by-three",
+          "inputs": {
+            "rows": 2,
+            "columns": 3
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "Six probabilities minus normalization and three independent marginal constraints leave twodf.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "columns": 3
+          },
+          "reason": "rows is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "rows=1+df/(columns-1),columns>1,requiring integerrows>=2; symmetric formula forcolumns. df4,columns3 recoversrows3. A one-category axis would make df0 but lies outside this nontrivial independence-test profile.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--pearson-contingency-cell-residual",
+      "revision": "r1",
+      "title": "Pearson residual of an observed contingency-table cell",
+      "summary": "A Pearson cell residual preserves the sign of the discrepancy and scales it by the square root of expected count.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "residual",
+        "expression": "(observed - expected) / sqrt(expected)",
+        "original_equation": "Pearson residual=(O_ij-E_ij)/sqrt(E_ij)",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module6, Test of Independence Using Contingency Table Data, printed p402 (PDF p412), Equation(14)",
+        "translation_notes": "Counts are dimensionless, and the residual is a signed dimensionless diagnostic. Squaring and summing all such residuals recovers the uncorrected Pearson chi-square statistic."
+      },
+      "variables": [
+        {
+          "symbol": "observed",
+          "source_symbol": "O_ij",
+          "role": "input",
+          "quantity_id": "observed_cell_frequency",
+          "definition": "Nonnegative integer observed cell count",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One contingency-table cell and its independence-null expected frequency",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expected",
+          "source_symbol": "E_ij",
+          "role": "input",
+          "quantity_id": "expected_cell_frequency",
+          "definition": "Strictly positive expected cell count",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same cell and null expectation",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "residual",
+          "source_symbol": "Pearson residual",
+          "role": "output",
+          "quantity_id": "pearson_cell_residual",
+          "definition": "Signed observed-minus-expected count scaled by sqrt(expected)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same cell and null expectation",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "observed >= 0",
+        "expected > 0"
+      ],
+      "assumptions": [
+        "Expected frequency must be strictly positive and correspond to this cell and sampling/null model.",
+        "Observed frequency is an integer>=0; expected need not be an integer."
+      ],
+      "limitations": [
+        "The book calls this standardized; it is the Pearson residual, which differs from the adjusted standardized residual using estimated cell variance."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module6, Test of Independence Using Contingency Table Data, printed p402 (PDF p412), Equation(14)",
+          "evidence": "A Pearson cell residual preserves the sign of the discrepancy and scales it by the square root of expected count.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "r-chisq-pearson-residual",
+          "kind": "primary",
+          "title": "R stats: Pearson Chi-squared Test for Count Data",
+          "url": "https://stat.ethz.ch/R-manual/R-devel/library/stats/html/chisq.test.html",
+          "version": "Package statsv4.6.0 development manual as served2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Value, residuals and stdres definitions",
+          "evidence": "Pearson residuals divide observed-minus-expected counts by the square root of expected counts; adjusted standardized residuals use a different cell-variance denominator.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cell-excess",
+          "inputs": {
+            "observed": 6,
+            "expected": 4
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "An excess of2 divided bysqrt4 gives1; its square is one chi-square contribution.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "empty-observed-cell",
+          "inputs": {
+            "observed": 0,
+            "expected": 4
+          },
+          "expected": -2,
+          "tolerance": 1e-09,
+          "method": "An empty observed cell with expectation4 gives residual-2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "expected": 4
+          },
+          "reason": "observed is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "observed=expected+residual*sqrt(expected),expected>0,with nonnegative integer recoveredcount. residual1,expected4 givesobserved6. For expected from observed/residual solve inpositive root y=sqrt(expected):y=(-residual+sqrt(residual^2+4*observed))/2,requiringy>0. Atobserved0,residual-2,y2recovers4; observed=residual0has no positiveexpected solution.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,984 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b07",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [
+    {
+      "title": "Arithmetic/geometric mean minus half-variance approximation",
+      "reason": "LM2 printed pp127-128/PDF137-138 gives R_G approximately arithmetic mean-s^2/2. Source example contrasts3.1566% with approximate3.1338%. Exact approximation/error regime beyond small returns and leading variance is not supplied; queue corroboration and approximation-scope review before a completed record.",
+      "source_urls": []
+    },
+    {
+      "title": "Sample correlation worked-example transcription inconsistencies",
+      "reason": "LM2 printed p142/PDF152 Exhibit54 gives5.7318 but adjacent prose gives5.7138 for the A/B covariance; printed p143/PDF153 discusses A/C then namesFundB. Completed correlation record uses exact constructed checks and the unambiguous Eq15, not these inconsistent labels.",
+      "source_urls": []
+    }
+  ],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic relationships from the assigned CFA Quantitative Methods volume, with exact PDF locators and inspected corroboration.",
+    "gaps": [
+      "Most financial/statistical quantity meanings require registry extension.",
+      "Duplicate checking is limited to the supplied catalog/vocabulary, assignment exclusions and this curator's public records; no global uniqueness claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: official validator rejects primary source url:null, which the CFA source brief explicitly requires for the purchased PDF. Toolkit left unchanged. Independent schema, expression/reference arithmetic, guard and rejection checks pass; ZIP checksum/membership checked. No passing official validation or intake-ready return claimed. Source fidelity, dimensions, contexts and inverse notes manually reviewed. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--sample-covariance",
+      "revision": "r1",
+      "title": "Sample covariance of paired observations",
+      "summary": "Sample covariance averages paired centered cross products using n-1 degrees of freedom.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cov",
+        "expression": "sum(cross) / (len(cross) - 1)",
+        "original_equation": "s_XY=sum_i((X_i-X_bar)(Y_i-Y_bar))/(n-1)",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, Correlation between Two Variables, printed p140 (PDF p150), Equation(14)",
+        "translation_notes": "c_i is introduced as an exact paired transformation. n=len(cross), and the1 represents the mean-estimation degree-of-freedom correction. U*V remainsU*V after division by a count."
+      },
+      "variables": [
+        {
+          "symbol": "cross",
+          "source_symbol": "introduced c_i=(X_i-X_bar)(Y_i-Y_bar)",
+          "role": "family",
+          "quantity_id": "centered_cross_product",
+          "definition": "One centered product for each matched observation pair",
+          "unit": "data-unit-x*data-unit-y",
+          "dimensions": "U*V",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Finite real scalar",
+          "max_size": 256
+        },
+        {
+          "symbol": "cov",
+          "source_symbol": "s_XY",
+          "role": "output",
+          "quantity_id": "sample_covariance",
+          "definition": "Signed paired-sample covariance using n-1",
+          "unit": "data-unit-x*data-unit-y",
+          "dimensions": "U*V",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "len(cross) > 1"
+      ],
+      "assumptions": [
+        "Source assumption: every centered product uses the matching pair and the corresponding sample means.",
+        "Independent identically distributed pairs with finite second moments justify the unbiased-population-covariance interpretation."
+      ],
+      "limitations": [
+        "Precomputed centered cross products are required; covariance alone does not imply causation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Correlation between Two Variables, printed p140 (PDF p150), Equation(14)",
+          "evidence": "Sample covariance averages paired centered cross products using n-1 degrees of freedom.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "numpy-cov",
+          "kind": "primary",
+          "title": "NumPy covariance documentation",
+          "url": "https://numpy.org/doc/stable/reference/generated/numpy.cov.html",
+          "version": "NumPy v2.5 manual as served2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "numpy.cov, bias parameter, Notes and covariance algorithm",
+          "evidence": "Unweighted centered cross products are normalized by N-1 for default sample covariance.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "perfect-positive-pairing",
+          "inputs": {
+            "cross": [
+              2,
+              0,
+              2
+            ]
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "Independent identity:for X=[1,2,3] andY=2X, covariance=2*Var(X)=2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "perfect-negative-pairing",
+          "inputs": {
+            "cross": [
+              -2,
+              0,
+              -2
+            ]
+          },
+          "expected": -2,
+          "tolerance": 1e-09,
+          "method": "ForY=-2X with the sameX, signed covariance=-2*Var(X)=-2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "cross is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Known n and covariance recover the total centered cross product. In the first case n3,cov2 gives total4. Original pairs, scales and signs are not uniquely recoverable from covariance alone.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--pearson-correlation-from-covariance",
+      "revision": "r1",
+      "title": "Pearson sample correlation from covariance and standard deviations",
+      "summary": "The correlation coefficient standardizes paired-sample covariance by the two sample standard deviations.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "r",
+        "expression": "cov / (sx * sy)",
+        "original_equation": "r_XY=s_XY/(s_X*s_Y)",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, Correlation between Two Variables, printed p140 (PDF p150), Equation(15)",
+        "translation_notes": "U*V/(U*V) is dimensionless. The denominator is strictly positive; sign comes entirely from covariance. The same standardization also describes population covariance when all three moments have consistent population semantics; no separate clone is minted."
+      },
+      "variables": [
+        {
+          "symbol": "cov",
+          "source_symbol": "s_XY",
+          "role": "input",
+          "quantity_id": "sample_covariance",
+          "definition": "Covariance of the paired sample",
+          "unit": "data-unit-x*data-unit-y",
+          "dimensions": "U*V",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "sx",
+          "source_symbol": "s_X",
+          "role": "input",
+          "quantity_id": "sample_standard_deviation",
+          "definition": "Positive sample standard deviation of X",
+          "unit": "data-unit-x",
+          "dimensions": "U",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Positive"
+        },
+        {
+          "symbol": "sy",
+          "source_symbol": "s_Y",
+          "role": "input",
+          "quantity_id": "sample_standard_deviation",
+          "definition": "Positive sample standard deviation of Y",
+          "unit": "data-unit-y",
+          "dimensions": "V",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Positive"
+        },
+        {
+          "symbol": "r",
+          "source_symbol": "r_XY",
+          "role": "output",
+          "quantity_id": "pearson_sample_correlation",
+          "definition": "Dimensionless linear association for the same paired sample",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "-1<=r<=1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sx > 0",
+        "sy > 0",
+        "cov <= sx * sy",
+        "cov >= -sx * sy"
+      ],
+      "assumptions": [
+        "Source assumption: covariance and both standard deviations use the same paired sample and compatible estimator normalization.",
+        "Source assumption: neither variable is constant."
+      ],
+      "limitations": [
+        "Correlation measures linear association and can miss nonlinear dependence; no causal inference follows.",
+        "The covariance magnitude must satisfy the Cauchy bound implied by the supplied variances."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Correlation between Two Variables, printed p140 (PDF p150), Equation(15)",
+          "evidence": "The correlation coefficient standardizes paired-sample covariance by the two sample standard deviations.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "numpy-correlation",
+          "kind": "primary",
+          "title": "NumPy Pearson correlation documentation",
+          "url": "https://numpy.org/doc/stable/reference/generated/numpy.corrcoef.html",
+          "version": "NumPy v2.5 manual as served2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "numpy.corrcoef, R_ij=C_ij/sqrt(C_ii*C_jj)",
+          "evidence": "Pearson correlation divides covariance by the matching standard-deviation product.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "perfect-positive",
+          "inputs": {
+            "cov": 2,
+            "sx": 1,
+            "sy": 2
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "ForY=2X all centered pairs lie exactly on a positive-slope line.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "perfect-negative",
+          "inputs": {
+            "cov": -2,
+            "sx": 1,
+            "sy": 2
+          },
+          "expected": -1,
+          "tolerance": 1e-09,
+          "method": "ForY=-2X all centered pairs lie exactly on a negative-slope line.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "sx": 1,
+            "sy": 2
+          },
+          "reason": "cov is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cov=r*sx*sy always with positive scales. Solving sx=cov/(r*sy) requires r nonzero and a positive result. If cov=r=0, sx is not identified. The first example recovers covariance2 from1*1*2.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--large-sample-skewness-approximation",
+      "revision": "r1",
+      "title": "CFA large-sample skewness approximation using sample s",
+      "summary": "For at least100 observations the source approximates skewness by the average cubed deviation divided by sample standard deviation cubed.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "skew",
+        "expression": "sum(cubes) / (len(cubes) * s ** 3)",
+        "original_equation": "Skewness approximately (1/n)*sum_i(X_i-X_bar)^3/s^3",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, The Shape of Distributions, printed p135 (PDF p145), unnumbered large-sample skewness approximation",
+        "translation_notes": "The corroborating NIST g1 uses s0 with denominator n, unlike CFA sample s. Since s0^2=(n-1)*s^2/n, the CFA approximation equals NISTg1*((n-1)/n)^(3/2). This explicit normalization translation corroborates the standardized moment without falsely claiming identical finite-sample estimators. U^3/U^3 cancels."
+      },
+      "variables": [
+        {
+          "symbol": "cubes",
+          "source_symbol": "introduced q_i=(X_i-X_bar)^3",
+          "role": "family",
+          "quantity_id": "cubed_mean_deviation",
+          "definition": "One signed cubed centered deviation per original observation",
+          "unit": "data-unit^3",
+          "dimensions": "U^3",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Finite real scalar",
+          "max_size": 256
+        },
+        {
+          "symbol": "s",
+          "source_symbol": "s",
+          "role": "input",
+          "quantity_id": "sample_standard_deviation",
+          "definition": "Positive standard deviation computed with denominator n-1",
+          "unit": "data-unit",
+          "dimensions": "U",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Positive"
+        },
+        {
+          "symbol": "skew",
+          "source_symbol": "Skewness",
+          "role": "output",
+          "quantity_id": "large_sample_skewness_approximation",
+          "definition": "Source large-n approximation to sample skewness",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "len(cubes) >= 100",
+        "s > 0"
+      ],
+      "assumptions": [
+        "Source assumption: n>=100 and s is the source sample standard deviation.",
+        "Exact correspondence to a standardized central moment requires matching finite-sample scale conventions."
+      ],
+      "limitations": [
+        "This is the source approximation, not a finite-sample bias-corrected skewness estimator.",
+        "Per-element transformations and sample-scale consistency need binding review."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, The Shape of Distributions, printed p135 (PDF p145), unnumbered large-sample skewness approximation",
+          "evidence": "For at least100 observations the source approximates skewness by the average cubed deviation divided by sample standard deviation cubed.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-shape",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda35b.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.5.11, skewness and kurtosis formulas and explicit denominator convention",
+          "evidence": "Standardized central moments measure skewness and kurtosis; NIST explicitly distinguishes denominator-n from sample-adjusted standard deviation.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "symmetric-hundred",
+          "inputs": {
+            "cubes": [
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              -1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "s": 1.005037815259212
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Symmetry makes every odd centered moment vanish independently of standardization.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "one-high-outlier",
+          "inputs": {
+            "cubes": [
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              -1e-06,
+              0.970299
+            ],
+            "s": 0.1
+          },
+          "expected": 9.702,
+          "tolerance": 1e-09,
+          "method": "Independent Bernoulli moment:p=.01 has m3=p(1-p)(1-2p)=.009702; the n100 sample s=.1 yields9.702.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "s": 1.005037815259212
+          },
+          "reason": "cubes is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Given n,skew,s, total cubed deviation=n*skew*s^3. The outlier case recovers.9702. Zero skew does not imply symmetry; individual observations and signs are not identifiable.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--large-sample-excess-kurtosis-approximation",
+      "revision": "r1",
+      "title": "CFA large-sample excess kurtosis approximation using sample s",
+      "summary": "For a sample of at least100, the source approximates excess kurtosis by the standardized fourth centered moment less3.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "excess",
+        "expression": "sum(fourths) / (len(fourths) * s ** 4) - 3",
+        "original_equation": "K_E approximately [(1/n)*sum_i(X_i-X_bar)^4/s^4]-3",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, The Shape of Distributions: Kurtosis, printed p137 (PDF p147), unnumbered sample excess-kurtosis approximation",
+        "translation_notes": "NIST uses denominator-n standard deviation s0; CFA fourth-moment ratio=NISTkurtosis*((n-1)/n)^2. This states the actual convention difference. UnitU^4 cancels againsts^4;3 is the Gaussian population baseline and is source-attributed. Large-n approximation uncertainty has no source-reported error bound."
+      },
+      "variables": [
+        {
+          "symbol": "fourths",
+          "source_symbol": "introduced q_i=(X_i-X_bar)^4",
+          "role": "family",
+          "quantity_id": "fourth_power_mean_deviation",
+          "definition": "One fourth-power centered deviation per observation",
+          "unit": "data-unit^4",
+          "dimensions": "U^4",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Each nonnegative",
+          "max_size": 256
+        },
+        {
+          "symbol": "s",
+          "source_symbol": "s",
+          "role": "input",
+          "quantity_id": "sample_standard_deviation",
+          "definition": "Positive standard deviation computed with denominator n-1",
+          "unit": "data-unit",
+          "dimensions": "U",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Positive"
+        },
+        {
+          "symbol": "excess",
+          "source_symbol": "K_E",
+          "role": "output",
+          "quantity_id": "large_sample_excess_kurtosis_approximation",
+          "definition": "Source large-sample standardized fourth moment less the Gaussian baseline",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same finite sample, arithmetic means, observation pairing and measurement conventions; s uses the n-1 sample denominator",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [
+        {
+          "literal": 3,
+          "meaning": "Normal-distribution kurtosis baseline",
+          "unit": "1",
+          "source_id": "cfa-l1v1",
+          "locator": "Printed p137/PDF147 sample excess-kurtosis formula"
+        }
+      ],
+      "guards": [
+        "len(fourths) >= 100",
+        "s > 0",
+        "sum(fourths) >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: n>=100 and s uses the n-1 convention.",
+        "Fourth powers and s must derive from the same centered dataset."
+      ],
+      "limitations": [
+        "Not an exactly unbiased sample-kurtosis estimator; finite-sample values differ from software using denominator-n moments.",
+        "The approximate sample statistic is not subject to every population kurtosis bound without normalization adjustment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, The Shape of Distributions: Kurtosis, printed p137 (PDF p147), unnumbered sample excess-kurtosis approximation",
+          "evidence": "For a sample of at least100, the source approximates excess kurtosis by the standardized fourth centered moment less3.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-shape",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda35b.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.5.11, skewness and kurtosis formulas and explicit denominator convention",
+          "evidence": "Standardized central moments measure skewness and kurtosis; NIST explicitly distinguishes denominator-n from sample-adjusted standard deviation.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "two-point-symmetric-sample",
+          "inputs": {
+            "fourths": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "s": 1.005037815259212
+          },
+          "expected": -2.0199,
+          "tolerance": 1e-09,
+          "method": "Independent equal-mass two-point population has fourth standardized moment1; sample-scale factor(.99)^2 gives.9801 before subtracting3.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "one-outlier-sample",
+          "inputs": {
+            "fourths": [
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              1e-08,
+              0.96059601
+            ],
+            "s": 0.1
+          },
+          "expected": 93.0597,
+          "tolerance": 1e-09,
+          "method": "Independent Bernoulli fourth moment:p(1-p)[1-3p(1-p)]=.00960597; sample s^4=.0001 yields96.0597 then baseline subtraction3.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "s": 1.005037815259212
+          },
+          "reason": "fourths is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Known n,excess,s recover fourth-power total=n*(excess+3)*s^4. First case yields100. Original observations and tail probabilities are not identified by this one statistic.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

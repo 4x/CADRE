@@ -1,0 +1,51 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b2-b41",
+  "batch_sha256": "ad90bfe1a6f240abff9f97c74f0616190dbf117fee0e5f04f3166ab92b626f53",
+  "reviewer": "ingest-circuits",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--net-income-revenue-other-income-expenses",
+      "revision": "r1",
+      "record_sha256": "fcaa8394dfc4c035bc07565df01496054e749c637ef56106680ef0604154b0d1",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed UPSU on 2026-11-04 (HTTP 200): income-statement identity and revenue decomposition verified. Record math matches. Owner CFA excerpt not inspectable per track protocol; corroboration carries the math."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is disjoint other income with complete expenses incl. tax, one entity/basis/period (assumptions). Limitations exclude cash-flow readings and pretax-decomposition mixing. Signed results by design. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "revenue+other_income-expenses all [USD] closes to [USD], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: profit (1000,50,900) -> 150 exact; loss (100,5,120) -> -15 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "No guards by design (signed flows allowed). Missing-revenue rejection leaves the expression unevaluable as stated. Inverse note isolates revenue correctly."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. Penn State primary: curator records terms unestablished with facts/paraphrase only; accurate and conservative. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://propel.smeal.psu.edu/digital-resources/financial-statements-and-startup-financial-model/",
+          "locator": "Income statement basics: Revenues - Expenses = Net Income; operating/non-operating revenue",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Penn State page states Revenues - Expenses = Net Income (Loss) and distinguishes operating from non-operating revenue. Record implements revenue+other_income-expenses with the disjointness scope."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as net income revenue+other_income-expenses for one entity/basis/period with disjoint other income and complete expenses; not as cash flow, and not mixed with the pretax-minus-tax decomposition."
+    }
+  ]
+}

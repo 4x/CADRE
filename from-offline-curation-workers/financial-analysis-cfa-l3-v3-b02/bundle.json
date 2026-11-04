@@ -1,0 +1,724 @@
+{
+ "batch_id": "financial-analysis-cfa-l3-v3-b02",
+ "created": "2026-11-04",
+ "curator": "buffy",
+ "deferred": [],
+ "domain": "financial-analysis",
+ "example_only": false,
+ "handoff": {
+  "summary": "Batch b02 (L3V3): 5 records (BHB interaction contribution/total, BF allocation, Carhart factor contribution, arithmetic excess return) each with PDF locator and directly inspected accessible corroboration.",
+  "gaps": [
+   "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+   "Queue: appraisal (Sortino, semideviation, capture legs) and drawdown batches; LM2/LM3 survey."
+  ],
+  "connections": [],
+  "queries": [],
+  "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity - verified locators and corroboration pages by direct inspection 2026-11-04."
+ },
+ "kit_version": "2026-10-31.9",
+ "schema_version": "cm-curation-batch/1",
+ "models": [
+  {
+   "id": "financial-analysis--bhb-interaction-contribution",
+   "revision": "r1",
+   "title": "BHB sector interaction contribution",
+   "summary": "Sector interaction effect as weight tilt times within-sector return gap.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "v",
+    "expression": "(w-bw)*(r-b)",
+    "original_equation": "I_i = (w_i - W_i)(R_i - B_i) (Eq7)",
+    "source_id": "analystprep-performance-evaluation",
+    "locator": "PDF: LM1 BHB interaction Eqs 7-8, printed p. 13 (PDF p. 21): energy 0.0%, health care -0.1%, financials 0.2%, total 0.1%",
+    "translation_notes": "Decimals throughout. Positive when the tilt and the selection gap share a sign."
+   },
+   "variables": [
+    {
+     "symbol": "w",
+     "source_symbol": "w_i",
+     "role": "input",
+     "quantity_id": "portfolio_sector_weight",
+     "definition": "Portfolio weight of the sector, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one sector at one date",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "bw",
+     "source_symbol": "W_i",
+     "role": "input",
+     "quantity_id": "benchmark_sector_weight",
+     "definition": "Benchmark weight of the sector, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same sector and date",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "r",
+     "source_symbol": "R_i",
+     "role": "input",
+     "quantity_id": "portfolio_sector_return",
+     "definition": "Portfolio return of the sector, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same sector and date",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "b",
+     "source_symbol": "B_i",
+     "role": "input",
+     "quantity_id": "benchmark_sector_return",
+     "definition": "Benchmark return of the sector, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same sector and date",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "v",
+     "source_symbol": "I_i",
+     "role": "output",
+     "quantity_id": "interaction_contribution",
+     "definition": "Contribution to interaction of the sector, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same sector and date",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Single-period, single-currency BHB decomposition."
+   ],
+   "limitations": [
+    "Interaction is often small but completes the arithmetic identity R-B = A+S+I."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-eq7-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 BHB interaction Eqs 7-8, printed p. 13 (PDF p. 21): energy 0.0%, health care -0.1%, financials 0.2%, total 0.1%",
+     "evidence": "Eq7 with Exhibit 2 sector computations (0.0%, -0.1%, 0.2%).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-performance-evaluation",
+     "kind": "primary",
+     "title": "Performance Evaluation and Attribution (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/performance-evaluation/",
+     "version": "Study notes, 11 Jul 2024",
+     "accessed": "2026-11-04",
+     "locator": "Arithmetic active return RA = RP - RB; portfolio/benchmark/allocation/selection weighted sums (rP = sum w^P r^P etc.); allocation A = rA - rB, selection S = rS - rB, interaction I = rP - rA - rS + rB; Brinson-Fachler (1985) folds interaction into selection; Sortino, upside/downside capture with benchmark-sign conditions, maximum drawdown formulas.",
+     "evidence": "Page states the same attribution family in auxiliary-portfolio notation (rA/rS sums, A/S/I definitions) plus the arithmetic active return, Sortino, capture and drawdown formulas used across LM1 records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-healthcare-interaction-oracle",
+     "inputs": {
+      "w": 0.3,
+      "bw": 0.2,
+      "r": -0.03,
+      "b": -0.02
+     },
+     "expected": -0.001,
+     "tolerance": 1e-09,
+     "method": "(0.3-0.2)x(-0.03+0.02) = -0.001, reported as -0.1%.",
+     "provenance": "Published result: LM1 interaction detail, printed p. 13 (PDF p. 21)"
+    },
+    {
+     "id": "published-financials-interaction-oracle",
+     "inputs": {
+      "w": 0.2,
+      "bw": 0.3,
+      "r": 0.1,
+      "b": 0.12
+     },
+     "expected": 0.002,
+     "tolerance": 1e-09,
+     "method": "(0.2-0.3)x(0.10-0.12) = 0.002, reported as 0.2%.",
+     "provenance": "Published result: LM1 interaction detail, printed p. 13 (PDF p. 21)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "w": 0.3,
+      "bw": 0.2,
+      "r": -0.03
+     },
+     "reason": "Benchmark sector return is structurally required; the gap cannot be formed without it."
+    }
+   ],
+   "inverse_notes": "Four inputs; solving for any one requires the other three and v != 0 handling per case. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings sector weights/returns and interaction contribution are not in the runtime vocabulary snapshot and require extension.",
+     "Totals are financial-analysis--bhb-interaction-total; BF folds interaction into selection."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--bhb-interaction-total",
+   "revision": "r1",
+   "title": "BHB total portfolio interaction effect",
+   "summary": "Total interaction effect as the sum of sector interaction contributions; family holds precomputed contributions.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "vtot",
+    "expression": "sum(V)",
+    "original_equation": "I = sum I_i (Eq8)",
+    "source_id": "analystprep-performance-evaluation",
+    "locator": "PDF: LM1 BHB interaction Eqs 7-8, printed p. 13 (PDF p. 21): energy 0.0%, health care -0.1%, financials 0.2%, total 0.1%",
+    "translation_notes": "Family V holds precomputed sector I_i values. Decimals."
+   },
+   "variables": [
+    {
+     "symbol": "V",
+     "source_symbol": "I_i per sector (introduced family of contributions)",
+     "role": "family",
+     "quantity_id": "interaction_contribution",
+     "definition": "Sector contribution to interaction, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one portfolio vs benchmark at one date",
+     "domain": "Finite per element",
+     "max_size": 256
+    },
+    {
+     "symbol": "vtot",
+     "source_symbol": "I",
+     "role": "output",
+     "quantity_id": "interaction_effect_total",
+     "definition": "Total portfolio interaction effect, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same portfolio and date",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Sector contributions from one consistent BHB decomposition."
+   ],
+   "limitations": [
+    "Additive only within a single period."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-eq8-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 BHB interaction Eqs 7-8, printed p. 13 (PDF p. 21): energy 0.0%, health care -0.1%, financials 0.2%, total 0.1%; Example 3 table, printed p. 14 (PDF p. 22): 0.00%/0.10%/-0.08% total 0.02%.",
+     "evidence": "Eq8: 0.0-0.1+0.2 = 0.1%; Example 3: 0.00+0.10-0.08 = 0.02%.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-performance-evaluation",
+     "kind": "primary",
+     "title": "Performance Evaluation and Attribution (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/performance-evaluation/",
+     "version": "Study notes, 11 Jul 2024",
+     "accessed": "2026-11-04",
+     "locator": "Arithmetic active return RA = RP - RB; portfolio/benchmark/allocation/selection weighted sums (rP = sum w^P r^P etc.); allocation A = rA - rB, selection S = rS - rB, interaction I = rP - rA - rS + rB; Brinson-Fachler (1985) folds interaction into selection; Sortino, upside/downside capture with benchmark-sign conditions, maximum drawdown formulas.",
+     "evidence": "Page states the same attribution family in auxiliary-portfolio notation (rA/rS sums, A/S/I definitions) plus the arithmetic active return, Sortino, capture and drawdown formulas used across LM1 records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-exhibit-2-interaction-total",
+     "inputs": {
+      "V": [
+       0.0,
+       -0.001,
+       0.002
+      ]
+     },
+     "expected": 0.001,
+     "tolerance": 1e-09,
+     "method": "0.0-0.001+0.002 = 0.001, reported as 0.1%.",
+     "provenance": "Published result: LM1 Eq8 total, printed p. 13 (PDF p. 21)"
+    },
+    {
+     "id": "published-example-3-interaction-total",
+     "inputs": {
+      "V": [
+       0.0,
+       0.001,
+       -0.0008
+      ]
+     },
+     "expected": 0.0002,
+     "tolerance": 1e-09,
+     "method": "0.00+0.10-0.08 = 0.02% as reported.",
+     "provenance": "Published result: LM1 Example 3, printed p. 14 (PDF p. 22)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {},
+     "reason": "With no bound contributions there is nothing to sum."
+    }
+   ],
+   "inverse_notes": "No algebraic inverse for single elements without fixing the rest. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings interaction contribution and total interaction effect are not in the runtime vocabulary snapshot and require extension.",
+     "Completes R-B = A+S+I (1.9% = -1.4%+3.2%+0.1% in Exhibit 2)."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--bf-allocation-contribution",
+   "revision": "r1",
+   "title": "Brinson-Fachler sector allocation contribution",
+   "summary": "Sector allocation effect measured against the overall benchmark return (opportunity-cost correction of BHB).",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "a",
+    "expression": "(w-bw)*(b-tb)",
+    "original_equation": "A_i = (w_i - W_i)(B_i - B) (Eq10); portfolio-level allocation BS-B = sum (w_i - W_i) B_i (Eq9)",
+    "source_id": "analystprep-performance-evaluation",
+    "locator": "PDF: LM1 BF model Eqs 9-10 with Exhibit 3 and Example 4, printed pp. 15-16 (PDF pp. 23-24): health care (0.3-0.2)x(-0.02-0.082) = -1.02%; financials (0.2-0.3)x(0.12-0.082) = -0.38%; Ex4 utilities (0.5-0.3)x(-0.05+0.077) = 0.54%",
+    "translation_notes": "tb is the total benchmark return B. Decimals. Portfolio-level total equals the BHB allocation total (PDF Eq10 note)."
+   },
+   "variables": [
+    {
+     "symbol": "w",
+     "source_symbol": "w_i",
+     "role": "input",
+     "quantity_id": "portfolio_sector_weight",
+     "definition": "Portfolio weight of the sector, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one sector at one date",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "bw",
+     "source_symbol": "W_i",
+     "role": "input",
+     "quantity_id": "benchmark_sector_weight",
+     "definition": "Benchmark weight of the sector, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same sector and date",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "b",
+     "source_symbol": "B_i",
+     "role": "input",
+     "quantity_id": "benchmark_sector_return",
+     "definition": "Benchmark return of the sector, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same sector and date",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "tb",
+     "source_symbol": "B",
+     "role": "input",
+     "quantity_id": "benchmark_total_return",
+     "definition": "Total benchmark return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same benchmark and date",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "a",
+     "source_symbol": "A_i",
+     "role": "output",
+     "quantity_id": "bf_allocation_contribution",
+     "definition": "BF contribution to allocation of the sector, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same sector and date",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Single-period, single-currency; total benchmark return contemporaneous."
+   ],
+   "limitations": [
+    "Corrects the BHB overweight-positive-return quirk by netting the opportunity cost of not holding the overall benchmark."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-eq10-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 BF model Eqs 9-10 with Exhibit 3 and Example 4, printed pp. 15-16 (PDF pp. 23-24): health care (0.3-0.2)x(-0.02-0.082) = -1.02%; financials (0.2-0.3)x(0.12-0.082) = -0.38%; Ex4 utilities (0.5-0.3)x(-0.05+0.077) = 0.54%; PDF: LM1 Fund 2 BF micro-attribution, problems printed pp. 74-75 (PDF pp. 82-83), solutions printed pp. 78-79 (PDF pp. 86-87): South America (0.2038-0.1882)x(0.3526-0.2267) = 0.1964% (0.20%); Dev Asia (0.2986-0.3116)x(0.1285-0.2267) = 0.13%",
+     "evidence": "Eq10 with Exhibit 2 revisions (-1.02%, -0.38%) and Example 4 utilities (0.54%); Fund 2 SA/DevAsia oracles.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-performance-evaluation",
+     "kind": "primary",
+     "title": "Performance Evaluation and Attribution (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/performance-evaluation/",
+     "version": "Study notes, 11 Jul 2024",
+     "accessed": "2026-11-04",
+     "locator": "Arithmetic active return RA = RP - RB; portfolio/benchmark/allocation/selection weighted sums (rP = sum w^P r^P etc.); allocation A = rA - rB, selection S = rS - rB, interaction I = rP - rA - rS + rB; Brinson-Fachler (1985) folds interaction into selection; Sortino, upside/downside capture with benchmark-sign conditions, maximum drawdown formulas.",
+     "evidence": "Page states the same attribution family in auxiliary-portfolio notation (rA/rS sums, A/S/I definitions) plus the arithmetic active return, Sortino, capture and drawdown formulas used across LM1 records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-healthcare-bf-oracle",
+     "inputs": {
+      "w": 0.3,
+      "bw": 0.2,
+      "b": -0.02,
+      "tb": 0.082
+     },
+     "expected": -0.0102,
+     "tolerance": 1e-09,
+     "method": "(0.3-0.2)x(-0.02-0.082) = -0.0102, reported as -1.02%.",
+     "provenance": "Published result: LM1 BF revision, printed p. 16 (PDF p. 24)"
+    },
+    {
+     "id": "published-fund2-sa-bf-oracle",
+     "inputs": {
+      "w": 0.2038,
+      "bw": 0.1882,
+      "b": 0.3526,
+      "tb": 0.2267
+     },
+     "expected": 0.001964,
+     "tolerance": 1e-06,
+     "method": "(0.2038-0.1882)x(0.3526-0.2267) = 0.00196364, reported as 0.1964% (0.20%). Tolerance covers publication rounding.",
+     "provenance": "Published result: LM1 Fund 2 solution, printed p. 79 (PDF p. 87)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "w": 0.3,
+      "bw": 0.2,
+      "b": -0.02
+     },
+     "reason": "Total benchmark return is structurally required; the opportunity-cost correction cannot be formed without it."
+    }
+   ],
+   "inverse_notes": "tb = b - a/(w-bw) requires w != bw. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings sector weights, sector/total benchmark returns, and BF allocation contribution are not in the runtime vocabulary snapshot and require extension.",
+     "BHB precursor is financial-analysis--bhb-allocation-contribution; Example 4 utilities (0.54%) and Fund 2 DevAsia (0.13%) are supporting oracles."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--carhart-factor-contribution",
+   "revision": "r1",
+   "title": "Carhart factor contribution to active return",
+   "summary": "Active-return contribution of one factor as active sensitivity times factor return.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "c",
+    "expression": "d*F",
+    "original_equation": "Contribution = (sensitivity difference) x (factor return), from R_p - R_f = a_p + b_p1 RMRF + b_p2 SMB + b_p3 HML + b_p4 WML + E_p (Eq11)",
+    "source_id": "french-data-library",
+    "locator": "PDF: LM1 Carhart model Eq 11 with Exhibit 5, printed pp. 17-18 (PDF pp. 25-26): HML 0.40x5.10% = 2.04%, RMRF -0.05x5.52% = -0.28%, tilts total 2.12%, active 2.07%",
+    "translation_notes": "d is the portfolio-minus-benchmark sensitivity to the factor; F is the factor return. Decimals. Summing contributions over factors gives the factor-tilt return (2.12% in Exhibit 5, 6.96% for Fund 1)."
+   },
+   "variables": [
+    {
+     "symbol": "d",
+     "source_symbol": "sensitivity difference",
+     "role": "input",
+     "quantity_id": "active_factor_sensitivity",
+     "definition": "Portfolio-minus-benchmark sensitivity to the factor, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one factor at one date",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "F",
+     "source_symbol": "factor return",
+     "role": "input",
+     "quantity_id": "factor_return",
+     "definition": "Return of the factor over the period, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same factor and period",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "c",
+     "source_symbol": "contribution",
+     "role": "output",
+     "quantity_id": "factor_contribution",
+     "definition": "Contribution of the factor to active return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same factor and period",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Sensitivities from one consistent factor regression; benchmark must fit the mandate for attribution meaning."
+   ],
+   "limitations": [
+    "Single-factor slice only; total active return adds security selection (alpha-like remainder) per Exhibit 5 (2.12% + -0.05% = 2.07%). Momentum WML defined per PDF (past-year winners minus losers)."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-eq11-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 Carhart model Eq 11 with Exhibit 5, printed pp. 17-18 (PDF pp. 25-26): HML 0.40x5.10% = 2.04%, RMRF -0.05x5.52% = -0.28%, tilts total 2.12%, active 2.07%; PDF: LM1 Fund 1 Carhart attribution, problems printed p. 74 (PDF p. 82): HML -0.21x-9.60% = 2.02%, RMRF 0.31x16.32% = 5.06%, tilts total 6.96%, active -3.99%",
+     "evidence": "Eq11 with Exhibit 5 contributions (RMRF -0.28%, SMB 0.17%, HML 2.04%, WML 0.19%) and Fund 1 (RMRF 5.06%, SMB 0.29%, HML 2.02%, WML -0.41%).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "french-data-library",
+     "kind": "primary",
+     "title": "Kenneth R. French - Data Library",
+     "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+     "version": "Read 2026-11-04",
+     "accessed": "2026-11-04",
+     "locator": "Fama/French 3 Research Factors (Rm-Rf, SMB, HML) published with current values; 5-factor extension adds RMW, CMA. Factor returns are the long-short building blocks the Carhart model (which adds WML momentum) multiplies by active sensitivities.",
+     "evidence": "Primary source for the RMRF/SMB/HML factor definitions underlying the Carhart attribution; corroborates the factor-return inputs of the contribution record.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    },
+    {
+     "id": "analystprep-performance-evaluation",
+     "kind": "primary",
+     "title": "Performance Evaluation and Attribution (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/performance-evaluation/",
+     "version": "Study notes, 11 Jul 2024",
+     "accessed": "2026-11-04",
+     "locator": "Arithmetic active return RA = RP - RB; portfolio/benchmark/allocation/selection weighted sums (rP = sum w^P r^P etc.); allocation A = rA - rB, selection S = rS - rB, interaction I = rP - rA - rS + rB; Brinson-Fachler (1985) folds interaction into selection; Sortino, upside/downside capture with benchmark-sign conditions, maximum drawdown formulas.",
+     "evidence": "Page states the same attribution family in auxiliary-portfolio notation (rA/rS sums, A/S/I definitions) plus the arithmetic active return, Sortino, capture and drawdown formulas used across LM1 records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-exhibit-5-hml-oracle",
+     "inputs": {
+      "d": 0.4,
+      "F": 0.051
+     },
+     "expected": 0.0204,
+     "tolerance": 1e-09,
+     "method": "0.40x0.051 = 0.0204, reported as 2.04% (98.4% of active).",
+     "provenance": "Published result: LM1 Exhibit 5, printed p. 18 (PDF p. 26)"
+    },
+    {
+     "id": "published-fund1-hml-oracle",
+     "inputs": {
+      "d": -0.21,
+      "F": -0.096
+     },
+     "expected": 0.02016,
+     "tolerance": 1e-09,
+     "method": "-0.21x-0.096 = 0.02016, reported as 2.02%.",
+     "provenance": "Published result: LM1 Fund 1 table, printed p. 74 (PDF p. 82)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "d": 0.4
+     },
+     "reason": "Factor return is structurally required; sensitivity without a factor payoff has no return scale."
+    }
+   ],
+   "inverse_notes": "F = c/d requires d != 0; d = c/F requires F != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings active factor sensitivity, factor return, and factor contribution are not in the runtime vocabulary snapshot and require extension.",
+     "Exhibit 5 RMRF (-0.28%) and Fund 1 RMRF (5.06%) are supporting oracles of the same form."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--arithmetic-excess-return",
+   "revision": "r1",
+   "title": "Arithmetic excess (active) return",
+   "summary": "Single-period excess return as portfolio return minus benchmark return.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "e",
+    "expression": "r-b",
+    "original_equation": "Excess return = R - B",
+    "source_id": "analystprep-performance-evaluation",
+    "locator": "PDF: LM1 arithmetic excess return, printed p. 10 (PDF p. 18): 5.24%-3.24% = 2.00%; Exhibit 2 check, printed p. 12 (PDF p. 20): 10.1%-8.2% = 1.9%",
+    "translation_notes": "Decimals. The identity decomposed by all attribution siblings (BHB: R-B = A+S+I)."
+   },
+   "variables": [
+    {
+     "symbol": "r",
+     "source_symbol": "R",
+     "role": "input",
+     "quantity_id": "portfolio_return",
+     "definition": "Portfolio return over the period, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one portfolio and period",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "b",
+     "source_symbol": "B",
+     "role": "input",
+     "quantity_id": "benchmark_return",
+     "definition": "Benchmark return over the same period, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same period",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "e",
+     "source_symbol": "excess",
+     "role": "output",
+     "quantity_id": "arithmetic_excess_return",
+     "definition": "Arithmetic excess return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same portfolio and period",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Single period, same currency, contemporaneous measurement."
+   ],
+   "limitations": [
+    "Arithmetic difference does not compound across periods; geometric excess (dividing by the benchmark wealth ratio) is the multi-period alternative noted in the PDF."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-excess-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 arithmetic excess return, printed p. 10 (PDF p. 18): 5.24%-3.24% = 2.00%; Exhibit 2 check, printed p. 12 (PDF p. 20): 10.1%-8.2% = 1.9%",
+     "evidence": "Simple example 5.24%-3.24% = 2.00%; Exhibit 2 check 10.1%-8.2% = 1.9% (= -1.4%+3.2%+0.1%).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-performance-evaluation",
+     "kind": "primary",
+     "title": "Performance Evaluation and Attribution (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/performance-evaluation/",
+     "version": "Study notes, 11 Jul 2024",
+     "accessed": "2026-11-04",
+     "locator": "Arithmetic active return RA = RP - RB; portfolio/benchmark/allocation/selection weighted sums (rP = sum w^P r^P etc.); allocation A = rA - rB, selection S = rS - rB, interaction I = rP - rA - rS + rB; Brinson-Fachler (1985) folds interaction into selection; Sortino, upside/downside capture with benchmark-sign conditions, maximum drawdown formulas.",
+     "evidence": "Page states the same attribution family in auxiliary-portfolio notation (rA/rS sums, A/S/I definitions) plus the arithmetic active return, Sortino, capture and drawdown formulas used across LM1 records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-simple-excess-oracle",
+     "inputs": {
+      "r": 0.0524,
+      "b": 0.0324
+     },
+     "expected": 0.02,
+     "tolerance": 1e-09,
+     "method": "0.0524-0.0324 = 0.02, reported as 2.00%.",
+     "provenance": "Published result: LM1 simple example, printed p. 10 (PDF p. 18)"
+    },
+    {
+     "id": "published-exhibit-2-excess-oracle",
+     "inputs": {
+      "r": 0.101,
+      "b": 0.082
+     },
+     "expected": 0.019,
+     "tolerance": 1e-09,
+     "method": "0.101-0.082 = 0.019, reported as 1.9% (190 bps).",
+     "provenance": "Published result: LM1 Exhibit 2 check, printed p. 12 (PDF p. 20)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "r": 0.0524
+     },
+     "reason": "Benchmark return is structurally required; outperformance has no meaning without the benchmark."
+    }
+   ],
+   "inverse_notes": "b = r - e; r = e + b. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings portfolio/benchmark return and arithmetic excess return are not in the runtime vocabulary snapshot and require extension.",
+     "Decomposed by the BHB/BF/factor siblings; geometric variant noted as multi-period alternative."
+    ],
+    "duplicate_of": []
+   }
+  }
+ ]
+}

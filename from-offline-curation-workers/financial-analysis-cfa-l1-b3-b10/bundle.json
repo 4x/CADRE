@@ -1,0 +1,420 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b10",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--cash-collected-from-customers",
+      "revision": "r1",
+      "title": "Cash collected from customers from accrual revenue",
+      "summary": "Cash collections reconcile revenue to the change in receivables.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cash",
+        "expression": "revenue - change",
+        "original_equation": "Cash collected = revenue - increase in accounts receivable",
+        "source_id": "openstax-direct-cash",
+        "locator": "Cash collected from customers; cash paid to suppliers; cash paid for salaries",
+        "translation_notes": "Change equals ending minus beginning and can be negative; amounts share one currency."
+      },
+      "variables": [
+        {
+          "symbol": "revenue",
+          "source_symbol": "accrual sales revenue",
+          "role": "input",
+          "quantity_id": "accrual_sales_revenue",
+          "definition": "accrual sales revenue",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "change",
+          "source_symbol": "ending less beginning accounts receivable",
+          "role": "input",
+          "quantity_id": "accounts_receivable_change",
+          "definition": "ending less beginning accounts receivable",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "cash",
+          "source_symbol": "cash collected from customers",
+          "role": "output",
+          "quantity_id": "cash_collected_from_customers",
+          "definition": "cash collected from customers",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Receivables and sales correspond to the same customer transactions and period.",
+        "No other receivable movements affect the balance."
+      ],
+      "limitations": [
+        "Write-offs, acquisitions, foreign exchange and contract liabilities require separate reconciliation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Direct Method, printed pp141–142 (PDF pp155–156), Example 3",
+          "evidence": "Cash collections reconcile revenue to the change in receivables.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-direct-cash",
+          "kind": "primary",
+          "title": "Prepare a Completed Statement of Cash Flows Using the Direct Method",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/16-6-appendix-prepare-a-completed-statement-of-cash-flows-using-the-direct-method",
+          "version": "OpenStax Principles of Accounting Volume 1, section 16.6",
+          "accessed": "2026-11-03",
+          "locator": "Cash collected from customers; cash paid to suppliers; cash paid for salaries",
+          "evidence": "The section reconciles accrual amounts to cash using associated changes in receivables, inventory and payables.",
+          "license": "OpenStax page displays noncommercial and AI-use restrictions; factual formulas and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-decrease",
+          "inputs": {
+            "revenue": 50000000,
+            "change": -12000000
+          },
+          "expected": 62000000,
+          "tolerance": 1e-09,
+          "method": "A receivables decline adds 12 million to revenue.",
+          "provenance": "CFA Example 3 printed pp141–142/PDF pp155–156."
+        },
+        {
+          "id": "increase",
+          "inputs": {
+            "revenue": 100000,
+            "change": 5000
+          },
+          "expected": 95000,
+          "tolerance": 1e-09,
+          "method": "An increase in receivables is subtracted from sales.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "change": -12000000
+          },
+          "reason": "revenue is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "revenue=cash+change and change=revenue-cash.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--cash-paid-to-inventory-suppliers",
+      "revision": "r1",
+      "title": "Cash paid to inventory suppliers from accrual amounts",
+      "summary": "Adjust cost of goods sold for inventory and supplier-payable changes to obtain cash paid.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cash",
+        "expression": "cogs + inventory - payable",
+        "original_equation": "Cash paid = cost of goods sold + increase in inventory - increase in accounts payable",
+        "source_id": "openstax-direct-cash",
+        "locator": "Cash collected from customers; cash paid to suppliers; cash paid for salaries",
+        "translation_notes": "Each balance change is ending minus beginning; signed changes accommodate decreases."
+      },
+      "variables": [
+        {
+          "symbol": "cogs",
+          "source_symbol": "cost of goods sold",
+          "role": "input",
+          "quantity_id": "cost_of_goods_sold",
+          "definition": "cost of goods sold",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "inventory",
+          "source_symbol": "ending less beginning inventory",
+          "role": "input",
+          "quantity_id": "inventory_balance_change",
+          "definition": "ending less beginning inventory",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "payable",
+          "source_symbol": "ending less beginning supplier payables",
+          "role": "input",
+          "quantity_id": "inventory_supplier_payables_change",
+          "definition": "ending less beginning supplier payables",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "cash",
+          "source_symbol": "cash paid to suppliers",
+          "role": "output",
+          "quantity_id": "cash_paid_inventory_suppliers",
+          "definition": "cash paid to suppliers",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "All changes reflect inventory purchase and sale transactions within the same reporting scope.",
+        "Inventory and payables are not affected by other movements."
+      ],
+      "limitations": [
+        "Inventory write-downs, noncash transactions and payables unrelated to inventory need separate adjustments."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Direct Method, printed pp142–143 (PDF pp156–157), Example 4",
+          "evidence": "Adjust cost of goods sold for inventory and supplier-payable changes to obtain cash paid.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-direct-cash",
+          "kind": "primary",
+          "title": "Prepare a Completed Statement of Cash Flows Using the Direct Method",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/16-6-appendix-prepare-a-completed-statement-of-cash-flows-using-the-direct-method",
+          "version": "OpenStax Principles of Accounting Volume 1, section 16.6",
+          "accessed": "2026-11-03",
+          "locator": "Cash collected from customers; cash paid to suppliers; cash paid for salaries",
+          "evidence": "The section reconciles accrual amounts to cash using associated changes in receivables, inventory and payables.",
+          "license": "OpenStax page displays noncommercial and AI-use restrictions; factual formulas and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-example",
+          "inputs": {
+            "cogs": 100000000,
+            "inventory": -6000000,
+            "payable": -2000000
+          },
+          "expected": 96000000,
+          "tolerance": 1e-09,
+          "method": "A 6 million inventory fall and 2 million payable fall give 96 million.",
+          "provenance": "CFA Example 4 printed p143/PDF p157."
+        },
+        {
+          "id": "constructed",
+          "inputs": {
+            "cogs": 100000,
+            "inventory": 10000,
+            "payable": 5000
+          },
+          "expected": 105000,
+          "tolerance": 1e-09,
+          "method": "Purchases are 110000 and 5000 remains unpaid.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "inventory": -6000000,
+            "payable": -2000000
+          },
+          "reason": "cogs is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cogs=cash-inventory+payable; inventory=cash-cogs+payable; payable=cogs+inventory-cash.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--cash-paid-for-accrued-expense",
+      "revision": "r1",
+      "title": "Cash paid for an expense from accrued liability movement",
+      "summary": "Cash paid is expense adjusted for the change in the associated accrued liability.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cash",
+        "expression": "expense - change",
+        "original_equation": "Cash paid = accrued expense - increase in related payable",
+        "source_id": "openstax-direct-cash",
+        "locator": "Cash collected from customers; cash paid to suppliers; cash paid for salaries",
+        "translation_notes": "The payable change is ending minus beginning. The expense type must be supplied as context."
+      },
+      "variables": [
+        {
+          "symbol": "expense",
+          "source_symbol": "accrued expense",
+          "role": "input",
+          "quantity_id": "accrued_period_expense",
+          "definition": "accrued expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "change",
+          "source_symbol": "ending less beginning related payable",
+          "role": "input",
+          "quantity_id": "related_accrued_payable_change",
+          "definition": "ending less beginning related payable",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "cash",
+          "source_symbol": "cash paid for expense",
+          "role": "output",
+          "quantity_id": "cash_paid_accrued_expense",
+          "definition": "cash paid for expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Expense and payable relate to the same type of charge and reporting period.",
+        "No unrelated or noncash movements alter the payable."
+      ],
+      "limitations": [
+        "Prepayments and additional balance-sheet adjustments are excluded from this simple reconciliation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Direct Method, printed pp143–144 (PDF pp157–158), cash paid to employees and interest",
+          "evidence": "Cash paid is expense adjusted for the change in the associated accrued liability.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-direct-cash",
+          "kind": "primary",
+          "title": "Prepare a Completed Statement of Cash Flows Using the Direct Method",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/16-6-appendix-prepare-a-completed-statement-of-cash-flows-using-the-direct-method",
+          "version": "OpenStax Principles of Accounting Volume 1, section 16.6",
+          "accessed": "2026-11-03",
+          "locator": "Cash collected from customers; cash paid to suppliers; cash paid for salaries",
+          "evidence": "The section reconciles accrual amounts to cash using associated changes in receivables, inventory and payables.",
+          "license": "OpenStax page displays noncommercial and AI-use restrictions; factual formulas and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "employee-example",
+          "inputs": {
+            "expense": 4123,
+            "change": 10
+          },
+          "expected": 4113,
+          "tolerance": 1e-09,
+          "method": "An increase of 10 in wages payable reduces cash paid by 10.",
+          "provenance": "CFA printed p143/PDF p157."
+        },
+        {
+          "id": "interest-example",
+          "inputs": {
+            "expense": 246,
+            "change": -12
+          },
+          "expected": 258,
+          "tolerance": 1e-09,
+          "method": "A decrease of 12 in interest payable raises cash paid by 12.",
+          "provenance": "CFA printed p144/PDF p158."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "change": 10
+          },
+          "reason": "expense is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "expense=cash+change; change=expense-cash.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

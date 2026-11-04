@@ -1,0 +1,562 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b33",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 2 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--government-debt-gdp-ratio",
+      "revision": "r2",
+      "title": "Government debt stock relative to period nominal GDP",
+      "summary": "The reading compares the stock of outstanding public debt with nominal economic output over the declared period.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "debt / GDP",
+        "original_equation": "Debt-to-GDP ratio=government debt/nominalGDP",
+        "source_id": "worldbank-government-debt",
+        "locator": "Short/Long definition, Periodicity and debt-stock timing",
+        "translation_notes": "Monetary dimensions cancel, but stock/flow temporal support remains in context; the financial output period is not a physical seconds duration. Currency conversion, if necessary to consolidate foreign debt, must be completed explicitly upstream before this single-currency record. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "debt",
+          "source_symbol": "public debt",
+          "role": "input",
+          "quantity_id": "government_debt_stock",
+          "definition": "Outstanding government debt at the stated fiscal observation date and consolidation/valuation basis",
+          "unit": "GBP",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite debt"
+        },
+        {
+          "symbol": "GDP",
+          "source_symbol": "GDP",
+          "role": "input",
+          "quantity_id": "nominal_gross_domestic_product",
+          "definition": "Positive nominalGDP for the explicitly matched fiscal/calendar period",
+          "unit": "GBP",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite nominalGDP"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "ratio of public debt toGDP",
+          "role": "output",
+          "quantity_id": "government_debt_gdp_ratio",
+          "definition": "Government debt stock as a fraction of one declared period nominalGDP",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite ratio"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "debt >= 0",
+        "GDP > 0"
+      ],
+      "assumptions": [
+        "Source assumption: government boundary, gross/net treatment, consolidation, debt valuation and observation date are stated before binding.",
+        "Application profile: WorldBank corroborating indicator is central-government debt; CFA exhibits also discuss general-government/public debt, which require matching scope explicitly."
+      ],
+      "limitations": [
+        "Debt is a stock andGDP a period flow; changing the GDP annualization period changes the ratio.",
+        "The ratio alone does not establish sustainability or default probability."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module5, Introduction to Monetary and Fiscal Policy and Deficits and the National Debt, printed pp279,325-326 (PDF pp291,337-338), Exhibits1 and18",
+          "evidence": "The reading compares the stock of outstanding public debt with nominal economic output over the declared period.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "worldbank-government-debt",
+          "kind": "primary",
+          "title": "World Development Indicators metadata: Central government debt, total(%ofGDP)",
+          "url": "https://databank.worldbank.org/metadataglossary/world-development-indicators/series/GC.DOD.TOTL.GD.ZS",
+          "version": "WorldBank WDI, live metadata",
+          "accessed": "2026-11-03",
+          "locator": "Short/Long definition, Periodicity and debt-stock timing",
+          "evidence": "The indicator relates debt outstanding at a stated date toGDP for the declared fiscal period.",
+          "license": "Metadata specifies CC BY4.0 and links https://datacatalog.worldbank.org/public-licenses#cc-by; inspected2026-11-03. No data table redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "debt-below-annual-output",
+          "inputs": {
+            "debt": 600,
+            "GDP": 1000
+          },
+          "expected": 0.6,
+          "tolerance": 1e-09,
+          "method": "Debt600 is60percent of annual nominal output1000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "debt-above-output",
+          "inputs": {
+            "debt": 1500,
+            "GDP": 1000
+          },
+          "expected": 1.5,
+          "tolerance": 1e-09,
+          "method": "Debt1500 is150percent of annual nominal output1000; no clipping at1.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "GDP": 1000
+          },
+          "reason": "debt is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "debt=ratio*GDP; GDP=debt/ratio requiresratio>0 and positiveGDP. First case reconstructs debt600 and substitutes.6. Debt0,ratio0 do not identifyGDP.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--fiscal-spending-multiplier-observed",
+      "revision": "r2",
+      "title": "Fiscal expenditure multiplier definition",
+      "summary": "Multiplier is a ratio of the output response to the initiating spending change.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "multiplier",
+        "expression": "dy / da",
+        "original_equation": "Fiscal multiplier = change in equilibrium output / change in autonomous spending",
+        "source_id": "openstax-expenditure",
+        "locator": "Multiplier effect and calculating the multiplier",
+        "translation_notes": "The currency dimensions cancel; negative changes are permitted. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "dy",
+          "source_symbol": "change in output",
+          "role": "input",
+          "quantity_id": "change_in_equilibrium_output",
+          "definition": "Change in real equilibrium output over the specified horizon",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "da",
+          "source_symbol": "change in autonomous spending",
+          "role": "input",
+          "quantity_id": "change_in_autonomous_spending",
+          "definition": "Exogenous autonomous spending change in matching real units",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "multiplier",
+          "source_symbol": "fiscal multiplier",
+          "role": "output",
+          "quantity_id": "fiscal_expenditure_multiplier",
+          "definition": "Output response per unit of autonomous spending",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "da ** 2 > 0"
+      ],
+      "assumptions": [
+        "Both changes use matching real units and a common horizon.",
+        "Autonomous spending is identified independently of induced spending."
+      ],
+      "limitations": [
+        "The ratio does not establish causation or identify a policy counterfactual."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 5, Fiscal Policy, printed p334 (PDF p346), unnumbered multiplier definition",
+          "evidence": "Multiplier is a ratio of the output response to the initiating spending change.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-expenditure",
+          "kind": "primary",
+          "title": "The Expenditure-Output Model",
+          "url": "https://openstax.org/books/principles-economics-3e/pages/d-the-expenditure-output-model",
+          "version": "OpenStax Principles of Economics 3e, Appendix D; inspected 2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Multiplier effect and calculating the multiplier",
+          "evidence": "The multiplier relates the change in equilibrium output to the initial expenditure change; a proportional tax reduces induced consumption.",
+          "license": "Current OpenStax terms include noncommercial and AI restrictions; paraphrased factual definitions only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "doubling",
+          "inputs": {
+            "dy": 200,
+            "da": 100
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "Output rises by twice the initial spending.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "contraction",
+          "inputs": {
+            "dy": -150,
+            "da": -50
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "A spending fall of 50 accompanies an output fall of 150.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "da": 100
+          },
+          "reason": "dy is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "dy=multiplier*da; da=dy/multiplier requires a nonzero multiplier. A zero spending change cannot identify the ratio.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--tax-adjusted-spending-multiplier",
+      "revision": "r2",
+      "title": "Closed-economy tax-adjusted spending multiplier",
+      "summary": "Proportional taxation reduces the induced-consumption term in the geometric spending sequence.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "multiplier",
+        "expression": "1 / (1 - c * (1 - t))",
+        "original_equation": "Spending multiplier = 1 / [1 - MPC(1 - tax rate)]",
+        "source_id": "openstax-expenditure",
+        "locator": "Multiplier effect and calculating the multiplier",
+        "translation_notes": "All quantities are dimensionless; the no-tax formula is the t=0 profile. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "c",
+          "source_symbol": "marginal propensity to consume",
+          "role": "input",
+          "quantity_id": "marginal_propensity_to_consume_after_tax",
+          "definition": "Fraction of incremental disposable income consumed",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Between zero and one"
+        },
+        {
+          "symbol": "t",
+          "source_symbol": "net tax rate",
+          "role": "input",
+          "quantity_id": "proportional_net_tax_rate",
+          "definition": "Proportional net tax rate",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Between zero and one"
+        },
+        {
+          "symbol": "multiplier",
+          "source_symbol": "spending multiplier",
+          "role": "output",
+          "quantity_id": "closed_economy_spending_multiplier",
+          "definition": "Equilibrium output response to autonomous spending",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "c >= 0",
+        "c < 1",
+        "t >= 0",
+        "t <= 1"
+      ],
+      "assumptions": [
+        "Closed economy, constant marginal propensity and proportional tax rate.",
+        "Fixed prices and sufficient spare capacity permit output adjustment."
+      ],
+      "limitations": [
+        "The model excludes import leakages and endogenous monetary responses."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 5, Fiscal Policy, printed p334 (PDF p346), unnumbered tax-adjusted multiplier",
+          "evidence": "Proportional taxation reduces the induced-consumption term in the geometric spending sequence.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-expenditure",
+          "kind": "primary",
+          "title": "The Expenditure-Output Model",
+          "url": "https://openstax.org/books/principles-economics-3e/pages/d-the-expenditure-output-model",
+          "version": "OpenStax Principles of Economics 3e, Appendix D; inspected 2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Multiplier effect and calculating the multiplier",
+          "evidence": "The multiplier relates the change in equilibrium output to the initial expenditure change; a proportional tax reduces induced consumption.",
+          "license": "Current OpenStax terms include noncommercial and AI restrictions; paraphrased factual definitions only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "taxed",
+          "inputs": {
+            "c": 0.9,
+            "t": 0.2
+          },
+          "expected": 3.5714285714285716,
+          "tolerance": 1e-09,
+          "method": "One divided by one minus 0.9 times 0.8.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "no-tax",
+          "inputs": {
+            "c": 0.9,
+            "t": 0
+          },
+          "expected": 10,
+          "tolerance": 1e-09,
+          "method": "A 0.9 marginal propensity yields multiplier 10 with no tax.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "t": 0.2
+          },
+          "reason": "c is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "c=(1-1/multiplier)/(1-t) when t is below one; at t=1 the output is one regardless of c. Denominator must be positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--government-primary-budget-deficit",
+      "revision": "r2",
+      "title": "Government deficit from purchases, taxes and transfers",
+      "summary": "The sign convention here represents spending plus benefits less tax as a positive deficit.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "deficit",
+        "expression": "G - T + B",
+        "original_equation": "Budget deficit = government purchases - taxes + transfer benefits",
+        "source_id": "openstax-budget",
+        "locator": "Opening definition of deficit and surplus",
+        "translation_notes": "All amounts share the declared currency and accounting basis. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "G",
+          "source_symbol": "government spending",
+          "role": "input",
+          "quantity_id": "government_purchases",
+          "definition": "Government spending excluding transfers in the stated period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "T",
+          "source_symbol": "taxes",
+          "role": "input",
+          "quantity_id": "government_tax_revenue",
+          "definition": "Government tax revenue in the same period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "B",
+          "source_symbol": "transfer benefits",
+          "role": "input",
+          "quantity_id": "government_transfer_payments",
+          "definition": "Government transfer payments in the same period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "deficit",
+          "source_symbol": "budget deficit",
+          "role": "output",
+          "quantity_id": "government_budget_deficit",
+          "definition": "Positive deficit; a negative value represents surplus",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "G >= 0",
+        "T >= 0",
+        "B >= 0"
+      ],
+      "assumptions": [
+        "Components use the same government coverage and accounting period.",
+        "Purchases exclude separately represented transfers."
+      ],
+      "limitations": [
+        "Interest and other revenue or spending components require explicit inclusion in the relevant aggregate; this simplified identity does not supply them."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 5, Fiscal Policy, printed p333 (PDF p345), Equation (5)",
+          "evidence": "The sign convention here represents spending plus benefits less tax as a positive deficit.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-budget",
+          "kind": "primary",
+          "title": "Government Spending",
+          "url": "https://openstax.org/books/principles-economics-3e/pages/30-1-government-spending",
+          "version": "OpenStax Principles of Economics 3e, section 30.1; inspected 2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Opening definition of deficit and surplus",
+          "evidence": "A deficit arises when spending exceeds taxes over the period.",
+          "license": "Current OpenStax terms include noncommercial and AI restrictions; paraphrased factual definitions only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "deficit",
+          "inputs": {
+            "G": 100,
+            "T": 90,
+            "B": 20
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "Spending and transfers exceed taxes by 30.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "surplus",
+          "inputs": {
+            "G": 80,
+            "T": 120,
+            "B": 10
+          },
+          "expected": -30,
+          "tolerance": 1e-09,
+          "method": "Taxes exceed the two spending components by 30.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "T": 90,
+            "B": 20
+          },
+          "reason": "G is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "T=G+B-deficit. A negative result denotes surplus rather than an invalid input.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

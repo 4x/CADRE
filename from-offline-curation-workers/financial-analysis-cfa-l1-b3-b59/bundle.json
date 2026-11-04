@@ -1,0 +1,154 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b59",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. This explicit credit-sales numerator differs from the earlier total-revenue receivables-turnover model and is not an identical duplicate."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--credit-sales-receivables-turnover",
+      "revision": "r1",
+      "title": "Receivables turnover from credit sales",
+      "summary": "The liquidity exhibit divides credit sales by average receivables.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "turnover",
+        "expression": "sales / receivables",
+        "original_equation": "Accounts receivable turnover = credit sales / average receivables",
+        "source_id": "openstax-accounting-receivables-9-3",
+        "locator": "Section 9.3, Accounts Receivable Turnover Ratio",
+        "translation_notes": "The turnover is a dimensionless count for the stated financial period."
+      },
+      "variables": [
+        {
+          "symbol": "sales",
+          "source_symbol": "net sales on credit",
+          "role": "input",
+          "quantity_id": "net_credit_sales",
+          "definition": "Sales on credit net of relevant returns and allowances for the reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "receivables",
+          "source_symbol": "average trade receivables",
+          "role": "input",
+          "quantity_id": "average_trade_receivables",
+          "definition": "Average trade accounts receivable over the same period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "turnover",
+          "source_symbol": "credit-sales receivables turnover",
+          "role": "output",
+          "quantity_id": "credit_sales_receivables_turnover",
+          "definition": "Net credit sales divided by average receivables",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sales >= 0",
+        "receivables > 0"
+      ],
+      "assumptions": [
+        "Credit sales and average receivables cover the same entity, currency and financial period.",
+        "The receivable population matches the credit sales included in the numerator."
+      ],
+      "limitations": [
+        "Total revenue is a possible proxy when credit sales are unavailable, but is a different numerator and is separately modeled.",
+        "Receivables averaging conventions can materially affect the ratio."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 5, Measuring Liquidity, printed p779 (PDF p793), Exhibit 3",
+          "evidence": "The liquidity exhibit divides credit sales by average receivables.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-accounting-receivables-9-3",
+          "kind": "primary",
+          "title": "Principles of Accounting, Volume 1: Financial Accounting",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/9-3-determine-the-efficiency-of-receivables-management-using-financial-ratios",
+          "version": "Rice University, 2019",
+          "accessed": "2026-11-03",
+          "locator": "Section 9.3, Accounts Receivable Turnover Ratio",
+          "evidence": "The turnover ratio divides net credit sales by average accounts receivable and distinguishes credit sales from total sales.",
+          "license": "OpenStax page displays CC BY-NC-SA and additional usage terms; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "openstax",
+          "inputs": {
+            "sales": 400000,
+            "receivables": 80000
+          },
+          "expected": 5,
+          "tolerance": 1e-09,
+          "method": "400,000 net credit sales over 80,000 average receivables gives five turnovers.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero",
+          "inputs": {
+            "sales": 0,
+            "receivables": 100
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Zero credit sales and positive average receivables give zero turnovers.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "receivables": 80000
+          },
+          "reason": "sales is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "sales=turnover*receivables; receivables=sales/turnover when turnover is positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

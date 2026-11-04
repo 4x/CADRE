@@ -1,0 +1,548 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b26",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--price-to-sales-per-share",
+      "revision": "r1",
+      "title": "Price-to-sales multiple",
+      "summary": "Price-to-sales multiple compares market price with sales per share.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "multiple",
+        "expression": "price / metric",
+        "original_equation": "Price-to-sales multiple = price per share / sales per share",
+        "source_id": "bsec-draft-ratios",
+        "locator": "Printed p60, Annexure C, Section E valuation ratios 2, 3, 8 and 9",
+        "translation_notes": "Both quantities are currency per one share, so the currency and share basis cancel. The financial observation period remains contextual."
+      },
+      "variables": [
+        {
+          "symbol": "price",
+          "source_symbol": "price per share",
+          "role": "input",
+          "quantity_id": "common_share_market_price",
+          "definition": "Market price for one common share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "metric",
+          "source_symbol": "sales per share",
+          "role": "input",
+          "quantity_id": "sales_per_common_share",
+          "definition": "sales per share on the same currency and share basis",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "multiple",
+          "source_symbol": "Price-to-sales multiple",
+          "role": "output",
+          "quantity_id": "price_to_sales_per_share",
+          "definition": "Price-to-sales multiple",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "price >= 0",
+        "metric > 0"
+      ],
+      "assumptions": [
+        "Price and per-share quantity use the same class of common share, currency and explicitly defined period.",
+        "The positive denominator is the chosen analytical profile."
+      ],
+      "limitations": [
+        "Different measures of cash flow or sales per share yield different multiples.",
+        "Zero or negative denominator values are outside this profile."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Valuation Ratios, printed p230 (PDF p244), Exhibit 20",
+          "evidence": "Price-to-sales multiple compares market price with sales per share.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bsec-draft-ratios",
+          "kind": "primary",
+          "title": "Draft Corporate Governance Guidelines",
+          "url": "https://sec.gov.bd/crequest/Draft_Corporate_Governance_Guidelines_21.12.2017.pdf",
+          "version": "Bangladesh Securities and Exchange Commission, draft dated 21 December 2017",
+          "accessed": "2026-11-03",
+          "locator": "Printed p60, Annexure C, Section E valuation ratios 2, 3, 8 and 9",
+          "evidence": "The draft lists price-to-cash-flow, price-to-sales, EBITDA per share and dividends per share.",
+          "license": "Government-hosted draft; exact reuse terms unknown. No claim that the draft became law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "price": 20,
+            "metric": 5
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "20 divided by 5 equals four.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "price": 30,
+            "metric": 10
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "30 divided by 10 equals three.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "metric": 5
+          },
+          "reason": "price is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "price=multiple*metric; metric=price/multiple requires a nonzero multiple.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--price-to-cash-flow-per-share",
+      "revision": "r1",
+      "title": "Price-to-operating-cash-flow multiple",
+      "summary": "Price-to-operating-cash-flow multiple compares market price with operating cash flow per share.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "multiple",
+        "expression": "price / metric",
+        "original_equation": "Price-to-operating-cash-flow multiple = price per share / operating cash flow per share",
+        "source_id": "bsec-draft-ratios",
+        "locator": "Printed p60, Annexure C, Section E valuation ratios 2, 3, 8 and 9",
+        "translation_notes": "Both quantities are currency per one share, so the currency and share basis cancel. The financial observation period remains contextual."
+      },
+      "variables": [
+        {
+          "symbol": "price",
+          "source_symbol": "price per share",
+          "role": "input",
+          "quantity_id": "common_share_market_price",
+          "definition": "Market price for one common share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "metric",
+          "source_symbol": "operating cash flow per share",
+          "role": "input",
+          "quantity_id": "operating_cash_flow_per_common_share",
+          "definition": "operating cash flow per share on the same currency and share basis",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "multiple",
+          "source_symbol": "Price-to-operating-cash-flow multiple",
+          "role": "output",
+          "quantity_id": "price_to_cash_flow_per_share",
+          "definition": "Price-to-operating-cash-flow multiple",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "price >= 0",
+        "metric > 0"
+      ],
+      "assumptions": [
+        "Price and per-share quantity use the same class of common share, currency and explicitly defined period.",
+        "The positive denominator is the chosen analytical profile."
+      ],
+      "limitations": [
+        "Different measures of cash flow or sales per share yield different multiples.",
+        "Zero or negative denominator values are outside this profile."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Valuation Ratios, printed p230 (PDF p244), Exhibit 20",
+          "evidence": "Price-to-operating-cash-flow multiple compares market price with operating cash flow per share.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bsec-draft-ratios",
+          "kind": "primary",
+          "title": "Draft Corporate Governance Guidelines",
+          "url": "https://sec.gov.bd/crequest/Draft_Corporate_Governance_Guidelines_21.12.2017.pdf",
+          "version": "Bangladesh Securities and Exchange Commission, draft dated 21 December 2017",
+          "accessed": "2026-11-03",
+          "locator": "Printed p60, Annexure C, Section E valuation ratios 2, 3, 8 and 9",
+          "evidence": "The draft lists price-to-cash-flow, price-to-sales, EBITDA per share and dividends per share.",
+          "license": "Government-hosted draft; exact reuse terms unknown. No claim that the draft became law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "price": 20,
+            "metric": 5
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "20 divided by 5 equals four.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "price": 30,
+            "metric": 10
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "30 divided by 10 equals three.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "metric": 5
+          },
+          "reason": "price is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "price=multiple*metric; metric=price/multiple requires a nonzero multiple.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--ebitda-per-common-share",
+      "revision": "r1",
+      "title": "EBITDA per ordinary share",
+      "summary": "EBITDA per ordinary share divides the period amount by weighted average ordinary shares.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "result",
+        "expression": "amount / shares",
+        "original_equation": "EBITDA per ordinary share = EBITDA / weighted average ordinary shares",
+        "source_id": "bsec-draft-ratios",
+        "locator": "Printed p60, Annexure C, Section E valuation ratios 2, 3, 8 and 9",
+        "translation_notes": "Shares are dimensionless counts; the output is currency per one common share. The EBITDA and dividend quantities are distinct."
+      },
+      "variables": [
+        {
+          "symbol": "amount",
+          "source_symbol": "EBITDA",
+          "role": "input",
+          "quantity_id": "earnings_before_interest_taxes_depreciation_amortization",
+          "definition": "EBITDA for the specified entity and reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "shares",
+          "source_symbol": "weighted average ordinary shares",
+          "role": "input",
+          "quantity_id": "weighted_average_common_shares",
+          "definition": "Positive weighted-average number of ordinary shares",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "result",
+          "source_symbol": "EBITDA per ordinary share",
+          "role": "output",
+          "quantity_id": "ebitda_per_common_share",
+          "definition": "EBITDA per ordinary share per ordinary share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "shares > 0"
+      ],
+      "assumptions": [
+        "The stated amount and share count use the same entity, class and reporting period.",
+        "The share count is time-weighted as specified in the owner PDF."
+      ],
+      "limitations": [
+        "Per-share figures depend on share splits and the averaging convention.",
+        "The corroborating public source uses shares outstanding for dividends; the owner PDF specifies weighted-average shares."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Valuation Ratios, printed p230 (PDF p244), Exhibit 20",
+          "evidence": "EBITDA per ordinary share divides the period amount by weighted average ordinary shares.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bsec-draft-ratios",
+          "kind": "primary",
+          "title": "Draft Corporate Governance Guidelines",
+          "url": "https://sec.gov.bd/crequest/Draft_Corporate_Governance_Guidelines_21.12.2017.pdf",
+          "version": "Bangladesh Securities and Exchange Commission, draft dated 21 December 2017",
+          "accessed": "2026-11-03",
+          "locator": "Printed p60, Annexure C, Section E valuation ratios 2, 3, 8 and 9",
+          "evidence": "The draft lists price-to-cash-flow, price-to-sales, EBITDA per share and dividends per share.",
+          "license": "Government-hosted draft; exact reuse terms unknown. No claim that the draft became law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "amount": 1000000,
+            "shares": 200000
+          },
+          "expected": 5,
+          "tolerance": 1e-09,
+          "method": "One million divided by 200000 shares gives five per share.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "amount": 300000,
+            "shares": 100000
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "300000 divided by 100000 shares gives three per share.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "shares": 200000
+          },
+          "reason": "amount is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "amount=result*shares; shares=amount/result requires a nonzero result.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--dividends-declared-per-common-share",
+      "revision": "r1",
+      "title": "Declared dividends per ordinary share",
+      "summary": "Declared dividends per ordinary share divides the period amount by weighted average ordinary shares.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "result",
+        "expression": "amount / shares",
+        "original_equation": "Declared dividends per ordinary share = common dividends declared / weighted average ordinary shares",
+        "source_id": "bsec-draft-ratios",
+        "locator": "Printed p60, Annexure C, Section E valuation ratios 2, 3, 8 and 9",
+        "translation_notes": "Shares are dimensionless counts; the output is currency per one common share. The EBITDA and dividend quantities are distinct."
+      },
+      "variables": [
+        {
+          "symbol": "amount",
+          "source_symbol": "common dividends declared",
+          "role": "input",
+          "quantity_id": "common_dividends_declared",
+          "definition": "common dividends declared for the specified entity and reporting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "shares",
+          "source_symbol": "weighted average ordinary shares",
+          "role": "input",
+          "quantity_id": "weighted_average_common_shares",
+          "definition": "Positive weighted-average number of ordinary shares",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "result",
+          "source_symbol": "Declared dividends per ordinary share",
+          "role": "output",
+          "quantity_id": "dividends_declared_per_common_share",
+          "definition": "Declared dividends per ordinary share per ordinary share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "shares > 0"
+      ],
+      "assumptions": [
+        "The stated amount and share count use the same entity, class and reporting period.",
+        "The share count is time-weighted as specified in the owner PDF."
+      ],
+      "limitations": [
+        "Per-share figures depend on share splits and the averaging convention.",
+        "The corroborating public source uses shares outstanding for dividends; the owner PDF specifies weighted-average shares."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Valuation Ratios, printed p230 (PDF p244), Exhibit 20",
+          "evidence": "Declared dividends per ordinary share divides the period amount by weighted average ordinary shares.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bsec-draft-ratios",
+          "kind": "primary",
+          "title": "Draft Corporate Governance Guidelines",
+          "url": "https://sec.gov.bd/crequest/Draft_Corporate_Governance_Guidelines_21.12.2017.pdf",
+          "version": "Bangladesh Securities and Exchange Commission, draft dated 21 December 2017",
+          "accessed": "2026-11-03",
+          "locator": "Printed p60, Annexure C, Section E valuation ratios 2, 3, 8 and 9",
+          "evidence": "The draft lists price-to-cash-flow, price-to-sales, EBITDA per share and dividends per share.",
+          "license": "Government-hosted draft; exact reuse terms unknown. No claim that the draft became law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "amount": 1000000,
+            "shares": 200000
+          },
+          "expected": 5,
+          "tolerance": 1e-09,
+          "method": "One million divided by 200000 shares gives five per share.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "amount": 300000,
+            "shares": 100000
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "300000 divided by 100000 shares gives three per share.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "shares": 200000
+          },
+          "reason": "amount is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "amount=result*shares; shares=amount/result requires a nonzero result.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

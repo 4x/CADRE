@@ -1,0 +1,441 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b07",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--balance-sheet-common-size-fraction",
+      "revision": "r1",
+      "title": "Balance-sheet common-size fraction",
+      "summary": "Each balance sheet item is expressed as a proportion of total assets.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "item / assets",
+        "original_equation": "Common-size balance-sheet item = balance-sheet item / total assets",
+        "source_id": "openstax-liquidity",
+        "locator": "Vertical Analysis; Liquidity Ratios",
+        "translation_notes": "The fraction is base-one; percentage display multiplies it by 100. This is distinct from the revenue-based income-statement common-size fraction."
+      },
+      "variables": [
+        {
+          "symbol": "item",
+          "source_symbol": "balance sheet item",
+          "role": "input",
+          "quantity_id": "balance_sheet_line_item",
+          "definition": "Signed line item for the same balance sheet date",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "assets",
+          "source_symbol": "total assets",
+          "role": "input",
+          "quantity_id": "balance_sheet_total_assets",
+          "definition": "Positive total assets for that balance sheet date",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "common-size balance sheet item",
+          "role": "output",
+          "quantity_id": "balance_sheet_common_size_fraction",
+          "definition": "Item divided by total assets",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "assets > 0"
+      ],
+      "assumptions": [
+        "Numerator and denominator use the same entity, date and currency."
+      ],
+      "limitations": [
+        "Classification differences affect cross-entity comparisons."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Common-Size Analysis, printed p98 (PDF p112), Exhibit 17",
+          "evidence": "Each balance sheet item is expressed as a proportion of total assets.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-liquidity",
+          "kind": "primary",
+          "title": "Financial Statement Analysis",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/a-financial-statement-analysis",
+          "version": "OpenStax Principles of Accounting Volume 1, Appendix A",
+          "accessed": "2026-11-03",
+          "locator": "Vertical Analysis; Liquidity Ratios",
+          "evidence": "The statement item fraction uses a total-assets base, and current and quick ratios use current liabilities as their denominator.",
+          "license": "OpenStax page lists noncommercial, AI, and other use restrictions; equation-level factual paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "company-a-cash",
+          "inputs": {
+            "item": 1000000,
+            "assets": 3250000
+          },
+          "expected": 0.3076923076923077,
+          "tolerance": 1e-09,
+          "method": "Company A cash is approximately 30.8% of total assets.",
+          "provenance": "CFA Exhibit 17 printed pp98–99/PDF pp112–113."
+        },
+        {
+          "id": "company-b-cash",
+          "inputs": {
+            "item": 200000,
+            "assets": 3250000
+          },
+          "expected": 0.06153846153846154,
+          "tolerance": 1e-09,
+          "method": "Company B cash is approximately 6.2% of total assets.",
+          "provenance": "CFA Exhibit 17 printed pp98–99/PDF pp112–113."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "assets": 3250000
+          },
+          "reason": "item is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "item=ratio*assets; assets=item/ratio if ratio is nonzero. With zero item and ratio, positive assets cannot be uniquely recovered.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--current-liquidity-ratio",
+      "revision": "r1",
+      "title": "Current ratio",
+      "summary": "Current ratio divides current assets by current liabilities.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "assets / liabilities",
+        "original_equation": "Current ratio = current assets / current liabilities",
+        "source_id": "openstax-liquidity",
+        "locator": "Vertical Analysis; Liquidity Ratios",
+        "translation_notes": "Both amounts are in the same currency and the ratio is dimensionless."
+      },
+      "variables": [
+        {
+          "symbol": "assets",
+          "source_symbol": "current assets",
+          "role": "input",
+          "quantity_id": "current_assets",
+          "definition": "Current assets at the balance sheet date",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "liabilities",
+          "source_symbol": "current liabilities",
+          "role": "input",
+          "quantity_id": "current_liabilities",
+          "definition": "Positive current liabilities at the same date",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "current ratio",
+          "role": "output",
+          "quantity_id": "current_liquidity_ratio",
+          "definition": "Current assets per current liability",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "assets >= 0",
+        "liabilities > 0"
+      ],
+      "assumptions": [
+        "Balances use the same entity, date, currency and classification basis."
+      ],
+      "limitations": [
+        "A ratio is not a liquidity forecast and does not describe maturity timing."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Balance Sheet Ratios, printed p106 (PDF p120), Exhibit 20",
+          "evidence": "Current ratio divides current assets by current liabilities.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-liquidity",
+          "kind": "primary",
+          "title": "Financial Statement Analysis",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/a-financial-statement-analysis",
+          "version": "OpenStax Principles of Accounting Volume 1, Appendix A",
+          "accessed": "2026-11-03",
+          "locator": "Vertical Analysis; Liquidity Ratios",
+          "evidence": "The statement item fraction uses a total-assets base, and current and quick ratios use current liabilities as their denominator.",
+          "license": "OpenStax page lists noncommercial, AI, and other use restrictions; equation-level factual paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "openstax",
+          "inputs": {
+            "assets": 200000,
+            "liabilities": 100000
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "The accessible source shows 200000/100000 = 2.",
+          "provenance": "OpenStax Appendix A, Current Ratio."
+        },
+        {
+          "id": "simple",
+          "inputs": {
+            "assets": 150000,
+            "liabilities": 60000
+          },
+          "expected": 2.5,
+          "tolerance": 1e-09,
+          "method": "150000 is two and one-half times 60000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "liabilities": 100000
+          },
+          "reason": "assets is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "assets=ratio*liabilities; liabilities=assets/ratio for nonzero ratio. Zero current liabilities makes the ratio undefined.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--quick-liquidity-ratio",
+      "revision": "r1",
+      "title": "Quick ratio from specified liquid assets",
+      "summary": "Quick ratio divides specified cash, marketable securities and receivables by current liabilities.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "(cash + securities + receivables) / liabilities",
+        "original_equation": "Quick ratio = (cash + marketable securities + receivables) / current liabilities",
+        "source_id": "openstax-liquidity",
+        "locator": "Vertical Analysis; Liquidity Ratios",
+        "translation_notes": "All monetary balances use the same currency; the ratio is dimensionless."
+      },
+      "variables": [
+        {
+          "symbol": "cash",
+          "source_symbol": "cash",
+          "role": "input",
+          "quantity_id": "cash_and_cash_equivalents",
+          "definition": "Cash and cash equivalents",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "securities",
+          "source_symbol": "marketable securities",
+          "role": "input",
+          "quantity_id": "short_term_marketable_securities",
+          "definition": "Qualifying liquid short-term marketable securities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "receivables",
+          "source_symbol": "receivables",
+          "role": "input",
+          "quantity_id": "current_trade_receivables",
+          "definition": "Eligible current receivables net of allowance",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "liabilities",
+          "source_symbol": "current liabilities",
+          "role": "input",
+          "quantity_id": "current_liabilities",
+          "definition": "Positive current liabilities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "quick ratio",
+          "role": "output",
+          "quantity_id": "quick_liquidity_ratio",
+          "definition": "Specified quick assets divided by current liabilities",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "cash >= 0",
+        "securities >= 0",
+        "receivables >= 0",
+        "liabilities > 0"
+      ],
+      "assumptions": [
+        "Inputs are non-overlapping balances for the same entity, reporting date and currency."
+      ],
+      "limitations": [
+        "This defined quick-asset basket may differ from other published shortcuts; classification and collectability matter."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Balance Sheet Ratios, printed p106 (PDF p120), Exhibit 20",
+          "evidence": "Quick ratio divides specified cash, marketable securities and receivables by current liabilities.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-liquidity",
+          "kind": "primary",
+          "title": "Financial Statement Analysis",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/a-financial-statement-analysis",
+          "version": "OpenStax Principles of Accounting Volume 1, Appendix A",
+          "accessed": "2026-11-03",
+          "locator": "Vertical Analysis; Liquidity Ratios",
+          "evidence": "The statement item fraction uses a total-assets base, and current and quick ratios use current liabilities as their denominator.",
+          "license": "OpenStax page lists noncommercial, AI, and other use restrictions; equation-level factual paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "openstax",
+          "inputs": {
+            "cash": 110000,
+            "securities": 20000,
+            "receivables": 30000,
+            "liabilities": 100000
+          },
+          "expected": 1.6,
+          "tolerance": 1e-09,
+          "method": "The accessible source computes 160000/100000 = 1.6.",
+          "provenance": "OpenStax Appendix A, Quick Ratio."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "cash": 40000,
+            "securities": 10000,
+            "receivables": 50000,
+            "liabilities": 50000
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "100000 qualifying quick assets divided by 50000 liabilities.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "securities": 20000,
+            "receivables": 30000,
+            "liabilities": 100000
+          },
+          "reason": "cash is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cash=ratio*liabilities-securities-receivables; liabilities=(cash+securities+receivables)/ratio for nonzero ratio.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

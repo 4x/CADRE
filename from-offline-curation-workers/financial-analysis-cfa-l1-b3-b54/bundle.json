@@ -1,0 +1,305 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b54",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--combined-corporate-dividend-tax-rate",
+      "revision": "r1",
+      "title": "Combined corporate and dividend tax rate",
+      "summary": "The example combines tax on corporate profit and tax on the distributed after-tax dividend.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "combined",
+        "expression": "1 - (1 - corporate) * (1 - dividend)",
+        "original_equation": "Combined tax rate = 1 - (1 - corporate tax rate) × (1 - dividend tax rate)",
+        "source_id": "aba-tax-integration-2021",
+        "locator": "Section II, Combined Nominal Tax Burden",
+        "translation_notes": "Rates are base-one fractions. The complement of the public source’s after-tax fraction is the combined tax fraction."
+      },
+      "variables": [
+        {
+          "symbol": "corporate",
+          "source_symbol": "corporate income tax rate",
+          "role": "input",
+          "quantity_id": "corporate_income_tax_rate",
+          "definition": "corporate income tax rate",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "dividend",
+          "source_symbol": "shareholder dividend tax rate",
+          "role": "input",
+          "quantity_id": "shareholder_dividend_tax_rate",
+          "definition": "shareholder dividend tax rate",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "combined",
+          "source_symbol": "combined tax fraction",
+          "role": "output",
+          "quantity_id": "combined_corporate_dividend_tax_rate",
+          "definition": "combined tax fraction",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "corporate >= 0",
+        "corporate <= 1",
+        "dividend >= 0",
+        "dividend <= 1"
+      ],
+      "assumptions": [
+        "All after-corporate-tax profit is immediately distributed and the dividend is taxed at the stated shareholder rate.",
+        "Both taxes are flat and there are no credits, exemptions or other levies."
+      ],
+      "limitations": [
+        "This is a nominal undiscounted calculation; deferred distribution and tax integration alter the result.",
+        "The input rates are hypothetical and are not a statement of current tax law."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 1, Business Structures, printed p614 (PDF p628), corporate and investor tax example",
+          "evidence": "The example combines tax on corporate profit and tax on the distributed after-tax dividend.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "aba-tax-integration-2021",
+          "kind": "primary",
+          "title": "Corporate Tax Integration and the TCJA: How Near the Mark?",
+          "url": "https://www.americanbar.org/groups/taxation/resources/tax-lawyer/2021-winter/corporate-tax-integration-tcja-how-near-mark/",
+          "version": "American Bar Association, The Tax Lawyer, Winter 2021",
+          "accessed": "2026-11-03",
+          "locator": "Section II, Combined Nominal Tax Burden",
+          "evidence": "The article expresses the after-tax fraction of immediately distributed corporate profit as the product of the corporate and dividend tax complements.",
+          "license": "American Bar Association copyright; formula-level facts and original paraphrase only. Historical rates are not asserted to be current.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "example",
+          "inputs": {
+            "corporate": 0.315,
+            "dividend": 0.3
+          },
+          "expected": 0.5205,
+          "tolerance": 1e-09,
+          "method": "31.5% corporate and 30% dividend tax combine to 52.05%, before source rounding.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "no-dividend-tax",
+          "inputs": {
+            "corporate": 0.2,
+            "dividend": 0
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "With no dividend tax, the combined fraction is the 20% corporate rate.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "dividend": 0.3
+          },
+          "reason": "corporate is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "corporate=(combined-dividend)/(1-dividend) if dividend is below one; dividend=(combined-corporate)/(1-corporate) if corporate is below one.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--distributed-profit-after-corporate-and-dividend-tax",
+      "revision": "r1",
+      "title": "Distributed profit after corporate and dividend tax",
+      "summary": "The after-tax corporate profit is fully distributed and then reduced by the shareholder dividend tax.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "after",
+        "expression": "profit * (1 - corporate) * (1 - dividend)",
+        "original_equation": "After-tax distribution = pretax profit × (1 - corporate rate) × (1 - dividend rate)",
+        "source_id": "aba-tax-integration-2021",
+        "locator": "Section II, Combined Nominal Tax Burden",
+        "translation_notes": "Profit and after-tax distribution share a currency; rates are base-one fractions."
+      },
+      "variables": [
+        {
+          "symbol": "profit",
+          "source_symbol": "pretax corporate profit",
+          "role": "input",
+          "quantity_id": "pretax_corporate_profit",
+          "definition": "Profit before corporate tax",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "corporate",
+          "source_symbol": "corporate income tax rate",
+          "role": "input",
+          "quantity_id": "corporate_income_tax_rate",
+          "definition": "corporate income tax rate",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "dividend",
+          "source_symbol": "shareholder dividend tax rate",
+          "role": "input",
+          "quantity_id": "shareholder_dividend_tax_rate",
+          "definition": "shareholder dividend tax rate",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "after",
+          "source_symbol": "after-tax shareholder distribution",
+          "role": "output",
+          "quantity_id": "after_tax_shareholder_distribution",
+          "definition": "Distribution after both tax stages",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "profit >= 0",
+        "corporate >= 0",
+        "corporate <= 1",
+        "dividend >= 0",
+        "dividend <= 1"
+      ],
+      "assumptions": [
+        "Positive corporate profit is fully and immediately distributed after tax.",
+        "The same flat-rate, no-credit scope applies to the corporate and shareholder stages."
+      ],
+      "limitations": [
+        "This model does not account for credits, surtaxes, retained earnings, multiple investors or deferral.",
+        "The stated rates are inputs and do not establish current legal tax treatment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 1, Business Structures, printed p614 (PDF p628), corporate and investor tax example",
+          "evidence": "The after-tax corporate profit is fully distributed and then reduced by the shareholder dividend tax.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "aba-tax-integration-2021",
+          "kind": "primary",
+          "title": "Corporate Tax Integration and the TCJA: How Near the Mark?",
+          "url": "https://www.americanbar.org/groups/taxation/resources/tax-lawyer/2021-winter/corporate-tax-integration-tcja-how-near-mark/",
+          "version": "American Bar Association, The Tax Lawyer, Winter 2021",
+          "accessed": "2026-11-03",
+          "locator": "Section II, Combined Nominal Tax Burden",
+          "evidence": "The article expresses the after-tax fraction of immediately distributed corporate profit as the product of the corporate and dividend tax complements.",
+          "license": "American Bar Association copyright; formula-level facts and original paraphrase only. Historical rates are not asserted to be current.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "example",
+          "inputs": {
+            "profit": 838,
+            "corporate": 0.315,
+            "dividend": 0.3
+          },
+          "expected": 401.821,
+          "tolerance": 1e-09,
+          "method": "838 times 0.685 times 0.7 gives 401.821 before source rounding.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero-tax",
+          "inputs": {
+            "profit": 100,
+            "corporate": 0,
+            "dividend": 0
+          },
+          "expected": 100,
+          "tolerance": 1e-09,
+          "method": "With both tax rates zero the 100 profit is fully distributed.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "corporate": 0.315,
+            "dividend": 0.3
+          },
+          "reason": "profit is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "profit=after/((1-corporate)*(1-dividend)) when neither rate equals one.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

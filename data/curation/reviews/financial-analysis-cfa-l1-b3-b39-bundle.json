@@ -1,0 +1,548 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b39",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--balance-sheet-equity-accounting-equation",
+      "revision": "r1",
+      "title": "Book equity from assets and liabilities",
+      "summary": "The balance sheet accounting identity is assets less liabilities equals equity.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "equity",
+        "expression": "assets - liabilities",
+        "original_equation": "Equity = assets - liabilities",
+        "source_id": "openstax-business-14-3",
+        "locator": "Section 14.3, basic accounting equation",
+        "translation_notes": "Equity may be negative; all amounts are in one currency."
+      },
+      "variables": [
+        {
+          "symbol": "assets",
+          "source_symbol": "total recognized assets",
+          "role": "input",
+          "quantity_id": "total_assets",
+          "definition": "total recognized assets",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "liabilities",
+          "source_symbol": "total recognized liabilities",
+          "role": "input",
+          "quantity_id": "total_liabilities",
+          "definition": "total recognized liabilities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "equity",
+          "source_symbol": "total book equity",
+          "role": "output",
+          "quantity_id": "total_shareholders_equity",
+          "definition": "total book equity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "assets >= 0",
+        "liabilities >= 0"
+      ],
+      "assumptions": [
+        "Assets and liabilities use the same entity, reporting date, currency and accounting basis."
+      ],
+      "limitations": [
+        "Book equity depends on recognition and measurement rules and is not market capitalization."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Introduction and Components of the Balance Sheet, printed p64 (PDF p78), unnumbered accounting equation",
+          "evidence": "The balance sheet accounting identity is assets less liabilities equals equity.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-business-14-3",
+          "kind": "primary",
+          "title": "Introduction to Business",
+          "url": "https://openstax.org/books/introduction-business/pages/14-3-basic-accounting-procedures",
+          "version": "Rice University, 2018",
+          "accessed": "2026-11-03",
+          "locator": "Section 14.3, basic accounting equation",
+          "evidence": "The accounting equation relates assets, liabilities and owners’ equity.",
+          "license": "OpenStax page displays CC BY-NC-SA and additional usage terms; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "assets": 200,
+            "liabilities": 120
+          },
+          "expected": 80,
+          "tolerance": 1e-09,
+          "method": "Assets of 200 less liabilities of 120 give equity of 80.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "deficit",
+          "inputs": {
+            "assets": 100,
+            "liabilities": 120
+          },
+          "expected": -20,
+          "tolerance": 1e-09,
+          "method": "Liabilities exceeding assets by 20 give negative equity of 20.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "liabilities": 120
+          },
+          "reason": "assets is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "assets=liabilities+equity; liabilities=assets-equity.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--net-accounts-receivable-after-allowance",
+      "revision": "r1",
+      "title": "Net accounts receivable after allowance",
+      "summary": "The gross balance equals the disclosed net receivable plus its doubtful-account allowance.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "net",
+        "expression": "gross - allowance",
+        "original_equation": "Net receivables = gross receivables - allowance for doubtful accounts",
+        "source_id": "openstax-accounting-9-2",
+        "locator": "Section 9.2, allowance for doubtful accounts and net realizable value",
+        "translation_notes": "All amounts are in one currency; the profile excludes an allowance exceeding gross receivables."
+      },
+      "variables": [
+        {
+          "symbol": "gross",
+          "source_symbol": "gross accounts receivable",
+          "role": "input",
+          "quantity_id": "gross_accounts_receivable",
+          "definition": "gross accounts receivable",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "allowance",
+          "source_symbol": "allowance for doubtful accounts",
+          "role": "input",
+          "quantity_id": "allowance_doubtful_accounts",
+          "definition": "allowance for doubtful accounts",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "net",
+          "source_symbol": "net accounts receivable",
+          "role": "output",
+          "quantity_id": "net_accounts_receivable",
+          "definition": "net accounts receivable",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "gross >= 0",
+        "allowance >= 0",
+        "gross >= allowance"
+      ],
+      "assumptions": [
+        "The allowance applies to the same receivable population and reporting date.",
+        "Allowance is entered as a positive contra-asset amount."
+      ],
+      "limitations": [
+        "Other valuation adjustments must be supplied separately if material."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Current Assets: Trade Receivables, printed p72 (PDF p86), Example 1 solution 1",
+          "evidence": "The gross balance equals the disclosed net receivable plus its doubtful-account allowance.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-accounting-9-2",
+          "kind": "primary",
+          "title": "Principles of Accounting, Volume 1: Financial Accounting",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/9-2-account-for-uncollectible-accounts-using-the-balance-sheet-and-income-statement-approaches",
+          "version": "Rice University, 2019",
+          "accessed": "2026-11-03",
+          "locator": "Section 9.2, allowance for doubtful accounts and net realizable value",
+          "evidence": "The allowance is subtracted from gross accounts receivable to obtain net receivables.",
+          "license": "OpenStax page displays CC BY-NC-SA and additional usage terms; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "openstax",
+          "inputs": {
+            "gross": 90000,
+            "allowance": 4800
+          },
+          "expected": 85200,
+          "tolerance": 1e-09,
+          "method": "Gross 90,000 less allowance 4,800 yields net 85,200.",
+          "provenance": "OpenStax section 9.2 example."
+        },
+        {
+          "id": "zero",
+          "inputs": {
+            "gross": 1000,
+            "allowance": 0
+          },
+          "expected": 1000,
+          "tolerance": 1e-09,
+          "method": "Zero allowance leaves the gross balance unchanged.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "allowance": 4800
+          },
+          "reason": "gross is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "gross=net+allowance; allowance=gross-net.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--outstanding-shares-from-issued-and-treasury",
+      "revision": "r1",
+      "title": "Outstanding shares from issued and treasury shares",
+      "summary": "The number of outstanding shares is issued shares less treasury shares.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "outstanding",
+        "expression": "issued - treasury",
+        "original_equation": "Shares outstanding = issued shares - treasury shares",
+        "source_id": "openstax-accounting-14-1",
+        "locator": "Section 14.1, issued, treasury and outstanding shares",
+        "translation_notes": "Share counts are dimensionless; both inputs must be consistent on splits and cancellations."
+      },
+      "variables": [
+        {
+          "symbol": "issued",
+          "source_symbol": "issued shares",
+          "role": "input",
+          "quantity_id": "issued_common_shares",
+          "definition": "Issued shares including shares held in treasury",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "treasury",
+          "source_symbol": "treasury shares",
+          "role": "input",
+          "quantity_id": "treasury_common_shares",
+          "definition": "Issued shares repurchased and held in treasury",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "outstanding",
+          "source_symbol": "outstanding shares",
+          "role": "output",
+          "quantity_id": "common_shares_outstanding",
+          "definition": "Issued shares not held in treasury",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "issued >= 0",
+        "treasury >= 0",
+        "issued >= treasury"
+      ],
+      "assumptions": [
+        "Counts refer to the same issuer, share class and date.",
+        "Canceled shares are not included in the issued count."
+      ],
+      "limitations": [
+        "Weighted-average shares for EPS are a separate time-weighted quantity."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Components of Equity, printed p94 (PDF p108), numbered item 1",
+          "evidence": "The number of outstanding shares is issued shares less treasury shares.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-accounting-14-1",
+          "kind": "primary",
+          "title": "Principles of Accounting, Volume 1: Financial Accounting",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/14-1-explain-the-process-of-securing-equity-financing-through-the-issuance-of-stock",
+          "version": "Rice University, 2019",
+          "accessed": "2026-11-03",
+          "locator": "Section 14.1, issued, treasury and outstanding shares",
+          "evidence": "The example distinguishes outstanding shares from issued shares held in treasury.",
+          "license": "OpenStax page displays CC BY-NC-SA and additional usage terms; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "openstax",
+          "inputs": {
+            "issued": 1500,
+            "treasury": 100
+          },
+          "expected": 1400,
+          "tolerance": 1e-09,
+          "method": "1,500 issued shares less 100 treasury shares yields 1,400 outstanding.",
+          "provenance": "OpenStax section 14.1 example."
+        },
+        {
+          "id": "none",
+          "inputs": {
+            "issued": 1000,
+            "treasury": 0
+          },
+          "expected": 1000,
+          "tolerance": 1e-09,
+          "method": "Without treasury shares, all 1,000 issued shares remain outstanding.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "treasury": 100
+          },
+          "reason": "issued is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "issued=outstanding+treasury; treasury=issued-outstanding.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--acquisition-goodwill-full-ownership",
+      "revision": "r1",
+      "title": "Goodwill in a full acquisition",
+      "summary": "The reading computes goodwill as purchase cost less net identifiable assets acquired.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "goodwill",
+        "expression": "consideration - netassets",
+        "original_equation": "Goodwill = acquisition consideration - identifiable net assets acquired",
+        "source_id": "ifrs3-summary",
+        "locator": "Core principles, consideration and identifiable assets and liabilities",
+        "translation_notes": "All values share one currency; net identifiable assets may be negative."
+      },
+      "variables": [
+        {
+          "symbol": "consideration",
+          "source_symbol": "fair value of consideration transferred",
+          "role": "input",
+          "quantity_id": "acquisition_consideration_fair_value",
+          "definition": "fair value of consideration transferred",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "netassets",
+          "source_symbol": "recognized identifiable net assets",
+          "role": "input",
+          "quantity_id": "acquired_identifiable_net_assets",
+          "definition": "recognized identifiable net assets",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "goodwill",
+          "source_symbol": "acquisition goodwill",
+          "role": "output",
+          "quantity_id": "acquisition_goodwill",
+          "definition": "acquisition goodwill",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "consideration >= 0",
+        "consideration >= netassets"
+      ],
+      "assumptions": [
+        "The acquisition is a single-step purchase of 100% with no pre-existing interest or noncontrolling interest.",
+        "Amounts use acquisition-date measurements required by the applicable standard."
+      ],
+      "limitations": [
+        "A bargain purchase requires reassessment and separate gain accounting; it is excluded.",
+        "Complex consideration, partial acquisitions and exceptions to fair-value measurement require separate treatment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Non-Current Assets: Goodwill, printed p85 (PDF p99), recognition steps A–C",
+          "evidence": "The reading computes goodwill as purchase cost less net identifiable assets acquired.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ifrs3-summary",
+          "kind": "primary",
+          "title": "IFRS 3 Business Combinations",
+          "url": "https://www.ifrs.org/issued-standards/list-of-standards/ifrs-3-business-combinations/",
+          "version": "IFRS Foundation, live standard summary",
+          "accessed": "2026-11-03",
+          "locator": "Core principles, consideration and identifiable assets and liabilities",
+          "evidence": "Acquisition consideration is allocated to identifiable assets and liabilities and the remaining cost to goodwill; bargain purchases receive separate treatment.",
+          "license": "IFRS Foundation copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "premium",
+          "inputs": {
+            "consideration": 500,
+            "netassets": 400
+          },
+          "expected": 100,
+          "tolerance": 1e-09,
+          "method": "Consideration of 500 less identifiable net assets of 400 gives 100 goodwill.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero",
+          "inputs": {
+            "consideration": 400,
+            "netassets": 400
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Consideration equal to identifiable net assets yields zero goodwill.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "netassets": 400
+          },
+          "reason": "consideration is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "consideration=goodwill+netassets; netassets=consideration-goodwill.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

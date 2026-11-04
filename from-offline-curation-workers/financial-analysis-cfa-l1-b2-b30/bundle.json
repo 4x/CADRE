@@ -1,0 +1,587 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b30",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 2 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--unemployment-rate",
+      "revision": "r2",
+      "title": "Unemployment as a fraction of the labor force",
+      "summary": "The unemployment rate compares actively job-seeking unemployed people with the labor force rather than the whole population.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "u",
+        "expression": "unemployed / LF",
+        "original_equation": "Unemployment rate=unemployed/labor force",
+        "source_id": "bls-labor-force",
+        "locator": "What are the unemployment rate, labor force participation rate, and employment-population ratio?",
+        "translation_notes": "Person_count/person_count gives a base fraction. This ratio is a defined labor-market indicator, distinct from generic relative frequency because its statistical inclusion rules are integral to the quantity meaning. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "unemployed",
+          "source_symbol": "Unemployed",
+          "role": "input",
+          "quantity_id": "unemployed_population",
+          "definition": "People without work actively seeking and available for employment",
+          "unit": "persons",
+          "dimensions": "person_count",
+          "context": "Same date, geographic area and explicitly declared age/civilian/institutional cohort; employed/unemployed are mutually exclusive and use one statistical definition",
+          "domain": "Nonnegative finite survey count/estimate"
+        },
+        {
+          "symbol": "LF",
+          "source_symbol": "Labor force",
+          "role": "input",
+          "quantity_id": "labor_force_population",
+          "definition": "Positive total of employed and unemployed on the same cohort",
+          "unit": "persons",
+          "dimensions": "person_count",
+          "context": "Same date, geographic area and explicitly declared age/civilian/institutional cohort; employed/unemployed are mutually exclusive and use one statistical definition",
+          "domain": "Nonnegative finite survey count/estimate"
+        },
+        {
+          "symbol": "u",
+          "source_symbol": "Unemployment rate",
+          "role": "output",
+          "quantity_id": "unemployment_rate",
+          "definition": "Fraction of covered labor force classified as unemployed",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite fraction in[0,1]"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "LF > 0",
+        "unemployed >= 0",
+        "unemployed <= LF"
+      ],
+      "assumptions": [
+        "Source assumption: numerator is a subset of the labor-force denominator under the same classification.",
+        "Source assumption: labor force is strictly positive."
+      ],
+      "limitations": [
+        "Discouraged people outside the labor force and underemployed workers are not added to the numerator.",
+        "Cross-country unemployment definitions can differ; no harmonization is performed here."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Unemployment and The Unemployment Rate, printed pp243-244 (PDF pp255-256), unnumbered definition",
+          "evidence": "The unemployment rate compares actively job-seeking unemployed people with the labor force rather than the whole population.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bls-labor-force",
+          "kind": "primary",
+          "title": "How the Government Measures Unemployment",
+          "url": "https://www.bls.gov/cps/cps_htgm.htm",
+          "version": "US Bureau of Labor Statistics, live CPS explanation",
+          "accessed": "2026-11-03",
+          "locator": "What are the unemployment rate, labor force participation rate, and employment-population ratio?",
+          "evidence": "The section defines labor force as employed plus unemployed, unemployment as a share of that force, and participation as labor force divided by the covered population.",
+          "license": "Government source; exact reuse terms unknown; equation definitions paraphrased only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "ten-percent",
+          "inputs": {
+            "unemployed": 10,
+            "LF": 100
+          },
+          "expected": 0.1,
+          "tolerance": 1e-09,
+          "method": "Ten of100 force members are unemployed.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "all-unemployed",
+          "inputs": {
+            "unemployed": 40,
+            "LF": 40
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "All40 labor-force members seek work without employment, giving fraction1.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "LF": 100
+          },
+          "reason": "unemployed is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "unemployed=u*LF; LF=unemployed/u requiresu>0. First case recovers10 unemployed and substitutes.1. Atu0 andunemployed0 every positive LF fits; LF0 excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--labor-force-participation-rate",
+      "revision": "r2",
+      "title": "Labor-force participation within a declared population cohort",
+      "summary": "Participation compares labor-force members with the full population in a defined working-age cohort.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "p",
+        "expression": "LF / population",
+        "original_equation": "Participation rate=labor force/working-age population",
+        "source_id": "bls-labor-force",
+        "locator": "What are the unemployment rate, labor force participation rate, and employment-population ratio?",
+        "translation_notes": "Both counts must use exactly the same age and residency definition; no implicit conversion between CFA and BLS coverage. Person counts cancel; percentage display remains external. The inverse labor-force=population*participation also covers the population/participation portion of LM3 Exhibit28. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "LF",
+          "source_symbol": "Labor force",
+          "role": "input",
+          "quantity_id": "labor_force_population",
+          "definition": "Covered cohort members employed or actively seeking and available for work",
+          "unit": "persons",
+          "dimensions": "person_count",
+          "context": "Same date, geographic area and explicitly declared age/civilian/institutional cohort; employed/unemployed are mutually exclusive and use one statistical definition",
+          "domain": "Nonnegative finite survey count/estimate"
+        },
+        {
+          "symbol": "population",
+          "source_symbol": "Total population of working age",
+          "role": "input",
+          "quantity_id": "working_age_population",
+          "definition": "Positive total population in the explicitly declared working-age/civilian/noninstitutional cohort",
+          "unit": "persons",
+          "dimensions": "person_count",
+          "context": "Same date, geographic area and explicitly declared age/civilian/institutional cohort; employed/unemployed are mutually exclusive and use one statistical definition",
+          "domain": "Nonnegative finite survey count/estimate"
+        },
+        {
+          "symbol": "p",
+          "source_symbol": "Participation rate/activity ratio",
+          "role": "output",
+          "quantity_id": "labor_force_participation_rate",
+          "definition": "Share of covered population in the labor force",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite fraction in[0,1]"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "population > 0",
+        "LF >= 0",
+        "LF <= population"
+      ],
+      "assumptions": [
+        "Source assumption: labor force is a subset of the declared population cohort.",
+        "Application profile: fix the cohort before binding; CFA illustration says ages16-64 while US BLS uses civilian noninstitutional people16and over with no upper age limit."
+      ],
+      "limitations": [
+        "The cohort discrepancy does not change ratio arithmetic but prevents direct unqualified comparison of series.",
+        "Retirees and students are not categorically excluded if they meet the chosen employment/seeking-work definition."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Unemployment, printed p243 (PDF p255), participation-rate definition; LM3 printed p178/PDF190 Exhibit28",
+          "evidence": "Participation compares labor-force members with the full population in a defined working-age cohort.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bls-labor-force",
+          "kind": "primary",
+          "title": "How the Government Measures Unemployment",
+          "url": "https://www.bls.gov/cps/cps_htgm.htm",
+          "version": "US Bureau of Labor Statistics, live CPS explanation",
+          "accessed": "2026-11-03",
+          "locator": "What are the unemployment rate, labor force participation rate, and employment-population ratio?",
+          "evidence": "The section defines labor force as employed plus unemployed, unemployment as a share of that force, and participation as labor force divided by the covered population.",
+          "license": "Government source; exact reuse terms unknown; equation definitions paraphrased only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "three-fifths",
+          "inputs": {
+            "LF": 60,
+            "population": 100
+          },
+          "expected": 0.6,
+          "tolerance": 1e-09,
+          "method": "Sixty force participants among100 covered people represent three fifths.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "no-participation",
+          "inputs": {
+            "LF": 0,
+            "population": 80
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "No employed or active job-seeking people among80 covered residents gives zero participation.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "population": 100
+          },
+          "reason": "LF is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "LF=p*population. population=LF/p requiresp>0 and consistent subset coverage. First case .6*100 recoversLF60 and substitutes.6. Atp0,LF0 any positive population fits.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--laspeyres-price-index",
+      "revision": "r2",
+      "title": "Laspeyres bilateral price index",
+      "summary": "The reading constructs a laspeyres bilateral price index by valuing one base-period basket at current and base prices.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "index",
+        "expression": "sum(current_values) / sum(base_values)",
+        "original_equation": "L=sum(p_t*q_0)/sum(p_0*q_0)",
+        "source_id": "abs-price-index-theory",
+        "locator": "Paragraphs4.16-4.17 and4.22, Equations4.4-4.6",
+        "translation_notes": "Both sums have currency dimensions, yielding a base-one price ratio. Published base100 scaling is a display convention and not inlined. Laspeyres and Paasche define distinct basket weighting quantities, even though their evaluated sum-ratio serialization is the same. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "current_values",
+          "source_symbol": "introduced: current-price values of base-period quantities",
+          "role": "family",
+          "quantity_id": "base_period_basket_current_price_value_terms",
+          "definition": "Per-item current price multiplied externally by that item base-period quantity; each term is monetary value",
+          "unit": "CNY",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "1-256 finite nonnegative values; exact same items and quantities as paired base_values",
+          "max_size": 256
+        },
+        {
+          "symbol": "base_values",
+          "source_symbol": "introduced: base-price values of base-period quantities",
+          "role": "family",
+          "quantity_id": "base_period_basket_base_price_value_terms",
+          "definition": "Per-item base price multiplied externally by that item base-period quantity",
+          "unit": "CNY",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "1-256 finite nonnegative values with positive sum; matched item identities/order",
+          "max_size": 256
+        },
+        {
+          "symbol": "index",
+          "source_symbol": "Laspeyres bilateral price index /100",
+          "role": "output",
+          "quantity_id": "bilateral_laspeyres_price_index",
+          "definition": "Price ratio normalized to1 at the base period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite base-one price index"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "len(current_values) == len(base_values)",
+        "sum(current_values) >= 0",
+        "sum(base_values) > 0"
+      ],
+      "assumptions": [
+        "Source assumption: the same base-period quantity basket is priced in both periods.",
+        "Source assumption: matched item quality, quantity units, currency and coverage; upstream multiplication is checked externally."
+      ],
+      "limitations": [
+        "No elementwise family arithmetic is available; paired monetary contributions are explicit upstream inputs.",
+        "Equality of lengths does not prove item identity or correct basket choice; per-element nonnegativity requires external validation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Measuring Inflation: The Construction of Price Indexes, printed p249 (PDF p261), Exhibit20 and unnumbered fixed-basket price-index example",
+          "evidence": "The reading constructs a laspeyres bilateral price index by valuing one base-period basket at current and base prices.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "abs-price-index-theory",
+          "kind": "primary",
+          "title": "Consumer Price Index: Concepts, Sources and Methods, Price index theory",
+          "url": "https://www.abs.gov.au/statistics/detailed-methodology-information/concepts-sources-methods/consumer-price-index-concepts-sources-and-methods/2018/price-index-theory",
+          "version": "Australian Bureau of Statistics,2018 reference; releasedFebruary27,2019",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs4.16-4.17 and4.22, Equations4.4-4.6",
+          "evidence": "Laspeyres uses base quantities, Paasche uses current quantities, and Fisher takes their geometric mean; price relatives compare prices between periods.",
+          "license": "Exact page reuse terms not inspected; no source tables or passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-two-good-basket",
+          "inputs": {
+            "current_values": [
+              200,
+              315
+            ],
+            "base_values": [
+              150,
+              308
+            ]
+          },
+          "expected": 1.1245,
+          "tolerance": 5e-05,
+          "method": "Source index is rounded to two decimal display points; base-one tolerance.00005 accounts for that reporting precision.",
+          "provenance": "CFA printed pp249-250/PDF261-262 Exhibit20."
+        },
+        {
+          "id": "unchanged-prices",
+          "inputs": {
+            "current_values": [
+              20,
+              30
+            ],
+            "base_values": [
+              20,
+              30
+            ]
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "Each basket item has unchanged price, so current and base basket costs coincide.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "base_values": [
+              150,
+              308
+            ]
+          },
+          "reason": "current_values is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Forward-only family aggregation. Total current basket cost=index*total base cost, but individual prices/quantities cannot be inferred from an aggregate. The unchanged-price reference substitutes equal total50 into both sums and returns1; denominator zero is excluded before evaluation.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--paasche-price-index",
+      "revision": "r2",
+      "title": "Paasche bilateral price index",
+      "summary": "The reading constructs a paasche bilateral price index by valuing one current-period basket at current and base prices.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "index",
+        "expression": "sum(current_values) / sum(base_values)",
+        "original_equation": "P=sum(p_t*q_t)/sum(p_0*q_t)",
+        "source_id": "abs-price-index-theory",
+        "locator": "Paragraphs4.16-4.17 and4.22, Equations4.4-4.6",
+        "translation_notes": "Both sums have currency dimensions, yielding a base-one price ratio. Published base100 scaling is a display convention and not inlined. Laspeyres and Paasche define distinct basket weighting quantities, even though their evaluated sum-ratio serialization is the same. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "current_values",
+          "source_symbol": "introduced: current-price values of current-period quantities",
+          "role": "family",
+          "quantity_id": "current_period_basket_current_price_value_terms",
+          "definition": "Per-item current price multiplied externally by that item current-period quantity; each term is monetary value",
+          "unit": "CNY",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "1-256 finite nonnegative values; exact same items and quantities as paired base_values",
+          "max_size": 256
+        },
+        {
+          "symbol": "base_values",
+          "source_symbol": "introduced: base-price values of current-period quantities",
+          "role": "family",
+          "quantity_id": "current_period_basket_base_price_value_terms",
+          "definition": "Per-item base price multiplied externally by that item current-period quantity",
+          "unit": "CNY",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "1-256 finite nonnegative values with positive sum; matched item identities/order",
+          "max_size": 256
+        },
+        {
+          "symbol": "index",
+          "source_symbol": "Paasche bilateral price index /100",
+          "role": "output",
+          "quantity_id": "bilateral_paasche_price_index",
+          "definition": "Price ratio normalized to1 at the base period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite base-one price index"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "len(current_values) == len(base_values)",
+        "sum(current_values) >= 0",
+        "sum(base_values) > 0"
+      ],
+      "assumptions": [
+        "Source assumption: the same current-period quantity basket is priced in both periods.",
+        "Source assumption: matched item quality, quantity units, currency and coverage; upstream multiplication is checked externally."
+      ],
+      "limitations": [
+        "No elementwise family arithmetic is available; paired monetary contributions are explicit upstream inputs.",
+        "Equality of lengths does not prove item identity or correct basket choice; per-element nonnegativity requires external validation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Measuring Inflation: The Construction of Price Indexes, printed pp249-250 (PDF pp261-262), Exhibit20 and unnumbered Paasche formula",
+          "evidence": "The reading constructs a paasche bilateral price index by valuing one current-period basket at current and base prices.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "abs-price-index-theory",
+          "kind": "primary",
+          "title": "Consumer Price Index: Concepts, Sources and Methods, Price index theory",
+          "url": "https://www.abs.gov.au/statistics/detailed-methodology-information/concepts-sources-methods/consumer-price-index-concepts-sources-and-methods/2018/price-index-theory",
+          "version": "Australian Bureau of Statistics,2018 reference; releasedFebruary27,2019",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs4.16-4.17 and4.22, Equations4.4-4.6",
+          "evidence": "Laspeyres uses base quantities, Paasche uses current quantities, and Fisher takes their geometric mean; price relatives compare prices between periods.",
+          "license": "Exact page reuse terms not inspected; no source tables or passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-two-good-basket",
+          "inputs": {
+            "current_values": [
+              280,
+              270
+            ],
+            "base_values": [
+              210,
+              264
+            ]
+          },
+          "expected": 1.1603,
+          "tolerance": 5e-05,
+          "method": "Source index is rounded to two decimal display points; base-one tolerance.00005 accounts for that reporting precision.",
+          "provenance": "CFA printed pp249-250/PDF261-262 Exhibit20."
+        },
+        {
+          "id": "unchanged-prices",
+          "inputs": {
+            "current_values": [
+              20,
+              30
+            ],
+            "base_values": [
+              20,
+              30
+            ]
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "Each basket item has unchanged price, so current and base basket costs coincide.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "base_values": [
+              210,
+              264
+            ]
+          },
+          "reason": "current_values is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Forward-only family aggregation. Total current basket cost=index*total base cost, but individual prices/quantities cannot be inferred from an aggregate. The unchanged-price reference substitutes equal total50 into both sums and returns1; denominator zero is excluded before evaluation.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

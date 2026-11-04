@@ -1,0 +1,53 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b81",
+  "batch_sha256": "38dc7f35103cd9e03af80cbd6e68688de30bd3e6b9776cc407d151d44cc7bc76",
+  "models": [
+    {
+      "blockers": [
+        "Time-length variable definitions assert day counts while the quarter reference case uses month counts (12/3); quantity_ids carry the wrong unit."
+      ],
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Sanmina slides (accessed) confirm linear x4 quarterly annualization of inventory turns; the relationship itself is carried."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Constant-run-rate annualization scope with seasonality/calendar limits is coherent."
+        },
+        "dimensions": {
+          "status": "failed",
+          "evidence": "The year/period variables are defined as 'Number of days' with _days quantity_ids, but the quarter reference uses year=12, period=3 (months); the translation notes even contradict the definitions by calling them same-unit counts. Metadata defect; the ratio arithmetic is unaffected. Fixed by r2 in b82."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "3.18 x 12/3 = 12.72 and 3.18 x 365/90 = 12.89666... recomputed. Honestly labeled."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "turnover >= 0, year/period > 0; turnover inversion stated. Missing-input rejection present."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "Issuer presentation; paraphrase only."
+        }
+      },
+      "id": "financial-analysis--inventory-turnover-linear-annualization",
+      "permitted_use": "None pending revision: correct the time-length definitions to unit-free lengths (done in r2, b82) before any use.",
+      "recommendation": "needs-revision",
+      "record_sha256": "8a2d8be6361bcb7d45c6cb56dacd8f23231be852a0c8a89a4bea0987236a16fd",
+      "revision": "r1",
+      "sources": [
+        {
+          "url": "https://s201.q4cdn.com/209924174/files/doc_presentations/2021/02/Q1%2721-EARNINGS-SLIDES-FINAL-2_2_21.pdf",
+          "locator": "Slide 10, Balance Sheet Metrics",
+          "accessed": "2026-11-04",
+          "finding": "Fetched 200 OK (24 pp). Confirms verbatim: 'Annualized Inventory turns ... are calculated as the ratio of four times non-GAAP cost of sales for the quarter to average inventory' (linear x4 annualization)."
+        }
+      ]
+    }
+  ],
+  "reviewed": "2026-11-04",
+  "reviewer": "ingest-cfa-b3b",
+  "schema_version": "cm-scientific-review/1"
+}

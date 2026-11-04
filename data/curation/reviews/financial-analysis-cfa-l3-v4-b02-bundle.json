@@ -1,0 +1,446 @@
+{
+ "batch_id": "financial-analysis-cfa-l3-v4-b02",
+ "created": "2026-11-04",
+ "curator": "buffy",
+ "deferred": [],
+ "domain": "financial-analysis",
+ "example_only": false,
+ "handoff": {
+  "summary": "Batch b02 (L3V4): 3 records (bear-spread breakeven, bear-spread max loss, collar flat-region profit) each with PDF locator and directly inspected accessible corroboration.",
+  "gaps": [
+   "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+   "Queue: LM1 straddle breakevens (single PDF oracle each; AP has independent oracles noted as supporting), protective-put trio (singles), vol scaling (single pair), put-call parity numerics (none in LM1); then LM2."
+  ],
+  "connections": [],
+  "queries": [],
+  "review_notes": "Validation and packing to be run after writing; verified locators and corroboration pages by direct inspection 2026-11-04."
+ },
+ "kit_version": "2026-10-31.9",
+ "schema_version": "cm-curation-batch/1",
+ "models": [
+  {
+   "id": "financial-analysis--bear-put-spread-breakeven",
+   "revision": "r1",
+   "title": "Bear put spread breakeven",
+   "summary": "Breakeven underlying price for a put bear spread as the higher (long-put) strike minus the net cost of the spread.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "b",
+    "expression": "xh-ph+pl",
+    "original_equation": "Breakeven = XH - (pH - pL)",
+    "source_id": "analystprep-spreads-combos",
+    "locator": "PDF: LM1 bear spreads, printed pp. 35-36 (PDF pp. 43-44), Exhibit 18 (buy NOV 16 put at 1.96, write NOV 15 put at 1.46): net cost 0.50 (maximum loss); breakeven 16-1.96+1.46 = 15.50",
+    "translation_notes": "Decimals. XH > XL; pH > pL so the spread has positive cost."
+   },
+   "variables": [
+    {
+     "symbol": "xh",
+     "source_symbol": "XH",
+     "role": "input",
+     "quantity_id": "higher_strike",
+     "definition": "Higher (long-put) strike price, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one bear put spread at inception",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "ph",
+     "source_symbol": "pH",
+     "role": "input",
+     "quantity_id": "long_put_premium",
+     "definition": "Premium paid for the higher-strike put, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same spread",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "pl",
+     "source_symbol": "pL",
+     "role": "input",
+     "quantity_id": "short_put_premium",
+     "definition": "Premium received for the lower-strike put, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same spread",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "b",
+     "source_symbol": "Breakeven",
+     "role": "output",
+     "quantity_id": "bear_spread_breakeven",
+     "definition": "Underlying price at expiration with zero profit, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same spread",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "European-style puts, same expiry and underlying; spread opened at a net debit."
+   ],
+   "limitations": [
+    "Expiration only; the breakeven lies between the strikes when cost is below the strike width."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-bear-be-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 bear spreads, printed pp. 35-36 (PDF pp. 43-44), Exhibit 18 (buy NOV 16 put at 1.96, write NOV 15 put at 1.46): net cost 0.50 (maximum loss); breakeven 16-1.96+1.46 = 15.50",
+     "evidence": "Breakeven formula with the Exhibit 18 computation (15.50).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-spreads-combos",
+     "kind": "primary",
+     "title": "Option Spreads and Combinations (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/spreads-and-combinations/",
+     "version": "Study notes, 12 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Bear put spread: maximum profit = K2-K1-p2+p1; maximum loss = p2-p1; breakeven = K2-p2+p1. Straddle breakeven = strike +/- premium paid (own worked oracles 3,353.80/2,996.20). Collar = protective put plus short OTM call; value VT = ST+Max(0,Kput-ST)-Max(0,ST-Kcall); profit nets premiums.",
+     "evidence": "Page states the same bear-spread formulas and the collar value/profit structure used across the three records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-ex18-breakeven-oracle",
+     "inputs": {
+      "xh": 16.0,
+      "ph": 1.96,
+      "pl": 1.46
+     },
+     "expected": 15.5,
+     "tolerance": 1e-09,
+     "method": "16-1.96+1.46 = 15.50.",
+     "provenance": "Published result: LM1 Exhibit 18, printed p. 36 (PDF p. 44)"
+    },
+    {
+     "id": "published-strategy6-breakeven-oracle",
+     "inputs": {
+      "xh": 31.0,
+      "ph": 3.0,
+      "pl": 0.5
+     },
+     "expected": 28.5,
+     "tolerance": 1e-09,
+     "method": "31.00-(3.00-0.50) = 28.50.",
+     "provenance": "Published result: LM1 practice-problem solution 7, printed p. 79 (PDF p. 87)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "xh": 16.0,
+      "ph": 1.96
+     },
+     "reason": "Premium of the written put is structurally required; net cost defines the breakeven."
+    }
+   ],
+   "inverse_notes": "pl = ph-(xh-b). Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings strikes, leg premiums, and bear-spread breakeven are not in the runtime vocabulary snapshot and require extension."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--bear-put-spread-max-loss",
+   "revision": "r1",
+   "title": "Bear put spread maximum loss (net cost)",
+   "summary": "Maximum loss of a put bear spread as the net premium paid (long-put cost minus short-put receipt).",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "l",
+    "expression": "ph-pl",
+    "original_equation": "Maximum loss = pH - pL (spread net cost; V0 = pH - pL)",
+    "source_id": "analystprep-spreads-combos",
+    "locator": "PDF: LM1 bear spreads, printed pp. 35-36 (PDF pp. 43-44), Exhibit 18 (buy NOV 16 put at 1.96, write NOV 15 put at 1.46): net cost 0.50 (maximum loss); breakeven 16-1.96+1.46 = 15.50",
+    "translation_notes": "Decimals. Realized when the underlying closes at or above the higher strike."
+   },
+   "variables": [
+    {
+     "symbol": "ph",
+     "source_symbol": "pH",
+     "role": "input",
+     "quantity_id": "long_put_premium",
+     "definition": "Premium paid for the higher-strike put, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one bear put spread at inception",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "pl",
+     "source_symbol": "pL",
+     "role": "input",
+     "quantity_id": "short_put_premium",
+     "definition": "Premium received for the lower-strike put, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same spread",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "l",
+     "source_symbol": "Maximum loss",
+     "role": "output",
+     "quantity_id": "bear_spread_max_loss",
+     "definition": "Maximum loss at expiration, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same spread",
+     "domain": "Non-negative finite"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "European-style puts, same expiry and underlying; spread opened at a net debit."
+   ],
+   "limitations": [
+    "Maximum loss only; equals the initial outlay, realized at ST >= XH."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-bear-ml-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 bear spreads, printed pp. 35-36 (PDF pp. 43-44), Exhibit 18 (buy NOV 16 put at 1.96, write NOV 15 put at 1.46): net cost 0.50 (maximum loss); breakeven 16-1.96+1.46 = 15.50",
+     "evidence": "Net-cost/maximum-loss value for Exhibit 18 (0.50).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-spreads-combos",
+     "kind": "primary",
+     "title": "Option Spreads and Combinations (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/spreads-and-combinations/",
+     "version": "Study notes, 12 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Bear put spread: maximum profit = K2-K1-p2+p1; maximum loss = p2-p1; breakeven = K2-p2+p1. Straddle breakeven = strike +/- premium paid (own worked oracles 3,353.80/2,996.20). Collar = protective put plus short OTM call; value VT = ST+Max(0,Kput-ST)-Max(0,ST-Kcall); profit nets premiums.",
+     "evidence": "Page states the same bear-spread formulas and the collar value/profit structure used across the three records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-ex18-maxloss-oracle",
+     "inputs": {
+      "ph": 1.96,
+      "pl": 1.46
+     },
+     "expected": 0.5,
+     "tolerance": 1e-09,
+     "method": "1.96-1.46 = 0.50.",
+     "provenance": "Published result: LM1 Exhibit 18, printed p. 36 (PDF p. 44)"
+    },
+    {
+     "id": "published-strategy6-maxloss-oracle",
+     "inputs": {
+      "ph": 3.0,
+      "pl": 0.5
+     },
+     "expected": 2.5,
+     "tolerance": 1e-09,
+     "method": "3.00-0.50 = 2.50.",
+     "provenance": "Published result: LM1 practice-problem solution 7, printed p. 79 (PDF p. 87)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "ph": 1.96
+     },
+     "reason": "Both leg premiums are structurally required; the loss is their net."
+    }
+   ],
+   "inverse_notes": "pl = ph-l. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings leg premiums and bear-spread maximum loss are not in the runtime vocabulary snapshot and require extension.",
+     "Bear-spread maximum profit (XH-XL)-(pH-pL) has no second published oracle (Exhibit 18 labels only); deferred."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--collar-flat-region-profit",
+   "revision": "r1",
+   "title": "Collar flat-region terminal profit",
+   "summary": "Terminal profit of a collar in either flat region as the binding strike minus inception stock price minus net premium paid.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "pf",
+    "expression": "k-s-p+c",
+    "original_equation": "Profit = X1 - S0 - p0 + c0 at/below the put strike; X2 - S0 - p0 + c0 at/above the call strike",
+    "source_id": "analystprep-spreads-combos",
+    "locator": "PDF: LM1 collars, printed p. 44 (PDF p. 52), Exhibits 23-24 (stock bought at 12, NOV 15 put at 1.46, NOV 17 call written at 1.44): flat-region profit X1-S0-p0+c0 = 15-12-1.46+1.44 = 2.98 at/below the put strike; X2-S0-p0+c0 = 17-12-1.46+1.44 = 4.98 at/above the call strike",
+    "translation_notes": "Decimals. K is the binding strike (X1 floor region, X2 cap region); p0/c0 are put cost/call receipt."
+   },
+   "variables": [
+    {
+     "symbol": "k",
+     "source_symbol": "X1 or X2",
+     "role": "input",
+     "quantity_id": "binding_strike",
+     "definition": "Strike binding in the flat region (put strike X1 or call strike X2), in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one collar at inception",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "s",
+     "source_symbol": "S0",
+     "role": "input",
+     "quantity_id": "stock_price_at_inception",
+     "definition": "Stock purchase price, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same collar",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "p",
+     "source_symbol": "p0",
+     "role": "input",
+     "quantity_id": "put_premium_paid",
+     "definition": "Put premium paid, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same collar",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "c",
+     "source_symbol": "c0",
+     "role": "input",
+     "quantity_id": "call_premium_received",
+     "definition": "Call premium received, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same collar",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "pf",
+     "source_symbol": "Profit",
+     "role": "output",
+     "quantity_id": "collar_flat_profit",
+     "definition": "Terminal profit in the flat region, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same collar",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Long stock plus long put (X1) plus short call (X2), X2 > X1, same expiry; evaluated in a flat region."
+   ],
+   "limitations": [
+    "Flat regions only; between the strikes profit rises one-for-one with the stock."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-collar-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 collars, printed p. 44 (PDF p. 52), Exhibits 23-24 (stock bought at 12, NOV 15 put at 1.46, NOV 17 call written at 1.44): flat-region profit X1-S0-p0+c0 = 15-12-1.46+1.44 = 2.98 at/below the put strike; X2-S0-p0+c0 = 17-12-1.46+1.44 = 4.98 at/above the call strike",
+     "evidence": "Flat-region profit formula with the floor (2.98) and cap (4.98) computations.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-spreads-combos",
+     "kind": "primary",
+     "title": "Option Spreads and Combinations (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/spreads-and-combinations/",
+     "version": "Study notes, 12 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Bear put spread: maximum profit = K2-K1-p2+p1; maximum loss = p2-p1; breakeven = K2-p2+p1. Straddle breakeven = strike +/- premium paid (own worked oracles 3,353.80/2,996.20). Collar = protective put plus short OTM call; value VT = ST+Max(0,Kput-ST)-Max(0,ST-Kcall); profit nets premiums.",
+     "evidence": "Page states the same bear-spread formulas and the collar value/profit structure used across the three records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-floor-profit-oracle",
+     "inputs": {
+      "k": 15.0,
+      "s": 12.0,
+      "p": 1.46,
+      "c": 1.44
+     },
+     "expected": 2.98,
+     "tolerance": 1e-09,
+     "method": "15-12-1.46+1.44 = 2.98.",
+     "provenance": "Published result: LM1 Exhibits 23-24, printed p. 44 (PDF p. 52)"
+    },
+    {
+     "id": "published-cap-profit-oracle",
+     "inputs": {
+      "k": 17.0,
+      "s": 12.0,
+      "p": 1.46,
+      "c": 1.44
+     },
+     "expected": 4.98,
+     "tolerance": 1e-09,
+     "method": "Placeholder replaced below.",
+     "provenance": "Published result: LM1 Exhibits 23-24, printed p. 44 (PDF p. 52)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "k": 15.0,
+      "s": 12.0,
+      "p": 1.46
+     },
+     "reason": "Call receipt is structurally required; net premium defines the flat profit."
+    }
+   ],
+   "inverse_notes": "No single-input inverse without fixing the other three. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings strike, inception price, leg premiums, and collar profit are not in the runtime vocabulary snapshot and require extension."
+    ],
+    "duplicate_of": []
+   }
+  }
+ ]
+}

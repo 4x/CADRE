@@ -1,0 +1,549 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b78",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--retail-sales-per-square-foot",
+      "revision": "r1",
+      "title": "Retail sales per square foot",
+      "summary": "The exhibit divides retail revenue by retail space.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "density",
+        "expression": "sales / area",
+        "original_equation": "Sales per square foot = retail sales / retail floor area",
+        "source_id": "nordstrom-sales-square-foot-2010",
+        "locator": "Item 6 response and calculation table",
+        "translation_notes": "Result is currency per square foot for the stated period."
+      },
+      "variables": [
+        {
+          "symbol": "sales",
+          "source_symbol": "retail sales",
+          "role": "input",
+          "quantity_id": "retail_sales",
+          "definition": "retail sales",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "area",
+          "source_symbol": "retail floor area",
+          "role": "input",
+          "quantity_id": "retail_floor_area_square_feet",
+          "definition": "Applicable retail floor area in square feet",
+          "unit": "square_foot",
+          "dimensions": "area",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "density",
+          "source_symbol": "sales per square foot",
+          "role": "output",
+          "quantity_id": "retail_sales_per_square_foot",
+          "definition": "Retail sales per square foot over the reporting period",
+          "unit": "USD_per_square_foot",
+          "dimensions": "currency/area",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sales >= 0",
+        "area > 0"
+      ],
+      "assumptions": [
+        "Revenue and area cover the same retail business and reporting period.",
+        "Floor area is positive and uses one disclosed definition such as weighted average retail area."
+      ],
+      "limitations": [
+        "Use consistent treatment of online sales, store openings and selling versus total area.",
+        "This record uses square feet; metric-area inputs need conversion."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Industry-Specific Financial Ratios, printed pp233–234 (PDF pp247–248), Exhibit 21",
+          "evidence": "The exhibit divides retail revenue by retail space.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nordstrom-sales-square-foot-2010",
+          "kind": "primary",
+          "title": "Nordstrom correspondence on sales per square foot",
+          "url": "https://www.sec.gov/Archives/edgar/data/72333/000119312510120788/filename1.htm",
+          "version": "Nordstrom, SEC correspondence, 2010",
+          "accessed": "2026-11-04",
+          "locator": "Item 6 response and calculation table",
+          "evidence": "The issuer divides net sales by weighted average retail square footage.",
+          "license": "Issuer filing; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "illustrative",
+          "inputs": {
+            "sales": 1000000,
+            "area": 10000
+          },
+          "expected": 100,
+          "tolerance": 1e-09,
+          "method": "1,000,000 sales over 10,000 square feet gives 100 per square foot.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "issuer",
+          "inputs": {
+            "sales": 8258000000,
+            "area": 22414000
+          },
+          "expected": 368.4304452574284,
+          "tolerance": 1e-09,
+          "method": "The issuer example yields approximately 368 per weighted average square foot.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "area": 10000
+          },
+          "reason": "sales is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "sales=density*area.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--bank-central-reserves-to-eligible-deposits",
+      "revision": "r1",
+      "title": "Central-bank reserves to eligible deposits",
+      "summary": "The exhibit relates reserves held at the central bank to specified deposit liabilities.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "reserves / deposits",
+        "original_equation": "Reserve ratio = central-bank reserves / specified deposit liabilities",
+        "source_id": "bank-korea-reserve-requirements",
+        "locator": "Reserve Requirements explanation",
+        "translation_notes": "The result is a base-one fraction and can exceed one."
+      },
+      "variables": [
+        {
+          "symbol": "reserves",
+          "source_symbol": "central-bank reserves held",
+          "role": "input",
+          "quantity_id": "bank_central_bank_reserves",
+          "definition": "central-bank reserves held",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "deposits",
+          "source_symbol": "specified deposit liabilities",
+          "role": "input",
+          "quantity_id": "bank_reserve_eligible_deposits",
+          "definition": "specified deposit liabilities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "central-bank reserve ratio",
+          "role": "output",
+          "quantity_id": "bank_reserves_to_eligible_deposits",
+          "definition": "Central-bank reserves divided by the selected deposit base",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "reserves >= 0",
+        "deposits > 0"
+      ],
+      "assumptions": [
+        "Reserves and deposit liabilities use the same currency and measurement basis.",
+        "Deposit liabilities are the positive specified base and reserves are nonnegative."
+      ],
+      "limitations": [
+        "This is an observed ratio, not necessarily the statutory minimum or a determination of compliance.",
+        "Jurisdictions may permit vault cash, apply different rates and use averaging or wider liability bases."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Industry-Specific Financial Ratios, printed pp233–234 (PDF pp247–248), Exhibit 21",
+          "evidence": "The exhibit relates reserves held at the central bank to specified deposit liabilities.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bank-korea-reserve-requirements",
+          "kind": "primary",
+          "title": "Reserve Requirements",
+          "url": "https://www.bok.or.kr/eng/main/contents.do?menuNo=400029",
+          "version": "Bank of Korea, monetary policy instruments",
+          "accessed": "2026-11-04",
+          "locator": "Reserve Requirements explanation",
+          "evidence": "The central bank describes required reserves as a proportion of liabilities subject to requirements.",
+          "license": "Bank of Korea; formula-level facts and original paraphrase only; no current rate inferred.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "normal",
+          "inputs": {
+            "reserves": 50,
+            "deposits": 1000
+          },
+          "expected": 0.05,
+          "tolerance": 1e-09,
+          "method": "50 reserves over 1,000 specified deposits gives 5%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero",
+          "inputs": {
+            "reserves": 0,
+            "deposits": 1000
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Zero reserves over a positive deposit base gives zero.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "deposits": 1000
+          },
+          "reason": "reserves is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "reserves=ratio*deposits.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--service-revenue-per-employee",
+      "revision": "r1",
+      "title": "Revenue per employee",
+      "summary": "The service-company ratio divides revenue by total employees.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "amount",
+        "expression": "revenue / employees",
+        "original_equation": "Revenue per employee = revenue / number of employees",
+        "source_id": "mbda-revenue-per-employee",
+        "locator": "Productivity in Revenue per Employee",
+        "translation_notes": "The result is currency per employee for the specified period."
+      },
+      "variables": [
+        {
+          "symbol": "revenue",
+          "source_symbol": "revenue",
+          "role": "input",
+          "quantity_id": "service_company_revenue",
+          "definition": "revenue",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "employees",
+          "source_symbol": "number of employees",
+          "role": "input",
+          "quantity_id": "service_company_employee_count",
+          "definition": "Number of employees under a consistent headcount convention",
+          "unit": "employee",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "amount",
+          "source_symbol": "revenue per employee",
+          "role": "output",
+          "quantity_id": "service_revenue_per_employee",
+          "definition": "Revenue per employee for the reporting period",
+          "unit": "USD_per_employee",
+          "dimensions": "currency/count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "revenue >= 0",
+        "employees > 0"
+      ],
+      "assumptions": [
+        "Revenue and employee count refer to the same entity and a disclosed reporting period.",
+        "The employee count is strictly positive and uses a consistent headcount convention."
+      ],
+      "limitations": [
+        "FTE versus headcount, outsourced work and timing of staff counts affect comparisons.",
+        "The result is an aggregate ratio, not an individual employee contribution."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Industry-Specific Financial Ratios, printed pp233–234 (PDF pp247–248), Exhibit 21",
+          "evidence": "The service-company ratio divides revenue by total employees.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "mbda-revenue-per-employee",
+          "kind": "primary",
+          "title": "Manufacturing: Key Performance Indicators",
+          "url": "https://www.mbda.gov/sites/default/files/mbda-factsheet-manufacturing.pdf",
+          "version": "US Minority Business Development Agency, manufacturing factsheet",
+          "accessed": "2026-11-04",
+          "locator": "Productivity in Revenue per Employee",
+          "evidence": "The factsheet divides total sales revenue by the number of employees.",
+          "license": "US government factsheet; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "normal",
+          "inputs": {
+            "revenue": 1000000,
+            "employees": 10
+          },
+          "expected": 100000,
+          "tolerance": 1e-09,
+          "method": "1,000,000 revenue over 10 employees gives 100,000 per employee.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero",
+          "inputs": {
+            "revenue": 0,
+            "employees": 10
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Zero revenue gives zero per employee.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "employees": 10
+          },
+          "reason": "revenue is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "revenue=amount*employees.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--service-net-income-per-employee",
+      "revision": "r1",
+      "title": "Net income per employee",
+      "summary": "The service-company ratio divides net income by total employees.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "amount",
+        "expression": "income / employees",
+        "original_equation": "Net income per employee = net income / number of employees",
+        "source_id": "gocardless-net-income-per-employee",
+        "locator": "Definition of profit per employee",
+        "translation_notes": "The result is signed currency per employee for the specified period."
+      },
+      "variables": [
+        {
+          "symbol": "income",
+          "source_symbol": "net income",
+          "role": "input",
+          "quantity_id": "service_company_net_income",
+          "definition": "net income",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "employees",
+          "source_symbol": "number of employees",
+          "role": "input",
+          "quantity_id": "service_company_employee_count",
+          "definition": "Number of employees under a consistent headcount convention",
+          "unit": "employee",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "amount",
+          "source_symbol": "net income per employee",
+          "role": "output",
+          "quantity_id": "service_net_income_per_employee",
+          "definition": "Net income per employee for the reporting period",
+          "unit": "USD_per_employee",
+          "dimensions": "currency/count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "employees > 0"
+      ],
+      "assumptions": [
+        "Net income and employee count refer to the same entity and a disclosed reporting period.",
+        "The employee count is strictly positive and uses a consistent headcount convention."
+      ],
+      "limitations": [
+        "The corroborating source also discusses an FTE version; FTE and raw headcount should not be conflated.",
+        "Nonrecurring items and outsourcing affect comparisons; this is not individual employee profit."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Industry-Specific Financial Ratios, printed pp233–234 (PDF pp247–248), Exhibit 21",
+          "evidence": "The service-company ratio divides net income by total employees.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "gocardless-net-income-per-employee",
+          "kind": "primary",
+          "title": "What is profit per employee and how can it help my business?",
+          "url": "https://gocardless.com/en-us/guides/posts/profit-per-employee/",
+          "version": "GoCardless, edited September 2020",
+          "accessed": "2026-11-04",
+          "locator": "Definition of profit per employee",
+          "evidence": "The source describes net income divided by total employees and discusses an FTE variant.",
+          "license": "GoCardless copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "income": 600000,
+            "employees": 25
+          },
+          "expected": 24000,
+          "tolerance": 1e-09,
+          "method": "600,000 net income over 25 employees gives 24,000 per employee.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "loss",
+          "inputs": {
+            "income": -10000,
+            "employees": 10
+          },
+          "expected": -1000,
+          "tolerance": 1e-09,
+          "method": "A 10,000 loss over 10 employees gives negative 1,000 per employee.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "employees": 25
+          },
+          "reason": "income is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "income=amount*employees.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,191 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b1-b29",
+  "batch_sha256": "385412cf44b5c59ec1fe5de15cfd2e81aed9b562da7c28a8f64d1d5a62237548",
+  "reviewer": "ingest-clinical",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--percentile-r6-location",
+      "revision": "r2",
+      "record_sha256": "802f9d3704e37f1fa0f95fc83d19fc061c0bf0a066c2b0c159a03ee3a3709f08",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH section 7.2.6.2 verified live 2026-11-04: p(N+1)=k+d estimation with the n=12 wafer example giving 11.7 and interpolated value 95.1981; matches the record formula and oracle."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "n+1 (R6/Hyndman-Fan) convention with one-based ascending order only; R7/R8 differ. Sorting and endpoint clamping are external."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "(n[unit]+1)*p[1] gives L[unit]; one-based rank location. record_count and unit exist; quantile_fraction and quantile_order_location are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: (11+1)*.75=9; (12+1)*.9=11.7, exact. Second oracle reproduces the NIST wafer example (n=12, 90th percentile, L=11.7)."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "n>0, 0<p<1 (interior quantiles). Inverses p=L/(n+1); n=L/p-1 with integer result; p=0 correctly outside the profile. Extreme-p clamping explicitly not chosen by this record."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH handbook corroboration only: short equations and numerical facts; no handbook text redistributed. NIST employee works are not subject to US copyright (17 USC 105) with foreign rights possible and acknowledgment required, verified live 2026-11-04 at the NIST license page. No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.itl.nist.gov/div898/handbook/prc/section2/prc262.htm",
+          "locator": "Section 7.2.6.2, Estimation of percentiles",
+          "accessed": "2026-11-04",
+          "finding": "Live page: p(N+1) method with n=12 wafer example (L=11.7, interpolated 95.1981)."
+        },
+        {
+          "url": "https://www.nist.gov/open/copyright-fair-use-and-licensing-statements-srd-data-software-and-technical-series-publications",
+          "locator": "Fair Use of Other NIST Data/Works",
+          "accessed": "2026-11-04",
+          "finding": "Live page: 17 USC 105, no US copyright for employee works, foreign rights possible, acknowledgment required."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "R6 (n+1) percentile rank location for interior quantiles, for qualified data review with a declared quantile convention."
+    },
+    {
+      "id": "financial-analysis--percentile-linear-interpolation",
+      "revision": "r2",
+      "record_sha256": "64939cdc609abff63649736b5bbca5189743dccfb67858d90c2e6f90d828f3c8",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH section 7.2.6.2 verified live 2026-11-04: Y_(p)=Y_[k]+d(Y_[k+1]-Y_[k]) with the wafer interpolation to 95.1981; matches the record formula and oracle."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Interior-rank interpolation between supplied adjacent order statistics; sorting, floor/rank selection, and endpoint clamping explicitly external."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "low[data-unit]+d[1]*(high-low)[data-unit] gives Q[data-unit]. data-unit, lower_adjacent_order_statistic, upper_adjacent_order_statistic, order_location_fraction, interpolated_quantile are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 95.1959+.7*(95.199-95.1959)=95.19807 vs 95.1981 within tol 5e-5 (NIST wafer example reproduced); 2+.5*(6-2)=4 exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "high>=low, 0<=d<1. Inverse d=(Q-low)/(high-low) needs distinct endpoints; coincident endpoints fix Q and leave d unidentified, correctly. d=0 admits the exact lower order statistic."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH handbook corroboration only: short equations and numerical facts; no handbook text redistributed. NIST employee works are not subject to US copyright (17 USC 105) with foreign rights possible and acknowledgment required, verified live 2026-11-04 at the NIST license page. No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.itl.nist.gov/div898/handbook/prc/section2/prc262.htm",
+          "locator": "Section 7.2.6.2, Estimation of percentiles",
+          "accessed": "2026-11-04",
+          "finding": "Live page: linear-interpolation rule with wafer example interpolating to 95.1981."
+        },
+        {
+          "url": "https://www.nist.gov/open/copyright-fair-use-and-licensing-statements-srd-data-software-and-technical-series-publications",
+          "locator": "Fair Use of Other NIST Data/Works",
+          "accessed": "2026-11-04",
+          "finding": "Live page: 17 USC 105, no US copyright for employee works, foreign rights possible, acknowledgment required."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Interior percentile interpolation between adjacent order statistics, for qualified data review with supplied ranks."
+    },
+    {
+      "id": "financial-analysis--interquartile-range",
+      "revision": "r2",
+      "record_sha256": "db8de3a726a30e60fe77d1c2961e957ff1ccd5d316bfed1b4eb99be3eb5f40c3",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH section 1.3.5.6 verified live 2026-11-04: interquartile range defined as 75th minus 25th percentile value; matches."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Middle-50% spread for quartiles sharing sample, units, and convention; no tail measure and no quantile-method selection."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "q3[data-unit]-q1[data-unit] gives IQR[data-unit]. data-unit, third_quartile, first_quartile, interquartile_range are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: .0046-(-.00293)=.00753; 5-5=0, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "q3>=q1. Inverses q3=IQR+q1, q1=q3-IQR with ordering retained; IQR=0 means coincident quartiles at an unidentified level, correctly."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH handbook corroboration only: short equations and numerical facts; no handbook text redistributed. NIST employee works are not subject to US copyright (17 USC 105) with foreign rights possible and acknowledgment required, verified live 2026-11-04 at the NIST license page. No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda356.htm",
+          "locator": "Section 1.3.5.6, Definitions of Variability",
+          "accessed": "2026-11-04",
+          "finding": "Live page: IQR as 75th-minus-25th percentile value with variance/SD/range/AAD definitions."
+        },
+        {
+          "url": "https://www.nist.gov/open/copyright-fair-use-and-licensing-statements-srd-data-software-and-technical-series-publications",
+          "locator": "Fair Use of Other NIST Data/Works",
+          "accessed": "2026-11-04",
+          "finding": "Live page: 17 USC 105, no US copyright for employee works, foreign rights possible, acknowledgment required."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Interquartile range from same-convention quartiles, for qualified spread review."
+    },
+    {
+      "id": "financial-analysis--boxplot-inner-fence",
+      "revision": "r2",
+      "record_sha256": "2ba932c1ffe5179bf5dfdfb578989cf4691304a4fa6ca95ad556136ff55da06e",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating NIST boxplot page not opened by reviewer."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Tukey inner-fence threshold for the matching quartile; a fence is not automatically the observed whisker endpoint."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "q[data-unit]+side[1]*1.5*IQR[data-unit] gives fence[data-unit]. data-unit and all meanings are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 8+1*1.5*4=14; 4-1*1.5*4=-2, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "side^2==1 encodes the two source formulas; IQR>=0. Inverses q=fence-side*1.5*IQR; IQR=(fence-q)/(side*1.5); IQR=0 coincides fences with quartiles, correctly."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating source not opened by reviewer (https://www.itl.nist.gov/div898/handbook/eda/section3/boxplot.htm).",
+        "Requires runtime extension (data-unit and new meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    }
+  ]
+}

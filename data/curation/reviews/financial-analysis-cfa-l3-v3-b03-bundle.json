@@ -1,0 +1,610 @@
+{
+ "batch_id": "financial-analysis-cfa-l3-v3-b03",
+ "created": "2026-11-04",
+ "curator": "buffy",
+ "deferred": [],
+ "domain": "financial-analysis",
+ "example_only": false,
+ "handoff": {
+  "summary": "Batch b03 (L3V3): 4 records (Sortino ratio, target semivariance, upside and downside capture) each with PDF locator and directly inspected accessible corroboration.",
+  "gaps": [
+   "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+   "Queue: b04 (capture ratio, gain-to-offset, max drawdown, style/active); LM2/LM3 survey."
+  ],
+  "connections": [],
+  "queries": [],
+  "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity - verified locators and corroboration pages by direct inspection 2026-11-04."
+ },
+ "kit_version": "2026-10-31.9",
+ "schema_version": "cm-curation-batch/1",
+ "models": [
+  {
+   "id": "financial-analysis--sortino-ratio",
+   "revision": "r1",
+   "title": "Sortino ratio",
+   "summary": "Return above the minimum acceptable return per unit of target semi-standard deviation.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "sr",
+    "expression": "(rp-rt)/sd",
+    "original_equation": "SR_D = (E(r_p) - r_T)/sigma_D, ex post (r_p - r_T)/sigma_D_hat (Eqs 22-23)",
+    "source_id": "analystprep-risk-appraisal",
+    "locator": "PDF: LM1 Sortino Eqs 22-23 with Exhibit 16, printed pp. 53-54 (PDF pp. 61-62): (6.0%-4.0%)/3.07% = 0.65; Example 12 Q1, printed p. 54 (PDF p. 62): (0.10-0.03)/0.08 = 0.88",
+    "translation_notes": "rp is mean portfolio return, rt the MAR/target, sd the target semi-standard deviation (computed by the sibling semivariance record, then square-rooted). Decimals."
+   },
+   "variables": [
+    {
+     "symbol": "rp",
+     "source_symbol": "r_p",
+     "role": "input",
+     "quantity_id": "mean_portfolio_return",
+     "definition": "Mean portfolio return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one portfolio and period",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "rt",
+     "source_symbol": "r_T",
+     "role": "input",
+     "quantity_id": "target_return",
+     "definition": "Minimum acceptable (target) return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same portfolio and period",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "sd",
+     "source_symbol": "sigma_D",
+     "role": "input",
+     "quantity_id": "target_semideviation",
+     "definition": "Target semi-standard deviation, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same portfolio and period",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "sr",
+     "source_symbol": "SR_D",
+     "role": "output",
+     "quantity_id": "sortino_ratio",
+     "definition": "Sortino ratio, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same portfolio and period",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [
+    "sd > 0"
+   ],
+   "assumptions": [
+    "MAR fixed for the measurement; sd from downside-only deviations below the MAR."
+   ],
+   "limitations": [
+    "Investor-specific MAR makes cross-sectional comparison difficult; not a risk premium (return above minimum, per PDF)."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-sortino-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 Sortino Eqs 22-23 with Exhibit 16, printed pp. 53-54 (PDF pp. 61-62): (6.0%-4.0%)/3.07% = 0.65; Example 12 Q1, printed p. 54 (PDF p. 62): (0.10-0.03)/0.08 = 0.88",
+     "evidence": "Eqs 22-23 with Exhibit 16 (0.65) and Example 12 Q1 (0.88).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-risk-appraisal",
+     "kind": "primary",
+     "title": "Risk-Based Performance Measures and Appraisal Ratio (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/risk-based-measures-of-performance-appraisal-2/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Sortino = (Rp-Rt)/sigma_d with worked oracle (12-5)/8 = 0.875; target semideviation = min(ra-rT,0)^2 per period; UC = R(m)/R(B) if R(B) >= 0, DC = R(m)/R(B) if R(B) < 0; maximum DD = min([(V-V*)/V*],0); Sharpe/Treynor/IR/AR formulas stated.",
+     "evidence": "Page states the same Sortino, semideviation, capture-leg and max-drawdown formulas with its own worked Sortino oracle (0.875); also states Sharpe/Treynor/IR/AR forms used for deferred items.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-example-12-sortino-oracle",
+     "inputs": {
+      "rp": 0.1,
+      "rt": 0.03,
+      "sd": 0.08
+     },
+     "expected": 0.875,
+     "tolerance": 0.005,
+     "method": "(0.10-0.03)/0.08 = 0.875, reported as 0.88.",
+     "provenance": "Published result: LM1 Example 12 Q1, printed p. 54 (PDF p. 62)"
+    },
+    {
+     "id": "published-exhibit-16-sortino-oracle",
+     "inputs": {
+      "rp": 0.06,
+      "rt": 0.04,
+      "sd": 0.0307
+     },
+     "expected": 0.6515,
+     "tolerance": 0.005,
+     "method": "(0.06-0.04)/0.0307 = 0.6515, reported as approximately 0.65.",
+     "provenance": "Published result: LM1 Exhibit 16, printed p. 53 (PDF p. 61)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "rp": 0.1,
+      "rt": 0.03
+     },
+     "reason": "Downside deviation is structurally required; without it the ratio has no risk scale."
+    },
+    {
+     "kind": "domain",
+     "inputs": {
+      "rp": 0.1,
+      "rt": 0.03,
+      "sd": 0.0
+     },
+     "reason": "Guard sd > 0 violated; zero downside deviation makes the ratio undefined."
+    }
+   ],
+   "inverse_notes": "sd = (rp-rt)/sr requires sr != 0 (used in reverse by practice Q3: (8.20-5.00)/0.87 = 3.68%). Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings mean return, target return, target semideviation, and Sortino ratio are not in the runtime vocabulary snapshot and require extension.",
+     "Denominator construction is financial-analysis--target-semivariance; Q3 inverse use (3.68%) is supporting evidence."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--target-semivariance",
+   "revision": "r1",
+   "title": "Target semivariance (downside)",
+   "summary": "Mean of squared below-target deviations; family holds precomputed min(r_t - r_T, 0)^2 values.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "sv",
+    "expression": "sum(M)/n",
+    "original_equation": "sigma_D^2 = sum min(r_t - r_T, 0)^2 / N (Eq24 without the 1/2 power)",
+    "source_id": "analystprep-risk-appraisal",
+    "locator": "PDF: LM1 target semideviation Eq 24 with Exhibit 16, printed pp. 53-54 (PDF pp. 61-62): sum min2 = 0.0094, /10, sqrt = 3.07%; Example 12 Q5 solution, printed p. 56 (PDF p. 64): sum = 0.004, /4, sqrt = 3.16%",
+    "translation_notes": "Family M holds precomputed squared shortfalls (squaring documented here as the per-element construction). Record outputs the semivariance; sigma_D = sqrt(output) per Eq24 (sqrt(0.00094) = 3.07%, sqrt(0.001) = 3.16%). Decimals."
+   },
+   "variables": [
+    {
+     "symbol": "M",
+     "source_symbol": "min(r_t - r_T, 0)^2 per period (introduced family)",
+     "role": "family",
+     "quantity_id": "squared_downside_shortfall",
+     "definition": "Squared below-target deviation, decimal-squared",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one return series and MAR",
+     "domain": "Nonnegative finite per element",
+     "max_size": 256
+    },
+    {
+     "symbol": "n",
+     "source_symbol": "N",
+     "role": "input",
+     "quantity_id": "period_count",
+     "definition": "Number of periods averaged",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same series",
+     "domain": "Positive integer"
+    },
+    {
+     "symbol": "sv",
+     "source_symbol": "semivariance",
+     "role": "output",
+     "quantity_id": "target_semivariance",
+     "definition": "Target semivariance, decimal-squared",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same series",
+     "domain": "Nonnegative finite"
+    }
+   ],
+   "constants": [],
+   "guards": [
+    "n >= 1"
+   ],
+   "assumptions": [
+    "MAR fixed across the series; only below-target deviations enter (above-target contribute 0)."
+   ],
+   "limitations": [
+    "Grammar has no sqrt: the PDF's Eq24 standard deviation is the documented sqrt inverse. Annualization of multi-period inputs follows the source convention."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-semidev-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 target semideviation Eq 24 with Exhibit 16, printed pp. 53-54 (PDF pp. 61-62): sum min2 = 0.0094, /10, sqrt = 3.07%; Example 12 Q5 solution, printed p. 56 (PDF p. 64): sum = 0.004, /4, sqrt = 3.16%",
+     "evidence": "Eq24 with Exhibit 16 sum 0.0094/10 and Q5 sum 0.004/4.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-risk-appraisal",
+     "kind": "primary",
+     "title": "Risk-Based Performance Measures and Appraisal Ratio (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/risk-based-measures-of-performance-appraisal-2/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Sortino = (Rp-Rt)/sigma_d with worked oracle (12-5)/8 = 0.875; target semideviation = min(ra-rT,0)^2 per period; UC = R(m)/R(B) if R(B) >= 0, DC = R(m)/R(B) if R(B) < 0; maximum DD = min([(V-V*)/V*],0); Sharpe/Treynor/IR/AR formulas stated.",
+     "evidence": "Page states the same Sortino, semideviation, capture-leg and max-drawdown formulas with its own worked Sortino oracle (0.875); also states Sharpe/Treynor/IR/AR forms used for deferred items.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-exhibit-16-semivariance-oracle",
+     "inputs": {
+      "M": [
+       0.0,
+       0.0,
+       0.0025,
+       0.0,
+       0.0,
+       0.0001,
+       0.0064,
+       0.0,
+       0.0004,
+       0.0
+      ],
+      "n": 10
+     },
+     "expected": 0.00094,
+     "tolerance": 1e-09,
+     "method": "Sum = 0.0094; 0.0094/10 = 0.00094 (sqrt = 3.07% as reported).",
+     "provenance": "Published result: LM1 Exhibit 16, printed p. 54 (PDF p. 62)"
+    },
+    {
+     "id": "published-q5-semivariance-oracle",
+     "inputs": {
+      "M": [
+       0.0,
+       0.0036,
+       0.0,
+       0.0004
+      ],
+      "n": 4
+     },
+     "expected": 0.001,
+     "tolerance": 1e-09,
+     "method": "Sum = 0.004; 0.004/4 = 0.001 (sqrt = 3.16% as reported).",
+     "provenance": "Published result: LM1 Example 12 Q5 solution, printed p. 56 (PDF p. 64)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "M": [
+       0.0025
+      ]
+     },
+     "reason": "Period count is structurally required; the mean over an unknown number of periods is undefined."
+    },
+    {
+     "kind": "domain",
+     "inputs": {
+      "M": [
+       0.0025
+      ],
+      "n": 0
+     },
+     "reason": "Guard n >= 1 violated; averaging over zero periods is undefined."
+    }
+   ],
+   "inverse_notes": "sigma_D = sqrt(sv) is the documented Eq24 inverse (3.07%, 3.16% verified). No algebraic inverse for single elements. Substitution check: Q3 inputs give sv = (0.032/0.87)^2.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings squared downside shortfall, period count, and target semivariance are not in the runtime vocabulary snapshot and require extension.",
+     "Feeds financial-analysis--sortino-ratio denominator."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--upside-capture",
+   "revision": "r1",
+   "title": "Upside capture ratio",
+   "summary": "Manager return relative to benchmark return in up markets (benchmark return nonnegative).",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "uc",
+    "expression": "rm/rb",
+    "original_equation": "UC(m,B,t) = R(m,t)/R(B,t) if R(B,t) >= 0",
+    "source_id": "analystprep-risk-appraisal",
+    "locator": "PDF: LM1 capture legs with Exhibit 18, printed pp. 57-58 (PDF pp. 65-66): UC 0.51%/0.70% = 72.8%, DC -0.70%/-1.17% = 59.8%; Example 13, printed pp. 64-65 (PDF pp. 72-73): UC 5.45%/4.60% = 118%, DC -5.51%/-5.35% = 103%",
+    "translation_notes": "Geometric-average-period returns in the PDF oracles; ratio in decimal (72.8% = 0.728). Above (below) 100% suggests outperformance (underperformance)."
+   },
+   "variables": [
+    {
+     "symbol": "rm",
+     "source_symbol": "R(m)",
+     "role": "input",
+     "quantity_id": "manager_return",
+     "definition": "Manager return for the up-market span, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one manager and span",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "rb",
+     "source_symbol": "R(B)",
+     "role": "input",
+     "quantity_id": "benchmark_return",
+     "definition": "Benchmark return for the same span, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same span",
+     "domain": "Positive (up-market condition)"
+    },
+    {
+     "symbol": "uc",
+     "source_symbol": "UC",
+     "role": "output",
+     "quantity_id": "upside_capture",
+     "definition": "Upside capture ratio, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same manager and span",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [
+    "rb > 0"
+   ],
+   "assumptions": [
+    "Up-market span only (benchmark return nonnegative); opposite-sign returns yield negative ratios (informative, per PDF)."
+   ],
+   "limitations": [
+    "Geometric-average formulation in the source exhibits; single-period point ratios share the form but the oracles are span averages."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-upcap-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 capture legs with Exhibit 18, printed pp. 57-58 (PDF pp. 65-66): UC 0.51%/0.70% = 72.8%, DC -0.70%/-1.17% = 59.8%; Example 13, printed pp. 64-65 (PDF pp. 72-73): UC 5.45%/4.60% = 118%, DC -5.51%/-5.35% = 103%",
+     "evidence": "UC definition with Exhibit 18 (72.8%) and Example 13 (118%).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-risk-appraisal",
+     "kind": "primary",
+     "title": "Risk-Based Performance Measures and Appraisal Ratio (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/risk-based-measures-of-performance-appraisal-2/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Sortino = (Rp-Rt)/sigma_d with worked oracle (12-5)/8 = 0.875; target semideviation = min(ra-rT,0)^2 per period; UC = R(m)/R(B) if R(B) >= 0, DC = R(m)/R(B) if R(B) < 0; maximum DD = min([(V-V*)/V*],0); Sharpe/Treynor/IR/AR formulas stated.",
+     "evidence": "Page states the same Sortino, semideviation, capture-leg and max-drawdown formulas with its own worked Sortino oracle (0.875); also states Sharpe/Treynor/IR/AR forms used for deferred items.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-exhibit-18-uc-oracle",
+     "inputs": {
+      "rm": 0.0051,
+      "rb": 0.007
+     },
+     "expected": 0.7286,
+     "tolerance": 0.001,
+     "method": "0.51%/0.70% = 0.7286, reported as 72.8%.",
+     "provenance": "Published result: LM1 Exhibit 18, printed p. 58 (PDF p. 66)"
+    },
+    {
+     "id": "published-example-13-uc-oracle",
+     "inputs": {
+      "rm": 0.0545,
+      "rb": 0.046
+     },
+     "expected": 1.1848,
+     "tolerance": 0.005,
+     "method": "5.45%/4.60% = 1.1848, reported as 118%.",
+     "provenance": "Published result: LM1 Example 13, printed p. 65 (PDF p. 73)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "rm": 0.0051
+     },
+     "reason": "Benchmark return is structurally required; capture has no meaning without the market leg."
+    },
+    {
+     "kind": "domain",
+     "inputs": {
+      "rm": 0.0051,
+      "rb": 0.0
+     },
+     "reason": "Guard rb > 0 violated; capture against a flat benchmark is undefined."
+    }
+   ],
+   "inverse_notes": "rb = rm/uc requires uc != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings manager/benchmark return and upside capture are not in the runtime vocabulary snapshot and require extension.",
+     "Downside leg is financial-analysis--downside-capture; ratio of legs is financial-analysis--capture-ratio."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--downside-capture",
+   "revision": "r1",
+   "title": "Downside capture ratio",
+   "summary": "Manager return relative to benchmark return in down markets (benchmark return negative).",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "dc",
+    "expression": "rm/rb",
+    "original_equation": "DC(m,B,t) = R(m,t)/R(B,t) if R(B,t) < 0",
+    "source_id": "analystprep-risk-appraisal",
+    "locator": "PDF: LM1 capture legs with Exhibit 18, printed pp. 57-58 (PDF pp. 65-66): UC 0.51%/0.70% = 72.8%, DC -0.70%/-1.17% = 59.8%; Example 13, printed pp. 64-65 (PDF pp. 72-73): UC 5.45%/4.60% = 118%, DC -5.51%/-5.35% = 103%",
+    "translation_notes": "Below (above) 100% suggests outperformance (underperformance) in down markets. The PDF's -100% example (manager +1% vs market -1%) is cited as supporting evidence."
+   },
+   "variables": [
+    {
+     "symbol": "rm",
+     "source_symbol": "R(m)",
+     "role": "input",
+     "quantity_id": "manager_return",
+     "definition": "Manager return for the down-market span, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one manager and span",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "rb",
+     "source_symbol": "R(B)",
+     "role": "input",
+     "quantity_id": "benchmark_return",
+     "definition": "Benchmark return for the same span, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same span",
+     "domain": "Negative (down-market condition)"
+    },
+    {
+     "symbol": "dc",
+     "source_symbol": "DC",
+     "role": "output",
+     "quantity_id": "downside_capture",
+     "definition": "Downside capture ratio, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same manager and span",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [
+    "rb < 0"
+   ],
+   "assumptions": [
+    "Down-market span only (benchmark return negative)."
+   ],
+   "limitations": [
+    "Same span-average caveat as the upside leg."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-downcap-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 capture legs with Exhibit 18, printed pp. 57-58 (PDF pp. 65-66): UC 0.51%/0.70% = 72.8%, DC -0.70%/-1.17% = 59.8%; Example 13, printed pp. 64-65 (PDF pp. 72-73): UC 5.45%/4.60% = 118%, DC -5.51%/-5.35% = 103%",
+     "evidence": "DC definition with Exhibit 18 (59.8%) and Example 13 (103%); -100% opposite-sign example, printed p. 57 (PDF p. 65).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-risk-appraisal",
+     "kind": "primary",
+     "title": "Risk-Based Performance Measures and Appraisal Ratio (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/risk-based-measures-of-performance-appraisal-2/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Sortino = (Rp-Rt)/sigma_d with worked oracle (12-5)/8 = 0.875; target semideviation = min(ra-rT,0)^2 per period; UC = R(m)/R(B) if R(B) >= 0, DC = R(m)/R(B) if R(B) < 0; maximum DD = min([(V-V*)/V*],0); Sharpe/Treynor/IR/AR formulas stated.",
+     "evidence": "Page states the same Sortino, semideviation, capture-leg and max-drawdown formulas with its own worked Sortino oracle (0.875); also states Sharpe/Treynor/IR/AR forms used for deferred items.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-exhibit-18-dc-oracle",
+     "inputs": {
+      "rm": -0.007,
+      "rb": -0.0117
+     },
+     "expected": 0.5983,
+     "tolerance": 0.001,
+     "method": "-0.70%/-1.17% = 0.5983, reported as 59.8%.",
+     "provenance": "Published result: LM1 Exhibit 18, printed p. 58 (PDF p. 66)"
+    },
+    {
+     "id": "published-example-13-dc-oracle",
+     "inputs": {
+      "rm": -0.0551,
+      "rb": -0.0535
+     },
+     "expected": 1.0299,
+     "tolerance": 0.005,
+     "method": "-5.51%/-5.35% = 1.0299, reported as 103%.",
+     "provenance": "Published result: LM1 Example 13, printed p. 65 (PDF p. 73)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "rm": -0.007
+     },
+     "reason": "Benchmark return is structurally required; capture has no meaning without the market leg."
+    },
+    {
+     "kind": "domain",
+     "inputs": {
+      "rm": -0.007,
+      "rb": 0.0
+     },
+     "reason": "Guard rb < 0 violated; a flat benchmark is neither an up nor a down market."
+    }
+   ],
+   "inverse_notes": "rb = rm/dc requires dc != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings manager/benchmark return and downside capture are not in the runtime vocabulary snapshot and require extension.",
+     "Upside leg is financial-analysis--upside-capture; ratio of legs is financial-analysis--capture-ratio."
+    ],
+    "duplicate_of": []
+   }
+  }
+ ]
+}

@@ -1,0 +1,445 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b01",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: purchased-PDF primary URL null is required by source brief but rejected by installed official validator. Toolkit unchanged. Independent checks and ZIP checksum pass; no official intake approval claimed. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--straight-line-depreciation-expense",
+      "revision": "r1",
+      "title": "Straight-line annual depreciation expense",
+      "summary": "Straight-line depreciation allocates cost less residual value evenly across useful life.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "expense",
+        "expression": "(cost - residual) / life",
+        "original_equation": "Annual depreciation = (cost - residual value) / useful life",
+        "source_id": "cfa-l1v3",
+        "locator": "Learning Module 1, Issues in Expense Recognition, printed p22 (PDF p36), Example 3",
+        "translation_notes": "The period count is dimensionless; output is the amount assigned to each full year."
+      },
+      "variables": [
+        {
+          "symbol": "cost",
+          "source_symbol": "asset cost",
+          "role": "input",
+          "quantity_id": "depreciable_asset_cost",
+          "definition": "Cost assigned to the depreciable asset",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "residual",
+          "source_symbol": "residual value",
+          "role": "input",
+          "quantity_id": "asset_estimated_residual_value",
+          "definition": "Estimated residual value",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "life",
+          "source_symbol": "estimated useful life",
+          "role": "input",
+          "quantity_id": "asset_useful_life_years",
+          "definition": "Estimated useful life in annual accounting periods",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expense",
+          "source_symbol": "annual depreciation expense",
+          "role": "output",
+          "quantity_id": "straight_line_annual_depreciation",
+          "definition": "Expense per full annual accounting period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "cost >= residual",
+        "residual >= 0",
+        "life > 0"
+      ],
+      "assumptions": [
+        "Life is measured in full annual accounting periods.",
+        "Estimates remain unchanged over the represented allocation."
+      ],
+      "limitations": [
+        "Partial periods, impairments and changes in estimates require separate treatment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 1, Issues in Expense Recognition, printed p22 (PDF p36), Example 3",
+          "evidence": "Straight-line depreciation allocates cost less residual value evenly across useful life.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-depreciation",
+          "kind": "primary",
+          "title": "Explain and Apply Depreciation Methods to Allocate Capitalized Costs",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/11-3-explain-and-apply-depreciation-methods-to-allocate-capitalized-costs",
+          "version": "OpenStax Principles of Accounting Volume 1, section 11.3",
+          "accessed": "2026-11-03",
+          "locator": "Your Turn: straight-line and double-declining examples",
+          "evidence": "Straight-line allocation uses depreciable cost and life; declining-balance expense uses the beginning book value and accelerated rate.",
+          "license": "Terms may restrict reuse; original descriptions and formula-level facts only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-zero-residual",
+          "inputs": {
+            "cost": 10000,
+            "residual": 0,
+            "life": 5
+          },
+          "expected": 2000,
+          "tolerance": 1e-09,
+          "method": "The CFA example allocates 10000 evenly over five years.",
+          "provenance": "CFA Example 3, printed p22/PDF p36."
+        },
+        {
+          "id": "cfa-residual",
+          "inputs": {
+            "cost": 10000,
+            "residual": 4000,
+            "life": 5
+          },
+          "expected": 1200,
+          "tolerance": 1e-09,
+          "method": "The CFA example allocates the 6000 depreciable amount over five years.",
+          "provenance": "CFA Example 3, printed p22/PDF p36."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "residual": 0,
+            "life": 5
+          },
+          "reason": "cost is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cost=expense*life+residual; residual=cost-expense*life; life=(cost-residual)/expense requires nonzero expense. If cost equals residual, life cannot be recovered from zero expense.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--declining-balance-depreciation-uncapped",
+      "revision": "r1",
+      "title": "Declining-balance depreciation before residual-value cap",
+      "summary": "The example applies a declining-balance rate to beginning book value and stops depreciation at residual value.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "expense",
+        "expression": "book * rate",
+        "original_equation": "Depreciation = beginning net book value × declining-balance rate",
+        "source_id": "cfa-l1v3",
+        "locator": "Learning Module 1, Issues in Expense Recognition, printed pp23–24 (PDF pp37–38), Example 4",
+        "translation_notes": "Residual value is a separate external constraint, not subtracted in this rate calculation."
+      },
+      "variables": [
+        {
+          "symbol": "book",
+          "source_symbol": "net book value",
+          "role": "input",
+          "quantity_id": "asset_beginning_book_value",
+          "definition": "Beginning-of-period depreciable asset carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "rate",
+          "source_symbol": "declining-balance rate",
+          "role": "input",
+          "quantity_id": "declining_balance_depreciation_rate",
+          "definition": "Rate for the full accounting period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expense",
+          "source_symbol": "depreciation expense",
+          "role": "output",
+          "quantity_id": "uncapped_declining_balance_depreciation",
+          "definition": "Calculated full-period expense before any residual-value floor",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "book >= 0",
+        "rate >= 0",
+        "rate <= 1"
+      ],
+      "assumptions": [
+        "This uncapped expression applies only when expense does not reduce carrying value below residual value.",
+        "Rate is the applicable full-period rate; partial periods require adjustment."
+      ],
+      "limitations": [
+        "The final-period cap and method-switch decisions must be applied separately; this expression alone does not enforce the residual floor."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 1, Issues in Expense Recognition, printed pp23–24 (PDF pp37–38), Example 4",
+          "evidence": "The example applies a declining-balance rate to beginning book value and stops depreciation at residual value.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-depreciation",
+          "kind": "primary",
+          "title": "Explain and Apply Depreciation Methods to Allocate Capitalized Costs",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/11-3-explain-and-apply-depreciation-methods-to-allocate-capitalized-costs",
+          "version": "OpenStax Principles of Accounting Volume 1, section 11.3",
+          "accessed": "2026-11-03",
+          "locator": "Your Turn: straight-line and double-declining examples",
+          "evidence": "Straight-line allocation uses depreciable cost and life; declining-balance expense uses the beginning book value and accelerated rate.",
+          "license": "Terms may restrict reuse; original descriptions and formula-level facts only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-year-one",
+          "inputs": {
+            "book": 11000,
+            "rate": 0.4
+          },
+          "expected": 4400,
+          "tolerance": 1e-09,
+          "method": "Forty percent of 11000 is 4400.",
+          "provenance": "CFA Example 4, printed p23/PDF p37."
+        },
+        {
+          "id": "cfa-year-two",
+          "inputs": {
+            "book": 6600,
+            "rate": 0.4
+          },
+          "expected": 2640,
+          "tolerance": 1e-09,
+          "method": "Forty percent of 6600 is 2640.",
+          "provenance": "CFA Example 4, printed p23/PDF p37."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "rate": 0.4
+          },
+          "reason": "book is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "book=expense/rate for rate>0; rate=expense/book for book>0. At zero book or rate the corresponding inverse is not unique.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--basic-earnings-per-common-share",
+      "revision": "r1",
+      "title": "Basic earnings per common share",
+      "summary": "Basic EPS allocates earnings after preferred dividends across time-weighted common shares.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "eps",
+        "expression": "(income - preferred) / shares",
+        "original_equation": "Basic EPS = (net income - preferred dividends) / weighted average common shares",
+        "source_id": "cfa-l1v3",
+        "locator": "Learning Module 1, Earnings Per Share and Capital Structure and Basic EPS, printed p33 (PDF p47), Equation (1)",
+        "translation_notes": "No rounding is applied; the currency unit records the amount per one common share."
+      },
+      "variables": [
+        {
+          "symbol": "income",
+          "source_symbol": "net income",
+          "role": "input",
+          "quantity_id": "net_income_attributable_to_parent",
+          "definition": "Period net income attributable to the parent before the indicated preferred deduction",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "preferred",
+          "source_symbol": "preferred dividends",
+          "role": "input",
+          "quantity_id": "preferred_dividends_for_eps",
+          "definition": "Preferred dividends or other required preferred allocation applicable to the period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "shares",
+          "source_symbol": "weighted average common shares",
+          "role": "input",
+          "quantity_id": "weighted_average_common_shares",
+          "definition": "Time-weighted common shares outstanding, adjusted for relevant splits",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive number of shares"
+        },
+        {
+          "symbol": "eps",
+          "source_symbol": "basic EPS",
+          "role": "output",
+          "quantity_id": "basic_earnings_per_common_share",
+          "definition": "Basic earnings attributable to each weighted common share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "shares > 0"
+      ],
+      "assumptions": [
+        "Numerator and shares cover the same reporting period and entity.",
+        "Preferred amount reflects applicable accounting treatment, including cumulative dividends when required."
+      ],
+      "limitations": [
+        "Complex participating instruments and other adjustments require the appropriate reporting rules.",
+        "Shares are a dimensionless count and the result is currency per share, with the share basis explicit in context."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 1, Earnings Per Share and Capital Structure and Basic EPS, printed p33 (PDF p47), Equation (1)",
+          "evidence": "Basic EPS allocates earnings after preferred dividends across time-weighted common shares.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-eps",
+          "kind": "primary",
+          "title": "Market Value Ratios",
+          "url": "https://openstax.org/books/principles-finance-2e/pages/6-5-market-value-ratios",
+          "version": "OpenStax Principles of Finance 2e, section 6.5",
+          "accessed": "2026-11-03",
+          "locator": "Calculating earnings per share, equation 6.27",
+          "evidence": "Basic EPS divides net income less preferred dividends by weighted average common shares.",
+          "license": "Terms may restrict reuse; original descriptions and formula-level facts only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-example",
+          "inputs": {
+            "income": 2500000,
+            "preferred": 200000,
+            "shares": 1125000
+          },
+          "expected": 2.0444444444444443,
+          "tolerance": 1e-09,
+          "method": "2300000 divided by 1125000; CFA reports 2.04 after rounding.",
+          "provenance": "CFA Example 7, printed pp34–35/PDF pp48–49."
+        },
+        {
+          "id": "loss",
+          "inputs": {
+            "income": -100000,
+            "preferred": 20000,
+            "shares": 60000
+          },
+          "expected": -2,
+          "tolerance": 1e-09,
+          "method": "A 120000 loss attributable to common shares over 60000 shares gives negative two.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "preferred": 200000,
+            "shares": 1125000
+          },
+          "reason": "income is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "income=eps*shares+preferred; shares=(income-preferred)/eps requires nonzero EPS. Zero earnings attributable to common imply zero EPS for any positive share count.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

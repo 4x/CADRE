@@ -1,0 +1,460 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b42",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--specific-borrowing-cost-capitalization-ifrs",
+      "revision": "r1",
+      "title": "Eligible specific borrowing costs net of investment income",
+      "summary": "The IFRS example deducts temporary investment income from borrowing costs on funds raised specifically for construction.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "eligible",
+        "expression": "costs - income",
+        "original_equation": "Eligible borrowing costs = specific borrowing costs - temporary investment income",
+        "source_id": "ias23-2022",
+        "locator": "Paragraphs 12–13, specific borrowings",
+        "translation_notes": "Both inputs are nonnegative amounts in the same currency; this profile excludes income above costs."
+      },
+      "variables": [
+        {
+          "symbol": "costs",
+          "source_symbol": "actual specific borrowing costs",
+          "role": "input",
+          "quantity_id": "specific_borrowing_costs",
+          "definition": "actual specific borrowing costs",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "income",
+          "source_symbol": "temporary investment income",
+          "role": "input",
+          "quantity_id": "temporary_investment_income_specific_borrowing",
+          "definition": "temporary investment income",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "eligible",
+          "source_symbol": "eligible borrowing costs",
+          "role": "output",
+          "quantity_id": "eligible_specific_borrowing_costs",
+          "definition": "eligible borrowing costs",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "costs >= 0",
+        "income >= 0",
+        "costs >= income"
+      ],
+      "assumptions": [
+        "Borrowings are specific to a qualifying asset and costs arise during the eligible capitalization period.",
+        "The income is earned from temporary investment of those same borrowings."
+      ],
+      "limitations": [
+        "General borrowings require a separate capitalization-rate calculation.",
+        "The IFRS treatment differs from the US GAAP treatment described in the reading."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 6, Acquisition of Property, Plant and Equipment, printed pp329–330 (PDF pp343–344), Example 2 solution 1",
+          "evidence": "The IFRS example deducts temporary investment income from borrowing costs on funds raised specifically for construction.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ias23-2022",
+          "kind": "primary",
+          "title": "IAS 23 Borrowing Costs",
+          "url": "https://www.ifrs.org/content/dam/ifrs/publications/pdf-standards/english/2022/issued/part-a/ias-23-borrowing-costs.pdf?bypass=on",
+          "version": "IFRS Foundation, 2022 issued edition",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs 12–13, specific borrowings",
+          "evidence": "For borrowings specific to a qualifying asset, eligible borrowing costs are actual costs less income from temporary investment of the borrowed funds.",
+          "license": "IFRS Foundation copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "example",
+          "inputs": {
+            "costs": 200000,
+            "income": 20000
+          },
+          "expected": 180000,
+          "tolerance": 1e-09,
+          "method": "200,000 borrowing costs less 20,000 temporary investment income gives 180,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "none",
+          "inputs": {
+            "costs": 100,
+            "income": 0
+          },
+          "expected": 100,
+          "tolerance": 1e-09,
+          "method": "No investment income leaves 100 eligible borrowing costs.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "income": 20000
+          },
+          "reason": "costs is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "costs=eligible+income; income=costs-eligible.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--shareholders-equity-rollforward-comprehensive-income",
+      "revision": "r1",
+      "title": "Shareholders equity rollforward with comprehensive income",
+      "summary": "The example reconciles beginning and ending equity using net income, OCI, dividends and net capital contributions.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ending",
+        "expression": "beginning + profit + oci - dividends + contributions",
+        "original_equation": "Ending equity = beginning equity + net income + OCI - dividends + net capital contributions",
+        "source_id": "ifrs-sme-equity-2018",
+        "locator": "Paragraphs 6.2–6.3 and associated notes",
+        "translation_notes": "Profit, OCI and net contributions are signed; dividends are positive distributions."
+      },
+      "variables": [
+        {
+          "symbol": "beginning",
+          "source_symbol": "beginning equity",
+          "role": "input",
+          "quantity_id": "beginning_shareholders_equity",
+          "definition": "beginning equity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "profit",
+          "source_symbol": "net income",
+          "role": "input",
+          "quantity_id": "net_income",
+          "definition": "net income",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "oci",
+          "source_symbol": "other comprehensive income",
+          "role": "input",
+          "quantity_id": "other_comprehensive_income",
+          "definition": "other comprehensive income",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "dividends",
+          "source_symbol": "dividends declared",
+          "role": "input",
+          "quantity_id": "dividends_declared",
+          "definition": "dividends declared",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "contributions",
+          "source_symbol": "net capital contributions",
+          "role": "input",
+          "quantity_id": "net_owner_capital_contributions",
+          "definition": "net capital contributions",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ending",
+          "source_symbol": "ending equity",
+          "role": "output",
+          "quantity_id": "ending_shareholders_equity",
+          "definition": "ending equity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "dividends >= 0"
+      ],
+      "assumptions": [
+        "All inputs refer to the same entity, period and ownership scope.",
+        "Net contributions exclude the separately stated dividend amount."
+      ],
+      "limitations": [
+        "Restatements, prior-period corrections and other equity movements need separate adjustment.",
+        "A group equity reconciliation must consistently include or exclude noncontrolling interests."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 6, Capitalization versus Expensing, printed p337 (PDF p351), Example 3 solution 2",
+          "evidence": "The example reconciles beginning and ending equity using net income, OCI, dividends and net capital contributions.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ifrs-sme-equity-2018",
+          "kind": "primary",
+          "title": "IFRS for SMEs Supporting Material, Module 6: Statement of Changes in Equity",
+          "url": "https://www.ifrs.org/content/dam/ifrs/supporting-implementation/smes/module-06.pdf",
+          "version": "IFRS Foundation, version 2018-07",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs 6.2–6.3 and associated notes",
+          "evidence": "Equity movement includes comprehensive income and transactions with owners; the statement separately displays restatements and other owner transactions.",
+          "license": "IFRS Foundation copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "increase",
+          "inputs": {
+            "beginning": 100,
+            "profit": 20,
+            "oci": 5,
+            "dividends": 3,
+            "contributions": 10
+          },
+          "expected": 132,
+          "tolerance": 1e-09,
+          "method": "100 plus 20 plus 5 less 3 plus 10 equals 132.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "decrease",
+          "inputs": {
+            "beginning": 100,
+            "profit": -10,
+            "oci": -5,
+            "dividends": 0,
+            "contributions": -5
+          },
+          "expected": 80,
+          "tolerance": 1e-09,
+          "method": "Losses and net owner withdrawals reduce 100 beginning equity to 80.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "profit": 20,
+            "oci": 5,
+            "dividends": 3,
+            "contributions": 10
+          },
+          "reason": "beginning is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Any component can be solved given all the others.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--estimated-total-depreciable-asset-life",
+      "revision": "r1",
+      "title": "Estimated total depreciable asset life",
+      "summary": "Historical cost divided by annual depreciation estimates the total useful life.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "years",
+        "expression": "cost / depreciation",
+        "original_equation": "Estimated total life = historical cost / annual depreciation expense",
+        "source_id": "runsten-asset-age",
+        "locator": "Printed p142, equation 5:2",
+        "translation_notes": "The output is a dimensionless count of annual financial periods, not physical seconds."
+      },
+      "variables": [
+        {
+          "symbol": "cost",
+          "source_symbol": "historical depreciable asset cost",
+          "role": "input",
+          "quantity_id": "historical_depreciable_asset_cost",
+          "definition": "historical depreciable asset cost",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "depreciation",
+          "source_symbol": "annual depreciation expense",
+          "role": "input",
+          "quantity_id": "annual_depreciation_expense",
+          "definition": "annual depreciation expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "years",
+          "source_symbol": "estimated total asset life",
+          "role": "output",
+          "quantity_id": "estimated_total_depreciable_asset_life",
+          "definition": "Estimated annual reporting period count",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "cost >= 0",
+        "depreciation > 0"
+      ],
+      "assumptions": [
+        "The ratio uses a consistent historical-cost asset pool and annual accounting period.",
+        "The single-asset interpretation assumes straight-line depreciation, stable estimates and zero residual value."
+      ],
+      "limitations": [
+        "Asset mixes, revaluations, impairments, retirements and fully depreciated assets make this only a rough proxy.",
+        "Nonzero residual value makes gross historical cost divided by annual depreciation exceed the simple useful-life estimate."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 6, Using Disclosures in Analysis, printed p376 (PDF p390), unnumbered estimated life equation",
+          "evidence": "Historical cost divided by annual depreciation estimates the total useful life.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "runsten-asset-age",
+          "kind": "primary",
+          "title": "The Association Between Accounting Information and Stock Prices",
+          "url": "https://ex.hhs.se/dissertations/221739-FULLTEXT01.pdf",
+          "version": "Mikael Runsten, Stockholm School of Economics doctoral dissertation, 1998",
+          "accessed": "2026-11-03",
+          "locator": "Printed p142, equation 5:2",
+          "evidence": "The dissertation estimates economic life from acquisition cost and annual depreciation.",
+          "license": "Author and institution copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "cost": 100,
+            "depreciation": 10
+          },
+          "expected": 10,
+          "tolerance": 1e-09,
+          "method": "Historical cost of 100 divided by annual depreciation of 10 suggests ten years.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "cost": 120,
+            "depreciation": 20
+          },
+          "expected": 6,
+          "tolerance": 1e-09,
+          "method": "120 divided by annual depreciation of 20 suggests six years.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "depreciation": 10
+          },
+          "reason": "cost is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cost=years*depreciation; depreciation=cost/years for nonzero years.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

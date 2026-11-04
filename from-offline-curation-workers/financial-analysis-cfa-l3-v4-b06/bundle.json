@@ -1,0 +1,292 @@
+{
+ "batch_id": "financial-analysis-cfa-l3-v4-b06",
+ "created": "2026-11-04",
+ "curator": "buffy",
+ "deferred": [],
+ "domain": "financial-analysis",
+ "example_only": false,
+ "handoff": {
+  "summary": "Batch b06 (L3V4): 2 records (FX quote conversion, semiannual interest accrual) each with PDF locator and directly inspected accessible corroboration.",
+  "gaps": [
+   "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+   "Queue: L3V4 close-out (coverage map + consolidated report + archive)."
+  ],
+  "connections": [],
+  "queries": [],
+  "review_notes": "Validation and packing to be run after writing; verified locators and corroboration pages by direct inspection 2026-11-04."
+ },
+ "kit_version": "2026-10-31.9",
+ "schema_version": "cm-curation-batch/1",
+ "models": [
+  {
+   "id": "financial-analysis--fx-quote-conversion",
+   "revision": "r1",
+   "title": "Foreign exchange quote conversion",
+   "summary": "Base-currency amount purchased with a price-currency sum at a price-per-base quote, by division.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "f",
+    "expression": "d/q",
+    "original_equation": "Foreign amount = (domestic-currency sum) / (P/B quote)",
+    "source_id": "analystprep-currency-risk-return",
+    "locator": "PDF: LM3 solution 33 (Delgado hedge roll), printed p. 236 (PDF p. 244): sell USD2,500,000 at the all-in forward 0.8944 -> USD2,500,000/0.8944 = EUR2,795,169.95; buy USD2,500,000 at the spot 0.8875 -> USD2,500,000/0.8875 = EUR2,816,901.41; net outflow EUR21,731.46",
+    "translation_notes": "Currency units. Quote in price currency per one unit of base; division inverts the price."
+   },
+   "variables": [
+    {
+     "symbol": "d",
+     "source_symbol": "Domestic sum",
+     "role": "input",
+     "quantity_id": "price_currency_sum",
+     "definition": "Sum in the price currency, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one spot or forward conversion",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "q",
+     "source_symbol": "P/B quote",
+     "role": "input",
+     "quantity_id": "fx_spot_or_forward_quote",
+     "definition": "Exchange quote in price currency per base unit, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same conversion",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "f",
+     "source_symbol": "Foreign amount",
+     "role": "output",
+     "quantity_id": "base_currency_amount",
+     "definition": "Amount in the base currency, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same conversion",
+     "domain": "Non-negative finite"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Single conversion at the quoted (bid or offer) side; quote and sum in matching currencies."
+   ],
+   "limitations": [
+    "Conversion only; bid/offer choice and hedge rebalancing are separate."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-fxc-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM3 solution 33 (Delgado hedge roll), printed p. 236 (PDF p. 244): sell USD2,500,000 at the all-in forward 0.8944 -> USD2,500,000/0.8944 = EUR2,795,169.95; buy USD2,500,000 at the spot 0.8875 -> USD2,500,000/0.8875 = EUR2,816,901.41; net outflow EUR21,731.46",
+     "evidence": "Delgado steps 1 (EUR2,795,169.95) and 2 (EUR2,816,901.41).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-currency-risk-return",
+     "kind": "primary",
+     "title": "Currency Movement and Portfolio Risk",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/currency-movement-on-portfolio-risk-and-return-2/",
+     "version": "Study notes, 12 Aug 2024",
+     "accessed": "2026-11-04",
+     "locator": "P/B quote convention (price currency per unit of base, e.g. $1.2451/GBP); forward price = spot plus forward points/10,000 with worked bid/ask oracles.",
+     "evidence": "Page states the P/B quote convention from which division-based conversion follows directly.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-forward-leg-oracle",
+     "inputs": {
+      "d": 2500000.0,
+      "q": 0.8944
+     },
+     "expected": 2795169.95,
+     "tolerance": 1.0,
+     "method": "2,500,000/0.8944 = 2,795,169.946, reported as 2,795,169.95.",
+     "provenance": "Published result: LM3 solution 33 step 1, printed p. 236 (PDF p. 244)"
+    },
+    {
+     "id": "published-spot-leg-oracle",
+     "inputs": {
+      "d": 2500000.0,
+      "q": 0.8875
+     },
+     "expected": 2816901.41,
+     "tolerance": 1.0,
+     "method": "2,500,000/0.8875 = 2,816,901.408, reported as 2,816,901.41.",
+     "provenance": "Published result: LM3 solution 33 step 2, printed p. 236 (PDF p. 244)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "d": 2500000.0
+     },
+     "reason": "Quote is structurally required; a sum alone converts to nothing."
+    }
+   ],
+   "inverse_notes": "q = d/f requires f != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings price-currency sum, quote, and base amount are not in the runtime vocabulary snapshot and require extension.",
+     "Reiter FX put (EUR1M/0.8080 = $1,237,624, printed p. 30) and reciprocal 1/0.8000 = 1.25 are supporting oracles of the same form; net outflow EUR21,731.46 is the difference of the two legs (single, noted only)."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--semiannual-interest-accrual",
+   "revision": "r1",
+   "title": "Semiannual interest accrual on notional",
+   "summary": "Period interest as notional times the period rate times the 180/360 year fraction.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "i",
+    "expression": "n*r*t",
+    "original_equation": "Interest = Notional x rate x 180/360 (Example 7 periodic flows)",
+    "source_id": "wikipedia-day-count",
+    "locator": "PDF: LM2 Example 7 (CAD-USD cross-currency basis swap), printed p. 97 (PDF p. 105): swap receipt CAD50M x 1.80% x 180/360 = CAD450,000; bank-loan payment CAD50M x (1.95%+0.65%) x 180/360 = CAD650,000",
+    "translation_notes": "Currency units; decimals. t is the 180/360 semiannual year fraction (0.5)."
+   },
+   "variables": [
+    {
+     "symbol": "n",
+     "source_symbol": "Notional",
+     "role": "input",
+     "quantity_id": "notional_principal",
+     "definition": "Notional principal, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one semiannual period",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "r",
+     "source_symbol": "rate",
+     "role": "input",
+     "quantity_id": "period_interest_rate",
+     "definition": "Applicable semiannual reference-plus-spread rate, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same period",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "t",
+     "source_symbol": "180/360",
+     "role": "input",
+     "quantity_id": "year_fraction",
+     "definition": "Year fraction for the accrual period, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same period",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "i",
+     "source_symbol": "Interest",
+     "role": "output",
+     "quantity_id": "period_interest_amount",
+     "definition": "Interest for the period, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same period",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Simple (uncompounded) accrual for the stated period; rate already includes spreads/basis."
+   ],
+   "limitations": [
+    "Single-period accrual only; compounding across periods is separate."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-accrual-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM2 Example 7 (CAD-USD cross-currency basis swap), printed p. 97 (PDF p. 105): swap receipt CAD50M x 1.80% x 180/360 = CAD450,000; bank-loan payment CAD50M x (1.95%+0.65%) x 180/360 = CAD650,000",
+     "evidence": "Example 7 flows (A) CAD450,000 and loan CAD650,000.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "wikipedia-day-count",
+     "kind": "primary",
+     "title": "Day count convention",
+     "url": "https://en.wikipedia.org/wiki/Day_count_convention",
+     "version": "Accessed 2026-11-04",
+     "accessed": "2026-11-04",
+     "locator": "Interest accrual determined by Principal x CouponRate x DayCountFactor (days in accrual period over days in year); covers swaps, FRAs, and floating-rate notes.",
+     "evidence": "Page states the same notional-times-rate-times-year-fraction accrual structure.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-swap-receipt-oracle",
+     "inputs": {
+      "n": 50000000.0,
+      "r": 0.018,
+      "t": 0.5
+     },
+     "expected": 450000.0,
+     "tolerance": 0.01,
+     "method": "50,000,000 x 1.80% x 180/360 = 450,000.",
+     "provenance": "Published result: LM2 Example 7 flow (A), printed p. 97 (PDF p. 105)"
+    },
+    {
+     "id": "published-bank-loan-oracle",
+     "inputs": {
+      "n": 50000000.0,
+      "r": 0.026,
+      "t": 0.5
+     },
+     "expected": 650000.0,
+     "tolerance": 0.01,
+     "method": "50,000,000 x (1.95%+0.65%) x 180/360 = 650,000.",
+     "provenance": "Published result: LM2 Example 7 loan payment, printed p. 97 (PDF p. 105)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "n": 50000000.0,
+      "r": 0.018
+     },
+     "reason": "Year fraction is structurally required; a rate alone accrues over no stated time."
+    }
+   ],
+   "inverse_notes": "No single-input inverse without fixing the other two. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings notional, rate, year fraction, and interest are not in the runtime vocabulary snapshot and require extension.",
+     "USD leg (CAD50M x 0.8000 x 2.50% x 180/360 = USD500,000) chains FX conversion with accrual; effective-spread arithmetic (65+15 = 80 bps) is a supporting single."
+    ],
+    "duplicate_of": []
+   }
+  }
+ ]
+}

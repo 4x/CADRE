@@ -1,0 +1,419 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b27",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. Corrects b26 price-to-cash-flow input binding to the raw operating cash flow per weighted-average share used by Exhibit 20; b26 remains preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--valuation-operating-cash-flow-per-share",
+      "revision": "r1",
+      "title": "Operating cash flow per weighted-average share",
+      "summary": "Operating cash flow per weighted-average share uses the period amount and compatible common-share denominator.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "result",
+        "expression": "amount / shares",
+        "original_equation": "Operating cash flow per weighted-average share = cash flow from operations / weighted average ordinary shares",
+        "source_id": "bsec-draft-ratios",
+        "locator": "Printed p60, Annexure C, Section E valuation ratios 2, 3 and 7",
+        "translation_notes": "Share count is dimensionless. Currency output represents currency per one ordinary share."
+      },
+      "variables": [
+        {
+          "symbol": "amount",
+          "source_symbol": "cash flow from operations",
+          "role": "input",
+          "quantity_id": "cash_flow_from_operating_activities",
+          "definition": "cash flow from operations",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "shares",
+          "source_symbol": "weighted average ordinary shares",
+          "role": "input",
+          "quantity_id": "weighted_average_common_shares",
+          "definition": "Positive weighted-average ordinary shares in the period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "result",
+          "source_symbol": "Operating cash flow per weighted-average share",
+          "role": "output",
+          "quantity_id": "operating_cash_flow_per_weighted_share",
+          "definition": "cash flow from operations per ordinary share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "shares > 0"
+      ],
+      "assumptions": [
+        "The share count, entity, currency and financial period match the numerator.",
+        "Share splits and other changes are handled consistently in the weighted-average count."
+      ],
+      "limitations": [
+        "The per-share result changes with the chosen share-count convention.",
+        "Negative input amounts are preserved arithmetically; interpretation depends on the underlying quantity.",
+        "This valuation definition uses raw CFO and differs from Exhibit 16 cash flow per share, which deducts preferred dividends after any required CFO classification adjustment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Valuation Ratios, printed p230 (PDF p244), Exhibit 20",
+          "evidence": "Operating cash flow per weighted-average share uses the period amount and compatible common-share denominator.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bsec-draft-ratios",
+          "kind": "primary",
+          "title": "Draft Corporate Governance Guidelines",
+          "url": "https://sec.gov.bd/crequest/Draft_Corporate_Governance_Guidelines_21.12.2017.pdf",
+          "version": "Bangladesh Securities and Exchange Commission, draft dated 21 December 2017",
+          "accessed": "2026-11-03",
+          "locator": "Printed p60, Annexure C, Section E valuation ratios 2, 3 and 7",
+          "evidence": "The draft defines operating cash flow per weighted-average share and relates price to sales and cash flow per share.",
+          "license": "Government-hosted draft; exact reuse terms unknown. No claim that the draft became law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "amount": 1000000,
+            "shares": 200000
+          },
+          "expected": 5,
+          "tolerance": 1e-09,
+          "method": "One million divided by 200000 shares gives five.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "amount": -100000,
+            "shares": 200000
+          },
+          "expected": -0.5,
+          "tolerance": 1e-09,
+          "method": "Negative 100000 divided by 200000 shares gives -0.5.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "shares": 200000
+          },
+          "reason": "amount is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "amount=result*shares; shares=amount/result requires a nonzero result.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--sales-per-weighted-average-share",
+      "revision": "r1",
+      "title": "Sales per weighted-average share",
+      "summary": "Sales per weighted-average share uses the period amount and compatible common-share denominator.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "result",
+        "expression": "amount / shares",
+        "original_equation": "Sales per weighted-average share = period revenue / weighted average ordinary shares",
+        "source_id": "bsec-draft-ratios",
+        "locator": "Printed p60, Annexure C, Section E valuation ratios 2, 3 and 7",
+        "translation_notes": "Share count is dimensionless. Currency output represents currency per one ordinary share."
+      },
+      "variables": [
+        {
+          "symbol": "amount",
+          "source_symbol": "period revenue",
+          "role": "input",
+          "quantity_id": "net_period_revenue",
+          "definition": "period revenue",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "shares",
+          "source_symbol": "weighted average ordinary shares",
+          "role": "input",
+          "quantity_id": "weighted_average_common_shares",
+          "definition": "Positive weighted-average ordinary shares in the period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "result",
+          "source_symbol": "Sales per weighted-average share",
+          "role": "output",
+          "quantity_id": "sales_per_common_share",
+          "definition": "period revenue per ordinary share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "shares > 0"
+      ],
+      "assumptions": [
+        "The share count, entity, currency and financial period match the numerator.",
+        "Share splits and other changes are handled consistently in the weighted-average count."
+      ],
+      "limitations": [
+        "The per-share result changes with the chosen share-count convention.",
+        "Negative input amounts are preserved arithmetically; interpretation depends on the underlying quantity.",
+        "The source presents sales per share as a price-to-sales denominator; its exact share-count convention must be selected consistently."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Valuation Ratios, printed p230 (PDF p244), Exhibit 20",
+          "evidence": "Sales per weighted-average share uses the period amount and compatible common-share denominator.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bsec-draft-ratios",
+          "kind": "primary",
+          "title": "Draft Corporate Governance Guidelines",
+          "url": "https://sec.gov.bd/crequest/Draft_Corporate_Governance_Guidelines_21.12.2017.pdf",
+          "version": "Bangladesh Securities and Exchange Commission, draft dated 21 December 2017",
+          "accessed": "2026-11-03",
+          "locator": "Printed p60, Annexure C, Section E valuation ratios 2, 3 and 7",
+          "evidence": "The draft defines operating cash flow per weighted-average share and relates price to sales and cash flow per share.",
+          "license": "Government-hosted draft; exact reuse terms unknown. No claim that the draft became law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "amount": 1000000,
+            "shares": 200000
+          },
+          "expected": 5,
+          "tolerance": 1e-09,
+          "method": "One million divided by 200000 shares gives five.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "amount": -100000,
+            "shares": 200000
+          },
+          "expected": -0.5,
+          "tolerance": 1e-09,
+          "method": "Negative 100000 divided by 200000 shares gives -0.5.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "shares": 200000
+          },
+          "reason": "amount is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "amount=result*shares; shares=amount/result requires a nonzero result.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--price-to-cash-flow-per-share",
+      "revision": "r2",
+      "title": "Price-to-operating-cash-flow multiple",
+      "summary": "Price-to-operating-cash-flow multiple compares market price with operating cash flow per share.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "multiple",
+        "expression": "price / metric",
+        "original_equation": "Price-to-operating-cash-flow multiple = price per share / operating cash flow per share",
+        "source_id": "bsec-draft-ratios",
+        "locator": "Printed p60, Annexure C, Section E valuation ratios 2, 3, 8 and 9",
+        "translation_notes": "Both quantities are currency per one share, so the currency and share basis cancel. The financial observation period remains contextual. The Exhibit 20 valuation denominator is raw CFO per weighted-average share, distinct from the preferred-dividend-adjusted cash flow per share in Exhibit 16."
+      },
+      "variables": [
+        {
+          "symbol": "price",
+          "source_symbol": "price per share",
+          "role": "input",
+          "quantity_id": "common_share_market_price",
+          "definition": "Market price for one common share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "metric",
+          "source_symbol": "operating cash flow per share",
+          "role": "input",
+          "quantity_id": "operating_cash_flow_per_weighted_share",
+          "definition": "Operating cash flow divided by weighted-average shares, in the same currency and share basis",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "multiple",
+          "source_symbol": "Price-to-operating-cash-flow multiple",
+          "role": "output",
+          "quantity_id": "price_to_cash_flow_per_share",
+          "definition": "Price-to-operating-cash-flow multiple",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "price >= 0",
+        "metric > 0"
+      ],
+      "assumptions": [
+        "Price and per-share quantity use the same class of common share, currency and explicitly defined period.",
+        "The positive denominator is the chosen analytical profile."
+      ],
+      "limitations": [
+        "Different measures of cash flow or sales per share yield different multiples.",
+        "Zero or negative denominator values are outside this profile.",
+        "The denominator in this version follows the raw-CFO Exhibit 20 convention; a preferred-dividend-adjusted variant needs an explicitly different input."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Valuation Ratios, printed p230 (PDF p244), Exhibit 20",
+          "evidence": "Price-to-operating-cash-flow multiple compares market price with operating cash flow per share.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bsec-draft-ratios",
+          "kind": "primary",
+          "title": "Draft Corporate Governance Guidelines",
+          "url": "https://sec.gov.bd/crequest/Draft_Corporate_Governance_Guidelines_21.12.2017.pdf",
+          "version": "Bangladesh Securities and Exchange Commission, draft dated 21 December 2017",
+          "accessed": "2026-11-03",
+          "locator": "Printed p60, Annexure C, Section E valuation ratios 2, 3, 8 and 9",
+          "evidence": "The draft lists price-to-cash-flow, price-to-sales, EBITDA per share and dividends per share.",
+          "license": "Government-hosted draft; exact reuse terms unknown. No claim that the draft became law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "price": 20,
+            "metric": 5
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "20 divided by 5 equals four.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "price": 30,
+            "metric": 10
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "30 divided by 10 equals three.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "metric": 5
+          },
+          "reason": "price is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "price=multiple*metric; metric=price/multiple requires a nonzero multiple.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

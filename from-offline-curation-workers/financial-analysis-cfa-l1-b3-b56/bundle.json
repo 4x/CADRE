@@ -1,0 +1,286 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b56",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--common-size-cash-flow-by-directional-total",
+      "revision": "r1",
+      "title": "Cash-flow line as fraction of matching directional total",
+      "summary": "The example divides each inflow by total inflows and each outflow by total outflows.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "fraction",
+        "expression": "line / total",
+        "original_equation": "Cash-flow fraction = inflow or outflow line / total inflows or total outflows",
+        "source_id": "analystprep-cash-flow-common-size",
+        "locator": "Analysis of Common-size Cash Flow Statement, printed p73",
+        "translation_notes": "Line and total are nonnegative gross magnitudes in the same currency; the resulting fraction is base one."
+      },
+      "variables": [
+        {
+          "symbol": "line",
+          "source_symbol": "cash flow line magnitude",
+          "role": "input",
+          "quantity_id": "cash_flow_line_magnitude",
+          "definition": "cash flow line magnitude",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "total",
+          "source_symbol": "total cash flows in matching direction",
+          "role": "input",
+          "quantity_id": "cash_flow_directional_total",
+          "definition": "total cash flows in matching direction",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fraction",
+          "source_symbol": "directional common-size fraction",
+          "role": "output",
+          "quantity_id": "cash_flow_directional_common_size_fraction",
+          "definition": "Fraction of total inflows or total outflows",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "line >= 0",
+        "total > 0",
+        "line <= total"
+      ],
+      "assumptions": [
+        "The line is included in the matching positive total and the same direction, entity, period and statement method are used.",
+        "For an indirect statement, the aggregate operating cash flow is classified by its net direction."
+      ],
+      "limitations": [
+        "Inflow and outflow denominators must not be interchanged.",
+        "Direct and indirect presentations group operating cash flows differently."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Cash Flow Statement Analysis: Common Size Analysis, printed p159 (PDF p173), Exhibit 14",
+          "evidence": "The example divides each inflow by total inflows and each outflow by total outflows.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-cash-flow-common-size",
+          "kind": "primary",
+          "title": "Financial Statements Analysis study notes",
+          "url": "https://s3.amazonaws.com/app.analystprep.com/PDF/cfa-level-1-2024/study-notes/CH-3-Financial_Statements_Analysis-CKUHZ9KDV2.pdf",
+          "version": "AnalystPrep, copyright 2014–2023",
+          "accessed": "2026-11-03",
+          "locator": "Analysis of Common-size Cash Flow Statement, printed p73",
+          "evidence": "The author describes normalization of each cash inflow or outflow by its matching directional total, and alternatively by net revenue.",
+          "license": "AnalystPrep copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "inflow",
+          "inputs": {
+            "line": 762,
+            "total": 24305
+          },
+          "expected": 0.03135157375025715,
+          "tolerance": 1e-09,
+          "method": "Equipment sale proceeds of 762 over 24,305 total inflows give about 3.14%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "outflow",
+          "inputs": {
+            "line": 1300,
+            "total": 24457
+          },
+          "expected": 0.05315451527006583,
+          "tolerance": 1e-09,
+          "method": "Equipment purchase of 1,300 over 24,457 total outflows gives about 5.32%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "total": 24305
+          },
+          "reason": "line is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "line=fraction*total; total=line/fraction for a nonzero fraction.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--common-size-cash-flow-line-to-net-revenue",
+      "revision": "r1",
+      "title": "Cash-flow line as fraction of net revenue",
+      "summary": "The example expresses each signed cash-flow statement line as a percentage of net revenue.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "fraction",
+        "expression": "line / revenue",
+        "original_equation": "Common-size cash-flow line = cash-flow line / net revenue",
+        "source_id": "analystprep-cash-flow-common-size",
+        "locator": "Analysis of Common-size Cash Flow Statement, printed p73",
+        "translation_notes": "The numerator is signed and the denominator is positive; units cancel without a percentage-scale multiplier."
+      },
+      "variables": [
+        {
+          "symbol": "line",
+          "source_symbol": "signed cash-flow statement line",
+          "role": "input",
+          "quantity_id": "cash_flow_statement_line",
+          "definition": "signed cash-flow statement line",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "revenue",
+          "source_symbol": "net revenue",
+          "role": "input",
+          "quantity_id": "net_revenue",
+          "definition": "net revenue",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fraction",
+          "source_symbol": "revenue-based cash-flow fraction",
+          "role": "output",
+          "quantity_id": "cash_flow_line_to_net_revenue",
+          "definition": "Cash-flow statement line as a fraction of net revenue",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "revenue > 0"
+      ],
+      "assumptions": [
+        "Both amounts refer to the same entity, period, currency and revenue definition.",
+        "The signed line is a cash-flow item or reconciliation adjustment as presented."
+      ],
+      "limitations": [
+        "This fraction may be negative or exceed one.",
+        "Normalization by revenue differs from the separate normalization by total inflows or outflows."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Cash Flow Statement Analysis: Common Size Analysis, printed p160 (PDF p174), Exhibit 15",
+          "evidence": "The example expresses each signed cash-flow statement line as a percentage of net revenue.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-cash-flow-common-size",
+          "kind": "primary",
+          "title": "Financial Statements Analysis study notes",
+          "url": "https://s3.amazonaws.com/app.analystprep.com/PDF/cfa-level-1-2024/study-notes/CH-3-Financial_Statements_Analysis-CKUHZ9KDV2.pdf",
+          "version": "AnalystPrep, copyright 2014–2023",
+          "accessed": "2026-11-03",
+          "locator": "Analysis of Common-size Cash Flow Statement, printed p73",
+          "evidence": "The author describes normalization of each cash inflow or outflow by its matching directional total, and alternatively by net revenue.",
+          "license": "AnalystPrep copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "capex",
+          "inputs": {
+            "line": -1300,
+            "revenue": 23598
+          },
+          "expected": -0.055089414357149,
+          "tolerance": 1e-09,
+          "method": "A capital expenditure outflow of 1,300 divided by revenue 23,598 is approximately -5.51%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "sale",
+          "inputs": {
+            "line": 762,
+            "revenue": 23598
+          },
+          "expected": 0.032290871260275,
+          "tolerance": 1e-09,
+          "method": "A 762 inflow divided by revenue 23,598 is approximately 3.23%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "revenue": 23598
+          },
+          "reason": "line is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "line=fraction*revenue; revenue=line/fraction for nonzero fraction.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,568 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.9",
+  "batch_id": "financial-analysis-cfa-l3-v1-b03",
+  "domain": "financial-analysis",
+  "curator": "buffy",
+  "created": "2026-11-04",
+  "example_only": false,
+  "models": [
+    {
+      "id": "financial-analysis--singer-terhaar-integrated-risk-premium",
+      "revision": "r1",
+      "title": "Singer-Terhaar fully-integrated risk premium component",
+      "summary": "Risk premium under full global integration: asset–market correlation times asset volatility times the global market Sharpe ratio.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "RPiG",
+        "expression": "rho * sigi * SRgm",
+        "original_equation": "RPiG = βi,GM RPGM = ρi,GM σi (RPGM / σGM)",
+        "source_id": "analystprep-l3-equity-forecasting",
+        "locator": "PDF: LM2 Forecasting Equity Returns, printed p. 88 (PDF p. 98), Eq. 4; applied printed p. 89 (PDF p. 99)",
+        "translation_notes": "Curated form is the rightmost equality of Eq. 4, using the global Sharpe ratio SRgm = RPGM/σGM directly as an input. Decimal form (unit 1). The middle beta form is an equivalent restatement, not a separate record. Dimensional check: dimensionless × dimensionless × dimensionless = dimensionless premium."
+      },
+      "variables": [
+        {
+          "symbol": "rho",
+          "source_symbol": "ρi,GM",
+          "role": "input",
+          "quantity_id": "asset_global_market_correlation",
+          "definition": "Correlation of asset i with the global market portfolio",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset and global market portfolio as RPiG",
+          "domain": "Closed interval -1 to 1 inclusive"
+        },
+        {
+          "symbol": "sigi",
+          "source_symbol": "σi",
+          "role": "input",
+          "quantity_id": "asset_return_volatility",
+          "definition": "Volatility of asset i, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset and horizon as RPiG",
+          "domain": "Nonnegative finite volatility"
+        },
+        {
+          "symbol": "SRgm",
+          "source_symbol": "RPGM / σGM",
+          "role": "input",
+          "quantity_id": "global_market_sharpe_ratio",
+          "definition": "Global market Sharpe ratio: global risk premium per unit of global market risk, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same global market portfolio and horizon as RPiG",
+          "domain": "Finite Sharpe ratio"
+        },
+        {
+          "symbol": "RPiG",
+          "source_symbol": "RPiG",
+          "role": "output",
+          "quantity_id": "integrated_market_risk_premium",
+          "definition": "Risk premium for asset i under full global integration, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset and global market portfolio as inputs",
+          "domain": "Finite decimal premium"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sigi >= 0"
+      ],
+      "assumptions": [
+        "Full integration: a single global market portfolio prices every asset via the CAPM.",
+        "Source assumption: pragmatic implementation sets compensation for non-diversifiable risk equal in every market (all Sharpe ratios equal the global one)."
+      ],
+      "limitations": [
+        "Fully-integrated component only; partial integration requires the blend record from batch b02.",
+        "Correlation and volatilities are estimated inputs with sampling error not modeled here."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-st-integrated-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Forecasting Equity Returns, printed pp. 88–89 (PDF pp. 98–99), Eq. 4 and worked example",
+          "evidence": "Passage derives the integrated component as beta times the global premium, rewritten as correlation times asset volatility times the global Sharpe ratio, then applies it (German shares 0.70 × 17% × 0.30 = 3.57%).",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-l3-equity-forecasting",
+          "kind": "primary",
+          "title": "Equity Forecasting Models (AnalystPrep CFA Level III study notes)",
+          "url": "https://analystprep.com/study-notes/cfa-level-iii/equity-forecasting/",
+          "version": "Study notes, 14 Jun 2023",
+          "accessed": "2026-11-04",
+          "locator": "Singer and Terhaar Analysis equation: integration term σi × ρ × ERPm/σm",
+          "evidence": "Page gives the integrated term as degree of integration times asset volatility times correlation times market premium over market volatility — the same correlation-volatility-Sharpe structure as the PDF's Eq. 4.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-german-shares-integrated",
+          "inputs": {
+            "rho": 0.7,
+            "sigi": 0.17,
+            "SRgm": 0.3
+          },
+          "expected": 0.0357,
+          "tolerance": 1e-06,
+          "method": "Source inputs in decimals: 0.70 × 0.17 × 0.30 = 0.0357, matching published 3.57%.",
+          "provenance": "Published result: LM2 worked example, printed p. 89 (PDF p. 99)"
+        },
+        {
+          "id": "published-german-bonds-integrated",
+          "inputs": {
+            "rho": 0.5,
+            "sigi": 0.07,
+            "SRgm": 0.3
+          },
+          "expected": 0.0105,
+          "tolerance": 1e-06,
+          "method": "Source inputs in decimals: 0.50 × 0.07 × 0.30 = 0.0105, matching published 1.05%.",
+          "provenance": "Published result: LM2 worked example, printed p. 89 (PDF p. 99)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "rho": 0.7,
+            "sigi": 0.17
+          },
+          "reason": "Global Sharpe ratio is a required input; correlation and volatility alone cannot price the integrated premium."
+        }
+      ],
+      "inverse_notes": "rho = RPiG/(sigi·SRgm) requires sigi·SRgm ≠ 0; sigi = RPiG/(rho·SRgm) requires rho·SRgm ≠ 0; SRgm = RPiG/(rho·sigi) requires rho·sigi ≠ 0. Zero correlation gives zero integrated premium (full diversification). Algebraic only; correlation is estimated, not caused, by inversion.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings asset_global_market_correlation, asset_return_volatility, global_market_sharpe_ratio, integrated_market_risk_premium are not in the runtime vocabulary snapshot and require extension.",
+          "Feeds the b02 blend record as the RPiG input; beta form (Eq. 3, batch b02) is an equivalent restatement."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--singer-terhaar-segmented-risk-premium",
+      "revision": "r1",
+      "title": "Singer-Terhaar fully-segmented risk premium component",
+      "summary": "Risk premium under complete segmentation: asset volatility times the segmented-market Sharpe ratio (asset as its own market portfolio).",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "RPiS",
+        "expression": "sigi * SRiS",
+        "original_equation": "RPiS = 1 × RPiS = 1 × σi (RPiS / σi)",
+        "source_id": "analystprep-l3-equity-forecasting",
+        "locator": "PDF: LM2 Forecasting Equity Returns, printed p. 88 (PDF p. 98), Eq. 5; applied printed p. 89 (PDF p. 99)",
+        "translation_notes": "Curated form is the informative second equality of Eq. 5 (the first is an identity conveying no information, per the source). Decimal form (unit 1). Dimensional check: dimensionless × dimensionless = dimensionless premium."
+      },
+      "variables": [
+        {
+          "symbol": "sigi",
+          "source_symbol": "σi",
+          "role": "input",
+          "quantity_id": "asset_return_volatility",
+          "definition": "Volatility (risk) of asset i, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same segmented asset market and horizon as RPiS",
+          "domain": "Nonnegative finite volatility"
+        },
+        {
+          "symbol": "SRiS",
+          "source_symbol": "RPiS / σi",
+          "role": "input",
+          "quantity_id": "segmented_market_sharpe_ratio",
+          "definition": "Sharpe ratio (compensation per unit of risk) in the segmented market, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same segmented asset market and horizon as RPiS",
+          "domain": "Finite Sharpe ratio"
+        },
+        {
+          "symbol": "RPiS",
+          "source_symbol": "RPiS",
+          "role": "output",
+          "quantity_id": "segmented_market_risk_premium",
+          "definition": "Risk premium for asset i under complete segmentation, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same segmented asset market and horizon as inputs",
+          "domain": "Finite decimal premium"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sigi >= 0"
+      ],
+      "assumptions": [
+        "Complete segmentation: each asset class in each country is priced in isolation (β = ρ = 1 with itself).",
+        "The segmented Sharpe ratio is supplied by analyst judgment (source example uses 0.35 for German shares, 0.25 for German bonds)."
+      ],
+      "limitations": [
+        "Fully-segmented component only; partial integration requires the blend record from batch b02.",
+        "Under segmentation the required premium could in principle be any value (per source); the volatility-times-Sharpe split is a framing, not a measurement."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-st-segmented-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Forecasting Equity Returns, printed pp. 88–89 (PDF pp. 98–99), Eq. 5 and worked example",
+          "evidence": "Passage sets beta and correlation to 1 for the asset as its own market and restates the segmented premium as asset risk times the segmented Sharpe ratio, then applies it (German shares 17% × 0.35 = 5.95%).",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-l3-equity-forecasting",
+          "kind": "primary",
+          "title": "Equity Forecasting Models (AnalystPrep CFA Level III study notes)",
+          "url": "https://analystprep.com/study-notes/cfa-level-iii/equity-forecasting/",
+          "version": "Study notes, 14 Jun 2023",
+          "accessed": "2026-11-04",
+          "locator": "Singer and Terhaar Analysis equation: segmentation term σi × ((ERPm)/σm)",
+          "evidence": "Page gives the segmented term as degree of segmentation times asset volatility times a Sharpe-like premium-per-risk ratio — the same volatility-times-Sharpe structure as the PDF's Eq. 5.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-german-shares-segmented",
+          "inputs": {
+            "sigi": 0.17,
+            "SRiS": 0.35
+          },
+          "expected": 0.0595,
+          "tolerance": 1e-06,
+          "method": "Source inputs in decimals: 0.17 × 0.35 = 0.0595, matching published 5.95%.",
+          "provenance": "Published result: LM2 worked example, printed p. 89 (PDF p. 99)"
+        },
+        {
+          "id": "published-german-bonds-segmented",
+          "inputs": {
+            "sigi": 0.07,
+            "SRiS": 0.25
+          },
+          "expected": 0.0175,
+          "tolerance": 1e-06,
+          "method": "Source inputs in decimals: 0.07 × 0.25 = 0.0175, matching published 1.75%.",
+          "provenance": "Published result: LM2 worked example, printed p. 89 (PDF p. 99)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "sigi": 0.17
+          },
+          "reason": "Segmented-market Sharpe ratio is a required input; volatility alone cannot determine the segmented premium."
+        }
+      ],
+      "inverse_notes": "sigi = RPiS/SRiS requires SRiS ≠ 0; SRiS = RPiS/sigi requires sigi ≠ 0. Zero volatility gives zero premium regardless of Sharpe ratio. Algebraic only; the segmented Sharpe ratio is judgmental per the source.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings asset_return_volatility (shared with beta and integrated records), segmented_market_sharpe_ratio, segmented_market_risk_premium are not in the runtime vocabulary snapshot and require extension.",
+          "Feeds the b02 blend record as the RPiS input."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--pension-surplus-market-value-less-liabilities",
+      "revision": "r1",
+      "title": "Pension surplus as market value of assets minus present value of liabilities",
+      "summary": "Surplus (funded status amount) equals the market value of assets minus the present value of liabilities at the stated discount rate.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "S",
+        "expression": "MV - PVL",
+        "original_equation": "Surplus = Market value (assets) − Present value (liabilities)",
+        "source_id": "milliman-overfunded-pensions-surplus",
+        "locator": "PDF: LM4 Surplus Optimization, printed p. 239 (PDF p. 249)",
+        "translation_notes": "Both inputs are money levels at the same valuation date in the same currency; source works in USD billions. Negative surplus is underfunding. Dimensional check: currency − currency = currency."
+      },
+      "variables": [
+        {
+          "symbol": "MV",
+          "source_symbol": "Market value (assets)",
+          "role": "input",
+          "quantity_id": "pension_asset_market_value",
+          "definition": "Market value of the assets available against the liabilities at the valuation date",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "same plan and valuation date as S",
+          "domain": "Nonnegative finite asset value"
+        },
+        {
+          "symbol": "PVL",
+          "source_symbol": "Present value (liabilities)",
+          "role": "input",
+          "quantity_id": "pension_liability_present_value",
+          "definition": "Present value of liability cash flows at the stated discount rate and valuation date",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "same plan, valuation date, and discount rate as S",
+          "domain": "Nonnegative finite liability value"
+        },
+        {
+          "symbol": "S",
+          "source_symbol": "Surplus",
+          "role": "output",
+          "quantity_id": "pension_surplus",
+          "definition": "Surplus (funded status amount): positive when overfunded, negative when underfunded",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "same plan, valuation date, and discount rate as inputs",
+          "domain": "Finite surplus; zero is exactly fully funded"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Assets and liabilities are valued at the same date; liabilities use the stated discount rate assumption.",
+        "Source assumption: liability discount rates follow regulation/tradition and are highly assumption-dependent."
+      ],
+      "limitations": [
+        "Highly sensitive to the discount rate (source: 4% gives +0.239bn, 2% gives −0.539bn for LOWTECH); the rate choice is outside this definitional record.",
+        "Money-amount form; the companion funding-ratio record gives the percentage form."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-surplus-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Surplus Optimization, printed p. 239 (PDF p. 249), LOWTECH example at 4% and 2% discount rates",
+          "evidence": "Passage defines surplus as market value of assets minus present value of liabilities and computes US$2.500bn − US$2.261bn = US$0.239bn at 4%, falling to −US$0.539bn at 2%.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "milliman-overfunded-pensions-surplus",
+          "kind": "primary",
+          "title": "What should an overfunded corporate pension plan do with its surplus assets? (Milliman insight)",
+          "url": "https://www.milliman.com/en/insight/what-should-overfunded-pensions-do-with-surplus-assets",
+          "version": "Milliman insight article, 26 Aug 2026",
+          "accessed": "2026-11-04",
+          "locator": "Milliman 100 PFI figures: $1.296tn assets against $1.156tn projected benefit obligations = $139bn funded-status surplus",
+          "evidence": "Article computes the funded-status surplus as plan assets minus projected benefit obligations (1.296 − 1.156 = 0.139 trillion), confirming the same assets-minus-liabilities definition.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-lowtech-base-case",
+          "inputs": {
+            "MV": 2.5,
+            "PVL": 2.261
+          },
+          "expected": 0.239,
+          "tolerance": 1e-09,
+          "method": "Source's USD-billion inputs: 2.500 − 2.261 = 0.239, matching published US$0.239bn at the 4% discount rate.",
+          "provenance": "Published result: LM4 LOWTECH example, printed p. 239 (PDF p. 249)"
+        },
+        {
+          "id": "published-lowtech-low-rate",
+          "inputs": {
+            "MV": 2.5,
+            "PVL": 3.039
+          },
+          "expected": -0.539,
+          "tolerance": 1e-03,
+          "method": "At the 2% discount rate the source reports surplus −US$0.539bn on US$2.5bn assets, implying PVL 3.039bn; 2.5 − 3.039 = −0.539. Tolerance covers the source's rounded liability value.",
+          "provenance": "Published result: LM4 LOWTECH example at 2% discount rate, printed p. 239 (PDF p. 249)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "MV": 2.5
+          },
+          "reason": "Present value of liabilities is required; assets alone cannot determine funded status."
+        }
+      ],
+      "inverse_notes": "MV = S + PVL; PVL = MV − S. No singularities. Substitution check: S=0.239 with PVL=2.261 recovers MV=2.500. Algebraic only; the economically substantive inverse (choice of discount rate) is outside this record.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings pension_asset_market_value, pension_liability_present_value, pension_surplus are not in the runtime vocabulary snapshot and require extension.",
+          "Companion funding-ratio record in this batch gives the ratio form over the same inputs."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--pension-funding-ratio-assets-over-liabilities",
+      "revision": "r1",
+      "title": "Pension funding ratio as market value of assets over present value of liabilities",
+      "summary": "Funding ratio equals the market value of assets divided by the present value of liabilities; 1 is fully funded.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "FR",
+        "expression": "MV / PVL",
+        "original_equation": "Funding ratio = Market value (assets) / Present value (liabilities)",
+        "source_id": "crs-db-primer-funding-ratios",
+        "locator": "PDF: LM4 Surplus Optimization, printed p. 239 (PDF p. 249)",
+        "translation_notes": "Pure ratio of two money levels in the same currency; result is dimensionless (unit 1). Fully funded at 1, overfunded above 1, underfunded below 1, per source. Dimensional check: currency/currency = dimensionless."
+      },
+      "variables": [
+        {
+          "symbol": "MV",
+          "source_symbol": "Market value (assets)",
+          "role": "input",
+          "quantity_id": "pension_asset_market_value",
+          "definition": "Market value of the assets available against the liabilities at the valuation date (same definition as surplus record)",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "same plan and valuation date as FR",
+          "domain": "Nonnegative finite asset value"
+        },
+        {
+          "symbol": "PVL",
+          "source_symbol": "Present value (liabilities)",
+          "role": "input",
+          "quantity_id": "pension_liability_present_value",
+          "definition": "Present value of liability cash flows at the stated discount rate and valuation date (same definition as surplus record)",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "same plan, valuation date, and discount rate as FR",
+          "domain": "Positive finite liability value"
+        },
+        {
+          "symbol": "FR",
+          "source_symbol": "Funding ratio",
+          "role": "output",
+          "quantity_id": "pension_funding_ratio",
+          "definition": "Funding ratio: 1 fully funded, above 1 overfunded, below 1 underfunded",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same plan, valuation date, and discount rate as inputs",
+          "domain": "Nonnegative finite ratio"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "PVL > 0"
+      ],
+      "assumptions": [
+        "Assets and liabilities valued at the same date with the stated discount rate, same basis as the surplus record."
+      ],
+      "limitations": [
+        "Ratio form suppresses the money scale of over/underfunding; pair with the surplus record for absolute amounts.",
+        "Discount-rate sensitivity is inherited from the liability present value and is outside this definitional record."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-funding-ratio-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Surplus Optimization, printed p. 239 (PDF p. 249), LOWTECH example (1.1057 at 4%, 0.8226 at 2%)",
+          "evidence": "Passage defines the funding ratio as market value over present value of liabilities and computes 2.5/2.261 = 1.1057 (overfunded) and 0.8226 at the lower discount rate (underfunded).",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "crs-db-primer-funding-ratios",
+          "kind": "primary",
+          "title": "Multiemployer Defined Benefit (DB) Pension Plans: A Primer (CRS Report R43305)",
+          "url": "https://www.everycrsreport.com/reports/R43305.html",
+          "version": "Congressional Research Service R43305, updated 10 Jun 2026",
+          "accessed": "2026-11-04",
+          "locator": "Funding Ratios section: funding ratio calculated as the proportion of plan assets to plan liabilities",
+          "evidence": "Report states the funding ratio is the proportion of plan assets to plan liabilities — the same assets-over-liabilities ratio as the PDF's definition.",
+          "license": "U.S. public domain (Congressional Research Service report); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-lowtech-overfunded",
+          "inputs": {
+            "MV": 2.5,
+            "PVL": 2.261
+          },
+          "expected": 1.1057,
+          "tolerance": 1e-04,
+          "method": "Source inputs: 2.5/2.261 = 1.10570, matching published 1.1057 (about 10.6% overfunded) to stated rounding.",
+          "provenance": "Published result: LM4 LOWTECH example, printed p. 239 (PDF p. 249)"
+        },
+        {
+          "id": "published-lowtech-underfunded",
+          "inputs": {
+            "MV": 2.5,
+            "PVL": 3.039
+          },
+          "expected": 0.8226,
+          "tolerance": 1e-03,
+          "method": "At the 2% discount rate the source reports funding ratio 0.8226 on US$2.5bn assets (implied PVL 3.039bn); 2.5/3.039 = 0.82264. Tolerance covers the rounded liability value.",
+          "provenance": "Published result: LM4 LOWTECH example at 2% discount rate, printed p. 239 (PDF p. 249)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "MV": 2.5,
+            "PVL": 0
+          },
+          "reason": "Zero liability present value makes the ratio undefined (guard PVL > 0); a plan with no liabilities needs no funding measure."
+        }
+      ],
+      "inverse_notes": "MV = FR·PVL; PVL = MV/FR requires FR ≠ 0 (FR = 0 with MV > 0 is inadmissible since PVL > 0). Substitution check: FR=1.1057 with PVL=2.261 recovers MV≈2.500. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings pension_asset_market_value, pension_liability_present_value, pension_funding_ratio are not in the runtime vocabulary snapshot and require extension.",
+          "Shares input definitions with the surplus record in this batch; the two records are companions, not duplicates."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "deferred": [
+    {
+      "title": "Surplus-optimization objective UmLR = E(Rs,m) − 0.005 λ σ²(Rs,m) as standalone record",
+      "reason": "Same algebraic form as the b01 utility record but over surplus return with distinct scope; queue for b04 rather than overloading this batch.",
+      "source_urls": []
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b03: 4 records (Singer-Terhaar integrated Eq. 4, segmented Eq. 5, pension surplus, pension funding ratio) each with PDF locator plus directly inspected accessible corroboration. All references are published oracles from the PDF or corroborating sources.",
+    "gaps": [
+      "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+      "Next candidates queued: surplus-optimization objective, safety-first ratio, ARCH(1) variance Eq. 17, risk-parity condition, 1/N rule, 120-age heuristic, shrinkage VCV blend, GDP labor/productivity split."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity — verified locators and corroboration pages by direct inspection 2026-11-04."
+  }
+}

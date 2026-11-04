@@ -1,0 +1,480 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b38",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 2 relationships with owner-PDF provenance and inspected public corroboration.",
+    "gaps": [
+      "Finance quantities and scientific fidelity require independent registry review.",
+      "Deduplication uses the available inventory and own prior returns, not a global registry."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The owner PDF is project-derivation with a null URL; public evidence carries each relationship."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--national-private-disposable-income-transfer-inclusive",
+      "revision": "r1",
+      "title": "Private disposable income in the simplified national accounts",
+      "summary": "The owner identifies disposable private income with domestic output plus transfers minus taxes.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "disposable_income",
+        "expression": "gdp + transfers - taxes",
+        "original_equation": "Private disposable income = GDP + government transfers − taxes",
+        "source_id": "uw-national-income-accounting",
+        "locator": "Measuring Private/Public Income and Saving; Uses of National Saving",
+        "translation_notes": "All terms are monetary flows over one period in the same currency."
+      },
+      "variables": [
+        {
+          "symbol": "gdp",
+          "source_symbol": "gross domestic product",
+          "role": "input",
+          "quantity_id": "gross_domestic_product",
+          "definition": "gross domestic product",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same economy, reporting currency and accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "transfers",
+          "source_symbol": "government transfers and net interest",
+          "role": "input",
+          "quantity_id": "government_transfers_and_net_interest",
+          "definition": "government transfers and net interest",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same economy, reporting currency and accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "taxes",
+          "source_symbol": "gross taxes",
+          "role": "input",
+          "quantity_id": "gross_taxes",
+          "definition": "gross taxes",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same economy, reporting currency and accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "disposable_income",
+          "source_symbol": "private disposable income",
+          "role": "output",
+          "quantity_id": "private_disposable_national_income",
+          "definition": "private disposable income",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same economy, reporting currency and accounting period",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Net factor income from abroad is zero or excluded from the simplified scope.",
+        "Transfers include government net interest paid to the private sector, or that interest is zero; taxes are gross rather than net of transfers."
+      ],
+      "limitations": [
+        "This aggregate identity is not a household-only disposable income measure.",
+        "The public source includes net foreign factor income and separates government interest; its more general definition must be used when those flows matter."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 7, International Trade and Capital Flows, printed pp444–445 (PDF pp456–457), unnumbered savings and investment identities",
+          "evidence": "The owner identifies disposable private income with domestic output plus transfers minus taxes.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "uw-national-income-accounting",
+          "kind": "primary",
+          "title": "National Income Accounting",
+          "url": "https://faculty.washington.edu/ezivot/econ301/nipa.htm",
+          "version": "Eric Zivot, University of Washington, 2000",
+          "accessed": "2026-11-04",
+          "locator": "Measuring Private/Public Income and Saving; Uses of National Saving",
+          "evidence": "The notes define disposable income and public saving, including separate net factor payments, transfers and government interest, and derive national saving.",
+          "license": "University course notes; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "basic",
+          "inputs": {
+            "gdp": 1000,
+            "transfers": 100,
+            "taxes": 200
+          },
+          "expected": 900,
+          "tolerance": 1e-09,
+          "method": "GDP of 1,000 plus 100 of transfers less 200 of taxes gives 900.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero-transfers",
+          "inputs": {
+            "gdp": 500,
+            "transfers": 0,
+            "taxes": 80
+          },
+          "expected": 420,
+          "tolerance": 1e-09,
+          "method": "GDP of 500 less gross taxes of 80 gives 420.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "transfers": 100,
+            "taxes": 200
+          },
+          "reason": "gdp is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "gdp=disposable_income-transfers+taxes.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--government-saving-gross-tax-transfer-inclusive",
+      "revision": "r1",
+      "title": "Government saving with gross taxes and transfers",
+      "summary": "The owner defines government saving as tax revenue less government purchases and transfers.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "government_saving",
+        "expression": "taxes - transfers - purchases",
+        "original_equation": "Government saving = gross taxes − transfers − government purchases",
+        "source_id": "uw-national-income-accounting",
+        "locator": "Measuring Private/Public Income and Saving; Uses of National Saving",
+        "translation_notes": "All terms are monetary flows over one period in the same currency."
+      },
+      "variables": [
+        {
+          "symbol": "taxes",
+          "source_symbol": "gross taxes",
+          "role": "input",
+          "quantity_id": "gross_taxes",
+          "definition": "gross taxes",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same economy, reporting currency and accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "transfers",
+          "source_symbol": "government transfers and net interest",
+          "role": "input",
+          "quantity_id": "government_transfers_and_net_interest",
+          "definition": "government transfers and net interest",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same economy, reporting currency and accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "purchases",
+          "source_symbol": "government purchases",
+          "role": "input",
+          "quantity_id": "government_purchases",
+          "definition": "government purchases",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same economy, reporting currency and accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "government_saving",
+          "source_symbol": "government saving",
+          "role": "output",
+          "quantity_id": "government_saving",
+          "definition": "government saving",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same economy, reporting currency and accounting period",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Taxes are gross, transfers include government net interest paid to the private sector or separately omitted net interest is zero, and purchases exclude transfers.",
+        "All flows are consistently measured for the same government and period."
+      ],
+      "limitations": [
+        "Negative government saving is a deficit under this simplified definition.",
+        "The university notes distinguish transfers and interest; their displayed expanded public-saving line omits G, but its immediately preceding definition NGI minus G supports the expression."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 7, International Trade and Capital Flows, printed pp444–445 (PDF pp456–457), unnumbered savings and investment identities",
+          "evidence": "The owner defines government saving as tax revenue less government purchases and transfers.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "uw-national-income-accounting",
+          "kind": "primary",
+          "title": "National Income Accounting",
+          "url": "https://faculty.washington.edu/ezivot/econ301/nipa.htm",
+          "version": "Eric Zivot, University of Washington, 2000",
+          "accessed": "2026-11-04",
+          "locator": "Measuring Private/Public Income and Saving; Uses of National Saving",
+          "evidence": "The notes define disposable income and public saving, including separate net factor payments, transfers and government interest, and derive national saving.",
+          "license": "University course notes; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "surplus",
+          "inputs": {
+            "taxes": 300,
+            "transfers": 50,
+            "purchases": 200
+          },
+          "expected": 50,
+          "tolerance": 1e-09,
+          "method": "Taxes of 300 less transfers of 50 and purchases of 200 give government saving of 50.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "deficit",
+          "inputs": {
+            "taxes": 200,
+            "transfers": 50,
+            "purchases": 220
+          },
+          "expected": -70,
+          "tolerance": 1e-09,
+          "method": "Taxes of 200 less transfers of 50 and purchases of 220 give negative saving of 70.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "transfers": 50,
+            "purchases": 200
+          },
+          "reason": "taxes is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "taxes=government_saving+transfers+purchases.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--net-exports-private-saving-government-transfers",
+      "revision": "r1",
+      "title": "Net exports from sectoral saving and investment with gross taxes",
+      "summary": "The owner derives a sectoral balance with transfers and explicitly treats current account as net exports in a simplified setting.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "net_exports",
+        "expression": "private_saving - investment + taxes - purchases - transfers",
+        "original_equation": "Net exports = private saving − investment + taxes − government purchases − transfers",
+        "source_id": "uw-national-income-accounting",
+        "locator": "Measuring Private/Public Income and Saving; Uses of National Saving",
+        "translation_notes": "All terms are same-period monetary flows in a common currency."
+      },
+      "variables": [
+        {
+          "symbol": "private_saving",
+          "source_symbol": "private saving",
+          "role": "input",
+          "quantity_id": "private_saving",
+          "definition": "private saving",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same economy, reporting currency and accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "investment",
+          "source_symbol": "domestic investment",
+          "role": "input",
+          "quantity_id": "domestic_investment",
+          "definition": "domestic investment",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same economy, reporting currency and accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "taxes",
+          "source_symbol": "gross taxes",
+          "role": "input",
+          "quantity_id": "gross_taxes",
+          "definition": "gross taxes",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same economy, reporting currency and accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "purchases",
+          "source_symbol": "government purchases",
+          "role": "input",
+          "quantity_id": "government_purchases",
+          "definition": "government purchases",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same economy, reporting currency and accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "transfers",
+          "source_symbol": "government transfers and net interest",
+          "role": "input",
+          "quantity_id": "government_transfers_and_net_interest",
+          "definition": "government transfers and net interest",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same economy, reporting currency and accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "net_exports",
+          "source_symbol": "net exports",
+          "role": "output",
+          "quantity_id": "net_exports",
+          "definition": "net exports",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same economy, reporting currency and accounting period",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Transfers include government net interest to the private sector, or the omitted interest is zero, and taxes are gross.",
+        "Net foreign factor income and net external current transfers are zero or outside this simplified identity.",
+        "Private saving, investment and government flows use consistent national-accounting boundaries."
+      ],
+      "limitations": [
+        "Net exports alone is not the full current account when cross-border primary income or current transfers are material.",
+        "This expands the existing transfer-excluded sectoral identity; do not subtract transfers a second time when taxes are already net."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 7, International Trade and Capital Flows, printed pp444–445 (PDF pp456–457), unnumbered savings and investment identities",
+          "evidence": "The owner derives a sectoral balance with transfers and explicitly treats current account as net exports in a simplified setting.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "uw-national-income-accounting",
+          "kind": "primary",
+          "title": "National Income Accounting",
+          "url": "https://faculty.washington.edu/ezivot/econ301/nipa.htm",
+          "version": "Eric Zivot, University of Washington, 2000",
+          "accessed": "2026-11-04",
+          "locator": "Measuring Private/Public Income and Saving; Uses of National Saving",
+          "evidence": "The notes define disposable income and public saving, including separate net factor payments, transfers and government interest, and derive national saving.",
+          "license": "University course notes; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "surplus",
+          "inputs": {
+            "private_saving": 250,
+            "investment": 200,
+            "taxes": 300,
+            "purchases": 250,
+            "transfers": 60
+          },
+          "expected": 40,
+          "tolerance": 1e-09,
+          "method": "Private saving 250 less investment 200 plus taxes 300 less purchases 250 and transfers 60 gives net exports 40.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "deficit",
+          "inputs": {
+            "private_saving": 100,
+            "investment": 200,
+            "taxes": 200,
+            "purchases": 180,
+            "transfers": 30
+          },
+          "expected": -110,
+          "tolerance": 1e-09,
+          "method": "The stated sector flows imply net exports of −110.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "investment": 200,
+            "taxes": 300,
+            "purchases": 250,
+            "transfers": 60
+          },
+          "reason": "private_saving is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "private_saving=net_exports+investment-taxes+purchases+transfers.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

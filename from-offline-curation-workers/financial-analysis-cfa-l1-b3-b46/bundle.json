@@ -1,0 +1,594 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b46",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. Corrects IAS 12 citation in the affected b31 records: the 2021 URL now redirects to a subscription page; the 2022 issued edition was directly inspected and supports the same stated paragraphs. Original records remain preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--liability-deductible-temporary-difference-deferred-asset",
+      "revision": "r2",
+      "title": "Deferred tax asset from liability deductible difference",
+      "summary": "Deferred tax asset from liability deductible difference uses the indicated liability-side temporary difference.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "result",
+        "expression": "(carrying - taxbase) * rate",
+        "original_equation": "Deferred tax asset from liability deductible difference = relevant positive temporary difference × tax rate",
+        "source_id": "ias12-2022",
+        "locator": "Paragraphs 6, 15, 24–25, 47 and 60–62",
+        "translation_notes": "The sign convention differs from asset-side temporary differences. All monetary amounts share a currency."
+      },
+      "variables": [
+        {
+          "symbol": "carrying",
+          "source_symbol": "liability carrying amount",
+          "role": "input",
+          "quantity_id": "liability_carrying_amount",
+          "definition": "liability carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "taxbase",
+          "source_symbol": "liability tax base",
+          "role": "input",
+          "quantity_id": "liability_tax_base",
+          "definition": "liability tax base",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "rate",
+          "source_symbol": "applicable tax rate",
+          "role": "input",
+          "quantity_id": "deferred_tax_reversal_rate",
+          "definition": "Enacted or substantively enacted rate on reversal",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "result",
+          "source_symbol": "Deferred tax asset from liability deductible difference",
+          "role": "output",
+          "quantity_id": "liability_deferred_tax_asset",
+          "definition": "Deferred tax asset from liability deductible difference",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "carrying >= taxbase",
+        "rate >= 0",
+        "rate <= 1"
+      ],
+      "assumptions": [
+        "The temporary difference is recognized under the applicable standard and the specified tax rate applies to reversal.",
+        "For deferred assets, sufficient future taxable profit is available to recognize the full amount."
+      ],
+      "limitations": [
+        "Recognition exceptions, multiple reversal rates and deferred-tax offsets require separate analysis.",
+        "The model is undiscounted and describes one temporary difference, not an entity-wide net balance."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 7, Temporary and Permanent Differences, printed p419 (PDF p433), Exhibit 1",
+          "evidence": "Deferred tax asset from liability deductible difference uses the indicated liability-side temporary difference.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ias12-2022",
+          "kind": "primary",
+          "title": "IAS 12 Income Taxes",
+          "url": "https://www.ifrs.org/content/dam/ifrs/publications/pdf-standards/english/2022/issued/part-a/ias-12-income-taxes.pdf?bypass=on",
+          "version": "IFRS Foundation, issued 2022 edition",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs 6, 15, 24–25, 47 and 60–62",
+          "evidence": "The standard defines current and deferred tax components and describes recognition, measurement and changes in deferred tax balances.",
+          "license": "IFRS Foundation copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "ias-example",
+          "inputs": {
+            "carrying": 100,
+            "taxbase": 0,
+            "rate": 0.25
+          },
+          "expected": 25,
+          "tolerance": 1e-09,
+          "method": "A 100 deductible liability difference at 25% gives 25 when fully recognized.",
+          "provenance": "IAS 12 paragraph 25 example."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "carrying": 200,
+            "taxbase": 100,
+            "rate": 0.3
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "A 100 difference at 30% gives 30.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "taxbase": 0,
+            "rate": 0.25
+          },
+          "reason": "carrying is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "The difference can be recovered as result/rate if rate is nonzero; individual carrying amount and tax base cannot both be inferred from the difference.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--liability-taxable-temporary-difference-deferred-liability",
+      "revision": "r2",
+      "title": "Deferred tax liability from liability taxable difference",
+      "summary": "Deferred tax liability from liability taxable difference uses the indicated liability-side temporary difference.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "result",
+        "expression": "(taxbase - carrying) * rate",
+        "original_equation": "Deferred tax liability from liability taxable difference = relevant positive temporary difference × tax rate",
+        "source_id": "ias12-2022",
+        "locator": "Paragraphs 6, 15, 24–25, 47 and 60–62",
+        "translation_notes": "The sign convention differs from asset-side temporary differences. All monetary amounts share a currency."
+      },
+      "variables": [
+        {
+          "symbol": "carrying",
+          "source_symbol": "liability carrying amount",
+          "role": "input",
+          "quantity_id": "liability_carrying_amount",
+          "definition": "liability carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "taxbase",
+          "source_symbol": "liability tax base",
+          "role": "input",
+          "quantity_id": "liability_tax_base",
+          "definition": "liability tax base",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "rate",
+          "source_symbol": "applicable tax rate",
+          "role": "input",
+          "quantity_id": "deferred_tax_reversal_rate",
+          "definition": "Enacted or substantively enacted rate on reversal",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "result",
+          "source_symbol": "Deferred tax liability from liability taxable difference",
+          "role": "output",
+          "quantity_id": "liability_deferred_tax_liability",
+          "definition": "Deferred tax liability from liability taxable difference",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "taxbase >= carrying",
+        "rate >= 0",
+        "rate <= 1"
+      ],
+      "assumptions": [
+        "The temporary difference is recognized under the applicable standard and the specified tax rate applies to reversal.",
+        "For deferred assets, sufficient future taxable profit is available to recognize the full amount."
+      ],
+      "limitations": [
+        "Recognition exceptions, multiple reversal rates and deferred-tax offsets require separate analysis.",
+        "The model is undiscounted and describes one temporary difference, not an entity-wide net balance."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 7, Temporary and Permanent Differences, printed p419 (PDF p433), Exhibit 1",
+          "evidence": "Deferred tax liability from liability taxable difference uses the indicated liability-side temporary difference.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ias12-2022",
+          "kind": "primary",
+          "title": "IAS 12 Income Taxes",
+          "url": "https://www.ifrs.org/content/dam/ifrs/publications/pdf-standards/english/2022/issued/part-a/ias-12-income-taxes.pdf?bypass=on",
+          "version": "IFRS Foundation, issued 2022 edition",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs 6, 15, 24–25, 47 and 60–62",
+          "evidence": "The standard defines current and deferred tax components and describes recognition, measurement and changes in deferred tax balances.",
+          "license": "IFRS Foundation copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "carrying": 60,
+            "taxbase": 100,
+            "rate": 0.25
+          },
+          "expected": 10,
+          "tolerance": 1e-09,
+          "method": "A 40 taxable difference at 25% gives 10.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "carrying": 100,
+            "taxbase": 200,
+            "rate": 0.3
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "A 100 taxable difference at 30% gives 30.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "taxbase": 100,
+            "rate": 0.25
+          },
+          "reason": "carrying is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "The difference can be recovered as result/rate if rate is nonzero; individual carrying amount and tax base cannot both be inferred from the difference.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--income-tax-expense-current-and-deferred",
+      "revision": "r2",
+      "title": "Income tax expense from current and deferred components",
+      "summary": "The reading adds current tax and the applicable change in deferred tax to obtain income tax expense.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "expense",
+        "expression": "current + deferred",
+        "original_equation": "Tax expense = current tax expense + deferred tax expense",
+        "source_id": "ias12-2022",
+        "locator": "Paragraphs 6, 15, 24–25, 47 and 60–62",
+        "translation_notes": "Signed inputs and outputs are expense-positive; a deferred benefit is negative."
+      },
+      "variables": [
+        {
+          "symbol": "current",
+          "source_symbol": "current income tax expense",
+          "role": "input",
+          "quantity_id": "current_income_tax_expense",
+          "definition": "current income tax expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "deferred",
+          "source_symbol": "deferred income tax expense",
+          "role": "input",
+          "quantity_id": "deferred_income_tax_expense",
+          "definition": "deferred income tax expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expense",
+          "source_symbol": "income tax expense",
+          "role": "output",
+          "quantity_id": "income_tax_expense",
+          "definition": "income tax expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "The components are the amounts recognized in profit or loss for the same period and entity.",
+        "Other current and deferred tax items are included in their respective input aggregates."
+      ],
+      "limitations": [
+        "A change in the balance-sheet deferred tax balance is not automatically the profit-or-loss component: OCI, equity, business combinations and currency movements can differ.",
+        "Current expense need not equal cash taxes paid or the ending tax payable."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 7, Current and Deferred Tax Assets and Liabilities, printed pp409–411 (PDF pp423–425), Example 1",
+          "evidence": "The reading adds current tax and the applicable change in deferred tax to obtain income tax expense.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ias12-2022",
+          "kind": "primary",
+          "title": "IAS 12 Income Taxes",
+          "url": "https://www.ifrs.org/content/dam/ifrs/publications/pdf-standards/english/2022/issued/part-a/ias-12-income-taxes.pdf?bypass=on",
+          "version": "IFRS Foundation, issued 2022 edition",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs 6, 15, 24–25, 47 and 60–62",
+          "evidence": "The standard defines current and deferred tax components and describes recognition, measurement and changes in deferred tax balances.",
+          "license": "IFRS Foundation copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "expense",
+          "inputs": {
+            "current": 100,
+            "deferred": 20
+          },
+          "expected": 120,
+          "tolerance": 1e-09,
+          "method": "Current expense 100 plus deferred expense 20 gives 120.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "benefit",
+          "inputs": {
+            "current": 100,
+            "deferred": -40
+          },
+          "expected": 60,
+          "tolerance": 1e-09,
+          "method": "A deferred benefit of 40 reduces 100 current expense to 60.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "deferred": 20
+          },
+          "reason": "current is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "current=expense-deferred; deferred=expense-current.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--deferred-tax-liability-rate-change-effect",
+      "revision": "r2",
+      "title": "Deferred tax liability change from a rate change",
+      "summary": "A change in the applicable rate changes the deferred liability on a fixed taxable temporary difference.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "change",
+        "expression": "difference * (new - old)",
+        "original_equation": "Change in deferred tax liability = temporary difference × (new tax rate - old tax rate)",
+        "source_id": "ias12-2022",
+        "locator": "Paragraphs 6, 15, 24–25, 47 and 60–62",
+        "translation_notes": "Rates are base-one fractions; the sign of output is the change in the liability."
+      },
+      "variables": [
+        {
+          "symbol": "difference",
+          "source_symbol": "taxable temporary difference",
+          "role": "input",
+          "quantity_id": "taxable_temporary_difference",
+          "definition": "taxable temporary difference",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "new",
+          "source_symbol": "new applicable rate",
+          "role": "input",
+          "quantity_id": "new_deferred_tax_rate",
+          "definition": "New enacted or substantively enacted rate for the reversal period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "old",
+          "source_symbol": "old applicable rate",
+          "role": "input",
+          "quantity_id": "old_deferred_tax_rate",
+          "definition": "Previously applicable rate for the reversal period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "change",
+          "source_symbol": "change in deferred tax liability",
+          "role": "output",
+          "quantity_id": "deferred_tax_liability_rate_change",
+          "definition": "change in deferred tax liability",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "difference >= 0",
+        "new >= 0",
+        "new <= 1",
+        "old >= 0",
+        "old <= 1"
+      ],
+      "assumptions": [
+        "The same recognized taxable temporary difference is held fixed for the rate-change comparison.",
+        "Each rate is enacted or substantively enacted and applicable to the expected reversal."
+      ],
+      "limitations": [
+        "This isolates the rate effect and excludes temporary-difference changes, exchange effects and recognition changes.",
+        "Presentation in profit or loss versus OCI or equity depends on the underlying transaction."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 7, Changes in Income Tax Rates, printed pp416–417 (PDF pp430–431), unnumbered rate-change calculation",
+          "evidence": "A change in the applicable rate changes the deferred liability on a fixed taxable temporary difference.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ias12-2022",
+          "kind": "primary",
+          "title": "IAS 12 Income Taxes",
+          "url": "https://www.ifrs.org/content/dam/ifrs/publications/pdf-standards/english/2022/issued/part-a/ias-12-income-taxes.pdf?bypass=on",
+          "version": "IFRS Foundation, issued 2022 edition",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs 6, 15, 24–25, 47 and 60–62",
+          "evidence": "The standard defines current and deferred tax components and describes recognition, measurement and changes in deferred tax balances.",
+          "license": "IFRS Foundation copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "rate-fall",
+          "inputs": {
+            "difference": 1000,
+            "new": 0.25,
+            "old": 0.3
+          },
+          "expected": -50,
+          "tolerance": 1e-09,
+          "method": "A five percentage-point fall applied to 1000 decreases the liability by 50.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "rate-rise",
+          "inputs": {
+            "difference": 2000,
+            "new": 0.3,
+            "old": 0.2
+          },
+          "expected": 200,
+          "tolerance": 1e-09,
+          "method": "A ten percentage-point rise applied to 2000 increases the liability by 200.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "new": 0.25,
+            "old": 0.3
+          },
+          "reason": "difference is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "new=old+change/difference when the temporary difference is nonzero; other inversions require nonzero denominators.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

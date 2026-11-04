@@ -1,0 +1,577 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b28",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 2 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--unit-labor-production-cost",
+      "revision": "r2",
+      "title": "Unit labor cost from hourly compensation and productivity",
+      "summary": "Hourly compensation divided by hourly labor productivity gives labor cost per output unit.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ULC",
+        "expression": "wage / productivity",
+        "original_equation": "Unit labor cost=nominal wage per hour / output per hour",
+        "source_id": "bls-productivity",
+        "locator": "Productivity definitions and Current dollar measures / Unit labor costs",
+        "translation_notes": "Compensation/service divided by output/service yields compensation/output. AVC=w/AP from LM1 applies only if labor exhausts variable costs; this separately defined unit-labor quantity does not impose that restriction. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "wage",
+          "source_symbol": "nominal wages",
+          "role": "input",
+          "quantity_id": "hourly_labor_compensation",
+          "definition": "Compensation paid per labor hour on the stated wage/benefit scope",
+          "unit": "EUR/labor-hour",
+          "dimensions": "currency / labor_service",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite compensation"
+        },
+        {
+          "symbol": "productivity",
+          "source_symbol": "labor productivity",
+          "role": "input",
+          "quantity_id": "physical_labor_productivity",
+          "definition": "Physical output quantity per labor hour over the same production interval",
+          "unit": "good-unit/labor-hour",
+          "dimensions": "good_quantity / labor_service",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite productivity"
+        },
+        {
+          "symbol": "ULC",
+          "source_symbol": "unit labor cost",
+          "role": "output",
+          "quantity_id": "unit_labor_production_cost",
+          "definition": "Labor compensation cost per physical output unit",
+          "unit": "EUR/good-unit",
+          "dimensions": "currency / good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite unit cost"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "wage >= 0",
+        "productivity > 0"
+      ],
+      "assumptions": [
+        "Source assumption: wage and output productivity use the same labor-hour base and worker coverage.",
+        "Source assumption: productivity is positive and compensation uses the declared nominal price basis."
+      ],
+      "limitations": [
+        "This is the labor component alone; other variable production costs need not vanish.",
+        "Finite simple growth in ULC is(1+g_w)/(1+g_p)-1; the source difference g_w-g_p is a first-order approximation, exact for corresponding log changes."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Change in Nominal Wages, printed pp157-158 and p160 (PDF pp169-170,172), Examples8-9 and adjacent unit-labor-cost discussion",
+          "evidence": "Hourly compensation divided by hourly labor productivity gives labor cost per output unit.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bls-productivity",
+          "kind": "primary",
+          "title": "Handbook of Methods: Productivity Measures, Concepts",
+          "url": "https://www.bls.gov/opub/hom/msp/concepts.htm",
+          "version": "US Bureau of Labor Statistics, live handbook",
+          "accessed": "2026-11-03",
+          "locator": "Productivity definitions and Current dollar measures / Unit labor costs",
+          "evidence": "Labor productivity compares real output to hours; unit labor cost divides hourly compensation by hourly output.",
+          "license": "Government source; exact reuse terms not inspected; equation-level facts only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "source-base",
+          "inputs": {
+            "wage": 20,
+            "productivity": 100
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "Published Finnish-phone example reports.20 per cell phone.",
+          "provenance": "CFA printed p157/PDF169 Example8."
+        },
+        {
+          "id": "source-productivity-double",
+          "inputs": {
+            "wage": 20,
+            "productivity": 200
+          },
+          "expected": 0.1,
+          "tolerance": 1e-09,
+          "method": "Published improved technique yields.10 per cell phone.",
+          "provenance": "CFA printed p160/PDF172 Example9."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "productivity": 100
+          },
+          "reason": "wage is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "wage=ULC*productivity. productivity=wage/ULC requiresULC>0 and positive result. Wage20 andULC.2 recovers productivity100 and substitutes.2. Zero wage gives zeroULC for any positive productivity; inverse productivity then unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--aggregate-growth-accounting",
+      "revision": "r2",
+      "title": "Two-factor potential-output growth accounting",
+      "summary": "Potential-output growth is decomposed into TFP growth and factor-income-share-weighted labor and capital growth.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "gY",
+        "expression": "gA + labor_share * gL + (1 - labor_share) * gK",
+        "original_equation": "Growth in potentialGDP=growth inTFP+W_L*growth inlabor+W_C*growth incapital",
+        "source_id": "ons-growth-accounting",
+        "locator": "Sections6 Labour and capital shares and7 Multi-factor productivity",
+        "translation_notes": "Pure1 closes the two-factor share partition; all rates and shares are dimensionless. The residual gA=gY-labor_share*gL-(1-labor_share)*gK is an inverse, not a new record. The source per-capita form is actually per labor input unless population and labor grow identically; that distinction is preserved rather than equated silently. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "gA",
+          "source_symbol": "Growth inTFP",
+          "role": "input",
+          "quantity_id": "total_factor_productivity_growth",
+          "definition": "TFP log-growth rate, or consistently specified first-order simple growth approximation",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "labor_share",
+          "source_symbol": "W_L",
+          "role": "input",
+          "quantity_id": "labor_factor_income_share",
+          "definition": "Share of factor income attributed to labor under the stated two-factor constant-returns profile",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite fraction strictly between0and1"
+        },
+        {
+          "symbol": "gL",
+          "source_symbol": "Growth inlabor",
+          "role": "input",
+          "quantity_id": "labor_input_growth",
+          "definition": "Growth rate of the consistently defined labor input on the same log/local convention",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "gK",
+          "source_symbol": "Growth incapital",
+          "role": "input",
+          "quantity_id": "capital_input_growth",
+          "definition": "Growth rate of productive capital input on the same log/local convention",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "gY",
+          "source_symbol": "Growth inpotentialGDP",
+          "role": "output",
+          "quantity_id": "potential_output_growth",
+          "definition": "Potential-output growth on the same growth-rate convention",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "labor_share > 0",
+        "labor_share < 1"
+      ],
+      "assumptions": [
+        "Source assumption: differentiable constant-returns production, diminishing individual-input marginal products, and no externalities in the basic model.",
+        "Source assumption: factor income shares represent output elasticities under the model; capital share equals1-labor share.",
+        "Application profile: use instantaneous/log growth consistently; simple discrete percentage growth is the source first-order approximation."
+      ],
+      "limitations": [
+        "TFP is a residual, not pure observable technology; omitted inputs and measurement errors can contribute.",
+        "No factor estimation or time-varying-share integration is performed."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Growth Accounting Equation, printed p176 and p178 (PDF pp188,190), unnumbered growth-accounting and TFP-residual equations",
+          "evidence": "Potential-output growth is decomposed into TFP growth and factor-income-share-weighted labor and capital growth.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ons-growth-accounting",
+          "kind": "primary",
+          "title": "A simple guide to multi-factor productivity",
+          "url": "https://www.ons.gov.uk/economy/economicoutputandproductivity/productivitymeasures/methodologies/asimpleguidetomultifactorproductivity",
+          "version": "UK Office for National Statistics; revisedOctober5,2018",
+          "accessed": "2026-11-03",
+          "locator": "Sections6 Labour and capital shares and7 Multi-factor productivity",
+          "evidence": "The guide decomposes output growth into cost-share-weighted labor and capital input contributions plus a productivity residual.",
+          "license": "Exact page terms unknown; no source tables or passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "factor-contributions",
+          "inputs": {
+            "gA": 0.01,
+            "labor_share": 0.7,
+            "gL": 0.02,
+            "gK": 0.04
+          },
+          "expected": 0.036,
+          "tolerance": 1e-09,
+          "method": "Contributions are1percentage point TFP,1.4 labor and1.2 capital, totaling3.6points.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "tfp-residual-check",
+          "inputs": {
+            "gA": -0.005,
+            "labor_share": 0.6,
+            "gL": 0,
+            "gK": 0.05
+          },
+          "expected": 0.015,
+          "tolerance": 1e-09,
+          "method": "Zero labor contribution plus2points capital minus.5points productivity leaves1.5points.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "labor_share": 0.7,
+            "gL": 0.02,
+            "gK": 0.04
+          },
+          "reason": "gA is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "gA=gY-labor_share*gL-(1-labor_share)*gK. gL inversion divides by positive labor_share; gK divides by positive1-labor_share. labor_share=(gY-gA-gK)/(gL-gK) requires unequal input growth and a share in(0,1). First case reconstructsTFP.01; ifgL=gK, the share is unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--aggregate-labor-productivity",
+      "revision": "r2",
+      "title": "Aggregate real output per labor hour",
+      "summary": "Aggregate labor productivity divides realGDP by the total actual hours worked in producing that output.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "LP",
+        "expression": "GDP / hours",
+        "original_equation": "Labor productivity=realGDP/aggregate hours",
+        "source_id": "bls-productivity",
+        "locator": "Productivity definitions and Current dollar measures / Unit labor costs",
+        "translation_notes": "This independently defined monetary aggregate differs from physical good quantity per input: heterogeneous goods are first aggregated in real output value. Do not bind nominalGDP or resident population to these ports. The financial output period is context, while labor-hours are service units. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "GDP",
+          "source_symbol": "RealGDP",
+          "role": "input",
+          "quantity_id": "constant_price_gross_domestic_product",
+          "definition": "Real domestic output value on the declared reference-price basis",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite real output"
+        },
+        {
+          "symbol": "hours",
+          "source_symbol": "Aggregate hours",
+          "role": "input",
+          "quantity_id": "aggregate_labor_hours",
+          "definition": "Total actual hours worked by covered workers over the same output interval",
+          "unit": "labor-hour",
+          "dimensions": "labor_service",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite aggregate labor hours"
+        },
+        {
+          "symbol": "LP",
+          "source_symbol": "Labor productivity",
+          "role": "output",
+          "quantity_id": "real_output_per_labor_hour",
+          "definition": "Constant-price GDP value per actual labor hour",
+          "unit": "EUR/labor-hour",
+          "dimensions": "currency / labor_service",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite productivity"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "GDP >= 0",
+        "hours > 0"
+      ],
+      "assumptions": [
+        "Source assumption: output and labor-hour coverage match, including the stated worker categories.",
+        "Source assumption: real output reference-price basis remains fixed for the comparison."
+      ],
+      "limitations": [
+        "A single-factor productivity average also reflects capital, technology and workforce composition; it does not isolate worker skill.",
+        "PotentialGDP=hours*LP additionally requires full-utilization/potential input and productivity estimates, rather than observed actual quantities alone."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Measures of Sustainable Growth / Labor Productivity, printed p183 (PDF p195), unnumbered Labor productivity=RealGDP/Aggregate hours",
+          "evidence": "Aggregate labor productivity divides realGDP by the total actual hours worked in producing that output.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bls-productivity",
+          "kind": "primary",
+          "title": "Handbook of Methods: Productivity Measures, Concepts",
+          "url": "https://www.bls.gov/opub/hom/msp/concepts.htm",
+          "version": "US Bureau of Labor Statistics, live handbook",
+          "accessed": "2026-11-03",
+          "locator": "Productivity definitions and Current dollar measures / Unit labor costs",
+          "evidence": "Labor productivity compares real output to hours; unit labor cost divides hourly compensation by hourly output.",
+          "license": "Government source; exact reuse terms not inspected; equation-level facts only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "real-output-hours",
+          "inputs": {
+            "GDP": 1000,
+            "hours": 20
+          },
+          "expected": 50,
+          "tolerance": 1e-09,
+          "method": "Twenty hours each assigned50 reference-currency output account for1000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "same-hours-more-output",
+          "inputs": {
+            "GDP": 1200,
+            "hours": 20
+          },
+          "expected": 60,
+          "tolerance": 1e-09,
+          "method": "Same labor hours with200 more real output raises average by10 per hour.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "hours": 20
+          },
+          "reason": "GDP is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "GDP=LP*hours; hours=GDP/LP requiresLP>0. LP50,hours20 reconstructGDP1000 and substitute50. GDP0,LP0 leave hours unidentified; hours0 excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--real-output-period-growth",
+      "revision": "r2",
+      "title": "Simple growth of real economic output between two periods",
+      "summary": "Real economic growth measures proportional change in constant-price output across the stated periods.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "g",
+        "expression": "final / initial - 1",
+        "original_equation": "Real economic growth = percentage change in realGDP",
+        "source_id": "openstax-growth-definition",
+        "locator": "Growth Rates, percentage change calculation",
+        "translation_notes": "Ratio cancels the common reference-currency dimension; pure1 removes the starting-level gross factor. For N equal periods, constant geometric growth satisfies final=initial*(1+g_annual)**N, already an accumulation/geometric-growth solve profile, not a new record. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "initial",
+          "source_symbol": "beginning realGDP",
+          "role": "input",
+          "quantity_id": "initial_real_gdp",
+          "definition": "Positive real output in the starting period on a declared reference-price basis",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite realGDP"
+        },
+        {
+          "symbol": "final",
+          "source_symbol": "ending realGDP",
+          "role": "input",
+          "quantity_id": "final_real_gdp",
+          "definition": "Nonnegative real output in the ending period on the same reference-price basis",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite realGDP"
+        },
+        {
+          "symbol": "g",
+          "source_symbol": "growth inrealGDP",
+          "role": "output",
+          "quantity_id": "real_output_simple_growth",
+          "definition": "Fractional realGDP change over exactly the stated interval",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite rate at least-1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "initial > 0",
+        "final >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: identical geographic coverage, price reference and statistical frequency.",
+        "Application profile: initial output positive and final output nonnegative."
+      ],
+      "limitations": [
+        "One-period change is not automatically annualized or a CAGR. Nominal output growth includes price changes and cannot substitute here."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Nominal and RealGDP and Economic Growth, printed pp129-130,173 (PDF pp141-142,185), unnumbered growth calculations; LM4 Types of Cycles printed pp206-207/PDF218-219",
+          "evidence": "Real economic growth measures proportional change in constant-price output across the stated periods.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-growth-definition",
+          "kind": "primary",
+          "title": "Principles of Macroeconomics2e, AppendixA",
+          "url": "https://openstax.org/books/principles-macroeconomics-2e/pages/a-the-use-of-mathematics-in-principles-of-economics",
+          "version": "OpenStax2e, live page",
+          "accessed": "2026-11-03",
+          "locator": "Growth Rates, percentage change calculation",
+          "evidence": "A growth rate is the change in a quantity divided by its starting quantity.",
+          "license": "Exact inspected-page terms unknown; formula facts only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "source-three-percent",
+          "inputs": {
+            "initial": 5625000000,
+            "final": 5793750000
+          },
+          "expected": 0.03,
+          "tolerance": 1e-09,
+          "method": "The source automobile example increases physical production3percent while holding reference prices constant.",
+          "provenance": "CFA printed p130/PDF142."
+        },
+        {
+          "id": "contraction",
+          "inputs": {
+            "initial": 200,
+            "final": 180
+          },
+          "expected": -0.1,
+          "tolerance": 1e-09,
+          "method": "A20 output decline relative to initial200 is a ten-percent contraction.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "final": 5793750000
+          },
+          "reason": "initial is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "final=initial*(1+g); initial=final/(1+g) requiresg>-1 and positive result. First case reconstructs5793750000; substitution.03. Atg=-1,final0 and starting output cannot be recovered from final alone.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

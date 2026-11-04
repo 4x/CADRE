@@ -1,0 +1,170 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b82",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. Corrects b81 time-length definitions, which incorrectly described the month-based reference case as day counts."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--inventory-turnover-linear-annualization",
+      "revision": "r2",
+      "title": "Linearly annualized partial-period inventory turnover",
+      "summary": "The text scales quarterly inventory turnover by the ratio of the annual and quarterly lengths.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "annual",
+        "expression": "turnover * year / period",
+        "original_equation": "Annualized inventory turnover = partial-period turnover × year length / partial-period length",
+        "source_id": "sanmina-inventory-turns-2021",
+        "locator": "Slide 10, Balance Sheet Metrics",
+        "translation_notes": "Time lengths are same-unit numerical counts, not physical-duration unit conversions; the ratio of lengths is dimensionless."
+      },
+      "variables": [
+        {
+          "symbol": "turnover",
+          "source_symbol": "partial-period inventory turnover",
+          "role": "input",
+          "quantity_id": "partial_period_inventory_turnover",
+          "definition": "Cost of sales divided by average inventory for the observed period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "year",
+          "source_symbol": "annual comparison length",
+          "role": "input",
+          "quantity_id": "inventory_turnover_annual_comparison_length",
+          "definition": "Length of the comparison year, using the same unit as the observed period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "period",
+          "source_symbol": "observed period length",
+          "role": "input",
+          "quantity_id": "inventory_turnover_observed_period_length",
+          "definition": "Length of the observed period, using the same unit as the comparison year",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "annual",
+          "source_symbol": "annualized inventory turnover",
+          "role": "output",
+          "quantity_id": "annualized_inventory_turnover",
+          "definition": "Linear annual equivalent of the observed turnover",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "turnover >= 0",
+        "year > 0",
+        "period > 0"
+      ],
+      "assumptions": [
+        "The observed turnover uses the same inventory and cost conventions throughout.",
+        "Year and observed period lengths use the same time unit; the public issuer example uses equal quarters."
+      ],
+      "limitations": [
+        "Annualization assumes a constant observed run rate and is not the realized full-year turnover.",
+        "Seasonality, changing inventory balances and differing calendar lengths affect comparisons.",
+        "The owner example rounds its intermediate turnover before reporting approximate results."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Activity Ratios, printed p204 (PDF p218), unnumbered quarterly turnover discussion",
+          "evidence": "The text scales quarterly inventory turnover by the ratio of the annual and quarterly lengths.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sanmina-inventory-turns-2021",
+          "kind": "primary",
+          "title": "Sanmina Q1 Fiscal 2021 Results",
+          "url": "https://s201.q4cdn.com/209924174/files/doc_presentations/2021/02/Q1%2721-EARNINGS-SLIDES-FINAL-2_2_21.pdf",
+          "version": "Sanmina Corporation investor presentation, 2 February 2021",
+          "accessed": "2026-11-04",
+          "locator": "Slide 10, Balance Sheet Metrics",
+          "evidence": "The issuer annualizes quarterly cost of sales by four when calculating inventory turns.",
+          "license": "Issuer presentation; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "quarter",
+          "inputs": {
+            "turnover": 3.18,
+            "year": 12,
+            "period": 3
+          },
+          "expected": 12.72,
+          "tolerance": 1e-09,
+          "method": "A quarterly turnover of 3.18 multiplied by 12/3 yields 12.72.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "days",
+          "inputs": {
+            "turnover": 3.18,
+            "year": 365,
+            "period": 90
+          },
+          "expected": 12.896666666666667,
+          "tolerance": 1e-09,
+          "method": "A 90-day turnover of 3.18 multiplied by 365/90 is approximately 12.90.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "year": 12,
+            "period": 3
+          },
+          "reason": "turnover is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "turnover=annual*period/year.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

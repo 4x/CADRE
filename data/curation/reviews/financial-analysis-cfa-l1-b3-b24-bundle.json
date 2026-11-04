@@ -1,0 +1,321 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b24",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [
+    {
+      "title": "Lower-of-cost-and-net-realisable-value inventory measurement",
+      "reason": "Financial Statement Analysis Learning Module 5, printed p278/PDF p292: carrying value is min(cost, NRV). Full general relationship requires a min operator or piecewise conditional, neither supported in the scalar engine; do not substitute an unguarded branch. Public IAS 2 overview: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/",
+      "source_urls": []
+    }
+  ],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--inventory-net-realisable-value",
+      "revision": "r1",
+      "title": "Inventory net realisable value",
+      "summary": "Net realisable value deducts completion and necessary selling costs from the ordinary-course estimated selling price.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "nrv",
+        "expression": "sale - completion - selling",
+        "original_equation": "Net realisable value = estimated selling price - completion costs - selling costs",
+        "source_id": "ifrs-ias2",
+        "locator": "About: net realisable value and measurement",
+        "translation_notes": "Inputs are total monetary amounts for one explicitly identified scope; negative calculated NRV is not clamped."
+      },
+      "variables": [
+        {
+          "symbol": "sale",
+          "source_symbol": "estimated ordinary-course selling price",
+          "role": "input",
+          "quantity_id": "inventory_estimated_selling_price",
+          "definition": "estimated ordinary-course selling price",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "completion",
+          "source_symbol": "estimated costs of completion",
+          "role": "input",
+          "quantity_id": "inventory_completion_cost",
+          "definition": "estimated costs of completion",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "selling",
+          "source_symbol": "estimated costs necessary to make sale",
+          "role": "input",
+          "quantity_id": "inventory_selling_cost",
+          "definition": "estimated costs necessary to make sale",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "nrv",
+          "source_symbol": "net realisable value",
+          "role": "output",
+          "quantity_id": "inventory_net_realisable_value",
+          "definition": "net realisable value",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "completion >= 0",
+        "selling >= 0"
+      ],
+      "assumptions": [
+        "The amount and both costs refer to the same item or inventory grouping and currency.",
+        "Selling price is estimated for the ordinary course of business."
+      ],
+      "limitations": [
+        "This computes a valuation input; it does not by itself implement the lower-of-cost-and-NRV rule.",
+        "A negative estimate may require accounting treatment beyond inventory measurement."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 5, Inventory Adjustments, printed p278 (PDF p292), unnumbered definition",
+          "evidence": "Net realisable value deducts completion and necessary selling costs from the ordinary-course estimated selling price.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ifrs-ias2",
+          "kind": "primary",
+          "title": "IAS 2 Inventories",
+          "url": "https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/",
+          "version": "IFRS Foundation, IAS 2 public standard overview, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "About: net realisable value and measurement",
+          "evidence": "Net realisable value is expected ordinary-course sales proceeds less completion and selling costs.",
+          "license": "IFRS Foundation terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "sale": 100,
+            "completion": 10,
+            "selling": 5
+          },
+          "expected": 85,
+          "tolerance": 1e-09,
+          "method": "100 less 10 less 5 is 85.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative",
+          "inputs": {
+            "sale": 10,
+            "completion": 8,
+            "selling": 5
+          },
+          "expected": -3,
+          "tolerance": 1e-09,
+          "method": "10 less 8 less 5 is -3.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "completion": 10,
+            "selling": 5
+          },
+          "reason": "sale is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "sale=nrv+completion+selling; completion=sale-selling-nrv; selling=sale-completion-nrv.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--lifo-liquidation-gross-profit-effect",
+      "revision": "r1",
+      "title": "LIFO liquidation gross-profit effect for one cost layer",
+      "summary": "The example computes the gross-profit difference for liquidated old-layer units against current replacement cost.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "effect",
+        "expression": "units * (current - historical)",
+        "original_equation": "Gross profit from liquidation = units liquidated × (current replacement cost per unit - historical layer cost per unit)",
+        "source_id": "understanding-accounting-lifo-liquidation",
+        "locator": "Working definition and calculation explanation",
+        "translation_notes": "The unit count is dimensionless; both monetary inputs are currency per same item and the output is total currency."
+      },
+      "variables": [
+        {
+          "symbol": "units",
+          "source_symbol": "units liquidated",
+          "role": "input",
+          "quantity_id": "liquidated_inventory_unit_count",
+          "definition": "Count of identical units released from the specified older layer",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "current",
+          "source_symbol": "current replacement cost per unit",
+          "role": "input",
+          "quantity_id": "inventory_current_cost_per_unit",
+          "definition": "current replacement cost per unit",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "historical",
+          "source_symbol": "historical cost per unit",
+          "role": "input",
+          "quantity_id": "inventory_layer_cost_per_unit",
+          "definition": "historical cost per unit",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "effect",
+          "source_symbol": "gross profit effect",
+          "role": "output",
+          "quantity_id": "lifo_liquidation_gross_profit_effect",
+          "definition": "gross profit effect",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "units >= 0",
+        "current >= 0",
+        "historical >= 0"
+      ],
+      "assumptions": [
+        "All released units are from a homogeneous cost layer and share the stated replacement cost.",
+        "The comparison holds sales volume and price constant and isolates the accounting cost difference."
+      ],
+      "limitations": [
+        "The result is a relative pretax gross-profit effect, not a cash flow or proof of operational improvement.",
+        "Multiple layers or replacement costs require separate effects to be summed."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 5, LIFO Liquidations, printed pp276–277 (PDF pp290–291), Example 6",
+          "evidence": "The example computes the gross-profit difference for liquidated old-layer units against current replacement cost.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "understanding-accounting-lifo-liquidation",
+          "kind": "primary",
+          "title": "LIFO liquidation",
+          "url": "https://understandingaccounting.org/concepts/lifo-liquidation/",
+          "version": "Understanding Accounting, undated educational concept page, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "Working definition and calculation explanation",
+          "evidence": "The bounded accounting effect multiplies released older units by the difference between current and historical unit costs.",
+          "license": "Exact terms unknown; no broader reuse permission asserted.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-example",
+          "inputs": {
+            "units": 1000,
+            "current": 115,
+            "historical": 100
+          },
+          "expected": 15000,
+          "tolerance": 1e-09,
+          "method": "1000 units times the 15 per-unit cost difference gives 15000.",
+          "provenance": "CFA Example 6 printed pp276–277/PDF pp290–291."
+        },
+        {
+          "id": "lower-current-cost",
+          "inputs": {
+            "units": 500,
+            "current": 80,
+            "historical": 100
+          },
+          "expected": -10000,
+          "tolerance": 1e-09,
+          "method": "500 units times a -20 per-unit difference gives -10000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "current": 115,
+            "historical": 100
+          },
+          "reason": "units is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "current=historical+effect/units if units are nonzero; historical=current-effect/units under the same condition.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

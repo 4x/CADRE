@@ -1,0 +1,528 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b30",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 1 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--data-range",
+      "revision": "r2",
+      "title": "Range of a numerical dataset",
+      "summary": "The data range is the difference between the largest and smallest observed values.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "R",
+        "expression": "maximum - minimum",
+        "original_equation": "Range=Maximum value-Minimum value",
+        "source_id": "nist-scale",
+        "locator": "Section1.3.5.6, Definitions of Variability, range and interquartile range",
+        "translation_notes": "The extrema are bound inputs because min/max are outside the scalar function set. U-U yieldsU; zero range is admitted for constant data. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "maximum",
+          "source_symbol": "Maximum value",
+          "role": "input",
+          "quantity_id": "sample_maximum",
+          "definition": "Largest observation, supplied externally",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "minimum",
+          "source_symbol": "Minimum value",
+          "role": "input",
+          "quantity_id": "sample_minimum",
+          "definition": "Smallest observation, supplied externally",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "R",
+          "source_symbol": "Range",
+          "role": "output",
+          "quantity_id": "data_range",
+          "definition": "Full observed max-minus-min spread",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "maximum >= minimum"
+      ],
+      "assumptions": [
+        "Source assumption: extrema belong to the same dataset and use the same units."
+      ],
+      "limitations": [
+        "Uses only two order statistics and does not describe within-range distribution."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Measures of Dispersion, printed p123 (PDF p133), Equation(8); earlier construction printed p72/PDF82",
+          "evidence": "The data range is the difference between the largest and smallest observed values.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-scale",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda356.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.5.6, Definitions of Variability, range and interquartile range",
+          "evidence": "Range subtracts minimum from maximum; interquartile range subtracts the first quartile from the third.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-year-three",
+          "inputs": {
+            "maximum": 0.062,
+            "minimum": -0.015
+          },
+          "expected": 0.077,
+          "tolerance": 1e-09,
+          "method": "Published7.7% range from6.2% to-1.5%; all normalized to decimal.",
+          "provenance": "CFA printed p123/PDF133."
+        },
+        {
+          "id": "constant-dataset",
+          "inputs": {
+            "maximum": 3,
+            "minimum": 3
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Identical observations have coincident extremes and zero range.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "minimum": -0.015
+          },
+          "reason": "maximum is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "maximum=minimum+R and minimum=maximum-R; .062-.077=-.015 recovers the minimum. Range0 identifies equal extrema but not their common level.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--mean-absolute-deviation",
+      "revision": "r2",
+      "title": "Mean absolute deviation about the arithmetic mean",
+      "summary": "Mean absolute deviation averages absolute observation distances from the sample arithmetic mean.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "MAD",
+        "expression": "sum(deviations) / len(deviations)",
+        "original_equation": "MAD = sum_i |X_i-X_bar| / n",
+        "source_id": "nist-scale",
+        "locator": "Section1.3.5.6, Definitions of Variability",
+        "translation_notes": "Introduced a_i maps the absolute-value terms exactly. The expression averages U-valued distances and retainsU. Published examples in percentage points are explicitly given as a data-unit profile; no engine percent scale conversion is applied. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "deviations",
+          "source_symbol": "introduced a_i=|X_i-X_bar|",
+          "role": "family",
+          "quantity_id": "absolute_mean_deviation",
+          "definition": "Absolute deviations for every original observation about the same sample arithmetic mean",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset and numerical variable, measurement unit U, observation window and sample estimator convention",
+          "domain": "Finite value under the stated source transformation",
+          "max_size": 256
+        },
+        {
+          "symbol": "MAD",
+          "source_symbol": "MAD",
+          "role": "output",
+          "quantity_id": "mean_absolute_deviation",
+          "definition": "Average absolute distance from the sample arithmetic mean",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset and numerical variable, measurement unit U, observation window and sample estimator convention",
+          "domain": "Nonnegative finite value"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sum(deviations) >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: every element is an absolute deviation about the same arithmetic mean and all observations are represented."
+      ],
+      "limitations": [
+        "Precomputed absolute deviations are required because elementwise abs is unavailable; provenance of their center must be retained.",
+        "CFA MAD here means mean absolute deviation, not median absolute deviation used by some software."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, The Mean Absolute Deviation, printed p124 (PDF p134), Equation(9); Example16 printed p125/PDF135",
+          "evidence": "Mean absolute deviation averages absolute observation distances from the sample arithmetic mean.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-scale",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda356.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.5.6, Definitions of Variability",
+          "evidence": "The handbook defines sample variance with n-1, its square-root standard deviation, and average absolute deviation about the arithmetic mean.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-year-three",
+          "inputs": {
+            "deviations": [
+              4.1,
+              3.5,
+              1.5,
+              4.2,
+              1,
+              3,
+              3.2,
+              1.4,
+              1.2,
+              2.9,
+              0.8
+            ]
+          },
+          "expected": 2.44,
+          "tolerance": 0.005,
+          "method": "Published2.44 percentage points; data-unit in this case is one percentage point and tolerance.005 matches rounding.",
+          "provenance": "CFA Example16 printed p125/PDF135."
+        },
+        {
+          "id": "symmetric-two-points",
+          "inputs": {
+            "deviations": [
+              2,
+              2
+            ]
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "Original observations1and5 have mean3, both lie two units from the mean.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "deviations is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "The aggregate mean absolute distance does not identify original observations or their signs. For n2 and MAD2, total absolute distance4 is compatible with many datasets. Engine family inversion is unsupported.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--sample-variance",
+      "revision": "r2",
+      "title": "Sample variance with Bessel correction",
+      "summary": "Sample variance uses all squared deviations from the estimated sample mean and divides by sample size minus one.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "variance",
+        "expression": "sum(squares) / (len(squares) - 1)",
+        "original_equation": "s^2 = sum_i(X_i-X_bar)^2/(n-1)",
+        "source_id": "nist-scale",
+        "locator": "Section1.3.5.6, Definitions of Variability",
+        "translation_notes": "n=len(squares); the literal1 removes the estimated-mean degree of freedom, not an empirical constant. U^2 divided by a dimensionless count yieldsU^2. All terms are squared values even if their original deviations were negative. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "squares",
+          "source_symbol": "introduced q_i=(X_i-X_bar)^2",
+          "role": "family",
+          "quantity_id": "squared_mean_deviation",
+          "definition": "Squared deviations of every observation about their common sample mean",
+          "unit": "data-unit^2",
+          "dimensions": "U^2",
+          "context": "Same dataset and numerical variable, measurement unit U, observation window and sample estimator convention",
+          "domain": "Finite value under the stated source transformation",
+          "max_size": 256
+        },
+        {
+          "symbol": "variance",
+          "source_symbol": "s^2",
+          "role": "output",
+          "quantity_id": "sample_variance",
+          "definition": "Sum of squared sample-mean deviations divided by n-1",
+          "unit": "data-unit^2",
+          "dimensions": "U^2",
+          "context": "Same dataset and numerical variable, measurement unit U, observation window and sample estimator convention",
+          "domain": "Nonnegative finite value"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "len(squares) > 1",
+        "sum(squares) >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: at least two observations; the center is their sample arithmetic mean.",
+        "For the unbiased-population-variance interpretation, observations are identically distributed independent draws with finite variance; the descriptive statistic itself needs no such sampling claim."
+      ],
+      "limitations": [
+        "Precomputed squared deviations must share a common center and include every observation.",
+        "Not population variance, which uses a different denominator and center definition."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Sample Variance, printed p125 (PDF p135), Equation(10); Example17 printed p127/PDF137",
+          "evidence": "Sample variance uses all squared deviations from the estimated sample mean and divides by sample size minus one.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-scale",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda356.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.5.6, Definitions of Variability",
+          "evidence": "The handbook defines sample variance with n-1, its square-root standard deviation, and average absolute deviation about the arithmetic mean.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-cross-section",
+          "inputs": {
+            "squares": [
+              16.81,
+              12.25,
+              2.25,
+              17.64,
+              1,
+              9,
+              10.24,
+              1.96,
+              1.44,
+              8.41,
+              0.64
+            ]
+          },
+          "expected": 8.164,
+          "tolerance": 1e-09,
+          "method": "Published81.640 squared-percentage-point total divided by ten degrees of freedom.",
+          "provenance": "CFA Example17 printed p127/PDF137."
+        },
+        {
+          "id": "two-point-sample",
+          "inputs": {
+            "squares": [
+              1,
+              1
+            ]
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "Original observations1and3 have mean2; both one-unit deviations, one free contrast, hence variance2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "squares is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Known n and variance recover the total centered sum of squares=(n-1)*variance. With n2 and variance2 the total2 is recovered; individual observations remain unidentifiable. At constant data all squares and variance are0.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--sample-standard-deviation-from-variance",
+      "revision": "r2",
+      "title": "Sample standard deviation from its variance",
+      "summary": "The standard deviation is the nonnegative square root of the variance, restoring original observation units.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "s",
+        "expression": "sqrt(variance)",
+        "original_equation": "s = sqrt(s^2)",
+        "source_id": "nist-scale",
+        "locator": "Section1.3.5.6, Definitions of Variability",
+        "translation_notes": "sqrt(U^2)=U, selecting the nonnegative statistical root. The source also supplies the equivalent full n-1 formula; that expanded equation is not a second record. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "variance",
+          "source_symbol": "s^2",
+          "role": "input",
+          "quantity_id": "sample_variance",
+          "definition": "Sample variance using the matching n-1 convention",
+          "unit": "data-unit^2",
+          "dimensions": "U^2",
+          "context": "Same dataset and numerical variable, measurement unit U, observation window and sample estimator convention",
+          "domain": "Finite value under the stated source transformation"
+        },
+        {
+          "symbol": "s",
+          "source_symbol": "s",
+          "role": "output",
+          "quantity_id": "sample_standard_deviation",
+          "definition": "Nonnegative square root of matching sample variance",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset and numerical variable, measurement unit U, observation window and sample estimator convention",
+          "domain": "Nonnegative finite value"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "variance >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: variance and standard deviation describe the same sample, numerical units and estimator convention."
+      ],
+      "limitations": [
+        "Taking the square root does not change sample variance into a population estimator or provide inferential uncertainty."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Sample Standard Deviation, printed p126 (PDF p136), Equation(11) and square-root definition",
+          "evidence": "The standard deviation is the nonnegative square root of the variance, restoring original observation units.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-scale",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda356.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.5.6, Definitions of Variability",
+          "evidence": "The handbook defines sample variance with n-1, its square-root standard deviation, and average absolute deviation about the arithmetic mean.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-standard-deviation",
+          "inputs": {
+            "variance": 8.164
+          },
+          "expected": 2.857,
+          "tolerance": 0.0005,
+          "method": "Published standard deviation rounded to.001 data-unit; tolerance.0005.",
+          "provenance": "CFA Example17 printed p127/PDF137."
+        },
+        {
+          "id": "zero-variance",
+          "inputs": {
+            "variance": 0
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "No squared dispersion gives zero standard deviation.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "variance is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "variance=s^2 for s>=0, uniquely. Example s3 gives variance9 and sqrt9 recovers3. Negative s is not the statistical standard deviation even though its square is positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

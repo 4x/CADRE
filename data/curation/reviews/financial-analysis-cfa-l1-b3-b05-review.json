@@ -1,0 +1,153 @@
+{
+ "schema_version": "cm-scientific-review/1",
+ "batch_id": "financial-analysis-cfa-l1-b3-b05",
+ "batch_sha256": "fded0fea76389ac1f1a2d7b7c85c939314a6f9df1eee2fcf13b837371b106228",
+ "reviewer": "ingest-cfa-b3a",
+ "reviewed": "2026-11-04",
+ "models": [
+  {
+   "id": "financial-analysis--if-converted-preferred-earnings-per-share",
+   "revision": "r2",
+   "record_sha256": "aa7ce95bd790965b5ebc9d988a585e756c1bd8443b9477026c4a93f2768649bf",
+   "checks": {
+    "source-fidelity": {
+     "status": "passed",
+     "evidence": "Record matches the cited NYU if-converted mechanics (convertibles as converted at period start; preferred dividends added back via pre-dividend NI) and the ASC 260 guide; single-class scope explicit."
+    },
+    "scope": {
+     "status": "passed",
+     "evidence": "Single convertible-preferred class; conversion at beginning of period; no participating/arrearage handling."
+    },
+    "dimensions": {
+     "status": "passed",
+     "evidence": "Currency-per-share; income currency, share counts; consistent."
+    },
+    "reference-independence": {
+     "status": "passed",
+     "evidence": "Independent recomputation reproduces both references; CFA-example and constructed oracles honestly distinguished."
+    },
+    "guards-inverses": {
+     "status": "passed",
+     "evidence": "Guards (shares>0, converted>=0) satisfied; denominator shares+converted>0 by construction."
+    },
+    "rights-provenance": {
+     "status": "passed",
+     "evidence": "No invented clearance; CFA excerpt purchased-copy/no-redistribution; NYU terms recorded as unreviewed without clearance claims."
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pages.stern.nyu.edu/~pzarowin/chapter13.htm",
+     "locator": "EPS with complex capital structure; treasury stock and if-converted methods",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer opened the NYU lecture notes (full text searched): basic EPS = (NI-prefdiv)/weighted shares; treasury-stock proceeds-repurchase; if-converted method (convertibles as converted; converted bonds pay no interest so NI rises); anti-dilution rule."
+    },
+    {
+     "url": "https://ryanoconnellfinance.com/dilutive-securities-eps/",
+     "locator": "if-converted method; treasury stock method (ASC 260)",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer opened the ASC 260 EPS guide (full text searched): 'Diluted EPS = (NI - Pref Divs + After-Tax Interest)/(WASO + Converted Shares)', 'After-Tax Interest = Coupon x (1-Tax Rate)', conversion at beginning of period, and the treasury-stock proceeds-repurchase mechanics confirmed."
+    }
+   ],
+   "blockers": [],
+   "recommendation": "recommend-admit",
+   "permitted_use": "Bounded local computation of if-converted diluted EPS for single-class convertible preferred; excludes multi-tranche sequencing and tax effects."
+  },
+  {
+   "id": "financial-analysis--if-converted-debt-earnings-per-share",
+   "revision": "r2",
+   "record_sha256": "e387022bd383d0faabefef9a194a9fe4c3cf04812a28b09e780da86aecb17dd3",
+   "checks": {
+    "source-fidelity": {
+     "status": "passed",
+     "evidence": "Worker KPMG handbook URL verified live (HTTP 200) but text-unextractable by reviewer tooling; formula verified exactly against the opened ASC 260 guide ('(NI - Pref Divs + After-Tax Interest)/(WASO + Converted Shares)', 'After-Tax Interest = Coupon x (1-T)') and NYU conversion mechanics. KPMG illustrative-25000-share oracle plausible but unconfirmed."
+    },
+    "scope": {
+     "status": "passed",
+     "evidence": "Convertible debt with after-tax interest add-back; beginning-of-period conversion; no issuance-date proration."
+    },
+    "dimensions": {
+     "status": "passed",
+     "evidence": "Currency-per-share; consistent inputs."
+    },
+    "reference-independence": {
+     "status": "passed",
+     "evidence": "Independent recomputation reproduces both references; CFA-example and constructed oracles honestly distinguished."
+    },
+    "guards-inverses": {
+     "status": "passed",
+     "evidence": "Guards (shares>0, interest/preferred nonneg, converted>=0) satisfied on references."
+    },
+    "rights-provenance": {
+     "status": "passed",
+     "evidence": "No invented clearance; CFA excerpt purchased-copy/no-redistribution; KPMG handbook noted as publisher terms unknown with no reuse claim."
+    }
+   },
+   "sources": [
+    {
+     "url": "https://ryanoconnellfinance.com/dilutive-securities-eps/",
+     "locator": "if-converted method; treasury stock method (ASC 260)",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer opened the ASC 260 EPS guide (full text searched): 'Diluted EPS = (NI - Pref Divs + After-Tax Interest)/(WASO + Converted Shares)', 'After-Tax Interest = Coupon x (1-Tax Rate)', conversion at beginning of period, and the treasury-stock proceeds-repurchase mechanics confirmed."
+    },
+    {
+     "url": "https://pages.stern.nyu.edu/~pzarowin/chapter13.htm",
+     "locator": "EPS with complex capital structure; treasury stock and if-converted methods",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer opened the NYU lecture notes (full text searched): basic EPS = (NI-prefdiv)/weighted shares; treasury-stock proceeds-repurchase; if-converted method (convertibles as converted; converted bonds pay no interest so NI rises); anti-dilution rule."
+    }
+   ],
+   "blockers": [],
+   "recommendation": "recommend-admit",
+   "permitted_use": "Bounded local computation of if-converted diluted EPS for convertible debt; interest input must already be after-tax."
+  },
+  {
+   "id": "financial-analysis--treasury-stock-method-earnings-per-share",
+   "revision": "r2",
+   "record_sha256": "4d57e36698d0a254b7af6d8945640698d019cf33dc163730d647564e8ab4da61",
+   "checks": {
+    "source-fidelity": {
+     "status": "passed",
+     "evidence": "Record matches NYU treasury-stock mechanics (proceeds used to repurchase shares) and the ASC 260 guide (exercise at beginning of period; proceeds at average market price); in-the-money scope explicit."
+    },
+    "scope": {
+     "status": "passed",
+     "evidence": "In-the-money options/warrants; average-market-price repurchase; no sequencing across tranches."
+    },
+    "dimensions": {
+     "status": "passed",
+     "evidence": "Share-count output; counts and currency prices; consistent."
+    },
+    "reference-independence": {
+     "status": "passed",
+     "evidence": "Independent recomputation reproduces both references; CFA-example and constructed oracles honestly distinguished."
+    },
+    "guards-inverses": {
+     "status": "passed",
+     "evidence": "Guards (issued>=repurchased, fraction in [0,1]) satisfied; proceeds identity verified algebraically (fraction = price/exercise)."
+    },
+    "rights-provenance": {
+     "status": "passed",
+     "evidence": "No invented clearance; CFA excerpt purchased-copy/no-redistribution; NYU terms recorded as unreviewed without clearance claims."
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pages.stern.nyu.edu/~pzarowin/chapter13.htm",
+     "locator": "EPS with complex capital structure; treasury stock and if-converted methods",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer opened the NYU lecture notes (full text searched): basic EPS = (NI-prefdiv)/weighted shares; treasury-stock proceeds-repurchase; if-converted method (convertibles as converted; converted bonds pay no interest so NI rises); anti-dilution rule."
+    },
+    {
+     "url": "https://ryanoconnellfinance.com/dilutive-securities-eps/",
+     "locator": "if-converted method; treasury stock method (ASC 260)",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer opened the ASC 260 EPS guide (full text searched): 'Diluted EPS = (NI - Pref Divs + After-Tax Interest)/(WASO + Converted Shares)', 'After-Tax Interest = Coupon x (1-Tax Rate)', conversion at beginning of period, and the treasury-stock proceeds-repurchase mechanics confirmed."
+    }
+   ],
+   "blockers": [],
+   "recommendation": "recommend-admit",
+   "permitted_use": "Bounded local computation of TSM incremental shares for in-the-money options/warrants; excludes out-of-the-money tranches."
+  }
+ ]
+}

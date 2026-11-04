@@ -1,0 +1,550 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b34",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 1 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--discrete-distribution-variance",
+      "revision": "r2",
+      "title": "Variance of a finite discrete random variable",
+      "summary": "Distribution variance is the expected squared deviation from the distribution mean, with no n-1 sample correction.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "variance",
+        "expression": "sum(terms)",
+        "original_equation": "Var(X)=sum_i P(X_i)[X_i-E(X)]^2",
+        "source_id": "openstax-moments",
+        "locator": "Section4.2, distribution mean and squared-deviation variance; Example4.4",
+        "translation_notes": "The introduced family stores each source probability-weighted square exactly. Dimensionless probability timesU^2 givesU^2. The CFA EPS example rounds its center from2.3405 to2.34; the references avoid treating its rounded-center result as an exact population variance. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "terms",
+          "source_symbol": "introduced q_i=P(X_i)[X_i-E(X)]^2",
+          "role": "family",
+          "quantity_id": "probability_weighted_squared_deviation",
+          "definition": "Nonnegative contribution from each possible outcome, centered on the same exact distribution mean",
+          "unit": "data-unit^2",
+          "dimensions": "U^2",
+          "context": "Same declared probability space, joint distribution, event definitions and information set",
+          "domain": "Every element nonnegative",
+          "max_size": 256
+        },
+        {
+          "symbol": "variance",
+          "source_symbol": "sigma^2(X)",
+          "role": "output",
+          "quantity_id": "population_variance",
+          "definition": "Population/distribution variance over the complete finite support",
+          "unit": "data-unit^2",
+          "dimensions": "U^2",
+          "context": "Same declared probability space, joint distribution, event definitions and information set",
+          "domain": "Nonnegative"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sum(terms) >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: outcomes form complete finite support with nonnegative probabilities summing to1.",
+        "Center is the exact expectation from that distribution, not an arbitrarily rounded estimate."
+      ],
+      "limitations": [
+        "Terms must be prepared consistently; this record does not estimate probabilities from data.",
+        "No sample degrees-of-freedom correction belongs in this population definition."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Expected Value and Variance, printed pp192-193 (PDF pp202-203), Equations(8)-(9)",
+          "evidence": "Distribution variance is the expected squared deviation from the distribution mean, with no n-1 sample correction.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-moments",
+          "kind": "primary",
+          "title": "Introductory Statistics 2e",
+          "url": "https://openstax.org/books/introductory-statistics-2e/pages/4-2-mean-or-expected-value-and-standard-deviation",
+          "version": "OpenStax2e",
+          "accessed": "2026-11-03",
+          "locator": "Section4.2, distribution mean and squared-deviation variance; Example4.4",
+          "evidence": "Discrete variance is the probability-weighted sum of squared deviations from the distribution mean.",
+          "license": "CC BY4.0 identified in page footer; https://creativecommons.org/licenses/by/4.0/; inspected2026-11-03.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-discrete-distribution",
+          "inputs": {
+            "terms": [
+              0.1764,
+              0.2662,
+              0.0046,
+              0.1458,
+              0.2888,
+              0.1682
+            ]
+          },
+          "expected": 1.05,
+          "tolerance": 1e-09,
+          "method": "Published variance1.05 from independent textbook distribution with mean2.1; terms are its displayed probability-weighted squares.",
+          "provenance": "OpenStax4.2 Example4.4 Table4.6."
+        },
+        {
+          "id": "fair-bernoulli",
+          "inputs": {
+            "terms": [
+              0.125,
+              0.125
+            ]
+          },
+          "expected": 0.25,
+          "tolerance": 1e-09,
+          "method": "Independent Bernoulli identityp(1-p) atp=.5 gives.25; support0,1 has two equally weighted deviations of magnitude.5.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "terms is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Variance alone does not identify the distribution, support size or probabilities. Zero variance means a constant outcome almost surely, but does not reveal its level. Only aggregate squared dispersion is returned.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--joint-distribution-covariance",
+      "revision": "r2",
+      "title": "Covariance from a finite joint distribution",
+      "summary": "Covariance sums paired centered deviations weighted by their joint probabilities across the full joint support.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cov",
+        "expression": "sum(terms)",
+        "original_equation": "Cov(R_A,R_B)=sum_i sum_j P(R_Ai,R_Bj)(R_Ai-E R_A)(R_Bj-E R_B)",
+        "source_id": "probabilitycourse-covariance",
+        "locator": "Section5.3.1, covariance definition and Lemma5.3",
+        "translation_notes": "Each term hasU*V because probability is dimensionless. No n-1 divisor: this is distribution covariance, scientifically distinct from the sample estimator. Sparse zero-probability cells contribute0 and may be omitted if full-support accounting is documented. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "terms",
+          "source_symbol": "introduced q_ij=P_ij(R_Ai-E R_A)(R_Bj-E R_B)",
+          "role": "family",
+          "quantity_id": "probability_weighted_centered_cross_product",
+          "definition": "Signed centered cross-product contributions covering the complete joint support",
+          "unit": "data-unit-x*data-unit-y",
+          "dimensions": "U*V",
+          "context": "Same declared probability space, joint distribution, event definitions and information set",
+          "domain": "Finite real scalar",
+          "max_size": 256
+        },
+        {
+          "symbol": "cov",
+          "source_symbol": "Cov(R_A,R_B)",
+          "role": "output",
+          "quantity_id": "population_covariance",
+          "definition": "Covariance under the supplied joint probability law",
+          "unit": "data-unit-x*data-unit-y",
+          "dimensions": "U*V",
+          "context": "Same declared probability space, joint distribution, event definitions and information set",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Source assumption: the joint probability table is coherent, nonnegative and normalized, with means from its own marginals."
+      ],
+      "limitations": [
+        "All probability-weighted cross terms must be bound externally with correct pairing; no independence assumption is required."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Covariance Given a Joint Probability Function, printed p203 (PDF p213), Equation(19), Exhibit16; expectation definition printed p198/PDF208 Eq14",
+          "evidence": "Covariance sums paired centered deviations weighted by their joint probabilities across the full joint support.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "probabilitycourse-covariance",
+          "kind": "primary",
+          "title": "Introduction to Probability, Statistics, and Random Processes",
+          "url": "https://www.probabilitycourse.com/chapter5/5_3_1_covariance_correlation.php",
+          "version": "Hossein Pishro-Nik, author-hosted online textbook, live version2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section5.3.1, covariance definition and Lemma5.3",
+          "evidence": "Covariance is the expectation of centered products, with the equivalent raw cross-moment minus product-of-means identity.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-banking-conditions",
+          "inputs": {
+            "terms": [
+              0.0011,
+              -0.0001,
+              0.0006
+            ]
+          },
+          "expected": 0.0016,
+          "tolerance": 1e-09,
+          "method": "Published16 percent-squared converted to decimal-squared. Independent cross-moment:E(RA*RB)=.0226 minus means.14*.15=.021 yields.0016.",
+          "provenance": "CFA Exhibit16 printed p203/PDF213."
+        },
+        {
+          "id": "independent-fair-signs",
+          "inputs": {
+            "terms": [
+              0.25,
+              -0.25,
+              -0.25,
+              0.25
+            ]
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Independent balanced signs have EX=EY=0 and EXY=0, hence covariance0.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "terms is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "The aggregate covariance cannot recover the joint distribution. If the two variables are identical, this reduces to distribution variance; the reverse implication does not determine their joint law.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--fixed-weight-portfolio-variance",
+      "revision": "r2",
+      "title": "Variance of a fixed-weight portfolio",
+      "summary": "Portfolio return variance is the weight-covariance quadratic form, including cross-asset co-movement terms.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "variance",
+        "expression": "sum(terms)",
+        "original_equation": "Var(Rp)=sum_i sum_j w_i w_j Cov(R_i,R_j)",
+        "source_id": "harvey-portfolio",
+        "locator": "Section5, Portfolio Selection, V_p=w'Vw",
+        "translation_notes": "Exact flattened quadratic form, with either both ordered off-diagonals or one doubled representative but never both conventions together. The two-asset form w1^2*v1+w2^2*v2+2*w1*w2*cov12 is a qualified case of this same record. Decimal returns are dimensionless; percent-squared references are normalized once during binding. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "terms",
+          "source_symbol": "introduced q_ij=w_i w_j Cov(R_i,R_j)",
+          "role": "family",
+          "quantity_id": "weighted_covariance_contribution",
+          "definition": "All ordered covariance contributions, or equivalently diagonal terms and doubled unique off-diagonal terms, for one portfolio",
+          "unit": "1",
+          "dimensions": "dimensionless return^2",
+          "context": "Same portfolio weights, asset universe, return horizon, currency basis and coherent covariance matrix",
+          "domain": "Finite real scalar",
+          "max_size": 256
+        },
+        {
+          "symbol": "variance",
+          "source_symbol": "sigma^2(Rp)",
+          "role": "output",
+          "quantity_id": "portfolio_return_variance",
+          "definition": "Variance of the fixed-weight portfolio return",
+          "unit": "1",
+          "dimensions": "dimensionless return^2",
+          "context": "Same portfolio and moment convention as terms",
+          "domain": "Nonnegative"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sum(terms) >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: deterministic weights and all asset moments share the same horizon and return definition; source portfolio weights sum to1.",
+        "Covariance matrix is symmetric positive semidefinite; short positions may create signed cross contributions."
+      ],
+      "limitations": [
+        "Precomputed contributions must preserve weights and matrix provenance; sum positivity alone cannot establish matrix coherence.",
+        "Full raw matrix operations are outside the scalar grammar. At most256 supplied contributions per evaluation; larger exact sums require explicit aggregation outside this record."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Portfolio Expected Return and Variance, printed pp198-199 (PDF pp208-209), Equations(16)-(18); two-asset example printed p201/PDF211",
+          "evidence": "Portfolio return variance is the weight-covariance quadratic form, including cross-asset co-movement terms.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "harvey-portfolio",
+          "kind": "primary",
+          "title": "WWWFinance: Optimal Portfolio Control",
+          "url": "https://people.duke.edu/~charvey/classes/ba350/control/opc.htm",
+          "version": "Campbell R. Harvey, latest revisionDecember4,1995",
+          "accessed": "2026-11-03",
+          "locator": "Section5, Portfolio Selection, V_p=w'Vw",
+          "evidence": "The variance of a fixed-weight portfolio is the quadratic form in weights and the asset covariance matrix.",
+          "license": "Copyright1995 Campbell R.Harvey, all rights reserved; page prohibits reproduction without permission. Only source citation and original equation-level formalization included; no broader clearance claimed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-three-assets",
+          "inputs": {
+            "terms": [
+              0.01,
+              0.00050625,
+              0.00275625,
+              0.001125,
+              0.004725,
+              0.000475
+            ]
+          },
+          "expected": 0.0195875,
+          "tolerance": 1e-09,
+          "method": "Published195.875 percent-squared normalized to decimal-squared. Contributions use three diagonal and three doubled off-diagonal terms from the source matrix.",
+          "provenance": "CFA Eq18 printed p199/PDF209."
+        },
+        {
+          "id": "identical-assets",
+          "inputs": {
+            "terms": [
+              0.01,
+              0.01,
+              0.02
+            ]
+          },
+          "expected": 0.04,
+          "tolerance": 1e-09,
+          "method": "Two equally weighted identical return streams each with variance.04 reproduce the same stream, so portfolio variance must remain.04.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "terms is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Portfolio variance does not uniquely identify weights or covariance entries. Two-asset inversion for a weight can have two roots and needs the covariance structure and sum-to-one constraint; no inverse is claimed tested here. In the identical-assets reference, all sum-to-one allocations have the same variance.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--bayes-posterior-probability",
+      "revision": "r2",
+      "title": "Bayes posterior probability from likelihood and prior",
+      "summary": "Bayes formula updates a prior by multiplying by the event-conditional likelihood and dividing by positive marginal evidence.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "posterior",
+        "expression": "likelihood * prior / evidence",
+        "original_equation": "P(Event|Information)=P(Information|Event)*P(Event)/P(Information)",
+        "source_id": "probabilitycourse-bayes",
+        "locator": "Section1.4.3, Bayes Rule and three-bag example",
+        "translation_notes": "Source symbols map directly to separately defined prior, likelihood, marginal evidence and posterior quantities. All are dimensionless; likelihood is a conditional probability here, not a density. Coherence bounds require likelihood*prior<=evidence<=likelihood*prior+1-prior. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "likelihood",
+          "source_symbol": "P(Information|Event)",
+          "role": "input",
+          "quantity_id": "event_conditional_likelihood",
+          "definition": "Probability of the observed information conditional on the selected event",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same event, observation, probability space and information set",
+          "domain": "0<=likelihood<=1"
+        },
+        {
+          "symbol": "prior",
+          "source_symbol": "P(Event)",
+          "role": "input",
+          "quantity_id": "prior_event_probability",
+          "definition": "Probability of the event before the new information",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same event, observation, probability space and information set",
+          "domain": "0<prior<=1"
+        },
+        {
+          "symbol": "evidence",
+          "source_symbol": "P(Information)",
+          "role": "input",
+          "quantity_id": "marginal_evidence_probability",
+          "definition": "Strictly positive marginal probability of the observed information",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same event, observation, probability space and information set",
+          "domain": "0<evidence<=1"
+        },
+        {
+          "symbol": "posterior",
+          "source_symbol": "P(Event|Information)",
+          "role": "output",
+          "quantity_id": "posterior_event_probability",
+          "definition": "Event probability conditional on the observed information",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same event, observation, probability space and information set",
+          "domain": "0<=posterior<=1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "likelihood >= 0",
+        "likelihood <= 1",
+        "prior > 0",
+        "prior <= 1",
+        "evidence > 0",
+        "evidence <= 1",
+        "likelihood * prior <= evidence",
+        "evidence <= likelihood * prior + 1 - prior"
+      ],
+      "assumptions": [
+        "Source assumption: likelihood, prior and evidence are coherent probabilities for the same event and information.",
+        "Positive prior is required to give the supplied event-conditional likelihood its ordinary event-conditioning meaning."
+      ],
+      "limitations": [
+        "Does not estimate priors or likelihoods, and supplies no financial forecast or recommendation.",
+        "Impossible evidence has no posterior under this finite-event formula."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Bayes Formula, printed p206 (PDF p216), Equation(20); frequency example printed pp207-208/PDF217-218",
+          "evidence": "Bayes formula updates a prior by multiplying by the event-conditional likelihood and dividing by positive marginal evidence.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "probabilitycourse-bayes",
+          "kind": "primary",
+          "title": "Introduction to Probability, Statistics, and Random Processes",
+          "url": "https://www.probabilitycourse.com/chapter1/1_4_3_bayes_rule.php",
+          "version": "Hossein Pishro-Nik, author-hosted online textbook, inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.4.3, Bayes Rule and three-bag example",
+          "evidence": "Bayes updating reverses a conditional probability using the prior and the positive marginal probability of the observation.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-tech-event",
+          "inputs": {
+            "likelihood": 0.6,
+            "prior": 0.2,
+            "evidence": 0.32
+          },
+          "expected": 0.375,
+          "tolerance": 1e-09,
+          "method": "Independent frequency oracle:60tech firms among160 firms satisfying the information criterion gives60/160=.375.",
+          "provenance": "CFA Exhibits19-20 printed p207/PDF217."
+        },
+        {
+          "id": "independent-bag-example",
+          "inputs": {
+            "likelihood": 0.75,
+            "prior": 0.3333333333333333,
+            "evidence": 0.6
+          },
+          "expected": 0.4166666666666667,
+          "tolerance": 1e-09,
+          "method": "Published5/12 from the three-bag example; independent count ratio75 of180 red marble positions.",
+          "provenance": "ProbabilityCourse1.4.3."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "prior": 0.2,
+            "evidence": 0.32
+          },
+          "reason": "likelihood is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "prior=posterior*evidence/likelihood iflikelihood>0; evidence=likelihood*prior/posterior ifposterior>0; all coherence bounds remain. First case recovers prior.2 from.375*.32/.6. Withlikelihood0 andpositiveevidence,posterior0 andprior cannot be recovered.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,579 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b28",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--units-of-production-depreciation",
+      "revision": "r1",
+      "title": "Units-of-production depreciation expense",
+      "summary": "Units-of-production depreciation allocates the depreciable cost in proportion to period output.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "expense",
+        "expression": "(cost - residual) * produced / capacity",
+        "original_equation": "Depreciation = (cost - residual value) × period production / estimated lifetime production",
+        "source_id": "openstax-depreciation",
+        "locator": "Table 11.2 and units-of-production example",
+        "translation_notes": "Physical output units are identical counts, and their quotient is dimensionless; the result is a currency amount for the reporting period."
+      },
+      "variables": [
+        {
+          "symbol": "cost",
+          "source_symbol": "asset cost",
+          "role": "input",
+          "quantity_id": "depreciable_asset_cost",
+          "definition": "asset cost",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "residual",
+          "source_symbol": "estimated residual value",
+          "role": "input",
+          "quantity_id": "asset_estimated_residual_value",
+          "definition": "estimated residual value",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "produced",
+          "source_symbol": "units produced during period",
+          "role": "input",
+          "quantity_id": "period_production_units",
+          "definition": "Units produced in the specified period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "capacity",
+          "source_symbol": "estimated total productive capacity",
+          "role": "input",
+          "quantity_id": "estimated_lifetime_production_units",
+          "definition": "Positive estimated total lifetime production units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expense",
+          "source_symbol": "depreciation expense",
+          "role": "output",
+          "quantity_id": "units_of_production_depreciation_expense",
+          "definition": "depreciation expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "cost >= residual",
+        "residual >= 0",
+        "produced >= 0",
+        "capacity > 0",
+        "produced <= capacity"
+      ],
+      "assumptions": [
+        "Production and capacity use the same unit, asset and estimated lifetime.",
+        "The remaining depreciable amount is sufficient for the calculated charge."
+      ],
+      "limitations": [
+        "Changes in estimates, impairment, residual-floor adjustments and accumulated production beyond capacity require separate handling."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 6, Depreciation Methods, printed pp348–350 (PDF pp362–364), Example 8",
+          "evidence": "Units-of-production depreciation allocates the depreciable cost in proportion to period output.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-depreciation",
+          "kind": "primary",
+          "title": "Explain and Apply Depreciation Methods to Allocate Capitalized Costs",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/11-3-explain-and-apply-depreciation-methods-to-allocate-capitalized-costs",
+          "version": "OpenStax Principles of Accounting Volume 1, section 11.3, 2019",
+          "accessed": "2026-11-03",
+          "locator": "Table 11.2 and units-of-production example",
+          "evidence": "The units-of-production method allocates depreciable cost in proportion to actual use over estimated capacity.",
+          "license": "OpenStax terms include noncommercial and AI-use restrictions; factual formula and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-year-one",
+          "inputs": {
+            "cost": 2300,
+            "residual": 100,
+            "produced": 200,
+            "capacity": 800
+          },
+          "expected": 550,
+          "tolerance": 1e-09,
+          "method": "2200 depreciable cost times 200/800 gives 550.",
+          "provenance": "CFA Example 8 printed pp348–350/PDF pp362–364."
+        },
+        {
+          "id": "cfa-year-two",
+          "inputs": {
+            "cost": 2300,
+            "residual": 100,
+            "produced": 300,
+            "capacity": 800
+          },
+          "expected": 825,
+          "tolerance": 1e-09,
+          "method": "2200 depreciable cost times 300/800 gives 825.",
+          "provenance": "CFA Example 8 printed pp348–350/PDF pp362–364."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "residual": 100,
+            "produced": 200,
+            "capacity": 800
+          },
+          "reason": "cost is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "produced=expense*capacity/(cost-residual) when depreciable cost is nonzero; zero depreciable cost leaves production unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--asset-carrying-amount-cost-model",
+      "revision": "r1",
+      "title": "Asset carrying amount under the cost model",
+      "summary": "Carrying amount equals historical cost less accumulated depreciation when no impairment has occurred.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "carrying",
+        "expression": "cost - accumulated",
+        "original_equation": "Carrying amount = historical cost - accumulated depreciation",
+        "source_id": "openstax-book-value",
+        "locator": "Fundamentals of Depreciation, book value",
+        "translation_notes": "The output is the asset balance at the stated date."
+      },
+      "variables": [
+        {
+          "symbol": "cost",
+          "source_symbol": "historical cost",
+          "role": "input",
+          "quantity_id": "asset_historical_cost",
+          "definition": "historical cost",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "accumulated",
+          "source_symbol": "accumulated depreciation",
+          "role": "input",
+          "quantity_id": "asset_accumulated_depreciation",
+          "definition": "accumulated depreciation",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "carrying",
+          "source_symbol": "carrying amount",
+          "role": "output",
+          "quantity_id": "asset_carrying_amount",
+          "definition": "carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "cost >= accumulated",
+        "accumulated >= 0"
+      ],
+      "assumptions": [
+        "The asset is accounted for under the historical cost model without impairment or revaluation.",
+        "Cost and accumulated depreciation use the same asset, date and currency."
+      ],
+      "limitations": [
+        "Impairment and revaluation adjustments are omitted and must be handled separately."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 6, Depreciation Methods, printed p347 (PDF p361), unnumbered cost-model definition",
+          "evidence": "Carrying amount equals historical cost less accumulated depreciation when no impairment has occurred.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-book-value",
+          "kind": "primary",
+          "title": "Explain and Apply Depreciation Methods to Allocate Capitalized Costs",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/11-3-explain-and-apply-depreciation-methods-to-allocate-capitalized-costs",
+          "version": "OpenStax Principles of Accounting Volume 1, section 11.3, 2019",
+          "accessed": "2026-11-03",
+          "locator": "Fundamentals of Depreciation, book value",
+          "evidence": "Book value equals historical cost less accumulated depreciation in the illustrated cost model.",
+          "license": "OpenStax terms include noncommercial and AI-use restrictions; factual formula and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "cost": 2300,
+            "accumulated": 550
+          },
+          "expected": 1750,
+          "tolerance": 1e-09,
+          "method": "2300 less 550 equals 1750.",
+          "provenance": "CFA Example 8 printed p349/PDF p363."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "cost": 10000,
+            "accumulated": 2000
+          },
+          "expected": 8000,
+          "tolerance": 1e-09,
+          "method": "10000 less 2000 equals 8000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "accumulated": 550
+          },
+          "reason": "cost is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cost=carrying+accumulated; accumulated=cost-carrying.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--estimated-depreciable-asset-age",
+      "revision": "r1",
+      "title": "Estimated depreciable-asset age",
+      "summary": "Estimated depreciable-asset age is estimated from accumulated depreciation and annual depreciation.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "years",
+        "expression": "balance / depreciation",
+        "original_equation": "Estimated depreciable-asset age = accumulated depreciation / annual depreciation",
+        "source_id": "runsten-asset-age",
+        "locator": "Printed p142, Equation 5:2 and adjacent age formula",
+        "translation_notes": "Annual periods are dimensionless financial counts, not physical seconds. The accessible dissertation gives total life and age from gross cost and book value; the stated balance ratio is the corresponding algebraic proxy."
+      },
+      "variables": [
+        {
+          "symbol": "balance",
+          "source_symbol": "accumulated depreciation",
+          "role": "input",
+          "quantity_id": "asset_accumulated_depreciation",
+          "definition": "accumulated depreciation",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "depreciation",
+          "source_symbol": "annual depreciation expense",
+          "role": "input",
+          "quantity_id": "annual_depreciation_expense",
+          "definition": "annual depreciation expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "years",
+          "source_symbol": "Estimated depreciable-asset age",
+          "role": "output",
+          "quantity_id": "estimated_depreciable_asset_age",
+          "definition": "Estimated number of annual reporting periods for Estimated depreciable-asset age",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "balance >= 0",
+        "depreciation > 0"
+      ],
+      "assumptions": [
+        "The ratio uses the historical cost model and consistent asset scope and annual accounting periods.",
+        "The simple single-asset interpretation assumes straight-line depreciation, stable estimates and zero residual value."
+      ],
+      "limitations": [
+        "The numerical proxy is not a verified actual purchase age.",
+        "For mixed asset pools, fully depreciated assets, revaluations or impairments, the ratio is only a rough proxy."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 6, Using Disclosures in Analysis, printed p376 (PDF p390), unnumbered asset age and useful life relationships",
+          "evidence": "Estimated depreciable-asset age is estimated from accumulated depreciation and annual depreciation.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "runsten-asset-age",
+          "kind": "primary",
+          "title": "The Association Between Accounting Information and Stock Prices",
+          "url": "https://ex.hhs.se/dissertations/221739-FULLTEXT01.pdf",
+          "version": "Mikael Runsten, Stockholm School of Economics doctoral dissertation, 1998",
+          "accessed": "2026-11-03",
+          "locator": "Printed p142, Equation 5:2 and adjacent age formula",
+          "evidence": "The dissertation estimates economic life from acquisition cost and annual depreciation and derives asset age from the ratio of net carrying value to cost.",
+          "license": "Author and institution copyright; formula-level factual summary only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "balance": 70,
+            "depreciation": 10
+          },
+          "expected": 7,
+          "tolerance": 1e-09,
+          "method": "70 divided by annual depreciation of 10 yields seven annual periods.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "balance": 30,
+            "depreciation": 10
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "30 divided by annual depreciation of 10 yields three annual periods.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "depreciation": 10
+          },
+          "reason": "balance is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "balance=years*depreciation; depreciation=balance/years requires a nonzero year count.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--estimated-depreciable-asset-remaining-life",
+      "revision": "r1",
+      "title": "Estimated depreciable-asset remaining life",
+      "summary": "Estimated depreciable-asset remaining life is estimated from net carrying value and annual depreciation.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "years",
+        "expression": "balance / depreciation",
+        "original_equation": "Estimated depreciable-asset remaining life = net carrying value / annual depreciation",
+        "source_id": "runsten-asset-age",
+        "locator": "Printed p142, Equation 5:2 and adjacent age formula",
+        "translation_notes": "Annual periods are dimensionless financial counts, not physical seconds. The accessible dissertation gives total life and age from gross cost and book value; the stated balance ratio is the corresponding algebraic proxy."
+      },
+      "variables": [
+        {
+          "symbol": "balance",
+          "source_symbol": "net carrying value",
+          "role": "input",
+          "quantity_id": "asset_carrying_amount",
+          "definition": "net carrying value",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "depreciation",
+          "source_symbol": "annual depreciation expense",
+          "role": "input",
+          "quantity_id": "annual_depreciation_expense",
+          "definition": "annual depreciation expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "years",
+          "source_symbol": "Estimated depreciable-asset remaining life",
+          "role": "output",
+          "quantity_id": "estimated_depreciable_asset_remaining_life",
+          "definition": "Estimated number of annual reporting periods for Estimated depreciable-asset remaining life",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "balance >= 0",
+        "depreciation > 0"
+      ],
+      "assumptions": [
+        "The ratio uses the historical cost model and consistent asset scope and annual accounting periods.",
+        "The simple single-asset interpretation assumes straight-line depreciation, stable estimates and zero residual value."
+      ],
+      "limitations": [
+        "A nonzero residual value requires deducting the residual before the life proxy can represent remaining depreciation periods.",
+        "For mixed asset pools, fully depreciated assets, revaluations or impairments, the ratio is only a rough proxy."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 6, Using Disclosures in Analysis, printed p376 (PDF p390), unnumbered asset age and useful life relationships",
+          "evidence": "Estimated depreciable-asset remaining life is estimated from net carrying value and annual depreciation.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "runsten-asset-age",
+          "kind": "primary",
+          "title": "The Association Between Accounting Information and Stock Prices",
+          "url": "https://ex.hhs.se/dissertations/221739-FULLTEXT01.pdf",
+          "version": "Mikael Runsten, Stockholm School of Economics doctoral dissertation, 1998",
+          "accessed": "2026-11-03",
+          "locator": "Printed p142, Equation 5:2 and adjacent age formula",
+          "evidence": "The dissertation estimates economic life from acquisition cost and annual depreciation and derives asset age from the ratio of net carrying value to cost.",
+          "license": "Author and institution copyright; formula-level factual summary only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "balance": 70,
+            "depreciation": 10
+          },
+          "expected": 7,
+          "tolerance": 1e-09,
+          "method": "70 divided by annual depreciation of 10 yields seven annual periods.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "balance": 30,
+            "depreciation": 10
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "30 divided by annual depreciation of 10 yields three annual periods.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "depreciation": 10
+          },
+          "reason": "balance is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "balance=years*depreciation; depreciation=balance/years requires a nonzero year count.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

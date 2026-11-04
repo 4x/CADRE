@@ -1,0 +1,141 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b2-b36",
+  "batch_sha256": "0dd470e100f9fb30bab34190a27246a2b738daf03d22c106631d7b4da225e5b5",
+  "reviewer": "ingest-circuits",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--fx-outright-forward-from-spot-and-scaled-points",
+      "revision": "r1",
+      "record_sha256": "780bbae6a8626b77adad38c6bd9b3baec708fdb9ff85af14aae456848d2c3a3f",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Curator-cited egyankosh PDF failed TLS UnknownIssuer from my network (recorded). Accessed UEDU on 2026-11-04 (HTTP 200): forward=spot+points verified verbatim. Record math matches. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is one pair with pre-scaled points in quote units (assumptions). Limitations require pip conversion upstream and bar forecast readings. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "spot [price_currency_per_base_currency] + points [same] closes to [price_currency_per_base_currency], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: owner (1.15885,0.00809) -> 1.16694 exact; discount (1.2,-0.01) -> 1.19 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards spot>0, spot+points>0 hold on both references (evaluated). Missing-spot rejection leaves the expression unevaluable as stated. Inverse notes give spot and points by rearrangement."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. Curator egyankosh primary records terms uninspected; accurate. My alternate used for equation-level facts only; no clearance asserted."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://edurev.in/t/495572/cfa-level-1-exchange-rate-calculations",
+          "locator": "Section 4: Forward Rate = Spot Rate + Forward Points",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. CFA study page states Forward Rate = Spot Rate + Forward Points with worked examples. Record implements spot+points with pre-scaled points and no implicit pip scale. The curator-cited egyankosh PDF failed TLS from my network; edurev is my alternate accessed evidence."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as outright forward spot+points with pre-scaled quote-difference points; not with raw pip counts unconverted, and not as a spot forecast."
+    },
+    {
+      "id": "financial-analysis--fx-forward-premium-over-spot",
+      "revision": "r1",
+      "record_sha256": "0fdaf60390ba536c837c906dca862879b8c1214032496260d6b48d09caf7c254",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Curator-cited egyankosh PDF failed TLS UnknownIssuer from my network (recorded). Accessed UEDU on 2026-11-04 (HTTP 200): premium-from-spot-comparison verified. Record math is the unannualized term form with the scope disclosed. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is one pair and forward term (assumptions). Limitations exclude annualization and inverse-quotation transfer. Signed premium/discount by design. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "forward [price_currency_per_base_currency] / spot [same] - 1 closes to dimensionless [1], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: owner (1.16694,1.15885) -> 0.006981058808301466 exact; discount (0.99,1) -> -0.01 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards spot>0, forward>0 hold on both references (evaluated). Missing-forward rejection leaves the expression unevaluable as stated. Inverse notes give forward and spot by rearrangement."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. Curator egyankosh primary records terms uninspected; accurate. My alternate used for equation-level facts only; no clearance asserted."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://edurev.in/t/495572/cfa-level-1-exchange-rate-calculations",
+          "locator": "Section 4: forward premium/discount from forward vs spot comparison",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. CFA study page computes the premium from (Forward-Spot)/Spot (then annualizes x(360/days)x100 for display). Record implements the unannualized base-one term premium forward/spot-1 with annualization explicitly excluded in limitations."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the unannualized term premium forward/spot-1 in base fractions; not annualized, and not transferred to the inverse quotation (different magnitude)."
+    },
+    {
+      "id": "financial-analysis--fx-forward-covered-interest-parity-simple-accrual",
+      "revision": "r1",
+      "record_sha256": "8a9d7c7b9af845b7a8c40de0a4c3b013647f461ffd9138a75f67f9c338dfc0dd",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Downloaded the curator-cited BIS WP651 PDF on 2026-11-04 (HTTP 200): paper identity and CIP/funding-friction framing verified; body equations not machine-readable (custom font encoding, stated here). Accessed UIRP on 2026-11-04 (HTTP 200): simple-accrual CIP formula verified verbatim. Record math matches exactly. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is simple accrual with a dimensionless year fraction and no embedded day-count (assumptions). Limitations exclude compound growth, mismatched maturities, and spread/basis-inclusive quoting. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "spot [price_currency_per_base_currency] x dimensionless gross-factor ratio closes to [price_currency_per_base_currency], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: owner-30-days (1.6555,0.03,0.02,1/12) -> 1.6568772878535771 exact; owner-one-year (1.6535,0.05,0.035,1) -> 1.677463768115942 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards spot>0, fraction>=0, positive gross factors hold on both references (evaluated). Missing-spot rejection leaves the expression unevaluable as stated. Inverse notes give spot by division with positivity rechecks."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. BIS paper: curator records terms uninspected; accurate. My sources used for equation-level facts only; no clearance asserted."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://ryanoconnellfinance.com/interest-rate-parity/",
+          "locator": "CIP Formula (Money-Market / Simple Interest)",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. CFA guide states F = S x (1+rd x T)/(1+rf x T) for sub-annual simple interest with T as year fraction, framed as the no-arbitrage condition. Record implements exactly this form."
+        },
+        {
+          "url": "https://www.bis.org/publications/working-paper-651-segmented-money-markets-and-covered-interest-parity-arbitrage.pdf",
+          "locator": "BIS Working Paper 651 abstract and paper identity",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200 (PDF downloaded, 81 pages). Paper identity verified (Rime/Schrimpf/Syrstad, CIP arbitrage, funding frictions, marginal funding rates); body math uses custom font encoding not machine-readable, so the equation is corroborated via the IRP guide above. This is the curator-cited source, downloaded by me."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the simple-accrual CIP forward S*(1+rd*T)/(1+rf*T) with matched day-count year fraction; not for compound growth, mismatched maturities, or quoted forwards with spreads/basis unmodeled."
+    }
+  ]
+}

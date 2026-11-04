@@ -1,0 +1,177 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b2-b24",
+  "batch_sha256": "1781d4b44ee279b4d8fa26632bf76c9b383820883b6835bf783898129c6c05a0",
+  "reviewer": "ingest-circuits",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--supplied-linear-demand",
+      "revision": "r2",
+      "record_sha256": "b5e5d2b4a5edfe6f9d484366e703996cbbbf9c34c3dba1ab8f378c7f5f11e2f5",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed UMAC on 2026-11-04 (HTTP 200): linear demand/supply equation forms with worked examples verified. Record math Q=a-b*P matches the linear schedule form. Owner CFA excerpt not inspectable per track protocol; corroboration carries the math."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is linear demand over its relevance range with b>0, other determinants fixed (assumptions). Limitations exclude calibration, forecasting, and extrapolation; choke-price domain enforced. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "a [good-unit] - b [good-unit**2/EUR] x P [EUR/good-unit] closes to [good-unit], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: market-example (50,2,5) -> 40 exact; choke-price (180,2,90) -> 0 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards a>0, b>0, P>=0, a>=b*P hold on both references (evaluated). Missing-a rejection leaves the expression unevaluable as stated. Inverse notes correctly handle P=0 and singular b=0 exclusion."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. OpenStax appendix primary: curator records footer/licensing not fully inspected with no clearance inferred; accurate and conservative. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://openstax.org/books/principles-macroeconomics-2e/pages/a-the-use-of-mathematics-in-principles-of-economics",
+          "locator": "Algebraic demand/supply models with worked linear equilibrium",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Appendix represents demand and supply as linear equations (worked Qd=16-2P, Qs=2+5P) and solves their intersection. Record implements the linear demand schedule Q=a-b*P with supplied coefficients."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as linear demand Q=a-b*P over its calibration range with b>0 and P below the choke price; not for calibration, forecasting, or extrapolation beyond the supported range."
+    },
+    {
+      "id": "financial-analysis--linear-competitive-market-equilibrium",
+      "revision": "r2",
+      "record_sha256": "be0998a061b8894dd51a403ca5a04b1abd3a4c7e565279b753261404e9a7f422",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed UMAC on 2026-11-04 (HTTP 200): algebraic equating of linear schedules verified. Record math solves A-BQ=C+DQ in closed form; derivation documented in translation. Owner CFA excerpt not inspectable per track protocol; corroboration carries the math."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is linear schedules in one market/period, demand falling, supply nondecreasing, interior nonnegative outcome (assumptions). Limitations exclude capacities, rationing, controls, estimation. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "(A-C) [EUR/good-unit] / (B+D) [EUR/good-unit**2] closes to [good-unit], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: interior-intersection (25,0.5,-2,0.2) -> 38.57142857142857 exact (both prices 5.714...); flat-supply (100,2,20,0) -> 40 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards B>0, D>=0, A>=C, A*D+B*C>=0 hold on both references (evaluated). Missing-A rejection leaves the expression unevaluable as stated. Inverse notes correctly handle Q=0 underdetermination and B+D singularity exclusion."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. OpenStax appendix primary: curator records footer/licensing not fully inspected with no clearance inferred; accurate and conservative. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://openstax.org/books/principles-macroeconomics-2e/pages/a-the-use-of-mathematics-in-principles-of-economics",
+          "locator": "Solving Models with Algebra: equating quantity demanded and supplied",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Appendix solves linear equilibrium by equating demand and supply schedules algebraically. Record implements the closed-form inverse-schedule solution (A-C)/(B+D) with interior-profile guards."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as interior linear equilibrium quantity (A-C)/(B+D) for schedules in one market and period; not for capacities, rationing, price controls, or schedule estimation."
+    },
+    {
+      "id": "financial-analysis--symmetric-cournot-duopoly-output",
+      "revision": "r2",
+      "record_sha256": "6925efec9335ddc272bd4a86ddd64e17767fe84af3f2bdcb29870c8eaa5516f2",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Curator-cited OSU module-18 returned HTTP 403 from my network (recorded). Accessed URAS on 2026-11-04 (HTTP 200): Cournot reaction-function framework with symmetric costs verified. Closed form verified by derivation: FOCs A-2Bq1-Bq2=c and A-Bq1-2Bq2=c with q1=q2 give 3Bq=A-c. Record math matches; integer 3 explained in translation."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is exactly two identical simultaneous quantity-setters, constant equal MC, A>c, no collusion (assumptions). Limitations exclude unequal costs, sequential moves, Bertrand, boundary equilibria. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "(A-c) [EUR/good-unit] / (3*B) [EUR/good-unit**2] closes to [good-unit], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: cfa-duopoly (450,1,30) -> 140 exact (price 170); independent-equilibrium (100,2,10) -> 15 exact with MR=MC=10 verified; tol 1e-09. First case cites CFA p92 (curator-reported published result); second honestly labeled curator-constructed."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards B>0, c>=0, A>c hold on both references (evaluated). Missing-A rejection leaves the expression unevaluable as stated. Inverse notes correctly exclude the A=c boundary and B=0 singularity."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. Curator OSU primary records CC-linked terms uninspected with no clearance inferred; accurate. My alternate (Rasmusen notes) used for equation-level facts only; no clearance asserted."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.rasmusen.org/papers/cournot.pdf",
+          "locator": "Cournot notes: profit maximization, reaction functions, symmetric costs",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200 (PDF). Notes establish the Cournot framework: each firm maximizes profit given rival output, reaction functions, symmetric-cost solution. The closed form (A-c)/(3B) is the standard algebraic solution of the symmetric FOCs (shown in my evidence); the curator-cited OSU page returned HTTP 403 from my network."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as symmetric linear Cournot per-firm output (A-c)/(3B) for two identical simultaneous quantity-setting firms; not for unequal costs, sequential moves, price competition, or boundary no-production outcomes."
+    },
+    {
+      "id": "financial-analysis--monopoly-elasticity-pricing",
+      "revision": "r2",
+      "record_sha256": "aed5daa1e3de4e3e6f6bb49e19d52d6dd371ced888588811eab4f96d4c6f18c3",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed UCOREM on 2026-11-04 (HTTP 200): elasticity-markup first-order condition verified. Record math matches in the disclosed magnitude convention with the LM1-signed-convention warning. Owner CFA excerpt not inspectable per track protocol; corroboration carries the math."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is an interior one-price monopoly optimum with MR=MC and externally checked second-order condition (assumptions). Limitations exclude demand solving, nonconstant-elasticity implicit cases, and unit-elasticity/zero-MC profiles. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "MC [EUR/good-unit] / dimensionless closes to [EUR/good-unit], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: cfa-price (75,1.5) -> 225 exact; elasticity-two (40,2) -> 80 exact; tol 1e-09. First case cites CFA p104 (curator-reported published candidate price); second honestly labeled curator-constructed."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards MC>0, elasticity>1 hold on both references (evaluated). Missing-MC rejection leaves the expression unevaluable as stated. Inverse notes correctly handle unit-elasticity and P=MC singularities."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. CORE primary: curator records exact page terms unknown with no broad permission asserted; accurate and conservative. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://books.core-econ.org/the-economy/microeconomics/07-firm-and-customers-06-maximize-profit.html",
+          "locator": "Unit 7.6 profit maximization: markup and elasticity first-order condition",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. CORE states the profit-maximizing markup relative to marginal cost depends on demand elasticity through the first-order condition (markup equals inverse elasticity). Record implements P=MC/(1-1/|e|) in magnitude convention."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the monopoly stationary price MC/(1-1/elasticity) at an interior one-price optimum with elasticity>1 in magnitude convention; not as a demand solver, and not with signed LM1 elasticity without sign conversion."
+    }
+  ]
+}

@@ -1,0 +1,460 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b41",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--fifo-retained-earnings-from-lifo-reserve",
+      "revision": "r1",
+      "title": "FIFO retained earnings from a LIFO reserve",
+      "summary": "The solution adds the after-tax LIFO reserve to LIFO retained earnings.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "fifo",
+        "expression": "retained + reserve * (1 - tax)",
+        "original_equation": "FIFO retained earnings = LIFO retained earnings + LIFO reserve × (1 - tax rate)",
+        "source_id": "wiley-inventory-2011",
+        "locator": "Reading 16, practice solutions 4, 7 and 8",
+        "translation_notes": "The reserve may be signed; tax is a base-one fraction."
+      },
+      "variables": [
+        {
+          "symbol": "retained",
+          "source_symbol": "reported LIFO retained earnings",
+          "role": "input",
+          "quantity_id": "lifo_retained_earnings",
+          "definition": "reported LIFO retained earnings",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "reserve",
+          "source_symbol": "FIFO less LIFO inventory reserve",
+          "role": "input",
+          "quantity_id": "lifo_inventory_reserve",
+          "definition": "FIFO less LIFO inventory reserve",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "tax",
+          "source_symbol": "tax rate",
+          "role": "input",
+          "quantity_id": "inventory_adjustment_tax_rate",
+          "definition": "Uniform tax rate applicable to the cumulative reserve",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fifo",
+          "source_symbol": "FIFO retained earnings",
+          "role": "output",
+          "quantity_id": "fifo_retained_earnings",
+          "definition": "FIFO retained earnings",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "tax >= 0",
+        "tax <= 1"
+      ],
+      "assumptions": [
+        "The reserve reflects cumulative FIFO-minus-LIFO differences for the same entity and date.",
+        "A single tax rate applies to the cumulative adjustment, with all other retained-earnings effects unchanged."
+      ],
+      "limitations": [
+        "Different historical tax rates require an explicit cumulative tax adjustment, as illustrated elsewhere in the reading.",
+        "This analytical restatement does not itself imply a cash tax payment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 5, Illustrations of Inventory Analysis, printed p323 (PDF p337), practice solution 46",
+          "evidence": "The solution adds the after-tax LIFO reserve to LIFO retained earnings.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "wiley-inventory-2011",
+          "kind": "primary",
+          "title": "Inventories: Implications for Financial Statements and Ratios",
+          "url": "https://catalogimages.wiley.com/images/db/pdf/9781942471042.excerpt.pdf",
+          "version": "Michael A. Broihahn; CFA Institute copyright 2011; publisher-hosted excerpt",
+          "accessed": "2026-11-03",
+          "locator": "Reading 16, practice solutions 4, 7 and 8",
+          "evidence": "The worked solutions adjust retained earnings for the after-tax LIFO reserve, cost of sales for write-down charges and reserve changes, and income for after-tax write-down charges.",
+          "license": "Publisher copyright retained; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "karp",
+          "inputs": {
+            "retained": 787,
+            "reserve": 155,
+            "tax": 0.2
+          },
+          "expected": 911,
+          "tolerance": 1e-09,
+          "method": "787 plus 155 times 0.8 gives 911 in consistent monetary units.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero-tax",
+          "inputs": {
+            "retained": 100,
+            "reserve": 20,
+            "tax": 0
+          },
+          "expected": 120,
+          "tolerance": 1e-09,
+          "method": "With zero tax, a reserve of 20 raises retained earnings from 100 to 120.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "reserve": 155,
+            "tax": 0.2
+          },
+          "reason": "retained is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "retained=fifo-reserve*(1-tax); reserve=(fifo-retained)/(1-tax) when tax is not one.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--fifo-adjusted-cost-of-sales-without-inventory-writedown",
+      "revision": "r1",
+      "title": "FIFO cost of sales excluding inventory write-down charge",
+      "summary": "The solution subtracts both the write-down charge and change in LIFO reserve from reported cost of sales.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "adjusted",
+        "expression": "lifo - charge - change",
+        "original_equation": "Adjusted FIFO cost of sales = LIFO cost of sales - write-down charge - reserve change",
+        "source_id": "wiley-inventory-2011",
+        "locator": "Reading 16, practice solutions 4, 7 and 8",
+        "translation_notes": "Reserve change can be negative; all inputs use a common currency."
+      },
+      "variables": [
+        {
+          "symbol": "lifo",
+          "source_symbol": "reported LIFO cost of sales",
+          "role": "input",
+          "quantity_id": "lifo_cost_of_sales",
+          "definition": "reported LIFO cost of sales",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "charge",
+          "source_symbol": "write-down charge included in cost of sales",
+          "role": "input",
+          "quantity_id": "inventory_writedown_charge_in_cost_of_sales",
+          "definition": "write-down charge included in cost of sales",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "change",
+          "source_symbol": "change in LIFO reserve",
+          "role": "input",
+          "quantity_id": "lifo_reserve_change",
+          "definition": "change in LIFO reserve",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "adjusted",
+          "source_symbol": "FIFO cost of sales excluding charge",
+          "role": "output",
+          "quantity_id": "fifo_cost_of_sales_excluding_writedown",
+          "definition": "FIFO cost of sales excluding charge",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "charge >= 0"
+      ],
+      "assumptions": [
+        "The charge is included in reported cost of sales and is not separately included in the reserve-change adjustment.",
+        "The reserve change is ending minus beginning FIFO-minus-LIFO reserve for the same period."
+      ],
+      "limitations": [
+        "The adjustment is for comparability and does not assert the expense should be removed under reporting standards.",
+        "Other inventory movements require separate reconciliation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 5, Illustrations of Inventory Analysis, printed p320 (PDF p334), practice solution 28",
+          "evidence": "The solution subtracts both the write-down charge and change in LIFO reserve from reported cost of sales.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "wiley-inventory-2011",
+          "kind": "primary",
+          "title": "Inventories: Implications for Financial Statements and Ratios",
+          "url": "https://catalogimages.wiley.com/images/db/pdf/9781942471042.excerpt.pdf",
+          "version": "Michael A. Broihahn; CFA Institute copyright 2011; publisher-hosted excerpt",
+          "accessed": "2026-11-03",
+          "locator": "Reading 16, practice solutions 4, 7 and 8",
+          "evidence": "The worked solutions adjust retained earnings for the after-tax LIFO reserve, cost of sales for write-down charges and reserve changes, and income for after-tax write-down charges.",
+          "license": "Publisher copyright retained; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "practice",
+          "inputs": {
+            "lifo": 3120,
+            "charge": 13,
+            "change": -17
+          },
+          "expected": 3124,
+          "tolerance": 1e-09,
+          "method": "3,120 less 13 plus the 17 reserve decrease yields 3,124.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "increase",
+          "inputs": {
+            "lifo": 1000,
+            "charge": 20,
+            "change": 50
+          },
+          "expected": 930,
+          "tolerance": 1e-09,
+          "method": "1,000 less a 20 write-down charge and 50 reserve increase yields 930.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "charge": 13,
+            "change": -17
+          },
+          "reason": "lifo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "lifo=adjusted+charge+change; charge and reserve change cannot both be recovered without further information.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--net-income-excluding-inventory-writedown-charge",
+      "revision": "r1",
+      "title": "Net income excluding an inventory write-down charge",
+      "summary": "The reading removes a current-period inventory allowance charge and its corresponding tax effect from income.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "adjusted",
+        "expression": "income + charge * (1 - tax)",
+        "original_equation": "Adjusted income = reported income + write-down charge × (1 - tax rate)",
+        "source_id": "wiley-inventory-2011",
+        "locator": "Reading 16, practice solutions 4, 7 and 8",
+        "translation_notes": "The charge is a nonnegative expense magnitude; the tax rate is base one."
+      },
+      "variables": [
+        {
+          "symbol": "income",
+          "source_symbol": "reported net income",
+          "role": "input",
+          "quantity_id": "reported_net_income",
+          "definition": "reported net income",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "charge",
+          "source_symbol": "inventory write-down charge",
+          "role": "input",
+          "quantity_id": "inventory_writedown_charge",
+          "definition": "inventory write-down charge",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "tax",
+          "source_symbol": "tax rate",
+          "role": "input",
+          "quantity_id": "inventory_adjustment_tax_rate",
+          "definition": "Tax rate applicable to the charge",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "adjusted",
+          "source_symbol": "income excluding write-down charge",
+          "role": "output",
+          "quantity_id": "net_income_excluding_inventory_writedown",
+          "definition": "income excluding write-down charge",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "charge >= 0",
+        "tax >= 0",
+        "tax <= 1"
+      ],
+      "assumptions": [
+        "The input charge reduced reported pretax income and the stated tax rate applies to that incremental change.",
+        "No other tax effects or valuation changes are being removed."
+      ],
+      "limitations": [
+        "A recovery is a different signed adjustment and is outside this positive-charge profile.",
+        "This is an analyst comparison, not a revised reported accounting result."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 5, Inventory Adjustments, printed p283 (PDF p297), Example 8 solution 3; practice solution 29 printed p320 (PDF p334)",
+          "evidence": "The reading removes a current-period inventory allowance charge and its corresponding tax effect from income.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "wiley-inventory-2011",
+          "kind": "primary",
+          "title": "Inventories: Implications for Financial Statements and Ratios",
+          "url": "https://catalogimages.wiley.com/images/db/pdf/9781942471042.excerpt.pdf",
+          "version": "Michael A. Broihahn; CFA Institute copyright 2011; publisher-hosted excerpt",
+          "accessed": "2026-11-03",
+          "locator": "Reading 16, practice solutions 4, 7 and 8",
+          "evidence": "The worked solutions adjust retained earnings for the after-tax LIFO reserve, cost of sales for write-down charges and reserve changes, and income for after-tax write-down charges.",
+          "license": "Publisher copyright retained; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "practice",
+          "inputs": {
+            "income": 327,
+            "charge": 15,
+            "tax": 0.3
+          },
+          "expected": 337.5,
+          "tolerance": 1e-09,
+          "method": "327 plus the after-tax effect of a 15 charge at 30% yields 337.5.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero",
+          "inputs": {
+            "income": 100,
+            "charge": 0,
+            "tax": 0.25
+          },
+          "expected": 100,
+          "tolerance": 1e-09,
+          "method": "With no write-down charge income is unchanged.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "charge": 15,
+            "tax": 0.3
+          },
+          "reason": "income is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "income=adjusted-charge*(1-tax); charge=(adjusted-income)/(1-tax) when tax is not one.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

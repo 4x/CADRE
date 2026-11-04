@@ -1,0 +1,188 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b1-b32",
+  "batch_sha256": "8a5aa1b36711bcddae30716d21ee150399806eb4271a7e978e176e2f8825cad8",
+  "reviewer": "ingest-clinical",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--large-sample-skewness-approximation",
+      "revision": "r2",
+      "record_sha256": "7b13818c8a24875c51406899227f8256acb43df1f1b3c17c9642cdf196119d9f",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH section 1.3.5.11 verified live 2026-11-04: Fisher-Pearson g1=sum(Y-Ybar)^3/N/s^3 displayed with the N-vs-adjusted convention discussion. Caveat weighed: NIST computes s with N while the record uses sample s; the record discloses this convention mismatch in assumptions, and the form matches."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "CFA large-sample approximation with sample s, not a bias-corrected estimator; finite-sample scale conventions must match at binding."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "sum over a data-unit^3 cube family divided by (len*s^3[data-unit^3]) gives unit-1 skew. data-unit^3, cubed_mean_deviation, sample_standard_deviation, large_sample_skewness_approximation are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2 via an independent Decimal route over the 100-element families: symmetric case 0; one-outlier case 9.702, both exact within tol 1e-9."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "len>=100 and s>0 enforce the large-sample profile. Inverse recovers total cubed deviation n*skew*s^3 only; skew 0 does not imply symmetry, correctly stated."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH handbook corroboration only: short equations and numerical facts; no handbook text redistributed. NIST employee works are not subject to US copyright (17 USC 105) with foreign rights possible and acknowledgment required, verified live 2026-11-04 at the NIST license page. No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda35b.htm",
+          "locator": "Section 1.3.5.11, Definition of Skewness",
+          "accessed": "2026-11-04",
+          "finding": "Live page: Fisher-Pearson g1 with N-denominator s convention discussed."
+        },
+        {
+          "url": "https://www.nist.gov/open/copyright-fair-use-and-licensing-statements-srd-data-software-and-technical-series-publications",
+          "locator": "Fair Use of Other NIST Data/Works",
+          "accessed": "2026-11-04",
+          "finding": "Live page: 17 USC 105, no US copyright for employee works, foreign rights possible, acknowledgment required."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Large-sample skewness approximation with disclosed sample-s convention, for qualified shape review."
+    },
+    {
+      "id": "financial-analysis--large-sample-excess-kurtosis-approximation",
+      "revision": "r2",
+      "record_sha256": "91dfe7a77ae4fea0d5e6fa1efc4234ecbc9e75a92750c86f72c3d9639f36572f",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH section 1.3.5.11 verified live 2026-11-04: kurtosis=sum(Y-Ybar)^4/N/s^4 with the excess (-3) alternative definition displayed. Caveat weighed as with skewness: NIST uses N-denominator s while the record uses sample s, disclosed in the record."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "CFA large-sample excess kurtosis with sample s; not an unbiased estimator; population-kurtosis bounds need normalization adjustment."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "sum over a data-unit^4 fourth-power family divided by (len*s^4) minus 3 gives unit-1 excess. data-unit^4, fourth_power_mean_deviation, sample_standard_deviation, large_sample_excess_kurtosis_approximation are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2 over the 100-element families: two-point case -2.0199; one-outlier case 93.0597, both exact within tol 1e-9."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "len>=100, s>0, sum>=0. Inverse recovers fourth-power total n*(excess+3)*s^4 only; observations and tail probabilities unidentified, correctly."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH handbook corroboration only: short equations and numerical facts; no handbook text redistributed. NIST employee works are not subject to US copyright (17 USC 105) with foreign rights possible and acknowledgment required, verified live 2026-11-04 at the NIST license page. No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda35b.htm",
+          "locator": "Section 1.3.5.11, kurtosis and excess kurtosis",
+          "accessed": "2026-11-04",
+          "finding": "Live page: fourth-moment kurtosis with the -3 excess alternative displayed."
+        },
+        {
+          "url": "https://www.nist.gov/open/copyright-fair-use-and-licensing-statements-srd-data-software-and-technical-series-publications",
+          "locator": "Fair Use of Other NIST Data/Works",
+          "accessed": "2026-11-04",
+          "finding": "Live page: 17 USC 105, no US copyright for employee works, foreign rights possible, acknowledgment required."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Large-sample excess-kurtosis approximation with disclosed sample-s convention, for qualified shape review."
+    },
+    {
+      "id": "financial-analysis--probability-complement",
+      "revision": "r2",
+      "record_sha256": "8b831816fa8f5f496bfd350225477df7d1f7ec15b78c17b2682633262f5493a9",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "OpenStax Introductory Statistics 2e section 3.1 verified live 2026-11-04: P(A)+P(A')=1 with the complement definition; matches. Formula fully verified - revision need is rights-metadata-only."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Complement in one complete probability space; no probability estimation performed."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "1-p[1] gives q[1]; dimensionless throughout. event_probability and complement_event_probability are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 1-.65=.35; 1-1=0, exact. Formula corroboration below is complete; only rights metadata blocks."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "0<=p<=1. Inverse p=1-q unique; endpoints exchange correctly."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: Worker records the OpenStax source license as CC BY 4.0, but the book page footer verified live 2026-11-04 states CC BY-NC-SA 4.0 (noncommercial + share-alike). The license string must be corrected before admission."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://openstax.org/books/introductory-statistics-2e/pages/3-1-terminology",
+          "locator": "Section 3.1, complement definition",
+          "accessed": "2026-11-04",
+          "finding": "Live page: P(A)+P(A')=1 with complement definition and die example; footer shows CC BY-NC-SA 4.0, contradicting the record CC BY 4.0 string."
+        }
+      ],
+      "blockers": [
+        "Rights metadata correction required: record claims CC BY 4.0 for OpenStax Intro Stats 2e, but the live page footer states CC BY-NC-SA 4.0.",
+        "Requires runtime extension (new probability meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending the license-string correction and runtime extension. Formula verification is complete."
+    },
+    {
+      "id": "financial-analysis--probability-to-odds",
+      "revision": "r2",
+      "record_sha256": "16918299c52676388a6ec6e23f0b644dc1bd4244bd53522c039ee9bf512d2f9f",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating UCLA odds-ratio FAQ page not opened by reviewer."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Finite odds as ratios (may exceed 1); the certain-event endpoint is explicitly excluded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "p[1]/(1-p) gives unit-1 odds. event_probability and event_odds are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: .8/.2=4; 0/1=0, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "0<=p<1 enforces finite odds. Inverse p=odds/(1+odds) needs odds>=0; p=1 (infinite odds) correctly outside the scalar profile."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating source not opened by reviewer (https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faq-how-do-i-interpret-odds-ratios-in-logistic-regression/).",
+        "Requires runtime extension (new probability/odds meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    }
+  ]
+}

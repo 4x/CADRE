@@ -1,0 +1,553 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b66",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. Corrects the access date of public sources first inspected on 2026-11-04 after the session resumed. Formula and source locator are unchanged; previous returns remain preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--specific-borrowing-cost-capitalization-ifrs",
+      "revision": "r3",
+      "title": "Eligible specific borrowing costs net of investment income",
+      "summary": "The IFRS example deducts temporary investment income from borrowing costs on funds raised specifically for construction.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "eligible",
+        "expression": "costs - income",
+        "original_equation": "Eligible borrowing costs = specific borrowing costs - temporary investment income",
+        "source_id": "aasb123-2020",
+        "locator": "Paragraphs 12–13, specific borrowings",
+        "translation_notes": "Both inputs are nonnegative amounts in the same currency; this profile excludes income above costs. The accessible Australian standard is cited as corroboration of the matching rule; jurisdiction-specific differences require review."
+      },
+      "variables": [
+        {
+          "symbol": "costs",
+          "source_symbol": "actual specific borrowing costs",
+          "role": "input",
+          "quantity_id": "specific_borrowing_costs",
+          "definition": "actual specific borrowing costs",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "income",
+          "source_symbol": "temporary investment income",
+          "role": "input",
+          "quantity_id": "temporary_investment_income_specific_borrowing",
+          "definition": "temporary investment income",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "eligible",
+          "source_symbol": "eligible borrowing costs",
+          "role": "output",
+          "quantity_id": "eligible_specific_borrowing_costs",
+          "definition": "eligible borrowing costs",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "costs >= 0",
+        "income >= 0",
+        "costs >= income"
+      ],
+      "assumptions": [
+        "Borrowings are specific to a qualifying asset and costs arise during the eligible capitalization period.",
+        "The income is earned from temporary investment of those same borrowings."
+      ],
+      "limitations": [
+        "General borrowings require a separate capitalization-rate calculation.",
+        "The IFRS treatment differs from the US GAAP treatment described in the reading."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 6, Acquisition of Property, Plant and Equipment, printed pp329–330 (PDF pp343–344), Example 2 solution 1",
+          "evidence": "The IFRS example deducts temporary investment income from borrowing costs on funds raised specifically for construction.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "aasb123-2020",
+          "kind": "primary",
+          "title": "AASB 123 Borrowing Costs",
+          "url": "https://standards.aasb.gov.au/aasb-123-mar-2020",
+          "version": "Australian Accounting Standards Board, compilation issued 6 March 2020",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 12–13, specific borrowings",
+          "evidence": "Borrowing costs specific to a qualifying asset are reduced by investment income earned on temporarily invested borrowings.",
+          "license": "Australian Accounting Standards Board copyright; formula-level facts and original paraphrase only; historical compilation, not a claim of current law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "example",
+          "inputs": {
+            "costs": 200000,
+            "income": 20000
+          },
+          "expected": 180000,
+          "tolerance": 1e-09,
+          "method": "200,000 borrowing costs less 20,000 temporary investment income gives 180,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "none",
+          "inputs": {
+            "costs": 100,
+            "income": 0
+          },
+          "expected": 100,
+          "tolerance": 1e-09,
+          "method": "No investment income leaves 100 eligible borrowing costs.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "income": 20000
+          },
+          "reason": "costs is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "costs=eligible+income; income=costs-eligible.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--depreciable-asset-tax-base-from-cost-and-deductions",
+      "revision": "r3",
+      "title": "Depreciable asset tax base from cost and tax deductions",
+      "summary": "The development-cost example subtracts the tax amortization already taken from original cost.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "taxbase",
+        "expression": "cost - deductions",
+        "original_equation": "Tax base = original cost - cumulative tax deductions",
+        "source_id": "aasb112-2020",
+        "locator": "Paragraphs 6–8, 15, 24–25, 47 and 60–62",
+        "translation_notes": "Amounts share currency; deductions are nonnegative and do not exceed cost in this profile. The accessible Australian standard is cited as corroboration of the matching rule; jurisdiction-specific differences require review."
+      },
+      "variables": [
+        {
+          "symbol": "cost",
+          "source_symbol": "original asset tax cost",
+          "role": "input",
+          "quantity_id": "asset_original_tax_cost",
+          "definition": "original asset tax cost",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "deductions",
+          "source_symbol": "cumulative tax deductions",
+          "role": "input",
+          "quantity_id": "asset_cumulative_tax_deductions",
+          "definition": "cumulative tax deductions",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "taxbase",
+          "source_symbol": "asset tax base",
+          "role": "output",
+          "quantity_id": "asset_tax_base",
+          "definition": "asset tax base",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "cost >= 0",
+        "deductions >= 0",
+        "cost >= deductions"
+      ],
+      "assumptions": [
+        "Original cost is deductible over time under the specified tax law and future taxable benefits are expected.",
+        "Cumulative deductions are the portion already allowed for this same asset."
+      ],
+      "limitations": [
+        "Nontaxable benefits, tax credits, indexed bases, other adjustments and disposal-specific rules require separate analysis."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 7, Determining the Tax Base of Assets and Liabilities, printed pp412–413 (PDF pp426–427), Example 2 solution 2",
+          "evidence": "The development-cost example subtracts the tax amortization already taken from original cost.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "aasb112-2020",
+          "kind": "primary",
+          "title": "AASB 112 Income Taxes",
+          "url": "https://standards.aasb.gov.au/aasb-112-mar-2020",
+          "version": "Australian Accounting Standards Board, compilation issued 6 March 2020",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 6–8, 15, 24–25, 47 and 60–62",
+          "evidence": "The Australian standard states the tax-base, deferred-tax measurement and tax-expense principles used here and identifies its relationship to IAS 12.",
+          "license": "Australian Accounting Standards Board copyright; formula-level facts and original paraphrase only; historical compilation, not a claim of current law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "ias",
+          "inputs": {
+            "cost": 100,
+            "deductions": 30
+          },
+          "expected": 70,
+          "tolerance": 1e-09,
+          "method": "Cost 100 less prior tax depreciation 30 gives tax base 70.",
+          "provenance": "IAS 12 paragraph 7 example 1."
+        },
+        {
+          "id": "development",
+          "inputs": {
+            "cost": 3000000,
+            "deductions": 750000
+          },
+          "expected": 2250000,
+          "tolerance": 1e-09,
+          "method": "3 million less 25% tax amortization gives 2.25 million.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "deductions": 30
+          },
+          "reason": "cost is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cost=taxbase+deductions; deductions=cost-taxbase.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--liability-tax-base-from-future-deduction",
+      "revision": "r3",
+      "title": "Liability tax base from future deduction",
+      "summary": "The tax base of a liability is its carrying amount less amounts deductible in future.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "taxbase",
+        "expression": "carrying - deductible",
+        "original_equation": "Liability tax base = carrying amount - future deductible amount",
+        "source_id": "aasb112-2020",
+        "locator": "Paragraphs 6–8, 15, 24–25, 47 and 60–62",
+        "translation_notes": "Amounts use one currency; the profile restricts future deduction to the liability amount. The accessible Australian standard is cited as corroboration of the matching rule; jurisdiction-specific differences require review."
+      },
+      "variables": [
+        {
+          "symbol": "carrying",
+          "source_symbol": "liability carrying amount",
+          "role": "input",
+          "quantity_id": "liability_carrying_amount",
+          "definition": "liability carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "deductible",
+          "source_symbol": "future tax-deductible amount",
+          "role": "input",
+          "quantity_id": "liability_future_tax_deduction",
+          "definition": "future tax-deductible amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "taxbase",
+          "source_symbol": "liability tax base",
+          "role": "output",
+          "quantity_id": "liability_tax_base",
+          "definition": "liability tax base",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "carrying >= 0",
+        "deductible >= 0",
+        "carrying >= deductible"
+      ],
+      "assumptions": [
+        "The future deduction relates to settlement of the same recognized liability and applicable tax regime.",
+        "The amount has not already been deducted."
+      ],
+      "limitations": [
+        "Advance revenue uses the separate nontaxable-future-revenue rule.",
+        "Recognition of any deferred tax asset requires further assessment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 7, Determining the Tax Base of a Liability, printed p414 (PDF p428), unnumbered definition",
+          "evidence": "The tax base of a liability is its carrying amount less amounts deductible in future.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "aasb112-2020",
+          "kind": "primary",
+          "title": "AASB 112 Income Taxes",
+          "url": "https://standards.aasb.gov.au/aasb-112-mar-2020",
+          "version": "Australian Accounting Standards Board, compilation issued 6 March 2020",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 6–8, 15, 24–25, 47 and 60–62",
+          "evidence": "The Australian standard states the tax-base, deferred-tax measurement and tax-expense principles used here and identifies its relationship to IAS 12.",
+          "license": "Australian Accounting Standards Board copyright; formula-level facts and original paraphrase only; historical compilation, not a claim of current law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "accrual",
+          "inputs": {
+            "carrying": 100,
+            "deductible": 100
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "A 100 accrued expense deductible in full on payment has zero tax base.",
+          "provenance": "IAS 12 paragraph 8 example 1."
+        },
+        {
+          "id": "partial",
+          "inputs": {
+            "carrying": 100,
+            "deductible": 40
+          },
+          "expected": 60,
+          "tolerance": 1e-09,
+          "method": "A 100 liability with 40 future deduction has tax base 60.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "deductible": 100
+          },
+          "reason": "carrying is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "carrying=taxbase+deductible; deductible=carrying-taxbase.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--deferred-revenue-liability-tax-base",
+      "revision": "r3",
+      "title": "Tax base of a deferred revenue liability",
+      "summary": "Revenue received in advance that will not be taxed in future is subtracted from the liability carrying amount.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "taxbase",
+        "expression": "carrying - nontaxable",
+        "original_equation": "Tax base = liability carrying amount - revenue not taxable in future",
+        "source_id": "aasb112-2020",
+        "locator": "Paragraphs 6–8, 15, 24–25, 47 and 60–62",
+        "translation_notes": "Amounts share one currency; future nontaxable revenue is between zero and the carrying amount. The accessible Australian standard is cited as corroboration of the matching rule; jurisdiction-specific differences require review."
+      },
+      "variables": [
+        {
+          "symbol": "carrying",
+          "source_symbol": "deferred revenue liability carrying amount",
+          "role": "input",
+          "quantity_id": "deferred_revenue_liability_carrying_amount",
+          "definition": "deferred revenue liability carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "nontaxable",
+          "source_symbol": "revenue not taxable in future",
+          "role": "input",
+          "quantity_id": "deferred_revenue_future_nontaxable_amount",
+          "definition": "revenue not taxable in future",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "taxbase",
+          "source_symbol": "deferred revenue tax base",
+          "role": "output",
+          "quantity_id": "deferred_revenue_liability_tax_base",
+          "definition": "deferred revenue tax base",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "carrying >= 0",
+        "nontaxable >= 0",
+        "carrying >= nontaxable"
+      ],
+      "assumptions": [
+        "The input is the part of the same deferred-revenue balance that will not be taxed in future.",
+        "Amounts reflect the applicable tax law and same reporting date."
+      ],
+      "limitations": [
+        "The result does not by itself establish the amount of a recognized deferred tax asset.",
+        "The tax treatment may differ across jurisdictions."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 7, Determining the Tax Base of a Liability, printed p414 (PDF p428), Example 3 solutions 2–3",
+          "evidence": "Revenue received in advance that will not be taxed in future is subtracted from the liability carrying amount.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "aasb112-2020",
+          "kind": "primary",
+          "title": "AASB 112 Income Taxes",
+          "url": "https://standards.aasb.gov.au/aasb-112-mar-2020",
+          "version": "Australian Accounting Standards Board, compilation issued 6 March 2020",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 6–8, 15, 24–25, 47 and 60–62",
+          "evidence": "The Australian standard states the tax-base, deferred-tax measurement and tax-expense principles used here and identifies its relationship to IAS 12.",
+          "license": "Australian Accounting Standards Board copyright; formula-level facts and original paraphrase only; historical compilation, not a claim of current law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "advance-interest",
+          "inputs": {
+            "carrying": 300000,
+            "nontaxable": 300000
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Interest paid in advance and already fully taxed has zero tax base.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "partial",
+          "inputs": {
+            "carrying": 100,
+            "nontaxable": 40
+          },
+          "expected": 60,
+          "tolerance": 1e-09,
+          "method": "Of 100 deferred revenue, 40 not taxable in future gives a tax base of 60.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "nontaxable": 300000
+          },
+          "reason": "carrying is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "carrying=taxbase+nontaxable; nontaxable=carrying-taxbase.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

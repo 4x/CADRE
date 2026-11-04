@@ -1,0 +1,633 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.9",
+  "batch_id": "financial-analysis-cfa-l3-v1-b02",
+  "domain": "financial-analysis",
+  "curator": "buffy",
+  "created": "2026-11-04",
+  "example_only": false,
+  "models": [
+    {
+      "id": "financial-analysis--singer-terhaar-risk-premium-blend",
+      "revision": "r1",
+      "title": "Singer-Terhaar blended risk premium for partially integrated markets",
+      "summary": "Asset risk premium as the integration-weighted average of the fully-integrated global-CAPM premium and the fully-segmented local premium.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "RPi",
+        "expression": "phi * RPiG + (1 - phi) * RPiS",
+        "original_equation": "RPi = φ RPiG + (1 − φ) RPiS",
+        "source_id": "analystprep-l3-equity-forecasting",
+        "locator": "PDF: LM2 Forecasting Equity Returns, printed p. 88 (PDF p. 98), Eq. 6; worked example printed p. 89 (PDF p. 99)",
+        "translation_notes": "Source expresses rates as percentages; record uses decimal form (unit 1) with no conversion factor inlined. phi is the degree of global integration (1 = fully integrated). Component premiums RPiG (Eq. 4) and RPiS (Eq. 5) are curated as separate companion records. Dimensional check: dimensionless weights times dimensionless premiums, sum is a dimensionless premium."
+      },
+      "variables": [
+        {
+          "symbol": "phi",
+          "source_symbol": "φ",
+          "role": "input",
+          "quantity_id": "market_integration_degree",
+          "definition": "Degree to which the asset's market is globally integrated, from 0 (fully segmented) to 1 (fully integrated)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset and global market pair as RPi",
+          "domain": "Closed interval 0 to 1 inclusive"
+        },
+        {
+          "symbol": "RPiG",
+          "source_symbol": "RPiG",
+          "role": "input",
+          "quantity_id": "integrated_market_risk_premium",
+          "definition": "Risk premium under full global integration (global-CAPM component, Eq. 4), in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset and global market pair as RPi",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "RPiS",
+          "source_symbol": "RPiS",
+          "role": "input",
+          "quantity_id": "segmented_market_risk_premium",
+          "definition": "Risk premium under complete segmentation (asset as its own market, Eq. 5), in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset and segmented market as RPi",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "RPi",
+          "source_symbol": "RPi",
+          "role": "output",
+          "quantity_id": "blended_risk_premium",
+          "definition": "Final Singer-Terhaar risk premium estimate for asset i, in decimal form; expected return adds the risk-free rate",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset and global market pair as inputs",
+          "domain": "Finite decimal premium"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "phi >= 0",
+        "phi <= 1"
+      ],
+      "assumptions": [
+        "The analyst supplies phi as a judgment about integration (source suggests 0.75–0.90 for developed, 0.50–0.75 for emerging markets as starting points).",
+        "Source assumption: pragmatic implementation sets all Sharpe ratios equal to the global Sharpe ratio."
+      ],
+      "limitations": [
+        "phi is a judgmental input, not estimated by the model; results are sensitive to it.",
+        "A more complex variant allowing within-country asset-class integration (per source footnote 14) is outside this record."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-singer-terhaar-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Forecasting Equity Returns, printed pp. 88–89 (PDF pp. 98–99), Eqs. 4–6 and worked German shares/bonds example",
+          "evidence": "Passage derives integrated and segmented CAPM components and blends them with the integration weight phi, then works German shares (85% integration: 3.57%/5.95% → 3.93%) and bonds (1.05%/1.75% → 1.16%).",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-l3-equity-forecasting",
+          "kind": "primary",
+          "title": "Equity Forecasting Models (AnalystPrep CFA Level III study notes)",
+          "url": "https://analystprep.com/study-notes/cfa-level-iii/equity-forecasting/",
+          "version": "Study notes, 14 Jun 2023",
+          "accessed": "2026-11-04",
+          "locator": "Singer-Terhaar Model section: ERP_i as degree-of-integration times integrated component plus degree-of-segmentation times segmented component",
+          "evidence": "Page states the model blends a fully segmented and a fully integrated market with an adjustment for the degree of integration, giving ERP as integration-weighted integrated term plus segmentation-weighted segmented term — the same weighted-average structure as the PDF's Eq. 6.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-german-shares",
+          "inputs": {
+            "phi": 0.85,
+            "RPiG": 0.0357,
+            "RPiS": 0.0595
+          },
+          "expected": 0.03927,
+          "tolerance": 1e-06,
+          "method": "Source inputs (3.57% integrated, 5.95% segmented, phi 0.85) in decimals: 0.85·0.0357 + 0.15·0.0595 = 0.03927, matching published 3.93% to stated rounding.",
+          "provenance": "Published result: LM2 worked example, printed p. 89 (PDF p. 99)"
+        },
+        {
+          "id": "published-german-bonds",
+          "inputs": {
+            "phi": 0.85,
+            "RPiG": 0.0105,
+            "RPiS": 0.0175
+          },
+          "expected": 0.01155,
+          "tolerance": 1e-06,
+          "method": "Source inputs (1.05% integrated, 1.75% segmented, phi 0.85) in decimals: 0.85·0.0105 + 0.15·0.0175 = 0.01155, matching published 1.16% to stated rounding.",
+          "provenance": "Published result: LM2 worked example, printed p. 89 (PDF p. 99)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "phi": 1.2,
+            "RPiG": 0.0357,
+            "RPiS": 0.0595
+          },
+          "reason": "Integration degree above 1 violates the closed-interval domain (guard phi <= 1); extrapolation beyond full integration needs a different model."
+        },
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "phi": 0.85,
+            "RPiG": 0.0357
+          },
+          "reason": "Segmented-market premium is a required input; the blend cannot be formed from the integrated component alone."
+        }
+      ],
+      "inverse_notes": "Linear in each premium: RPiG = (RPi − (1−phi)·RPiS)/phi requires phi ≠ 0; RPiS = (RPi − phi·RPiG)/(1−phi) requires phi ≠ 1; phi = (RPi − RPiS)/(RPiG − RPiS) requires distinct components. Boundary phi=0 (fully segmented) and phi=1 (fully integrated) are admissible and collapse to one component. Algebraic only; phi remains a judgment, not an estimated quantity.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings market_integration_degree, integrated_market_risk_premium, segmented_market_risk_premium, blended_risk_premium are not in the runtime vocabulary snapshot and require extension.",
+          "Companion component records (integrated Eq. 4, segmented Eq. 5) are queued, not yet curated."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--capm-beta-correlation-volatility",
+      "revision": "r1",
+      "title": "CAPM beta from correlation and volatilities",
+      "summary": "Asset beta as the asset–market correlation times the ratio of asset volatility to market volatility.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "beta",
+        "expression": "rho * sigi / sigm",
+        "original_equation": "βi,M = Cov(Ri, RM) / Var(RM) = ρi,M (σi / σM)",
+        "source_id": "analystprep-beta-capm",
+        "locator": "PDF: LM2 Forecasting Equity Returns, printed p. 88 (PDF p. 98), Eq. 3",
+        "translation_notes": "Curated form is the second equality of Eq. 3 (correlation form), which uses only volatilities and correlation rather than covariance/variance moments. sigi and sigm must share the same return-volatility units (unit 1, decimal form). Dimensional check: dimensionless correlation times ratio of two identical volatility dimensions = dimensionless beta."
+      },
+      "variables": [
+        {
+          "symbol": "rho",
+          "source_symbol": "ρi,M",
+          "role": "input",
+          "quantity_id": "asset_market_correlation",
+          "definition": "Correlation between asset i returns and market portfolio returns",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset, market portfolio, and estimation window as beta",
+          "domain": "Closed interval -1 to 1 inclusive"
+        },
+        {
+          "symbol": "sigi",
+          "source_symbol": "σi",
+          "role": "input",
+          "quantity_id": "asset_return_volatility",
+          "definition": "Standard deviation of asset i returns, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset and estimation window as beta",
+          "domain": "Nonnegative finite volatility"
+        },
+        {
+          "symbol": "sigm",
+          "source_symbol": "σM",
+          "role": "input",
+          "quantity_id": "market_return_volatility",
+          "definition": "Standard deviation of market portfolio returns, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same market portfolio and estimation window as beta",
+          "domain": "Positive finite volatility"
+        },
+        {
+          "symbol": "beta",
+          "source_symbol": "βi,M",
+          "role": "output",
+          "quantity_id": "capm_beta",
+          "definition": "Asset i sensitivity to the market portfolio (CAPM beta)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset, market portfolio, and estimation window as inputs",
+          "domain": "Finite beta; 1 moves with the market, 0 is market-neutral"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sigm > 0",
+        "sigi >= 0"
+      ],
+      "assumptions": [
+        "Asset and market volatilities are estimated over the same window and in consistent return units.",
+        "Source assumption (CAPM framing): beta measures sensitivity to the stated market portfolio."
+      ],
+      "limitations": [
+        "Point estimate conditional on the estimation window; sampling error in correlation and volatilities is not modeled here.",
+        "The covariance/variance moment form (first equality of Eq. 3) is an equivalent restatement, not a separate record."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-capm-beta-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Forecasting Equity Returns, printed p. 88 (PDF p. 98), Eqs. 2–3",
+          "evidence": "Passage states the CAPM pricing relationship RPi = βi,M·RPM with beta as Cov/Var and equivalently as correlation times the volatility ratio.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-beta-capm",
+          "kind": "primary",
+          "title": "CAPM Beta Explained and Formula Examples (AnalystPrep blog)",
+          "url": "https://analystprep.com/blog/beta-and-capm/",
+          "version": "Blog article, 15 Dec 2020",
+          "accessed": "2026-11-04",
+          "locator": "Beta formulae section: βi = Cov(i,m)/σ²m = ρim × σi/σm, with worked examples",
+          "evidence": "Page derives beta as covariance over market variance and equivalently as correlation times the asset-to-market volatility ratio, with a worked example (0.6 × 0.18/0.14 = 0.77) confirming the curated form.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-beta-example",
+          "inputs": {
+            "rho": 0.6,
+            "sigi": 0.18,
+            "sigm": 0.14
+          },
+          "expected": 0.771428571,
+          "tolerance": 1e-06,
+          "method": "Corroborating source's worked example recomputed: 0.6 × 0.18/0.14 = 0.7714 (source rounds to 0.77).",
+          "provenance": "Published result: AnalystPrep beta article Example 1, with documented rounding"
+        },
+        {
+          "id": "perfect-tracking-boundary",
+          "inputs": {
+            "rho": 1,
+            "sigi": 0.2,
+            "sigm": 0.2
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "Perfectly correlated equal volatilities give beta 1 by direct substitution. Independently constructed boundary check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "rho": 0.6,
+            "sigi": 0.18,
+            "sigm": 0
+          },
+          "reason": "Zero market volatility makes beta undefined (guard sigm > 0); a degenerate constant market needs a different treatment."
+        }
+      ],
+      "inverse_notes": "rho = beta·sigm/sigi requires sigi ≠ 0; sigi = beta·sigm/rho requires rho ≠ 0; sigm = rho·sigi/beta requires beta ≠ 0. The covariance form β = Cov/Var is an equivalent restatement of the same relationship, not a separate model. Algebraic only; correlation is estimated, not caused, by inversion.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings asset_market_correlation, asset_return_volatility, market_return_volatility, capm_beta are not in the runtime vocabulary snapshot and require extension.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--building-block-fixed-income-expected-return",
+      "revision": "r1",
+      "title": "Building-block fixed-income expected return",
+      "summary": "Required/expected fixed-income return as the short-term default-free rate plus term, credit, and liquidity premiums.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ER",
+        "expression": "rf + tp + cp + lp",
+        "original_equation": "Required return = one-period default-free rate + term premium + credit premium + liquidity premium",
+        "source_id": "cfa-institute-cme2-refresher",
+        "locator": "PDF: LM2 Forecasting Fixed Income Returns, printed p. 74 (PDF p. 84); applied in LM2 Solutions, printed p. 129 (PDF p. 139), Q1",
+        "translation_notes": "Source states the four components in prose (premiums compensate interest-rate/duration, credit, and illiquidity risk); record formalizes the stated sum. Decimal form (unit 1) with no conversion factor. Dimensional check: sum of four dimensionless rates."
+      },
+      "variables": [
+        {
+          "symbol": "rf",
+          "source_symbol": "one-period default-free rate",
+          "role": "input",
+          "quantity_id": "short_default_free_rate",
+          "definition": "One-period (short-term) default-free rate matching the forecast horizon, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same fixed-income asset class and forecast horizon as ER",
+          "domain": "Finite decimal rate"
+        },
+        {
+          "symbol": "tp",
+          "source_symbol": "term premium",
+          "role": "input",
+          "quantity_id": "term_premium",
+          "definition": "Additional expected return for duration/interest-rate risk, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same fixed-income asset class and forecast horizon as ER",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "cp",
+          "source_symbol": "credit premium",
+          "role": "input",
+          "quantity_id": "credit_premium",
+          "definition": "Additional expected return for bearing default losses beyond expected loss levels, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same fixed-income asset class and forecast horizon as ER",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "lp",
+          "source_symbol": "liquidity premium",
+          "role": "input",
+          "quantity_id": "liquidity_premium",
+          "definition": "Additional expected return for illiquidity, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same fixed-income asset class and forecast horizon as ER",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "ER",
+          "source_symbol": "required return",
+          "role": "output",
+          "quantity_id": "fixed_income_expected_return",
+          "definition": "Building-block required/expected return for the fixed-income asset class, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same fixed-income asset class and forecast horizon as inputs",
+          "domain": "Finite decimal expected return"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Premiums are stated consistently (same horizon, same compounding) and only the short-term default-free rate is potentially observable; the rest are estimated.",
+        "Forecast horizons much longer than the short instrument need the source's maturity-matching adjustment (outside this sum)."
+      ],
+      "limitations": [
+        "Premiums are embedded in yield spreads but do not equal observed spreads (per source); estimating them is outside this definitional sum.",
+        "In extreme cases (e.g. negative policy rates) the source advises normalizing the short rate or raising a premium rather than using the raw observation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-building-block-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 The Building Block Approach to Fixed-Income Returns, printed p. 74 (PDF p. 84); LM2 Solutions Q1, printed p. 129 (PDF p. 139)",
+          "evidence": "Passage defines the required return with four components (short default-free rate, term, credit, liquidity premiums) and the solutions apply it additively: 1-year gov 1+0=1, 10-year gov 1+1=2, 10-year corporate 1+1+0.75+0.55=3.3.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-institute-cme2-refresher",
+          "kind": "primary",
+          "title": "Capital Market Expectations, Part II: Forecasting Asset Class Returns (CFA Institute refresher reading)",
+          "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/capital-market-expectations-part-ii",
+          "version": "2026 refresher reading, Summary section",
+          "accessed": "2026-11-04",
+          "locator": "Summary: building blocks for fixed-income expected returns are the short-term default-free rate, term premium, credit premium, and liquidity premium",
+          "evidence": "Page lists exactly the four building blocks for fixed-income expected returns, confirming the components of the PDF's additive construction.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-corporate-bond",
+          "inputs": {
+            "rf": 0.01,
+            "tp": 0.01,
+            "cp": 0.0075,
+            "lp": 0.0055
+          },
+          "expected": 0.033,
+          "tolerance": 1e-09,
+          "method": "Source's stated inputs (1%, 1%, 0.75%, 0.55%) in decimals: 0.01 + 0.01 + 0.0075 + 0.0055 = 0.033.",
+          "provenance": "Published result: LM2 Solutions Q1 (printed p. 129) gives 3.3% for the 10-year corporate bond"
+        },
+        {
+          "id": "published-one-year-gov",
+          "inputs": {
+            "rf": 0.01,
+            "tp": 0,
+            "cp": 0,
+            "lp": 0
+          },
+          "expected": 0.01,
+          "tolerance": 1e-09,
+          "method": "Source's 1-year government bond: 1 + 0 = 1%, i.e. 0.01 + 0 + 0 + 0 = 0.01.",
+          "provenance": "Published result: LM2 Solutions Q1 (printed p. 129) gives 1%"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "rf": 0.01,
+            "tp": 0.01
+          },
+          "reason": "Credit and liquidity premiums are required components; a partial sum misstates the defined required return."
+        }
+      ],
+      "inverse_notes": "Linear in each component: rf = ER − tp − cp − lp, and symmetrically for each premium. No singularities. Algebraic only; decomposing an observed spread into these premiums requires additional structure per the source.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings short_default_free_rate, term_premium, credit_premium, liquidity_premium, fixed_income_expected_return are not in the runtime vocabulary snapshot and require extension.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--net-exports-saving-investment-identity",
+      "revision": "r1",
+      "title": "Net exports equals private saving gap plus government surplus",
+      "summary": "National income accounting identity: net exports (X − M) equals net private saving (S − I) plus the government surplus (T − G).",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "NX",
+        "expression": "(S - I) + TS",
+        "original_equation": "(X − M) = (S − I) + (T − G)",
+        "source_id": "suny-macro-textbook-saving-investment",
+        "locator": "PDF: LM1 International Interactions, printed p. 48 (PDF p. 58)",
+        "translation_notes": "TS is introduced for the source symbol (T − G) and defined as the government surplus. All amounts are levels in the same domestic currency unit over the same accounting period. Dimensional check: currency − currency + currency = currency. Record uses USD as the single-currency unit label; the identity holds in any single currency."
+      },
+      "variables": [
+        {
+          "symbol": "S",
+          "source_symbol": "S",
+          "role": "input",
+          "quantity_id": "private_saving",
+          "definition": "Domestic private saving (excess of private saving over the stated period)",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "same economy and national-accounts period as NX",
+          "domain": "Finite saving level; may be any sign per accounts"
+        },
+        {
+          "symbol": "I",
+          "source_symbol": "I",
+          "role": "input",
+          "quantity_id": "private_investment",
+          "definition": "Domestic private investment spending over the stated period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "same economy and national-accounts period as NX",
+          "domain": "Finite investment level"
+        },
+        {
+          "symbol": "TS",
+          "source_symbol": "T − G (introduced as TS)",
+          "role": "input",
+          "quantity_id": "government_surplus",
+          "definition": "Government surplus: tax revenue minus government spending over the stated period; negative when in deficit",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "same economy and national-accounts period as NX",
+          "domain": "Finite surplus level; negative admits the deficit case"
+        },
+        {
+          "symbol": "NX",
+          "source_symbol": "X − M",
+          "role": "output",
+          "quantity_id": "net_exports",
+          "definition": "Net exports: exports minus imports over the stated period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "same economy and national-accounts period as inputs",
+          "domain": "Finite net export level; negative admits the trade-deficit case"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Standard national income accounting with consistent period, economy, and a single currency unit throughout.",
+        "Net exports is the dominant current-account component in the source's framing; the identity itself is exact by construction."
+      ],
+      "limitations": [
+        "Accounting identity only: it constrains joint movements but does not establish causation between saving, fiscal balance, and trade.",
+        "Reversing all signs gives the capital-account mirror statement (per source); that restatement is not a separate record."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-net-exports-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM1 International Interactions, printed p. 48 (PDF p. 58)",
+          "evidence": "Passage states the accounting relationship (X − M) = (S − I) + (T − G) and explains that net exports always equal net private saving plus the government surplus.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "suny-macro-textbook-saving-investment",
+          "kind": "primary",
+          "title": "Principles of Macroeconomics, Ch. 13.2 Saving and Investment in the National Income Accounts (SUNY open textbook)",
+          "url": "https://macroeconomics.pressbooks.sunycreate.cloud/chapter/13-2-saving-and-investment-in-the-national-income-accounts/",
+          "version": "Open textbook section 13.2, CC BY-NC-SA 4.0, accessed 2026-11-04",
+          "accessed": "2026-11-04",
+          "locator": "Section 13.2a identities: S = I + NX, S − I = NX; (Y − T − C) + (T − G) = I decomposition into private and public saving",
+          "evidence": "Section derives S − I = NX (trade balance) and splits national saving into private (Y − T − C) and public (T − G) saving — the same decomposition the PDF writes as (S − I) + (T − G).",
+          "license": "CC BY-NC-SA 4.0 (section License statement); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "surplus-with-trade-surplus",
+          "inputs": {
+            "S": 1200,
+            "I": 1150,
+            "TS": 50
+          },
+          "expected": 100,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: (1200 − 1150) + 50 = 100. Independently constructed arithmetic check in a single currency unit.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed national-accounts data claimed"
+        },
+        {
+          "id": "balanced-accounts-zero",
+          "inputs": {
+            "S": 1000,
+            "I": 1000,
+            "TS": 0
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Balanced private saving/investment with balanced budget gives zero net exports by substitution.",
+          "provenance": "Definitional boundary check; not an empirical validation"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "S": 1200,
+            "I": 1150
+          },
+          "reason": "Government surplus is a required term of the identity; private saving gap alone cannot determine net exports."
+        }
+      ],
+      "inverse_notes": "Linear in each term: S = NX + I − TS; I = S + TS − NX; TS = NX − S + I. No singularities. Algebraic only; the identity does not identify which component adjusts when another changes.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings private_saving, private_investment, government_surplus, net_exports are not in the runtime vocabulary snapshot and require extension.",
+          "USD is used as the single domestic-currency unit label; cross-currency use would need an explicit exchange-rate model per the no-implicit-conversion rule."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "deferred": [
+    {
+      "title": "Singer-Terhaar integrated (Eq. 4) and segmented (Eq. 5) component premiums as standalone records",
+      "reason": "Components verified in this batch's research (LM2 printed p. 88, PDF p. 98); queue for b03 rather than overloading this batch.",
+      "source_urls": []
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b02: 4 records (Singer-Terhaar blend, CAPM beta correlation form, building-block fixed-income sum, net-exports identity) each with PDF locator plus directly inspected accessible corroboration. Three records carry published oracles from the PDF or the corroborating source.",
+    "gaps": [
+      "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+      "Next candidates queued: Singer-Terhaar components Eqs. 4–5, surplus/funding-ratio definitions, safety-first ratio, surplus-optimization objective, ARCH(1) variance Eq. 17, risk-parity condition, 1/N rule, 120-age heuristic."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity — verified locators and corroboration pages by direct inspection 2026-11-04."
+  }
+}

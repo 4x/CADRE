@@ -1,0 +1,629 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b45",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 1 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--simple-regression-individual-prediction-standard-error",
+      "revision": "r2",
+      "title": "Standard error for a new individual regression response",
+      "summary": "Individual-response prediction uncertainty includes new observation noise plus uncertainty in the fitted mean response.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "prediction_se",
+        "expression": "se * sqrt(1 + 1 / n + (x - xmean) ** 2 / Sxx)",
+        "original_equation": "s_f=s_e*sqrt(1+1/n+(Xf-Xbar)^2/Sxx)",
+        "source_id": "ucd-slr-uncertainty",
+        "locator": "Chapter13 sections13.4-13.5, ANOVA table and Equations13.4,13.5,13.9",
+        "translation_notes": "All terms in the radical are dimensionless;output hasYU. The variance expression is its square,not a separate clone. Sxx=(n-1)*sample_predictor_variance is the equivalent source denominator. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "se",
+          "source_symbol": "se",
+          "role": "input",
+          "quantity_id": "regression_residual_standard_error",
+          "definition": "Nonnegative residual standard error",
+          "unit": "response-unit",
+          "dimensions": "YU",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "n",
+          "source_symbol": "n",
+          "role": "input",
+          "quantity_id": "regression_sample_count",
+          "definition": "Integer size of fitting sample>=3",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "x",
+          "source_symbol": "x",
+          "role": "input",
+          "quantity_id": "regression_predictor_value",
+          "definition": "Specified predictor value for a new independent response",
+          "unit": "predictor-unit",
+          "dimensions": "XU",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "xmean",
+          "source_symbol": "xmean",
+          "role": "input",
+          "quantity_id": "sample_predictor_mean",
+          "definition": "Predictor mean of the fitting sample",
+          "unit": "predictor-unit",
+          "dimensions": "XU",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "Sxx",
+          "source_symbol": "Sxx",
+          "role": "input",
+          "quantity_id": "predictor_centered_sum_of_squares",
+          "definition": "Positive predictor centered sum of squares of that fitting sample",
+          "unit": "predictor-unit^2",
+          "dimensions": "XU^2",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "prediction_se",
+          "source_symbol": "prediction_se",
+          "role": "output",
+          "quantity_id": "individual_response_prediction_standard_error",
+          "definition": "Estimated scale of prediction error for one new response",
+          "unit": "response-unit",
+          "dimensions": "YU",
+          "context": "One full-rank simple OLS model with intercept, externally supplied coefficients/summary statistics, response unit YU and predictor unit XU",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "se >= 0",
+        "n >= 3",
+        "Sxx > 0"
+      ],
+      "assumptions": [
+        "One new response independent of the fitting sample at a known predictor value, same homoskedastic linear conditional-mean model and positiveSxx.",
+        "Fitting includes an intercept and one slope;integern>=3. Normal errors support exact t prediction intervals."
+      ],
+      "limitations": [
+        "A confidence interval for the conditional mean excludes the leading1; its target differs from predicting an individual.",
+        "Predictor measurement uncertainty, model-selection uncertainty and extrapolation errors are absent."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module7, Prediction Using Simple Linear Regression and Prediction Intervals, printed p461 (PDF p471), Equation(20)",
+          "evidence": "Individual-response prediction uncertainty includes new observation noise plus uncertainty in the fitted mean response.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ucd-slr-uncertainty",
+          "kind": "primary",
+          "title": "Applied Statistics in Agricultural and Life Sciences with R",
+          "url": "https://psfaculty.plantsciences.ucdavis.edu/PLS120/PLS120Book/docs/chLinReg.html",
+          "version": "UC Davis institutional course text, version/date unstated; inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Chapter13 sections13.4-13.5, ANOVA table and Equations13.4,13.5,13.9",
+          "evidence": "Regression ANOVA compares explained and residual mean squares; slope uncertainty uses predictor sum of squares; individual-response uncertainty adds observation variance.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "at-design-center",
+          "inputs": {
+            "se": 2,
+            "n": 4,
+            "x": 3,
+            "xmean": 3,
+            "Sxx": 16
+          },
+          "expected": 2.23606797749979,
+          "tolerance": 1e-09,
+          "method": "At the predictor mean the variance is4 plus mean-estimation variance1; independent root-sum-of-squares gives sqrt5.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "off-center",
+          "inputs": {
+            "se": 2,
+            "n": 4,
+            "x": 5,
+            "xmean": 3,
+            "Sxx": 16
+          },
+          "expected": 2.449489742783178,
+          "tolerance": 1e-09,
+          "method": "Independent variance components are4,1,1;their sum6 has square rootsqrt6.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "n": 4,
+            "x": 3,
+            "xmean": 3,
+            "Sxx": 16
+          },
+          "reason": "se is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "se=prediction_se/sqrt(1+1/n+(x-xmean)^2/Sxx),n>=3,Sxx>0. At-centerpredictionSEsqrt5,n4 recoversse2. Forx, (x-xmean)^2=Sxx*((prediction_se/se)^2-1-1/n),requiringse>0 and nonnegative right side;usually two roots. Off-centerexample givesx3+/-2,so1or5. se0 givespredictionSE0andcannot identifyx.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--supplied-log-linear-regression-response",
+      "revision": "r2",
+      "title": "Back-transformed response of a supplied log-linear regression",
+      "summary": "A supplied log-linear regression back-transforms its fitted log response by exponentiation.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "Y",
+        "expression": "exp(a + b * x)",
+        "original_equation": "log(Y)=b0+b1*X; Y=exp(b0+b1*X)",
+        "source_id": "ucla-log-regression",
+        "locator": "Sections Outcome variable is log transformed; Some predictor variables are log transformed; Both outcome and predictor variables are log transformed",
+        "translation_notes": "aandb*xare dimensionless. Output isY/Yref; multiply by the separately bound reference quantity to recover dimensional response. No log of dimensional money is taken. Exact relative change acrossdelta_xisexp(b*delta_x)-1; slope-times-change is only local approximation. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "a",
+          "source_symbol": "b0",
+          "role": "input",
+          "quantity_id": "log_response_regression_intercept",
+          "definition": "Supplied intercept for log of normalized response",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Supplied fitted coefficients; every logged variable is a positive numerical ratio to its explicitly fixed reference unit; normalization is part of the model",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "b",
+          "source_symbol": "b1",
+          "role": "input",
+          "quantity_id": "log_response_linear_predictor_slope",
+          "definition": "Supplied coefficient per predictor unit",
+          "unit": "1/predictor-unit",
+          "dimensions": "XU^-1",
+          "context": "Supplied fitted coefficients; every logged variable is a positive numerical ratio to its explicitly fixed reference unit; normalization is part of the model",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "x",
+          "source_symbol": "X",
+          "role": "input",
+          "quantity_id": "regression_predictor_value",
+          "definition": "Specified predictor value in coefficient-matching units",
+          "unit": "predictor-unit",
+          "dimensions": "XU",
+          "context": "Supplied fitted coefficients; every logged variable is a positive numerical ratio to its explicitly fixed reference unit; normalization is part of the model",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "Y",
+          "source_symbol": "Y",
+          "role": "output",
+          "quantity_id": "normalized_backtransformed_loglinear_response",
+          "definition": "Positive normalized response obtained by exponentiating the fitted log response",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Supplied fitted coefficients; every logged variable is a positive numerical ratio to its explicitly fixed reference unit; normalization is part of the model",
+          "domain": "Positive"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "The log response refers toY/Yref;Yref is a fixed positive reference quantity and coefficients were fitted under that normalization.",
+        "Coefficients are supplied, not estimated. The predictor may be signed when meaningful in its declared context."
+      ],
+      "limitations": [
+        "Exponentiating a fitted conditional log mean gives a geometric mean; it is a conditional median under lognormal errors, not an unbiased arithmetic-mean prediction.",
+        "Arithmetic-mean retransformation needs an error-distribution correction, absent here."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module7, The Log-Lin Model, printed pp465-466 (PDF pp475-476), Equation(22) and antilog example",
+          "evidence": "A supplied log-linear regression back-transforms its fitted log response by exponentiation.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ucla-log-regression",
+          "kind": "primary",
+          "title": "FAQ: How do I interpret a regression model when some variables are log transformed?",
+          "url": "https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faqhow-do-i-interpret-a-regression-model-when-some-variables-are-log-transformed/",
+          "version": "UCLA OARC authored teaching page, inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Sections Outcome variable is log transformed; Some predictor variables are log transformed; Both outcome and predictor variables are log transformed",
+          "evidence": "Log outcome models back-transform with exp and describe geometric rather than arithmetic means; log predictors give response differences proportional to log input ratios.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "power-of-two-response",
+          "inputs": {
+            "a": 0.6931471805599453,
+            "b": 0.6931471805599453,
+            "x": 2
+          },
+          "expected": 8,
+          "tolerance": 1e-09,
+          "method": "Log response islog2+2log2=log8;inverse log therefore gives8.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero-predictor",
+          "inputs": {
+            "a": 0,
+            "b": -2,
+            "x": 0
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "At predictor0 and log intercept0 the normalized response isexp0=1.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "b": 0.6931471805599453,
+            "x": 2
+          },
+          "reason": "a is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "x=(log(Y)-a)/b requiresY>0,bnonzero; a=log(Y)-b*x. Y8,a=log2,b=log2 recoversx2. b0givesconstantY=exp(a),soxnot identifiable. All inverse results retain the supplied normalization.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--supplied-linear-log-regression-response",
+      "revision": "r2",
+      "title": "Response of a supplied linear-log regression",
+      "summary": "A linear-log regression evaluates a supplied affine function of a positive normalized predictor natural logarithm.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "Y",
+        "expression": "a + b * log(x)",
+        "original_equation": "Y=b0+b1*log(X)",
+        "source_id": "ucla-log-regression",
+        "locator": "Sections Outcome variable is log transformed; Some predictor variables are log transformed; Both outcome and predictor variables are log transformed",
+        "translation_notes": "log(x)is dimensionless;aandbare response-valued. Exact response difference isb*log(x2/x1). A small relative changegproduces approximatelyb*g, but no approximation is embedded. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "a",
+          "source_symbol": "b0",
+          "role": "input",
+          "quantity_id": "linear_response_logpredictor_intercept",
+          "definition": "Supplied response intercept at normalized predictor1",
+          "unit": "response-unit",
+          "dimensions": "YU",
+          "context": "Supplied fitted coefficients; every logged variable is a positive numerical ratio to its explicitly fixed reference unit; normalization is part of the model",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "b",
+          "source_symbol": "b1",
+          "role": "input",
+          "quantity_id": "linear_response_logpredictor_slope",
+          "definition": "Supplied response-unit coefficient per unit natural log of predictor",
+          "unit": "response-unit",
+          "dimensions": "YU",
+          "context": "Supplied fitted coefficients; every logged variable is a positive numerical ratio to its explicitly fixed reference unit; normalization is part of the model",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "x",
+          "source_symbol": "X",
+          "role": "input",
+          "quantity_id": "normalized_regression_predictor",
+          "definition": "Positive predictor ratioX/Xref under the fitting normalization",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Supplied fitted coefficients; every logged variable is a positive numerical ratio to its explicitly fixed reference unit; normalization is part of the model",
+          "domain": "Positive"
+        },
+        {
+          "symbol": "Y",
+          "source_symbol": "Y",
+          "role": "output",
+          "quantity_id": "linearlog_fitted_response",
+          "definition": "Signed response on the supplied linear-log curve",
+          "unit": "response-unit",
+          "dimensions": "YU",
+          "context": "Supplied fitted coefficients; every logged variable is a positive numerical ratio to its explicitly fixed reference unit; normalization is part of the model",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "x > 0"
+      ],
+      "assumptions": [
+        "x=X/Xref>0 with fixed referenceXref; coefficients use that same normalization and response unit.",
+        "No regression estimation or model-selection step is performed."
+      ],
+      "limitations": [
+        "The response can be negative; logging the predictor does not impose positivity on the response.",
+        "Extrapolation and statistical uncertainty remain outside this deterministic evaluation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module7, The Lin-Log Model, printed p466 (PDF p476), Equation(23)",
+          "evidence": "A linear-log regression evaluates a supplied affine function of a positive normalized predictor natural logarithm.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ucla-log-regression",
+          "kind": "primary",
+          "title": "FAQ: How do I interpret a regression model when some variables are log transformed?",
+          "url": "https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faqhow-do-i-interpret-a-regression-model-when-some-variables-are-log-transformed/",
+          "version": "UCLA OARC authored teaching page, inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Sections Outcome variable is log transformed; Some predictor variables are log transformed; Both outcome and predictor variables are log transformed",
+          "evidence": "Log outcome models back-transform with exp and describe geometric rather than arithmetic means; log predictors give response differences proportional to log input ratios.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "unit-normalized-predictor",
+          "inputs": {
+            "a": 3,
+            "b": 2,
+            "x": 1
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "Log1=0 makes the fitted response equal to the intercept3.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "doubling-predictor",
+          "inputs": {
+            "a": 3,
+            "b": 2,
+            "x": 2
+          },
+          "expected": 4.386294361119891,
+          "tolerance": 1e-09,
+          "method": "A doubling adds2log2 to the unit-predictor response3.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "b": 2,
+            "x": 1
+          },
+          "reason": "a is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "x=exp((Y-a)/b),bnonzero,withpositive result. FirstcaseY3,a3,b2 givesx1. a=Y-b*log(x) remains valid atx1. Whenb0,xis unidentifiable fromY=a.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--supplied-log-log-regression-response",
+      "revision": "r2",
+      "title": "Back-transformed response of a supplied log-log regression",
+      "summary": "A supplied log-log model back-transforms to a power function of a positive normalized predictor.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "Y",
+        "expression": "exp(a) * x ** b",
+        "original_equation": "log(Y)=b0+b1*log(X); Y=exp(b0)*X^b1",
+        "source_id": "ucla-log-regression",
+        "locator": "Sections Outcome variable is log transformed; Some predictor variables are log transformed; Both outcome and predictor variables are log transformed",
+        "translation_notes": "Positive dimensionlessxpermits arbitrary finite real elasticityb. All logs/exponents are dimensionless; outputY/Yrefis dimensionless. Exact response ratio for predictor ratioqisq^b; b times a finite percent change is generally only approximate. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "a",
+          "source_symbol": "b0",
+          "role": "input",
+          "quantity_id": "loglog_regression_intercept",
+          "definition": "Supplied log-response intercept at normalized predictor1",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Supplied fitted coefficients; every logged variable is a positive numerical ratio to its explicitly fixed reference unit; normalization is part of the model",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "b",
+          "source_symbol": "b1",
+          "role": "input",
+          "quantity_id": "loglog_regression_elasticity",
+          "definition": "Supplied constant elasticity coefficient",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Supplied fitted coefficients; every logged variable is a positive numerical ratio to its explicitly fixed reference unit; normalization is part of the model",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "x",
+          "source_symbol": "X",
+          "role": "input",
+          "quantity_id": "normalized_regression_predictor",
+          "definition": "Positive normalized predictorX/Xref",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Supplied fitted coefficients; every logged variable is a positive numerical ratio to its explicitly fixed reference unit; normalization is part of the model",
+          "domain": "Positive"
+        },
+        {
+          "symbol": "Y",
+          "source_symbol": "Y",
+          "role": "output",
+          "quantity_id": "normalized_backtransformed_loglog_response",
+          "definition": "Positive normalized back-transformed responseY/Yref",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Supplied fitted coefficients; every logged variable is a positive numerical ratio to its explicitly fixed reference unit; normalization is part of the model",
+          "domain": "Positive"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "x > 0"
+      ],
+      "assumptions": [
+        "Both original variables are positive and divided by fixed positive reference quantities before logging; normalization matches supplied coefficients.",
+        "Coefficients are already supplied."
+      ],
+      "limitations": [
+        "Back-transformed fitted log mean is a geometric mean; normal log errors additionally make it a conditional median. It is not the conditional arithmetic mean without correction.",
+        "ComparingR2between different response transformations is not a direct like-for-like fit comparison."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module7, The Log-Log Model, printed p468 (PDF p478), Equation(24)",
+          "evidence": "A supplied log-log model back-transforms to a power function of a positive normalized predictor.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ucla-log-regression",
+          "kind": "primary",
+          "title": "FAQ: How do I interpret a regression model when some variables are log transformed?",
+          "url": "https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faqhow-do-i-interpret-a-regression-model-when-some-variables-are-log-transformed/",
+          "version": "UCLA OARC authored teaching page, inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Sections Outcome variable is log transformed; Some predictor variables are log transformed; Both outcome and predictor variables are log transformed",
+          "evidence": "Log outcome models back-transform with exp and describe geometric rather than arithmetic means; log predictors give response differences proportional to log input ratios.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "quadratic-elasticity",
+          "inputs": {
+            "a": 0.6931471805599453,
+            "b": 2,
+            "x": 3
+          },
+          "expected": 18,
+          "tolerance": 1e-09,
+          "method": "Intercept scale2 and elasticity2 give twice the square of3.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative-elasticity",
+          "inputs": {
+            "a": 0,
+            "b": -1,
+            "x": 4
+          },
+          "expected": 0.25,
+          "tolerance": 1e-09,
+          "method": "Unit scale with elasticity-1 gives the reciprocal of4.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "b": 2,
+            "x": 3
+          },
+          "reason": "a is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "x=exp((log(Y)-a)/b),Y>0,bnonzero; a=log(Y)-b*log(x). Y18,a=log2,b2 givesx3. b=(log(Y)-a)/log(x) requiresx>0,x!=1. Atx1,Y=exp(a)contains no information aboutb;atb0the response contains no information aboutx.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

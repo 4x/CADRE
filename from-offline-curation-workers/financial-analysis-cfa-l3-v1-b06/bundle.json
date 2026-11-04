@@ -1,0 +1,584 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.9",
+  "batch_id": "financial-analysis-cfa-l3-v1-b06",
+  "domain": "financial-analysis",
+  "curator": "buffy",
+  "created": "2026-11-04",
+  "example_only": false,
+  "models": [
+    {
+      "id": "financial-analysis--capm-security-market-line-expected-return",
+      "revision": "r1",
+      "title": "CAPM security market line expected return",
+      "summary": "Asset expected return as the risk-free rate plus beta times the market risk premium.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "ERi",
+        "expression": "rf + beta * MRP",
+        "original_equation": "E[Ri] = rf + βi,mkt · (market risk premium); e.g. 6.62% = 2.5% + 1.03 (4%)",
+        "source_id": "analystprep-beta-capm",
+        "locator": "PDF: LM4 Reverse Optimization, printed p. 218 (PDF p. 228), Exhibit 12",
+        "translation_notes": "Decimal form (unit 1). MRP is the market risk premium E[Rm] − rf over the same horizon. Used in the PDF to impute reverse-optimized expected returns from market betas (global market premium 4%, rf 2.5%). Dimensional check: dimensionless throughout."
+      },
+      "variables": [
+        {
+          "symbol": "rf",
+          "source_symbol": "rf",
+          "role": "input",
+          "quantity_id": "risk_free_rate",
+          "definition": "Risk-free rate over the horizon, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same market and horizon as ERi",
+          "domain": "Finite decimal rate"
+        },
+        {
+          "symbol": "beta",
+          "source_symbol": "βi,mkt",
+          "role": "input",
+          "quantity_id": "capm_beta",
+          "definition": "Asset sensitivity to the market portfolio (same meaning as batch b02 beta record)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset and market portfolio as ERi",
+          "domain": "Finite beta"
+        },
+        {
+          "symbol": "MRP",
+          "source_symbol": "Market Risk Premium",
+          "role": "input",
+          "quantity_id": "market_risk_premium",
+          "definition": "Expected market return in excess of the risk-free rate, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same market portfolio and horizon as ERi",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "ERi",
+          "source_symbol": "E[Ri]",
+          "role": "output",
+          "quantity_id": "capm_expected_return",
+          "definition": "CAPM-implied expected return of asset i, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset, market, and horizon as inputs",
+          "domain": "Finite decimal expected return"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Single-period CAPM equilibrium: every asset priced by its market beta with one market portfolio and one risk-free rate.",
+        "Source application: market-capitalization weights proxy the market portfolio; rf 2.5% and MRP 4% in the worked exhibit."
+      ],
+      "limitations": [
+        "Equilibrium pricing assumption; deviations are the subject of the Black–Litterman views step (deferred full mathematics).",
+        "The risk-premium-only form RPi = β·RPM is embedded here (ERi − rf); not a separate record."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-sml-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Reverse Optimization, printed p. 218 (PDF p. 228), Exhibit 12 (UK large cap 6.62% = 2.5% + 1.03(4%); cash 2.50%)",
+          "evidence": "Exhibit infers each asset's expected return as the risk-free rate plus beta times the 4% global market premium (e.g. UK large cap 2.5% + 1.03 × 4%).",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-beta-capm",
+          "kind": "primary",
+          "title": "CAPM Beta Explained and Formula Examples (AnalystPrep blog)",
+          "url": "https://analystprep.com/blog/beta-and-capm/",
+          "version": "Blog article, 15 Dec 2020",
+          "accessed": "2026-11-04",
+          "locator": "Application of CAPM: E(Ri) = Rf + βi[E(Rm) − Rf] with worked example 5% + 1.6(10% − 5%) = 13%",
+          "evidence": "Page states the CAPM expected-return equation as risk-free rate plus beta times the market premium, with a worked example confirming the curated form.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-uk-large-cap",
+          "inputs": {
+            "rf": 0.025,
+            "beta": 1.03,
+            "MRP": 0.04
+          },
+          "expected": 0.0662,
+          "tolerance": 1e-06,
+          "method": "Source inputs in decimals: 0.025 + 1.03·0.04 = 0.0662, matching published 6.62% to stated rounding.",
+          "provenance": "Published result: LM4 Exhibit 12, printed p. 218 (PDF p. 228)"
+        },
+        {
+          "id": "published-analystprep-13pct",
+          "inputs": {
+            "rf": 0.05,
+            "beta": 1.6,
+            "MRP": 0.05
+          },
+          "expected": 0.13,
+          "tolerance": 1e-09,
+          "method": "Corroborating source's worked example: 5% + 1.6·(10% − 5%) = 13%, in decimals 0.05 + 1.6·0.05 = 0.13.",
+          "provenance": "Published result: AnalystPrep beta/CAPM article Example 2"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "rf": 0.025,
+            "beta": 1.03
+          },
+          "reason": "Market risk premium is required; the risk-free rate and beta alone cannot price the asset."
+        }
+      ],
+      "inverse_notes": "rf = ERi − beta·MRP; beta = (ERi − rf)/MRP requires MRP ≠ 0; MRP = (ERi − rf)/beta requires beta ≠ 0. Cash (beta = 0) gives ERi = rf with MRP undetermined. Substitution check: ERi=0.0662, rf=0.025, MRP=0.04 recovers beta=1.03. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings risk_free_rate, capm_beta (shared with b02), market_risk_premium, capm_expected_return are not in the runtime vocabulary snapshot and require extension.",
+          "Feeds reverse-optimization imputed returns; premium-only rearrangement embedded, not duplicated."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--rebalancing-corridor-lower-bound",
+      "revision": "r1",
+      "title": "Rebalancing corridor lower bound",
+      "summary": "Lower edge of a tolerance band as the target weight minus the band half-width.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "L",
+        "expression": "w - d",
+        "original_equation": "Lower bound = target weight − tolerance (e.g. 50% − 5% = 45%)",
+        "source_id": "dimensional-rebalancing-balance",
+        "locator": "PDF: LM4 Portfolio Rebalancing in Practice, printed p. 279 (PDF p. 289), Example 12",
+        "translation_notes": "Decimal form (unit 1). d is the one-sided band half-width in the same weight units (percentage points as decimals). Companion to the upper-bound record. Dimensional check: dimensionless − dimensionless = dimensionless weight."
+      },
+      "variables": [
+        {
+          "symbol": "w",
+          "source_symbol": "strategic asset allocation (target)",
+          "role": "input",
+          "quantity_id": "target_portfolio_weight",
+          "definition": "Strategic target weight of the asset class, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and rebalancing policy as L",
+          "domain": "Closed interval 0 to 1 inclusive"
+        },
+        {
+          "symbol": "d",
+          "source_symbol": "tolerance (±)",
+          "role": "input",
+          "quantity_id": "rebalancing_band_halfwidth",
+          "definition": "One-sided tolerance band half-width around target, in decimal weight form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and rebalancing policy as L",
+          "domain": "Nonnegative; at most the target weight for a meaningful lower bound"
+        },
+        {
+          "symbol": "L",
+          "source_symbol": "introduced L for lower corridor edge (e.g. 45%)",
+          "role": "output",
+          "quantity_id": "corridor_lower_bound",
+          "definition": "Lower corridor edge; drift below it triggers rebalancing review",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and rebalancing policy as inputs",
+          "domain": "Weight in 0 to 1 under the stated domain"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "w >= 0",
+        "d >= 0"
+      ],
+      "assumptions": [
+        "Symmetric band around the strategic target; corridor stated as target ± tolerance.",
+        "Band widths reflect the committee's risk/transaction-cost tradeoff for that asset class."
+      ],
+      "limitations": [
+        "Hitting the edge prompts review, not a mechanical trade: the source distinguishes rebalancing to target vs to corridor limits (cost vs alignment).",
+        "Optimal multi-period, multi-asset rebalancing is an unsolved problem (per source); this bounds only the single-asset corridor."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-corridor-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Portfolio Rebalancing in Practice, printed p. 279 (PDF p. 289), Example 12 (50% ± 5%, 15% ± 1.5%, 35% ± 3.5%)",
+          "evidence": "Example states strategic corridors as target ± tolerance (45% to 55% for domestic equities) and evaluates how taxes, costs, correlations, volatility, and illiquidity widen or narrow bands.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "dimensional-rebalancing-balance",
+          "kind": "primary",
+          "title": "Finding Your Balance: Tradeoffs and Decisions in Portfolio Rebalancing (Dimensional)",
+          "url": "https://www.dimensional.com/us-en/insights/finding-your-balance-tradeoffs-and-decisions-in-portfolio-rebalancing",
+          "version": "Dimensional research insight, 20 Jul 2021, glossary",
+          "accessed": "2026-11-04",
+          "locator": "Glossary, Tolerance bands: 5% band on 60% equities target rebalances if weight exceeds 65% or falls below 55%",
+          "evidence": "Glossary defines tolerance bands as a percentage range around target and works 60% ± 5% → rebalance below 55% or above 65%, confirming the target-minus-band lower-edge construction.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-domestic-equities",
+          "inputs": {
+            "w": 0.5,
+            "d": 0.05
+          },
+          "expected": 0.45,
+          "tolerance": 1e-09,
+          "method": "Source's corridor 50% ± 5%: 0.50 − 0.05 = 0.45, matching published 45% lower edge.",
+          "provenance": "Published result: LM4 Example 12, printed p. 279 (PDF p. 289)"
+        },
+        {
+          "id": "published-intl-equities",
+          "inputs": {
+            "w": 0.15,
+            "d": 0.015
+          },
+          "expected": 0.135,
+          "tolerance": 1e-09,
+          "method": "Source's corridor 15% ± 1.5%: 0.15 − 0.015 = 0.135, matching the stated band.",
+          "provenance": "Published result: LM4 Example 12, printed p. 279 (PDF p. 289)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "w": 0.5
+          },
+          "reason": "Band half-width is required; the target alone does not define a corridor."
+        }
+      ],
+      "inverse_notes": "w = L + d; d = w − L requires w ≥ L. Substitution check: L=0.45 with d=0.05 recovers w=0.50. Algebraic only; the choice of band width is a policy judgment.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings target_portfolio_weight, rebalancing_band_halfwidth, corridor_lower_bound are not in the runtime vocabulary snapshot and require extension.",
+          "Companion upper-bound record in this batch shares input definitions; the two are complements, not duplicates."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--rebalancing-corridor-upper-bound",
+      "revision": "r1",
+      "title": "Rebalancing corridor upper bound",
+      "summary": "Upper edge of a tolerance band as the target weight plus the band half-width.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "U",
+        "expression": "w + d",
+        "original_equation": "Upper bound = target weight + tolerance (e.g. 50% + 5% = 55%)",
+        "source_id": "dimensional-rebalancing-balance",
+        "locator": "PDF: LM4 Portfolio Rebalancing in Practice, printed p. 279 (PDF p. 289), Example 12",
+        "translation_notes": "Decimal form (unit 1); mirror of the lower-bound record. Dimensional check: dimensionless + dimensionless = dimensionless weight."
+      },
+      "variables": [
+        {
+          "symbol": "w",
+          "source_symbol": "strategic asset allocation (target)",
+          "role": "input",
+          "quantity_id": "target_portfolio_weight",
+          "definition": "Strategic target weight of the asset class, in decimal form (same definition as lower-bound record)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and rebalancing policy as U",
+          "domain": "Closed interval 0 to 1 inclusive"
+        },
+        {
+          "symbol": "d",
+          "source_symbol": "tolerance (±)",
+          "role": "input",
+          "quantity_id": "rebalancing_band_halfwidth",
+          "definition": "One-sided tolerance band half-width around target, in decimal weight form (same definition as lower-bound record)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and rebalancing policy as U",
+          "domain": "Nonnegative; target plus band should not exceed 1 for a meaningful corridor"
+        },
+        {
+          "symbol": "U",
+          "source_symbol": "introduced U for upper corridor edge (e.g. 55%)",
+          "role": "output",
+          "quantity_id": "corridor_upper_bound",
+          "definition": "Upper corridor edge; drift above it triggers rebalancing review",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and rebalancing policy as inputs",
+          "domain": "Weight in 0 to 1 under the stated domain"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "w >= 0",
+        "d >= 0"
+      ],
+      "assumptions": [
+        "Symmetric band around the strategic target, same basis as the lower-bound record."
+      ],
+      "limitations": [
+        "Same review-not-trade and unsolved-multi-period caveats as the lower-bound record.",
+        "Rebalancing to target vs to corridor limits trades alignment against transaction costs, especially for illiquid assets (per source)."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-corridor-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Portfolio Rebalancing in Practice, printed p. 279 (PDF p. 289), Example 12 (50% ± 5% → 55%; 35% ± 3.5% → 38.5%)",
+          "evidence": "Example states corridors as target ± tolerance with upper edges 55% (domestic equities) and 38.5% (domestic bonds).",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "dimensional-rebalancing-balance",
+          "kind": "primary",
+          "title": "Finding Your Balance: Tradeoffs and Decisions in Portfolio Rebalancing (Dimensional)",
+          "url": "https://www.dimensional.com/us-en/insights/finding-your-balance-tradeoffs-and-decisions-in-portfolio-rebalancing",
+          "version": "Dimensional research insight, 20 Jul 2021, glossary",
+          "accessed": "2026-11-04",
+          "locator": "Glossary, Tolerance bands: 60% ± 5% rebalances if equities exceed 65%",
+          "evidence": "Glossary works the upper edge explicitly (60% + 5% = 65% trigger), confirming the target-plus-band construction.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-domestic-equities",
+          "inputs": {
+            "w": 0.5,
+            "d": 0.05
+          },
+          "expected": 0.55,
+          "tolerance": 1e-09,
+          "method": "Source's corridor 50% ± 5%: 0.50 + 0.05 = 0.55, matching published 55% upper edge.",
+          "provenance": "Published result: LM4 Example 12, printed p. 279 (PDF p. 289)"
+        },
+        {
+          "id": "published-domestic-bonds",
+          "inputs": {
+            "w": 0.35,
+            "d": 0.035
+          },
+          "expected": 0.385,
+          "tolerance": 1e-09,
+          "method": "Source's corridor 35% ± 3.5%: 0.35 + 0.035 = 0.385, matching the stated band.",
+          "provenance": "Published result: LM4 Example 12, printed p. 279 (PDF p. 289)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "w": 0.35
+          },
+          "reason": "Band half-width is required; the target alone does not define a corridor."
+        }
+      ],
+      "inverse_notes": "w = U − d; d = U − w requires U ≥ w. Substitution check: U=0.55 with d=0.05 recovers w=0.50. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings target_portfolio_weight, rebalancing_band_halfwidth, corridor_upper_bound are not in the runtime vocabulary snapshot and require extension.",
+          "Companion lower-bound record in this batch; complements, not duplicates."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--surplus-return-change-over-initial-assets",
+      "revision": "r1",
+      "title": "Surplus return as asset-minus-liability change per initial assets",
+      "summary": "Surplus return equals the change in asset value minus the change in liability value, divided by initial asset value.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "Rs",
+        "expression": "(dA - dL) / A0",
+        "original_equation": "Surplus return = (Change in asset value − Change in liability value) / (Initial asset value)",
+        "source_id": "pastpaperhero-alm-surplus",
+        "locator": "PDF: LM4 Surplus Optimization, printed p. 240 (PDF p. 250), surplus-return definition under Eq. 2",
+        "translation_notes": "Money changes and initial assets must share one currency unit (USD label stands in for the single domestic unit; no conversion). Decimal output (unit 1). Dimensional check: (currency − currency)/currency = dimensionless."
+      },
+      "variables": [
+        {
+          "symbol": "dA",
+          "source_symbol": "Change in asset value",
+          "role": "input",
+          "quantity_id": "asset_value_change",
+          "definition": "Change in market value of assets over the horizon",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "same plan and horizon as Rs",
+          "domain": "Finite change; may be negative"
+        },
+        {
+          "symbol": "dL",
+          "source_symbol": "Change in liability value",
+          "role": "input",
+          "quantity_id": "liability_value_change",
+          "definition": "Change in present value of liabilities over the horizon (time value plus discount-rate and cash-flow changes)",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "same plan and horizon as Rs",
+          "domain": "Finite change; may be negative"
+        },
+        {
+          "symbol": "A0",
+          "source_symbol": "Initial asset value",
+          "role": "input",
+          "quantity_id": "initial_asset_value",
+          "definition": "Market value of assets at the start of the horizon (normalization base)",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "same plan and horizon as Rs",
+          "domain": "Positive finite initial value"
+        },
+        {
+          "symbol": "Rs",
+          "source_symbol": "surplus return (Rs,m)",
+          "role": "output",
+          "quantity_id": "surplus_return",
+          "definition": "Surplus return over the horizon, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same plan and horizon as inputs",
+          "domain": "Finite decimal return"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "A0 > 0"
+      ],
+      "assumptions": [
+        "Asset and liability changes measured over the same horizon with consistent valuation bases.",
+        "Normalization is per initial assets (not per initial surplus), per the source definition."
+      ],
+      "limitations": [
+        "Expectation and volatility of Rs feed the surplus-optimization objective; estimating them (including asset–liability correlation) is outside this definitional record.",
+        "Source assumption: normalization is per initial assets (not per initial surplus); the accessible corroboration confirms the assets-minus-liabilities surplus concept while the exact normalization wording is PDF-specific."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-surplus-return-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Surplus Optimization, printed p. 240 (PDF p. 250), surplus-return definition under Eq. 2",
+          "evidence": "Passage defines surplus return as change in asset value minus change in liability value, divided by initial asset value, for use in the surplus objective.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "pastpaperhero-alm-surplus",
+          "kind": "primary",
+          "title": "Liability-driven and goal-based approaches — ALM surplus optimization and LDI (PastPaperHero CFA Level 3 resource)",
+          "url": "https://www.pastpaperhero.com/resources/cfa-level3-liability-driven-and-goal-based-approaches-alm-surplus-optimization-and-ldi",
+          "version": "CFA Level 3 study resource, accessed 2026-11-04",
+          "accessed": "2026-11-04",
+          "locator": "Key Term: Surplus Optimization; surplus efficient frontier sections (surplus as assets minus liabilities; risk as surplus volatility)",
+          "evidence": "Page defines surplus optimization around the surplus of assets over obligations with risk as surplus volatility, and works surplus-frontier selection on expected surplus return — confirming the same surplus concept formalized here.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "constructed-surplus-gain",
+          "inputs": {
+            "dA": 0.2,
+            "dL": 0.1,
+            "A0": 2.5
+          },
+          "expected": 0.04,
+          "tolerance": 1e-09,
+          "method": "Direct substitution in USD billions: (0.2 − 0.1)/2.5 = 0.04. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed plan data claimed"
+        },
+        {
+          "id": "matched-changes-zero",
+          "inputs": {
+            "dA": 0.15,
+            "dL": 0.15,
+            "A0": 2.5
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Perfectly hedged changes give zero surplus return: (0.15 − 0.15)/2.5 = 0. Boundary check.",
+          "provenance": "Definitional boundary check; not an empirical validation"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "dA": 0.2,
+            "dL": 0.1,
+            "A0": 0
+          },
+          "reason": "Zero initial assets make normalization undefined (guard A0 > 0); an unfunded start needs a different funding measure."
+        }
+      ],
+      "inverse_notes": "dA = Rs·A0 + dL; dL = dA − Rs·A0; A0 = (dA − dL)/Rs requires Rs ≠ 0 (zero surplus return with nonzero changes leaves scale undetermined). Substitution check: Rs=0.04, dL=0.1, A0=2.5 recovers dA=0.2. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings asset_value_change, liability_value_change, initial_asset_value, surplus_return are not in the runtime vocabulary snapshot and require extension.",
+          "Feeds the b04 surplus-optimization objective record as its ERs/sigS basis (expectation/volatility of this Rs)."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "deferred": [
+    {
+      "title": "60/40 stock/bond heuristic and endowment (Yale) model as allocation rules",
+      "reason": "LM4 (printed pp. 273–274) describes these qualitatively without closed equations; no formula to formalize without inventing one.",
+      "source_urls": []
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b06: 4 records (CAPM SML, corridor lower bound, corridor upper bound, surplus-return definition) each with PDF locator plus directly inspected accessible corroboration. Five of eight references are published oracles.",
+    "gaps": [
+      "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+      "Remaining coverage: currency/FX relations (mostly qualitative), real-estate smoothing notes, human-capital glide path (no closed form found), Monte Carlo framing (method, no equation)."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity — verified locators and corroboration pages by direct inspection 2026-11-04."
+  }
+}

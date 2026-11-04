@@ -1,0 +1,162 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b85",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [
+    {
+      "title": "General residual-floor-capped declining-balance depreciation",
+      "reason": "Financial Statement Analysis LM9, printed pp540–542 (PDF pp554–556), Exhibits 22–23 and Exhibit 23 footnote 2: selecting a normal declining-balance charge or a residual-limited charge requires min/conditional dispatch; the runtime supports neither. The ordinary uncapped branch and final-period adjustment are returned separately, without claiming they automatically implement the complete policy.",
+      "source_urls": [
+        "https://www.pearson.com/channels/principles-of-accounting/learn/tyler/ch-8-long-lived-assets/depreciation-declining-balance"
+      ]
+    }
+  ],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--declining-balance-final-period-depreciation-adjustment",
+      "revision": "r1",
+      "title": "Final-period depreciation to residual value",
+      "summary": "The final period adjusts the declining-balance charge so the remaining book value equals residual value.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "expense",
+        "expression": "book - residual",
+        "original_equation": "Final-period depreciation = beginning book value − residual value",
+        "source_id": "pearson-final-declining-depreciation",
+        "locator": "Double Declining Balance, final-year adjustment and worked truck example",
+        "translation_notes": "All quantities are nonnegative monetary amounts; the residual is an estimated terminal book amount."
+      },
+      "variables": [
+        {
+          "symbol": "book",
+          "source_symbol": "beginning book value",
+          "role": "input",
+          "quantity_id": "beginning_depreciable_asset_book_value",
+          "definition": "Asset carrying amount at the beginning of the final depreciation period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "residual",
+          "source_symbol": "estimated residual value",
+          "role": "input",
+          "quantity_id": "depreciable_asset_residual_value",
+          "definition": "Estimated amount remaining at the end of useful life",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expense",
+          "source_symbol": "final-period depreciation expense",
+          "role": "output",
+          "quantity_id": "final_period_depreciation_expense",
+          "definition": "Remaining carrying value above residual value",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "residual >= 0",
+        "book >= residual"
+      ],
+      "assumptions": [
+        "This is the final period of a policy that allocates all remaining depreciable amount to expense.",
+        "Beginning book value and residual value refer to the same asset and currency; beginning book value is no less than residual."
+      ],
+      "limitations": [
+        "This branch does not determine whether an ordinary period needs a residual-value cap.",
+        "Changes in estimates, impairment, disposal and partial periods require separate treatment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 9, Accounting Choices and Estimates, printed pp540–542 (PDF pp554–556), Exhibits 22–23 and Exhibit 23 footnote 2",
+          "evidence": "The final period adjusts the declining-balance charge so the remaining book value equals residual value.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "pearson-final-declining-depreciation",
+          "kind": "primary",
+          "title": "Depreciation: Declining Balance",
+          "url": "https://www.pearson.com/channels/principles-of-accounting/learn/tyler/ch-8-long-lived-assets/depreciation-declining-balance",
+          "version": "Pearson, Principles of Accounting, publication year not established",
+          "accessed": "2026-11-04",
+          "locator": "Double Declining Balance, final-year adjustment and worked truck example",
+          "evidence": "The final-year example deducts residual value from beginning carrying value to determine depreciation.",
+          "license": "Pearson copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner-example",
+          "inputs": {
+            "book": 129600,
+            "residual": 100000
+          },
+          "expected": 29600,
+          "tolerance": 1e-09,
+          "method": "The final-period charge is 129,600 less the 100,000 residual.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "pearson-truck",
+          "inputs": {
+            "book": 5443,
+            "residual": 2000
+          },
+          "expected": 3443,
+          "tolerance": 1e-09,
+          "method": "The public worked example subtracts 2,000 residual from 5,443 beginning book value.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "residual": 100000
+          },
+          "reason": "book is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "book=expense+residual.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

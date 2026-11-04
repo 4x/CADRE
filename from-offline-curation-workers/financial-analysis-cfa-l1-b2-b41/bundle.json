@@ -1,0 +1,165 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b41",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 2 relationships with owner-PDF provenance and inspected public corroboration.",
+    "gaps": [
+      "Finance quantities and scientific fidelity require independent registry review.",
+      "Deduplication uses the available inventory and own prior returns, not a global registry."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The owner PDF is project-derivation with a null URL; public evidence carries each relationship."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--net-income-revenue-other-income-expenses",
+      "revision": "r1",
+      "title": "Net income from revenue, other income and expenses",
+      "summary": "The owner presents revenue plus other income less expenses as net income.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "net_income",
+        "expression": "revenue + other_income - expenses",
+        "original_equation": "Net income = revenue + other income − expenses",
+        "source_id": "penn-state-income-statement-basics",
+        "locator": "Financial Statement Elements and Income Statement",
+        "translation_notes": "All inputs and output are same-period monetary flows in a common currency."
+      },
+      "variables": [
+        {
+          "symbol": "revenue",
+          "source_symbol": "revenue from ordinary activities",
+          "role": "input",
+          "quantity_id": "operating_revenue",
+          "definition": "revenue from ordinary activities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same reporting entity, period, accounting basis and currency",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "other_income",
+          "source_symbol": "other income including gains",
+          "role": "input",
+          "quantity_id": "other_income_and_gains",
+          "definition": "other income including gains",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same reporting entity, period, accounting basis and currency",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expenses",
+          "source_symbol": "total expenses and losses",
+          "role": "input",
+          "quantity_id": "total_expenses_and_losses",
+          "definition": "total expenses and losses",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same reporting entity, period, accounting basis and currency",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "net_income",
+          "source_symbol": "net income or signed net loss",
+          "role": "output",
+          "quantity_id": "net_income",
+          "definition": "net income or signed net loss",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same reporting entity, period, accounting basis and currency",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Other income is disjoint from revenue; all recognized expenses and losses, including tax, are included exactly once.",
+        "All amounts cover the same entity, accounting basis and reporting period."
+      ],
+      "limitations": [
+        "Net income under accrual accounting is not necessarily net cash flow.",
+        "This is a broad income-statement identity; the existing pretax-income-minus-tax equation is a different decomposition."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 1, Statement of Comprehensive Income, printed p552 (PDF p564), unnumbered basic income-statement equation; summary p571 (PDF p583)",
+          "evidence": "The owner presents revenue plus other income less expenses as net income.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "penn-state-income-statement-basics",
+          "kind": "primary",
+          "title": "Financial Statements and Startup Financial Model",
+          "url": "https://propel.smeal.psu.edu/digital-resources/financial-statements-and-startup-financial-model/",
+          "version": "Penn State Smeal College of Business, Propel Business, publication year not established",
+          "accessed": "2026-11-04",
+          "locator": "Financial Statement Elements and Income Statement",
+          "evidence": "The university guide states revenue less expenses equals net income and includes both operating and non-operating revenue and expenses in their respective categories.",
+          "license": "Penn State educational resource; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "profit",
+          "inputs": {
+            "revenue": 1000,
+            "other_income": 50,
+            "expenses": 900
+          },
+          "expected": 150,
+          "tolerance": 1e-09,
+          "method": "Revenue of 1,000 plus other income of 50 less expenses of 900 gives net income of 150.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "loss",
+          "inputs": {
+            "revenue": 100,
+            "other_income": 5,
+            "expenses": 120
+          },
+          "expected": -15,
+          "tolerance": 1e-09,
+          "method": "Revenue of 100 plus other income of 5 less expenses of 120 gives a net loss of 15.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "other_income": 50,
+            "expenses": 900
+          },
+          "reason": "revenue is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "revenue=net_income-other_income+expenses.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

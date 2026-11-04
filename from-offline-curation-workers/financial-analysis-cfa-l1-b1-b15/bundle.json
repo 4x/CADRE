@@ -1,0 +1,500 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b15",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [
+    {
+      "title": "Bootstrap standard error overlaps sample standard deviation of bootstrap estimates",
+      "reason": "LM5 printed p333/PDF343 Equation7:SE_boot=sqrt(sum[(theta_b-theta_bar)^2]/(B-1)). Apply sample-variance then sample-standard-deviation-from-variance with bootstrap-estimate context. Generation of resamples is unavailable; do not relabel ordinary observation SD as meanSE.",
+      "source_urls": []
+    },
+    {
+      "title": "Sharpe ratio and sampling count examples are qualified overlaps",
+      "reason": "LM5 printed pp313-314/PDF323-324 Sharpe ratio is safety-first ratio with risk-free threshold; Example1 printed p307/PDF317 product3*10*2 counts strata using sequential-counting-product. No new algebraic copies.",
+      "source_urls": []
+    },
+    {
+      "title": "Sample-size selection with t-critical dependence is not a closed-form solver",
+      "reason": "LM5 printed p331/PDF341:n=[t*s/E]^2. With externally fixed critical and scale this is the inverse confidence half-width formula. Choosing t for unknownn may require iteration, outside assignment; ceil/integer-roundup unavailable. NIST7.2.2.2 explicitly discusses this dependence.",
+      "source_urls": [
+        "https://www.itl.nist.gov/div898/handbook/prc/section2/prc222.htm"
+      ]
+    },
+    {
+      "title": "Signed sampling error and estimator bias need independent exact-definition corroboration",
+      "reason": "LM5 printed p306/PDF316 defines signed error statistic-minus-parameter; p321/PDF331 defines bias by expectation-minus-parameter. Preserve distinct realized error and repeated-sampling bias. OpenStax1.2 explains sampling error but does not directly state the signed identity; leave pending rather than overclaim corroboration.",
+      "source_urls": []
+    }
+  ],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic relationships from the assigned CFA Quantitative Methods volume, with exact PDF locators and inspected corroboration.",
+    "gaps": [
+      "Most financial/statistical quantity meanings require registry extension.",
+      "Duplicate checking is limited to the supplied catalog/vocabulary, assignment exclusions and this curator's public records; no global uniqueness claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: official validator rejects primary source url:null, which the CFA source brief explicitly requires for the purchased PDF. Toolkit left unchanged. Independent schema, expression/reference arithmetic, guard and rejection checks pass; ZIP checksum/membership checked. No passing official validation or intake-ready return claimed. Source fidelity, dimensions, contexts and inverse notes manually reviewed. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--sample-mean-standard-error",
+      "revision": "r1",
+      "title": "Standard error of an iid sample mean",
+      "summary": "The standard error of an iid sample mean divides the population standard deviation, or its sample estimate, by the square root of sample size.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "se",
+        "expression": "scale / sqrt(n)",
+        "original_equation": "sigma_Xbar=sigma/sqrt(n); estimated SE=s/sqrt(n)",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module5, The Central Limit Theorem and Distribution of the Sample Mean, printed p317 (PDF p327), Equations(1)-(2)",
+        "translation_notes": "Both source equations are one canonical relationship with explicit scale-estimation convention. U divided by dimensionless sqrt(n) remainsU. The variance formVar(Xbar)=sigma^2/n is its square, not a separate model."
+      },
+      "variables": [
+        {
+          "symbol": "scale",
+          "source_symbol": "sigma or s",
+          "role": "input",
+          "quantity_id": "sampling_population_standard_deviation_or_estimate",
+          "definition": "Nonnegative population standard deviation, or sample estimate with the estimation convention explicitly bound",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "One scalar population, measurement unit U, sampling design and sample size; moment convention explicitly declared",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "n",
+          "source_symbol": "n",
+          "role": "input",
+          "quantity_id": "sample_observation_count",
+          "definition": "Positive integer sample size; estimated scale requires n>=2",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One scalar population, measurement unit U, sampling design and sample size; moment convention explicitly declared",
+          "domain": "Positive integer"
+        },
+        {
+          "symbol": "se",
+          "source_symbol": "sigma_Xbar or s_Xbar",
+          "role": "output",
+          "quantity_id": "sample_mean_standard_error",
+          "definition": "True standard error if scale is known population SD, otherwise estimated standard error",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "One scalar population, measurement unit U, sampling design and sample size; moment convention explicitly declared",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "scale >= 0",
+        "n >= 1"
+      ],
+      "assumptions": [
+        "Source assumption: independent equal-variance observations; the population standard deviation is finite. Normality is not needed for this standard-error identity.",
+        "Declare whether scale is a population parameter or sample standard deviation; in the latter case n>=2 and this output is an estimate."
+      ],
+      "limitations": [
+        "Finite-population sampling without replacement may need a finite-population correction, absent here.",
+        "Correlated observations need covariance terms; this formula does not estimate the SE of an arbitrary median or statistic."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module5, The Central Limit Theorem and Distribution of the Sample Mean, printed p317 (PDF p327), Equations(1)-(2)",
+          "evidence": "The standard error of an iid sample mean divides the population standard deviation, or its sample estimate, by the square root of sample size.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-mean-inference",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda352.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.5.2, confidence-interval formula and one-sample t-test definition",
+          "evidence": "The sample-mean standard error is s/sqrt(N); mean confidence bounds offset the estimate by a critical value times that error, and the one-sample t-statistic scales a hypothesized-mean difference by the error.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-sample-size-inverse",
+          "inputs": {
+            "scale": 0.06,
+            "n": 36
+          },
+          "expected": 0.01,
+          "tolerance": 1e-09,
+          "method": "Published solution requires n36 for one-percentage-pointSE and6%populationSD.",
+          "provenance": "CFA printed p349/PDF359, solution7A."
+        },
+        {
+          "id": "no-observation-variation",
+          "inputs": {
+            "scale": 0,
+            "n": 100
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "A constant population has a constant sample mean and zeroSE.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "n": 36
+          },
+          "reason": "scale is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "scale=se*sqrt(n),n>0. n=(scale/se)^2 requiresse>0 and a positive integer result. SE.01,scale.06 givesn36. At scale=se=0, n is unidentifiable.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--symmetric-mean-confidence-bound",
+      "revision": "r1",
+      "title": "Symmetric confidence bound from an externally supplied critical value",
+      "summary": "A symmetric confidence interval offsets a sample mean by a supplied reliability factor times its standard error.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "bound",
+        "expression": "estimate + side * critical * se",
+        "original_equation": "Xbar +/- z_(alpha/2)*SE; Xbar +/- t_(alpha/2,n-1)*SE",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module5, Confidence Intervals for the Population Mean and Sample Size Selection, printed pp325,327,329 (PDF pp335,337,339), Equations(4)-(6)",
+        "translation_notes": "The side port unifies two algebraic signs, and the distribution-specific critical input unifies Equations4-6 without confusing their assumptions. MarginE=critical*se; interval width2E. No percent conversion or fixed1.96 constant is embedded."
+      },
+      "variables": [
+        {
+          "symbol": "estimate",
+          "source_symbol": "Xbar",
+          "role": "input",
+          "quantity_id": "sample_mean",
+          "definition": "Observed mean estimating the declared population mean",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "One scalar population, measurement unit U, sampling design and sample size; moment convention explicitly declared",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "side",
+          "source_symbol": "+/-",
+          "role": "input",
+          "quantity_id": "confidence_bound_side",
+          "definition": "Exactly-1 for the lower bound or+1 for the upper bound",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One scalar population, measurement unit U, sampling design and sample size; moment convention explicitly declared",
+          "domain": "{-1,+1}"
+        },
+        {
+          "symbol": "critical",
+          "source_symbol": "z or t",
+          "role": "input",
+          "quantity_id": "positive_mean_interval_critical_value",
+          "definition": "Positive upper-tail critical value supplied for the declared confidence level, distribution and degrees of freedom",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One scalar population, measurement unit U, sampling design and sample size; moment convention explicitly declared",
+          "domain": "Positive"
+        },
+        {
+          "symbol": "se",
+          "source_symbol": "sigma_Xbar or s_Xbar",
+          "role": "input",
+          "quantity_id": "sample_mean_standard_error",
+          "definition": "Nonnegative standard error appropriate to the sampling method",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "One scalar population, measurement unit U, sampling design and sample size; moment convention explicitly declared",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "bound",
+          "source_symbol": "CI endpoint",
+          "role": "output",
+          "quantity_id": "population_mean_confidence_bound",
+          "definition": "Selected endpoint of the confidence interval",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "One scalar population, measurement unit U, sampling design and sample size; moment convention explicitly declared",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "side ** 2 == 1",
+        "critical > 0",
+        "se >= 0"
+      ],
+      "assumptions": [
+        "For known population variance and normal observations use the normal critical value. For unknown variance and normal iid data use t with n-1df.",
+        "Large-sample normal approximations require a justified CLT; no universal n30 threshold guarantees accuracy for every distribution.",
+        "Critical values must match the desired two-sided confidence coefficient1-alpha and right-tail areaalpha/2."
+      ],
+      "limitations": [
+        "Critical-value lookup/inverseCDF is unavailable; it is a required documented input.",
+        "A realized frequentist interval has no posterior probability attached to the fixed population mean.",
+        "This record returns one selected bound; call both sides for the interval."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module5, Confidence Intervals for the Population Mean and Sample Size Selection, printed pp325,327,329 (PDF pp335,337,339), Equations(4)-(6)",
+          "evidence": "A symmetric confidence interval offsets a sample mean by a supplied reliability factor times its standard error.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-mean-inference",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda352.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.5.2, confidence-interval formula and one-sample t-test definition",
+          "evidence": "The sample-mean standard error is s/sqrt(N); mean confidence bounds offset the estimate by a critical value times that error, and the one-sample t-statistic scales a hypothesized-mean difference by the error.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-normal-lower",
+          "inputs": {
+            "estimate": 25,
+            "side": -1,
+            "critical": 1.96,
+            "se": 2
+          },
+          "expected": 21.08,
+          "tolerance": 1e-09,
+          "method": "Published lower confidence limit21.08.",
+          "provenance": "CFA printed p325/PDF335."
+        },
+        {
+          "id": "cfa-t-upper",
+          "inputs": {
+            "estimate": 0.45,
+            "side": 1,
+            "critical": 1.66,
+            "se": 0.03
+          },
+          "expected": 0.4998,
+          "tolerance": 1e-09,
+          "method": "Published upper t-based confidence limit.4998.",
+          "provenance": "CFA printed p329/PDF339."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "side": -1,
+            "critical": 1.96,
+            "se": 2
+          },
+          "reason": "estimate is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "estimate=bound-side*critical*se. se=(bound-estimate)/(side*critical), retainingse>=0 andcritical>0. Lower21.08,estimate25,side-1,critical1.96 givesse2. Atse0 both endpoints coincide; confidence coverage for a degenerate design needs separate justification. Fixed-critical sample-size rearrangementn=(critical*scale/E)^2 is not a new clone; integer rounding and t-critical dependence require external handling.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--one-sample-mean-t-statistic",
+      "revision": "r1",
+      "title": "One-sample mean t-statistic",
+      "summary": "The one-sample t-statistic scales the difference between observed and hypothesized means by the estimated standard error.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "t",
+        "expression": "(mean - null_mean) / (s / sqrt(n))",
+        "original_equation": "t=(Xbar-mu0)/(s/sqrt(n))",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module6, Identify the Appropriate Test Statistic, printed p360 (PDF p370), Exhibit4 single-mean row; also LM5 printed p328/PDF338",
+        "translation_notes": "The null mean is a hypothesized boundary, not the true mean supplied to generic standardization. Units cancel. Known-population-SD z-statistic has the same form with population sigma replacing s; its distribution is different. Paired-difference form is this model under explicit difference-data binding, not a clone."
+      },
+      "variables": [
+        {
+          "symbol": "mean",
+          "source_symbol": "Xbar",
+          "role": "input",
+          "quantity_id": "sample_mean",
+          "definition": "Observed sample mean",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "One scalar population, measurement unit U, sampling design and sample size; moment convention explicitly declared",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "null_mean",
+          "source_symbol": "mu0",
+          "role": "input",
+          "quantity_id": "hypothesized_population_mean",
+          "definition": "Fixed null-boundary population mean",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "One scalar population, measurement unit U, sampling design and sample size; moment convention explicitly declared",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "s",
+          "source_symbol": "s",
+          "role": "input",
+          "quantity_id": "sample_standard_deviation",
+          "definition": "Strictly positive sample standard deviation with n-1 denominator",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "One scalar population, measurement unit U, sampling design and sample size; moment convention explicitly declared",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "n",
+          "source_symbol": "n",
+          "role": "input",
+          "quantity_id": "sample_observation_count",
+          "definition": "Integer sample size at least2",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One scalar population, measurement unit U, sampling design and sample size; moment convention explicitly declared",
+          "domain": "Integer >=2"
+        },
+        {
+          "symbol": "t",
+          "source_symbol": "t",
+          "role": "output",
+          "quantity_id": "one_sample_mean_test_statistic",
+          "definition": "Signed mean test statistic with n-1df under the normal iid null model",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One scalar population, measurement unit U, sampling design and sample size; moment convention explicitly declared",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "s > 0",
+        "n >= 2"
+      ],
+      "assumptions": [
+        "Exact t distribution requires independent identically normal observations with positive population variance, evaluated undermu=mu0;df=n-1.",
+        "For matched-pair tests the observations are within-pair differences and pairs are independent; n counts pairs ands is the SD of their differences."
+      ],
+      "limitations": [
+        "This computes the statistic only; p-values, critical values and reject/retain decisions need a separately supplied decision rule/distribution.",
+        "A test statistic is not a posterior probability of the null. Integer and pairing checks require external binding."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module6, Identify the Appropriate Test Statistic, printed p360 (PDF p370), Exhibit4 single-mean row; also LM5 printed p328/PDF338",
+          "evidence": "The one-sample t-statistic scales the difference between observed and hypothesized means by the estimated standard error.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-mean-inference",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda352.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.5.2, confidence-interval formula and one-sample t-test definition",
+          "evidence": "The sample-mean standard error is s/sqrt(N); mean confidence bounds offset the estimate by a critical value times that error, and the one-sample t-statistic scales a hypothesized-mean difference by the error.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "two-standard-errors",
+          "inputs": {
+            "mean": 12,
+            "null_mean": 10,
+            "s": 4,
+            "n": 16
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "Sample mean12 is two estimated standard errors above10 because sixteen observations reduceSD4 toSE1.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "null-centered",
+          "inputs": {
+            "mean": 10,
+            "null_mean": 10,
+            "s": 3,
+            "n": 9
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Zero observed mean difference gives a zero signed test statistic.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "null_mean": 10,
+            "s": 4,
+            "n": 16
+          },
+          "reason": "mean is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "mean=null_mean+t*s/sqrt(n);null_mean=mean-t*s/sqrt(n). Witht2,s4,n16,null_mean10 recovermean12. Solvingn=[t*s/(mean-null_mean)]^2 needs nonzero difference, matching signs, andintegern>=2. Zero difference andt0 do not identify scale or n.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

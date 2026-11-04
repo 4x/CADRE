@@ -1,0 +1,149 @@
+{
+ "schema_version": "cm-scientific-review/1",
+ "batch_id": "financial-analysis-cfa-l1-b3-b37",
+ "batch_sha256": "cc126754e3a38892b5f03f675aa86bc936fde3286bcb9689cf7a6442149a6c2e",
+ "reviewer": "ingest-cfa-b3a",
+ "reviewed": "2026-11-04",
+ "models": [
+  {
+   "id": "financial-analysis--tangible-book-value-equity",
+   "revision": "r1",
+   "record_sha256": "64815d6693e22cd3de99a7cf8aeda350b5a23c8690fa8498856e048923d9c37e",
+   "checks": {
+    "source-fidelity": {
+     "status": "passed",
+     "evidence": "Worker EDGAR filing URL bot-blocked for this reviewer (see edgar-blocked probe; locator Note 1(o) p55 precise-but-unopened); formula verified verbatim against the opened TBV page (equity after subtracting goodwill and other intangibles)."
+    },
+    "scope": {
+     "status": "passed",
+     "evidence": "Tangible equity; NCI/preferred adjustments excluded by input definition."
+    },
+    "dimensions": {
+     "status": "passed",
+     "evidence": "Currency; consistent."
+    },
+    "reference-independence": {
+     "status": "passed",
+     "evidence": "Independent recomputation reproduces both references; filing-figure and constructed oracles honestly labeled."
+    },
+    "guards-inverses": {
+     "status": "passed",
+     "evidence": "Guards (nonneg inputs) satisfied."
+    },
+    "rights-provenance": {
+     "status": "passed",
+     "evidence": "No invented clearance; CFA excerpt purchased-copy/no-redistribution; filing terms honestly recorded as issuer-assumed with no redistribution."
+    }
+   },
+   "sources": [
+    {
+     "url": "https://equityanalysislab.com/en/company-analysis/shareholders-equity-mechanics/tangible-book-value/",
+     "locator": "Definition",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer opened the page (full text searched): 'Tangible book value is shareholders equity after subtracting goodwill and other intangible assets' confirmed verbatim."
+    },
+    {
+     "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=&type=10-K",
+     "locator": "N/A (access-control probe)",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer probe: sec.gov returns HTTP 403 to this reviewer's fetcher for every URL including a deliberately-nonexistent Archives path, so EDGAR-hosted worker primaries (filings, R10.htm) are bot-blocked rather than verifiably dead; formulas corroborated via alternate opened sources per record, worker locators (page/note/figure) recorded as precise-but-unopened."
+    }
+   ],
+   "blockers": [],
+   "recommendation": "recommend-admit",
+   "permitted_use": "Bounded local computation of tangible book value (equity - goodwill - other intangibles)."
+  },
+  {
+   "id": "financial-analysis--inventory-cost-flow-cost-of-sales",
+   "revision": "r1",
+   "record_sha256": "bccf47b4ae5a3cab49d34eb492bc558e8ff68ebf52ad1da969293b9f95ab9d05",
+   "checks": {
+    "source-fidelity": {
+     "status": "failed",
+     "evidence": "Formula confirmed on the cited page ('Cost of goods sold equals beginning inventory plus net purchases minus ending inventory'), but the attributed Gearhead oracle numbers are absent from the cited page and the related inventory page: provenance label is wrong."
+    },
+    "scope": {
+     "status": "passed",
+     "evidence": "Periodic COGS flow; scope clear."
+    },
+    "dimensions": {
+     "status": "passed",
+     "evidence": "Currency; consistent."
+    },
+    "reference-independence": {
+     "status": "passed",
+     "evidence": "Independent recomputation reproduces both references arithmetically; the mislabeled oracle is still a valid arithmetic check."
+    },
+    "guards-inverses": {
+     "status": "passed",
+     "evidence": "Guards satisfied on references."
+    },
+    "rights-provenance": {
+     "status": "passed",
+     "evidence": "No invented clearance; CFA excerpt purchased-copy/no-redistribution; OpenStax terms accurately qualified."
+    }
+   },
+   "sources": [
+    {
+     "url": "https://openstax.org/books/principles-managerial-accounting/pages/7-2-prepare-operating-budgets",
+     "locator": "Cost of Goods Sold budget formula",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer opened the page (full text searched): 'Cost of goods sold equals beginning inventory plus net purchases minus ending inventory' confirmed. The worker's 'Gearhead 20000/100000/40000' oracle numbers appear nowhere on this page (nor on financial-accounting 6-2, also searched): oracle provenance unverified."
+    }
+   ],
+   "blockers": [
+    "Oracle provenance unverified: the 'Gearhead 20000/100000/40000' example numbers appear nowhere on the cited OpenStax 7-2 page (full text searched) nor on financial-accounting 6-2 (also searched); relabel the oracle as constructed or point at the real example under a new revision. Formula verified and stands."
+   ],
+   "recommendation": "needs-revision",
+   "permitted_use": "Research evidence only pending oracle-provenance correction; no execution approval."
+  },
+  {
+   "id": "financial-analysis--ebit-interest-expense-coverage",
+   "revision": "r1",
+   "record_sha256": "771f1e69b7b39d9e33d2a8df52a636b90eb515097fd803bb96e9c3f86f823540",
+   "checks": {
+    "source-fidelity": {
+     "status": "passed",
+     "evidence": "Record matches OpenStax finance-2e 6-4 equation 6.25 verbatim (EBIT/interest; 43000/2000=21.5) and CFA ratio-list #33."
+    },
+    "scope": {
+     "status": "passed",
+     "evidence": "EBIT-based coverage; EBITDA variant explicitly out of scope (sibling ID)."
+    },
+    "dimensions": {
+     "status": "passed",
+     "evidence": "Dimensionless; consistent."
+    },
+    "reference-independence": {
+     "status": "passed",
+     "evidence": "Independent recomputation reproduces both references; source-data oracle plus constructed check, honestly labeled."
+    },
+    "guards-inverses": {
+     "status": "passed",
+     "evidence": "Guards (interest>0) satisfied."
+    },
+    "rights-provenance": {
+     "status": "passed",
+     "evidence": "No invented clearance; CFA excerpt purchased-copy/no-redistribution; OpenStax terms accurately qualified."
+    }
+   },
+   "sources": [
+    {
+     "url": "https://openstax.org/books/principles-finance-2e/pages/6-4-solvency-ratios",
+     "locator": "Times Interest Earned, equation 6.25",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer opened the page (full text searched): TIE = EBIT/Interest Expense, eq 6.25, Clear Lake 43000/2000=21.5 confirmed verbatim."
+    },
+    {
+     "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+     "locator": "pp1-2, ratios 1-41",
+     "accessed": "2026-11-04",
+     "finding": "Reviewer fetched the PDF and extracted its text: every cited ratio definition confirmed verbatim (current 1, quick 2, cash 3, defensive 4, turnovers 5/7/9/12/13/14, days 6/8/10, CCC 11, margins 15-18, ROA/ROE 19-21/24, pretax ROC 22, DuPont factors 25-27, leverage 28/30-32, interest coverage 33, fixed charge 34, payout 35, retention 36, growth 37, EPS 38, FCFF/FCFE 40/41); ratio 29 (interest-bearing-only total debt) validates the worker scoping."
+    }
+   ],
+   "blockers": [],
+   "recommendation": "recommend-admit",
+   "permitted_use": "Bounded local computation of EBIT interest coverage; distinct from the trailing-EBITDA variant (staged sibling)."
+  }
+ ]
+}

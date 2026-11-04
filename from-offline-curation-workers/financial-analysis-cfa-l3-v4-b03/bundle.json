@@ -1,0 +1,780 @@
+{
+ "batch_id": "financial-analysis-cfa-l3-v4-b03",
+ "created": "2026-11-04",
+ "curator": "buffy",
+ "deferred": [],
+ "domain": "financial-analysis",
+ "example_only": false,
+ "handoff": {
+  "summary": "Batch b03 (L3V4): 5 records (swap duration notional, portfolio BPV, target BPV, BPV futures hedge count, equity futures count) each with PDF locator and directly inspected accessible corroboration.",
+  "gaps": [
+   "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+   "Queue: invoice amount Eq2 (2 oracles ready), currency LM3 equations, variance-swap singles (need second oracles)."
+  ],
+  "connections": [],
+  "queries": [],
+  "review_notes": "Validation and packing to be run after writing; verified locators and corroboration pages by direct inspection 2026-11-04."
+ },
+ "kit_version": "2026-10-31.9",
+ "schema_version": "cm-curation-batch/1",
+ "models": [
+  {
+   "id": "financial-analysis--swap-duration-notional",
+   "revision": "r1",
+   "title": "Interest rate swap notional for duration target",
+   "summary": "Swap notional principal that moves a bond portfolio from its modified duration to the target.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "ns",
+    "expression": "((mt-mp)/ms)*v",
+    "original_equation": "NS = [(MDURT - MDURP)/MDURS] x (MVP) (Eq1)",
+    "source_id": "analystprep-ir-risk-derivatives",
+    "locator": "PDF: LM2 swap notional Eq1, printed p. 88 (PDF p. 96), Example 2: NS = [(4.50-5.50)/(-2.00)] x EUR 50,000,000 = EUR 25,000,000; solution 12, printed p. 135 (PDF p. 143): NS = [(5.0000-7.8000)/(-2.4848)] x EUR 90,100,000 = EUR 101,529,298.13",
+    "translation_notes": "Decimals. Negative MDURS (pay-fixed) gives positive notional when reducing duration."
+   },
+   "variables": [
+    {
+     "symbol": "mt",
+     "source_symbol": "MDURT",
+     "role": "input",
+     "quantity_id": "target_modified_duration",
+     "definition": "Target modified duration of the combined portfolio, in years",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one duration-adjustment trade",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "mp",
+     "source_symbol": "MDURP",
+     "role": "input",
+     "quantity_id": "portfolio_modified_duration",
+     "definition": "Current portfolio modified duration, in years",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same trade",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "ms",
+     "source_symbol": "MDURS",
+     "role": "input",
+     "quantity_id": "swap_modified_duration",
+     "definition": "Swap modified duration from the payer perspective, in years",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same trade",
+     "domain": "Nonzero finite"
+    },
+    {
+     "symbol": "v",
+     "source_symbol": "MVP",
+     "role": "input",
+     "quantity_id": "portfolio_market_value",
+     "definition": "Market value of the bond portfolio, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same trade",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "ns",
+     "source_symbol": "NS",
+     "role": "output",
+     "quantity_id": "swap_notional_principal",
+     "definition": "Required swap notional principal, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same trade",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Flat curve with parallel shifts; perfect substitution between portfolio and swap; duration approximation."
+   ],
+   "limitations": [
+    "Duration estimate only; convexity and non-parallel moves ignored."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-ns-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM2 swap notional Eq1, printed p. 88 (PDF p. 96), Example 2: NS = [(4.50-5.50)/(-2.00)] x EUR 50,000,000 = EUR 25,000,000; solution 12, printed p. 135 (PDF p. 143): NS = [(5.0000-7.8000)/(-2.4848)] x EUR 90,100,000 = EUR 101,529,298.13",
+     "evidence": "Eq1 with the Example 2 (EUR 25M) and solution-12 (EUR 101.53M) computations.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-ir-risk-derivatives",
+     "kind": "primary",
+     "title": "Managing Interest Rate Risk with Derivatives (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/controlled-interest-rate-risks-for-futures-and-forwards-2/",
+     "version": "Study notes, 11 Aug 2024",
+     "accessed": "2026-11-04",
+     "locator": "Swap notional NS = [(MDURT-MDURP)/MDURS](MVP) with own worked oracle (5.5-6.5)/(-3.00)x$60M = $20M; principal invoice amount = (settlement/100)xCFxsize; basis = spot less futures times conversion factor.",
+     "evidence": "Page states the same swap-notional and invoice-amount formulas with an independent worked oracle.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-example2-ns-oracle",
+     "inputs": {
+      "mt": 4.5,
+      "mp": 5.5,
+      "ms": -2.0,
+      "v": 50000000.0
+     },
+     "expected": 25000000.0,
+     "tolerance": 1.0,
+     "method": "[(4.50-5.50)/(-2.00)] x 50,000,000 = 25,000,000.",
+     "provenance": "Published result: LM2 Example 2, printed p. 88 (PDF p. 96)"
+    },
+    {
+     "id": "published-solution12-ns-oracle",
+     "inputs": {
+      "mt": 5.0,
+      "mp": 7.8,
+      "ms": -2.4848,
+      "v": 90100000.0
+     },
+     "expected": 101529298.13,
+     "tolerance": 1.0,
+     "method": "[(5.0000-7.8000)/(-2.4848)] x 90,100,000 = 101,529,298.13.",
+     "provenance": "Published result: LM2 solution 12, printed p. 135 (PDF p. 143)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "mt": 4.5,
+      "mp": 5.5,
+      "ms": -2.0
+     },
+     "reason": "Portfolio scale is structurally required; duration gaps do not size notionals."
+    }
+   ],
+   "inverse_notes": "No single-input inverse without fixing the other three. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings durations, market value, and swap notional are not in the runtime vocabulary snapshot and require extension.",
+     "Solving Eq1 for swap duration (MDURS = 3, printed p. 88) is a supporting single-oracle variant."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--portfolio-basis-point-value",
+   "revision": "r1",
+   "title": "Portfolio basis point value",
+   "summary": "Change in portfolio value for a one-basis-point (0.01%) yield move as modified duration times market value per basis point.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "bp",
+    "expression": "m*v*0.0001",
+    "original_equation": "BPVP = MDURP x 0.01% x MVP (Eq5)",
+    "source_id": "analystprep-yield-curve-strategies",
+    "locator": "PDF: LM2 BPV family, printed pp. 93-94 (PDF pp. 101-102): Eq5 BPVP = 9.50 x 0.0001 x EUR 49,531,000 = EUR 47,054.45 (Example 5); Eq4 BPVT = 8.50 x 0.0001 x EUR 49,531,000 = EUR 42,101.35 (Example 6); Eq9 BPVHR = [(42,101.35-47,054.50)/84.63] x 0.619489 = -36.26 (Example 6)",
+    "translation_notes": "Decimals; 0.01% encoded as 0.0001. Money-duration-per-basis-point form."
+   },
+   "variables": [
+    {
+     "symbol": "m",
+     "source_symbol": "MDURP",
+     "role": "input",
+     "quantity_id": "portfolio_modified_duration",
+     "definition": "Portfolio modified duration, in years",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one bond portfolio",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "v",
+     "source_symbol": "MVP",
+     "role": "input",
+     "quantity_id": "portfolio_market_value",
+     "definition": "Portfolio market value, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same portfolio",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "bp",
+     "source_symbol": "BPVP",
+     "role": "output",
+     "quantity_id": "portfolio_basis_point_value",
+     "definition": "Value change per 1 bp yield move, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same portfolio",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Small parallel yield shifts; duration-linear approximation."
+   ],
+   "limitations": [
+    "Linear estimate only; convexity and curve twists ignored."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-bpvp-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM2 BPV family, printed pp. 93-94 (PDF pp. 101-102): Eq5 BPVP = 9.50 x 0.0001 x EUR 49,531,000 = EUR 47,054.45 (Example 5); Eq4 BPVT = 8.50 x 0.0001 x EUR 49,531,000 = EUR 42,101.35 (Example 6); Eq9 BPVHR = [(42,101.35-47,054.50)/84.63] x 0.619489 = -36.26 (Example 6)",
+     "evidence": "Eq5 with the Example 5 computation (EUR 47,054.45).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-yield-curve-strategies",
+     "kind": "primary",
+     "title": "Yield Curve Strategies and Duration Management (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/yield-curve-strategies/",
+     "version": "Study notes, 23 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Futures BPV = BPV(CTD)/CF(CTD); Swap BPV = Modified Duration of Swap x Swap Notional Value/10,000 - the same MDUR x MV x 0.0001 form as the portfolio/CTD basis-point values.",
+     "evidence": "Page states the same BPV construction (duration times value per basis point) corroborating the BPVP/BPVT/BPVHR records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-ex5-bpvp-oracle",
+     "inputs": {
+      "m": 9.5,
+      "v": 49531000.0
+     },
+     "expected": 47054.45,
+     "tolerance": 0.01,
+     "method": "9.50 x 0.0001 x 49,531,000 = 47,054.45.",
+     "provenance": "Published result: LM2 Example 5, printed p. 93 (PDF p. 101)"
+    },
+    {
+     "id": "published-rossi-bpvp-oracle",
+     "inputs": {
+      "m": 6.45,
+      "v": 150000000.0
+     },
+     "expected": 96750.0,
+     "tolerance": 0.01,
+     "method": "6.45 x 0.0001 x 150,000,000 = 96,750.",
+     "provenance": "Published result: LM2 Rossi solution, printed p. 116 (PDF p. 124)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "m": 9.5
+     },
+     "reason": "Market value is structurally required; duration alone gives no value sensitivity."
+    }
+   ],
+   "inverse_notes": "v = bp/(m*0.0001) requires m != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings modified duration, market value, and basis point value are not in the runtime vocabulary snapshot and require extension."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--target-basis-point-value",
+   "revision": "r1",
+   "title": "Target basis point value",
+   "summary": "Target value-change-per-basis-point for the desired exposure, same duration-times-value form with target inputs.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "bt",
+    "expression": "m*v*0.0001",
+    "original_equation": "BPVT = MDURT x 0.01% x MVP (Eq4)",
+    "source_id": "analystprep-yield-curve-strategies",
+    "locator": "PDF: LM2 solutions, printed pp. 116-117 (PDF pp. 124-125): Eq5 BPVP = 6.45 x 0.0001 x EUR 150,000,000 = EUR 96,750; Eq4 BPVT = 9.5 x 0.0001 x EUR 3,604,000 = EUR 3,424; Eq9 BPVHR = [(3,424-0)/84.63] x 0.619489 = 25.06 (Grant rebalancing)",
+    "translation_notes": "Decimals; shares the BPV arithmetic with BPVP but distinct target-exposure meaning and equation number."
+   },
+   "variables": [
+    {
+     "symbol": "m",
+     "source_symbol": "MDURT",
+     "role": "input",
+     "quantity_id": "target_modified_duration",
+     "definition": "Target modified duration, in years",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one desired exposure",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "v",
+     "source_symbol": "MVP",
+     "role": "input",
+     "quantity_id": "exposure_market_value",
+     "definition": "Market value of the exposure being sized, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same exposure",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "bt",
+     "source_symbol": "BPVT",
+     "role": "output",
+     "quantity_id": "target_basis_point_value",
+     "definition": "Target value change per 1 bp yield move, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same exposure",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Small parallel yield shifts; duration-linear approximation."
+   ],
+   "limitations": [
+    "Linear estimate only; applies to the sized exposure, not the current portfolio."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-bpvt-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM2 solutions, printed pp. 116-117 (PDF pp. 124-125): Eq5 BPVP = 6.45 x 0.0001 x EUR 150,000,000 = EUR 96,750; Eq4 BPVT = 9.5 x 0.0001 x EUR 3,604,000 = EUR 3,424; Eq9 BPVHR = [(3,424-0)/84.63] x 0.619489 = 25.06 (Grant rebalancing)",
+     "evidence": "Eq4 with the Example 6 (EUR 42,101.35) and Grant (EUR 3,424) computations.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-yield-curve-strategies",
+     "kind": "primary",
+     "title": "Yield Curve Strategies and Duration Management (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/yield-curve-strategies/",
+     "version": "Study notes, 23 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Futures BPV = BPV(CTD)/CF(CTD); Swap BPV = Modified Duration of Swap x Swap Notional Value/10,000 - the same MDUR x MV x 0.0001 form as the portfolio/CTD basis-point values.",
+     "evidence": "Page states the same BPV construction (duration times value per basis point) corroborating the BPVP/BPVT/BPVHR records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-ex6-bpvt-oracle",
+     "inputs": {
+      "m": 8.5,
+      "v": 49531000.0
+     },
+     "expected": 42101.35,
+     "tolerance": 0.01,
+     "method": "8.50 x 0.0001 x 49,531,000 = 42,101.35.",
+     "provenance": "Published result: LM2 Example 6, printed p. 94 (PDF p. 102)"
+    },
+    {
+     "id": "published-grant-bpvt-oracle",
+     "inputs": {
+      "m": 9.5,
+      "v": 3604000.0
+     },
+     "expected": 3424.0,
+     "tolerance": 1.0,
+     "method": "9.5 x 0.0001 x 3,604,000 = 3,423.8, reported as 3,424.",
+     "provenance": "Published result: LM2 Grant solution, printed p. 117 (PDF p. 125)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "m": 8.5
+     },
+     "reason": "Exposure value is structurally required; duration alone gives no value sensitivity."
+    }
+   ],
+   "inverse_notes": "v = bt/(m*0.0001) requires m != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings target duration, exposure value, and target BPV are not in the runtime vocabulary snapshot and require extension.",
+     "Same arithmetic as the BPVP sibling; distinct target-exposure definition, not a duplicate."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--bpv-futures-hedge-count",
+   "revision": "r1",
+   "title": "BPV-based futures hedge count",
+   "summary": "Number of bond futures (signed; negative = sell) moving the portfolio BPV to the target, scaled by the conversion factor.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "n",
+    "expression": "((t-p)/c)*cf",
+    "original_equation": "BPVHR = [(BPVT - BPVP)/BPVCTD] x CF (Eq9; Eq8 when BPVT = 0)",
+    "source_id": "analystprep-yield-curve-strategies",
+    "locator": "PDF: LM2 BPV family, printed pp. 93-94 (PDF pp. 101-102): Eq5 BPVP = 9.50 x 0.0001 x EUR 49,531,000 = EUR 47,054.45 (Example 5); Eq4 BPVT = 8.50 x 0.0001 x EUR 49,531,000 = EUR 42,101.35 (Example 6); Eq9 BPVHR = [(42,101.35-47,054.50)/84.63] x 0.619489 = -36.26 (Example 6)",
+    "translation_notes": "Decimals; fractional contracts rounded to whole contracts in practice (-36.26 to -36; 25.06 to 25)."
+   },
+   "variables": [
+    {
+     "symbol": "t",
+     "source_symbol": "BPVT",
+     "role": "input",
+     "quantity_id": "target_basis_point_value",
+     "definition": "Target value change per 1 bp, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one hedge",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "p",
+     "source_symbol": "BPVP",
+     "role": "input",
+     "quantity_id": "portfolio_basis_point_value",
+     "definition": "Current portfolio value change per 1 bp, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same hedge",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "c",
+     "source_symbol": "BPVCTD",
+     "role": "input",
+     "quantity_id": "ctd_basis_point_value",
+     "definition": "CTD bond value change per 1 bp, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same hedge",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "cf",
+     "source_symbol": "CF",
+     "role": "input",
+     "quantity_id": "conversion_factor",
+     "definition": "CTD conversion factor, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same hedge",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "n",
+     "source_symbol": "BPVHR",
+     "role": "output",
+     "quantity_id": "bpv_hedge_count",
+     "definition": "Signed number of futures contracts, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same hedge",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "CTD bond tracks the futures; small parallel shifts; duration-linear BPVs."
+   ],
+   "limitations": [
+    "Fractional result must be rounded; CTD changes and convexity make hedges imperfect."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-bpvhr-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM2 BPV family, printed pp. 93-94 (PDF pp. 101-102): Eq5 BPVP = 9.50 x 0.0001 x EUR 49,531,000 = EUR 47,054.45 (Example 5); Eq4 BPVT = 8.50 x 0.0001 x EUR 49,531,000 = EUR 42,101.35 (Example 6); Eq9 BPVHR = [(42,101.35-47,054.50)/84.63] x 0.619489 = -36.26 (Example 6)",
+     "evidence": "Eq9 with the Example 6 computation (-36.26).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-yield-curve-strategies",
+     "kind": "primary",
+     "title": "Yield Curve Strategies and Duration Management (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/yield-curve-strategies/",
+     "version": "Study notes, 23 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Futures BPV = BPV(CTD)/CF(CTD); Swap BPV = Modified Duration of Swap x Swap Notional Value/10,000 - the same MDUR x MV x 0.0001 form as the portfolio/CTD basis-point values.",
+     "evidence": "Page states the same BPV construction (duration times value per basis point) corroborating the BPVP/BPVT/BPVHR records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-ex6-bpvhr-oracle",
+     "inputs": {
+      "t": 42101.35,
+      "p": 47054.5,
+      "c": 84.63,
+      "cf": 0.619489
+     },
+     "expected": -36.26,
+     "tolerance": 0.01,
+     "method": "[(42,101.35-47,054.50)/84.63] x 0.619489 = -36.2579, reported as -36.26.",
+     "provenance": "Published result: LM2 Example 6, printed p. 95 (PDF p. 103)"
+    },
+    {
+     "id": "published-grant-bpvhr-oracle",
+     "inputs": {
+      "t": 3424.0,
+      "p": 0.0,
+      "c": 84.63,
+      "cf": 0.619489
+     },
+     "expected": 25.06,
+     "tolerance": 0.01,
+     "method": "[(3,424-0)/84.63] x 0.619489 = 25.0636, reported as 25.06.",
+     "provenance": "Published result: LM2 Grant solution, printed p. 117 (PDF p. 125)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "t": 42101.35,
+      "p": 47054.5,
+      "c": 84.63
+     },
+     "reason": "Conversion factor is structurally required; CTD units must convert to futures units."
+    },
+    {
+     "kind": "domain",
+     "inputs": {
+      "t": 42101.35,
+      "p": 47054.5,
+      "c": 0.0,
+      "cf": 0.619489
+     },
+     "reason": "Guard c != 0 violated; a zero CTD sensitivity cannot size a hedge."
+    }
+   ],
+   "inverse_notes": "No single-input inverse without fixing the other three. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings BPVs, conversion factor, and hedge count are not in the runtime vocabulary snapshot and require extension.",
+     "Full-hedge Eq8 (-344 contracts, printed p. 94) is the BPVT = 0 special case cited as supporting evidence."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--equity-futures-count",
+   "revision": "r1",
+   "title": "Equity index futures count for beta target",
+   "summary": "Number of stock index futures (signed; negative = sell) moving equity exposure from its beta to the target beta.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "n",
+    "expression": "((t-s)/f)*(v/k)",
+    "original_equation": "Nf = [(betaT - betaS)/betaf] x (S/F)",
+    "source_id": "analystprep-targeted-equity",
+    "locator": "PDF: LM2 equity futures, printed p. 117 (PDF p. 125), Grant rebalancing: Nf = [(0.0-1.2)/1.0] x (EUR 3,604,000/EUR 35,000) = -123.57 (sell 124); solution 4, printed p. 133 (PDF p. 141): Nf = [(1.00-0)/1.00] x ($4,800,000/$825,000) = 5.82 (buy 6, cash equitization)",
+    "translation_notes": "Decimals; fractional contracts rounded in practice (-123.57 to -124 sold; 5.82 to 6 bought)."
+   },
+   "variables": [
+    {
+     "symbol": "t",
+     "source_symbol": "betaT",
+     "role": "input",
+     "quantity_id": "target_beta",
+     "definition": "Target beta of the exposure, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one futures trade",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "s",
+     "source_symbol": "betaS",
+     "role": "input",
+     "quantity_id": "current_beta",
+     "definition": "Current beta of the exposure (0 for cash), decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same trade",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "f",
+     "source_symbol": "betaf",
+     "role": "input",
+     "quantity_id": "futures_beta",
+     "definition": "Beta of the futures contract, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same trade",
+     "domain": "Nonzero finite"
+    },
+    {
+     "symbol": "v",
+     "source_symbol": "S",
+     "role": "input",
+     "quantity_id": "exposure_market_value",
+     "definition": "Market value of the exposure being adjusted, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same trade",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "k",
+     "source_symbol": "F",
+     "role": "input",
+     "quantity_id": "futures_contract_value",
+     "definition": "Value of one futures contract, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same trade",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "n",
+     "source_symbol": "Nf",
+     "role": "output",
+     "quantity_id": "equity_futures_count",
+     "definition": "Signed number of index futures contracts, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same trade",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Futures beta stable; market-value weights proxy the beta adjustment linearly."
+   ],
+   "limitations": [
+    "Fractional result must be rounded; beta estimates drift."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-nf-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM2 equity futures, printed p. 117 (PDF p. 125), Grant rebalancing: Nf = [(0.0-1.2)/1.0] x (EUR 3,604,000/EUR 35,000) = -123.57 (sell 124); solution 4, printed p. 133 (PDF p. 141): Nf = [(1.00-0)/1.00] x ($4,800,000/$825,000) = 5.82 (buy 6, cash equitization)",
+     "evidence": "Nf formula with the Grant (-123.57) and Monatize (5.82) computations.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-targeted-equity",
+     "kind": "primary",
+     "title": "Using Derivatives for Targeted Equity Exposure (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/using-derivatives-to-achieve-targeted-equity/",
+     "version": "Study notes, 11 Aug 2024",
+     "accessed": "2026-11-04",
+     "locator": "Nf = (BT/Bf)x(S/F) with worked cash-equitization oracle (1.0/1.0)x($11M/$82k) = 134.14; equity-swap net-payment form corroborates swap economics.",
+     "evidence": "Page states the same futures-count formula (cash beta zero) with an independent worked oracle.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-grant-nf-oracle",
+     "inputs": {
+      "t": 0.0,
+      "s": 1.2,
+      "f": 1.0,
+      "v": 3604000.0,
+      "k": 35000.0
+     },
+     "expected": -123.57,
+     "tolerance": 0.01,
+     "method": "[(0.0-1.2)/1.0] x (3,604,000/35,000) = -123.5657, reported as -123.57.",
+     "provenance": "Published result: LM2 Grant solution, printed p. 117 (PDF p. 125)"
+    },
+    {
+     "id": "published-monatize-nf-oracle",
+     "inputs": {
+      "t": 1.0,
+      "s": 0.0,
+      "f": 1.0,
+      "v": 4800000.0,
+      "k": 825000.0
+     },
+     "expected": 5.82,
+     "tolerance": 0.01,
+     "method": "[(1.00-0)/1.00] x (4,800,000/825,000) = 5.8182, reported as 5.82.",
+     "provenance": "Published result: LM2 solution 4, printed p. 133 (PDF p. 141)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "t": 0.0,
+      "s": 1.2,
+      "f": 1.0,
+      "v": 3604000.0
+     },
+     "reason": "Contract value is structurally required; exposure value alone gives no contract count."
+    },
+    {
+     "kind": "domain",
+     "inputs": {
+      "t": 0.0,
+      "s": 1.2,
+      "f": 0.0,
+      "v": 3604000.0,
+      "k": 35000.0
+     },
+     "reason": "Guard f != 0 violated; a zero-beta future cannot adjust beta."
+    }
+   ],
+   "inverse_notes": "No single-input inverse without fixing the other four. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings betas, values, and futures count are not in the runtime vocabulary snapshot and require extension.",
+     "FTSE MIB (-952.38) and DAX (+138.46) applications are supporting oracles of the same form."
+    ],
+    "duplicate_of": []
+   }
+  }
+ ]
+}

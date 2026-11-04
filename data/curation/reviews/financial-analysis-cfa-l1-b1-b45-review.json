@@ -1,0 +1,173 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b1-b45",
+  "batch_sha256": "4e5e97ee74c20a7db1c7a8e9ddc228b39bf2af5877622dc1db591c8ae7a4dafe",
+  "reviewer": "ingest-clinical",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--simple-regression-individual-prediction-standard-error",
+      "revision": "r2",
+      "record_sha256": "7ee9f4db15d8d9fe2ca6d700e5ebb10933a86224fdeb2d6b13efbe853e38f60d",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating UCD PLS120 Chapter 13 page unreachable from reviewer (connection forcibly closed, two attempts 2026-11-04)."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "One new independent response at a known predictor under the same homoskedastic linear model; mean-interval (without the leading 1) is a different target; predictor/model-selection/extrapolation uncertainty absent."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "se[response-unit]*sqrt(1+1/n+(x-xmean)^2/Sxx)[1] gives prediction_se[response-unit]. response-unit, predictor-unit, predictor-unit^2 and all meanings are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 2*sqrt(1.25)=2.23606798; 2*sqrt(1.5)=2.44948974, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "se>=0, n>=3, Sxx>0. Inverses se=prediction_se/sqrt(...); x from the quadratic with usually two roots; correctly analyzed."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating UCD page unreachable (https://psfaculty.plantsciences.ucdavis.edu/PLS120/PLS120Book/docs/chLinReg.html; connection refused twice 2026-11-04).",
+        "Requires runtime extension (response/predictor units and new meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    },
+    {
+      "id": "financial-analysis--supplied-log-linear-regression-response",
+      "revision": "r2",
+      "record_sha256": "386ab5e6d80d8a0fdfa8d29e23e20a2acd52e4f3fe00ea3b45a3b247e58f6e17",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "UCLA OARC Stats log-transformation FAQ verified live 2026-11-04: log(y_i)=b0+b1*x_1i+...+e_i displayed for the log-transformed-outcome case with worked Stata examples; matches the record log-linear form."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Supplied-coefficient evaluation with Y/Yref normalization (fixed reference); exponentiated conditional log mean is a geometric mean (median under lognormal errors), not an unbiased arithmetic mean; retransformation correction absent."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "exp(a[1]+b[1/predictor-unit]*x[predictor-unit]) gives unit-1 Y. 1/predictor-unit, predictor-unit, log_response_regression_intercept, log_response_linear_predictor_slope, regression_predictor_value, normalized_backtransformed_loglinear_response are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: e^(.6931+.6931*2)=8; e^0=1, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "No guards (total function on normalized inputs). Inverses x=(log(Y)-a)/b needs Y>0, b nonzero; b=0 leaves x unidentified; normalization retained, correctly."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "UCLA OARC Stats FAQ corroboration only: regression equations reused as short mathematical facts; no page prose redistributed. Page-license terms not established (honest unknown). No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faqhow-do-i-interpret-a-regression-model-when-some-variables-are-log-transformed/",
+          "locator": "Outcome variable is log transformed",
+          "accessed": "2026-11-04",
+          "finding": "Live page: log(y_i)=b0+b1*x+...+e_i with worked log-outcome examples."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Back-transformed log-linear fitted response with declared normalization, for qualified regression review."
+    },
+    {
+      "id": "financial-analysis--supplied-linear-log-regression-response",
+      "revision": "r2",
+      "record_sha256": "2f7b531102a0ef333c1f9fc7460fba31bfd5cd81430238fec2888830d438b416",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "UCLA OARC Stats log-transformation FAQ verified live 2026-11-04: write=b0+b1*female+b2*log(math)+b3*log(read) displayed for the log-predictor case; matches the record linear-log form."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Supplied-coefficient evaluation with x=X/Xref normalization; no estimation or model selection; extrapolation/uncertainty external."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "a[response-unit]+b[response-unit]*log(x[1]) gives Y[response-unit]. response-unit, linear_response_logpredictor_intercept, linear_response_logpredictor_slope, normalized_regression_predictor, linearlog_fitted_response are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 3+2*log(1)=3; 3+2*.6931=4.38629436, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "x>0 (normalized positive predictor). Inverses x=exp((Y-a)/b) needs b nonzero; b=0 leaves x unidentified, correctly. Response may be negative (disclosed)."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "UCLA OARC Stats FAQ corroboration only: regression equations reused as short mathematical facts; no page prose redistributed. Page-license terms not established (honest unknown). No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faqhow-do-i-interpret-a-regression-model-when-some-variables-are-log-transformed/",
+          "locator": "Some predictor variables are log transformed",
+          "accessed": "2026-11-04",
+          "finding": "Live page: Y=b0+b1*..+b2*log(math)+... displayed for log predictors."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Linear-log fitted response with declared normalization, for qualified regression review."
+    },
+    {
+      "id": "financial-analysis--supplied-log-log-regression-response",
+      "revision": "r2",
+      "record_sha256": "39c2cc2cb1c5b9d80d8826a60d8ac2fa4a492b1d11a7f73d9e534078e7cfb426",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "UCLA OARC Stats log-transformation FAQ verified live 2026-11-04: the both-logged case section confirmed with a worked lgwrite-on-lgmath example; the record Y=exp(a)*x^b is the standard back-transformation of the log(Y)=a+b*log(X) specification. Weighed thin point: the exact back-transformed equation line sits past page truncation, but the specification and worked example directly entail it."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Supplied-coefficient evaluation with both variables reference-normalized; geometric-mean (median under lognormal errors), not arithmetic mean; cross-transformation R2 comparisons invalid (disclosed)."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "exp(a[1])*x[1]^b[1] gives unit-1 Y; dimensionless normalized inputs. loglog_regression_intercept, loglog_regression_elasticity, normalized_regression_predictor, normalized_backtransformed_loglog_response are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 2*3^2=18; 1*4^-1=.25, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "x>0. Inverses x=exp((log(Y)-a)/b) needs Y>0, b nonzero; b=(log(Y)-a)/log(x) needs x not 1; x=1 and b=0 degeneracies leave b/x unidentified, correctly."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "UCLA OARC Stats FAQ corroboration only: regression equations reused as short mathematical facts; no page prose redistributed. Page-license terms not established (honest unknown). No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faqhow-do-i-interpret-a-regression-model-when-some-variables-are-log-transformed/",
+          "locator": "Both the outcome variable and some predictor variables are log transformed",
+          "accessed": "2026-11-04",
+          "finding": "Live page: both-logged case with worked lgwrite-on-lgmath example; record equation is the standard back-transformation (thin point, weighed)."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Back-transformed log-log fitted response with declared normalization, for qualified regression review."
+    }
+  ]
+}

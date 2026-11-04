@@ -1,0 +1,447 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b37",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--tangible-book-value-equity",
+      "revision": "r1",
+      "title": "Tangible book value of equity",
+      "summary": "The example subtracts goodwill and other intangibles from shareholders’ equity.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "tangible",
+        "expression": "equity - goodwill - other",
+        "original_equation": "Tangible book value = shareholders’ equity - goodwill - other intangible assets",
+        "source_id": "live-oak-2023-annual",
+        "locator": "Non-GAAP Measures, printed p69, tangible shareholders’ equity",
+        "translation_notes": "All values share a currency; a negative tangible value is permitted."
+      },
+      "variables": [
+        {
+          "symbol": "equity",
+          "source_symbol": "total shareholders’ equity",
+          "role": "input",
+          "quantity_id": "total_shareholders_equity",
+          "definition": "total shareholders’ equity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "goodwill",
+          "source_symbol": "goodwill carrying amount",
+          "role": "input",
+          "quantity_id": "goodwill_carrying_amount",
+          "definition": "goodwill carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "other",
+          "source_symbol": "other intangible asset carrying amount",
+          "role": "input",
+          "quantity_id": "other_intangible_assets_carrying_amount",
+          "definition": "other intangible asset carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "tangible",
+          "source_symbol": "tangible book value",
+          "role": "output",
+          "quantity_id": "tangible_book_value_equity",
+          "definition": "tangible book value",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "goodwill >= 0",
+        "other >= 0"
+      ],
+      "assumptions": [
+        "All balances refer to the same entity, date and currency.",
+        "Goodwill and other intangibles do not overlap and include the intangible assets specified by the analyst."
+      ],
+      "limitations": [
+        "This total-equity measure is not automatically tangible common equity when preferred or noncontrolling claims exist.",
+        "Definitions differ: the corroborating issuer excludes servicing rights, unlike a definition removing all intangibles."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 10, Adjustments Related to Goodwill, printed pp594–595 (PDF pp608–609), Example 12 solution 1",
+          "evidence": "The example subtracts goodwill and other intangibles from shareholders’ equity.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "live-oak-2023-annual",
+          "kind": "primary",
+          "title": "Live Oak Bancshares 2023 Annual Report",
+          "url": "https://www.sec.gov/Archives/edgar/data/1462120/000146212024000030/a24lob2023annualreportsec1.pdf",
+          "version": "Live Oak Bancshares, 2023 annual report filed 2024",
+          "accessed": "2026-11-03",
+          "locator": "Non-GAAP Measures, printed p69, tangible shareholders’ equity",
+          "evidence": "Tangible shareholders’ equity deducts goodwill and other intangible assets from total shareholders’ equity; the issuer excludes servicing rights from its intangibles definition.",
+          "license": "Issuer filing; copyright and permissions not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "schwab",
+          "inputs": {
+            "equity": 20097,
+            "goodwill": 1227,
+            "other": 93
+          },
+          "expected": 18777,
+          "tolerance": 1e-09,
+          "method": "20,097 less 1,227 goodwill and 93 other intangibles yields 18,777 in consistent monetary units.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "ameritrade",
+          "inputs": {
+            "equity": 7936,
+            "goodwill": 4198,
+            "other": 1363
+          },
+          "expected": 2375,
+          "tolerance": 1e-09,
+          "method": "7,936 less 4,198 and 1,363 yields 2,375 in consistent units.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "goodwill": 1227,
+            "other": 93
+          },
+          "reason": "equity is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "equity=tangible+goodwill+other; the two deductions cannot be separately recovered from their combined effect.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--inventory-cost-flow-cost-of-sales",
+      "revision": "r1",
+      "title": "Cost of goods sold from merchandise inventory flow",
+      "summary": "The example allocates available inventory cost between cost of sales and ending inventory.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cogs",
+        "expression": "beginning + purchases - ending",
+        "original_equation": "Cost of goods sold = beginning inventory + purchases - ending inventory",
+        "source_id": "openstax-managerial-7-2",
+        "locator": "Section 7.2, operating budget inventory and cost flow diagram",
+        "translation_notes": "Amounts share a currency and are measured on a consistent inventory cost-flow basis."
+      },
+      "variables": [
+        {
+          "symbol": "beginning",
+          "source_symbol": "beginning merchandise inventory",
+          "role": "input",
+          "quantity_id": "beginning_inventory_carrying_amount",
+          "definition": "beginning merchandise inventory",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "purchases",
+          "source_symbol": "net merchandise purchases",
+          "role": "input",
+          "quantity_id": "net_inventory_purchases",
+          "definition": "net merchandise purchases",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ending",
+          "source_symbol": "ending merchandise inventory",
+          "role": "input",
+          "quantity_id": "ending_inventory_carrying_amount",
+          "definition": "ending merchandise inventory",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "cogs",
+          "source_symbol": "cost of goods sold",
+          "role": "output",
+          "quantity_id": "cost_of_goods_sold",
+          "definition": "cost of goods sold",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "beginning >= 0",
+        "purchases >= 0",
+        "ending >= 0",
+        "beginning + purchases >= ending"
+      ],
+      "assumptions": [
+        "Net purchases include all cost additions relevant to goods available for sale.",
+        "No inventory write-down, shrinkage, transfer or other unmodeled cost-flow adjustment occurs."
+      ],
+      "limitations": [
+        "Manufacturers need the relevant finished-goods production cost instead of merchandise purchases.",
+        "Additional flows must be modeled explicitly when they occur."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 5, Calculations of Cost of Sales, Gross Profit, and Ending Inventory, printed pp261–262 (PDF pp275–276), Example 2 and summary table",
+          "evidence": "The example allocates available inventory cost between cost of sales and ending inventory.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-managerial-7-2",
+          "kind": "primary",
+          "title": "Principles of Accounting, Volume 2: Managerial Accounting",
+          "url": "https://openstax.org/books/principles-managerial-accounting/pages/7-2-prepare-operating-budgets",
+          "version": "Rice University, 2019",
+          "accessed": "2026-11-03",
+          "locator": "Section 7.2, operating budget inventory and cost flow diagram",
+          "evidence": "Cost of goods sold equals beginning inventory plus purchases or production less ending inventory.",
+          "license": "OpenStax page displays CC BY-NC-SA and additional usage terms; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "allocation",
+          "inputs": {
+            "beginning": 0,
+            "purchases": 58000000,
+            "ending": 7400000
+          },
+          "expected": 50600000,
+          "tolerance": 1e-09,
+          "method": "Available cost of 58 million less ending inventory of 7.4 million leaves 50.6 million of cost of sales.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "beginning": 100,
+            "purchases": 500,
+            "ending": 150
+          },
+          "expected": 450,
+          "tolerance": 1e-09,
+          "method": "100 beginning plus 500 purchases minus 150 ending gives 450.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "purchases": 58000000,
+            "ending": 7400000
+          },
+          "reason": "beginning is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ending=beginning+purchases-cogs; purchases=cogs+ending-beginning.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--ebit-interest-expense-coverage",
+      "revision": "r1",
+      "title": "EBIT interest expense coverage",
+      "summary": "The exhibit states EBIT divided by interest payments; its worked example applies the disclosed interest expense.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "ebit / interest",
+        "original_equation": "Interest coverage = EBIT / interest expense",
+        "source_id": "openstax-finance-2e-6-4",
+        "locator": "Section 6.4, times interest earned, equation 6.25",
+        "translation_notes": "The ratio is dimensionless and can be negative when EBIT is negative."
+      },
+      "variables": [
+        {
+          "symbol": "ebit",
+          "source_symbol": "earnings before interest and tax",
+          "role": "input",
+          "quantity_id": "earnings_before_interest_and_taxes",
+          "definition": "earnings before interest and tax",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "interest",
+          "source_symbol": "interest expense",
+          "role": "input",
+          "quantity_id": "interest_expense",
+          "definition": "interest expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "interest coverage",
+          "role": "output",
+          "quantity_id": "ebit_interest_coverage",
+          "definition": "EBIT divided by interest expense",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "interest > 0"
+      ],
+      "assumptions": [
+        "Interest expense is positive and matches the EBIT period and entity.",
+        "Interest expense is used as the analytical proxy for the reading’s interest-payment denominator."
+      ],
+      "limitations": [
+        "Accrual interest expense can differ from actual cash interest payments; cash coverage is a separate measure.",
+        "A zero interest expense makes this ratio undefined."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 8, Evaluating Solvency, printed pp480–482 (PDF pp494–496), Exhibit 2 and Example 15",
+          "evidence": "The exhibit states EBIT divided by interest payments; its worked example applies the disclosed interest expense.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-finance-2e-6-4",
+          "kind": "primary",
+          "title": "Principles of Finance 2e",
+          "url": "https://openstax.org/books/principles-finance-2e/pages/6-4-solvency-ratios",
+          "version": "OpenStax, 2e 2026",
+          "accessed": "2026-11-03",
+          "locator": "Section 6.4, times interest earned, equation 6.25",
+          "evidence": "Times interest earned is EBIT divided by interest expense.",
+          "license": "OpenStax page displays CC BY-NC-SA and additional usage terms; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "openstax",
+          "inputs": {
+            "ebit": 43000,
+            "interest": 2000
+          },
+          "expected": 21.5,
+          "tolerance": 1e-09,
+          "method": "43,000 divided by 2,000 gives 21.5 times.",
+          "provenance": "OpenStax section 6.4."
+        },
+        {
+          "id": "loss",
+          "inputs": {
+            "ebit": -100,
+            "interest": 20
+          },
+          "expected": -5,
+          "tolerance": 1e-09,
+          "method": "A negative EBIT of 100 divided by 20 interest yields negative five.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "interest": 2000
+          },
+          "reason": "ebit is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ebit=ratio*interest; interest=ebit/ratio if the ratio is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

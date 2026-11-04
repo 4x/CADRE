@@ -1,0 +1,280 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b42",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 atomic Volume 2 relationships with owner-PDF provenance and inspected public corroboration.",
+    "gaps": [
+      "Finance quantities and scientific fidelity require independent registry review.",
+      "Deduplication uses the available inventory and own prior returns, not a global registry."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The owner PDF is project-derivation with a null URL; public evidence carries each relationship."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--fisher-nominal-rate-additive-approximation",
+      "revision": "r1",
+      "title": "Additive Fisher approximation for nominal interest",
+      "summary": "The owner expresses nominal interest as real interest plus expected inflation.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "nominal_rate",
+        "expression": "real_rate + expected_inflation",
+        "original_equation": "Nominal interest ≈ real interest + expected inflation",
+        "source_id": "stl-fed-fisher-inflation-expectations",
+        "locator": "The Fisher Equation",
+        "translation_notes": "All rates are dimensionless base-one fractions for the same period."
+      },
+      "variables": [
+        {
+          "symbol": "real_rate",
+          "source_symbol": "real interest rate",
+          "role": "input",
+          "quantity_id": "real_interest_rate",
+          "definition": "real interest rate",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same economy and rate horizon; base-one rate with matching compounding conventions",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expected_inflation",
+          "source_symbol": "expected inflation rate",
+          "role": "input",
+          "quantity_id": "expected_inflation_rate",
+          "definition": "expected inflation rate",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same economy and rate horizon; base-one rate with matching compounding conventions",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "nominal_rate",
+          "source_symbol": "approximate nominal interest rate",
+          "role": "output",
+          "quantity_id": "nominal_interest_rate",
+          "definition": "approximate nominal interest rate",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same economy and rate horizon; base-one rate with matching compounding conventions",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Real interest and expected inflation use the same horizon and compatible rate conventions.",
+        "The additive relation is a first-order or log-rate approximation; a discrete gross-rate calculation includes their interaction."
+      ],
+      "limitations": [
+        "Do not confuse expected with realized inflation.",
+        "Uncertainty and risk premia can complicate the interpretation of ex ante real returns."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 5, Money: Quantity Theory, Supply and Demand, Fisher Effect, printed p291 (PDF p303), Equation 3",
+          "evidence": "The owner expresses nominal interest as real interest plus expected inflation.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "stl-fed-fisher-inflation-expectations",
+          "kind": "primary",
+          "title": "The Ups and Downs of Inflation and the Role of Fed Credibility",
+          "url": "https://www.stlouisfed.org/publications/regional-economist/april-2014/the-ups-and-downs-of-inflation-and-the-role-of-fed-credibility",
+          "version": "Federal Reserve Bank of St. Louis, Regional Economist, April 2014",
+          "accessed": "2026-11-04",
+          "locator": "The Fisher Equation",
+          "evidence": "The author states the additive nominal-rate, real-rate and expected-inflation relationship and describes its expectations interpretation.",
+          "license": "Federal Reserve publication; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "real_rate": 0.03,
+            "expected_inflation": 0.02
+          },
+          "expected": 0.05,
+          "tolerance": 1e-09,
+          "method": "A 3% real rate plus 2% expected inflation implies approximately 5% nominal interest.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative",
+          "inputs": {
+            "real_rate": -0.01,
+            "expected_inflation": 0.02
+          },
+          "expected": 0.01,
+          "tolerance": 1e-09,
+          "method": "A −1% real rate plus 2% expected inflation implies approximately 1% nominal interest.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "expected_inflation": 0.02
+          },
+          "reason": "real_rate is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "real_rate=nominal_rate-expected_inflation.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--nominal-neutral-rate-trend-growth-proxy",
+      "revision": "r1",
+      "title": "Nominal neutral policy rate using trend growth as a proxy",
+      "summary": "The owner estimates the neutral nominal policy rate by adding trend growth and the inflation target.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "neutral_rate",
+        "expression": "trend_growth + inflation_target",
+        "original_equation": "Neutral nominal rate ≈ trend real growth + inflation target",
+        "source_id": "federal-reserve-natural-rate-supply-2020",
+        "locator": "Printed pp4–5, equation 10 and discussion",
+        "translation_notes": "Both inputs and the result are dimensionless base-one rates over a common horizon."
+      },
+      "variables": [
+        {
+          "symbol": "trend_growth",
+          "source_symbol": "trend real output growth",
+          "role": "input",
+          "quantity_id": "trend_real_output_growth_rate",
+          "definition": "trend real output growth",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same economy and rate horizon; base-one rate with matching compounding conventions",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "inflation_target",
+          "source_symbol": "inflation target",
+          "role": "input",
+          "quantity_id": "inflation_target_rate",
+          "definition": "inflation target",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same economy and rate horizon; base-one rate with matching compounding conventions",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "neutral_rate",
+          "source_symbol": "growth-based nominal neutral-rate estimate",
+          "role": "output",
+          "quantity_id": "nominal_neutral_interest_rate_estimate",
+          "definition": "growth-based nominal neutral-rate estimate",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same economy and rate horizon; base-one rate with matching compounding conventions",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Trend real GDP growth is used as a proxy for the unobserved neutral real interest rate, and trend inflation equals the inflation target.",
+        "Rates share the same annualized period and additive rate convention."
+      ],
+      "limitations": [
+        "The growth proxy is a modeling assumption, not an identity; the Fed paper notes the real-rate and growth relationship may be weak or change sign.",
+        "The neutral rate is unobservable and a policy-rate comparison alone does not capture every financial condition."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 5, Monetary Policies: Contractionary, Expansionary, Limitations, printed p315 (PDF p327), Equation 4",
+          "evidence": "The owner estimates the neutral nominal policy rate by adding trend growth and the inflation target.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "federal-reserve-natural-rate-supply-2020",
+          "kind": "primary",
+          "title": "Estimates of r* Consistent with a Supply-Side Structure and a Monetary Policy Rule for the U.S. Economy",
+          "url": "https://www.federalreserve.gov/econres/feds/files/2020085pap.pdf",
+          "version": "Federal Reserve Board, Finance and Economics Discussion Series 2020-085",
+          "accessed": "2026-11-04",
+          "locator": "Printed pp4–5, equation 10 and discussion",
+          "evidence": "The paper describes nominal neutral policy rate as trend real rate plus trend inflation and notes both the historical use of a real rate near trend growth and weak growth-rate correlations.",
+          "license": "Federal Reserve research paper; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner",
+          "inputs": {
+            "trend_growth": 0.025,
+            "inflation_target": 0.02
+          },
+          "expected": 0.045,
+          "tolerance": 1e-09,
+          "method": "Trend growth of 2.5% plus a 2% inflation target yields a 4.5% estimate.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "lower",
+          "inputs": {
+            "trend_growth": 0.01,
+            "inflation_target": 0.02
+          },
+          "expected": 0.03,
+          "tolerance": 1e-09,
+          "method": "A 1% trend growth proxy plus a 2% inflation target yields 3%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "inflation_target": 0.02
+          },
+          "reason": "trend_growth is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "trend_growth=neutral_rate-inflation_target.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

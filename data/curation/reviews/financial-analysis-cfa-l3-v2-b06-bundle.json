@@ -1,0 +1,458 @@
+{
+ "batch_id": "financial-analysis-cfa-l3-v2-b06",
+ "created": "2026-11-04",
+ "curator": "buffy",
+ "deferred": [],
+ "domain": "financial-analysis",
+ "example_only": false,
+ "handoff": {
+  "summary": "Batch b06 (L3V2): 3 records (quoted bid-ask spread, buy-side and sell-side effective spread) each with PDF locator and directly inspected accessible corroboration.",
+  "gaps": [
+   "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+   "Queue: b07 (VWAP, VWAP sell cost, average effective spread); then L3V2 close-out report."
+  ],
+  "connections": [],
+  "queries": [],
+  "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity - verified locators and corroboration pages by direct inspection 2026-11-04."
+ },
+ "kit_version": "2026-10-31.9",
+ "schema_version": "cm-curation-batch/1",
+ "models": [
+  {
+   "id": "financial-analysis--quoted-bid-ask-spread",
+   "revision": "r1",
+   "title": "Quoted (inside) bid-ask spread",
+   "summary": "Quoted spread as the ask price minus the bid price; for a book, the lowest ask minus the highest bid.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "qs",
+    "expression": "ask-bid",
+    "original_equation": "Quoted spread = ask - bid (inside spread = lowest ask - highest bid)",
+    "source_id": "cfai-trading-refresher",
+    "locator": "PDF: LM6 Trading Costs and Electronic Markets, effective/quoted spread formulas, printed pp. 415-416 (PDF pp. 425-426)",
+    "translation_notes": "Currency units on both inputs and output (unit 1 by pack convention); decimals throughout."
+   },
+   "variables": [
+    {
+     "symbol": "ask",
+     "source_symbol": "ask price",
+     "role": "input",
+     "quantity_id": "ask_price",
+     "definition": "Ask (offer) price, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one market snapshot",
+     "domain": "Positive finite price"
+    },
+    {
+     "symbol": "bid",
+     "source_symbol": "bid price",
+     "role": "input",
+     "quantity_id": "bid_price",
+     "definition": "Bid price, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same market snapshot",
+     "domain": "Positive finite price not above ask"
+    },
+    {
+     "symbol": "qs",
+     "source_symbol": "quoted spread",
+     "role": "output",
+     "quantity_id": "quoted_spread",
+     "definition": "Quoted bid-ask spread, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same market snapshot",
+     "domain": "Nonnegative finite"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Both quotes from the same market snapshot (inside spread uses best ask/best bid)."
+   ],
+   "limitations": [
+    "Quoted spread only; price improvement, size effects, and market impact are captured by effective-spread siblings, not here."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v2-quoted-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 2 - Portfolio Construction",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM6 Trading Costs and Electronic Markets, effective/quoted spread formulas, printed pp. 415-416 (PDF pp. 425-426); PDF: LM6 Example 1 (Alpha Company ticket), printed pp. 417-419 (PDF pp. 427-429); PDF: LM6 Practice Problems solutions Q1-Q4, printed pp. 445-450 (PDF pp. 455-460)",
+     "evidence": "Reading formula; Example 1: 10.24-10.12 = 0.12, 10.22-10.11 = 0.11, 10.19-10.05 = 0.14; Q1 solution: 17.19-17.15 = 0.04.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "cfai-trading-refresher",
+     "kind": "primary",
+     "title": "Trading Costs and Electronic Markets (CFA Institute refresher reading)",
+     "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/trading-costs-and-electronic-markets",
+     "version": "Refresher reading, read 2026-11-04",
+     "accessed": "2026-11-04",
+     "locator": "The bid-ask spread is the difference between the bid and the ask prices. The effective spread is two times the difference between the trade price and the midquote price before the trade occurred. VWAP compares average fill prices to average market prices; implementation shortfall captures all explicit and implicit costs.",
+     "evidence": "Page states the identical spread definitions (quoted spread as bid-ask difference; effective spread as twice the trade-minus-midquote distance) and the VWAP/implementation-shortfall benchmark roles.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-example-1a-oracle",
+     "inputs": {
+      "ask": 10.24,
+      "bid": 10.12
+     },
+     "expected": 0.12,
+     "tolerance": 1e-09,
+     "method": "10.24-10.12 = 0.12 as reported.",
+     "provenance": "Published result: LM6 Example 1 solution, printed p. 418 (PDF p. 428)"
+    },
+    {
+     "id": "published-light-inside-spread-oracle",
+     "inputs": {
+      "ask": 17.19,
+      "bid": 17.15
+     },
+     "expected": 0.04,
+     "tolerance": 1e-09,
+     "method": "17.19-17.15 = 0.04 (answer A) as reported.",
+     "provenance": "Published result: LM6 Q1 solution, printed p. 450 (PDF p. 460)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "ask": 10.24
+     },
+     "reason": "Each input is structurally required; a missing quote, price, size, or count cannot be defaulted without inventing market data."
+    }
+   ],
+   "inverse_notes": "ask = qs + bid; bid = ask - qs. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings ask/bid prices and quoted spread are not in the runtime vocabulary snapshot and require extension.",
+     "Effective-spread siblings record execution-relative costs; this record is the quote-relative spread."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--effective-spread-buy",
+   "revision": "r1",
+   "title": "Effective spread for a buy order",
+   "summary": "Buy-side effective spread as twice the trade price minus the order-entry midquote.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "es",
+    "expression": "2*(trade-(ask+bid)/2)",
+    "original_equation": "Effective spread (buy) = 2 x (Trade price - Midpoint of market at order entry)",
+    "source_id": "analystprep-effective-spread-vwap",
+    "locator": "PDF: LM6 Trading Costs and Electronic Markets, effective/quoted spread formulas, printed pp. 415-416 (PDF pp. 425-426)",
+    "translation_notes": "Midquote = (ask+bid)/2 at order-entry time; x2 converts the per-share cost into the spread statistic. Currency units (unit 1); decimals."
+   },
+   "variables": [
+    {
+     "symbol": "trade",
+     "source_symbol": "trade price",
+     "role": "input",
+     "quantity_id": "trade_price",
+     "definition": "Execution price, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "buy fill",
+     "domain": "Positive finite price"
+    },
+    {
+     "symbol": "ask",
+     "source_symbol": "ask price at order entry",
+     "role": "input",
+     "quantity_id": "ask_price",
+     "definition": "Ask price when the order was entered, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same buy order",
+     "domain": "Positive finite price"
+    },
+    {
+     "symbol": "bid",
+     "source_symbol": "bid price at order entry",
+     "role": "input",
+     "quantity_id": "bid_price",
+     "definition": "Bid price when the order was entered, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same buy order",
+     "domain": "Positive finite price"
+    },
+    {
+     "symbol": "es",
+     "source_symbol": "effective spread",
+     "role": "output",
+     "quantity_id": "effective_spread",
+     "definition": "Buy-side effective spread, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same buy fill",
+     "domain": "Finite (negative under price improvement)"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Quotes are those prevailing at order-entry time, not at fill time."
+   ],
+   "limitations": [
+    "Per-fill estimate; splitting large orders across time (market impact, delay) is not captured here - see implementation-shortfall discussion deferred in gaps. Price improvement yields spreads below quoted; outside-quote fills yield spreads above quoted."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v2-effbuy-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 2 - Portfolio Construction",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM6 Trading Costs and Electronic Markets, effective/quoted spread formulas, printed pp. 415-416 (PDF pp. 425-426); PDF: LM6 Practice Problems solutions Q1-Q4, printed pp. 445-450 (PDF pp. 455-460); PDF: LM6 Practice Problems Q13 BYYP solution, printed p. 452 (PDF p. 462)",
+     "evidence": "Solution formula (p.450); Q4: 2x(25.20-25.185) = 0.03, 2x(25.22-25.205) = 0.03, 2x(25.27-25.24) = 0.06, avg 0.04; Q13: 2x(41.50-41.475) = 0.05, 2x(41.75-41.74) = 0.02, avg 0.035.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-effective-spread-vwap",
+     "kind": "primary",
+     "title": "Effective Spreads & VWAP (AnalystPrep CFA Level II notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-2/calculate-and-interpret-effective-spreads-and-vwap-transaction-cost-estimates/",
+     "version": "Study notes, 5 Aug 2021",
+     "accessed": "2026-11-04",
+     "locator": "Effective spread cost estimate = Trade size x (Trade price - (Bid+Ask)/2) for buys (reversed for sells); the effective spread is obtained by multiplying by two. Worked buy oracles: X: 6,000x(12.22-12.20) = 120; sell oracles: X: 6,000x(12.225-12.19) = 210, Y: 6,000x(12.225-12.18) = 270. VWAP = sum(Price x Volume)/sum(Volume): 121,060/8,000 = 15.13. VWAP cost estimate = Trade size x (Trade VWAP - VWAP benchmark) for buys (reversed for sells).",
+     "evidence": "Page states both directional formulas with independent worked oracles reproducing the PDF's forms: per-share effective spreads (buy X: 2x(12.22-12.20) = 0.04), sell costs (X 210, Y 270), VWAP 15.13, and both VWAP cost-estimate branches.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    },
+    {
+     "id": "cfai-trading-refresher",
+     "kind": "primary",
+     "title": "Trading Costs and Electronic Markets (CFA Institute refresher reading)",
+     "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/trading-costs-and-electronic-markets",
+     "version": "Refresher reading, read 2026-11-04",
+     "accessed": "2026-11-04",
+     "locator": "The bid-ask spread is the difference between the bid and the ask prices. The effective spread is two times the difference between the trade price and the midquote price before the trade occurred. VWAP compares average fill prices to average market prices; implementation shortfall captures all explicit and implicit costs.",
+     "evidence": "Page states the identical spread definitions (quoted spread as bid-ask difference; effective spread as twice the trade-minus-midquote distance) and the VWAP/implementation-shortfall benchmark roles.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-q4-trade-1-oracle",
+     "inputs": {
+      "trade": 25.2,
+      "ask": 25.2,
+      "bid": 25.17
+     },
+     "expected": 0.03,
+     "tolerance": 1e-09,
+     "method": "2x(25.20-(25.20+25.17)/2) = 0.03 as reported.",
+     "provenance": "Published result: LM6 Q4 solution, printed p. 450 (PDF p. 460)"
+    },
+    {
+     "id": "published-byyp-trade-1-oracle",
+     "inputs": {
+      "trade": 41.5,
+      "ask": 41.5,
+      "bid": 41.45
+     },
+     "expected": 0.05,
+     "tolerance": 1e-09,
+     "method": "2x(41.50-(41.50+41.45)/2) = 0.05 as reported.",
+     "provenance": "Published result: LM6 Q13 solution, printed p. 452 (PDF p. 462)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "trade": 25.2,
+      "ask": 25.2
+     },
+     "reason": "Each input is structurally required; a missing quote, price, size, or count cannot be defaulted without inventing market data."
+    }
+   ],
+   "inverse_notes": "trade = es/2 + (ask+bid)/2. Algebraic only; quotes are market data, not solved for.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings trade/quote prices and effective spread are not in the runtime vocabulary snapshot and require extension.",
+     "Sell-side mirror is financial-analysis--effective-spread-sell; the PDF states both branches."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--effective-spread-sell",
+   "revision": "r1",
+   "title": "Effective spread for a sell order",
+   "summary": "Sell-side effective spread as twice the order-entry midquote minus the trade price.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "es",
+    "expression": "2*((ask+bid)/2-trade)",
+    "original_equation": "Effective spread (sell) = 2 x (Midpoint of market at order entry - Trade price)",
+    "source_id": "analystprep-effective-spread-vwap",
+    "locator": "PDF: LM6 Trading Costs and Electronic Markets, effective/quoted spread formulas, printed pp. 415-416 (PDF pp. 425-426)",
+    "translation_notes": "Mirror of the buy branch with the distance reversed. Currency units (unit 1); decimals. Example 1 sell oracles: 2x(10.18-10.15) = 0.06 (price improvement beats quoted 0.12); 2x(10.165-10.11) = 0.11 (equals quoted); 2x(10.12-10.01) = 0.22 (walked the book, exceeds quoted 0.14)."
+   },
+   "variables": [
+    {
+     "symbol": "trade",
+     "source_symbol": "trade price",
+     "role": "input",
+     "quantity_id": "trade_price",
+     "definition": "Execution price, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "sell fill",
+     "domain": "Positive finite price"
+    },
+    {
+     "symbol": "ask",
+     "source_symbol": "ask price at order entry",
+     "role": "input",
+     "quantity_id": "ask_price",
+     "definition": "Ask price when the order was entered, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same sell order",
+     "domain": "Positive finite price"
+    },
+    {
+     "symbol": "bid",
+     "source_symbol": "bid price at order entry",
+     "role": "input",
+     "quantity_id": "bid_price",
+     "definition": "Bid price when the order was entered, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same sell order",
+     "domain": "Positive finite price"
+    },
+    {
+     "symbol": "es",
+     "source_symbol": "effective spread",
+     "role": "output",
+     "quantity_id": "effective_spread",
+     "definition": "Sell-side effective spread, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same sell fill",
+     "domain": "Finite (negative if filled above midquote)"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Quotes are those prevailing at order-entry time (average fill price used for multi-price fills, per Example 1 third trade)."
+   ],
+   "limitations": [
+    "Per-fill estimate; same large-order limitations as the buy branch."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v2-effsell-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 2 - Portfolio Construction",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM6 Trading Costs and Electronic Markets, effective/quoted spread formulas, printed pp. 415-416 (PDF pp. 425-426); PDF: LM6 Example 1 (Alpha Company ticket), printed pp. 417-419 (PDF pp. 427-429)",
+     "evidence": "Reading formula (p.415); Example 1 solutions: 2x(10.18-10.15) = 0.06; 2x(10.165-10.11) = 0.11; 2x(10.12-10.01) = 0.22; average 0.13.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-effective-spread-vwap",
+     "kind": "primary",
+     "title": "Effective Spreads & VWAP (AnalystPrep CFA Level II notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-2/calculate-and-interpret-effective-spreads-and-vwap-transaction-cost-estimates/",
+     "version": "Study notes, 5 Aug 2021",
+     "accessed": "2026-11-04",
+     "locator": "Effective spread cost estimate = Trade size x (Trade price - (Bid+Ask)/2) for buys (reversed for sells); the effective spread is obtained by multiplying by two. Worked buy oracles: X: 6,000x(12.22-12.20) = 120; sell oracles: X: 6,000x(12.225-12.19) = 210, Y: 6,000x(12.225-12.18) = 270. VWAP = sum(Price x Volume)/sum(Volume): 121,060/8,000 = 15.13. VWAP cost estimate = Trade size x (Trade VWAP - VWAP benchmark) for buys (reversed for sells).",
+     "evidence": "Page states both directional formulas with independent worked oracles reproducing the PDF's forms: per-share effective spreads (buy X: 2x(12.22-12.20) = 0.04), sell costs (X 210, Y 270), VWAP 15.13, and both VWAP cost-estimate branches.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    },
+    {
+     "id": "cfai-trading-refresher",
+     "kind": "primary",
+     "title": "Trading Costs and Electronic Markets (CFA Institute refresher reading)",
+     "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/trading-costs-and-electronic-markets",
+     "version": "Refresher reading, read 2026-11-04",
+     "accessed": "2026-11-04",
+     "locator": "The bid-ask spread is the difference between the bid and the ask prices. The effective spread is two times the difference between the trade price and the midquote price before the trade occurred. VWAP compares average fill prices to average market prices; implementation shortfall captures all explicit and implicit costs.",
+     "evidence": "Page states the identical spread definitions (quoted spread as bid-ask difference; effective spread as twice the trade-minus-midquote distance) and the VWAP/implementation-shortfall benchmark roles.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-example-1a-sell-oracle",
+     "inputs": {
+      "trade": 10.15,
+      "ask": 10.24,
+      "bid": 10.12
+     },
+     "expected": 0.06,
+     "tolerance": 1e-09,
+     "method": "Midquote (10.12+10.24)/2 = 10.18; 2x(10.18-10.15) = 0.06 as reported.",
+     "provenance": "Published result: LM6 Example 1 solution, printed p. 418 (PDF p. 428)"
+    },
+    {
+     "id": "published-example-1c-sell-oracle",
+     "inputs": {
+      "trade": 10.01,
+      "ask": 10.19,
+      "bid": 10.05
+     },
+     "expected": 0.22,
+     "tolerance": 1e-09,
+     "method": "Midquote (10.05+10.19)/2 = 10.12; 2x(10.12-10.01) = 0.22 as reported.",
+     "provenance": "Published result: LM6 Example 1 solution, printed p. 418 (PDF p. 428)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "trade": 10.15,
+      "ask": 10.24
+     },
+     "reason": "Each input is structurally required; a missing quote, price, size, or count cannot be defaulted without inventing market data."
+    }
+   ],
+   "inverse_notes": "trade = (ask+bid)/2 - es/2. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings trade/quote prices and effective spread are not in the runtime vocabulary snapshot and require extension.",
+     "Buy-side mirror is financial-analysis--effective-spread-buy. Average of per-trade spreads is financial-analysis--average-effective-spread."
+    ],
+    "duplicate_of": []
+   }
+  }
+ ]
+}

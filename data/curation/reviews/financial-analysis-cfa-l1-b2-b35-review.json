@@ -1,0 +1,221 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b2-b35",
+  "batch_sha256": "a06da2aa703e3fdae01e0501cf75c00b77e69a022ce5726d58679f48b5286d1a",
+  "reviewer": "ingest-circuits",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--bilateral-real-exchange-rate-domestic-per-foreign",
+      "revision": "r1",
+      "record_sha256": "20a1fab3776553e7d5aaaa8dc1a7e469249a3d6ade1536413cfd3aaf0cb9a033",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Curator-cited IMF F&D page returned HTTP 403 from my network (recorded). Accessed URER on 2026-11-04 (HTTP 200): RER formula plus quotation convention verified verbatim. Record math matches exactly. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is one bilateral quote with matched domestic/foreign baskets (assumptions). Limitations exclude PPP readings and mismatched baskets. Output context is generic boilerplate while inputs carry FX-specific contexts (cosmetic inconsistency, noted, not a fail). Bounded."
+        },
+        "dimensions": {
+          "status": "failed",
+          "evidence": "Declared-dim propagation fails: spot [domestic_currency_per_foreign_currency] declares dims 'specified currency / specified currency' (= {}), so spot*foreign/domestic propagates to {foreign currency:1, domestic currency:-1}, not the declared dimensionless output. The math is dimensionally sound (DC/FC x FC/basket / (DC/basket) = 1); the spot dims string is too coarse. Fix: 'domestic currency/foreign currency'."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: imf-parity (1.36,2.5,3.4) -> 1.0 exact; imf-relative (1.36,3,3.4) -> 1.2 exact; tol 1e-09. Provenance cites IMF worked illustrations (curator-reported; IMF page 403 from my network, illustrations not inspected by me); arithmetic verified independently."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards spot/foreign/domestic>0 hold on both references (evaluated). Missing-spot rejection leaves the expression unevaluable as stated. Inverse notes (spot=RER*domestic/foreign etc.) verified consistent."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. Curator IMF primary records terms uninspected; accurate. My alternate (CFA study guide) used for equation-level facts only; no clearance asserted."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://ryanoconnellfinance.com/exchange-rates-macroeconomics/",
+          "locator": "The Real Exchange Rate Formula with quotation-convention discussion",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Page states RER = S x (Pf/Pd) with S quoted as domestic currency per unit of foreign currency, discusses the inverse Mankiw convention explicitly, and works RER=1.10x(95/100)=1.045. Record implements spot*foreign/domestic exactly. The curator-cited IMF page returned HTTP 403 from my network; this CFA guide is my alternate accessed evidence."
+        }
+      ],
+      "blockers": [
+        "Dimensions metadata does not close: spot declared as 'specified currency / specified currency' (= dimensionless) while foreign/domestic carry specific currency dims; propagation yields {foreign currency:1, domestic currency:-1} instead of {}. Fix: declare spot dims as 'domestic currency/foreign currency' (matching its unit domestic_currency_per_foreign_currency). One-string curator fix; math itself is correct."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "Not for use until the spot dimension metadata is corrected; after the fix, use only as RER=spot*foreign/domestic for domestic-per-foreign quotes with matched baskets."
+    },
+    {
+      "id": "financial-analysis--bilateral-real-exchange-rate-exact-change",
+      "revision": "r1",
+      "record_sha256": "e083f2f05bb8966acad17b73b3e5ccfb6a0ef50d2ab9024aa506e41a73474669",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Curator-cited IMF page 403 from my network (recorded). Accessed URER on 2026-11-04 (HTTP 200): level definition RER=S*(Pf/Pd) verified verbatim. Record math is its exact change form: RER'/RER=(1+n)(1+f)/(1+d); verified algebraically. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is matched fractional changes over one interval (assumptions). Limitations distinguish exact from log-approximate forms. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "All inputs/outputs dimensionless [1]; gross-factor ratio closes to [1], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: owner-exact (0.1,0.05,0.02) -> 0.13235294117647078 exact; unchanged (0,0,0) -> 0 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards nominal/foreign/domestic>-1 hold on both references (evaluated). Missing-nominal rejection leaves the expression unevaluable as stated. Inverse notes correctly handle the -1 boundary."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. Curator IMF primary records terms uninspected; accurate. My alternate used for equation-level facts only; no clearance asserted."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://ryanoconnellfinance.com/exchange-rates-macroeconomics/",
+          "locator": "The Real Exchange Rate Formula with quotation-convention discussion",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Page states RER = S x (Pf/Pd) with the domestic-per-foreign convention. Record implements the exact change form of that definition; the change formula follows algebraically from the verified level definition. The curator-cited IMF page returned HTTP 403 from my network."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the exact RER change (1+nominal)(1+foreign)/(1+domestic)-1 for matched fractional changes; not as the log-difference approximation except for small changes."
+    },
+    {
+      "id": "financial-analysis--reciprocal-fx-bid-from-original-ask",
+      "revision": "r1",
+      "record_sha256": "a7cddc07973d0cb380a88a759f6e2166d76ac9e802dd976a6a9b62e98781d51f",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Curator-cited egyankosh PDF failed with a TLS UnknownIssuer error from my network (recorded). Accessed UEDU on 2026-11-04 (HTTP 200): reciprocal quote relationship and bid-offer reversal verified. Record math 1/ask matches with the correct crossed side. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is one quoted pair with scaled quote units (assumptions). Limitations exclude pip-scale confusion. The classic bid/ask-crossing trap is correctly handled (bid from ask). Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "1 / ask [price_currency_per_base_currency] closes to [base_currency_per_price_currency], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: owner (18.86) -> 0.053022269353128315 exact; ignou (0.81) -> 1.2345679012345678 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guard ask>0 holds on both references (evaluated). Empty-input rejection leaves the expression unevaluable as stated. Inverse note gives ask=1/bid."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. Curator egyankosh primary records terms uninspected; accurate. My alternate (study page) used for equation-level facts only; no clearance asserted."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://edurev.in/t/495572/cfa-level-1-exchange-rate-calculations",
+          "locator": "Sections 1-3: reciprocal quotes, bid-offer reversal, cross rates",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. CFA study page states the reciprocal relationship (direct=1/indirect) and that reciprocal conversion reverses bid-offer. Record implements inverse bid = 1/original ask. The curator-cited egyankosh PDF failed TLS (UnknownIssuer) from my network; edurev is my alternate accessed evidence."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the inverse-pair bid 1/ask from the original ask; not from the original bid (use the ask record), and not with unscaled pips."
+    },
+    {
+      "id": "financial-analysis--reciprocal-fx-ask-from-original-bid",
+      "revision": "r1",
+      "record_sha256": "c6acfeb2e524054654915adc7360dc8a461edcd3b9fb7837148ffba99dab683d",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Curator-cited egyankosh PDF failed TLS UnknownIssuer from my network (recorded). Accessed UEDU on 2026-11-04 (HTTP 200): reciprocal relationship and reversal verified. Record math 1/bid matches with the correct crossed side. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is one quoted pair with scaled quote units (assumptions). Limitations exclude pip-scale confusion. The bid/ask-crossing trap is correctly handled (ask from bid). Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "1 / bid [price_currency_per_base_currency] closes to [base_currency_per_price_currency], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: owner (18.858) -> 0.05302789267154523 exact; ignou (0.8) -> 1.25 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guard bid>0 holds on both references (evaluated). Empty-input rejection leaves the expression unevaluable as stated. Inverse note gives bid=1/ask."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. Curator egyankosh primary records terms uninspected; accurate. My alternate used for equation-level facts only; no clearance asserted."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://edurev.in/t/495572/cfa-level-1-exchange-rate-calculations",
+          "locator": "Sections 1-3: reciprocal quotes, bid-offer reversal, cross rates",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. CFA study page states the reciprocal relationship and bid-offer reversal on inversion. Record implements inverse ask = 1/original bid. The curator-cited egyankosh PDF failed TLS from my network; edurev is my alternate accessed evidence."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the inverse-pair ask 1/bid from the original bid; not from the original ask (use the bid record), and not with unscaled pips."
+    },
+    {
+      "id": "financial-analysis--fx-cross-rate-multiplication",
+      "revision": "r1",
+      "record_sha256": "3cad93fbdfc062ba80f665dc82e2e0b033a3151ac83ba494b97b67d345f2b961",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Curator-cited egyankosh PDF failed TLS UnknownIssuer from my network (recorded). Accessed UEDU on 2026-11-04 (HTTP 200): cross-rate chaining verified. Record math matches with correct direction chaining. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is two quotes sharing the intermediate currency with consistent timing (assumptions). Limitations exclude direction mismatches and arbitrage deviations. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "first [currency_a_per_currency_b] x second [currency_b_per_currency_c] closes to [currency_a_per_currency_c], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: owner (1.302,1.1701) -> 1.5234702 exact; ignou (44.5,1.2) -> 53.4 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards first>0, second>0 hold on both references (evaluated). Missing-first rejection leaves the expression unevaluable as stated. Inverse notes give either leg by division."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. Curator egyankosh primary records terms uninspected; accurate. My alternate used for equation-level facts only; no clearance asserted."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://edurev.in/t/495572/cfa-level-1-exchange-rate-calculations",
+          "locator": "Section 3: cross-rate formula via a common third currency",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. CFA study page defines cross rates via a common third currency with chained multiplication. Record implements first*second with matching A/B, B/C directions. The curator-cited egyankosh PDF failed TLS from my network; edurev is my alternate accessed evidence."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the cross rate first*second with chained quote directions (A/B x B/C); not with mismatched quote directions, and not under triangular-arbitrage deviations."
+    }
+  ]
+}

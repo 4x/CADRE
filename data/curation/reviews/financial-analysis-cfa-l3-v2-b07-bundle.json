@@ -1,0 +1,480 @@
+{
+ "batch_id": "financial-analysis-cfa-l3-v2-b07",
+ "created": "2026-11-04",
+ "curator": "buffy",
+ "deferred": [],
+ "domain": "financial-analysis",
+ "example_only": false,
+ "handoff": {
+  "summary": "Batch b07 (L3V2): 3 records (VWAP, VWAP sell-side transaction cost, average effective spread) each with PDF locator and directly inspected accessible corroboration; closes LM6 coverage.",
+  "gaps": [
+   "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+   "Queue: L3V2 close-out (single-oracle/deferred items report), then L3V3 manifest."
+  ],
+  "connections": [],
+  "queries": [],
+  "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity - verified locators and corroboration pages by direct inspection 2026-11-04."
+ },
+ "kit_version": "2026-10-31.9",
+ "schema_version": "cm-curation-batch/1",
+ "models": [
+  {
+   "id": "financial-analysis--volume-weighted-average-price",
+   "revision": "r1",
+   "title": "Volume-weighted average price (VWAP)",
+   "summary": "VWAP as total dollar value traded over total quantity; family holds precomputed price-times-quantity per trade.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "vwap",
+    "expression": "sum(D)/q",
+    "original_equation": "VWAP = total dollar volume / total number of shares traded",
+    "source_id": "analystprep-effective-spread-vwap",
+    "locator": "PDF: LM6 Example 1 Q4, printed p. 419 (PDF p. 429): day dollar volume C$131,230 over 13,000 shares = C$10.0946; fund sales C$100,680 over 10,000 shares = C$10.0680",
+    "translation_notes": "Family D holds precomputed pxq per trade (multiplication documented here as the per-element construction; no elementwise family arithmetic in the grammar). Currency/quantity units collapse to currency (unit 1 by pack convention)."
+   },
+   "variables": [
+    {
+     "symbol": "D",
+     "source_symbol": "price x quantity per trade (introduced family of dollar volumes)",
+     "role": "family",
+     "quantity_id": "trade_dollar_volume",
+     "definition": "Dollar volume of each trade (price times quantity), in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one measurement set (day or order)",
+     "domain": "Nonnegative finite per element",
+     "max_size": 256
+    },
+    {
+     "symbol": "q",
+     "source_symbol": "total quantity",
+     "role": "input",
+     "quantity_id": "total_quantity",
+     "definition": "Total number of shares traded in the set",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same measurement set",
+     "domain": "Positive finite quantity"
+    },
+    {
+     "symbol": "vwap",
+     "source_symbol": "VWAP",
+     "role": "output",
+     "quantity_id": "vwap",
+     "definition": "Volume-weighted average price, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same measurement set",
+     "domain": "Positive finite price"
+    }
+   ],
+   "constants": [],
+   "guards": [
+    "q > 0"
+   ],
+   "assumptions": [
+    "All trades in one consistent set (day benchmark or single order); prices and quantities contemporaneous."
+   ],
+   "limitations": [
+    "Equal weighting by value only; VWAP benchmark can equal trade VWAP (bias toward zero) when evaluated trades dominate the benchmark or trade at the market rate (PDF warning)."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v2-vwap-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 2 - Portfolio Construction",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM6 Example 1 Q4, printed p. 419 (PDF p. 429): 131,230/13,000 = 10.0946; 100,680/10,000 = 10.0680.",
+     "evidence": "Reading states VWAP as total dollar value over total quantity with both published computations.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-effective-spread-vwap",
+     "kind": "primary",
+     "title": "Effective Spreads & VWAP (AnalystPrep CFA Level II notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-2/calculate-and-interpret-effective-spreads-and-vwap-transaction-cost-estimates/",
+     "version": "Study notes, 5 Aug 2021",
+     "accessed": "2026-11-04",
+     "locator": "Effective spread cost estimate = Trade size x (Trade price - (Bid+Ask)/2) for buys (reversed for sells); the effective spread is obtained by multiplying by two. Worked buy oracles: X: 6,000x(12.22-12.20) = 120; sell oracles: X: 6,000x(12.225-12.19) = 210, Y: 6,000x(12.225-12.18) = 270. VWAP = sum(Price x Volume)/sum(Volume): 121,060/8,000 = 15.13. VWAP cost estimate = Trade size x (Trade VWAP - VWAP benchmark) for buys (reversed for sells).",
+     "evidence": "Page states both directional formulas with independent worked oracles reproducing the PDF's forms: per-share effective spreads (buy X: 2x(12.22-12.20) = 0.04), sell costs (X 210, Y 270), VWAP 15.13, and both VWAP cost-estimate branches.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    },
+    {
+     "id": "cfai-trading-refresher",
+     "kind": "primary",
+     "title": "Trading Costs and Electronic Markets (CFA Institute refresher reading)",
+     "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/trading-costs-and-electronic-markets",
+     "version": "Refresher reading, read 2026-11-04",
+     "accessed": "2026-11-04",
+     "locator": "The bid-ask spread is the difference between the bid and the ask prices. The effective spread is two times the difference between the trade price and the midquote price before the trade occurred. VWAP compares average fill prices to average market prices; implementation shortfall captures all explicit and implicit costs.",
+     "evidence": "Page states the identical spread definitions (quoted spread as bid-ask difference; effective spread as twice the trade-minus-midquote distance) and the VWAP/implementation-shortfall benchmark roles.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-day-vwap-oracle",
+     "inputs": {
+      "D": [
+       20300.0,
+       30330.0,
+       50050.0,
+       20400.0,
+       10150.0
+      ],
+      "q": 13000.0
+     },
+     "expected": 10.0946,
+     "tolerance": 0.0001,
+     "method": "131,230/13,000 = 10.0946153, reported as 10.0946.",
+     "provenance": "Published result: LM6 Example 1 Q4, printed p. 419 (PDF p. 429)"
+    },
+    {
+     "id": "published-trade-vwap-oracle",
+     "inputs": {
+      "D": [
+       20300.0,
+       30330.0,
+       50050.0
+      ],
+      "q": 10000.0
+     },
+     "expected": 10.068,
+     "tolerance": 1e-09,
+     "method": "100,680/10,000 = 10.068 as reported.",
+     "provenance": "Published result: LM6 Example 1 Q4, printed p. 419 (PDF p. 429)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "D": [
+       20300.0
+      ]
+     },
+     "reason": "Total quantity is structurally required; VWAP of dollar volumes without the share count is undefined."
+    },
+    {
+     "kind": "domain",
+     "inputs": {
+      "D": [
+       100.0
+      ],
+      "q": 0.0
+     },
+     "reason": "Guard q > 0 violated; division by zero quantity is undefined."
+    }
+   ],
+   "inverse_notes": "q = sum(D)/vwap requires vwap != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings trade dollar volume, total quantity, and VWAP are not in the runtime vocabulary snapshot and require extension.",
+     "Benchmark-vs-trade comparison is financial-analysis--vwap-transaction-cost-sell; walk-the-book average price (Q2, 17.1482) is the same arithmetic on one order's fills, cited as supporting evidence."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--vwap-transaction-cost-sell",
+   "revision": "r1",
+   "title": "VWAP transaction cost estimate for a sell order",
+   "summary": "Sell-side VWAP cost as order size times benchmark VWAP minus trade VWAP.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "cost",
+    "expression": "size*(bench-trade)",
+    "original_equation": "VWAP transaction cost estimate (sell) = Trade size x (VWAP benchmark - Trade VWAP)",
+    "source_id": "analystprep-effective-spread-vwap",
+    "locator": "PDF: LM6 Example 1 Q4, printed p. 419 (PDF p. 429): 10,000 x (C$10.0946 - C$10.0680) = C$266.15 (rounded inputs give C$266.00; exact VWAPs give C$266.15)",
+    "translation_notes": "Inputs in currency units, size in shares; output currency (unit 1). Oracle 1 uses exact VWAPs (131230/13000, 100680/10000); tolerance covers the PDF's rounded-input note."
+   },
+   "variables": [
+    {
+     "symbol": "size",
+     "source_symbol": "trade size",
+     "role": "input",
+     "quantity_id": "trade_size",
+     "definition": "Number of shares in the evaluated order",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "sell order",
+     "domain": "Positive finite quantity"
+    },
+    {
+     "symbol": "bench",
+     "source_symbol": "VWAP benchmark",
+     "role": "input",
+     "quantity_id": "vwap_benchmark",
+     "definition": "Benchmark VWAP over the measurement interval, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same interval as trade",
+     "domain": "Positive finite price"
+    },
+    {
+     "symbol": "trade",
+     "source_symbol": "trade VWAP",
+     "role": "input",
+     "quantity_id": "trade_vwap",
+     "definition": "Average fill price of the evaluated order, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "sell order",
+     "domain": "Positive finite price"
+    },
+    {
+     "symbol": "cost",
+     "source_symbol": "VWAP transaction cost estimate",
+     "role": "output",
+     "quantity_id": "vwap_transaction_cost",
+     "definition": "Estimated implicit cost, in currency units (negative means the order beat the benchmark)",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "sell order",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Benchmark interval surrounds the order's fills; trade VWAP from the same fills as the VWAP record."
+   ],
+   "limitations": [
+    "Inherits VWAP bias: zero when the order dominates the benchmark regardless of market impact (PDF warning). Positive cost means the sale underperformed the benchmark."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v2-vwapcost-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 2 - Portfolio Construction",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM6 VWAP cost formula, printed p. 417 (PDF p. 427); Example 1 Q4: 10,000x(10.0946-10.0680) = 266.15.",
+     "evidence": "Reading states the sell branch with the published computation.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-effective-spread-vwap",
+     "kind": "primary",
+     "title": "Effective Spreads & VWAP (AnalystPrep CFA Level II notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-2/calculate-and-interpret-effective-spreads-and-vwap-transaction-cost-estimates/",
+     "version": "Study notes, 5 Aug 2021",
+     "accessed": "2026-11-04",
+     "locator": "Effective spread cost estimate = Trade size x (Trade price - (Bid+Ask)/2) for buys (reversed for sells); the effective spread is obtained by multiplying by two. Worked buy oracles: X: 6,000x(12.22-12.20) = 120; sell oracles: X: 6,000x(12.225-12.19) = 210, Y: 6,000x(12.225-12.18) = 270. VWAP = sum(Price x Volume)/sum(Volume): 121,060/8,000 = 15.13. VWAP cost estimate = Trade size x (Trade VWAP - VWAP benchmark) for buys (reversed for sells).",
+     "evidence": "Page states both directional formulas with independent worked oracles reproducing the PDF's forms: per-share effective spreads (buy X: 2x(12.22-12.20) = 0.04), sell costs (X 210, Y 270), VWAP 15.13, and both VWAP cost-estimate branches.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-example-1-vwap-cost-oracle",
+     "inputs": {
+      "size": 10000.0,
+      "bench": 10.09461538,
+      "trade": 10.068
+     },
+     "expected": 266.15,
+     "tolerance": 0.01,
+     "method": "10,000x(10.09461538-10.068) = 266.1538, reported as 266.15.",
+     "provenance": "Published result: LM6 Example 1 Q4, printed p. 419 (PDF p. 429)"
+    },
+    {
+     "id": "published-analystprep-sell-cost-oracle",
+     "inputs": {
+      "size": 6000.0,
+      "bench": 12.225,
+      "trade": 12.19
+     },
+     "expected": 210.0,
+     "tolerance": 1e-09,
+     "method": "6,000x(12.225-12.19) = 210 as reported (midquote (12.23+12.22)/2 = 12.225).",
+     "provenance": "Published result: AnalystPrep sell Trade X"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "size": 6000.0,
+      "bench": 12.225
+     },
+     "reason": "Each input is structurally required; a missing quote, price, size, or count cannot be defaulted without inventing market data."
+    }
+   ],
+   "inverse_notes": "bench = cost/size + trade requires size != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings trade size, VWAP benchmark/trade, and VWAP transaction cost are not in the runtime vocabulary snapshot and require extension.",
+     "Buy-side branch (Trade VWAP - benchmark) stated in both sources but without a clean published oracle; deferred until one is found."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--average-effective-spread",
+   "revision": "r1",
+   "title": "Average effective spread over a set of fills",
+   "summary": "Mean of per-trade effective spreads; family holds the precomputed per-trade spreads.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "avg",
+    "expression": "sum(S)/n",
+    "original_equation": "Average effective spread = (sum of per-trade effective spreads) / number of trades",
+    "source_id": "cfai-trading-refresher",
+    "locator": "PDF: LM6 Example 1 solutions, printed p. 418 (PDF p. 428): (0.06+0.11+0.22)/3 = 0.13; Q4 solution, printed p. 450 (PDF p. 460): (0.03+0.03+0.06)/3 = 0.04; Q13 solution, printed p. 452 (PDF p. 462): (0.05+0.02)/2 = 0.035",
+    "translation_notes": "Family S holds precomputed per-trade effective spreads (buy or sell, computed by sibling records); n is the count. Currency units (unit 1)."
+   },
+   "variables": [
+    {
+     "symbol": "S",
+     "source_symbol": "per-trade effective spread (introduced family)",
+     "role": "family",
+     "quantity_id": "effective_spread",
+     "definition": "Effective spread of each fill, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one order's fills",
+     "domain": "Finite per element",
+     "max_size": 256
+    },
+    {
+     "symbol": "n",
+     "source_symbol": "number of trades",
+     "role": "input",
+     "quantity_id": "fill_count",
+     "definition": "Count of fills averaged",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same order",
+     "domain": "Positive integer"
+    },
+    {
+     "symbol": "avg",
+     "source_symbol": "average effective spread",
+     "role": "output",
+     "quantity_id": "average_effective_spread",
+     "definition": "Mean effective spread, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same order",
+     "domain": "Finite"
+    }
+   ],
+   "constants": [],
+   "guards": [
+    "n >= 1"
+   ],
+   "assumptions": [
+    "All elements are effective spreads of fills of one order (same direction); equal weighting."
+   ],
+   "limitations": [
+    "Simple mean over fills, not size-weighted; a large fill counts the same as a small one."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v2-avgeff-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 2 - Portfolio Construction",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF solutions publish all three averages: Ex1 (0.06+0.11+0.22)/3 = 0.13; Q4 (0.03+0.03+0.06)/3 = 0.04; Q13 (0.05+0.02)/2 = 0.035.",
+     "evidence": "Reading's solutions state the averaging computation on published per-trade spreads.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "cfai-trading-refresher",
+     "kind": "primary",
+     "title": "Trading Costs and Electronic Markets (CFA Institute refresher reading)",
+     "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/trading-costs-and-electronic-markets",
+     "version": "Refresher reading, read 2026-11-04",
+     "accessed": "2026-11-04",
+     "locator": "The bid-ask spread is the difference between the bid and the ask prices. The effective spread is two times the difference between the trade price and the midquote price before the trade occurred. VWAP compares average fill prices to average market prices; implementation shortfall captures all explicit and implicit costs.",
+     "evidence": "Page states the identical spread definitions (quoted spread as bid-ask difference; effective spread as twice the trade-minus-midquote distance) and the VWAP/implementation-shortfall benchmark roles.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-example-1-average-oracle",
+     "inputs": {
+      "S": [
+       0.06,
+       0.11,
+       0.22
+      ],
+      "n": 3
+     },
+     "expected": 0.13,
+     "tolerance": 1e-09,
+     "method": "(0.06+0.11+0.22)/3 = 0.13 as reported.",
+     "provenance": "Published result: LM6 Example 1 solutions, printed p. 418 (PDF p. 428)"
+    },
+    {
+     "id": "published-q4-average-oracle",
+     "inputs": {
+      "S": [
+       0.03,
+       0.03,
+       0.06
+      ],
+      "n": 3
+     },
+     "expected": 0.04,
+     "tolerance": 1e-09,
+     "method": "(0.03+0.03+0.06)/3 = 0.04 as reported.",
+     "provenance": "Published result: LM6 Q4 solution, printed p. 450 (PDF p. 460)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "S": [
+       0.06
+      ]
+     },
+     "reason": "Fill count is structurally required; the mean over an unknown number of fills is undefined."
+    },
+    {
+     "kind": "domain",
+     "inputs": {
+      "S": [
+       0.06
+      ],
+      "n": 0
+     },
+     "reason": "Guard n >= 1 violated (single spread bound but zero fills declared); averaging over zero fills is undefined."
+    }
+   ],
+   "inverse_notes": "n = sum(S)/avg requires avg != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings fill count and average effective spread are not in the runtime vocabulary snapshot and require extension.",
+     "Elements are outputs of financial-analysis--effective-spread-buy/sell. BYYP Q13 average 0.035 is supporting evidence."
+    ],
+    "duplicate_of": []
+   }
+  }
+ ]
+}

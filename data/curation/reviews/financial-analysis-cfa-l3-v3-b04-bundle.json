@@ -1,0 +1,666 @@
+{
+ "batch_id": "financial-analysis-cfa-l3-v3-b04",
+ "created": "2026-11-04",
+ "curator": "buffy",
+ "deferred": [],
+ "domain": "financial-analysis",
+ "example_only": false,
+ "handoff": {
+  "summary": "Batch b04 (L3V3): 5 records (capture ratio, gain to offset a loss, maximum drawdown, style and active return components) each with PDF locator and directly inspected accessible corroboration.",
+  "gaps": [
+   "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+   "Queue: LM2 manager-selection survey; LM3 GIPS survey."
+  ],
+  "connections": [],
+  "queries": [],
+  "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity - verified locators and corroboration pages by direct inspection 2026-11-04."
+ },
+ "kit_version": "2026-10-31.9",
+ "schema_version": "cm-curation-batch/1",
+ "models": [
+  {
+   "id": "financial-analysis--capture-ratio",
+   "revision": "r1",
+   "title": "Capture ratio (upside over downside)",
+   "summary": "Asymmetry of return as upside capture divided by downside capture; above 1 is convex (positive asymmetry).",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "cr",
+    "expression": "uc/dc",
+    "original_equation": "CR(m,B,t) = UC(m,B,t)/DC(m,B,t)",
+    "source_id": "analystprep-risk-appraisal",
+    "locator": "PDF: LM1 capture ratio with Exhibits 18/23, printed pp. 57-61 (PDF pp. 65-69): 72.8%/59.8% = 121.7%; Example 13, printed p. 65 (PDF p. 73): 118%/103% = 115%; Exhibit 23 profiles: 75%/25% = 3.0, 25%/75% = 0.3",
+    "translation_notes": "Inputs are the leg ratios (decimals); output decimal (121.7% = 1.217)."
+   },
+   "variables": [
+    {
+     "symbol": "uc",
+     "source_symbol": "UC",
+     "role": "input",
+     "quantity_id": "upside_capture",
+     "definition": "Upside capture ratio, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one manager vs benchmark",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "dc",
+     "source_symbol": "DC",
+     "role": "input",
+     "quantity_id": "downside_capture",
+     "definition": "Downside capture ratio, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same comparison",
+     "domain": "Nonzero finite"
+    },
+    {
+     "symbol": "cr",
+     "source_symbol": "CR",
+     "role": "output",
+     "quantity_id": "capture_ratio",
+     "definition": "Capture ratio, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same comparison",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Both legs from one consistent comparison (same spans/method)."
+   ],
+   "limitations": [
+    "Threshold reading only (above/below 1); magnitude comparisons across managers need matched spans."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-cr-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 capture ratio with Exhibits 18/23, printed pp. 57-61 (PDF pp. 65-69): 72.8%/59.8% = 121.7%; Example 13, printed p. 65 (PDF p. 73): 118%/103% = 115%; Exhibit 23 profiles: 75%/25% = 3.0, 25%/75% = 0.3",
+     "evidence": "CR definition with Exhibit 18 (121.7%), Example 13 (115%), Exhibit 23 profiles (3.0, 1.0, 0.3).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-risk-appraisal",
+     "kind": "primary",
+     "title": "Risk-Based Performance Measures and Appraisal Ratio (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/risk-based-measures-of-performance-appraisal-2/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Sortino = (Rp-Rt)/sigma_d with worked oracle (12-5)/8 = 0.875; target semideviation = min(ra-rT,0)^2 per period; UC = R(m)/R(B) if R(B) >= 0, DC = R(m)/R(B) if R(B) < 0; maximum DD = min([(V-V*)/V*],0); Sharpe/Treynor/IR/AR formulas stated.",
+     "evidence": "Page states the same Sortino, semideviation, capture-leg and max-drawdown formulas with its own worked Sortino oracle (0.875); also states Sharpe/Treynor/IR/AR forms used for deferred items.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-exhibit-18-cr-oracle",
+     "inputs": {
+      "uc": 0.728571,
+      "dc": 0.598291
+     },
+     "expected": 1.2178,
+     "tolerance": 0.001,
+     "method": "0.728571/0.598291 = 1.2178, reported as 121.7% (publication rounds the legs first).",
+     "provenance": "Published result: LM1 Exhibit 18, printed p. 58 (PDF p. 66)"
+    },
+    {
+     "id": "published-example-13-cr-oracle",
+     "inputs": {
+      "uc": 1.1848,
+      "dc": 1.0299
+     },
+     "expected": 1.1504,
+     "tolerance": 0.005,
+     "method": "1.1848/1.0299 = 1.1504, reported as 115%.",
+     "provenance": "Published result: LM1 Example 13, printed p. 65 (PDF p. 73)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "uc": 0.728571
+     },
+     "reason": "Downside capture is structurally required; asymmetry needs both legs."
+    }
+   ],
+   "inverse_notes": "dc = uc/cr requires cr != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings upside/downside capture and capture ratio are not in the runtime vocabulary snapshot and require extension.",
+     "Legs are financial-analysis--upside-capture/downside-capture; practice Q4 (0.66/0.50 = 1.32) is supporting evidence."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--gain-to-offset-loss",
+   "revision": "r1",
+   "title": "Gain required to offset a loss",
+   "summary": "Percentage gain needed on the reduced base to recover a given percentage loss.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "g",
+    "expression": "L/(1-L)",
+    "original_equation": "g = L/(1-L): lose L of 1, hold 1-L, need L/(1-L) to recover",
+    "source_id": "analystprep-risk-appraisal",
+    "locator": "PDF: LM1 gain-to-offset loss, Exhibit 22 discussion printed p. 61 (PDF p. 69): 50% loss needs 100% gain; Example 13 Q1 solution, printed p. 64 (PDF p. 72): lose 10% of 100 (hold 90), earn 10/90 = 11%",
+    "translation_notes": "L is the loss fraction (decimal); output the required gain fraction (decimal). Source-backed derivation from the two published statements."
+   },
+   "variables": [
+    {
+     "symbol": "L",
+     "source_symbol": "loss",
+     "role": "input",
+     "quantity_id": "loss_fraction",
+     "definition": "Fractional loss from peak, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one drawdown episode",
+     "domain": "Loss fraction in [0,1)"
+    },
+    {
+     "symbol": "g",
+     "source_symbol": "gain",
+     "role": "output",
+     "quantity_id": "recovery_gain_fraction",
+     "definition": "Fractional gain on the reduced base needed to recover, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same episode",
+     "domain": "Nonnegative finite"
+    }
+   ],
+   "constants": [],
+   "guards": [
+    "L < 1"
+   ],
+   "assumptions": [
+    "Frictionless recovery (no fees, taxes, or contributions); single loss-then-gain round trip."
+   ],
+   "limitations": [
+    "Total-loss (L = 1) is unrecoverable and guarded out; partial recovery paths need not follow this closed form."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-gain-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 gain-to-offset loss, Exhibit 22 discussion printed p. 61 (PDF p. 69): 50% loss needs 100% gain; Example 13 Q1 solution, printed p. 64 (PDF p. 72): lose 10% of 100 (hold 90), earn 10/90 = 11%",
+     "evidence": "Exhibit 22 relationship with 50%-loss/100%-gain anchor; Example 13 Q1: 10/90 = 11%.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-risk-appraisal",
+     "kind": "primary",
+     "title": "Risk-Based Performance Measures and Appraisal Ratio (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/risk-based-measures-of-performance-appraisal-2/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Sortino = (Rp-Rt)/sigma_d with worked oracle (12-5)/8 = 0.875; target semideviation = min(ra-rT,0)^2 per period; UC = R(m)/R(B) if R(B) >= 0, DC = R(m)/R(B) if R(B) < 0; maximum DD = min([(V-V*)/V*],0); Sharpe/Treynor/IR/AR formulas stated.",
+     "evidence": "Page states the same Sortino, semideviation, capture-leg and max-drawdown formulas with its own worked Sortino oracle (0.875); also states Sharpe/Treynor/IR/AR forms used for deferred items.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-ex13-gain-oracle",
+     "inputs": {
+      "L": 0.1
+     },
+     "expected": 0.1111,
+     "tolerance": 0.005,
+     "method": "0.10/0.90 = 0.1111, reported as 11%.",
+     "provenance": "Published result: LM1 Example 13 Q1 solution, printed p. 64 (PDF p. 72)"
+    },
+    {
+     "id": "published-fifty-percent-anchor",
+     "inputs": {
+      "L": 0.5
+     },
+     "expected": 1.0,
+     "tolerance": 1e-09,
+     "method": "0.50/0.50 = 1.0, stated as a 100% gain to reverse a 50% decline.",
+     "provenance": "Published result: LM1 drawdown discussion, printed p. 60 (PDF p. 68)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {},
+     "reason": "Loss fraction is structurally required; nothing to recover from otherwise."
+    },
+    {
+     "kind": "domain",
+     "inputs": {
+      "L": 1.0
+     },
+     "reason": "Guard L < 1 violated; a 100% loss leaves no base to grow."
+    }
+   ],
+   "inverse_notes": "L = g/(1+g). Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings loss fraction and recovery gain are not in the runtime vocabulary snapshot and require extension.",
+     "Motivates drawdown analysis (financial-analysis--maximum-drawdown)."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--maximum-drawdown",
+   "revision": "r1",
+   "title": "Maximum drawdown",
+   "summary": "Largest peak-to-trough fractional loss; current value relative to the running peak, floored at zero loss by guard.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "dd",
+    "expression": "(v-vp)/vp",
+    "original_equation": "Maximum DD(m,t) = min([V(m,t) - V(m,t*)]/V(m,t*), 0), t > t*",
+    "source_id": "analystprep-risk-appraisal",
+    "locator": "PDF: LM1 maximum drawdown with Exhibits 20-21, printed pp. 59-60 (PDF pp. 67-68): March 2020 cumulative -19.60% from December 2019 peak (+11.10%); January drawdown -0.04%; duration 7 months, 4-month recovery",
+    "translation_notes": "v is the trough value (index level), vp the prior peak; output negative fraction. Inputs as index levels (1 + cumulative return). The PDF's min(...,0) floor is enforced by the v <= vp guard."
+   },
+   "variables": [
+    {
+     "symbol": "v",
+     "source_symbol": "V(m,t)",
+     "role": "input",
+     "quantity_id": "trough_value",
+     "definition": "Portfolio value (index level) at the trough, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one drawdown episode",
+     "domain": "Positive; at most the peak"
+    },
+    {
+     "symbol": "vp",
+     "source_symbol": "V(m,t*)",
+     "role": "input",
+     "quantity_id": "peak_value",
+     "definition": "Prior peak portfolio value (index level), in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same episode",
+     "domain": "Positive peak level"
+    },
+    {
+     "symbol": "dd",
+     "source_symbol": "DD",
+     "role": "output",
+     "quantity_id": "maximum_drawdown",
+     "definition": "Maximum drawdown, decimal (negative or zero)",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same episode",
+     "domain": "Nonpositive finite"
+    }
+   ],
+   "constants": [],
+   "guards": [
+    "v <= vp"
+   ],
+   "assumptions": [
+    "trough after the peak (t > t*); values as contemporaneous index levels."
+   ],
+   "limitations": [
+    "Single episode statistic; duration/recovery phasing (7 months/4 months in the source) is descriptive, not part of this formula. New highs reset the peak."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-dd-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 maximum drawdown with Exhibits 20-21, printed pp. 59-60 (PDF pp. 67-68): March 2020 cumulative -19.60% from December 2019 peak (+11.10%); January drawdown -0.04%; duration 7 months, 4-month recovery",
+     "evidence": "Max-DD definition with S&P COVID episode: March trough -19.60% off December peak; January -0.04%.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-risk-appraisal",
+     "kind": "primary",
+     "title": "Risk-Based Performance Measures and Appraisal Ratio (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/risk-based-measures-of-performance-appraisal-2/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Sortino = (Rp-Rt)/sigma_d with worked oracle (12-5)/8 = 0.875; target semideviation = min(ra-rT,0)^2 per period; UC = R(m)/R(B) if R(B) >= 0, DC = R(m)/R(B) if R(B) < 0; maximum DD = min([(V-V*)/V*],0); Sharpe/Treynor/IR/AR formulas stated.",
+     "evidence": "Page states the same Sortino, semideviation, capture-leg and max-drawdown formulas with its own worked Sortino oracle (0.875); also states Sharpe/Treynor/IR/AR forms used for deferred items.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-covid-max-dd-oracle",
+     "inputs": {
+      "v": 0.8933,
+      "vp": 1.111
+     },
+     "expected": -0.196,
+     "tolerance": 0.001,
+     "method": "(0.8933-1.111)/1.111 = -0.19595, reported as -19.60%. Index levels from cumulative returns (-10.67% trough, +11.10% peak).",
+     "provenance": "Published result: LM1 Exhibit 20, printed p. 60 (PDF p. 68)"
+    },
+    {
+     "id": "published-covid-jan-dd-oracle",
+     "inputs": {
+      "v": 1.1105,
+      "vp": 1.111
+     },
+     "expected": -0.0004,
+     "tolerance": 0.0001,
+     "method": "(1.1105-1.111)/1.111 = -0.00045, reported as -0.04%.",
+     "provenance": "Published result: LM1 Exhibit 20, printed p. 60 (PDF p. 68)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "v": 0.8933
+     },
+     "reason": "Peak value is structurally required; drawdown is always relative to a peak."
+    },
+    {
+     "kind": "domain",
+     "inputs": {
+      "v": 1.12,
+      "vp": 1.111
+     },
+     "reason": "Guard v <= vp violated; a value above the peak is a new high, not a drawdown."
+    }
+   ],
+   "inverse_notes": "vp = v/(1+dd) requires dd != -1. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings trough/peak value and maximum drawdown are not in the runtime vocabulary snapshot and require extension.",
+     "Practice Exhibit 1 (-24.00% max DD, 4-month duration) is supporting evidence."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--style-return-component",
+   "revision": "r1",
+   "title": "Return due to manager style",
+   "summary": "Style component as benchmark return minus broad market return.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "s",
+    "expression": "b-m",
+    "original_equation": "S = B - M",
+    "source_id": "cfa-l3-v3-style-pdf",
+    "locator": "PDF: LM1 Example 11 benchmark decomposition, printed p. 44 (PDF p. 52): style S = B-M (-2.7%, +1.9%, -1.07%); active A = P-B (+0.2%, +0.5%)",
+    "translation_notes": "Decimals. Positive when the style benchmark beats the broad market."
+   },
+   "variables": [
+    {
+     "symbol": "b",
+     "source_symbol": "B",
+     "role": "input",
+     "quantity_id": "benchmark_return",
+     "definition": "Style benchmark return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one account and month",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "m",
+     "source_symbol": "M",
+     "role": "input",
+     "quantity_id": "market_return",
+     "definition": "Broad market index return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same month",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "s",
+     "source_symbol": "S",
+     "role": "output",
+     "quantity_id": "style_return",
+     "definition": "Return due to manager style, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same account and month",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Benchmark consistent with the manager's style; market is the broad index."
+   ],
+   "limitations": [
+    "Decomposition accounting only; style-vs-skill inference needs the correlation conditions in the PDF."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-style-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 Example 11 benchmark decomposition, printed p. 44 (PDF p. 52): style S = B-M (-2.7%, +1.9%, -1.07%); active A = P-B (+0.2%, +0.5%)",
+     "evidence": "Example 11: Courtland -5.5%-(-2.8%) = -2.7%; Kuti 5.1%-3.2% = 1.9%; mid-cap value 7.85%-8.92% = -1.07%.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-risk-appraisal",
+     "kind": "primary",
+     "title": "Risk-Based Performance Measures and Appraisal Ratio (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/risk-based-measures-of-performance-appraisal-2/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Sortino = (Rp-Rt)/sigma_d with worked oracle (12-5)/8 = 0.875; target semideviation = min(ra-rT,0)^2 per period; UC = R(m)/R(B) if R(B) >= 0, DC = R(m)/R(B) if R(B) < 0; maximum DD = min([(V-V*)/V*],0); Sharpe/Treynor/IR/AR formulas stated.",
+     "evidence": "Page states the same Sortino, semideviation, capture-leg and max-drawdown formulas with its own worked Sortino oracle (0.875); also states Sharpe/Treynor/IR/AR forms used for deferred items.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-courtland-style-oracle",
+     "inputs": {
+      "b": -0.055,
+      "m": -0.028
+     },
+     "expected": -0.027,
+     "tolerance": 1e-09,
+     "method": "-0.055+0.028 = -0.027, reported as -2.7%.",
+     "provenance": "Published result: LM1 Example 11 Q1, printed p. 44 (PDF p. 52)"
+    },
+    {
+     "id": "published-kuti-style-oracle",
+     "inputs": {
+      "b": 0.051,
+      "m": 0.032
+     },
+     "expected": 0.019,
+     "tolerance": 1e-09,
+     "method": "0.051-0.032 = 0.019, reported as 1.9%.",
+     "provenance": "Published result: LM1 Example 11 Q2, printed p. 44 (PDF p. 52)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "b": -0.055
+     },
+     "reason": "Market return is structurally required; style is defined against the broad market."
+    }
+   ],
+   "inverse_notes": "m = b - s; b = s + m. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings benchmark/market return and style return are not in the runtime vocabulary snapshot and require extension.",
+     "Active-management leg is financial-analysis--active-management-return; Q3 (-1.07%) is supporting evidence."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--active-management-return",
+   "revision": "r1",
+   "title": "Return due to active management",
+   "summary": "Active component as account return minus benchmark return.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "a",
+    "expression": "p-b",
+    "original_equation": "A = P - B",
+    "source_id": "cfa-l3-v3-active-pdf",
+    "locator": "PDF: LM1 Example 11 benchmark decomposition, printed p. 44 (PDF p. 52): style S = B-M (-2.7%, +1.9%, -1.07%); active A = P-B (+0.2%, +0.5%)",
+    "translation_notes": "Decimals. Positive when the account beats its style benchmark."
+   },
+   "variables": [
+    {
+     "symbol": "p",
+     "source_symbol": "P",
+     "role": "input",
+     "quantity_id": "account_return",
+     "definition": "Account (portfolio) return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one account and month",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "b",
+     "source_symbol": "B",
+     "role": "input",
+     "quantity_id": "benchmark_return",
+     "definition": "Style benchmark return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same month",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "a",
+     "source_symbol": "A",
+     "role": "output",
+     "quantity_id": "active_return_component",
+     "definition": "Return due to active management, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same account and month",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Benchmark consistent with the manager's style."
+   ],
+   "limitations": [
+    "Same decomposition-accounting scope as the style sibling."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-active-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM1 Example 11 benchmark decomposition, printed p. 44 (PDF p. 52): style S = B-M (-2.7%, +1.9%, -1.07%); active A = P-B (+0.2%, +0.5%)",
+     "evidence": "Example 11: Courtland -5.3%-(-5.5%) = 0.2%; Kuti 5.6%-5.1% = 0.5%.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-risk-appraisal",
+     "kind": "primary",
+     "title": "Risk-Based Performance Measures and Appraisal Ratio (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/risk-based-measures-of-performance-appraisal-2/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Sortino = (Rp-Rt)/sigma_d with worked oracle (12-5)/8 = 0.875; target semideviation = min(ra-rT,0)^2 per period; UC = R(m)/R(B) if R(B) >= 0, DC = R(m)/R(B) if R(B) < 0; maximum DD = min([(V-V*)/V*],0); Sharpe/Treynor/IR/AR formulas stated.",
+     "evidence": "Page states the same Sortino, semideviation, capture-leg and max-drawdown formulas with its own worked Sortino oracle (0.875); also states Sharpe/Treynor/IR/AR forms used for deferred items.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-courtland-active-oracle",
+     "inputs": {
+      "p": -0.053,
+      "b": -0.055
+     },
+     "expected": 0.002,
+     "tolerance": 1e-09,
+     "method": "-0.053+0.055 = 0.002, reported as 0.2%.",
+     "provenance": "Published result: LM1 Example 11 Q1, printed p. 44 (PDF p. 52)"
+    },
+    {
+     "id": "published-kuti-active-oracle",
+     "inputs": {
+      "p": 0.056,
+      "b": 0.051
+     },
+     "expected": 0.005,
+     "tolerance": 1e-09,
+     "method": "0.056-0.051 = 0.005, reported as 0.5%.",
+     "provenance": "Published result: LM1 Example 11 Q2, printed p. 44 (PDF p. 52)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "p": -0.053
+     },
+     "reason": "Benchmark return is structurally required; active return is defined against it."
+    }
+   ],
+   "inverse_notes": "b = p - a; p = a + b. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings account/benchmark return and active component are not in the runtime vocabulary snapshot and require extension.",
+     "Style leg is financial-analysis--style-return-component."
+    ],
+    "duplicate_of": []
+   }
+  }
+ ]
+}

@@ -1,0 +1,530 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b05",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for financial-analysis-cfa-l1-b3-b02: revised records cite the owner PDF as project-derivation and point to accessible corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Revision r2 corrects source classification and relationship locator/source ID for financial-analysis-cfa-l1-b3-b02; original draft preserved. Validation and packaging recorded separately."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--if-converted-preferred-earnings-per-share",
+      "revision": "r2",
+      "title": "If-converted EPS for convertible preferred shares",
+      "summary": "For the single convertible preferred class example, conversion removes its preferred dividend and adds common shares.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "eps",
+        "expression": "income / (shares + converted)",
+        "original_equation": "Diluted EPS = net income / (weighted-average shares + shares from conversion)",
+        "source_id": "nyu-eps",
+        "locator": "Convertible securities and treasury stock paragraphs",
+        "translation_notes": "Share counts are dimensionless counts; the output is currency per share. The owner PDF locator is retained on the project-derivation source; relationship locator identifies the accessible corroborating source."
+      },
+      "variables": [
+        {
+          "symbol": "income",
+          "source_symbol": "net income",
+          "role": "input",
+          "quantity_id": "net_income_attributable_to_parent",
+          "definition": "Net income before preferred dividends; no other preferred classes",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "shares",
+          "source_symbol": "weighted average shares",
+          "role": "input",
+          "quantity_id": "weighted_average_common_shares",
+          "definition": "Weighted-average existing common shares",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative share count unless otherwise guarded"
+        },
+        {
+          "symbol": "converted",
+          "source_symbol": "new common shares",
+          "role": "input",
+          "quantity_id": "weighted_average_preferred_conversion_shares",
+          "definition": "Time-weighted additional shares attributable to the assumed conversion",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative share count unless otherwise guarded"
+        },
+        {
+          "symbol": "eps",
+          "source_symbol": "diluted EPS",
+          "role": "output",
+          "quantity_id": "if_converted_preferred_eps",
+          "definition": "Hypothetical earnings per common share after conversion",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "shares > 0",
+        "converted >= 0"
+      ],
+      "assumptions": [
+        "The convertible preferred is the only preferred class and shares are appropriately time-weighted.",
+        "Inclusion in reported diluted EPS requires a separate applicable antidilution assessment."
+      ],
+      "limitations": [
+        "Other preferred classes and participating securities need additional numerator adjustments."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 1, Diluted EPS: If-Converted Method, printed p36 (PDF p50), Equation (2) and Example 9",
+          "evidence": "For the single convertible preferred class example, conversion removes its preferred dividend and adds common shares.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nyu-eps",
+          "kind": "primary",
+          "title": "Earnings Per Share class notes",
+          "url": "https://pages.stern.nyu.edu/~pzarowin/chapter13.htm",
+          "version": "Paul Zarowin, NYU Stern Financial Reporting and Analysis, undated",
+          "accessed": "2026-11-03",
+          "locator": "Convertible securities and treasury stock paragraphs",
+          "evidence": "Conversion adds shares and reverses convertible preferred dividends or interest; options use assumed exercise and repurchase at average market price.",
+          "license": "Terms unknown; no redistribution of source text.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-preferred",
+          "inputs": {
+            "income": 1750000,
+            "shares": 500000,
+            "converted": 100000
+          },
+          "expected": 2.9166666666666665,
+          "tolerance": 1e-09,
+          "method": "1750000 divided by 600000; source rounds to 2.92.",
+          "provenance": "CFA Example 9, printed p36/PDF p50."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "income": 600000,
+            "shares": 200000,
+            "converted": 50000
+          },
+          "expected": 2.4,
+          "tolerance": 1e-09,
+          "method": "600000 divided by 250000 shares.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "shares": 500000,
+            "converted": 100000
+          },
+          "reason": "income is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "income=eps*(shares+converted). Either share component can be recovered if the other is known and eps is nonzero; zero EPS makes the denominator unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--if-converted-debt-earnings-per-share",
+      "revision": "r2",
+      "title": "If-converted EPS for convertible debt",
+      "summary": "Debt conversion adds after-tax interest to earnings and assumed shares to the denominator.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "eps",
+        "expression": "(income + interest - preferred) / (shares + converted)",
+        "original_equation": "Diluted EPS = (net income + after-tax convertible interest - preferred dividends) / (weighted shares + conversion shares)",
+        "source_id": "kpmg-eps",
+        "locator": "PDF p195, convertible bond example footnote; p344, dilutive assessment",
+        "translation_notes": "Shares are dimensionless counts; output is currency per share. The owner PDF locator is retained on the project-derivation source; relationship locator identifies the accessible corroborating source."
+      },
+      "variables": [
+        {
+          "symbol": "income",
+          "source_symbol": "net income",
+          "role": "input",
+          "quantity_id": "net_income_attributable_to_parent",
+          "definition": "Reported period net income",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "interest",
+          "source_symbol": "after-tax interest",
+          "role": "input",
+          "quantity_id": "convertible_debt_after_tax_interest",
+          "definition": "After-tax interest saved by assumed conversion",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "preferred",
+          "source_symbol": "preferred dividends",
+          "role": "input",
+          "quantity_id": "preferred_dividends_for_eps",
+          "definition": "Preferred dividends applicable in the calculation",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "shares",
+          "source_symbol": "weighted average shares",
+          "role": "input",
+          "quantity_id": "weighted_average_common_shares",
+          "definition": "Weighted-average existing common shares",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative share count unless otherwise guarded"
+        },
+        {
+          "symbol": "converted",
+          "source_symbol": "additional common shares",
+          "role": "input",
+          "quantity_id": "weighted_average_debt_conversion_shares",
+          "definition": "Time-weighted shares from assumed conversion",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative share count unless otherwise guarded"
+        },
+        {
+          "symbol": "eps",
+          "source_symbol": "diluted EPS",
+          "role": "output",
+          "quantity_id": "if_converted_debt_eps",
+          "definition": "Hypothetical EPS after debt conversion",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "shares > 0",
+        "converted >= 0"
+      ],
+      "assumptions": [
+        "After-tax interest and additional shares are matched to the period in which the debt was outstanding.",
+        "Inclusion in reported diluted EPS requires applicable antidilution testing."
+      ],
+      "limitations": [
+        "Additional consequential income and tax effects or complex capital structures require separate adjustments."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 1, Diluted EPS: If-Converted Method, printed p37 (PDF p51), Equation (3) and Example 10",
+          "evidence": "Debt conversion adds after-tax interest to earnings and assumed shares to the denominator.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "kpmg-eps",
+          "kind": "primary",
+          "title": "Earnings per share handbook",
+          "url": "https://kpmg.com/kpmg-us/content/dam/kpmg/frv/pdf/2023/handbook-earnings-per-share.pdf",
+          "version": "KPMG US GAAP handbook, September 2023",
+          "accessed": "2026-11-03",
+          "locator": "PDF p195, convertible bond example footnote; p344, dilutive assessment",
+          "evidence": "Convertible bond interest is added back net of tax and conversion shares enter the denominator, subject to dilution testing.",
+          "license": "Copyright KPMG; equation-level factual paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-bond",
+          "inputs": {
+            "income": 750000,
+            "interest": 2100,
+            "preferred": 0,
+            "shares": 690000,
+            "converted": 10000
+          },
+          "expected": 1.0744285714285715,
+          "tolerance": 1e-09,
+          "method": "752100 divided by 700000; source rounds to 1.07.",
+          "provenance": "CFA Example 10 and Exhibit 12, printed pp37–38/PDF pp51–52."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "income": 500000,
+            "interest": 10000,
+            "preferred": 10000,
+            "shares": 200000,
+            "converted": 50000
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "500000 adjusted earnings divided by 250000 shares.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "interest": 2100,
+            "preferred": 0,
+            "shares": 690000,
+            "converted": 10000
+          },
+          "reason": "income is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "income=eps*(shares+converted)-interest+preferred. A share-count inverse requires nonzero EPS; denominator remains positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--treasury-stock-method-earnings-per-share",
+      "revision": "r2",
+      "title": "Treasury-stock method EPS for options",
+      "summary": "The option exercise increases shares by the time-weighted difference between issued and repurchased shares.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "eps",
+        "expression": "(income - preferred) / (shares + (issued - repurchased) * fraction)",
+        "original_equation": "Diluted EPS = (net income - preferred dividends) / [weighted shares + (option shares - shares repurchased) × period fraction]",
+        "source_id": "nyu-eps",
+        "locator": "Convertible securities and treasury stock paragraphs",
+        "translation_notes": "Counts are dimensionless and the EPS output is currency per common share. Repurchased shares are computed upstream from proceeds and the average market price. The owner PDF locator is retained on the project-derivation source; relationship locator identifies the accessible corroborating source."
+      },
+      "variables": [
+        {
+          "symbol": "income",
+          "source_symbol": "net income",
+          "role": "input",
+          "quantity_id": "net_income_attributable_to_parent",
+          "definition": "Period net income",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "preferred",
+          "source_symbol": "preferred dividends",
+          "role": "input",
+          "quantity_id": "preferred_dividends_for_eps",
+          "definition": "Preferred dividends deducted for common earnings",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "shares",
+          "source_symbol": "weighted average shares",
+          "role": "input",
+          "quantity_id": "weighted_average_common_shares",
+          "definition": "Weighted-average common shares",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative share count unless otherwise guarded"
+        },
+        {
+          "symbol": "issued",
+          "source_symbol": "new shares",
+          "role": "input",
+          "quantity_id": "shares_assumed_issued_on_option_exercise",
+          "definition": "Shares assumed issued upon exercise",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative share count unless otherwise guarded"
+        },
+        {
+          "symbol": "repurchased",
+          "source_symbol": "shares purchased",
+          "role": "input",
+          "quantity_id": "shares_assumed_repurchased_with_option_proceeds",
+          "definition": "Shares hypothetically repurchased with exercise proceeds at period-average market price",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative share count unless otherwise guarded"
+        },
+        {
+          "symbol": "fraction",
+          "source_symbol": "proportion of year",
+          "role": "input",
+          "quantity_id": "option_outstanding_period_fraction",
+          "definition": "Fraction of reporting period in which the options were outstanding",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "eps",
+          "source_symbol": "diluted EPS",
+          "role": "output",
+          "quantity_id": "treasury_stock_method_eps",
+          "definition": "Hypothetical EPS for the selected option class",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "shares > 0",
+        "issued >= repurchased",
+        "repurchased >= 0",
+        "fraction >= 0",
+        "fraction <= 1"
+      ],
+      "assumptions": [
+        "The stated option class is dilutive under the applicable control-number test.",
+        "Issued and repurchased counts use the same exercise assumptions and are weighted once."
+      ],
+      "limitations": [
+        "Do not include antidilutive options in reported diluted EPS; other instruments and special proceeds require separate treatment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 1, Diluted EPS: Treasury Stock Method, printed p39 (PDF p53), Equation (4) and Example 11",
+          "evidence": "The option exercise increases shares by the time-weighted difference between issued and repurchased shares.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nyu-eps",
+          "kind": "primary",
+          "title": "Earnings Per Share class notes",
+          "url": "https://pages.stern.nyu.edu/~pzarowin/chapter13.htm",
+          "version": "Paul Zarowin, NYU Stern Financial Reporting and Analysis, undated",
+          "accessed": "2026-11-03",
+          "locator": "Convertible securities and treasury stock paragraphs",
+          "evidence": "Conversion adds shares and reverses convertible preferred dividends or interest; options use assumed exercise and repurchase at average market price.",
+          "license": "Terms unknown; no redistribution of source text.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-options",
+          "inputs": {
+            "income": 2300000,
+            "preferred": 0,
+            "shares": 800000,
+            "issued": 30000,
+            "repurchased": 19090.90909090909,
+            "fraction": 1
+          },
+          "expected": 2.836322869955157,
+          "tolerance": 1e-08,
+          "method": "2300000 divided by approximately 810909.09; CFA rounds to 2.84.",
+          "provenance": "CFA Example 11, printed pp39–40/PDF pp53–54."
+        },
+        {
+          "id": "half-year",
+          "inputs": {
+            "income": 1000000,
+            "preferred": 0,
+            "shares": 400000,
+            "issued": 40000,
+            "repurchased": 20000,
+            "fraction": 0.5
+          },
+          "expected": 2.4390243902439024,
+          "tolerance": 1e-09,
+          "method": "A 10000 time-weighted share increase gives 1000000/410000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "preferred": 0,
+            "shares": 800000,
+            "issued": 30000,
+            "repurchased": 19090.90909090909,
+            "fraction": 1
+          },
+          "reason": "income is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "income=eps*(shares+(issued-repurchased)*fraction)+preferred; share inversions require nonzero EPS and fraction.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

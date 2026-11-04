@@ -1,0 +1,415 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b10",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 2 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: purchased-PDF primary URL null is required by source brief but rejected by installed official validator. Toolkit unchanged. Independent checks and ZIP checksum pass; no official intake approval claimed. Citation-only corrections: b02 average-input-product, b07 real-gdp-per-capita, b09 marginal-propensity-to-consume r1 -> r2. Original archives remain unchanged; latest revision supersedes earlier record for use."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--average-input-product",
+      "revision": "r2",
+      "title": "Average product of an identified production input",
+      "summary": "Citation correction to prior r1: Average product divides output by the identified input; the reading applies the same definition to labor and machine services.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "AP",
+        "expression": "Q / X",
+        "original_equation": "AP_L=Q/L; the same calculation applies to capital input",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module 1, Total, Average, and Marginal Product, printed pp22-24 (PDF pp34-36), Exhibits7-10",
+        "translation_notes": "This is a defined input productivity ratio, not the statistical arithmetic mean of observations. Output divided by input-service yields output/input-service. Generalizing L to X follows the explicit capital-service example; source labels retained in metadata. Revisionr2 replaces an insufficient or inaccessible corroboration locator with a directly inspected page containing the actual formula definition; equation and numeric cases unchanged."
+      },
+      "variables": [
+        {
+          "symbol": "Q",
+          "source_symbol": "Q",
+          "role": "input",
+          "quantity_id": "total_product_quantity",
+          "definition": "Total output over the declared production interval",
+          "unit": "good-unit",
+          "dimensions": "good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite output"
+        },
+        {
+          "symbol": "X",
+          "source_symbol": "L or K",
+          "role": "input",
+          "quantity_id": "production_input_service_quantity",
+          "definition": "Positive quantity of the explicitly selected labor or capital service over the same interval",
+          "unit": "input-service-unit",
+          "dimensions": "input_service",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite input quantity"
+        },
+        {
+          "symbol": "AP",
+          "source_symbol": "AP_L or AP_K",
+          "role": "output",
+          "quantity_id": "average_input_product",
+          "definition": "Output per unit of the selected production input",
+          "unit": "good-unit/input-service-unit",
+          "dimensions": "good_quantity / input_service",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite productivity"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "Q >= 0",
+        "X > 0"
+      ],
+      "assumptions": [
+        "Source assumption: output and input cover the same production interval and firm.",
+        "Application profile: select the input kind before binding quantities; labor and machine services are not interchangeable."
+      ],
+      "limitations": [
+        "Average productivity does not identify individual worker contributions or marginal productivity."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 1, Total, Average, and Marginal Product, printed pp22-24 (PDF pp34-36), Exhibits7-10",
+          "evidence": "Average product divides output by the identified input; the reading applies the same definition to labor and machine services.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "abs-average-product",
+          "kind": "primary",
+          "title": "Labour Statistics: Concepts, Sources and Methods, Labour productivity",
+          "url": "https://www.abs.gov.au/statistics/detailed-methodology-information/concepts-sources-methods/labour-statistics-concepts-sources-and-methods/2021/concepts-and-sources/labour-productivity",
+          "version": "Australian Bureau of Statistics,2021 methodology",
+          "accessed": "2026-11-03",
+          "locator": "Productivity definition and single-factor productivity explanation",
+          "evidence": "Average productivity compares output with the input quantity used; the labour specialization measures output per hours worked.",
+          "license": "Australian Bureau of Statistics exact page reuse terms unknown; no additional permission asserted.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "labor-five",
+          "inputs": {
+            "Q": 400,
+            "X": 5
+          },
+          "expected": 80,
+          "tolerance": 1e-09,
+          "method": "Published Exhibit9: five labor units have total product400 and average80.",
+          "provenance": "CFA LM1 printed p24/PDF36 Exhibit9."
+        },
+        {
+          "id": "machine-four",
+          "inputs": {
+            "Q": 6400,
+            "X": 4
+          },
+          "expected": 1600,
+          "tolerance": 1e-09,
+          "method": "Published Exhibit10: four machine units produce6400, reported average1600.",
+          "provenance": "CFA LM1 printed p24/PDF36 Exhibit10."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "X": 5
+          },
+          "reason": "Q is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Q=AP*X for any permitted positive X; X=Q/AP requires AP>0 and positive resulting X. For AP80 and X5, Q400; substitution400/5=80. If AP0 and Q0, every positive X is consistent and X is unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--real-gdp-per-capita",
+      "revision": "r2",
+      "title": "Real GDP per member of the population",
+      "summary": "Citation correction to prior r1: The reading defines per-capita real output as realGDP divided by population and discusses its use as an average living-standard measure.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "percapita",
+        "expression": "GDP / population",
+        "original_equation": "Per capita realGDP=realGDP/population",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module3, Nominal and RealGDP, printed p128 (PDF p140), unnumbered per-capita definition",
+        "translation_notes": "Currency divided by person_count gives currency/person. Financial output period stays in the context, not converted to elapsed seconds. Revisionr2 replaces an insufficient or inaccessible corroboration locator with a directly inspected page containing the actual formula definition; equation and numeric cases unchanged."
+      },
+      "variables": [
+        {
+          "symbol": "GDP",
+          "source_symbol": "realGDP",
+          "role": "input",
+          "quantity_id": "constant_price_gross_domestic_product",
+          "definition": "GDP valued on a fixed reference-price basis",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same domestic economy, accounting period and annualization basis; current-price flows unless explicitly marked constant-price; one currency without exchange conversion",
+          "domain": "Nonnegative finite real GDP"
+        },
+        {
+          "symbol": "population",
+          "source_symbol": "size of population",
+          "role": "input",
+          "quantity_id": "resident_population",
+          "definition": "Population of the economy on the stated average/midyear measurement convention",
+          "unit": "persons",
+          "dimensions": "person_count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite population count"
+        },
+        {
+          "symbol": "percapita",
+          "source_symbol": "per capita realGDP",
+          "role": "output",
+          "quantity_id": "real_gdp_per_capita",
+          "definition": "Real annual/period output value per resident on the same reference-price basis",
+          "unit": "EUR/person",
+          "dimensions": "currency / person_count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite per-capita GDP"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "GDP >= 0",
+        "population > 0"
+      ],
+      "assumptions": [
+        "Source assumption: population and GDP share geographic coverage and consistent measurement dates.",
+        "Application profile: per-capita average does not describe distribution or welfare beyond measured output."
+      ],
+      "limitations": [
+        "No purchasing-power parity adjustment or cross-currency conversion is implied."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Nominal and RealGDP, printed p128 (PDF p140), unnumbered per-capita definition",
+          "evidence": "The reading defines per-capita real output as realGDP divided by population and discusses its use as an average living-standard measure.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "worldbank-gdp-percapita-metadata",
+          "kind": "primary",
+          "title": "World Development Indicators metadata glossary: NY.GDP.PCAP.KD",
+          "url": "https://databank.worldbank.org/metadataglossary/world-development-indicators/series/NY.GDP.PCAP.KD",
+          "version": "WorldBank WDI live metadata; inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Short definition, Long definition and Statistical concept and methodology",
+          "evidence": "The constant-price GDP aggregate is divided by the general population to produce its per-capita measure.",
+          "license": "Indicator landing page displays CC BY4.0; exact metadata-page terms otherwise unknown. No source data redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "small-economy",
+          "inputs": {
+            "GDP": 1000000,
+            "population": 100
+          },
+          "expected": 10000,
+          "tolerance": 1e-09,
+          "method": "An equal allocation of one million across100 residents assigns10000 per resident.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "double-population",
+          "inputs": {
+            "GDP": 1000000,
+            "population": 200
+          },
+          "expected": 5000,
+          "tolerance": 1e-09,
+          "method": "The same real output divided among twice as many residents halves the per-resident value.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "population": 100
+          },
+          "reason": "GDP is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "GDP=percapita*population. population=GDP/percapita requirespercapita>0. First reference reconstructs1000000; substitution10000. If GDP0,percapita0, any positive population fits.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--marginal-propensity-to-consume",
+      "revision": "r2",
+      "title": "Marginal consumption response to additional disposable income",
+      "summary": "Citation correction to prior r1: MPC is the share of an additional disposable-income unit that is spent; the remainder is MPS.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "MPC",
+        "expression": "dC / dY",
+        "original_equation": "MPC=delta consumption / delta disposable income; MPS=1-MPC",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module3, Relationship among Saving, Investment, the Fiscal Balance and the Trade Balance, printed p142 (PDF p154), unnumbered MPC prose and MPS complement",
+        "translation_notes": "Both changes have currency dimensions, giving a fraction. MPS=1-MPC is the complementary allocation from the same partition and is retained here as a special solve/composition note. Nonzero income change is enforced as dY squared positive because the engine has no != operator. Revisionr2 replaces an insufficient or inaccessible corroboration locator with a directly inspected page containing the actual formula definition; equation and numeric cases unchanged."
+      },
+      "variables": [
+        {
+          "symbol": "dC",
+          "source_symbol": "additional unit consumed",
+          "role": "input",
+          "quantity_id": "incremental_household_consumption",
+          "definition": "Consumption change attributable to the specified disposable-income increment, other determinants fixed",
+          "unit": "CAD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "dY",
+          "source_symbol": "additional disposable income",
+          "role": "input",
+          "quantity_id": "incremental_household_disposable_income",
+          "definition": "Nonzero disposable-income change over the same response experiment",
+          "unit": "CAD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonzero finite income change"
+        },
+        {
+          "symbol": "MPC",
+          "source_symbol": "MPC",
+          "role": "output",
+          "quantity_id": "marginal_propensity_to_consume",
+          "definition": "Consumption change per unit disposable-income change",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "dY ** 2 > 0"
+      ],
+      "assumptions": [
+        "Source assumption: other consumption determinants are held fixed.",
+        "Source model: a conventional positive marginal allocation has0<=MPC<=1; this is an economic scope condition, not required by division alone."
+      ],
+      "limitations": [
+        "A finite difference is a local marginal response only if the response is linear over that interval or interpreted in the infinitesimal limit.",
+        "Average propensity C/Y is distinct and is not a reliable general estimator of MPC."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Relationship among Saving, Investment, the Fiscal Balance and the Trade Balance, printed p142 (PDF p154), unnumbered MPC prose and MPS complement",
+          "evidence": "MPC is the share of an additional disposable-income unit that is spent; the remainder is MPS.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-d",
+          "kind": "primary",
+          "title": "Principles of Economics 3e",
+          "url": "https://openstax.org/books/principles-economics-3e/pages/d-the-expenditure-output-model",
+          "version": "Greenlaw, Shapiro and MacDonald; 3e published 2022; live 2026 page",
+          "accessed": "2026-11-03",
+          "locator": "Section D: d-the-expenditure-output-model; exact subsection stated in evidence",
+          "evidence": "The Consumption Function defines marginal propensity to consume as the change in consumption over change in disposable income; the simple multiplier section uses the same parameter.",
+          "license": "Inspected page footer identifies CC BY-NC-SA and additional AI/commercial-use restrictions; terms displayed on the cited section, inspected 2026-11-03. No broader permission inferred. Formula-level facts and original paraphrase only; no source passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "four-fifths-consumed",
+          "inputs": {
+            "dC": 80,
+            "dY": 100
+          },
+          "expected": 0.8,
+          "tolerance": 1e-09,
+          "method": "Of100 additional income,80 are spent and20 saved.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "symmetric-income-fall",
+          "inputs": {
+            "dC": -30,
+            "dY": -50
+          },
+          "expected": 0.6,
+          "tolerance": 1e-09,
+          "method": "A50 income decline and30 consumption decline leave a positive response ratio.6.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "dY": 100
+          },
+          "reason": "dC is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "dC=MPC*dY. dY=dC/MPC requires MPC nonzero and nonzero resulting income change. First case .8*100=80 restores consumption change; if MPC0,dC0, income change is unidentified. dY0 is always excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

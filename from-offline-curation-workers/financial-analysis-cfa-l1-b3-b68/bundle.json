@@ -1,0 +1,287 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b68",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--forgone-trade-discount-periodic-cost",
+      "revision": "r1",
+      "title": "Cost per extra trade-credit period",
+      "summary": "The example uses 2/98 as the cost over the additional 20-day credit interval.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cost",
+        "expression": "discount / (1 - discount)",
+        "original_equation": "Periodic cost = discount fraction / (1 - discount fraction)",
+        "source_id": "winkler-trade-credit-1996",
+        "locator": "Traditional Trade Credit Analysis, equation 1",
+        "translation_notes": "The input and output are base-one fractions. The denominator is the discounted invoice amount, not the gross invoice amount."
+      },
+      "variables": [
+        {
+          "symbol": "discount",
+          "source_symbol": "early payment discount fraction",
+          "role": "input",
+          "quantity_id": "early_payment_discount_fraction",
+          "definition": "Fraction of gross invoice price saved by early payment",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "cost",
+          "source_symbol": "cost for extra credit period",
+          "role": "output",
+          "quantity_id": "trade_credit_periodic_cost",
+          "definition": "Forgone discount divided by the discounted early payment amount",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "discount >= 0",
+        "discount < 1"
+      ],
+      "assumptions": [
+        "Early payment is the full invoice less the stated discount; late payment is the full invoice.",
+        "No other fees, tax effects or default effects are included."
+      ],
+      "limitations": [
+        "This is the cost for the additional credit interval, not an annualized rate.",
+        "A 100% discount leaves no positive early payment base and is excluded."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 5, Financing Options, printed p764 (PDF p778), Keown Knowledge Check 1",
+          "evidence": "The example uses 2/98 as the cost over the additional 20-day credit interval.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "winkler-trade-credit-1996",
+          "kind": "primary",
+          "title": "The Cost of Trade Credit: A Net Present Value Perspective",
+          "url": "https://libres.uncg.edu/ir/uncg/f/d_winkler_cost_1996.pdf",
+          "version": "Daniel T. Winkler, Journal of Business and Economic Studies 3(1), 1996, pp53–63",
+          "accessed": "2026-11-03",
+          "locator": "Traditional Trade Credit Analysis, equation 1",
+          "evidence": "The annualization formula contains the forgone discount divided by the discounted cash price as its single-period rate.",
+          "license": "University-hosted author copy; reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "two-percent",
+          "inputs": {
+            "discount": 0.02
+          },
+          "expected": 0.02040816326530612,
+          "tolerance": 1e-09,
+          "method": "Forgoing 2% on an invoice incurs 2/98, or about 2.04% over the extra credit interval.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero",
+          "inputs": {
+            "discount": 0
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "No early discount means no modeled forgone-discount cost.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "discount is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "discount=cost/(1+cost) for a nonnegative periodic cost.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--accumulated-depreciation-removed-on-disposal",
+      "revision": "r1",
+      "title": "Accumulated depreciation removed on equipment disposal",
+      "summary": "The example subtracts ending accumulated depreciation from beginning accumulated depreciation plus current depreciation.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "removed",
+        "expression": "beginning + depreciation - ending",
+        "original_equation": "Accumulated depreciation removed = beginning accumulated depreciation + period depreciation - ending accumulated depreciation",
+        "source_id": "analystprep-disposal-depreciation",
+        "locator": "Preparing cash flow from investing activities, accumulated depreciation on equipment sold",
+        "translation_notes": "All inputs are positive balance or expense magnitudes in one currency."
+      },
+      "variables": [
+        {
+          "symbol": "beginning",
+          "source_symbol": "beginning accumulated depreciation",
+          "role": "input",
+          "quantity_id": "beginning_accumulated_depreciation",
+          "definition": "beginning accumulated depreciation",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "depreciation",
+          "source_symbol": "period depreciation expense",
+          "role": "input",
+          "quantity_id": "period_depreciation_expense",
+          "definition": "period depreciation expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ending",
+          "source_symbol": "ending accumulated depreciation",
+          "role": "input",
+          "quantity_id": "ending_accumulated_depreciation",
+          "definition": "ending accumulated depreciation",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "removed",
+          "source_symbol": "accumulated depreciation removed on disposal",
+          "role": "output",
+          "quantity_id": "accumulated_depreciation_removed_on_disposal",
+          "definition": "accumulated depreciation removed on disposal",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "beginning >= 0",
+        "depreciation >= 0",
+        "ending >= 0",
+        "beginning + depreciation >= ending"
+      ],
+      "assumptions": [
+        "The accumulated depreciation account covers only the same equipment population and reporting period.",
+        "All decreases in the account represent the disposal being analyzed; no exchange, revaluation or other account movement occurs."
+      ],
+      "limitations": [
+        "Multiple disposals yield only the aggregate removed depreciation without further detail.",
+        "Depreciation expense outside this asset population and other changes require separate reconciliation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Preparing the Cash Flow Statement: Investing Activities, printed p146 (PDF p160), unnumbered equipment disposal reconciliation",
+          "evidence": "The example subtracts ending accumulated depreciation from beginning accumulated depreciation plus current depreciation.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-disposal-depreciation",
+          "kind": "primary",
+          "title": "Understanding Cash Flow Statements lecture notes",
+          "url": "https://s3.amazonaws.com/app.analystprep.com/videos/cfa-level-1/Reading_19_-_Understanding_Cash_Flow_Statements-1649876835265.pdf",
+          "version": "AnalystPrep, publisher-hosted lecture notes; publication year not established",
+          "accessed": "2026-11-04",
+          "locator": "Preparing cash flow from investing activities, accumulated depreciation on equipment sold",
+          "evidence": "The notes reconcile beginning accumulated depreciation plus depreciation expense less ending accumulated depreciation to the amount removed on equipment sale.",
+          "license": "AnalystPrep copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "acme",
+          "inputs": {
+            "beginning": 2891,
+            "depreciation": 1052,
+            "ending": 3443
+          },
+          "expected": 500,
+          "tolerance": 1e-09,
+          "method": "2,891 plus 1,052 less 3,443 yields 500 removed.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "none",
+          "inputs": {
+            "beginning": 100,
+            "depreciation": 20,
+            "ending": 120
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "With no disposal, ending accumulated depreciation equals beginning plus expense.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "depreciation": 1052,
+            "ending": 3443
+          },
+          "reason": "beginning is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ending=beginning+depreciation-removed; other single terms can be recovered given the rest.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

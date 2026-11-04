@@ -1,0 +1,573 @@
+{
+ "batch_id": "financial-analysis-cfa-l3-v3-b05",
+ "created": "2026-11-04",
+ "curator": "buffy",
+ "deferred": [],
+ "domain": "financial-analysis",
+ "example_only": false,
+ "handoff": {
+  "summary": "Batch b05 (L3V3): 4 records (performance-fee sharing leg, net active return, fee-schedule kink, monthly net return after MF accrual) each with PDF locator and directly inspected accessible corroboration.",
+  "gaps": [
+   "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+   "Queue: LM3 GIPS survey + batch(es); L3V3 close-out report."
+  ],
+  "connections": [],
+  "queries": [],
+  "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity - verified locators and corroboration pages by direct inspection 2026-11-04."
+ },
+ "kit_version": "2026-10-31.9",
+ "schema_version": "cm-curation-batch/1",
+ "models": [
+  {
+   "id": "financial-analysis--performance-fee-sharing-leg",
+   "revision": "r1",
+   "title": "Performance-fee sharing leg",
+   "summary": "Billed fee inside the sharing range as base fee plus sharing rate times active return above base.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "fee",
+    "expression": "base+share*(active-base)",
+    "original_equation": "Billed fee = base fee + sharing x (active return - base fee), within [base, maximum]",
+    "source_id": "analystprep-management-fees",
+    "locator": "PDF: LM2 performance-based fee schedule Exhibit 8, printed p. 113 (PDF p. 121): base 0.25%, sharing 20% beyond base, breakeven active 1.50%, max fee 0.75%; billed fees 0.40%/0.50%/0.60% at active 1.00%/1.50%/2.00%; net 0.60%/1.00%/1.40%",
+    "translation_notes": "Linear leg only (no min/max in the grammar); floor at base and cap at maximum are documented limits, not part of this expression. Decimals."
+   },
+   "variables": [
+    {
+     "symbol": "base",
+     "source_symbol": "base fee",
+     "role": "input",
+     "quantity_id": "base_fee",
+     "definition": "Base (minimum) fee, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one fee schedule",
+     "domain": "Nonnegative finite"
+    },
+    {
+     "symbol": "share",
+     "source_symbol": "sharing",
+     "role": "input",
+     "quantity_id": "sharing_rate",
+     "definition": "Sharing rate on active return beyond base, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same schedule",
+     "domain": "Finite in [0,1]"
+    },
+    {
+     "symbol": "active",
+     "source_symbol": "active return",
+     "role": "input",
+     "quantity_id": "active_return",
+     "definition": "Active return for the period, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same period",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "fee",
+     "source_symbol": "billed fee",
+     "role": "output",
+     "quantity_id": "performance_fee",
+     "definition": "Billed fee inside the sharing range, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same period",
+     "domain": "Finite"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Active return inside the sharing range (base <= active <= cap kink); single annual period."
+   ],
+   "limitations": [
+    "Piecewise floor/cap excluded: below base the fee is the base (call floor); beyond 2.75% here the fee is the 0.75% maximum."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-pfee-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM2 performance-based fee schedule Exhibit 8, printed p. 113 (PDF p. 121): base 0.25%, sharing 20% beyond base, breakeven active 1.50%, max fee 0.75%; billed fees 0.40%/0.50%/0.60% at active 1.00%/1.50%/2.00%; net 0.60%/1.00%/1.40%; PDF: LM2 fee-as-option discussion, printed pp. 113-114 (PDF pp. 121-122): base + long call on active return (strike = base fee) minus call (strike = maximum fee)",
+     "evidence": "Exhibit 8 numerical examples; fee-as-option decomposition (base + long call - short call).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-management-fees",
+     "kind": "primary",
+     "title": "Management Fees (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/management-fees/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Computed fee = Base + Sharing of performance (symmetrical); bonus = Higher of Base or Base plus sharing of positive performance; bonus fees are a call option on active return with the base fee as strike, capped by a maximum fee; third form adds high-water mark/clawback. Three fee components: base, long call (strike = base), short call (strike = maximum).",
+     "evidence": "Page states the same three fee forms and the call-option decomposition used for the fee records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-fee-100bp-oracle",
+     "inputs": {
+      "base": 0.0025,
+      "share": 0.2,
+      "active": 0.01
+     },
+     "expected": 0.004,
+     "tolerance": 1e-09,
+     "method": "0.0025+0.2x(0.01-0.0025) = 0.004, reported as 0.40%.",
+     "provenance": "Published result: LM2 Exhibit 8, printed p. 113 (PDF p. 121)"
+    },
+    {
+     "id": "published-fee-200bp-oracle",
+     "inputs": {
+      "base": 0.0025,
+      "share": 0.2,
+      "active": 0.02
+     },
+     "expected": 0.006,
+     "tolerance": 1e-09,
+     "method": "0.0025+0.2x(0.02-0.0025) = 0.006, reported as 0.60%.",
+     "provenance": "Published result: LM2 Exhibit 8, printed p. 113 (PDF p. 121)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "base": 0.0025,
+      "share": 0.2
+     },
+     "reason": "Active return is structurally required; the sharing leg scales with realized activeness."
+    }
+   ],
+   "inverse_notes": "active = base + (fee-base)/share requires share != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings base fee, sharing rate, active return, and billed fee are not in the runtime vocabulary snapshot and require extension.",
+     "Kink points are financial-analysis--fee-schedule-kink; net-of-fee is financial-analysis--net-active-return."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--net-active-return",
+   "revision": "r1",
+   "title": "Net active return after fees",
+   "summary": "Active return net of the billed fee by subtraction.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "net",
+    "expression": "active-fee",
+    "original_equation": "Net active return = active return - billed fee",
+    "source_id": "analystprep-management-fees",
+    "locator": "PDF: LM2 performance-based fee schedule Exhibit 8, printed p. 113 (PDF p. 121): base 0.25%, sharing 20% beyond base, breakeven active 1.50%, max fee 0.75%; billed fees 0.40%/0.50%/0.60% at active 1.00%/1.50%/2.00%; net 0.60%/1.00%/1.40%",
+    "translation_notes": "Decimals. Both oracles from Exhibit 8 Panel B."
+   },
+   "variables": [
+    {
+     "symbol": "active",
+     "source_symbol": "active return",
+     "role": "input",
+     "quantity_id": "active_return",
+     "definition": "Gross active return for the period, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one period",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "fee",
+     "source_symbol": "billed fee",
+     "role": "input",
+     "quantity_id": "billed_fee",
+     "definition": "Fee billed for the period, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same period",
+     "domain": "Finite"
+    },
+    {
+     "symbol": "net",
+     "source_symbol": "net active",
+     "role": "output",
+     "quantity_id": "net_active_return",
+     "definition": "Active return net of fees, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same period",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Fee contemporaneous with the active return; single period."
+   ],
+   "limitations": [
+    "Subtraction only; fee-drag compounding across periods is not modeled here."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-netactive-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM2 performance-based fee schedule Exhibit 8, printed p. 113 (PDF p. 121): base 0.25%, sharing 20% beyond base, breakeven active 1.50%, max fee 0.75%; billed fees 0.40%/0.50%/0.60% at active 1.00%/1.50%/2.00%; net 0.60%/1.00%/1.40%",
+     "evidence": "Exhibit 8 Panel B net row: 1.00%-0.40% = 0.60%; 2.00%-0.60% = 1.40%.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-management-fees",
+     "kind": "primary",
+     "title": "Management Fees (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/management-fees/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Computed fee = Base + Sharing of performance (symmetrical); bonus = Higher of Base or Base plus sharing of positive performance; bonus fees are a call option on active return with the base fee as strike, capped by a maximum fee; third form adds high-water mark/clawback. Three fee components: base, long call (strike = base), short call (strike = maximum).",
+     "evidence": "Page states the same three fee forms and the call-option decomposition used for the fee records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-net-100bp-oracle",
+     "inputs": {
+      "active": 0.01,
+      "fee": 0.004
+     },
+     "expected": 0.006,
+     "tolerance": 1e-09,
+     "method": "0.01-0.004 = 0.006, reported as 0.60%.",
+     "provenance": "Published result: LM2 Exhibit 8, printed p. 113 (PDF p. 121)"
+    },
+    {
+     "id": "published-net-200bp-oracle",
+     "inputs": {
+      "active": 0.02,
+      "fee": 0.006
+     },
+     "expected": 0.014,
+     "tolerance": 1e-09,
+     "method": "0.02-0.006 = 0.014, reported as 1.40%.",
+     "provenance": "Published result: LM2 Exhibit 8, printed p. 113 (PDF p. 121)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "active": 0.01
+     },
+     "reason": "Billed fee is structurally required; net-of-fee has no meaning without the fee."
+    }
+   ],
+   "inverse_notes": "fee = active - net; active = net + fee. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings active return, billed fee, and net active return are not in the runtime vocabulary snapshot and require extension.",
+     "Fee construction is financial-analysis--performance-fee-sharing-leg."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--fee-schedule-kink",
+   "revision": "r1",
+   "title": "Fee-schedule kink active return",
+   "summary": "Active return at which the sharing leg reaches a stated fee level (breakeven vs standard fee; cap vs maximum fee).",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "astar",
+    "expression": "base+(fee-base)/share",
+    "original_equation": "a* = base + (fee - base)/share",
+    "source_id": "analystprep-management-fees",
+    "locator": "PDF: LM2 performance-based fee schedule Exhibit 8, printed p. 113 (PDF p. 121): base 0.25%, sharing 20% beyond base, breakeven active 1.50%, max fee 0.75%; billed fees 0.40%/0.50%/0.60% at active 1.00%/1.50%/2.00%; net 0.60%/1.00%/1.40%",
+    "translation_notes": "Source-backed derivation from the sharing-leg equation solved for active return. Decimals. Breakeven: fee = standard 0.50% gives 1.50%; cap: fee = maximum 0.75% gives 2.75%."
+   },
+   "variables": [
+    {
+     "symbol": "base",
+     "source_symbol": "base fee",
+     "role": "input",
+     "quantity_id": "base_fee",
+     "definition": "Base (minimum) fee, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one fee schedule",
+     "domain": "Nonnegative finite"
+    },
+    {
+     "symbol": "fee",
+     "source_symbol": "fee level",
+     "role": "input",
+     "quantity_id": "fee_level",
+     "definition": "Stated fee level (standard or maximum), decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same schedule",
+     "domain": "Finite at or above base"
+    },
+    {
+     "symbol": "share",
+     "source_symbol": "sharing",
+     "role": "input",
+     "quantity_id": "sharing_rate",
+     "definition": "Sharing rate on active return beyond base, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same schedule",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "astar",
+     "source_symbol": "kink active return",
+     "role": "output",
+     "quantity_id": "kink_active_return",
+     "definition": "Active return reaching the fee level, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same schedule",
+     "domain": "Finite"
+    }
+   ],
+   "constants": [],
+   "guards": [
+    "share > 0"
+   ],
+   "assumptions": [
+    "Fee level attainable under the schedule (standard fee inside the sharing range; maximum at the cap kink)."
+   ],
+   "limitations": [
+    "No performance fee below base (floor) and no fee growth beyond the cap are represented here; this record locates the kinks only."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-kink-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM2 performance-based fee schedule Exhibit 8, printed p. 113 (PDF p. 121): base 0.25%, sharing 20% beyond base, breakeven active 1.50%, max fee 0.75%; billed fees 0.40%/0.50%/0.60% at active 1.00%/1.50%/2.00%; net 0.60%/1.00%/1.40%",
+     "evidence": "Exhibit 8: breakeven 1.50% (fee = standard 0.50%); cap kink 2.75% (fee = max 0.75%).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-management-fees",
+     "kind": "primary",
+     "title": "Management Fees (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/management-fees/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Computed fee = Base + Sharing of performance (symmetrical); bonus = Higher of Base or Base plus sharing of positive performance; bonus fees are a call option on active return with the base fee as strike, capped by a maximum fee; third form adds high-water mark/clawback. Three fee components: base, long call (strike = base), short call (strike = maximum).",
+     "evidence": "Page states the same three fee forms and the call-option decomposition used for the fee records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-breakeven-oracle",
+     "inputs": {
+      "base": 0.0025,
+      "fee": 0.005,
+      "share": 0.2
+     },
+     "expected": 0.015,
+     "tolerance": 1e-09,
+     "method": "0.0025+(0.005-0.0025)/0.2 = 0.015, reported as breakeven 1.50%.",
+     "provenance": "Published result: LM2 Exhibit 8, printed p. 113 (PDF p. 121)"
+    },
+    {
+     "id": "published-cap-kink-oracle",
+     "inputs": {
+      "base": 0.0025,
+      "fee": 0.0075,
+      "share": 0.2
+     },
+     "expected": 0.0275,
+     "tolerance": 1e-09,
+     "method": "0.0025+(0.0075-0.0025)/0.2 = 0.0275, matching the stated 2.75% cap point.",
+     "provenance": "Published result: LM2 Exhibit 8, printed p. 113 (PDF p. 121)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "base": 0.0025,
+      "fee": 0.005
+     },
+     "reason": "Sharing rate is structurally required; the kink location scales inversely with it."
+    },
+    {
+     "kind": "domain",
+     "inputs": {
+      "base": 0.0025,
+      "fee": 0.005,
+      "share": 0.0
+     },
+     "reason": "Guard share > 0 violated; with no sharing the fee never reaches higher levels."
+    }
+   ],
+   "inverse_notes": "Inverse is the sharing-leg record itself (fee = base + sharex(astar-base)). Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings base/fee levels, sharing rate, and kink active return are not in the runtime vocabulary snapshot and require extension.",
+     "Inverse of financial-analysis--performance-fee-sharing-leg solved for active return."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--monthly-net-return",
+   "revision": "r1",
+   "title": "Monthly net return after management-fee accrual",
+   "summary": "Monthly net return as gross return minus the pro-rata monthly management-fee accrual.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "net",
+    "expression": "g-mf/12",
+    "original_equation": "net_m = gross_m - MF/12",
+    "source_id": "analystprep-management-fees",
+    "locator": "PDF: LM2 fee-structure effects Exhibit 10, printed p. 116 (PDF p. 124): gross avg 0.72%/SD 1.37%; month 1: MF0.5/PF0 1.96%, MF1.5/PF0 1.88%; month 2: MF0.5/PF0 2.96%",
+    "translation_notes": "Monthly accrual of the annual management fee (division by 12 formalizes the PDF's end-of-month accrual). Decimals. Performance-fee columns follow different accounting (accrual balance) and are not this record."
+   },
+   "variables": [
+    {
+     "symbol": "g",
+     "source_symbol": "gross return",
+     "role": "input",
+     "quantity_id": "monthly_gross_return",
+     "definition": "Monthly gross return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one month",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "mf",
+     "source_symbol": "MF",
+     "role": "input",
+     "quantity_id": "annual_management_fee",
+     "definition": "Annual management fee rate, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same account",
+     "domain": "Nonnegative finite"
+    },
+    {
+     "symbol": "net",
+     "source_symbol": "net return",
+     "role": "output",
+     "quantity_id": "monthly_net_return",
+     "definition": "Monthly return net of management-fee accrual, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same month",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "End-of-month accrual of 1/12 of the annual fee; MF-only columns (no performance fee in the month)."
+   ],
+   "limitations": [
+    "First-order accrual (no intra-month compounding of the fee); management fee shifts the level without changing volatility (PDF note)."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-mfaccrual-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM2 fee-structure effects Exhibit 10, printed p. 116 (PDF p. 124): gross avg 0.72%/SD 1.37%; month 1: MF0.5/PF0 1.96%, MF1.5/PF0 1.88%; month 2: MF0.5/PF0 2.96%",
+     "evidence": "Exhibit 10 MF-only columns: month 1: 2.00-0.5/12 = 1.96%, 2.00-1.5/12 = 1.88%; month 2: 3.00-0.5/12 = 2.96%.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-management-fees",
+     "kind": "primary",
+     "title": "Management Fees (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/management-fees/",
+     "version": "Study notes, 11 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Computed fee = Base + Sharing of performance (symmetrical); bonus = Higher of Base or Base plus sharing of positive performance; bonus fees are a call option on active return with the base fee as strike, capped by a maximum fee; third form adds high-water mark/clawback. Three fee components: base, long call (strike = base), short call (strike = maximum).",
+     "evidence": "Page states the same three fee forms and the call-option decomposition used for the fee records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-month1-mf05-oracle",
+     "inputs": {
+      "g": 0.02,
+      "mf": 0.005
+     },
+     "expected": 0.0196,
+     "tolerance": 0.0001,
+     "method": "0.02-0.005/12 = 0.0195833, reported as 1.96%.",
+     "provenance": "Published result: LM2 Exhibit 10, printed p. 116 (PDF p. 124)"
+    },
+    {
+     "id": "published-month2-mf05-oracle",
+     "inputs": {
+      "g": 0.03,
+      "mf": 0.005
+     },
+     "expected": 0.0296,
+     "tolerance": 0.0001,
+     "method": "0.03-0.005/12 = 0.0295833, reported as 2.96%.",
+     "provenance": "Published result: LM2 Exhibit 10, printed p. 116 (PDF p. 124)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "g": 0.02
+     },
+     "reason": "Management fee is structurally required; the accrual cannot be formed without the rate."
+    }
+   ],
+   "inverse_notes": "mf = 12x(g-net). Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings monthly gross/net return and annual management fee are not in the runtime vocabulary snapshot and require extension.",
+     "Performance-fee accrual-balance accounting (which lowers measured volatility) is described in the PDF and deferred as non-formulaic."
+    ],
+    "duplicate_of": []
+   }
+  }
+ ]
+}

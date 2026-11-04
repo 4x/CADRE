@@ -1,0 +1,858 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.9",
+  "batch_id": "financial-analysis-cfa-l3-v1-b08",
+  "domain": "financial-analysis",
+  "curator": "buffy",
+  "created": "2026-11-04",
+  "example_only": false,
+  "models": [
+    {
+      "id": "financial-analysis--fx-building-block-exchange-rate-expectation",
+      "revision": "r1",
+      "title": "Building-block exchange-rate expectation",
+      "summary": "Expected currency move equals the sum of short-rate, term, credit, equity and liquidity premium differentials.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "E_dS",
+        "expression": "(rd - rf) + (Termd - Termf) + (Creditd - Creditf) + (Equityd - Equityf) + (Liquidd - Liquidf)",
+        "original_equation": "E(%ΔSd/f) = (rd − rf) + (Termd − Termf) + (Creditd − Creditf) + (Equityd − Equityf) + (Liquidd − Liquidf)",
+        "source_id": "analystprep-fx-forecasting",
+        "locator": "PDF: LM2 Forecasting Exchange Rates, printed p. 102 (PDF p. 112), Equation 9",
+        "translation_notes": "PDF prints percentages; record uses decimal form per session convention (1.25% as 0.0125). Each parenthesized differential is domestic minus foreign for one portfolio segment (money market through private assets). UIP is the special case where only the first term matters. Dimensional check: dimensionless + dimensionless terms = dimensionless expected change."
+      },
+      "variables": [
+        {
+          "symbol": "rd",
+          "source_symbol": "rd",
+          "role": "input",
+          "quantity_id": "nominal_short_rate_domestic",
+          "definition": "Domestic nominal short-term interest rate, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "domestic vs foreign market pair and forecast horizon",
+          "domain": "Finite decimal rate"
+        },
+        {
+          "symbol": "rf",
+          "source_symbol": "rf",
+          "role": "input",
+          "quantity_id": "nominal_short_rate_foreign",
+          "definition": "Foreign nominal short-term interest rate, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "domestic vs foreign market pair and forecast horizon",
+          "domain": "Finite decimal rate"
+        },
+        {
+          "symbol": "Termd",
+          "source_symbol": "Termd",
+          "role": "input",
+          "quantity_id": "term_premium_domestic",
+          "definition": "Domestic term premium, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "domestic vs foreign market pair and forecast horizon",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "Termf",
+          "source_symbol": "Termf",
+          "role": "input",
+          "quantity_id": "term_premium_foreign",
+          "definition": "Foreign term premium, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "domestic vs foreign market pair and forecast horizon",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "Creditd",
+          "source_symbol": "Creditd",
+          "role": "input",
+          "quantity_id": "credit_premium_FX_domestic",
+          "definition": "Domestic credit premium, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "domestic vs foreign market pair and forecast horizon",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "Creditf",
+          "source_symbol": "Creditf",
+          "role": "input",
+          "quantity_id": "credit_premium_FX_foreign",
+          "definition": "Foreign credit premium, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "domestic vs foreign market pair and forecast horizon",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "Equityd",
+          "source_symbol": "Equityd",
+          "role": "input",
+          "quantity_id": "equity_premium_FX_domestic",
+          "definition": "Domestic equity premium, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "domestic vs foreign market pair and forecast horizon",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "Equityf",
+          "source_symbol": "Equityf",
+          "role": "input",
+          "quantity_id": "equity_premium_FX_foreign",
+          "definition": "Foreign equity premium, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "domestic vs foreign market pair and forecast horizon",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "Liquidd",
+          "source_symbol": "Liquidd",
+          "role": "input",
+          "quantity_id": "liquidity_premium_FX_domestic",
+          "definition": "Domestic liquidity premium, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "domestic vs foreign market pair and forecast horizon",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "Liquidf",
+          "source_symbol": "Liquidf",
+          "role": "input",
+          "quantity_id": "liquidity_premium_FX_foreign",
+          "definition": "Foreign liquidity premium, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "domestic vs foreign market pair and forecast horizon",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "E_dS",
+          "source_symbol": "E(%ΔSd/f)",
+          "role": "output",
+          "quantity_id": "expected_fx_change",
+          "definition": "Expected percentage change in the exchange rate (domestic per foreign unit), in decimal form; positive means expected domestic depreciation",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "domestic vs foreign market pair and forecast horizon",
+          "domain": "Finite decimal change"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Perfect capital mobility equalizes risk-adjusted expected returns across the two currency portfolios at the forecast horizon.",
+        "Each premium differential is measured over the same horizon and comparable segments."
+      ],
+      "limitations": [
+        "Long-run phase relationship (Phase 3 of the overshooting mechanism); short-run flows and overshooting can move the spot rate the opposite way.",
+        "Carry-trade evidence shows UIP (the first-term-only special case) predicts poorly; the premium terms carry the explanatory load."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-fx-eq9-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Forecasting Exchange Rates, printed p. 102 (PDF p. 112), Equation 9; worked example E(%ΔSd/f) = 1% − 0.25% + 0.5% = 1.25%",
+          "evidence": "Passage states Equation 9 with all five differentials and evaluates the worked example at 1.25% expected domestic depreciation.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-fx-forecasting",
+          "kind": "primary",
+          "title": "Exchange Rate Forecasting Methods (AnalystPrep CFA Level III notes)",
+          "url": "https://analystprep.com/study-notes/cfa-level-iii/exchange-rates-forecasting/",
+          "version": "Study notes, 16 Jun 2023",
+          "accessed": "2026-11-04",
+          "locator": "Capital Mobility section: five-term expected-change equation with rd−rf, Term, Credit, Equity and Liquid differentials defined",
+          "evidence": "Page states the identical five-term equation with each differential defined, and notes UIP is the first-term-only special case — the same structure and interpretation as the PDF.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-depreciation-example",
+          "inputs": {
+            "rd": 0.01,
+            "rf": 0.0,
+            "Termd": 0.0,
+            "Termf": 0.0025,
+            "Creditd": 0.005,
+            "Creditf": 0.0,
+            "Equityd": 0.0,
+            "Equityf": 0.0,
+            "Liquidd": 0.0,
+            "Liquidf": 0.0
+          },
+          "expected": 0.0125,
+          "tolerance": 1e-09,
+          "method": "Source's worked example in decimal form: (0.01−0) + (0−0.0025) + (0.005−0) = 0.0125, matching published 1.25%.",
+          "provenance": "Published result: LM2 FX example, printed p. 102 (PDF p. 112)"
+        },
+        {
+          "id": "constructed-mixed-differentials",
+          "inputs": {
+            "rd": 0.03,
+            "rf": 0.01,
+            "Termd": 0.005,
+            "Termf": 0.005,
+            "Creditd": 0.01,
+            "Creditf": 0.0,
+            "Equityd": 0.0,
+            "Equityf": 0.005,
+            "Liquidd": 0.002,
+            "Liquidf": 0.002
+          },
+          "expected": 0.025,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 0.02 + 0 + 0.01 − 0.005 + 0 = 0.025. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "rd": 0.01,
+            "rf": 0.0
+          },
+          "reason": "All five differentials are required; the rate gap alone is only the UIP special case, not Equation 9."
+        }
+      ],
+      "inverse_notes": "Any one differential is recoverable as E_dS minus the other four (e.g., rd − rf = E_dS − other differentials); no singularities. Substitution check: E_dS=0.0125 with the other differentials (0, −0.0025, 0.005, 0, 0) recovers rd−rf=0.01. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings nominal_short_rate_domestic/foreign, term/credit/equity/liquidity FX premia, expected_fx_change are not in the runtime vocabulary snapshot and require extension.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--after-tax-expected-return",
+      "revision": "r1",
+      "title": "After-tax expected return scaling",
+      "summary": "Expected after-tax return equals pre-tax return scaled by one minus the expected tax rate.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "rat",
+        "expression": "rpt * (1 - t)",
+        "original_equation": "rat = rpt(1 − t)",
+        "source_id": "edureify-taxes-in-allocation",
+        "locator": "PDF: LM5 After-Tax Portfolio Optimization, printed p. 325 (PDF p. 335), Equation 1",
+        "translation_notes": "PDF prints percentages; record uses decimal form per session convention (3% as 0.03). Single blended expected tax rate; the dividend/cap-gain split (PDF Eq2) is deferred for lack of independent corroboration. Dimensional check: dimensionless × dimensionless = dimensionless return."
+      },
+      "variables": [
+        {
+          "symbol": "rpt",
+          "source_symbol": "rpt",
+          "role": "input",
+          "quantity_id": "pre_tax_expected_return",
+          "definition": "Expected pre-tax (gross) return, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset class and forecast horizon as rat",
+          "domain": "Finite decimal return"
+        },
+        {
+          "symbol": "t",
+          "source_symbol": "t",
+          "role": "input",
+          "quantity_id": "expected_tax_rate",
+          "definition": "Expected tax rate applied to the return, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset class and forecast horizon as rat",
+          "domain": "Closed interval 0 to below 1"
+        },
+        {
+          "symbol": "rat",
+          "source_symbol": "rat",
+          "role": "output",
+          "quantity_id": "after_tax_expected_return",
+          "definition": "Expected after-tax return, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset class and forecast horizon as inputs",
+          "domain": "Finite decimal return"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "t >= 0",
+        "t < 1"
+      ],
+      "assumptions": [
+        "Single blended expected rate captures the tax drag (interest-like treatment); mixed dividend/cap-gain streams need the PDF's split form."
+      ],
+      "limitations": [
+        "Approximation for modeling: ignores holding-period effects on capital-gains realization and embedded gains (per source footnotes).",
+        "Losses are muted symmetrically by the same factor (capital-loss benefit assumed realizable)."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-aftertax-eq1-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM5 After-Tax Portfolio Optimization, printed p. 325 (PDF p. 335), Equation 1; bond example 0.03(1 − 0.40) = 0.018",
+          "evidence": "Passage defines Equation 1 with all three terms and evaluates the bond example at 0.018 after-tax.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "edureify-taxes-in-allocation",
+          "kind": "primary",
+          "title": "CFA Level 3 Domain 1: Asset Allocation (Edureify domain guide)",
+          "url": "https://edureify.com/certification/finance/cfa-level-3/domain/asset-allocation",
+          "version": "2027 exam domain guide, sections 1.5 and Taxes in allocation",
+          "accessed": "2026-11-04",
+          "locator": "Section 1.5 and Taxes-in-allocation card: after-tax expected return is (pre-tax return) × (1 − t); after-tax volatility reduced by the same factor",
+          "evidence": "Guide states the identical scaling for both return and volatility and the wider-rebalancing-range consequence — the same three relationships as PDF Equations 1, 3 and 4.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        },
+        {
+          "id": "kitces-asset-location",
+          "kind": "primary",
+          "title": "Asset Location: New Value-Add For Optimal Portfolio Design? (Kitces)",
+          "url": "https://www.kitces.com/blog/asset-location-the-new-wealth-management-value-add-for-optimal-portfolio-design/",
+          "version": "Nerd's Eye View, 6 Mar 2013",
+          "accessed": "2026-11-04",
+          "locator": "Baseline scenario: bonds grow at 3.75% after-tax (5% gross less 25% taxation)",
+          "evidence": "Article applies the identical (1 − t) scaling arithmetically (0.05 × 0.75 = 0.0375) in a worked asset-location comparison.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-bond-example",
+          "inputs": {
+            "rpt": 0.03,
+            "t": 0.4
+          },
+          "expected": 0.018,
+          "tolerance": 1e-09,
+          "method": "Source's bond example: 0.03 × (1 − 0.40) = 0.018, matching published 1.80%.",
+          "provenance": "Published result: LM5 after-tax example, printed p. 325 (PDF p. 335)"
+        },
+        {
+          "id": "published-hy-bond-exhibit",
+          "inputs": {
+            "rpt": 0.05,
+            "t": 0.4
+          },
+          "expected": 0.03,
+          "tolerance": 1e-09,
+          "method": "Exhibit 6 cross-check: HY bonds 5.0% pre-tax at 40% tax → 3.0% after-tax.",
+          "provenance": "Published result: LM5 Exhibit 6, printed p. 328 (PDF p. 338)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "rpt": 0.03,
+            "t": 1.0
+          },
+          "reason": "A 100% tax rate is outside the modeling domain (guard t < 1); the scaling is defined for partial tax rates."
+        }
+      ],
+      "inverse_notes": "rpt = rat/(1 − t) requires t ≠ 1; t = 1 − rat/rpt requires rpt ≠ 0. Substitution check: rat=0.018, t=0.40 recovers rpt=0.03. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings pre_tax_expected_return, expected_tax_rate, after_tax_expected_return are not in the runtime vocabulary snapshot and require extension.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--after-tax-standard-deviation",
+      "revision": "r1",
+      "title": "After-tax standard deviation scaling",
+      "summary": "Expected after-tax volatility equals pre-tax volatility scaled by one minus the expected tax rate.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "sig_at",
+        "expression": "sig_pt * (1 - t)",
+        "original_equation": "σat = σpt(1 − t)",
+        "source_id": "edureify-taxes-in-allocation",
+        "locator": "PDF: LM5 After-Tax Portfolio Optimization, printed p. 326 (PDF p. 336), Equation 3",
+        "translation_notes": "σat/σpt ASCII aliases for the PDF's subscripted sigmas. Same (1 − t) factor as the return scaling (shared t meaning). Correlations are unaffected (after-tax co-movements equal pre-tax). Dimensional check: dimensionless × dimensionless = dimensionless dispersion."
+      },
+      "variables": [
+        {
+          "symbol": "sig_pt",
+          "source_symbol": "σpt",
+          "role": "input",
+          "quantity_id": "pre_tax_std",
+          "definition": "Expected pre-tax standard deviation, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset class and forecast horizon as sig_at",
+          "domain": "Nonnegative finite dispersion"
+        },
+        {
+          "symbol": "t",
+          "source_symbol": "t",
+          "role": "input",
+          "quantity_id": "expected_tax_rate",
+          "definition": "Expected tax rate, in decimal form (same meaning as after-tax return record)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset class and forecast horizon as sig_at",
+          "domain": "Closed interval 0 to below 1"
+        },
+        {
+          "symbol": "sig_at",
+          "source_symbol": "σat",
+          "role": "output",
+          "quantity_id": "after_tax_std",
+          "definition": "Expected after-tax standard deviation, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset class and forecast horizon as inputs",
+          "domain": "Nonnegative finite dispersion"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sig_pt >= 0",
+        "t >= 0",
+        "t < 1"
+      ],
+      "assumptions": [
+        "Tax truncates both tails proportionally (lower highs, higher lows), so dispersion scales linearly with the same factor as the mean."
+      ],
+      "limitations": [
+        "Correlations assumed unchanged; joint tail behavior under asymmetric tax codes may deviate.",
+        "Same modeling approximation as the return scaling (ignores realization timing)."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-aftertax-eq3-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM5 After-Tax Portfolio Optimization, printed p. 326 (PDF p. 336), Equation 3; Exhibit 6 values (IG 4.0%→2.4%, HY 10%→6%, Equity 20%→15%)",
+          "evidence": "Passage defines Equation 3 and Exhibit 6 evaluates it for all three asset classes at the stated tax rates.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "edureify-taxes-in-allocation",
+          "kind": "primary",
+          "title": "CFA Level 3 Domain 1: Asset Allocation (Edureify domain guide)",
+          "url": "https://edureify.com/certification/finance/cfa-level-3/domain/asset-allocation",
+          "version": "2027 exam domain guide, sections 1.5 and Taxes in allocation",
+          "accessed": "2026-11-04",
+          "locator": "Section 1.5 and Taxes-in-allocation card: after-tax volatility reduced by the same (1 − t) factor; trap card warns against taxing returns but not volatility",
+          "evidence": "Guide states the identical volatility scaling and flags the return/volatility consistency requirement — the same relationship as PDF Equation 3.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        },
+        {
+          "id": "cfa-institute-real-world-constraints-refresher",
+          "kind": "primary",
+          "title": "Asset Allocation with Real-World Constraints (CFA Institute refresher reading)",
+          "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/asset-allocation-with-real-world-constraints",
+          "version": "2026 refresher reading, Summary section",
+          "accessed": "2026-11-04",
+          "locator": "Summary: taxes mute the dispersion of returns; taxes affect the return and standard deviation assumptions (correlations need no adjustment)",
+          "evidence": "Official summary confirms the mechanism (muted dispersion, both moments affected, correlations unchanged) behind the PDF's scaling equation.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-ig-volatility",
+          "inputs": {
+            "sig_pt": 0.04,
+            "t": 0.4
+          },
+          "expected": 0.024,
+          "tolerance": 1e-09,
+          "method": "Exhibit 6: IG bonds 4.0% pre-tax at 40% tax → 2.4% after-tax: 0.04 × 0.6 = 0.024.",
+          "provenance": "Published result: LM5 Exhibit 6, printed p. 328 (PDF p. 338)"
+        },
+        {
+          "id": "published-equity-volatility",
+          "inputs": {
+            "sig_pt": 0.2,
+            "t": 0.25
+          },
+          "expected": 0.15,
+          "tolerance": 1e-09,
+          "method": "Exhibit 6: equity 20.0% pre-tax at 25% tax → 15.0% after-tax: 0.20 × 0.75 = 0.15.",
+          "provenance": "Published result: LM5 Exhibit 6, printed p. 328 (PDF p. 338)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "sig_pt": -0.04,
+            "t": 0.4
+          },
+          "reason": "Standard deviation cannot be negative (guard sig_pt >= 0)."
+        }
+      ],
+      "inverse_notes": "sig_pt = sig_at/(1 − t) requires t ≠ 1; t = 1 − sig_at/sig_pt requires sig_pt ≠ 0. Substitution check: sig_at=0.024, t=0.40 recovers sig_pt=0.04. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings pre_tax_std, expected_tax_rate (shared with return record), after_tax_std are not in the runtime vocabulary snapshot and require extension.",
+          "Companion to (not duplicate of) the after-tax return record; both scalings must be applied jointly per the source."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--after-tax-rebalancing-range",
+      "revision": "r1",
+      "title": "After-tax rebalancing range gross-up",
+      "summary": "The taxable investor's rebalancing range equals the pre-tax range divided by one minus the tax rate.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "Rat",
+        "expression": "Rpt / (1 - t)",
+        "original_equation": "Rat = Rpt/(1 − t)",
+        "source_id": "cfa-institute-real-world-constraints-refresher",
+        "locator": "PDF: LM5 Taxes and Portfolio Rebalancing, printed p. 329 (PDF p. 339), Equation 4; example 0.10/(1 − 0.25) = 13.3%",
+        "translation_notes": "Wider after-tax range follows from muted after-tax volatility: larger pre-tax moves are needed to match the risk change of the tax-exempt range. Decimal form (10% as 0.10). Dimensional check: dimensionless / dimensionless = dimensionless range."
+      },
+      "variables": [
+        {
+          "symbol": "Rpt",
+          "source_symbol": "Rpt",
+          "role": "input",
+          "quantity_id": "pre_tax_rebalance_range",
+          "definition": "Pre-tax (tax-exempt-investor) rebalancing range deviation, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same target allocation and risk constraint as Rat",
+          "domain": "Positive finite deviation"
+        },
+        {
+          "symbol": "t",
+          "source_symbol": "t",
+          "role": "input",
+          "quantity_id": "expected_tax_rate",
+          "definition": "Expected tax rate on the asset's returns, in decimal form (same meaning as after-tax records)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset and risk constraint as Rat",
+          "domain": "Closed interval 0 to below 1"
+        },
+        {
+          "symbol": "Rat",
+          "source_symbol": "Rat",
+          "role": "output",
+          "quantity_id": "after_tax_rebalance_range",
+          "definition": "After-tax (taxable-investor) rebalancing range deviation for the same risk constraint, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same target allocation and risk constraint as Rpt",
+          "domain": "Positive finite deviation"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "Rpt > 0",
+        "t >= 0",
+        "t < 1"
+      ],
+      "assumptions": [
+        "Ranges are compared from the same gross-return perspective for an equivalent risk constraint.",
+        "Correlations unchanged after tax, so the widening comes only through the volatility scaling."
+      ],
+      "limitations": [
+        "Wider ranges reduce trading and taxable gains but let the allocation drift further; the trade-off depends on owner circumstances (per source).",
+        "Mean-reversion beliefs can argue for tighter bands, opposing the tax-widening (per curriculum context)."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-aftertax-eq4-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM5 Taxes and Portfolio Rebalancing, printed p. 329 (PDF p. 339), Equation 4; 50%-equity example: 10% tax-exempt range → 13.3% taxable range at 25% tax",
+          "evidence": "Passage defines Equation 4 and evaluates the example at 0.10/(1 − 0.25) = 13.3%.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-institute-real-world-constraints-refresher",
+          "kind": "primary",
+          "title": "Asset Allocation with Real-World Constraints (CFA Institute refresher reading)",
+          "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/asset-allocation-with-real-world-constraints",
+          "version": "2026 refresher reading, Summary section",
+          "accessed": "2026-11-04",
+          "locator": "Summary: rebalancing thresholds may be wider for taxable portfolios because larger asset-class movements are needed to alter the taxable risk profile",
+          "evidence": "Official summary confirms the widening mechanism (larger moves needed after tax) that Equation 4 formalizes as division by (1 − t).",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        },
+        {
+          "id": "edureify-taxes-in-allocation",
+          "kind": "primary",
+          "title": "CFA Level 3 Domain 1: Asset Allocation (Edureify domain guide)",
+          "url": "https://edureify.com/certification/finance/cfa-level-3/domain/asset-allocation",
+          "version": "2027 exam domain guide, section 1.5",
+          "accessed": "2026-11-04",
+          "locator": "Section 1.5: taxable portfolios can tolerate wider rebalancing ranges because tax shares in gains and losses",
+          "evidence": "Guide states the same consequence (wider taxable ranges from shared gains/losses) that Equation 4 quantifies.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-50pct-equity-example",
+          "inputs": {
+            "Rpt": 0.1,
+            "t": 0.25
+          },
+          "expected": 0.1333333333,
+          "tolerance": 1e-09,
+          "method": "Source's example: 0.10/(1 − 0.25) = 0.13333, matching published 13.3% (37%–63% band).",
+          "provenance": "Published result: LM5 rebalancing example, printed p. 329 (PDF p. 339)"
+        },
+        {
+          "id": "constructed-20pct-tax",
+          "inputs": {
+            "Rpt": 0.08,
+            "t": 0.2
+          },
+          "expected": 0.1,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 0.08/(1 − 0.20) = 0.10. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "Rpt": 0.1,
+            "t": 1.0
+          },
+          "reason": "A 100% tax rate makes the divisor zero (guard t < 1); the gross-up is defined for partial tax rates."
+        }
+      ],
+      "inverse_notes": "Rpt = Rat·(1 − t) always; t = 1 − Rpt/Rat requires Rat ≠ 0. Substitution check: Rat=0.13333, t=0.25 recovers Rpt=0.10. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings pre_tax_rebalance_range, expected_tax_rate (shared), after_tax_rebalance_range are not in the runtime vocabulary snapshot and require extension.",
+          "Downstream application of the after-tax volatility scaling, not a duplicate of it."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--after-tax-account-value",
+      "revision": "r1",
+      "title": "After-tax value of tax-deferred assets",
+      "summary": "After-tax value of tax-deferred assets equals pre-tax market value scaled by one minus the distribution tax rate.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "vat",
+        "expression": "vpt * (1 - ti)",
+        "original_equation": "vat = vpt(1 − ti)",
+        "source_id": "reichenstein-tda-partnership",
+        "locator": "PDF: LM5 Asset location, printed p. 330 (PDF p. 340), Equation 5",
+        "translation_notes": "Partnership view: the investor owns (1 − ti) of the account, the government owns ti. Tax-deferred assets grow at pre-tax rates (inputs unadjusted); only the value is haircut. ti is the expected income tax rate at distribution, distinct from the return-drag t. Dimensional check: currency × dimensionless = currency value."
+      },
+      "variables": [
+        {
+          "symbol": "vpt",
+          "source_symbol": "vpt",
+          "role": "input",
+          "quantity_id": "pre_tax_account_value",
+          "definition": "Pre-tax market value of assets in the tax-deferred account, in currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same account and distribution event as vat",
+          "domain": "Nonnegative finite value"
+        },
+        {
+          "symbol": "ti",
+          "source_symbol": "ti",
+          "role": "input",
+          "quantity_id": "distribution_tax_rate",
+          "definition": "Expected income tax rate upon distribution, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same account and distribution event as vat",
+          "domain": "Closed interval 0 to below 1"
+        },
+        {
+          "symbol": "vat",
+          "source_symbol": "vat",
+          "role": "output",
+          "quantity_id": "after_tax_account_value",
+          "definition": "After-tax value of the tax-deferred assets, in currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same account and distribution event as inputs",
+          "domain": "Nonnegative finite value"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "vpt >= 0",
+        "ti >= 0",
+        "ti < 1"
+      ],
+      "assumptions": [
+        "Distribution is taxable as modeled (no basis recovery, no penalty, no bequest step-up in this approximation).",
+        "Tax-deferred assets use pre-tax return and risk inputs in the optimization; the value haircut carries the tax adjustment."
+      ],
+      "limitations": [
+        "As-if-sold-today approximation: ignores discounting the liability to a future sale date (alternatives in Horan/Al Zaman, Turvey et al. per source).",
+        "Tax-exempt accounts need no adjustment; this equation is for tax-deferred accounts only."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-aftertax-eq5-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM5 asset-location aggregation, printed p. 330 (PDF p. 340), Equation 5",
+          "evidence": "Passage defines Equation 5 with all three terms: after-tax value of tax-deferred assets as pre-tax value scaled by (1 − ti).",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "reichenstein-tda-partnership",
+          "kind": "primary",
+          "title": "The Asset Location Decision Revisited (Journal of Financial Planning, Nov 2013)",
+          "url": "https://www.financialplanningassociation.org/article/journal/NOV13-asset-location-decision-revisited-0",
+          "version": "Reichenstein & Meyer, JFP November 2013, Tax-Deferred Accounts as Partnerships",
+          "accessed": "2026-11-04",
+          "locator": "Partnership section: investor owns (1−t) of TDA principal; $1 pre-tax TDA funds ≡ $0.70 after-tax funds at 30%; $1(1+r)^n(1−0.3) after-tax future value",
+          "evidence": "Article derives the identical haircut: TDA value to the investor is the pre-tax amount times (1 − t), with the worked $1→$0.70 equivalence at t = 30%.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        },
+        {
+          "id": "kitces-asset-location",
+          "kind": "primary",
+          "title": "Asset Location: New Value-Add For Optimal Portfolio Design? (Kitces)",
+          "url": "https://www.kitces.com/blog/asset-location-the-new-wealth-management-value-add-for-optimal-portfolio-design/",
+          "version": "Nerd's Eye View, 6 Mar 2013",
+          "accessed": "2026-11-04",
+          "locator": "Baseline scenario: IRA withdrawal value as ($500,000 × 1.10^30) × (1−0.25) = $6,543,526",
+          "evidence": "Article applies the identical (1 − t) haircut to a pre-tax IRA balance to get after-tax value in a worked comparison.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-tda-partnership-equivalence",
+          "inputs": {
+            "vpt": 1.0,
+            "ti": 0.3
+          },
+          "expected": 0.7,
+          "tolerance": 1e-09,
+          "method": "Corroborating source's worked equivalence: $1 pre-tax TDA ≡ $0.70 after-tax funds at 30%: 1.0 × (1 − 0.30) = 0.70.",
+          "provenance": "Published result: Reichenstein & Meyer (2013) partnership example"
+        },
+        {
+          "id": "constructed-ira-balance",
+          "inputs": {
+            "vpt": 500000.0,
+            "ti": 0.25
+          },
+          "expected": 375000.0,
+          "tolerance": 1e-06,
+          "method": "Direct substitution: 500000 × (1 − 0.25) = 375000, mirroring the Kitces IRA-withdrawal arithmetic. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed account data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "vpt": 500000.0,
+            "ti": 1.0
+          },
+          "reason": "A 100% distribution tax rate is outside the modeling domain (guard ti < 1)."
+        }
+      ],
+      "inverse_notes": "vpt = vat/(1 − ti) requires ti ≠ 1; ti = 1 − vat/vpt requires vpt ≠ 0. Substitution check: vat=0.70, ti=0.30 recovers vpt=1.0. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings pre_tax_account_value, distribution_tax_rate, after_tax_account_value are not in the runtime vocabulary snapshot and require extension.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "deferred": [
+    {
+      "title": "Dividend/capital-gain split after-tax return (PDF Eq2: rat = pdrpt(1−td) + parpt(1−tcg))",
+      "reason": "Formula stated with worked oracle (8%→6% at 25%), but no independent accessible corroboration of the pd/pa split form found (only same-curriculum copies); defer rather than force corroboration.",
+      "source_urls": []
+    },
+    {
+      "title": "Factor-model VCV equations (PDF Eqs 11-13)",
+      "reason": "Matrix/double-sum form beyond scalar record format; K=1 specialization not stated as an equation in the PDF.",
+      "source_urls": []
+    },
+    {
+      "title": "Gordon growth model solved for required return",
+      "reason": "Referenced narratively (LM2, printed p. 84) but no explicit equation stated in the PDF; the Grinold-Kroner restatement (b01) is the transcribed form.",
+      "source_urls": []
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b08: 5 records (FX building-block Eq9; after-tax return, volatility, rebalancing range, account value) each with PDF locator plus directly inspected accessible corroboration. Four of ten references are published oracles.",
+    "gaps": [
+      "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+      "Coverage sweep: 32 records across b01–b08 cover the volume's closed-form scalar models; residual items are qualitative, matrix-form, or lack independent corroboration (see deferred across batches)."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity — verified locators and corroboration pages by direct inspection 2026-11-04."
+  }
+}

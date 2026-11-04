@@ -1,0 +1,802 @@
+{
+ "batch_id": "financial-analysis-cfa-l3-v2-b05",
+ "created": "2026-11-04",
+ "curator": "buffy",
+ "deferred": [
+  {
+   "title": "LM5 Eq5/Eq6 per-yield-change precursors as standalone records",
+   "reason": "Derivation steps toward Eq8 (Eq4 over dy with the di/dy sensitivity, then duration substitution); content preserved in the Eq8 record's integration gaps.",
+   "source_urls": []
+  }
+ ],
+ "domain": "financial-analysis",
+ "example_only": false,
+ "handoff": {
+  "summary": "Batch b05 (L3V2): 5 records (bank leverage-weighted change Eq3, equity change Eq4, modified duration Eq7, bank equity duration Eq8, bank equity volatility Eq9) each with PDF locator and directly inspected accessible corroboration.",
+  "gaps": [
+   "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+   "Queue: LM6 effective spread/VWAP/implementation shortfall, DTS, futures leverage, rebate rate; LM5 implementation (Exhibit 27 strategy catalog is qualitative)."
+  ],
+  "connections": [],
+  "queries": [],
+  "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity - verified locators and corroboration pages by direct inspection 2026-11-04."
+ },
+ "kit_version": "2026-10-31.9",
+ "schema_version": "cm-curation-batch/1",
+ "models": [
+  {
+   "id": "financial-analysis--bank-leverage-change-eq3",
+   "revision": "r1",
+   "title": "Leverage-weighted balance-sheet change (bank/insurer)",
+   "summary": "Equity percentage change as leverage-scaled asset change minus leverage-scaled liability change.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "dee",
+    "expression": "daa*lev - dll*le",
+    "original_equation": "(dA/A)(A/E) = (dL/L)(L/E) + dE/E",
+    "source_id": "riskhub-duration-gap",
+    "locator": "PDF: LM5 Bank and Insurer Model, Eq3 with Exhibits 22/23, printed pp. 376-377 (PDF pp. 386-387)",
+    "translation_notes": "Solved for dE/E so the record outputs the equity change. Decimals throughout (unit 1). By Eq1 (A = L + E over E), le = lev - 1 when inputs are consistent; the record keeps both leverage inputs independently auditable instead of enforcing this."
+   },
+   "variables": [
+    {
+     "symbol": "daa",
+     "source_symbol": "dA/A",
+     "role": "input",
+     "quantity_id": "asset_percentage_change",
+     "definition": "Percentage change in market value of assets, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer balance sheet",
+     "domain": "Finite signed change"
+    },
+    {
+     "symbol": "lev",
+     "source_symbol": "A/E",
+     "role": "input",
+     "quantity_id": "assets_to_equity_ratio",
+     "definition": "Leverage ratio, assets to equity, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer balance sheet",
+     "domain": "At least 1 for solvent leverage"
+    },
+    {
+     "symbol": "dll",
+     "source_symbol": "dL/L",
+     "role": "input",
+     "quantity_id": "liability_percentage_change",
+     "definition": "Percentage change in value of liabilities, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer balance sheet",
+     "domain": "Finite signed change"
+    },
+    {
+     "symbol": "le",
+     "source_symbol": "L/E",
+     "role": "input",
+     "quantity_id": "liabilities_to_equity_ratio",
+     "definition": "Liabilities-to-equity ratio, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer balance sheet",
+     "domain": "Nonnegative under limited liability"
+    },
+    {
+     "symbol": "dee",
+     "source_symbol": "dE/E",
+     "role": "output",
+     "quantity_id": "equity_percentage_change",
+     "definition": "Percentage change in shareholder equity value, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer balance sheet",
+     "domain": "Finite signed change"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Market-value inputs; E = A - L identity holds (per corroborated source)."
+   ],
+   "limitations": [
+    "First-order accounting decomposition only: small overall changes over short intervals; no convexity, embedded options, or non-parallel moves (PDF footnote 10). Book-value leverage misstates the magnification."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v2-eq3-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 2 - Portfolio Construction",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM5 Bank and Insurer Model, Eq3 with Exhibits 22/23, printed pp. 376-377 (PDF pp. 386-387)",
+     "evidence": "Equation 3 with Exhibits 22/23 rows: E/A 20% (A/E 5, L/E 4); assets -1.0% flat liabilities -> equity -5.0%; liabilities +1.0% flat assets -> equity -4.0%.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "riskhub-duration-gap",
+     "kind": "primary",
+     "title": "Duration Gap Analysis (RiskHub)",
+     "url": "https://riskhub.org/blogs/duration-gap-analysis",
+     "version": "FRM study article, read 2026-11-04",
+     "accessed": "2026-11-04",
+     "locator": "Derivation: E = A - L, dE = dA - dL; DGAP = DA - k*DL; dE ~ -DGAP*A*dy; A/E typically 10-15x so a 2-year gap is a 20-30% equity swing per 1% move.",
+     "evidence": "Page derives the leverage-weighted equity-change structure from the same accounting identity: equity impact equals leverage times duration gap times the rate move.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    },
+    {
+     "id": "analystprep-balance-sheet",
+     "kind": "primary",
+     "title": "Balance Sheet Management of Banks and Insurers (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/balance-sheet-management-of-banks-and-insurers/",
+     "version": "Study notes, 9 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "A = L + E; dA = dL + dE; manage equity volatility by decreasing asset volatility, limiting leverage, and keeping asset/liability changes positively correlated.",
+     "evidence": "Page confirms the balance-sheet identities and the volatility-management logic (leverage and correlation drive shareholder-capital volatility).",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-exhibit-23-oracle",
+     "inputs": {
+      "daa": 0.0,
+      "lev": 5.0,
+      "dll": 0.01,
+      "le": 4.0
+     },
+     "expected": -0.04,
+     "tolerance": 1e-09,
+     "method": "Exhibit 23 row: 0*5 - 0.01*4 = -0.04, reported as -4.0%.",
+     "provenance": "Published result: LM5 Exhibit 23, printed p. 377 (PDF p. 387)"
+    },
+    {
+     "id": "published-exhibit-22-oracle",
+     "inputs": {
+      "daa": -0.01,
+      "lev": 5.0,
+      "dll": 0.0,
+      "le": 4.0
+     },
+     "expected": -0.05,
+     "tolerance": 1e-09,
+     "method": "Exhibit 22 row: -0.01*5 - 0*4 = -0.05, reported as -5.0%.",
+     "provenance": "Published result: LM5 Exhibit 22, printed p. 376 (PDF p. 386)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "daa": -0.01,
+      "lev": 5.0,
+      "le": 4.0
+     },
+     "reason": "Each input is structurally required; a missing input cannot be defaulted without silently assuming away balance-sheet or market moves."
+    }
+   ],
+   "inverse_notes": "dll = (daa*lev - dee)/le requires le != 0; daa = (dee + dll*le)/lev requires lev != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings asset/liability/equity percentage change and leverage ratios are not in the runtime vocabulary snapshot and require extension.",
+     "Sister record financial-analysis--bank-equity-change-eq4 is the L/E-eliminated restatement; outputs agree when le = lev - 1."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--bank-equity-change-eq4",
+   "revision": "r1",
+   "title": "Equity percentage change from leverage ratio (bank/insurer)",
+   "summary": "Equity percentage change using only the leverage ratio A/E (L/E eliminated via Eq1).",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "dee",
+    "expression": "daa*lev - dll*(lev-1)",
+    "original_equation": "dE/E = (dA/A)(A/E) - (dL/L)((A/E) - 1)",
+    "source_id": "riskhub-duration-gap",
+    "locator": "PDF: LM5 Bank and Insurer Model, Eq4 with Exhibits 22/23, printed pp. 376-377 (PDF pp. 386-387)",
+    "translation_notes": "Eq3 with L/E = A/E - 1 substituted (Eq1 divided by E). Decimals throughout. This is the form the PDF divides by dy to reach Eq6/Eq8."
+   },
+   "variables": [
+    {
+     "symbol": "daa",
+     "source_symbol": "dA/A",
+     "role": "input",
+     "quantity_id": "asset_percentage_change",
+     "definition": "Percentage change in market value of assets, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer balance sheet",
+     "domain": "Finite signed change"
+    },
+    {
+     "symbol": "lev",
+     "source_symbol": "A/E",
+     "role": "input",
+     "quantity_id": "assets_to_equity_ratio",
+     "definition": "Leverage ratio, assets to equity, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer balance sheet",
+     "domain": "At least 1 for solvent leverage"
+    },
+    {
+     "symbol": "dll",
+     "source_symbol": "dL/L",
+     "role": "input",
+     "quantity_id": "liability_percentage_change",
+     "definition": "Percentage change in value of liabilities, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer balance sheet",
+     "domain": "Finite signed change"
+    },
+    {
+     "symbol": "dee",
+     "source_symbol": "dE/E",
+     "role": "output",
+     "quantity_id": "equity_percentage_change",
+     "definition": "Percentage change in shareholder equity value, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer balance sheet",
+     "domain": "Finite signed change"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Market-value inputs; L/E = A/E - 1 used (follows from A = L + E)."
+   ],
+   "limitations": [
+    "Same first-order scope as Eq3. Single leverage input: inconsistent L/E cannot be represented - use the Eq3 record when L and E stay separate."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v2-eq4-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 2 - Portfolio Construction",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM5 Bank and Insurer Model, Eq4 with Exhibits 22/23, printed pp. 376-377 (PDF pp. 386-387)",
+     "evidence": "Equation 4 with Exhibits 22/23 rows (same oracles as Eq3, leverage-only form).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "riskhub-duration-gap",
+     "kind": "primary",
+     "title": "Duration Gap Analysis (RiskHub)",
+     "url": "https://riskhub.org/blogs/duration-gap-analysis",
+     "version": "FRM study article, read 2026-11-04",
+     "accessed": "2026-11-04",
+     "locator": "Derivation: E = A - L, dE = dA - dL; DGAP = DA - k*DL; dE ~ -DGAP*A*dy; A/E typically 10-15x so a 2-year gap is a 20-30% equity swing per 1% move.",
+     "evidence": "Page derives the leverage-weighted equity-change structure from the same accounting identity: equity impact equals leverage times duration gap times the rate move.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    },
+    {
+     "id": "analystprep-balance-sheet",
+     "kind": "primary",
+     "title": "Balance Sheet Management of Banks and Insurers (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/balance-sheet-management-of-banks-and-insurers/",
+     "version": "Study notes, 9 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "A = L + E; dA = dL + dE; manage equity volatility by decreasing asset volatility, limiting leverage, and keeping asset/liability changes positively correlated.",
+     "evidence": "Page confirms the balance-sheet identities and the volatility-management logic (leverage and correlation drive shareholder-capital volatility).",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-exhibit-22-oracle",
+     "inputs": {
+      "daa": -0.01,
+      "lev": 5.0,
+      "dll": 0.0
+     },
+     "expected": -0.05,
+     "tolerance": 1e-09,
+     "method": "Exhibit 22 row: -0.01*5 - 0*4 = -0.05, reported as -5.0%.",
+     "provenance": "Published result: LM5 Exhibit 22, printed p. 376 (PDF p. 386)"
+    },
+    {
+     "id": "published-exhibit-23-oracle",
+     "inputs": {
+      "daa": 0.0,
+      "lev": 5.0,
+      "dll": 0.01
+     },
+     "expected": -0.04,
+     "tolerance": 1e-09,
+     "method": "Exhibit 23 row: 0*5 - 0.01*4 = -0.04, reported as -4.0%.",
+     "provenance": "Published result: LM5 Exhibit 23, printed p. 377 (PDF p. 387)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "daa": -0.01,
+      "lev": 5.0
+     },
+     "reason": "Each input is structurally required; a missing input cannot be defaulted without silently assuming away balance-sheet or market moves."
+    }
+   ],
+   "inverse_notes": "dll = (daa*lev - dee)/(lev - 1) requires lev != 1 (unleveraged case has no separate liability term). Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings asset/liability/equity percentage change and assets-to-equity ratio are not in the runtime vocabulary snapshot and require extension.",
+     "Eq5/Eq6 (per-yield-change forms with the di/dy sensitivity) are derivation steps toward the equity-duration record, preserved in financial-analysis--bank-equity-duration-eq8."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--modified-duration-eq7",
+   "revision": "r1",
+   "title": "Modified duration value-impact approximation",
+   "summary": "First-order percentage value change as negative modified duration times the yield change.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "dww",
+    "expression": "(0-dur*dr)",
+    "original_equation": "DW* = -(dW/W)/dr",
+    "source_id": "wikipedia-duration",
+    "locator": "PDF: LM5 Bank and Insurer Model, Eq7 modified duration definition, printed p. 379 (PDF p. 389)",
+    "translation_notes": "Solved for the value change dW/W = -DW**dr; written (0-dur*dr) for grammar safety. Duration plays the years role only via dr in decimals: years x decimal yield change = decimal value change."
+   },
+   "variables": [
+    {
+     "symbol": "dur",
+     "source_symbol": "DW*",
+     "role": "input",
+     "quantity_id": "modified_duration",
+     "definition": "Modified duration of the value, in years",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "any fixed-income value W",
+     "domain": "Finite duration measure"
+    },
+    {
+     "symbol": "dr",
+     "source_symbol": "dr",
+     "role": "input",
+     "quantity_id": "yield_change",
+     "definition": "Change in yield, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same value W",
+     "domain": "Finite signed change"
+    },
+    {
+     "symbol": "dww",
+     "source_symbol": "dW/W",
+     "role": "output",
+     "quantity_id": "value_percentage_change",
+     "definition": "Approximate percentage change in value, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same value W",
+     "domain": "Finite signed change"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Small parallel yield shift; cash flows independent of rates."
+   ],
+   "limitations": [
+    "First-order only; breaks for large moves, non-parallel shifts, and rate-dependent cash flows (embedded options). PDF footnote 10 reiterates convexity/options are not captured."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v2-eq7-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 2 - Portfolio Construction",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM5 Bank and Insurer Model, Eq7 modified duration definition, printed p. 379 (PDF p. 389)",
+     "evidence": "Equation 7 definition; Example 7 Q2 applies it: 0.5% x -9.33 = -4.67% equity value impact.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "wikipedia-duration",
+     "kind": "primary",
+     "title": "Duration (finance) (Wikipedia)",
+     "url": "https://en.wikipedia.org/wiki/Duration_(finance)",
+     "version": "Read 2026-11-04",
+     "accessed": "2026-11-04",
+     "locator": "Dmod = -(1/P)*dP/dy; dP/P ~ -Dmod*dy; worked zero-coupon oracle (Dmod 2.857, dy 0.0025 -> -0.71%).",
+     "evidence": "Page states the identical definition and first-order approximation with an independent worked zero-coupon oracle reproduced as a reference.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-example-7-q2-oracle",
+     "inputs": {
+      "dur": 9.33,
+      "dr": 0.005
+     },
+     "expected": -0.04665,
+     "tolerance": 1e-09,
+     "method": "0 - 9.33*0.005 = -0.04665, reported as -4.67%.",
+     "provenance": "Published result: LM5 Example 7 Q2, printed p. 379 (PDF p. 389)"
+    },
+    {
+     "id": "published-wikipedia-zero-coupon-oracle",
+     "inputs": {
+      "dur": 2.857,
+      "dr": 0.0025
+     },
+     "expected": -0.0071425,
+     "tolerance": 1e-06,
+     "method": "0 - 2.857*0.0025 = -0.0071425 (-0.714%), consistent with the page's stated approximately -0.71%.",
+     "provenance": "Published result: Wikipedia Duration (finance) worked example"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "dur": 9.33
+     },
+     "reason": "Each input is structurally required; a missing input cannot be defaulted without silently assuming away balance-sheet or market moves."
+    }
+   ],
+   "inverse_notes": "dr = (0 - dww)/dur = -dww/dur requires dur != 0; dur = -dww/dr requires dr != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings modified duration, yield change, and value percentage change are not in the runtime vocabulary snapshot and require extension.",
+     "Related sensitivity records: financial-analysis--mac-williams-duration, financial-analysis--bond-price-change-duration-convexity, financial-analysis--effective-duration; this record is the PDF Eq7 statement used to convert bank equity duration into value impact."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--bank-equity-duration-eq8",
+   "revision": "r1",
+   "title": "Equity duration of a leveraged bank/insurer",
+   "summary": "Equity modified duration as leverage-weighted asset duration minus leverage-weighted sensitivity-adjusted liability duration.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "de",
+    "expression": "lev*da - (lev-1)*dl*sens",
+    "original_equation": "DE* = (A/E)*DA* - ((A/E) - 1)*DL**(di/dy)",
+    "source_id": "riskhub-duration-gap",
+    "locator": "PDF: LM5 Bank and Insurer Model, Eq8 with Example 7 MegaBank, printed pp. 378-380 (PDF pp. 388-390)",
+    "translation_notes": "Inputs as decimals except durations in years; output years. Oracle 1 uses the PDF's rounded leverage 11.11 (= 1/0.09); arithmetic gives 9.32975 vs published 9.33 (tolerance covers rounding)."
+   },
+   "variables": [
+    {
+     "symbol": "lev",
+     "source_symbol": "A/E",
+     "role": "input",
+     "quantity_id": "assets_to_equity_ratio",
+     "definition": "Leverage ratio, assets to equity, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer balance sheet",
+     "domain": "At least 1 for solvent leverage"
+    },
+    {
+     "symbol": "da",
+     "source_symbol": "DA*",
+     "role": "input",
+     "quantity_id": "asset_modified_duration",
+     "definition": "Modified duration of assets, in years",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer asset portfolio",
+     "domain": "Finite duration measure"
+    },
+    {
+     "symbol": "dl",
+     "source_symbol": "DL*",
+     "role": "input",
+     "quantity_id": "liability_modified_duration",
+     "definition": "Modified duration of liabilities, in years",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer liability claims",
+     "domain": "Finite duration measure"
+    },
+    {
+     "symbol": "sens",
+     "source_symbol": "di/dy",
+     "role": "input",
+     "quantity_id": "liability_yield_sensitivity",
+     "definition": "Sensitivity of liability-yield change to asset-yield change, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer balance sheet",
+     "domain": "Finite (typically 0 to 1)"
+    },
+    {
+     "symbol": "de",
+     "source_symbol": "DE*",
+     "role": "output",
+     "quantity_id": "equity_modified_duration",
+     "definition": "Modified duration of equity, in years",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer shareholder equity",
+     "domain": "Finite duration measure"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Small parallel asset-yield shift; constant di/dy sensitivity; market-value durations."
+   ],
+   "limitations": [
+    "Inherits Eq4/Eq7 scope: no convexity or embedded options. Liability durations and the sensitivity ratio are hard to estimate (behavioral maturities, surrenders)."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v2-eq8-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 2 - Portfolio Construction",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM5 Bank and Insurer Model, Eq8 with Example 7 MegaBank, printed pp. 378-380 (PDF pp. 388-390)",
+     "evidence": "Equation 8 with Example 7 MegaBank: Q1 11.11x2 - 10.11x1.50x0.85 = 9.33; Q2 +50 bps -> -4.67%; Q3 8.53; Q4 10x1.75 - 9x1.50x0.85 = 6.03.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "riskhub-duration-gap",
+     "kind": "primary",
+     "title": "Duration Gap Analysis (RiskHub)",
+     "url": "https://riskhub.org/blogs/duration-gap-analysis",
+     "version": "FRM study article, read 2026-11-04",
+     "accessed": "2026-11-04",
+     "locator": "Derivation: E = A - L, dE = dA - dL; DGAP = DA - k*DL; dE ~ -DGAP*A*dy; A/E typically 10-15x so a 2-year gap is a 20-30% equity swing per 1% move.",
+     "evidence": "Page derives the leverage-weighted equity-change structure from the same accounting identity: equity impact equals leverage times duration gap times the rate move.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-example-7-q1-oracle",
+     "inputs": {
+      "lev": 11.11,
+      "da": 2.0,
+      "dl": 1.5,
+      "sens": 0.85
+     },
+     "expected": 9.33,
+     "tolerance": 0.001,
+     "method": "11.11*2 - 10.11*1.5*0.85 = 9.32975, reported as 9.33.",
+     "provenance": "Published result: LM5 Example 7 Q1, printed p. 379 (PDF p. 389)"
+    },
+    {
+     "id": "published-example-7-q4-oracle",
+     "inputs": {
+      "lev": 10.0,
+      "da": 1.75,
+      "dl": 1.5,
+      "sens": 0.85
+     },
+     "expected": 6.03,
+     "tolerance": 0.01,
+     "method": "10*1.75 - 9*1.5*0.85 = 6.025, reported as 6.03.",
+     "provenance": "Published result: LM5 Example 7 Q4, printed p. 380 (PDF p. 390)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "lev": 11.11,
+      "da": 2.0,
+      "dl": 1.5
+     },
+     "reason": "Each input is structurally required; a missing input cannot be defaulted without silently assuming away balance-sheet or market moves."
+    }
+   ],
+   "inverse_notes": "sens = (lev*da - de)/((lev-1)*dl) requires lev != 1 and dl != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings equity/asset/liability modified duration, leverage ratio, and yield sensitivity are not in the runtime vocabulary snapshot and require extension.",
+     "Eq5/Eq6 are derivation steps (Eq4 over dy with (dL/L)/di relabeled by duration, then DW* substitution); Eq7 converts this duration into a value impact."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--bank-equity-volatility-eq9",
+   "revision": "r1",
+   "title": "Equity volatility of a leveraged bank/insurer",
+   "summary": "Variance of equity percentage value changes from leverage-weighted asset/liability variances and their correlation.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "vare",
+    "expression": "lev**2*sa**2 + (lev-1)**2*sl**2 - 2*lev*(lev-1)*rho*sa*sl",
+    "original_equation": "sig(dE/E)^2 = (A/E)^2*sig(dA/A)^2 + ((A/E)-1)^2*sig(dL/L)^2 - 2*(A/E)*((A/E)-1)*rho*sig(dA/A)*sig(dL/L)",
+    "source_id": "wikipedia-variance",
+    "locator": "PDF: LM5 Bank and Insurer Model, Eq9 with Example 8 Foresight, printed pp. 381-385 (PDF pp. 391-395)",
+    "translation_notes": "Record outputs the variance exactly as Eq9 is stated (unit 1, decimal-squared); sigma = sqrt(output) per Example 8 (sqrt(0.06) = 24.5%, sqrt(0.038125) = 19.5%, sqrt(0.025225) = 15.9% for Q3). The PDF's footnote 12 states the Var(aX+bY) property used to transform Eq4 into Eq9. Rho bounded [-1,1] by correlation definition."
+   },
+   "variables": [
+    {
+     "symbol": "lev",
+     "source_symbol": "A/E",
+     "role": "input",
+     "quantity_id": "assets_to_equity_ratio",
+     "definition": "Leverage ratio, assets to equity, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer balance sheet",
+     "domain": "At least 1 for solvent leverage"
+    },
+    {
+     "symbol": "sa",
+     "source_symbol": "sig(dA/A)",
+     "role": "input",
+     "quantity_id": "asset_volatility",
+     "definition": "Standard deviation of asset percentage value changes, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer asset portfolio",
+     "domain": "Nonnegative finite"
+    },
+    {
+     "symbol": "sl",
+     "source_symbol": "sig(dL/L)",
+     "role": "input",
+     "quantity_id": "liability_volatility",
+     "definition": "Standard deviation of liability percentage value changes, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer liability claims",
+     "domain": "Nonnegative finite"
+    },
+    {
+     "symbol": "rho",
+     "source_symbol": "rho",
+     "role": "input",
+     "quantity_id": "asset_liability_correlation",
+     "definition": "Correlation between asset and liability percentage value changes",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer balance sheet",
+     "domain": "Closed interval -1 to 1"
+    },
+    {
+     "symbol": "vare",
+     "source_symbol": "sig(dE/E)^2",
+     "role": "output",
+     "quantity_id": "equity_variance",
+     "definition": "Variance of shareholder equity percentage value changes, decimal-squared",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "bank/insurer shareholder equity",
+     "domain": "Nonnegative finite"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Eq4 linear structure with constant leverage weights and stable volatilities/correlation; standard deviations share one horizon."
+   ],
+   "limitations": [
+    "Correlations break down in turbulent markets (PDF: divergence raises equity volatility dramatically at high leverage). Exhibit 26 curves are graphical context, not a formula."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v2-eq9-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 2 - Portfolio Construction",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM5 Bank and Insurer Model, Eq9 with Example 8 Foresight, printed pp. 381-385 (PDF pp. 391-395)",
+     "evidence": "Equation 9 with Exhibit 26 discussion and Example 8 Foresight: Q1 A/E 5, sigA 0.05, sigL 0.025, rho 0.25 -> var 0.06 (sig 24.5%); Q2 A/E 4 -> var 0.038125 (sig 19.5%); Q3 sigA 0.04 -> var 0.025225 (sig 15.9%).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "wikipedia-variance",
+     "kind": "primary",
+     "title": "Variance (Wikipedia)",
+     "url": "https://en.wikipedia.org/wiki/Variance",
+     "version": "Read 2026-11-04",
+     "accessed": "2026-11-04",
+     "locator": "Variance is E[(X-mu)^2]; the standard deviation is the square root of the variance.",
+     "evidence": "Page corroborates the variance/standard-deviation relationship applied in Example 8 (sigma = sqrt(variance): 24.5%, 19.5%, 15.9%).",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    },
+    {
+     "id": "analystprep-balance-sheet",
+     "kind": "primary",
+     "title": "Balance Sheet Management of Banks and Insurers (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/balance-sheet-management-of-banks-and-insurers/",
+     "version": "Study notes, 9 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "A = L + E; dA = dL + dE; manage equity volatility by decreasing asset volatility, limiting leverage, and keeping asset/liability changes positively correlated.",
+     "evidence": "Page confirms the balance-sheet identities and the volatility-management logic (leverage and correlation drive shareholder-capital volatility).",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-example-8-q1-oracle",
+     "inputs": {
+      "lev": 5.0,
+      "sa": 0.05,
+      "sl": 0.025,
+      "rho": 0.25
+     },
+     "expected": 0.06,
+     "tolerance": 1e-09,
+     "method": "25*0.0025 + 16*0.000625 - 2*5*4*0.25*0.05*0.025 = 0.06; sqrt = 24.5% as reported.",
+     "provenance": "Published result: LM5 Example 8 Q1, printed p. 385 (PDF p. 395)"
+    },
+    {
+     "id": "published-example-8-q2-oracle",
+     "inputs": {
+      "lev": 4.0,
+      "sa": 0.05,
+      "sl": 0.025,
+      "rho": 0.25
+     },
+     "expected": 0.038125,
+     "tolerance": 1e-09,
+     "method": "16*0.0025 + 9*0.000625 - 2*4*3*0.25*0.05*0.025 = 0.038125; sqrt = 19.5% as reported.",
+     "provenance": "Published result: LM5 Example 8 Q2, printed p. 385 (PDF p. 395)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "lev": 5.0,
+      "sa": 0.05,
+      "sl": 0.025
+     },
+     "reason": "Each input is structurally required; a missing input cannot be defaulted without silently assuming away balance-sheet or market moves."
+    }
+   ],
+   "inverse_notes": "sigma = sqrt(vare) is the documented inverse (Example 8). No algebraic inverse for single inputs without fixing the rest. Substitution check: Q3 inputs give 0.025225, sqrt = 15.9% as published.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings equity variance, asset/liability volatility, leverage ratio, and asset-liability correlation are not in the runtime vocabulary snapshot and require extension.",
+     "Only variance-of-linear-combination record in the pack; Exhibit 26 is graphical context."
+    ],
+    "duplicate_of": []
+   }
+  }
+ ]
+}

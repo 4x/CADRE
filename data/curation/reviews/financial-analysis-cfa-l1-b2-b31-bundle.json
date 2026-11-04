@@ -1,0 +1,544 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b31",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 2 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--fisher-ideal-price-index",
+      "revision": "r2",
+      "title": "Fisher ideal bilateral price index",
+      "summary": "Fisher combines the corresponding Laspeyres and Paasche indexes by their geometric mean.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "F",
+        "expression": "sqrt(L * P)",
+        "original_equation": "I_F=sqrt(I_L*I_P)",
+        "source_id": "abs-price-index-theory",
+        "locator": "Paragraphs4.16-4.17 and4.22, Equations4.4-4.6",
+        "translation_notes": "Both inputs are dimensionless base-one ratios. The square root preserves a dimensionless price index. V1 geometric-mean arithmetic is a dependency; this record defines the independently meaningful Fisher weighting construction rather than a renamed generic mean. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "L",
+          "source_symbol": "I_L",
+          "role": "input",
+          "quantity_id": "bilateral_laspeyres_price_index",
+          "definition": "Nonnegative Laspeyres index on the declared base-one normalization",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite index"
+        },
+        {
+          "symbol": "P",
+          "source_symbol": "I_P",
+          "role": "input",
+          "quantity_id": "bilateral_paasche_price_index",
+          "definition": "Nonnegative Paasche index for the same two periods, items and base-one normalization",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite index"
+        },
+        {
+          "symbol": "F",
+          "source_symbol": "FisherIndex",
+          "role": "output",
+          "quantity_id": "bilateral_fisher_price_index",
+          "definition": "Nonnegative geometric mean of the two compatible bilateral price indexes",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite index"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "L >= 0",
+        "P >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: both indexes concern the same periods, item coverage and normalization.",
+        "Source assumption: choose the nonnegative square-root branch."
+      ],
+      "limitations": [
+        "The bilateral Fisher formula alone does not chain multiple periods; chaining requires a separate product of compatible adjacent index relatives."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Measuring Inflation: The Construction of Price Indexes, printed p250 (PDF p262), unnumbered Fisher formula",
+          "evidence": "Fisher combines the corresponding Laspeyres and Paasche indexes by their geometric mean.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "abs-price-index-theory",
+          "kind": "primary",
+          "title": "Consumer Price Index: Concepts, Sources and Methods, Price index theory",
+          "url": "https://www.abs.gov.au/statistics/detailed-methodology-information/concepts-sources-methods/consumer-price-index-concepts-sources-and-methods/2018/price-index-theory",
+          "version": "Australian Bureau of Statistics,2018 reference; releasedFebruary27,2019",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs4.16-4.17 and4.22, Equations4.4-4.6",
+          "evidence": "Laspeyres uses base quantities, Paasche uses current quantities, and Fisher takes their geometric mean; price relatives compare prices between periods.",
+          "license": "Exact page reuse terms not inspected; no source tables or passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-rounded-indices",
+          "inputs": {
+            "L": 1.1245,
+            "P": 1.1603
+          },
+          "expected": 1.1423,
+          "tolerance": 5e-05,
+          "method": "Published displayed Fisher114.23 corresponds to base-one1.1423; tolerance covers rounded input/output indexes.",
+          "provenance": "CFA printed p250/PDF262."
+        },
+        {
+          "id": "exact-square",
+          "inputs": {
+            "L": 0.81,
+            "P": 1
+          },
+          "expected": 0.9,
+          "tolerance": 1e-09,
+          "method": "Geometric mean of.81 and1 is.9 because.9 squared=.81.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "P": 1.1603
+          },
+          "reason": "L is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "L=F**2/P requiresP>0; P=F**2/L requiresL>0. F.9,P1 recoversL.81 and substitutes.9. AtP0,F0 does not identifyL; negative indexes are excluded, so no negative-root inverse branch is admissible.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--price-index-inflation-rate",
+      "revision": "r2",
+      "title": "Inflation from a consistent price-index series",
+      "summary": "Inflation is the proportional change in the chosen aggregate price index between the stated periods.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "inflation",
+        "expression": "current / previous - 1",
+        "original_equation": "Inflation rate=price index_t/price index_(t-1)-1",
+        "source_id": "abs-price-index-theory",
+        "locator": "Paragraphs4.16-4.17 and4.22, Equations4.4-4.6",
+        "translation_notes": "Dimensionless index ratio minus pure1 is a base fractional inflation rate. The same arithmetic as output growth has a different independently defined quantity: aggregate price change rather than real output change. No percent conversion factor is inserted. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "current",
+          "source_symbol": "current price index",
+          "role": "input",
+          "quantity_id": "current_aggregate_price_index",
+          "definition": "Current value of the selected aggregate price-index series",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite index"
+        },
+        {
+          "symbol": "previous",
+          "source_symbol": "previous price index",
+          "role": "input",
+          "quantity_id": "previous_aggregate_price_index",
+          "definition": "Prior value from the same index series and reference normalization",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite index"
+        },
+        {
+          "symbol": "inflation",
+          "source_symbol": "Inflation rate",
+          "role": "output",
+          "quantity_id": "aggregate_price_inflation_rate",
+          "definition": "Signed proportional aggregate price change over the explicitly specified interval",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite inflation greater than-1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "current > 0",
+        "previous > 0"
+      ],
+      "assumptions": [
+        "Source assumption: same index scope, basket methodology and normalization for both dates.",
+        "Source assumption: interval/frequency is explicit; monthly and year-on-year changes are different observations."
+      ],
+      "limitations": [
+        "A one-good relative price change does not by itself measure aggregate inflation.",
+        "Changing index reference units cancels in the ratio; rebasing only one observation does not."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Inflation / Measuring Inflation, printed pp246,249 (PDF pp258,261), unnumbered definition and Exhibit20 example",
+          "evidence": "Inflation is the proportional change in the chosen aggregate price index between the stated periods.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "abs-price-index-theory",
+          "kind": "primary",
+          "title": "Consumer Price Index: Concepts, Sources and Methods, Price index theory",
+          "url": "https://www.abs.gov.au/statistics/detailed-methodology-information/concepts-sources-methods/consumer-price-index-concepts-sources-and-methods/2018/price-index-theory",
+          "version": "Australian Bureau of Statistics,2018 reference; releasedFebruary27,2019",
+          "accessed": "2026-11-03",
+          "locator": "Paragraphs4.16-4.17 and4.22, Equations4.4-4.6",
+          "evidence": "Laspeyres uses base quantities, Paasche uses current quantities, and Fisher takes their geometric mean; price relatives compare prices between periods.",
+          "license": "Exact page reuse terms not inspected; no source tables or passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-fixed-basket",
+          "inputs": {
+            "current": 1.1245,
+            "previous": 1
+          },
+          "expected": 0.1245,
+          "tolerance": 1e-09,
+          "method": "Displayed price index112.45 versus100 gives12.45percent inflation.",
+          "provenance": "CFA printed p249/PDF261."
+        },
+        {
+          "id": "deflation",
+          "inputs": {
+            "current": 0.98,
+            "previous": 1
+          },
+          "expected": -0.02,
+          "tolerance": 1e-09,
+          "method": "Prices98 relative to100 represent a2percent decline.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "previous": 1
+          },
+          "reason": "current is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "current=previous*(1+inflation); previous=current/(1+inflation) requiresinflation>-1. Second case givescurrent.98 fromprevious1 andinflation-.02 and restores-.02. Zero previous index is singular and excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--economic-component-diffusion-index",
+      "revision": "r2",
+      "title": "Diffusion index from externally classified component directions",
+      "summary": "The diffusion index averages direction codes rather than the magnitudes of component growth.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "index",
+        "expression": "sum(scores) / len(scores)",
+        "original_equation": "Diffusion index=(sum of1,0.5,0 component scores / number of components)*100 in published display",
+        "source_id": "tcb-diffusion",
+        "locator": "Opening computation procedure and one-month example",
+        "translation_notes": "Uses the previously covered arithmetic-mean operator on an independently defined economic breadth quantity. This is explicitly a derived index definition with classified-score inputs; it neither duplicates raw observations nor claims to estimate GDP. Base100 display scaling is external; count is a dimensionless integer supplied by len. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "scores",
+          "source_symbol": "assigned component values",
+          "role": "family",
+          "quantity_id": "economic_indicator_direction_score",
+          "definition": "Preclassified direction scores for the chosen index components and horizon:1 positive contribution,.5 essentially unchanged,0 negative; threshold/direction transformations external",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "1-256 values each exactly0,.5or1; endpoint and indicator-sign rules explicitly set upstream",
+          "max_size": 256
+        },
+        {
+          "symbol": "index",
+          "source_symbol": "diffusion index divided by100",
+          "role": "output",
+          "quantity_id": "economic_component_diffusion_fraction",
+          "definition": "Mean classified directional breadth normalized to[0,1]",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite fraction in[0,1]"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sum(scores) >= 0",
+        "sum(scores) <= len(scores)"
+      ],
+      "assumptions": [
+        "Source assumption: component direction codes follow a consistent horizon and positive-contribution sign convention.",
+        "Source assumption: near-zero thresholds and inversions such as declining unemployment claims are resolved before binding."
+      ],
+      "limitations": [
+        "Individual score membership cannot be enforced with the scalar guards; external binding must check the discrete set.",
+        "No conditional classification or threshold boundary is implemented; this is not a raw-growth arithmetic mean."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Economic Indicators / Diffusion Indexes, printed p239 (PDF p251), unnumbered four-component example",
+          "evidence": "The diffusion index averages direction codes rather than the magnitudes of component growth.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "tcb-diffusion",
+          "kind": "primary",
+          "title": "How to Compute Diffusion Indexes",
+          "url": "https://www.conference-board.org/data/bci/index.cfm?id=2180",
+          "version": "The Conference Board, methodology page with2012 revision link; inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Opening computation procedure and one-month example",
+          "evidence": "Preclassified component scores are summed and divided by their count; published index points use a factor100 for display.",
+          "license": "Exact reuse terms unknown; no source table or passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-first-month",
+          "inputs": {
+            "scores": [
+              1,
+              1,
+              0.5,
+              0
+            ]
+          },
+          "expected": 0.625,
+          "tolerance": 1e-09,
+          "method": "Source example independently reports62.5 displayed points for the four classified contributions.",
+          "provenance": "CFA printed p239/PDF251."
+        },
+        {
+          "id": "cfa-next-month",
+          "inputs": {
+            "scores": [
+              0,
+              1,
+              1,
+              1
+            ]
+          },
+          "expected": 0.75,
+          "tolerance": 1e-09,
+          "method": "Source next-month example independently reports75 displayed points.",
+          "provenance": "CFA printed p239/PDF251."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "scores is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Family inversion is unsupported. Aggregate index alone does not identify component directions; many distinct score patterns have identical means. First source case has total2.5 over4 components, giving.625. A missing component score is not inferred without a separate binding and discrete-set check.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--income-velocity-of-money",
+      "revision": "r2",
+      "title": "Income velocity of a specified money stock",
+      "summary": "Income velocity divides nominal output by a specified money stock; the quantity equation is the equivalent accounting identity.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "V",
+        "expression": "GDP / money",
+        "original_equation": "V=nominalGDP/M; M*V=P*Y",
+        "source_id": "fred-velocity",
+        "locator": "Definition V=(PY)/M and GDP/money-stock frequency discussion",
+        "translation_notes": "The financial period is a dimensionless convention fixed in context; no seconds conversion is made. The quotient cancels currency dimensions. M*V=P*Y follows by nominalGDP=P*realGDP from the deflator record and is not independently counted as another equation. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "GDP",
+          "source_symbol": "nominalGDP=P*Y",
+          "role": "input",
+          "quantity_id": "nominal_gross_domestic_product",
+          "definition": "Nominal final-output value for the explicitly stated income period",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite nominalGDP"
+        },
+        {
+          "symbol": "money",
+          "source_symbol": "M",
+          "role": "input",
+          "quantity_id": "nominal_money_stock",
+          "definition": "Positive stock/period-average measure of the selected monetary aggregate, in the same currency",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite money stock"
+        },
+        {
+          "symbol": "V",
+          "source_symbol": "velocity ofmoney",
+          "role": "output",
+          "quantity_id": "income_velocity_money",
+          "definition": "Income turnover count of the selected stock per declared financial output period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite turnover count"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "GDP >= 0",
+        "money > 0"
+      ],
+      "assumptions": [
+        "Source assumption: money aggregate, GDP coverage, average/observation date and income period are explicitly selected.",
+        "Source assumption: GDP is nominal, not reference-price realGDP."
+      ],
+      "limitations": [
+        "Velocity need not be stable and is not a causal money-to-inflation forecast.",
+        "A broad money stock is not interchangeable with the monetary base; annualized quarterly GDP affects the turnover period."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Inflation and Velocity, printed p257 (PDF p269), unnumbered definition; Learning Module5, Quantity Theory, printed p287 (PDF p299), Equation(2)",
+          "evidence": "Income velocity divides nominal output by a specified money stock; the quantity equation is the equivalent accounting identity.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "fred-velocity",
+          "kind": "primary",
+          "title": "The velocity of money",
+          "url": "https://fred.stlouisfed.org/blog/2015/01/the-velocity-of-money/",
+          "version": "Federal Reserve Bank of StLouis FRED Blog, January8,2015",
+          "accessed": "2026-11-03",
+          "locator": "Definition V=(PY)/M and GDP/money-stock frequency discussion",
+          "evidence": "Income velocity is nominalGDP divided by the chosen compatible money-stock measure.",
+          "license": "Federal Reserve page terms unknown; no broader permission asserted.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "four-turnovers",
+          "inputs": {
+            "GDP": 1000,
+            "money": 250
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "Four sequential income turnovers of a250 stock account for1000 period output value.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "two-turnovers",
+          "inputs": {
+            "GDP": 600,
+            "money": 300
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "The600 period income is twice the300 money stock.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "money": 250
+          },
+          "reason": "GDP is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "GDP=V*money. money=GDP/V requiresV>0. First case recoversGDP1000 from4*250; V0,GDP0 leaves positive money stock unidentified. Money0 is excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

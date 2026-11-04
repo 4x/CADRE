@@ -1,0 +1,170 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b88",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. The owner solution denominator must group all ten bonds; preserve the theoretical fractional-share limitation."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--bond-linked-warrant-shares-from-principal",
+      "revision": "r1",
+      "title": "Shares issuable from bond-linked warrants",
+      "summary": "The example divides aggregate principal by the face amount of a ten-bond lot and multiplies by the number of shares subscribable per lot.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "shares",
+        "expression": "principal / lot_face * shares_per_lot",
+        "original_equation": "Shares issuable = aggregate eligible principal / face amount per lot × shares per lot",
+        "source_id": "amsc-1999-notes-warrants-sec",
+        "locator": "Note 6, $335 Million Unit Offering, printed pF-32",
+        "translation_notes": "Principal divided by lot face is a dimensionless count of lots; multiplying by shares per lot produces a share count."
+      },
+      "variables": [
+        {
+          "symbol": "principal",
+          "source_symbol": "aggregate eligible principal",
+          "role": "input",
+          "quantity_id": "warrant_linked_bond_principal",
+          "definition": "Face amount of bonds with eligible, outstanding warrants",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "lot_face",
+          "source_symbol": "principal per warrant lot",
+          "role": "input",
+          "quantity_id": "warrant_bond_lot_principal",
+          "definition": "Face amount of one complete lot qualifying for the stated share entitlement",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "shares_per_lot",
+          "source_symbol": "shares per lot",
+          "role": "input",
+          "quantity_id": "warrant_shares_per_bond_lot",
+          "definition": "Number of shares issuable for one complete qualifying lot",
+          "unit": "share",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "shares",
+          "source_symbol": "issuable shares",
+          "role": "output",
+          "quantity_id": "warrant_subscribed_shares",
+          "definition": "Theoretical total shares issued on exercise of all eligible warrants",
+          "unit": "share",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "principal >= 0",
+        "lot_face > 0",
+        "shares_per_lot >= 0"
+      ],
+      "assumptions": [
+        "Principal and lot face value are denominated in the same currency and use face amount, not market value or carrying amount.",
+        "The principal comprises complete eligible lots with all relevant warrants exercised at the stated unadjusted or adjusted entitlement.",
+        "The declared entitlement and eligible warrants account for any separate trading, expirations and corporate-action adjustments."
+      ],
+      "limitations": [
+        "Fractional-share settlement, per-holder rounding, exercise price and cash proceeds are not modeled; actual shares issued depend on contract terms.",
+        "The owner solution prints an ambiguous arithmetic expression; the lot face value is 100 currency units times 10 bonds, so it is the entire denominator."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 8, Presentation and Disclosure of Long-Term Debt, printed pp465–466 (PDF pp479–480), Example 9",
+          "evidence": "The example divides aggregate principal by the face amount of a ten-bond lot and multiplies by the number of shares subscribable per lot.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "amsc-1999-notes-warrants-sec",
+          "kind": "primary",
+          "title": "American Mobile Satellite Corporation and Subsidiaries: Notes to Consolidated Financial Statements",
+          "url": "https://www.sec.gov/Archives/edgar/data/913665/000095013300001331/0000950133-00-001331-d11.pdf",
+          "version": "American Mobile Satellite Corporation, SEC filing, 2000",
+          "accessed": "2026-11-04",
+          "locator": "Note 6, $335 Million Unit Offering, printed pF-32",
+          "evidence": "The issuer specifies a warrant entitlement of 3.75749 shares for each $1,000 principal amount of senior notes, subsequently adjusted to 3.83 shares.",
+          "license": "Issuer SEC filing; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner",
+          "inputs": {
+            "principal": 30000000000,
+            "lot_face": 1000,
+            "shares_per_lot": 50.5
+          },
+          "expected": 1515000000,
+          "tolerance": 1e-09,
+          "method": "30 billion of principal divided by 1,000 per ten-bond lot, multiplied by 50.5 shares, gives 1.515 billion shares.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "sec-offering",
+          "inputs": {
+            "principal": 335000000,
+            "lot_face": 1000,
+            "shares_per_lot": 3.75749
+          },
+          "expected": 1258759.15,
+          "tolerance": 1e-09,
+          "method": "335,000 lots at 3.75749 shares per lot imply 1,258,759.15 theoretical shares before contractual rounding.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "lot_face": 1000,
+            "shares_per_lot": 50.5
+          },
+          "reason": "principal is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "principal=shares*lot_face/shares_per_lot when shares per lot is positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

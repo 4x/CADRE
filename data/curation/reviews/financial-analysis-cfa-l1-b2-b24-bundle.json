@@ -1,0 +1,608 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b24",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 2 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--supplied-linear-demand",
+      "revision": "r2",
+      "title": "Demand quantity under a supplied linear price schedule",
+      "summary": "The reading specifies a general linear demand equation and its inverse, conditional on other demand determinants.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "Q",
+        "expression": "a - b * P",
+        "original_equation": "Q_D = a - bP",
+        "source_id": "openstax-algebra",
+        "locator": "Algebraic Models and Solving Models with Algebra, setting quantity demanded equal to quantity supplied",
+        "translation_notes": "Generic coefficients follow the explicit general symbolic equation on p101; the hypothetical gasoline numbers are not treated as defaults. b*P has quantity dimensions. Inverse demand P=(a-Q)/b and algebraically composed linear revenue/MR forms are retained as solve/composition notes, not additional records. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "a",
+          "source_symbol": "a",
+          "role": "input",
+          "quantity_id": "linear_demand_quantity_intercept",
+          "definition": "Externally supplied demand intercept, in output units, conditional on fixed non-price determinants",
+          "unit": "good-unit",
+          "dimensions": "good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite intercept"
+        },
+        {
+          "symbol": "b",
+          "source_symbol": "b",
+          "role": "input",
+          "quantity_id": "linear_demand_price_coefficient_magnitude",
+          "definition": "Positive externally supplied coefficient magnitude; not estimated here",
+          "unit": "good-unit**2/EUR",
+          "dimensions": "good_quantity**2 / currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite coefficient"
+        },
+        {
+          "symbol": "P",
+          "source_symbol": "P",
+          "role": "input",
+          "quantity_id": "own_good_unit_price",
+          "definition": "Own-good price at which demand is evaluated",
+          "unit": "EUR/good-unit",
+          "dimensions": "currency / good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "Q",
+          "source_symbol": "Q_D",
+          "role": "output",
+          "quantity_id": "quantity_demanded",
+          "definition": "Quantity demanded on the supplied local linear schedule",
+          "unit": "good-unit",
+          "dimensions": "good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite quantity"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "a > 0",
+        "b > 0",
+        "P >= 0",
+        "a >= b * P"
+      ],
+      "assumptions": [
+        "Source assumption: linear demand over its declared calibration/relevance range; all other determinants held fixed.",
+        "Source assumption: b>0; parameters supplied and not estimated by this record."
+      ],
+      "limitations": [
+        "No empirical calibration or forecast; do not extrapolate the local linear approximation beyond its supported range.",
+        "Nonnegative demand domain excludes prices above the choke price."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Monopoly Markets: Demand/Supply, printed p101 (PDF p113), general unnumbered Q_D=a-bP; LM1 printed pp4-5/PDF16-17 Equations2-4",
+          "evidence": "The reading specifies a general linear demand equation and its inverse, conditional on other demand determinants.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-algebra",
+          "kind": "primary",
+          "title": "Principles of Macroeconomics2e, AppendixA",
+          "url": "https://openstax.org/books/principles-macroeconomics-2e/pages/a-the-use-of-mathematics-in-principles-of-economics",
+          "version": "OpenStax2e live edition",
+          "accessed": "2026-11-03",
+          "locator": "Algebraic Models and Solving Models with Algebra, setting quantity demanded equal to quantity supplied",
+          "evidence": "Demand and supply can be represented as linear equations; their intersection equates the supplied and demanded quantities.",
+          "license": "Current page footer and licensing details not fully inspected; no general reuse clearance inferred.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "market-example",
+          "inputs": {
+            "a": 50,
+            "b": 2,
+            "P": 5
+          },
+          "expected": 40,
+          "tolerance": 1e-09,
+          "method": "Ten units of quantity reduction from fifty leave forty.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "choke-price",
+          "inputs": {
+            "a": 180,
+            "b": 2,
+            "P": 90
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Price90 exhausts the180-unit intercept at2 units per currency-unit price change.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "b": 2,
+            "P": 5
+          },
+          "reason": "a is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "P=(a-Q)/b requires b>0 and0<=Q<=a; a=Q+bP; b=(a-Q)/P requires P>0 and positive result. First case recoversP=(50-40)/2=5. AtP0,b cannot be inferred fromQ=a; b0 would make price inversion singular and is excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--linear-competitive-market-equilibrium",
+      "revision": "r2",
+      "title": "Competitive equilibrium quantity for linear inverse supply and demand",
+      "summary": "The example solves competitive equilibrium by equating linear inverse supply and demand at a common quantity and price.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "Q",
+        "expression": "(A - C) / (B + D)",
+        "original_equation": "P_D=A-BQ; P_S=C+DQ; equilibrium equates P_D=P_S",
+        "source_id": "openstax-algebra",
+        "locator": "Algebraic Models and Solving Models with Algebra, setting quantity demanded equal to quantity supplied",
+        "translation_notes": "Source-backed symbolic derivation of the displayed simultaneous calculation: A-BQ=C+DQ. Numerator has price units and denominator price per quantity, yielding quantity. Common price follows P=A-BQ=C+DQ; that solve direction is not a separate record. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "A",
+          "source_symbol": "introduced: demand price intercept",
+          "role": "input",
+          "quantity_id": "inverse_demand_price_intercept",
+          "definition": "Demand unit-price intercept",
+          "unit": "EUR/good-unit",
+          "dimensions": "currency / good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "B",
+          "source_symbol": "introduced: demand inverse slope magnitude",
+          "role": "input",
+          "quantity_id": "inverse_demand_slope_magnitude",
+          "definition": "Positive fall in demand price per added quantity unit",
+          "unit": "EUR/good-unit**2",
+          "dimensions": "currency / good_quantity**2",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite coefficient"
+        },
+        {
+          "symbol": "C",
+          "source_symbol": "introduced: supply price intercept",
+          "role": "input",
+          "quantity_id": "inverse_supply_price_intercept",
+          "definition": "Signed supply unit-price intercept",
+          "unit": "EUR/good-unit",
+          "dimensions": "currency / good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "D",
+          "source_symbol": "introduced: supply inverse slope",
+          "role": "input",
+          "quantity_id": "inverse_supply_slope",
+          "definition": "Nonnegative rise in supply price per added quantity unit",
+          "unit": "EUR/good-unit**2",
+          "dimensions": "currency / good_quantity**2",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite coefficient"
+        },
+        {
+          "symbol": "Q",
+          "source_symbol": "Q*",
+          "role": "output",
+          "quantity_id": "competitive_equilibrium_quantity",
+          "definition": "Nonnegative market quantity where the two supplied schedules intersect",
+          "unit": "good-unit",
+          "dimensions": "good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite equilibrium quantity"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "B > 0",
+        "D >= 0",
+        "A >= C",
+        "A * D + B * C >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: supplied linear schedules apply in the same market and period, with demand falling and supply nondecreasing.",
+        "Application profile: interior nonnegative quantity and nonnegative transaction price."
+      ],
+      "limitations": [
+        "Does not estimate schedules, impose capacities, or represent rationing/price controls."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Optimal Price and Output in Perfectly Competitive Markets, printed p77 (PDF p89), simultaneous linear demand/supply calculation",
+          "evidence": "The example solves competitive equilibrium by equating linear inverse supply and demand at a common quantity and price.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-algebra",
+          "kind": "primary",
+          "title": "Principles of Macroeconomics2e, AppendixA",
+          "url": "https://openstax.org/books/principles-macroeconomics-2e/pages/a-the-use-of-mathematics-in-principles-of-economics",
+          "version": "OpenStax2e live edition",
+          "accessed": "2026-11-03",
+          "locator": "Algebraic Models and Solving Models with Algebra, setting quantity demanded equal to quantity supplied",
+          "evidence": "Demand and supply can be represented as linear equations; their intersection equates the supplied and demanded quantities.",
+          "license": "Current page footer and licensing details not fully inspected; no general reuse clearance inferred.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "interior-intersection",
+          "inputs": {
+            "A": 25,
+            "B": 0.5,
+            "C": -2,
+            "D": 0.2
+          },
+          "expected": 38.57142857142857,
+          "tolerance": 1e-09,
+          "method": "Independently solve27=.7Q; substitution gives both prices5.7142857142857.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "flat-supply",
+          "inputs": {
+            "A": 100,
+            "B": 2,
+            "C": 20,
+            "D": 0
+          },
+          "expected": 40,
+          "tolerance": 1e-09,
+          "method": "Demand price at40 is20, exactly the constant supply price20.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "B": 0.5,
+            "C": -2,
+            "D": 0.2
+          },
+          "reason": "A is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "A=C+(B+D)*Q or C=A-(B+D)*Q. B=(A-C)/Q-D needsQ>0 andB>0; D=(A-C)/Q-B needsQ>0,D>=0. Second reference Q40 producesA100 via20+(2+0)*40. Q0 makes slopes unidentifiable; B+D0 would be singular and is excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--symmetric-cournot-duopoly-output",
+      "revision": "r2",
+      "title": "Per-firm output in a symmetric linear Cournot duopoly",
+      "summary": "The duopoly example finds equal outputs from the simultaneous profit-maximizing best responses under linear demand and equal constant marginal costs.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "q",
+        "expression": "(A - c) / (3 * B)",
+        "original_equation": "P=A-B(q1+q2); identical MC=c; q1=q2=(A-c)/(3B)",
+        "source_id": "osu-cournot",
+        "locator": "18.1 Cournot Model of Oligopoly: Quantity Setters, inverse demand and symmetric duopoly derivation",
+        "translation_notes": "Explicitly derived generalization of the source numeric symmetric linear example, independently corroborated by the OSU symbolic model. The pure integer3 results from two own-output terms plus one rival-output term, not an empirical coefficient. Currency/good-unit divided by currency/good-unit squared yields good quantity. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "A",
+          "source_symbol": "introduced:450 in source example",
+          "role": "input",
+          "quantity_id": "inverse_demand_price_intercept",
+          "definition": "Demand intercept in the linear inverse demand",
+          "unit": "EUR/good-unit",
+          "dimensions": "currency / good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "B",
+          "source_symbol": "introduced:1 in source example",
+          "role": "input",
+          "quantity_id": "inverse_demand_slope_magnitude",
+          "definition": "Positive inverse-demand slope magnitude",
+          "unit": "EUR/good-unit**2",
+          "dimensions": "currency / good_quantity**2",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite coefficient"
+        },
+        {
+          "symbol": "c",
+          "source_symbol": "MC",
+          "role": "input",
+          "quantity_id": "constant_marginal_production_cost",
+          "definition": "Same constant marginal cost for each of the two identical firms",
+          "unit": "EUR/good-unit",
+          "dimensions": "currency / good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "q",
+          "source_symbol": "q1=q2",
+          "role": "output",
+          "quantity_id": "symmetric_cournot_firm_output",
+          "definition": "Output of either identical firm in the simultaneous quantity equilibrium",
+          "unit": "good-unit",
+          "dimensions": "good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite quantity"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "B > 0",
+        "c >= 0",
+        "A > c"
+      ],
+      "assumptions": [
+        "Source assumption: exactly two identical firms choose homogeneous-good quantities simultaneously; each treats its rival quantity as fixed when optimizing.",
+        "Source assumption: constant equal marginal costs, no capacity constraints or collusion, and demand intercept above marginal cost."
+      ],
+      "limitations": [
+        "Not valid for unequal costs, sequential moves, price competition or a boundary no-production equilibrium."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, The Cournot Assumption, printed pp92-93 (PDF pp104-105), two-firm simultaneous-equation solution and Exhibit15",
+          "evidence": "The duopoly example finds equal outputs from the simultaneous profit-maximizing best responses under linear demand and equal constant marginal costs.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "osu-cournot",
+          "kind": "primary",
+          "title": "Intermediate Microeconomics: Models of Oligopoly",
+          "url": "https://open.oregonstate.education/intermediatemicroeconomics/chapter/module-18/",
+          "version": "Oregon State open textbook; online module18",
+          "accessed": "2026-11-03",
+          "locator": "18.1 Cournot Model of Oligopoly: Quantity Setters, inverse demand and symmetric duopoly derivation",
+          "evidence": "The model has linear inverse demand and identical constant marginal costs; solving simultaneous best responses gives equal firm quantities.",
+          "license": "Page links a Creative Commons license; precise linked terms not inspected. No additional redistribution clearance inferred.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-duopoly",
+          "inputs": {
+            "A": 450,
+            "B": 1,
+            "c": 30
+          },
+          "expected": 140,
+          "tolerance": 1e-09,
+          "method": "Published result q1=q2=140; total280 and market price170.",
+          "provenance": "CFA printed p92/PDF104."
+        },
+        {
+          "id": "independent-equilibrium",
+          "inputs": {
+            "A": 100,
+            "B": 2,
+            "c": 10
+          },
+          "expected": 15,
+          "tolerance": 1e-09,
+          "method": "For q1=q2=15, price40 and each own marginal revenue100-2*2*15-2*15=10 equalsMC.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "B": 1,
+            "c": 30
+          },
+          "reason": "A is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "A=c+3Bq; c=A-3Bq; B=(A-c)/(3q) requiresq>0. q140,B1,c30 recoversA450 and substitution140. AtA=c output is a boundary zero and is excluded here; B0 makes the interior solution singular.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--monopoly-elasticity-pricing",
+      "revision": "r2",
+      "title": "Monopoly price satisfying the local elasticity first-order condition",
+      "summary": "The monopolist equates elasticity-adjusted marginal revenue to marginal cost to obtain a candidate optimal price.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "P",
+        "expression": "MC / (1 - 1 / elasticity)",
+        "original_equation": "MR=P*(1-1/Ep)=MC",
+        "source_id": "core-markup",
+        "locator": "Unit7.6, markup and elasticity at the profit-maximizing point",
+        "translation_notes": "Uses the positive-magnitude convention of LM2, distinct from signed LM1 E; the two conventions cannot be interchanged without a sign change. Pure1 denotes the multiplicative identity. MR=P+Q*dP/dQ and elasticity relation are algebraic compositions documented here, not separate new records. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "MC",
+          "source_symbol": "MC",
+          "role": "input",
+          "quantity_id": "local_marginal_production_cost",
+          "definition": "Supplied marginal cost at the candidate optimum",
+          "unit": "EUR/good-unit",
+          "dimensions": "currency / good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "elasticity",
+          "source_symbol": "E_P",
+          "role": "input",
+          "quantity_id": "own_price_demand_elasticity_magnitude",
+          "definition": "Positive magnitude of own-price point elasticity at that same candidate price/output; not assumed constant globally",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite elasticity greater than1"
+        },
+        {
+          "symbol": "P",
+          "source_symbol": "P",
+          "role": "output",
+          "quantity_id": "monopoly_stationary_price",
+          "definition": "Price satisfying MR=MC with the supplied local elasticity",
+          "unit": "EUR/good-unit",
+          "dimensions": "currency / good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "MC > 0",
+        "elasticity > 1"
+      ],
+      "assumptions": [
+        "Source assumption: differentiable downward demand and an interior one-price monopoly optimum with MR=MC.",
+        "Source assumption: a valid second-order/maximum condition is checked externally; supplied elasticity is evaluated at the resulting point."
+      ],
+      "limitations": [
+        "With nonconstant elasticity this identity is implicit until consistent price and elasticity are jointly supplied; it is not a general demand solver.",
+        "Zero/negative marginal cost and unit elasticity are outside this positive-price interior profile."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Optimal Price and Output in Monopoly Markets, printed p104 (PDF p116), unnumbered elasticity-pricing calculation",
+          "evidence": "The monopolist equates elasticity-adjusted marginal revenue to marginal cost to obtain a candidate optimal price.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "core-markup",
+          "kind": "primary",
+          "title": "The Economy2.0 Microeconomics",
+          "url": "https://books.core-econ.org/the-economy/microeconomics/07-firm-and-customers-06-maximize-profit.html",
+          "version": "CORE Econ2.0, live online text",
+          "accessed": "2026-11-03",
+          "locator": "Unit7.6, markup and elasticity at the profit-maximizing point",
+          "evidence": "The profit-maximizing markup relative to marginal cost depends on demand elasticity through the first-order pricing condition.",
+          "license": "Exact page terms unknown; no broad redistribution permission asserted.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-price",
+          "inputs": {
+            "MC": 75,
+            "elasticity": 1.5
+          },
+          "expected": 225,
+          "tolerance": 1e-09,
+          "method": "Published candidate price225; marginal revenue is one third of price.",
+          "provenance": "CFA printed p104/PDF116."
+        },
+        {
+          "id": "elasticity-two",
+          "inputs": {
+            "MC": 40,
+            "elasticity": 2
+          },
+          "expected": 80,
+          "tolerance": 1e-09,
+          "method": "Half the price remains after the inverse-elasticity price effect; price80 givesMR40.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "elasticity": 1.5
+          },
+          "reason": "MC is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "MC=P*(1-1/elasticity). elasticity=P/(P-MC) requiresP>MC>0. ForP225,MC75 obtainelasticity1.5 and substitute225. Atelasticity1 the denominator is zero; asP=MC the finite-elasticity inverse is singular.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,288 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b101",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 atomic Volume 3 relationships with exact private-PDF citations. All records use inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; public corroboration carries the relationship when available, and documented owner-only fallbacks remain blocked for review. The aggregate net position is an analytical difference and is not an assertion that all tax positions qualify for legal or accounting offset."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--deferred-tax-asset-net-of-valuation-allowance",
+      "revision": "r1",
+      "title": "Deferred tax asset after valuation allowance",
+      "summary": "The disclosure subtracts a valuation allowance from gross deferred tax assets.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "net",
+        "expression": "gross - allowance",
+        "original_equation": "Deferred tax asset after valuation allowance = gross deferred tax asset − valuation allowance",
+        "source_id": "fasb-fas109-valuation-allowance",
+        "locator": "Paragraphs 17(e), 20–26 and Appendix B paragraph 224",
+        "translation_notes": "All balances are expressed in the same currency; the source example reports millions and the numeric cases use individual USD."
+      },
+      "variables": [
+        {
+          "symbol": "gross",
+          "source_symbol": "gross deferred tax asset",
+          "role": "input",
+          "quantity_id": "gross_deferred_tax_asset",
+          "definition": "gross deferred tax asset",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same entity or disclosed consolidation scope, measurement date, currency and tax-accounting basis",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "allowance",
+          "source_symbol": "valuation allowance",
+          "role": "input",
+          "quantity_id": "deferred_tax_asset_valuation_allowance",
+          "definition": "valuation allowance",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same entity or disclosed consolidation scope, measurement date, currency and tax-accounting basis",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "net",
+          "source_symbol": "deferred tax asset after allowance",
+          "role": "output",
+          "quantity_id": "deferred_tax_asset_net_of_valuation_allowance",
+          "definition": "deferred tax asset after allowance",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same entity or disclosed consolidation scope, measurement date, currency and tax-accounting basis",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "gross >= 0",
+        "allowance >= 0",
+        "gross >= allowance"
+      ],
+      "assumptions": [
+        "The gross asset and allowance refer to the same deferred-tax asset pool and reporting date; the allowance is a nonnegative deduction.",
+        "The valuation allowance does not exceed the corresponding gross deferred tax asset."
+      ],
+      "limitations": [
+        "The allowance reflects management’s realizability assessment under the applicable accounting framework, not a forecast of the exact realized tax benefit.",
+        "US GAAP uses a valuation allowance presentation; IFRS recognition and reassessment need their own treatment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 7, Presentation and Disclosure, printed pp430–431 (PDF pp444–445), Exhibit 4 deferred tax disclosure",
+          "evidence": "The disclosure subtracts a valuation allowance from gross deferred tax assets.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "fasb-fas109-valuation-allowance",
+          "kind": "primary",
+          "title": "Statement of Financial Accounting Standards No. 109: Accounting for Income Taxes",
+          "url": "https://storage.fasb.org/aop_fas109.pdf",
+          "version": "Financial Accounting Standards Board, Statement 109 with subsequent annotations; historical standard",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 17(e), 20–26 and Appendix B paragraph 224",
+          "evidence": "The standard discusses reducing deferred tax assets by a valuation allowance when the realization threshold is not met.",
+          "license": "FASB historical publication; specific reuse terms not established; formula-level facts and original paraphrase only. The historical source is not asserted to be the complete current codification.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner-2017",
+          "inputs": {
+            "gross": 3782000000,
+            "allowance": 2321000000
+          },
+          "expected": 1461000000,
+          "tolerance": 1e-09,
+          "method": "USD 3,782 million less USD 2,321 million gives USD 1,461 million.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "owner-2016",
+          "inputs": {
+            "gross": 3297000000,
+            "allowance": 2107000000
+          },
+          "expected": 1190000000,
+          "tolerance": 1e-09,
+          "method": "USD 3,297 million less USD 2,107 million gives USD 1,190 million.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "allowance": 2321000000
+          },
+          "reason": "gross is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "gross=net+allowance.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--aggregate-net-deferred-tax-asset-position",
+      "revision": "r1",
+      "title": "Aggregate net deferred tax asset position",
+      "summary": "The disclosure subtracts the deferred tax liabilities from deferred tax assets net of allowance to show an aggregate net deferred tax asset.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "position",
+        "expression": "assets - liabilities",
+        "original_equation": "Aggregate net deferred tax asset position = deferred tax assets after allowance − deferred tax liabilities",
+        "source_id": "aasb-112-deferred-tax-offsetting",
+        "locator": "Paragraphs 74–76, Offset",
+        "translation_notes": "All values are same-date balances in one currency; references convert USD millions into individual USD."
+      },
+      "variables": [
+        {
+          "symbol": "assets",
+          "source_symbol": "deferred tax assets after valuation allowance",
+          "role": "input",
+          "quantity_id": "deferred_tax_asset_net_of_valuation_allowance",
+          "definition": "deferred tax assets after valuation allowance",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same entity or disclosed consolidation scope, measurement date, currency and tax-accounting basis",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "liabilities",
+          "source_symbol": "deferred tax liabilities",
+          "role": "input",
+          "quantity_id": "deferred_tax_liabilities",
+          "definition": "deferred tax liabilities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same entity or disclosed consolidation scope, measurement date, currency and tax-accounting basis",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "position",
+          "source_symbol": "signed aggregate net deferred tax asset position",
+          "role": "output",
+          "quantity_id": "aggregate_net_deferred_tax_asset_position",
+          "definition": "signed aggregate net deferred tax asset position",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same entity or disclosed consolidation scope, measurement date, currency and tax-accounting basis",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "assets >= 0",
+        "liabilities >= 0"
+      ],
+      "assumptions": [
+        "Both inputs are nonnegative positive magnitudes, measured on the same date and for a consistent disclosed entity scope.",
+        "This calculation is an aggregate analytical difference; presentation as a single balance-sheet amount additionally requires applicable offset criteria."
+      ],
+      "limitations": [
+        "A positive result denotes an aggregate net asset; a negative result denotes an aggregate net liability.",
+        "Offsetting on the balance sheet is not automatic: under the cited AASB 112 criteria it depends on legally enforceable rights, the tax authority and taxable entity or relevant settlement conditions.",
+        "Distinct tax jurisdictions and entities may require separate reported assets and liabilities even when their aggregate difference is calculable."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 7, Presentation and Disclosure, printed pp430–431 (PDF pp444–445), Exhibit 4 deferred tax disclosure",
+          "evidence": "The disclosure subtracts the deferred tax liabilities from deferred tax assets net of allowance to show an aggregate net deferred tax asset.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "aasb-112-deferred-tax-offsetting",
+          "kind": "primary",
+          "title": "AASB 112 Income Taxes",
+          "url": "https://standards.aasb.gov.au/aasb-112-mar-2020",
+          "version": "Australian Accounting Standards Board, March 2020 compilation of AASB 112",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 74–76, Offset",
+          "evidence": "The standard restricts balance-sheet offset of deferred tax assets and liabilities to specified legal-right, tax-authority and taxable-entity conditions.",
+          "license": "Australian Accounting Standards Board compilation; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner-2017",
+          "inputs": {
+            "assets": 1461000000,
+            "liabilities": 712000000
+          },
+          "expected": 749000000,
+          "tolerance": 1e-09,
+          "method": "USD 1,461 million less USD 712 million gives USD 749 million.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "owner-2016",
+          "inputs": {
+            "assets": 1190000000,
+            "liabilities": 535000000
+          },
+          "expected": 655000000,
+          "tolerance": 1e-09,
+          "method": "USD 1,190 million less USD 535 million gives USD 655 million.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "liabilities": 712000000
+          },
+          "reason": "assets is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "assets=position+liabilities.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

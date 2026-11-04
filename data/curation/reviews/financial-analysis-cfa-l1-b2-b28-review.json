@@ -1,0 +1,177 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b2-b28",
+  "batch_sha256": "dad66e573fa53e4cb9a320abf4cd3d0f602e190f562ef7fe78e0b195a8d94c51",
+  "reviewer": "ingest-circuits",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--unit-labor-production-cost",
+      "revision": "r2",
+      "record_sha256": "edc58045958b4f78e3a713113daf40223386099ffd1d89f19a97cf268460a050",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Curator-cited BLS msp/concepts.htm returned HTTP 403 from my network (recorded; known reviewer-side BLS inaccessibility). Accessed UONSULC on 2026-11-04 (HTTP 200): hourly-compensation-over-output-per-hour definition verified verbatim. Record math matches. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is one labor-hour base/coverage with positive productivity and declared nominal basis (assumptions). Limitations exclude total-variable-cost readings and flag the log-difference growth approximation. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "wage [EUR/labor-hour] / productivity [good-unit/labor-hour] closes to [EUR/good-unit], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: source-base (20,100) -> 0.2 exact; source-productivity-double (20,200) -> 0.1 exact; tol 1e-09. Both cite CFA Examples 8/9 (curator-reported published values; printed page not inspected by me); arithmetic verified independently."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards wage>=0, productivity>0 hold on both references (evaluated). Missing-wage rejection leaves the expression unevaluable as stated. Inverse notes correctly handle zero-wage underdetermination."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. Curator BLS primary records government source with terms uninspected and facts only; accurate. My alternate (ONS) used for equation-level facts only; no clearance asserted."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://cy.ons.gov.uk/economy/economicoutputandproductivity/productivitymeasures/articles/unitlabourcostsuk/apriltojune2019",
+          "locator": "What are unit labour costs: compensation-per-hour over output-per-hour",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. ONS states ULCs are the ratio of total labour compensation per hour worked to output per hour worked. Record implements wage/productivity exactly. The curator-cited BLS page returned HTTP 403 from my network; ONS is my alternate accessed evidence."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as unit labor cost wage/productivity on a common labor-hour base and nominal basis; not as total variable cost, and not with the log-difference growth approximation treated as exact."
+    },
+    {
+      "id": "financial-analysis--aggregate-growth-accounting",
+      "revision": "r2",
+      "record_sha256": "69ef5e516300a4a0cf22fd166dbcec42f0ae2722618ae6ca24055c395681c682",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed UONSMFP on 2026-11-04 (HTTP 200): share-weighted contributions plus productivity residual verified. Record math is the standard two-factor application with the precise curator locator; boundary stated here. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is differentiable constant-returns production with share elasticities and consistent log/simple growth use (assumptions). Limitations exclude estimation, time-varying shares, and technology-only TFP readings. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "All terms dimensionless [1]; share partition closes to [1], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: factor-contributions (0.01,0.7,0.02,0.04) -> 0.036 exact; tfp-residual-check (-0.005,0.6,0,0.05) -> 0.015 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards 0<labor_share<1 hold on both references (evaluated). Missing-gA rejection leaves the expression unevaluable as stated. Inverse notes correctly handle gL=gK share underdetermination."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. ONS primary: curator records exact page terms unknown with no tables/passages redistributed; accurate and conservative. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.ons.gov.uk/economy/economicoutputandproductivity/productivitymeasures/methodologies/asimpleguidetomultifactorproductivity",
+          "locator": "Sections 6-7: labour/capital shares and multi-factor productivity residual",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. ONS guide decomposes output growth into cost-share-weighted labour and capital contributions plus an MFP residual. Record implements the two-factor form with the residual inverse documented."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as two-factor growth accounting gA+sL*gL+(1-sL)*gK under constant returns with income-share elasticities; not with time-varying shares, and not reading TFP as pure observable technology."
+    },
+    {
+      "id": "financial-analysis--aggregate-labor-productivity",
+      "revision": "r2",
+      "record_sha256": "c86e20f2aee0424b3e3e997f7554bc66aa59fca6e534115af696cc7d37427ea9",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Curator-cited BLS msp/concepts.htm returned HTTP 403 from my network (recorded). Accessed UABSL on 2026-11-04 (HTTP 200): output-per-hour definition verified verbatim. Record math matches for real-output aggregates. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is matched output/hours coverage with fixed real basis (assumptions). Limitations exclude skill isolation and potential-output use without potential inputs. Translation bars nominal-GDP/population misbinding. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "GDP [EUR] / hours [labor-hour] closes to [EUR/labor-hour], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: real-output-hours (1000,20) -> 50 exact; same-hours-more-output (1200,20) -> 60 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards GDP>=0, hours>0 hold on both references (evaluated). Missing-GDP rejection leaves the expression unevaluable as stated. Inverse notes correctly handle GDP=0 underdetermination and hours=0 exclusion."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. Curator BLS primary records government source with terms uninspected and facts only; accurate. My alternate (ABS) used for equation-level facts only; no clearance asserted."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.abs.gov.au/statistics/detailed-methodology-information/concepts-sources-methods/labour-statistics-concepts-sources-and-methods/2021/concepts-and-sources/labour-productivity",
+          "locator": "Labour productivity concepts: output per unit of labour input",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. ABS defines labour productivity as output per unit of labour input (GDP per hour worked). Record implements GDP/hours for real-output aggregates. The curator-cited BLS page returned HTTP 403 from my network; ABS is my alternate accessed evidence."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as aggregate labor productivity GDP/hours with matched coverage and fixed real basis; not as worker-skill isolation, and not for potential output without potential-input estimates."
+    },
+    {
+      "id": "financial-analysis--real-output-period-growth",
+      "revision": "r2",
+      "record_sha256": "b02be1d84d92fa75b5e1ad6f12ce4279a11d1a069aa9bea0d27824423494e7d1",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Accessed UMAC on 2026-11-04 (HTTP 200): growth-rate percentage-change definition verified. Record math matches for real output. Owner CFA excerpt not inspectable per track protocol; corroboration carries the math."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is identical coverage/basis/frequency with initial>0 (assumptions). Limitations exclude annualization/CAGR and nominal substitution. Geometric accumulation noted as separate profile. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "final [EUR] / initial [EUR] - 1 closes to dimensionless [1], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: source-three-percent (5625000000,5793750000) -> 0.03 exact; contraction (200,180) -> -0.1 exact; tol 1e-09. First case cites CFA p130 (curator-reported); second honestly labeled curator-constructed."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards initial>0, final>=0 hold on both references (evaluated). Missing-initial rejection leaves the expression unevaluable as stated. Inverse notes correctly handle g=-1 non-recovery."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. OpenStax appendix primary: curator records terms unknown with formula facts only; accurate and conservative. Formula-level facts only; no clearance overstated."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://openstax.org/books/principles-macroeconomics-2e/pages/a-the-use-of-mathematics-in-principles-of-economics",
+          "locator": "Growth Rates: percentage-change calculation",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Appendix defines a growth rate as the change in a quantity divided by its starting quantity. Record implements final/initial-1 for constant-price output."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as one-period real growth final/initial-1 for identical coverage/basis/frequency; not annualized or CAGR, and not with nominal output substituted."
+    }
+  ]
+}

@@ -1,0 +1,610 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b64",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. Corrects the access date of public sources first inspected on 2026-11-04 after the session resumed. Formula and source locator are unchanged; previous returns remain preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--asset-taxable-temporary-difference-deferred-liability",
+      "revision": "r4",
+      "title": "Deferred tax liability from an asset taxable temporary difference",
+      "summary": "The reading multiplies an asset taxable temporary difference by the applicable tax rate.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "liability",
+        "expression": "(carrying - taxbase) * rate",
+        "original_equation": "Deferred tax liability = (asset carrying amount - tax base) × applicable tax rate",
+        "source_id": "aasb112-2020",
+        "locator": "Paragraphs 6–8, 15, 24–25, 47 and 60–62",
+        "translation_notes": "This is an undiscounted liability from one asset; the positive taxable difference is carrying amount less tax base. The accessible Australian standard is cited as corroboration of the matching rule; jurisdiction-specific differences require review."
+      },
+      "variables": [
+        {
+          "symbol": "carrying",
+          "source_symbol": "asset carrying amount",
+          "role": "input",
+          "quantity_id": "asset_carrying_amount",
+          "definition": "asset carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "taxbase",
+          "source_symbol": "asset tax base",
+          "role": "input",
+          "quantity_id": "asset_tax_base",
+          "definition": "asset tax base",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "rate",
+          "source_symbol": "applicable deferred tax rate",
+          "role": "input",
+          "quantity_id": "deferred_tax_reversal_rate",
+          "definition": "Enacted or substantively enacted rate applicable when the difference reverses",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "liability",
+          "source_symbol": "deferred tax liability",
+          "role": "output",
+          "quantity_id": "asset_deferred_tax_liability",
+          "definition": "deferred tax liability",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "carrying >= taxbase",
+        "rate >= 0",
+        "rate <= 1"
+      ],
+      "assumptions": [
+        "The temporary difference is taxable on recovery and recognized under the applicable standard; no recognition exception applies.",
+        "A single enacted or substantively enacted rate applies to the expected recovery."
+      ],
+      "limitations": [
+        "Different tax rates, recovery methods, recognition exceptions and offset rules require separate analysis.",
+        "Tax effects booked in OCI or equity still require appropriate balance-sheet recognition and allocation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 7, Current and Deferred Tax Assets and Liabilities, printed p411 (PDF p425), unnumbered year-by-year calculation",
+          "evidence": "The reading multiplies an asset taxable temporary difference by the applicable tax rate.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "aasb112-2020",
+          "kind": "primary",
+          "title": "AASB 112 Income Taxes",
+          "url": "https://standards.aasb.gov.au/aasb-112-mar-2020",
+          "version": "Australian Accounting Standards Board, compilation issued 6 March 2020",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 6–8, 15, 24–25, 47 and 60–62",
+          "evidence": "The Australian standard states the tax-base, deferred-tax measurement and tax-expense principles used here and identifies its relationship to IAS 12.",
+          "license": "Australian Accounting Standards Board copyright; formula-level facts and original paraphrase only; historical compilation, not a claim of current law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "simple",
+          "inputs": {
+            "carrying": 100,
+            "taxbase": 60,
+            "rate": 0.25
+          },
+          "expected": 10,
+          "tolerance": 1e-09,
+          "method": "A 40 temporary difference at 25% gives 10.",
+          "provenance": "IAS 12 taxable difference example."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "carrying": 18000,
+            "taxbase": 17100,
+            "rate": 0.3
+          },
+          "expected": 270,
+          "tolerance": 1e-09,
+          "method": "A 900 difference at 30% gives 270.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "taxbase": 60,
+            "rate": 0.25
+          },
+          "reason": "carrying is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "carrying=taxbase+liability/rate when rate is nonzero; rate=liability/(carrying-taxbase) when the temporary difference is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--asset-deductible-temporary-difference-deferred-asset",
+      "revision": "r4",
+      "title": "Deferred tax asset from an asset deductible temporary difference",
+      "summary": "An asset tax base above its carrying amount gives a deductible temporary difference subject to recognition conditions.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "asset",
+        "expression": "(taxbase - carrying) * rate",
+        "original_equation": "Deferred tax asset = (asset tax base - carrying amount) × applicable tax rate",
+        "source_id": "aasb112-2020",
+        "locator": "Paragraphs 6–8, 15, 24–25, 47 and 60–62",
+        "translation_notes": "This is an undiscounted asset from one deductible difference; tax base minus carrying amount is nonnegative under the guard. The accessible Australian standard is cited as corroboration of the matching rule; jurisdiction-specific differences require review."
+      },
+      "variables": [
+        {
+          "symbol": "carrying",
+          "source_symbol": "asset carrying amount",
+          "role": "input",
+          "quantity_id": "asset_carrying_amount",
+          "definition": "asset carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "taxbase",
+          "source_symbol": "asset tax base",
+          "role": "input",
+          "quantity_id": "asset_tax_base",
+          "definition": "asset tax base",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "rate",
+          "source_symbol": "applicable deferred tax rate",
+          "role": "input",
+          "quantity_id": "deferred_tax_reversal_rate",
+          "definition": "Enacted or substantively enacted rate applicable when the difference reverses",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "asset",
+          "source_symbol": "deferred tax asset",
+          "role": "output",
+          "quantity_id": "asset_deferred_tax_asset",
+          "definition": "deferred tax asset",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "taxbase >= carrying",
+        "rate >= 0",
+        "rate <= 1"
+      ],
+      "assumptions": [
+        "Recognition criteria are met and the full deductible temporary difference can be utilized.",
+        "One applicable enacted or substantively enacted reversal-period tax rate applies."
+      ],
+      "limitations": [
+        "Recognition is limited by expected taxable profit and any applicable exceptions; valuation allowances or partial recognition are outside this simple profile.",
+        "Tax law and rate depend on jurisdiction, timing and recovery method."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 7, Temporary and Permanent Differences, printed p418 (PDF p432), Deductible Temporary Differences",
+          "evidence": "An asset tax base above its carrying amount gives a deductible temporary difference subject to recognition conditions.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "aasb112-2020",
+          "kind": "primary",
+          "title": "AASB 112 Income Taxes",
+          "url": "https://standards.aasb.gov.au/aasb-112-mar-2020",
+          "version": "Australian Accounting Standards Board, compilation issued 6 March 2020",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 6–8, 15, 24–25, 47 and 60–62",
+          "evidence": "The Australian standard states the tax-base, deferred-tax measurement and tax-expense principles used here and identifies its relationship to IAS 12.",
+          "license": "Australian Accounting Standards Board copyright; formula-level facts and original paraphrase only; historical compilation, not a claim of current law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "carrying": 60,
+            "taxbase": 100,
+            "rate": 0.25
+          },
+          "expected": 10,
+          "tolerance": 1e-09,
+          "method": "A 40 deductible difference at 25% gives a 10 tax asset when fully recognized.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "carrying": 100,
+            "taxbase": 200,
+            "rate": 0.3
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "A 100 deductible difference at 30% gives 30 when fully recognized.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "taxbase": 100,
+            "rate": 0.25
+          },
+          "reason": "carrying is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "taxbase=carrying+asset/rate for nonzero rate; rate=asset/(taxbase-carrying) for nonzero difference.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--liability-deductible-temporary-difference-deferred-asset",
+      "revision": "r4",
+      "title": "Deferred tax asset from liability deductible difference",
+      "summary": "Deferred tax asset from liability deductible difference uses the indicated liability-side temporary difference.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "result",
+        "expression": "(carrying - taxbase) * rate",
+        "original_equation": "Deferred tax asset from liability deductible difference = relevant positive temporary difference × tax rate",
+        "source_id": "aasb112-2020",
+        "locator": "Paragraphs 6–8, 15, 24–25, 47 and 60–62",
+        "translation_notes": "The sign convention differs from asset-side temporary differences. All monetary amounts share a currency. The accessible Australian standard is cited as corroboration of the matching rule; jurisdiction-specific differences require review."
+      },
+      "variables": [
+        {
+          "symbol": "carrying",
+          "source_symbol": "liability carrying amount",
+          "role": "input",
+          "quantity_id": "liability_carrying_amount",
+          "definition": "liability carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "taxbase",
+          "source_symbol": "liability tax base",
+          "role": "input",
+          "quantity_id": "liability_tax_base",
+          "definition": "liability tax base",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "rate",
+          "source_symbol": "applicable tax rate",
+          "role": "input",
+          "quantity_id": "deferred_tax_reversal_rate",
+          "definition": "Enacted or substantively enacted rate on reversal",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "result",
+          "source_symbol": "Deferred tax asset from liability deductible difference",
+          "role": "output",
+          "quantity_id": "liability_deferred_tax_asset",
+          "definition": "Deferred tax asset from liability deductible difference",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "carrying >= taxbase",
+        "rate >= 0",
+        "rate <= 1"
+      ],
+      "assumptions": [
+        "The temporary difference is recognized under the applicable standard and the specified tax rate applies to reversal.",
+        "For deferred assets, sufficient future taxable profit is available to recognize the full amount."
+      ],
+      "limitations": [
+        "Recognition exceptions, multiple reversal rates and deferred-tax offsets require separate analysis.",
+        "The model is undiscounted and describes one temporary difference, not an entity-wide net balance."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 7, Temporary and Permanent Differences, printed p419 (PDF p433), Exhibit 1",
+          "evidence": "Deferred tax asset from liability deductible difference uses the indicated liability-side temporary difference.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "aasb112-2020",
+          "kind": "primary",
+          "title": "AASB 112 Income Taxes",
+          "url": "https://standards.aasb.gov.au/aasb-112-mar-2020",
+          "version": "Australian Accounting Standards Board, compilation issued 6 March 2020",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 6–8, 15, 24–25, 47 and 60–62",
+          "evidence": "The Australian standard states the tax-base, deferred-tax measurement and tax-expense principles used here and identifies its relationship to IAS 12.",
+          "license": "Australian Accounting Standards Board copyright; formula-level facts and original paraphrase only; historical compilation, not a claim of current law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "ias-example",
+          "inputs": {
+            "carrying": 100,
+            "taxbase": 0,
+            "rate": 0.25
+          },
+          "expected": 25,
+          "tolerance": 1e-09,
+          "method": "A 100 deductible liability difference at 25% gives 25 when fully recognized.",
+          "provenance": "IAS 12 paragraph 25 example."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "carrying": 200,
+            "taxbase": 100,
+            "rate": 0.3
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "A 100 difference at 30% gives 30.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "taxbase": 0,
+            "rate": 0.25
+          },
+          "reason": "carrying is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "The difference can be recovered as result/rate if rate is nonzero; individual carrying amount and tax base cannot both be inferred from the difference.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--liability-taxable-temporary-difference-deferred-liability",
+      "revision": "r4",
+      "title": "Deferred tax liability from liability taxable difference",
+      "summary": "Deferred tax liability from liability taxable difference uses the indicated liability-side temporary difference.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "result",
+        "expression": "(taxbase - carrying) * rate",
+        "original_equation": "Deferred tax liability from liability taxable difference = relevant positive temporary difference × tax rate",
+        "source_id": "aasb112-2020",
+        "locator": "Paragraphs 6–8, 15, 24–25, 47 and 60–62",
+        "translation_notes": "The sign convention differs from asset-side temporary differences. All monetary amounts share a currency. The accessible Australian standard is cited as corroboration of the matching rule; jurisdiction-specific differences require review."
+      },
+      "variables": [
+        {
+          "symbol": "carrying",
+          "source_symbol": "liability carrying amount",
+          "role": "input",
+          "quantity_id": "liability_carrying_amount",
+          "definition": "liability carrying amount",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "taxbase",
+          "source_symbol": "liability tax base",
+          "role": "input",
+          "quantity_id": "liability_tax_base",
+          "definition": "liability tax base",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "rate",
+          "source_symbol": "applicable tax rate",
+          "role": "input",
+          "quantity_id": "deferred_tax_reversal_rate",
+          "definition": "Enacted or substantively enacted rate on reversal",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "result",
+          "source_symbol": "Deferred tax liability from liability taxable difference",
+          "role": "output",
+          "quantity_id": "liability_deferred_tax_liability",
+          "definition": "Deferred tax liability from liability taxable difference",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "taxbase >= carrying",
+        "rate >= 0",
+        "rate <= 1"
+      ],
+      "assumptions": [
+        "The temporary difference is recognized under the applicable standard and the specified tax rate applies to reversal.",
+        "For deferred assets, sufficient future taxable profit is available to recognize the full amount."
+      ],
+      "limitations": [
+        "Recognition exceptions, multiple reversal rates and deferred-tax offsets require separate analysis.",
+        "The model is undiscounted and describes one temporary difference, not an entity-wide net balance."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 7, Temporary and Permanent Differences, printed p419 (PDF p433), Exhibit 1",
+          "evidence": "Deferred tax liability from liability taxable difference uses the indicated liability-side temporary difference.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "aasb112-2020",
+          "kind": "primary",
+          "title": "AASB 112 Income Taxes",
+          "url": "https://standards.aasb.gov.au/aasb-112-mar-2020",
+          "version": "Australian Accounting Standards Board, compilation issued 6 March 2020",
+          "accessed": "2026-11-04",
+          "locator": "Paragraphs 6–8, 15, 24–25, 47 and 60–62",
+          "evidence": "The Australian standard states the tax-base, deferred-tax measurement and tax-expense principles used here and identifies its relationship to IAS 12.",
+          "license": "Australian Accounting Standards Board copyright; formula-level facts and original paraphrase only; historical compilation, not a claim of current law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "carrying": 60,
+            "taxbase": 100,
+            "rate": 0.25
+          },
+          "expected": 10,
+          "tolerance": 1e-09,
+          "method": "A 40 taxable difference at 25% gives 10.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "carrying": 100,
+            "taxbase": 200,
+            "rate": 0.3
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "A 100 taxable difference at 30% gives 30.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "taxbase": 100,
+            "rate": 0.25
+          },
+          "reason": "carrying is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "The difference can be recovered as result/rate if rate is nonzero; individual carrying amount and tax base cannot both be inferred from the difference.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

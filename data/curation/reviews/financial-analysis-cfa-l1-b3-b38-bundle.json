@@ -1,0 +1,446 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b38",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--insurance-combined-ratio-earned-premiums",
+      "revision": "r1",
+      "title": "Insurance combined ratio on earned premiums",
+      "summary": "The example divides losses and expenses incurred by net premiums earned.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "(losses + expenses) / premiums",
+        "original_equation": "Combined ratio = (losses + expenses incurred) / net premiums earned",
+        "source_id": "selective-insurance-2025",
+        "locator": "Glossary, Combined Ratio",
+        "translation_notes": "Currency cancels; premium must be positive. Expense inputs may be signed when accounting adjustments warrant."
+      },
+      "variables": [
+        {
+          "symbol": "losses",
+          "source_symbol": "incurred insured losses and loss adjustment expenses",
+          "role": "input",
+          "quantity_id": "insurance_incurred_losses",
+          "definition": "incurred insured losses and loss adjustment expenses",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expenses",
+          "source_symbol": "other underwriting expenses",
+          "role": "input",
+          "quantity_id": "insurance_underwriting_expenses",
+          "definition": "other underwriting expenses",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "premiums",
+          "source_symbol": "net premiums earned",
+          "role": "input",
+          "quantity_id": "insurance_net_premiums_earned",
+          "definition": "net premiums earned",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "combined ratio",
+          "role": "output",
+          "quantity_id": "insurance_combined_ratio",
+          "definition": "Incurred losses and expenses per unit of earned premium",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "premiums > 0"
+      ],
+      "assumptions": [
+        "Losses, expenses and earned premiums are for the same insurer and reporting period.",
+        "Expense inputs are disjoint and follow the specified GAAP earned-premium basis."
+      ],
+      "limitations": [
+        "Insurers and statutory measures may use different expense or written-premium denominators.",
+        "The ratio excludes investment income and is not overall company profitability."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Financial Ratio Analysis, printed p189 (PDF p203), Example 3",
+          "evidence": "The example divides losses and expenses incurred by net premiums earned.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "selective-insurance-2025",
+          "kind": "primary",
+          "title": "Selective Insurance Group 2025 Annual Report",
+          "url": "https://www.sec.gov/Archives/edgar/data/230557/000110465926034965/tm263475d2_ars.pdf",
+          "version": "Selective Insurance Group, 2025 annual report filed 2026",
+          "accessed": "2026-11-03",
+          "locator": "Glossary, Combined Ratio",
+          "evidence": "The combined ratio divides GAAP losses and expenses by GAAP net premiums earned.",
+          "license": "Issuer filing; copyright and permissions not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "profit",
+          "inputs": {
+            "losses": 60,
+            "expenses": 30,
+            "premiums": 100
+          },
+          "expected": 0.9,
+          "tolerance": 1e-09,
+          "method": "Losses 60 plus expenses 30 divided by premiums 100 gives 0.9.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "loss",
+          "inputs": {
+            "losses": 85,
+            "expenses": 25,
+            "premiums": 100
+          },
+          "expected": 1.1,
+          "tolerance": 1e-09,
+          "method": "Losses and expenses of 110 divided by premiums 100 gives 1.1.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "expenses": 30,
+            "premiums": 100
+          },
+          "reason": "losses is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "losses+expenses=ratio*premiums; the two expense components cannot be individually inferred.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--after-tax-return-on-average-invested-capital",
+      "revision": "r1",
+      "title": "After-tax return on average invested capital",
+      "summary": "The reading divides after-tax operating profit by average invested capital.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "roic",
+        "expression": "profit / capital",
+        "original_equation": "ROIC = after-tax operating profit / average book invested capital",
+        "source_id": "valmont-2025-roic",
+        "locator": "Selected Financial Measures, Return on Invested Capital, printed pp30–31",
+        "translation_notes": "Currency cancels; the output is a base-one return for the stated reporting period."
+      },
+      "variables": [
+        {
+          "symbol": "profit",
+          "source_symbol": "after-tax operating profit before financing cost",
+          "role": "input",
+          "quantity_id": "after_tax_operating_profit",
+          "definition": "after-tax operating profit before financing cost",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "capital",
+          "source_symbol": "average book value of invested capital",
+          "role": "input",
+          "quantity_id": "average_book_invested_capital",
+          "definition": "average book value of invested capital",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "roic",
+          "source_symbol": "return on invested capital",
+          "role": "output",
+          "quantity_id": "after_tax_return_on_invested_capital",
+          "definition": "After-tax operating profit divided by average book invested capital",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "capital > 0"
+      ],
+      "assumptions": [
+        "Profit and average capital refer to the same entity, currency and period.",
+        "The capital base includes common and preferred equity and debt; profit is before financing costs."
+      ],
+      "limitations": [
+        "Invested-capital definitions and adjustments vary by issuer; the public issuer uses its own balance-sheet definition.",
+        "No automatic annualization is applied to a partial-period return."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 4, Corporate Use of Capital Allocation, printed p744 (PDF p758), unnumbered ROIC equation",
+          "evidence": "The reading divides after-tax operating profit by average invested capital.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "valmont-2025-roic",
+          "kind": "primary",
+          "title": "Valmont Industries 2025 Annual Report",
+          "url": "https://www.sec.gov/Archives/edgar/data/0000102729/000110465926026144/tm267475d2_ars.pdf",
+          "version": "Valmont Industries, 2025 annual report filed 2026",
+          "accessed": "2026-11-03",
+          "locator": "Selected Financial Measures, Return on Invested Capital, printed pp30–31",
+          "evidence": "ROIC divides after-tax operating income by average beginning and ending invested capital; the issuer specifies its own invested-capital definition.",
+          "license": "Issuer filing; copyright and permissions not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "profit": 120,
+            "capital": 1000
+          },
+          "expected": 0.12,
+          "tolerance": 1e-09,
+          "method": "120 after-tax operating profit divided by average capital of 1,000 yields 0.12.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative",
+          "inputs": {
+            "profit": -50,
+            "capital": 500
+          },
+          "expected": -0.1,
+          "tolerance": 1e-09,
+          "method": "A 50 operating loss on 500 of average capital yields -0.1.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "capital": 1000
+          },
+          "reason": "profit is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "profit=roic*capital; capital=profit/roic when the return is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--forgone-discount-trade-credit-effective-annual-cost",
+      "revision": "r1",
+      "title": "Effective annual cost of forgoing a trade discount",
+      "summary": "The example compounds the forgone discount over the extra credit period to an effective annual cost.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cost",
+        "expression": "(1 + discount / (1 - discount)) ** (year / delay) - 1",
+        "original_equation": "Effective annual cost = (1 + discount/(1-discount))^(year length/extra credit period) - 1",
+        "source_id": "winkler-trade-credit-1996",
+        "locator": "Traditional Trade Credit Analysis, equation 1",
+        "translation_notes": "Year and delay are physical durations in days and their ratio is dimensionless. The selected year length is an input; the rate is a base-one fraction. This is a trade-credit cash-discount application, distinct from nominal-to-effective rate conversion."
+      },
+      "variables": [
+        {
+          "symbol": "discount",
+          "source_symbol": "cash discount fraction",
+          "role": "input",
+          "quantity_id": "early_payment_discount_fraction",
+          "definition": "Invoice discount available for early payment",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "year",
+          "source_symbol": "year duration",
+          "role": "input",
+          "quantity_id": "annualization_year_duration",
+          "definition": "Year length under the selected day-count convention",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "delay",
+          "source_symbol": "extra credit duration",
+          "role": "input",
+          "quantity_id": "extra_trade_credit_duration",
+          "definition": "Time between discount deadline and full payment deadline",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "cost",
+          "source_symbol": "effective annual cost",
+          "role": "output",
+          "quantity_id": "trade_credit_effective_annual_cost",
+          "definition": "Annualized cost of forgoing the discount",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "discount >= 0",
+        "discount < 1",
+        "year > 0",
+        "delay > 0"
+      ],
+      "assumptions": [
+        "The discount is the fraction of invoice price and the full invoice is paid at the net due date.",
+        "The identical extra-credit opportunity is hypothetically compounded over the chosen year."
+      ],
+      "limitations": [
+        "This conventional annualization is not a complete NPV analysis of a specific supplier decision.",
+        "Actual repayment timing, taxes and financing terms may differ."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 5, Financing Options, printed p764 (PDF p778), Keown Knowledge Check 1",
+          "evidence": "The example compounds the forgone discount over the extra credit period to an effective annual cost.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "winkler-trade-credit-1996",
+          "kind": "primary",
+          "title": "The Cost of Trade Credit: A Net Present Value Perspective",
+          "url": "https://libres.uncg.edu/ir/uncg/f/d_winkler_cost_1996.pdf",
+          "version": "Daniel T. Winkler, Journal of Business and Economic Studies 3(1), 1996, pp53–63",
+          "accessed": "2026-11-03",
+          "locator": "Traditional Trade Credit Analysis, equation 1",
+          "evidence": "The article gives the conventional effective annual trade-credit cost and discusses limitations of the traditional comparison.",
+          "license": "University-hosted author copy; reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "two-ten-net-thirty",
+          "inputs": {
+            "discount": 0.02,
+            "year": 365,
+            "delay": 20
+          },
+          "expected": 0.445852927312486,
+          "tolerance": 1e-09,
+          "method": "A 2% discount foregone for 20 additional days implies about 44.6% effective annual cost.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "no-discount",
+          "inputs": {
+            "discount": 0,
+            "year": 360,
+            "delay": 30
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "No forgone discount means zero modeled credit cost.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "year": 365,
+            "delay": 20
+          },
+          "reason": "discount is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "discount=1-(1+cost)**(-delay/year) under the stated positive year and delay; annualization is not an actual cash-flow schedule.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

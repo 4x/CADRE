@@ -1,0 +1,171 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b73",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--declining-balance-book-value-uncapped",
+      "revision": "r1",
+      "title": "Declining-balance book value before residual floor",
+      "summary": "The example applies four periods of double-declining depreciation to an initial 600,000 carrying amount.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "book",
+        "expression": "cost * (1 - rate) ** periods",
+        "original_equation": "Book value = initial cost × (1 − periodic depreciation rate) ^ elapsed periods",
+        "source_id": "oxford-insight-declining-balance",
+        "locator": "Printed p442, declining-balance formula and worked example 5",
+        "translation_notes": "Rate is a base-one fraction; initial and ending values share a currency."
+      },
+      "variables": [
+        {
+          "symbol": "cost",
+          "source_symbol": "initial carrying amount",
+          "role": "input",
+          "quantity_id": "initial_depreciable_asset_carrying_amount",
+          "definition": "Initial gross carrying amount before depreciation",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "rate",
+          "source_symbol": "periodic depreciation rate",
+          "role": "input",
+          "quantity_id": "declining_balance_depreciation_rate",
+          "definition": "Constant base-one rate per complete period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "periods",
+          "source_symbol": "elapsed complete periods",
+          "role": "input",
+          "quantity_id": "elapsed_depreciation_periods",
+          "definition": "Nonnegative integer count of periods",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "book",
+          "source_symbol": "ending book value",
+          "role": "output",
+          "quantity_id": "depreciable_asset_book_value",
+          "definition": "Carrying amount before any residual-value floor adjustment",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "cost >= 0",
+        "rate >= 0",
+        "rate < 1",
+        "periods >= 0"
+      ],
+      "assumptions": [
+        "Rate is constant and periods are whole, equal-length depreciation periods.",
+        "The asset is depreciated continuously under this method without impairment, disposals, additions, revaluation or method changes."
+      ],
+      "limitations": [
+        "Apply this closed form only while no residual-value floor or terminal adjustment binds.",
+        "The input period count must be a nonnegative integer; the expression engine cannot enforce integrality.",
+        "This is the repeated-depreciation application of the general compound growth relationship."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 6, Long-Lived Assets, printed p401 (PDF p415), practice solution 32",
+          "evidence": "The example applies four periods of double-declining depreciation to an initial 600,000 carrying amount.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "oxford-insight-declining-balance",
+          "kind": "primary",
+          "title": "Insight Mathematics General 11: Mathematics and Driving",
+          "url": "https://www.oup.com.au/__data/assets/pdf_file/0026/58292/Oxford-Insight-Maths-General-Preliminary-ch13-Mathematics-and-driving.pdf",
+          "version": "Oxford University Press Australia, textbook chapter, publication year not established",
+          "accessed": "2026-11-04",
+          "locator": "Printed p442, declining-balance formula and worked example 5",
+          "evidence": "The chapter gives the book value after repeated constant-rate declining-balance depreciation.",
+          "license": "Oxford University Press copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "asset",
+          "inputs": {
+            "cost": 600000,
+            "rate": 0.3333333333333333,
+            "periods": 4
+          },
+          "expected": 118518.51851851855,
+          "tolerance": 1e-09,
+          "method": "Four full periods at an exact one-third rate yield approximately 118,519 before rounding the rate.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "car",
+          "inputs": {
+            "cost": 32000,
+            "rate": 0.22,
+            "periods": 3
+          },
+          "expected": 15185.664,
+          "tolerance": 1e-09,
+          "method": "Three periods at 22% yield 15,185.664, rounded by the public example to 15,186.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "rate": 0.3333333333333333,
+            "periods": 4
+          },
+          "reason": "cost is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cost=book/(1-rate)**periods when the denominator is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

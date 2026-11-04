@@ -1,0 +1,420 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b72",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--contract-cost-to-cost-progress",
+      "revision": "r1",
+      "title": "Contract progress measured by eligible costs",
+      "summary": "The example divides first-year costs incurred by total expected costs to measure progress.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "progress",
+        "expression": "incurred / expected",
+        "original_equation": "Progress = cumulative eligible costs incurred / total expected eligible costs",
+        "source_id": "ifrs-sme-revenue-2025",
+        "locator": "Printed pp 88, 222–223; cost-based progress and contract modification example",
+        "translation_notes": "Progress is a base-one fraction; expected eligible cost must be positive."
+      },
+      "variables": [
+        {
+          "symbol": "incurred",
+          "source_symbol": "cumulative eligible costs incurred",
+          "role": "input",
+          "quantity_id": "contract_eligible_costs_incurred",
+          "definition": "cumulative eligible costs incurred",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expected",
+          "source_symbol": "total expected eligible costs",
+          "role": "input",
+          "quantity_id": "contract_total_expected_eligible_costs",
+          "definition": "total expected eligible costs",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "progress",
+          "source_symbol": "measure of progress",
+          "role": "output",
+          "quantity_id": "contract_cost_based_progress",
+          "definition": "measure of progress",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "incurred >= 0",
+        "expected > 0",
+        "incurred <= expected"
+      ],
+      "assumptions": [
+        "The obligation qualifies for over-time recognition and the selected cost-based input method faithfully depicts performance.",
+        "Cumulative eligible costs and expected total eligible costs use a consistent scope and currency."
+      ],
+      "limitations": [
+        "Costs that do not depict performance may require exclusion or special treatment.",
+        "This is a measurement calculation, not a decision that revenue recognition criteria are met."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 1, Revenue Recognition, printed pp13–14 (PDF pp27–28), Exhibit 5 Part 2",
+          "evidence": "The example divides first-year costs incurred by total expected costs to measure progress.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ifrs-sme-revenue-2025",
+          "kind": "primary",
+          "title": "IFRS for SMEs Educational Module 23: Revenue from Contracts with Customers",
+          "url": "https://www.ifrs.org/content/dam/ifrs/supporting-implementation/smes/2025-modules/module-23.pdf",
+          "version": "IFRS Foundation, 2025 educational module",
+          "accessed": "2026-11-04",
+          "locator": "Printed pp 88, 222–223; cost-based progress and contract modification example",
+          "evidence": "Examples calculate cost-based progress, cumulative revenue and a negative catch-up adjustment on modification.",
+          "license": "IFRS Foundation copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "builder",
+          "inputs": {
+            "incurred": 420000,
+            "expected": 700000
+          },
+          "expected": 0.6,
+          "tolerance": 1e-09,
+          "method": "420,000 over 700,000 yields 60% progress.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "yacht",
+          "inputs": {
+            "incurred": 500000,
+            "expected": 2000000
+          },
+          "expected": 0.25,
+          "tolerance": 1e-09,
+          "method": "500,000 over revised expected costs of 2,000,000 yields 25%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "expected": 700000
+          },
+          "reason": "incurred is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "incurred=progress*expected; expected=incurred/progress when progress is positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--contract-cumulative-over-time-revenue",
+      "revision": "r1",
+      "title": "Cumulative revenue from over-time progress",
+      "summary": "The example multiplies the applicable transaction price by the measured progress.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "revenue",
+        "expression": "price * progress",
+        "original_equation": "Cumulative revenue = allocated transaction price × progress",
+        "source_id": "ifrs-sme-revenue-2025",
+        "locator": "Printed pp 88, 222–223; cost-based progress and contract modification example",
+        "translation_notes": "Progress is a base-one fraction and monetary inputs share one currency."
+      },
+      "variables": [
+        {
+          "symbol": "price",
+          "source_symbol": "allocated transaction price",
+          "role": "input",
+          "quantity_id": "contract_allocated_transaction_price",
+          "definition": "allocated transaction price",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "progress",
+          "source_symbol": "measure of progress",
+          "role": "input",
+          "quantity_id": "contract_progress",
+          "definition": "measure of progress",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "revenue",
+          "source_symbol": "cumulative revenue",
+          "role": "output",
+          "quantity_id": "contract_cumulative_revenue",
+          "definition": "cumulative revenue",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "price >= 0",
+        "progress >= 0",
+        "progress <= 1"
+      ],
+      "assumptions": [
+        "The price is allocated to one over-time performance obligation and reflects applicable constraints on variable consideration.",
+        "The input progress measure appropriately depicts performance for the same obligation."
+      ],
+      "limitations": [
+        "Contract identification, price allocation, variable consideration and timing require separate judgment.",
+        "This yields cumulative revenue, not the current-period increment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 1, Revenue Recognition, printed p14 (PDF p28), Exhibit 5 Parts 2 and 4",
+          "evidence": "The example multiplies the applicable transaction price by the measured progress.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ifrs-sme-revenue-2025",
+          "kind": "primary",
+          "title": "IFRS for SMEs Educational Module 23: Revenue from Contracts with Customers",
+          "url": "https://www.ifrs.org/content/dam/ifrs/supporting-implementation/smes/2025-modules/module-23.pdf",
+          "version": "IFRS Foundation, 2025 educational module",
+          "accessed": "2026-11-04",
+          "locator": "Printed pp 88, 222–223; cost-based progress and contract modification example",
+          "evidence": "Examples calculate cost-based progress, cumulative revenue and a negative catch-up adjustment on modification.",
+          "license": "IFRS Foundation copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "builder",
+          "inputs": {
+            "price": 1000000,
+            "progress": 0.6
+          },
+          "expected": 600000,
+          "tolerance": 1e-09,
+          "method": "60% of a 1,000,000 transaction price gives 600,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "yacht",
+          "inputs": {
+            "price": 2850000,
+            "progress": 0.25
+          },
+          "expected": 712500,
+          "tolerance": 1e-09,
+          "method": "25% of a revised 2,850,000 transaction price gives 712,500.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "progress": 0.6
+          },
+          "reason": "price is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "price=revenue/progress when progress is positive; progress=revenue/price when price is positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--contract-revenue-cumulative-catch-up",
+      "revision": "r1",
+      "title": "Cumulative catch-up adjustment to contract revenue",
+      "summary": "The example subtracts previously recognized revenue from the revised cumulative amount.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "adjustment",
+        "expression": "revised - prior",
+        "original_equation": "Revenue adjustment = revised cumulative revenue − revenue previously recognized",
+        "source_id": "ifrs-sme-revenue-2025",
+        "locator": "Printed pp 88, 222–223; cost-based progress and contract modification example",
+        "translation_notes": "Amounts share one currency and the adjustment is signed."
+      },
+      "variables": [
+        {
+          "symbol": "revised",
+          "source_symbol": "revised cumulative revenue",
+          "role": "input",
+          "quantity_id": "contract_revised_cumulative_revenue",
+          "definition": "revised cumulative revenue",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "prior",
+          "source_symbol": "previously recognized cumulative revenue",
+          "role": "input",
+          "quantity_id": "contract_previously_recognized_revenue",
+          "definition": "previously recognized cumulative revenue",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "adjustment",
+          "source_symbol": "revenue catch-up adjustment",
+          "role": "output",
+          "quantity_id": "contract_revenue_catch_up_adjustment",
+          "definition": "revenue catch-up adjustment",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "revised >= 0",
+        "prior >= 0"
+      ],
+      "assumptions": [
+        "The modification or estimate change is appropriately accounted for as a cumulative catch-up for the existing obligation.",
+        "Both cumulative amounts refer to the same obligation and measurement date."
+      ],
+      "limitations": [
+        "Other modifications may be accounted for prospectively or as separate contracts.",
+        "The adjustment may be negative; the original example rounds its progress percentage before multiplying."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 1, Revenue Recognition, printed pp14–15 (PDF pp28–29), Exhibit 5 Part 4",
+          "evidence": "The example subtracts previously recognized revenue from the revised cumulative amount.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ifrs-sme-revenue-2025",
+          "kind": "primary",
+          "title": "IFRS for SMEs Educational Module 23: Revenue from Contracts with Customers",
+          "url": "https://www.ifrs.org/content/dam/ifrs/supporting-implementation/smes/2025-modules/module-23.pdf",
+          "version": "IFRS Foundation, 2025 educational module",
+          "accessed": "2026-11-04",
+          "locator": "Printed pp 88, 222–223; cost-based progress and contract modification example",
+          "evidence": "Examples calculate cost-based progress, cumulative revenue and a negative catch-up adjustment on modification.",
+          "license": "IFRS Foundation copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "builder-rounded",
+          "inputs": {
+            "revised": 691200,
+            "prior": 600000
+          },
+          "expected": 91200,
+          "tolerance": 1e-09,
+          "method": "The source rounds progress to 51.2%, giving 691,200 less 600,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "yacht-reduction",
+          "inputs": {
+            "revised": 712500,
+            "prior": 750000
+          },
+          "expected": -37500,
+          "tolerance": 1e-09,
+          "method": "A revised cumulative amount of 712,500 less 750,000 previously recognized gives a negative 37,500 adjustment.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "prior": 600000
+          },
+          "reason": "revised is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "revised=adjustment+prior; prior=revised-adjustment.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

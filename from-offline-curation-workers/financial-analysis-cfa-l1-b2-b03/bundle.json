@@ -1,0 +1,546 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b03",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 2 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: purchased-PDF primary URL null is required by source brief but rejected by installed official validator. Toolkit unchanged. Independent checks and ZIP checksum pass; no official intake approval claimed. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--production-fixed-variable-cost-decomposition",
+      "revision": "r1",
+      "title": "Total production cost from fixed and variable costs",
+      "summary": "Total cost is the sum of fixed and variable production costs; fixed costs remain when output is zero.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "TC",
+        "expression": "FC + VC",
+        "original_equation": "TC = TFC + TVC",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module1, Understanding the Interaction between Total, Variable, Fixed, and Marginal Cost and Output, printed pp28-30 (PDF pp40-42), Exhibits11 and13",
+        "translation_notes": "Both inputs and output have currency dimension and identical period support. This is a cost-category decomposition, rather than a generic cash-flow aggregation."
+      },
+      "variables": [
+        {
+          "symbol": "FC",
+          "source_symbol": "TFC",
+          "role": "input",
+          "quantity_id": "total_fixed_production_cost",
+          "definition": "Cost unchanged over the stated short-run output range",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite cost"
+        },
+        {
+          "symbol": "VC",
+          "source_symbol": "TVC",
+          "role": "input",
+          "quantity_id": "total_variable_production_cost",
+          "definition": "Costs varying with production over the same interval",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite cost"
+        },
+        {
+          "symbol": "TC",
+          "source_symbol": "TC",
+          "role": "output",
+          "quantity_id": "total_economic_cost",
+          "definition": "Total production cost including fixed and variable categories on the declared economic-cost basis",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite cost"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "FC >= 0",
+        "VC >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: fixed and variable categories partition all relevant economic costs without overlap.",
+        "Source assumption: fixed costs are constant only within the specified output range and horizon."
+      ],
+      "limitations": [
+        "Classification can change over a different planning horizon; quasi-fixed step costs require a new range definition."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module1, Understanding the Interaction between Total, Variable, Fixed, and Marginal Cost and Output, printed pp28-30 (PDF pp40-42), Exhibits11 and13",
+          "evidence": "Total cost is the sum of fixed and variable production costs; fixed costs remain when output is zero.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-7-3",
+          "kind": "primary",
+          "title": "Principles of Economics 3e",
+          "url": "https://openstax.org/books/principles-economics-3e/pages/7-3-costs-in-the-short-run",
+          "version": "Greenlaw, Shapiro and MacDonald; 3e published 2022; live 2026 page",
+          "accessed": "2026-11-03",
+          "locator": "Section 7.3: 7-3-costs-in-the-short-run; exact subsection stated in evidence",
+          "evidence": "Fixed and Variable Costs and Average Total Cost, Average Variable Cost, Marginal Cost define total cost and its per-output measures; Table7.10 illustrates their distinct scopes.",
+          "license": "Inspected page footer identifies CC BY-NC-SA and additional AI/commercial-use restrictions; terms displayed on the cited section, inspected 2026-11-03. No broader permission inferred. Formula-level facts and original paraphrase only; no source passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "five-units",
+          "inputs": {
+            "FC": 100,
+            "VC": 300
+          },
+          "expected": 400,
+          "tolerance": 1e-09,
+          "method": "Published Exhibit13 reports total400 at output5.",
+          "provenance": "CFA printed p30/PDF42 Exhibit13."
+        },
+        {
+          "id": "zero-output",
+          "inputs": {
+            "FC": 100,
+            "VC": 0
+          },
+          "expected": 100,
+          "tolerance": 1e-09,
+          "method": "Published Exhibit13 zero-output row retains fixed cost100 and total100.",
+          "provenance": "CFA printed p30/PDF42 Exhibit13."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "VC": 300
+          },
+          "reason": "FC is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "FC=TC-VC and VC=TC-FC require nonnegative residuals. For TC400,VC300 recoverFC100 and substitute400. If total is less than a component, the supplied cost classification is inconsistent.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--average-fixed-production-cost",
+      "revision": "r1",
+      "title": "Average fixed production cost",
+      "summary": "The reading defines average fixed production cost by dividing its corresponding total cost category by output.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "AC",
+        "expression": "C / Q",
+        "original_equation": "Average fixed production cost= TFC/Q",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module1, Total, Average, Marginal, Fixed, and Variable Costs, printed pp30-31 (PDF pp42-43), Exhibit13 and adjacent definitions",
+        "translation_notes": "The numerator is the identified cost category; categories cannot be interchanged. Currency divided by good quantity gives currency/good-unit. ATC=AFC+AVC follows the common-denominator cost decomposition and is not separately minted as new coverage."
+      },
+      "variables": [
+        {
+          "symbol": "C",
+          "source_symbol": "TFC",
+          "role": "input",
+          "quantity_id": "total_fixed_production_cost",
+          "definition": "Fixed costs over the production period and relevant output range",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite cost"
+        },
+        {
+          "symbol": "Q",
+          "source_symbol": "Q",
+          "role": "input",
+          "quantity_id": "total_product_quantity",
+          "definition": "Positive output quantity to which this cost category applies",
+          "unit": "good-unit",
+          "dimensions": "good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite output"
+        },
+        {
+          "symbol": "AC",
+          "source_symbol": "AFC",
+          "role": "output",
+          "quantity_id": "average_fixed_production_cost",
+          "definition": "Cost of the specified category per unit of output",
+          "unit": "EUR/good-unit",
+          "dimensions": "currency / good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite average cost"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "C >= 0",
+        "Q > 0"
+      ],
+      "assumptions": [
+        "Source assumption: cost and output refer to the same production period, firm, currency and cost basis.",
+        "Source assumption: output is strictly positive."
+      ],
+      "limitations": [
+        "Average cost is undefined at zero output even when total cost is zero; marginal cost is a different measure."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module1, Total, Average, Marginal, Fixed, and Variable Costs, printed pp30-31 (PDF pp42-43), Exhibit13 and adjacent definitions",
+          "evidence": "The reading defines average fixed production cost by dividing its corresponding total cost category by output.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-7-3",
+          "kind": "primary",
+          "title": "Principles of Economics 3e",
+          "url": "https://openstax.org/books/principles-economics-3e/pages/7-3-costs-in-the-short-run",
+          "version": "Greenlaw, Shapiro and MacDonald; 3e published 2022; live 2026 page",
+          "accessed": "2026-11-03",
+          "locator": "Section 7.3: 7-3-costs-in-the-short-run; exact subsection stated in evidence",
+          "evidence": "Fixed and Variable Costs and Average Total Cost, Average Variable Cost, Marginal Cost define total cost and its per-output measures; Table7.10 illustrates their distinct scopes.",
+          "license": "Inspected page footer identifies CC BY-NC-SA and additional AI/commercial-use restrictions; terms displayed on the cited section, inspected 2026-11-03. No broader permission inferred. Formula-level facts and original paraphrase only; no source passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-row-a",
+          "inputs": {
+            "C": 100,
+            "Q": 5
+          },
+          "expected": 20,
+          "tolerance": 1e-09,
+          "method": "Independently reported per-unit value in the source table, not generated by this expression.",
+          "provenance": "CFA printed p30/PDF42 Exhibit13."
+        },
+        {
+          "id": "published-row-b",
+          "inputs": {
+            "C": 100,
+            "Q": 10
+          },
+          "expected": 10,
+          "tolerance": 1e-09,
+          "method": "A second independently reported source-table output/cost row.",
+          "provenance": "CFA printed p30/PDF42 Exhibit13."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "Q": 5
+          },
+          "reason": "C is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "C=AC*Q for any positive Q; Q=C/AC requires AC>0 and positive result. Zero cost and zero average leave Q unidentified. The first published reference reconstructed as AC*Q gives exactly its supplied total; substituting that total restores AC.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--average-variable-production-cost",
+      "revision": "r1",
+      "title": "Average variable production cost",
+      "summary": "The reading defines average variable production cost by dividing its corresponding total cost category by output.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "AC",
+        "expression": "C / Q",
+        "original_equation": "Average variable production cost= TVC/Q",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module1, Total, Average, Marginal, Fixed, and Variable Costs, printed pp30-31 (PDF pp42-43), Exhibit13 and adjacent definitions",
+        "translation_notes": "The numerator is the identified cost category; categories cannot be interchanged. Currency divided by good quantity gives currency/good-unit. ATC=AFC+AVC follows the common-denominator cost decomposition and is not separately minted as new coverage. Under the source two-input short-run model with labor as the only variable input, VC=w*L and AP_L=Q/L imply AVC=w/AP_L; this is an explicitly scoped composition of existing cost and productivity definitions."
+      },
+      "variables": [
+        {
+          "symbol": "C",
+          "source_symbol": "TVC",
+          "role": "input",
+          "quantity_id": "total_variable_production_cost",
+          "definition": "Variable production costs over the same production period",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite cost"
+        },
+        {
+          "symbol": "Q",
+          "source_symbol": "Q",
+          "role": "input",
+          "quantity_id": "total_product_quantity",
+          "definition": "Positive output quantity to which this cost category applies",
+          "unit": "good-unit",
+          "dimensions": "good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite output"
+        },
+        {
+          "symbol": "AC",
+          "source_symbol": "AVC",
+          "role": "output",
+          "quantity_id": "average_variable_production_cost",
+          "definition": "Cost of the specified category per unit of output",
+          "unit": "EUR/good-unit",
+          "dimensions": "currency / good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite average cost"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "C >= 0",
+        "Q > 0"
+      ],
+      "assumptions": [
+        "Source assumption: cost and output refer to the same production period, firm, currency and cost basis.",
+        "Source assumption: output is strictly positive."
+      ],
+      "limitations": [
+        "Average cost is undefined at zero output even when total cost is zero; marginal cost is a different measure."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module1, Total, Average, Marginal, Fixed, and Variable Costs, printed pp30-31 (PDF pp42-43), Exhibit13 and adjacent definitions",
+          "evidence": "The reading defines average variable production cost by dividing its corresponding total cost category by output.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-7-3",
+          "kind": "primary",
+          "title": "Principles of Economics 3e",
+          "url": "https://openstax.org/books/principles-economics-3e/pages/7-3-costs-in-the-short-run",
+          "version": "Greenlaw, Shapiro and MacDonald; 3e published 2022; live 2026 page",
+          "accessed": "2026-11-03",
+          "locator": "Section 7.3: 7-3-costs-in-the-short-run; exact subsection stated in evidence",
+          "evidence": "Fixed and Variable Costs and Average Total Cost, Average Variable Cost, Marginal Cost define total cost and its per-output measures; Table7.10 illustrates their distinct scopes.",
+          "license": "Inspected page footer identifies CC BY-NC-SA and additional AI/commercial-use restrictions; terms displayed on the cited section, inspected 2026-11-03. No broader permission inferred. Formula-level facts and original paraphrase only; no source passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-row-a",
+          "inputs": {
+            "C": 300,
+            "Q": 5
+          },
+          "expected": 60,
+          "tolerance": 1e-09,
+          "method": "Independently reported per-unit value in the source table, not generated by this expression.",
+          "provenance": "CFA printed p30/PDF42 Exhibit13."
+        },
+        {
+          "id": "published-row-b",
+          "inputs": {
+            "C": 900,
+            "Q": 8
+          },
+          "expected": 112.5,
+          "tolerance": 1e-09,
+          "method": "A second independently reported source-table output/cost row.",
+          "provenance": "CFA printed p30/PDF42 Exhibit13."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "Q": 5
+          },
+          "reason": "C is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "C=AC*Q for any positive Q; Q=C/AC requires AC>0 and positive result. Zero cost and zero average leave Q unidentified. The first published reference reconstructed as AC*Q gives exactly its supplied total; substituting that total restores AC.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--average-total-production-cost",
+      "revision": "r1",
+      "title": "Average total production cost",
+      "summary": "The reading defines average total production cost by dividing its corresponding total cost category by output.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "AC",
+        "expression": "C / Q",
+        "original_equation": "Average total production cost= TC/Q",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module1, Total, Average, Marginal, Fixed, and Variable Costs, printed pp30-31 (PDF pp42-43), Exhibit13 and adjacent definitions",
+        "translation_notes": "The numerator is the identified cost category; categories cannot be interchanged. Currency divided by good quantity gives currency/good-unit. ATC=AFC+AVC follows the common-denominator cost decomposition and is not separately minted as new coverage."
+      },
+      "variables": [
+        {
+          "symbol": "C",
+          "source_symbol": "TC",
+          "role": "input",
+          "quantity_id": "total_economic_cost",
+          "definition": "Full economic production costs, fixed plus variable",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite cost"
+        },
+        {
+          "symbol": "Q",
+          "source_symbol": "Q",
+          "role": "input",
+          "quantity_id": "total_product_quantity",
+          "definition": "Positive output quantity to which this cost category applies",
+          "unit": "good-unit",
+          "dimensions": "good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite output"
+        },
+        {
+          "symbol": "AC",
+          "source_symbol": "ATC",
+          "role": "output",
+          "quantity_id": "average_total_production_cost",
+          "definition": "Cost of the specified category per unit of output",
+          "unit": "EUR/good-unit",
+          "dimensions": "currency / good_quantity",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite average cost"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "C >= 0",
+        "Q > 0"
+      ],
+      "assumptions": [
+        "Source assumption: cost and output refer to the same production period, firm, currency and cost basis.",
+        "Source assumption: output is strictly positive."
+      ],
+      "limitations": [
+        "Average cost is undefined at zero output even when total cost is zero; marginal cost is a different measure."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module1, Total, Average, Marginal, Fixed, and Variable Costs, printed pp30-31 (PDF pp42-43), Exhibit13 and adjacent definitions",
+          "evidence": "The reading defines average total production cost by dividing its corresponding total cost category by output.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-7-3",
+          "kind": "primary",
+          "title": "Principles of Economics 3e",
+          "url": "https://openstax.org/books/principles-economics-3e/pages/7-3-costs-in-the-short-run",
+          "version": "Greenlaw, Shapiro and MacDonald; 3e published 2022; live 2026 page",
+          "accessed": "2026-11-03",
+          "locator": "Section 7.3: 7-3-costs-in-the-short-run; exact subsection stated in evidence",
+          "evidence": "Fixed and Variable Costs and Average Total Cost, Average Variable Cost, Marginal Cost define total cost and its per-output measures; Table7.10 illustrates their distinct scopes.",
+          "license": "Inspected page footer identifies CC BY-NC-SA and additional AI/commercial-use restrictions; terms displayed on the cited section, inspected 2026-11-03. No broader permission inferred. Formula-level facts and original paraphrase only; no source passages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-row-a",
+          "inputs": {
+            "C": 225,
+            "Q": 3
+          },
+          "expected": 75,
+          "tolerance": 1e-09,
+          "method": "Independently reported per-unit value in the source table, not generated by this expression.",
+          "provenance": "CFA printed p30/PDF42 Exhibit13."
+        },
+        {
+          "id": "published-row-b",
+          "inputs": {
+            "C": 1000,
+            "Q": 8
+          },
+          "expected": 125,
+          "tolerance": 1e-09,
+          "method": "A second independently reported source-table output/cost row.",
+          "provenance": "CFA printed p30/PDF42 Exhibit13."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "Q": 3
+          },
+          "reason": "C is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "C=AC*Q for any positive Q; Q=C/AC requires AC>0 and positive result. Zero cost and zero average leave Q unidentified. The first published reference reconstructed as AC*Q gives exactly its supplied total; substituting that total restores AC.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

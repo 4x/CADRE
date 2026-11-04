@@ -1,0 +1,432 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b48",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--trailing-price-to-earnings-per-share",
+      "revision": "r1",
+      "title": "Trailing price to earnings per share",
+      "summary": "The reading defines P/E as price per share divided by earnings per share.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "multiple",
+        "expression": "price / eps",
+        "original_equation": "Trailing P/E = current share price / trailing earnings per share",
+        "source_id": "sec-investor-price-earnings",
+        "locator": "Price-earnings ratio definition",
+        "translation_notes": "Both monetary inputs are per one common share; their units cancel."
+      },
+      "variables": [
+        {
+          "symbol": "price",
+          "source_symbol": "current common stock price per share",
+          "role": "input",
+          "quantity_id": "common_share_market_price",
+          "definition": "current common stock price per share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "eps",
+          "source_symbol": "trailing earnings per common share",
+          "role": "input",
+          "quantity_id": "trailing_earnings_per_common_share",
+          "definition": "trailing earnings per common share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "multiple",
+          "source_symbol": "trailing price earnings multiple",
+          "role": "output",
+          "quantity_id": "trailing_price_earnings_ratio",
+          "definition": "Price per share divided by historical earnings per share",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "price >= 0",
+        "eps > 0"
+      ],
+      "assumptions": [
+        "Price and EPS use the same class, currency and consistent share-split basis.",
+        "The EPS input is trailing 12-month earnings per share."
+      ],
+      "limitations": [
+        "The positive-EPS profile excludes zero or negative earnings.",
+        "Forward P/E uses projected earnings and is a distinct existing Volume 1 model."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Equity Analysis and Valuation Ratios, printed p230 (PDF p244), Exhibit 20",
+          "evidence": "The reading defines P/E as price per share divided by earnings per share.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sec-investor-price-earnings",
+          "kind": "primary",
+          "title": "Price-earnings (P/E) Ratio",
+          "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/price-earnings-pe-ratio",
+          "version": "US Securities and Exchange Commission, Investor.gov glossary",
+          "accessed": "2026-11-03",
+          "locator": "Price-earnings ratio definition",
+          "evidence": "The SEC glossary divides current share price by earnings per share for the past 12 months.",
+          "license": "US government public educational material; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "example",
+          "inputs": {
+            "price": 42,
+            "eps": 1.4
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "42 share price divided by 1.40 trailing EPS yields 30.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "price": 20,
+            "eps": 5
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "20 share price divided by 5 EPS gives four.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "eps": 1.4
+          },
+          "reason": "price is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "price=multiple*eps; eps=price/multiple when the multiple is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--enterprise-value-to-ebitda",
+      "revision": "r1",
+      "title": "Enterprise value to EBITDA multiple",
+      "summary": "The reading divides enterprise value by EBITDA.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "multiple",
+        "expression": "enterprise / ebitda",
+        "original_equation": "EV/EBITDA = enterprise value / EBITDA",
+        "source_id": "sec-fund-ev-ebitda",
+        "locator": "Glossary item 34, EV/EBITDA",
+        "translation_notes": "The multiple is dimensionless, with EBITDA measured over the stated period."
+      },
+      "variables": [
+        {
+          "symbol": "enterprise",
+          "source_symbol": "enterprise value",
+          "role": "input",
+          "quantity_id": "enterprise_value",
+          "definition": "enterprise value",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ebitda",
+          "source_symbol": "earnings before interest, tax, depreciation and amortization",
+          "role": "input",
+          "quantity_id": "earnings_before_interest_taxes_depreciation_amortization",
+          "definition": "earnings before interest, tax, depreciation and amortization",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "multiple",
+          "source_symbol": "enterprise-value-to-EBITDA multiple",
+          "role": "output",
+          "quantity_id": "enterprise_value_to_ebitda",
+          "definition": "Enterprise value divided by EBITDA",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "enterprise >= 0",
+        "ebitda > 0"
+      ],
+      "assumptions": [
+        "Enterprise value and EBITDA use the same entity, currency and consistent financing scope.",
+        "EBITDA is positive and its period is explicitly stated by the analyst."
+      ],
+      "limitations": [
+        "Enterprise-value and EBITDA definitions can vary, including treatment of leases, minority interests and adjustments.",
+        "A loss-making EBITDA or zero denominator is outside this profile."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 6, Capitalisation of Interest and Internal Development Costs, printed pp345–346 (PDF pp359–360), Example 7 solution 1C",
+          "evidence": "The reading divides enterprise value by EBITDA.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sec-fund-ev-ebitda",
+          "kind": "primary",
+          "title": "Fund annual report glossary",
+          "url": "https://www.sec.gov/Archives/edgar/data/1020425/000119312522068113/d901493dncsr.htm",
+          "version": "Fund annual report filed with the SEC in 2022",
+          "accessed": "2026-11-03",
+          "locator": "Glossary item 34, EV/EBITDA",
+          "evidence": "The filing defines EV/EBITDA as enterprise value divided by EBITDA.",
+          "license": "Issuer filing; copyright and permissions not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "example",
+          "inputs": {
+            "enterprise": 284760,
+            "ebitda": 17517
+          },
+          "expected": 16.25620825483816,
+          "tolerance": 1e-09,
+          "method": "284,760 divided by 17,517 is about 16.3 times.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "enterprise": 1000,
+            "ebitda": 100
+          },
+          "expected": 10,
+          "tolerance": 1e-09,
+          "method": "1,000 enterprise value divided by 100 EBITDA gives ten times.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "ebitda": 17517
+          },
+          "reason": "enterprise is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "enterprise=multiple*ebitda; ebitda=enterprise/multiple when multiple is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--ebitda-from-ebit-and-depreciation-amortization",
+      "revision": "r1",
+      "title": "EBITDA from EBIT and depreciation and amortization",
+      "summary": "The example adds depreciation and amortization to EBIT.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ebitda",
+        "expression": "ebit + depreciation + amortization",
+        "original_equation": "EBITDA = EBIT + depreciation + amortization",
+        "source_id": "owens-corning-2024-ebitda",
+        "locator": "Management discussion, printed p28, segment EBITDA",
+        "translation_notes": "EBIT and EBITDA can be negative; depreciation and amortization are positive expense magnitudes."
+      },
+      "variables": [
+        {
+          "symbol": "ebit",
+          "source_symbol": "earnings before interest and tax",
+          "role": "input",
+          "quantity_id": "earnings_before_interest_and_taxes",
+          "definition": "earnings before interest and tax",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "depreciation",
+          "source_symbol": "depreciation expense",
+          "role": "input",
+          "quantity_id": "depreciation_expense",
+          "definition": "depreciation expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "amortization",
+          "source_symbol": "amortization expense",
+          "role": "input",
+          "quantity_id": "amortization_expense",
+          "definition": "amortization expense",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ebitda",
+          "source_symbol": "EBITDA",
+          "role": "output",
+          "quantity_id": "earnings_before_interest_taxes_depreciation_amortization",
+          "definition": "EBITDA",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "depreciation >= 0",
+        "amortization >= 0"
+      ],
+      "assumptions": [
+        "Depreciation and amortization were deducted in the supplied EBIT and are for the same period and entity.",
+        "No other adjustments are made."
+      ],
+      "limitations": [
+        "EBITDA is not a standardized GAAP measure and may differ from issuer-specific adjusted measures.",
+        "Non-operating income in EBIT and capitalized depreciation need careful classification."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 6, Capitalisation of Interest and Internal Development Costs, printed p346 (PDF p360), Example 7 solution 1C",
+          "evidence": "The example adds depreciation and amortization to EBIT.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "owens-corning-2024-ebitda",
+          "kind": "primary",
+          "title": "Owens Corning 2024 Annual Report",
+          "url": "https://www.sec.gov/Archives/edgar/data/1370946/000137094625000126/annualreport.pdf",
+          "version": "Owens Corning, 2024 annual report filed 2025",
+          "accessed": "2026-11-03",
+          "locator": "Management discussion, printed p28, segment EBITDA",
+          "evidence": "The segment measure adds depreciation and amortization to EBIT.",
+          "license": "Issuer filing; copyright and permissions not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "example",
+          "inputs": {
+            "ebit": 13317,
+            "depreciation": 2200,
+            "amortization": 2000
+          },
+          "expected": 17517,
+          "tolerance": 1e-09,
+          "method": "13,317 EBIT plus 2,200 depreciation and 2,000 amortization equals 17,517.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "loss",
+          "inputs": {
+            "ebit": -100,
+            "depreciation": 20,
+            "amortization": 10
+          },
+          "expected": -70,
+          "tolerance": 1e-09,
+          "method": "Negative EBIT of 100 plus depreciation 20 and amortization 10 gives negative EBITDA of 70.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "depreciation": 2200,
+            "amortization": 2000
+          },
+          "reason": "ebit is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ebit=ebitda-depreciation-amortization; the two add-backs cannot be individually recovered without further information.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

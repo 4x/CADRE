@@ -1,0 +1,419 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b84",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--asset-base-accumulated-depreciation-fraction",
+      "revision": "r1",
+      "title": "Accumulated depreciation as a fraction of gross PPE",
+      "summary": "The text uses accumulated depreciation relative to gross PPE as an approximate asset-age indicator.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "fraction",
+        "expression": "depreciation / gross",
+        "original_equation": "Depreciation fraction = accumulated depreciation / gross PPE",
+        "source_id": "fitch-learning-asset-analysis-2018",
+        "locator": "Reading 33, Adjustments related to property, plant and equipment",
+        "translation_notes": "The fraction is dimensionless; gross PPE need not equal the depreciable base."
+      },
+      "variables": [
+        {
+          "symbol": "depreciation",
+          "source_symbol": "accumulated depreciation",
+          "role": "input",
+          "quantity_id": "accumulated_depreciation",
+          "definition": "accumulated depreciation",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "gross",
+          "source_symbol": "gross property plant and equipment",
+          "role": "input",
+          "quantity_id": "gross_property_plant_and_equipment",
+          "definition": "gross property plant and equipment",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fraction",
+          "source_symbol": "accumulated depreciation fraction",
+          "role": "output",
+          "quantity_id": "accumulated_depreciation_to_gross_ppe",
+          "definition": "Accumulated depreciation divided by gross PPE",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "depreciation >= 0",
+        "gross > 0"
+      ],
+      "assumptions": [
+        "Gross PPE and accumulated depreciation refer to the same asset pool, date, currency and accounting basis.",
+        "Amounts are nonnegative magnitudes and gross PPE is positive."
+      ],
+      "limitations": [
+        "This is a rough indicator, not an exact proportion of useful life for mixed methods, asset ages or nonzero residual values.",
+        "Land, revaluations, impairment and disposals may distort comparisons."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 10, Adjustments Related to Property, Plant, and Equipment, printed p592 (PDF p606), unnumbered depreciation relationships",
+          "evidence": "The text uses accumulated depreciation relative to gross PPE as an approximate asset-age indicator.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "fitch-learning-asset-analysis-2018",
+          "kind": "primary",
+          "title": "Financial Reporting Analysis Workshop",
+          "url": "https://fitchlearningmedia.com/Files/FRA_Workshop_27092018_Annotated.pdf",
+          "version": "Fitch Learning, workshop dated 27 September 2018",
+          "accessed": "2026-11-04",
+          "locator": "Reading 33, Adjustments related to property, plant and equipment",
+          "evidence": "The workshop relates accumulated depreciation and capital spending to the gross asset base.",
+          "license": "Fitch Learning copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "partial",
+          "inputs": {
+            "depreciation": 400,
+            "gross": 1000
+          },
+          "expected": 0.4,
+          "tolerance": 1e-09,
+          "method": "400 accumulated depreciation over 1,000 gross PPE gives 40%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "new",
+          "inputs": {
+            "depreciation": 0,
+            "gross": 1000
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "No accumulated depreciation gives zero.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "gross": 1000
+          },
+          "reason": "depreciation is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "depreciation=fraction*gross.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--asset-base-renewal-capex-share",
+      "revision": "r1",
+      "title": "Capital expenditure share of gross PPE plus capital expenditure",
+      "summary": "The text divides capital expenditure by gross PPE plus capital expenditure as an asset renewal proxy.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "fraction",
+        "expression": "capex / (gross + capex)",
+        "original_equation": "Asset renewal proxy = capital expenditure / (gross PPE + capital expenditure)",
+        "source_id": "fitch-learning-asset-analysis-2018",
+        "locator": "Reading 33, Adjustments related to property, plant and equipment",
+        "translation_notes": "Inputs are nonnegative monetary magnitudes and the output is dimensionless."
+      },
+      "variables": [
+        {
+          "symbol": "capex",
+          "source_symbol": "capital expenditure",
+          "role": "input",
+          "quantity_id": "capital_expenditure",
+          "definition": "capital expenditure",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "gross",
+          "source_symbol": "gross PPE excluding the measured capital expenditure",
+          "role": "input",
+          "quantity_id": "gross_ppe_before_measured_capex",
+          "definition": "gross PPE excluding the measured capital expenditure",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fraction",
+          "source_symbol": "asset renewal proxy",
+          "role": "output",
+          "quantity_id": "capex_share_gross_ppe_plus_capex",
+          "definition": "Capital expenditure divided by gross PPE plus capital expenditure",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "capex >= 0",
+        "gross >= 0",
+        "gross + capex > 0"
+      ],
+      "assumptions": [
+        "Gross PPE and capital expenditure share a currency and relate to the same asset pool.",
+        "Gross PPE is measured before the specified additions so adding capex does not double-count them."
+      ],
+      "limitations": [
+        "Capex includes additions and growth as well as replacement, so the result is only a renewal proxy.",
+        "Cash capex, acquisitions, disposals, construction in progress and gross PPE may cover different asset populations."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 10, Adjustments Related to Property, Plant, and Equipment, printed p592 (PDF p606), unnumbered capital-expenditure relationship",
+          "evidence": "The text divides capital expenditure by gross PPE plus capital expenditure as an asset renewal proxy.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "fitch-learning-asset-analysis-2018",
+          "kind": "primary",
+          "title": "Financial Reporting Analysis Workshop",
+          "url": "https://fitchlearningmedia.com/Files/FRA_Workshop_27092018_Annotated.pdf",
+          "version": "Fitch Learning, workshop dated 27 September 2018",
+          "accessed": "2026-11-04",
+          "locator": "Reading 33, Adjustments related to property, plant and equipment",
+          "evidence": "The workshop relates accumulated depreciation and capital spending to the gross asset base.",
+          "license": "Fitch Learning copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "capex": 100,
+            "gross": 900
+          },
+          "expected": 0.1,
+          "tolerance": 1e-09,
+          "method": "100 capex over 900 gross PPE plus 100 capex gives 10%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero",
+          "inputs": {
+            "capex": 0,
+            "gross": 900
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Zero capex gives a zero renewal proxy.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "gross": 900
+          },
+          "reason": "capex is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "capex=fraction*gross/(1-fraction) when fraction is below one.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--market-value-to-tangible-book-equity",
+      "revision": "r1",
+      "title": "Market value to tangible book equity",
+      "summary": "The example divides market capitalization by book equity after goodwill and other intangibles are removed.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "multiple",
+        "expression": "market / tangible",
+        "original_equation": "Market-to-tangible-book ratio = market value of equity / tangible book equity",
+        "source_id": "saylor-market-value-ratios",
+        "locator": "Market/Book Ratio, Total Book Value vs Tangible Book Value",
+        "translation_notes": "The multiple is dimensionless; market and book values may have different observation dates."
+      },
+      "variables": [
+        {
+          "symbol": "market",
+          "source_symbol": "market value of common equity",
+          "role": "input",
+          "quantity_id": "market_capitalization_common_equity",
+          "definition": "market value of common equity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "tangible",
+          "source_symbol": "tangible book equity",
+          "role": "input",
+          "quantity_id": "tangible_book_value_equity",
+          "definition": "tangible book equity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "multiple",
+          "source_symbol": "market-to-tangible-book multiple",
+          "role": "output",
+          "quantity_id": "market_to_tangible_book_equity_multiple",
+          "definition": "Market value divided by tangible book equity",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "market >= 0",
+        "tangible > 0"
+      ],
+      "assumptions": [
+        "Market capitalization and tangible book equity cover matching common ownership claims and currency.",
+        "The tangible equity denominator is positive and excludes goodwill and other intangible assets consistently."
+      ],
+      "limitations": [
+        "This multiple is not a standalone measure of investment value or a recommendation.",
+        "Preferred interests, noncontrolling interests and deferred tax adjustments can require careful alignment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 10, Adjustments Related to Goodwill, printed pp594–595 (PDF pp608–609), Example 12 solution 1",
+          "evidence": "The example divides market capitalization by book equity after goodwill and other intangibles are removed.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "saylor-market-value-ratios",
+          "kind": "primary",
+          "title": "Market Value Ratios",
+          "url": "https://learn.saylor.org/mod/book/tool/print/index.php?id=90155",
+          "version": "Saylor University, Boundless Finance material, publication year not established",
+          "accessed": "2026-11-04",
+          "locator": "Market/Book Ratio, Total Book Value vs Tangible Book Value",
+          "evidence": "The material relates market capitalization to book value and identifies the tangible-book variant excluding goodwill and intangibles.",
+          "license": "Saylor source page attributes Boundless Finance; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "schwab",
+          "inputs": {
+            "market": 68620,
+            "tangible": 18777
+          },
+          "expected": 3.654470895244182,
+          "tolerance": 1e-09,
+          "method": "68,620 over 18,777 is approximately 3.7 when rounded to one decimal.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "ameritrade",
+          "inputs": {
+            "market": 33247,
+            "tangible": 2375
+          },
+          "expected": 13.998736842105263,
+          "tolerance": 1e-09,
+          "method": "33,247 over 2,375 is approximately 14.0.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "tangible": 18777
+          },
+          "reason": "market is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "market=multiple*tangible.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

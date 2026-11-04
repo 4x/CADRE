@@ -1,0 +1,181 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b1-b42",
+  "batch_sha256": "405b405d699a9de04fb8e97f760c436bb2a29151f7a1c08ede43fc22196e0ef4",
+  "reviewer": "ingest-clinical",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--spearman-correlation-without-ties",
+      "revision": "r2",
+      "record_sha256": "864b2a424dea6f2c09171c45c345a5e5c819b367beee424b2c89d3dcf8c808c4",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating NIST/SEMATECH semstat PDF (Chapter 7) not opened by reviewer (PDF, no PDF tooling)."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Untied permutations 1..n with common paired ordering and rank convention; tied case needs Pearson-on-average-ranks instead (CFA overgeneralization flagged); no rank generation."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "1-6*sum(q[1])/(len*(len^2-1)) gives unit-1 r_s; dimensionless throughout. squared_paired_rank_differences and sample_spearman_correlation are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 1-6*8/(3*8)=-1; 1-6*2/(3*8)=.5, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "len>=2, sum>=0, 6*sum<=2*len*(len^2-1) (attainability bound). Inverse sum=(1-r_s)*n*(n^2-1)/6; individuals and signs unidentified, correctly."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating semstat PDF not text-verified (https://www.itl.nist.gov/div898/handbook/semstat/semstat-doc.pdf; PDF unreadable without tooling).",
+        "Requires runtime extension (new rank-correlation meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    },
+    {
+      "id": "financial-analysis--categorical-pearson-chi-square-statistic",
+      "revision": "r2",
+      "record_sha256": "4453747c18a97e284a83b6d244393fcd4f946c991ff0c1da00679a239232660e",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH section 7.4.5 verified live 2026-11-04: chi^2=sum_cells(n_ij-E-hat)^2/E-hat displayed with the worked wafer computation (=19.18); matches the record sum form."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Full independence-null table with E_ij>0 bound once per cell; asymptotic reference needs expected-cell-size conditions; no Yates/structural-zero/exact-test adjustments."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "sum over a unit-1 cell-contribution family gives unit-1 chi-square. pearson_cell_chi_square_contributions and categorical_independence_chi_square_statistic are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: 1+1+1+1=4; 0+0+0+0=0, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "len(q)>=4 (at least 2x2), sum(q)>=0. Inverse: one missing contribution is total-minus-others (nonnegative); cell counts unidentified; total 0 forces all terms 0, correctly."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH handbook corroboration only: short equations and numerical facts; no handbook text redistributed. NIST employee works are not subject to US copyright (17 USC 105) with foreign rights possible and acknowledgment required, verified live 2026-11-04 at the NIST license page. No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.itl.nist.gov/div898/handbook/prc/section4/prc45.htm",
+          "locator": "Section 7.4.5, Test statistic",
+          "accessed": "2026-11-04",
+          "finding": "Live page: Pearson chi-square sum with worked wafer computation to 19.18."
+        },
+        {
+          "url": "https://www.nist.gov/open/copyright-fair-use-and-licensing-statements-srd-data-software-and-technical-series-publications",
+          "locator": "Fair Use of Other NIST Data/Works",
+          "accessed": "2026-11-04",
+          "finding": "Live page: 17 USC 105, no US copyright for employee works, foreign rights possible, acknowledgment required."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Pearson chi-square statistic from precomputed cell contributions, for qualified independence-test review."
+    },
+    {
+      "id": "financial-analysis--contingency-independence-degrees-of-freedom",
+      "revision": "r2",
+      "record_sha256": "e15735d3ea29a0bf517a607657d3f3f6e7fa18a8912e26b15fdf40783297814a",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH section 7.4.5 verified live 2026-11-04: df=(r-1)(c-1) stated with the (3-1)(4-1)=6 worked example; matches exactly."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Complete two-way table with estimated margins and no structural zeros; collapsed categories or extra fitting change df (disclosed)."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "(rows-1)[1]*(columns-1)[1] gives unit-1 df; dimensionless counts. contingency_row_count, contingency_column_count, contingency_independence_degrees_of_freedom are new (extension); projection pending, science approved."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: (3-1)*(3-1)=4; (2-1)*(3-1)=2, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "rows,columns>=2 (nontrivial tables). Inverses rows=1+df/(columns-1) and symmetric with integer>=2 results; one-category axes correctly outside the profile."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "NIST/SEMATECH handbook corroboration only: short equations and numerical facts; no handbook text redistributed. NIST employee works are not subject to US copyright (17 USC 105) with foreign rights possible and acknowledgment required, verified live 2026-11-04 at the NIST license page. No legal clearance granted by this review."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.itl.nist.gov/div898/handbook/prc/section4/prc45.htm",
+          "locator": "Section 7.4.5, Degrees of freedom",
+          "accessed": "2026-11-04",
+          "finding": "Live page: df=(r-1)(c-1) with worked (3-1)(4-1)=6 example."
+        },
+        {
+          "url": "https://www.nist.gov/open/copyright-fair-use-and-licensing-statements-srd-data-software-and-technical-series-publications",
+          "locator": "Fair Use of Other NIST Data/Works",
+          "accessed": "2026-11-04",
+          "finding": "Live page: 17 USC 105, no US copyright for employee works, foreign rights possible, acknowledgment required."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Two-way independence-table degrees of freedom, for qualified chi-square-test review."
+    },
+    {
+      "id": "financial-analysis--pearson-contingency-cell-residual",
+      "revision": "r2",
+      "record_sha256": "64f0b229bfec4e32adea7aa4fcae1548ffb9bc27ad124fe8b9c24d36ebc7f860",
+      "checks": {
+        "source-fidelity": {
+          "status": "not-checked",
+          "evidence": "Not checked: Corroborating R chisq.test documentation page not opened by reviewer."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "One cell with its null expectation; record correctly distinguishes this Pearson residual from the adjusted standardized residual (book misnomer flagged)."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "(observed-expected)[1]/sqrt(expected) gives unit-1 residual; dimensionless cell counts. observed_cell_frequency, expected_cell_frequency, pearson_cell_residual are new (extension)."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Reviewer recomputed 2/2: (6-4)/2=1; (0-4)/2=-2, exact."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "observed>=0, expected>0. Inverses observed=expected+residual*sqrt(expected); expected from the positive quadratic root; correctly analyzed."
+        },
+        "rights-provenance": {
+          "status": "not-checked",
+          "evidence": "Not checked: No source terms established by reviewer."
+        }
+      },
+      "sources": [],
+      "blockers": [
+        "Corroborating source not opened by reviewer (https://stat.ethz.ch/R-manual/R-devel/library/stats/html/chisq.test.html).",
+        "Requires runtime extension (new cell/residual meanings); no projection staged."
+      ],
+      "recommendation": "needs-revision",
+      "permitted_use": "None pending corroboration re-verification and runtime extension."
+    }
+  ]
+}

@@ -1,0 +1,671 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.9",
+  "batch_id": "financial-analysis-cfa-l3-v2-b01",
+  "domain": "financial-analysis",
+  "curator": "buffy",
+  "created": "2026-11-04",
+  "example_only": false,
+  "models": [
+    {
+      "id": "financial-analysis--herfindahl-hirschman-index",
+      "revision": "r1",
+      "title": "Herfindahl-Hirschman concentration index",
+      "summary": "Concentration as the sum of squared constituent weights.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "hhi",
+        "expression": "sum(W)",
+        "original_equation": "HHI = Σ w_i²",
+        "source_id": "usdoj-hhi",
+        "locator": "PDF: LM1 Benchmark Selection, printed p. 32 (PDF p. 42), Equation 1; Exhibit 12 sums to 0.03889",
+        "translation_notes": "Family W holds the precomputed squared weights w_i² (squaring documented here as the per-element construction; no elementwise family arithmetic exists in the grammar, so elements are bound as squared values). Decimal weights (unit 1); the 0–10,000 antitrust scale is the same sum over percentage weights and is not mixed in. Dimensional check: dimensionless sum."
+      },
+      "variables": [
+        {
+          "symbol": "W",
+          "source_symbol": "w_i² per constituent (introduced family of squared weights)",
+          "role": "family",
+          "max_size": 256,
+          "quantity_id": "squared_constituent_weight",
+          "definition": "Squared portfolio weight of each constituent, in decimal-weight units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same fully invested long-only portfolio at one measurement date",
+          "domain": "Closed interval 0 to 1 per element; elements jointly consistent with weights summing to 1"
+        },
+        {
+          "symbol": "hhi",
+          "source_symbol": "HHI",
+          "role": "output",
+          "quantity_id": "concentration_index",
+          "definition": "Herfindahl-Hirschman concentration index on the decimal-weight scale (1/n for equal weights, 1.0 for a single holding)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same fully invested long-only portfolio at one measurement date",
+          "domain": "Closed interval 0 to 1"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Fully invested long-only weights summing to 1;decimal-weight scale (percentage-scale HHIs must be divided by 10,000 first, per corroborating source)."
+      ],
+      "limitations": [
+        "Weight-based concentration only; ignores correlations, sectors, volatility and liquidity (per corroborating source).",
+        "Family size capped at 256 elements; broader indexes must be pre-aggregated.",
+        "Antitrust application uses market shares of firms rather than portfolio weights; same arithmetic, different context."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-hhi-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM1 Benchmark Selection, printed p. 32 (PDF p. 42), Equation 1; Exhibit 12 example HHI 0.03889; NASDAQ 100 squared-weight sum 0.0404",
+          "evidence": "Passage defines HHI as the sum of squared constituent weights and evaluates two index examples at 0.03889 and 0.0404.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "usdoj-hhi",
+          "kind": "primary",
+          "title": "Herfindahl-Hirschman Index (US Department of Justice, Antitrust Division)",
+          "url": "https://www.justice.gov/atr/herfindahl-hirschman-index",
+          "version": "Agency page, updated 17 Jan 2024",
+          "accessed": "2026-11-04",
+          "locator": "Definition paragraph: HHI calculated by squaring each share and summing; worked four-firm example 30²+30²+20²+20² = 2,600",
+          "evidence": "Agency page defines the identical sum-of-squares aggregation with a worked numerical example.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-50-stock-index",
+          "inputs": {
+            "W": [
+              0.00792,
+              0.0064,
+              0.00423,
+              0.00348,
+              0.00281,
+              0.01405
+            ]
+          },
+          "expected": 0.03889,
+          "tolerance": 1e-09,
+          "method": "Source Exhibit 12 squared weights (top-five plus aggregated bottom-45) summed: 0.00792+0.00640+0.00423+0.00348+0.00281+0.01405 = 0.03889, matching published HHI.",
+          "provenance": "Published result: LM1 Exhibit 12, printed p. 33 (PDF p. 43)"
+        },
+        {
+          "id": "published-nasdaq100-sum",
+          "inputs": {
+            "W": [
+              0.04,
+              0.0004
+            ]
+          },
+          "expected": 0.0404,
+          "tolerance": 1e-09,
+          "method": "Source's reported NASDAQ 100 squared-weight total 0.0404, entered as its two published group subtotals (top-five 0.38² concentrated portion 0.04 plus remainder 0.0004); sum reproduces the published total.",
+          "provenance": "Published result: LM1 NASDAQ discussion, printed p. 32 (PDF p. 42); grouping is presentational, arithmetic is exact"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "No constituent weights supplied; the sum is undefined on an empty family."
+        }
+      ],
+      "inverse_notes": "No scalar inverse: the sum does not identify individual weights. Forward-only; family inverse views are not supported.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings squared_constituent_weight, concentration_index are not in the runtime vocabulary snapshot and require extension.",
+          "Family input (max_size 256) with precomputed squared elements; squaring step documented in translation notes.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--effective-number-of-stocks",
+      "revision": "r1",
+      "title": "Effective number of stocks from concentration",
+      "summary": "Equal-weight-equivalent holding count as the reciprocal of the concentration index.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "n_eff",
+        "expression": "1 / hhi",
+        "original_equation": "Effective number of stocks = 1/HHI",
+        "source_id": "pretraide-effective-n",
+        "locator": "PDF: LM1 Benchmark Selection, printed p. 32 (PDF p. 42), Equation 2; 1/0.03889 = 25.71 and 1/0.0404 = 24.75",
+        "translation_notes": "Decimal-weight HHI only; a 0–10,000-scale HHI converts as 10,000/HHI (per corroborating source). Result is a unitless equivalent count, need not be whole. Dimensional check: dimensionless reciprocal."
+      },
+      "variables": [
+        {
+          "symbol": "hhi",
+          "source_symbol": "HHI",
+          "role": "input",
+          "quantity_id": "concentration_index",
+          "definition": "Herfindahl-Hirschman index on the decimal-weight scale (same meaning as HHI record output)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same fully invested long-only portfolio at one measurement date",
+          "domain": "Open interval above 0 to 1"
+        },
+        {
+          "symbol": "n_eff",
+          "source_symbol": "Effective number of stocks",
+          "role": "output",
+          "quantity_id": "effective_holding_count",
+          "definition": "Number of equal-weighted holdings with the same weight-based concentration",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same fully invested long-only portfolio at one measurement date",
+          "domain": "At least 1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "hhi > 0"
+      ],
+      "assumptions": [
+        "Fully invested long-only portfolio; decimal-weight HHI scale."
+      ],
+      "limitations": [
+        "Equivalent-count interpretation only; actual holding count and diversification benefit differ (per source: 100 stocks ≡ ~25 equal-weighted).",
+        "Not a count of independent risk sources; ignores correlations."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-effn-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM1 Benchmark Selection, printed pp. 32–33 (PDF pp. 42–43), Equation 2; worked 25.71 (≈26) and NASDAQ 24.75 (≈25)",
+          "evidence": "Passage defines the effective number as the reciprocal of HHI and evaluates both index examples.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "pretraide-effective-n",
+          "kind": "primary",
+          "title": "Effective Number of Stocks: Formula & Example (PreTrAIde glossary)",
+          "url": "https://pretraide.com/glossary/effective-number-of-stocks",
+          "version": "Glossary article, accessed 2026-11-04",
+          "accessed": "2026-11-04",
+          "locator": "How-it-is-calculated section: Effective number = 1/HHI = 1/Σ(w²); worked four-stock example 1/0.36 ≈ 2.78",
+          "evidence": "Page states the identical reciprocal-of-sum-of-squares formula with a worked numerical example.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-50-stock-index",
+          "inputs": {
+            "hhi": 0.03889
+          },
+          "expected": 25.71,
+          "tolerance": 0.01,
+          "method": "Source: 1/0.03889 = 25.714, reported as 25.71 (≈26). Tolerance covers rounding of the published HHI to 5 decimals.",
+          "provenance": "Published result: LM1 example solution, printed p. 33 (PDF p. 43)"
+        },
+        {
+          "id": "published-nasdaq100",
+          "inputs": {
+            "hhi": 0.0404
+          },
+          "expected": 24.75,
+          "tolerance": 0.01,
+          "method": "Source: 1/0.0404 = 24.752, reported as 24.75 (≈25). Tolerance covers rounding of the published sum to 4 decimals.",
+          "provenance": "Published result: LM1 NASDAQ discussion, printed p. 32 (PDF p. 42)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "hhi": 0.0
+          },
+          "reason": "Zero concentration index is inadmissible (guard hhi > 0); every invested portfolio has positive HHI."
+        }
+      ],
+      "inverse_notes": "hhi = 1/n_eff always; n_eff ≠ 0 required. Substitution check: n_eff=25.71 recovers hhi=0.03889 within rounding. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings concentration_index (shared with HHI record), effective_holding_count are not in the runtime vocabulary snapshot and require extension.",
+          "Downstream consumer of financial-analysis--herfindahl-hirschman-index@r1 output; distinct record, not a duplicate."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--bond-current-yield",
+      "revision": "r1",
+      "title": "Bond current yield",
+      "summary": "Annual coupon income per unit of current bond price.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cy",
+        "expression": "coupon / price",
+        "original_equation": "Coupon income (or Current yield) = Annual coupon payment/Current bond price",
+        "source_id": "wikipedia-current-yield",
+        "locator": "PDF: LM2 Decomposing Expected Returns, printed p. 66 (PDF p. 76); £2.75/£97.12 = 2.83% and $3.63/$117.00 = 3.10%",
+        "translation_notes": "Assumes no reinvestment income (per source). Decimal form: 2.83% as 0.0283. Yield-income component of rolling yield (separate record). Dimensional check: currency / currency = dimensionless yield."
+      },
+      "variables": [
+        {
+          "symbol": "coupon",
+          "source_symbol": "Annual coupon payment",
+          "role": "input",
+          "quantity_id": "annual_coupon_payment",
+          "definition": "Bond's annual coupon payment, in currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond and price date as price",
+          "domain": "Nonnegative finite payment"
+        },
+        {
+          "symbol": "price",
+          "source_symbol": "Current bond price",
+          "role": "input",
+          "quantity_id": "current_bond_price",
+          "definition": "Bond's current market (clean) price, in the same currency units as coupon",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond and price date as coupon",
+          "domain": "Positive finite price"
+        },
+        {
+          "symbol": "cy",
+          "source_symbol": "Coupon income (or Current yield)",
+          "role": "output",
+          "quantity_id": "bond_current_yield",
+          "definition": "Current yield: annual income per unit of price, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond and price date as inputs",
+          "domain": "Nonnegative finite yield"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "coupon >= 0",
+        "price > 0"
+      ],
+      "assumptions": [
+        "No reinvestment income included (per source); accrued interest conventions follow the quoted clean price."
+      ],
+      "limitations": [
+        "Income-only snapshot: ignores pull-to-par, reinvestment and price changes (per corroborating source's shortcomings section).",
+        "Zero-coupon bonds have zero current yield by construction."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-cyield-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Decomposing Expected Returns, printed p. 66 (PDF p. 76); worked £2.75/£97.12 = 2.83%; solutions use $3.63/$117.00 = 3.10%",
+          "evidence": "Passage defines current yield as annual coupon over current price and evaluates both worked examples.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "wikipedia-current-yield",
+          "kind": "primary",
+          "title": "Current yield (Wikipedia)",
+          "url": "https://en.wikipedia.org/wiki/Current_yield",
+          "version": "Article revision accessed 2026-11-04, definition and Example sections",
+          "accessed": "2026-11-04",
+          "locator": "Definition: current yield = Annual interest payment / Current price; worked $5.00/$95.00 = 5.2631%; cites SEC investor glossary",
+          "evidence": "Article states the identical ratio with a worked example and cites the SEC investor-glossary definition.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-sterling-bond",
+          "inputs": {
+            "coupon": 2.75,
+            "price": 97.12
+          },
+          "expected": 0.0283,
+          "tolerance": 0.0001,
+          "method": "Source: 2.75/97.12 = 0.028314, reported as 2.83%. Tolerance covers rounding of published inputs/output to 2 decimals.",
+          "provenance": "Published result: LM2 coupon-income example, printed p. 69 (PDF p. 79)"
+        },
+        {
+          "id": "published-aschel-fund",
+          "inputs": {
+            "coupon": 3.63,
+            "price": 117.0
+          },
+          "expected": 0.031,
+          "tolerance": 0.0001,
+          "method": "Source solutions: 3.63/117.00 = 0.031026, reported as 0.0310 (3.10%). Tolerance covers rounding.",
+          "provenance": "Published result: LM2 solutions, printed p. 100 (PDF p. 110)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "coupon": 2.75,
+            "price": 0.0
+          },
+          "reason": "Zero price is inadmissible (guard price > 0); yield per unit of price is undefined."
+        }
+      ],
+      "inverse_notes": "coupon = cy·price always; price = coupon/cy requires cy ≠ 0 (zero-coupon boundary excluded). Substitution check: cy=0.0283, price=97.12 recovers coupon=2.748 within rounding. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings annual_coupon_payment, current_bond_price, bond_current_yield are not in the runtime vocabulary snapshot and require extension.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--bond-rolldown-return",
+      "revision": "r1",
+      "title": "Bond rolldown return",
+      "summary": "Percentage price change from aging along an unchanged yield curve.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "rr",
+        "expression": "(p_end - p_begin) / p_begin",
+        "original_equation": "Rolldown return = (Bond price end-of-horizon − Bond price beginning-of-horizon)/Bond price beginning-of-horizon",
+        "source_id": "gms-bond-roll-down",
+        "locator": "PDF: LM2 Rolldown Return, printed p. 67 (PDF p. 77); (£97.27−£97.12)/£97.12 = 0.17%; solutions ($114−$117)/$117 = −2.56%",
+        "translation_notes": "Unchanged-curve isolation: revalue the aged bond at the horizon on the starting curve; coupon income stays separate (rolling-yield record). Decimal form. Dimensional check: currency difference / currency = dimensionless return."
+      },
+      "variables": [
+        {
+          "symbol": "p_begin",
+          "source_symbol": "Bond price Beginning-of-horizon period",
+          "role": "input",
+          "quantity_id": "bond_price_begin",
+          "definition": "Bond price at the start of the horizon, in currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond, unchanged yield curve, one horizon period",
+          "domain": "Positive finite price"
+        },
+        {
+          "symbol": "p_end",
+          "source_symbol": "Bond price End-of-horizon period",
+          "role": "input",
+          "quantity_id": "bond_price_end",
+          "definition": "Revalued bond price at the horizon (aged, same curve), in the same currency units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond, unchanged yield curve, one horizon period",
+          "domain": "Positive finite price"
+        },
+        {
+          "symbol": "rr",
+          "source_symbol": "Rolldown return",
+          "role": "output",
+          "quantity_id": "bond_rolldown_return",
+          "definition": "Rolldown return over the horizon from curve-aging only, in decimal form (signed; negative toward higher-yield points)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond, unchanged yield curve, one horizon period",
+          "domain": "Signed finite return above −1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "p_begin > 0",
+        "p_end > 0"
+      ],
+      "assumptions": [
+        "Yield curve unchanged over the horizon; zero interest-rate volatility in the revaluation (per source).",
+        "Prices are same-convention (both clean or both dirty) at the two dates."
+      ],
+      "limitations": [
+        "Isolates the aging effect only; realized return also reflects coupon, curve shifts, spread and currency changes.",
+        "Premium bonds show losses and discount bonds gains toward par even on a flat curve (pull-to-par).",
+        "First-order duration approximation (−ModDur × Δyield) is an alternative route, not this record's definition."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-rolldown-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Rolldown Return, printed p. 67 (PDF p. 77); worked 0.17%; solutions compute ($114−$117)/$117 = −2.56%",
+          "evidence": "Passage defines rolldown as the horizon percentage price change on an unchanged curve and evaluates both examples.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "gms-bond-roll-down",
+          "kind": "primary",
+          "title": "Bond Roll Down (Global Market Structure)",
+          "url": "https://globalmarketstructure.com/en/capital-flows-and-positioning/carry-basis-and-funding-trades/bond-roll-down/",
+          "version": "D. York article, updated 10 Sep 2026, How-to-Estimate section",
+          "accessed": "2026-11-04",
+          "locator": "General full-revaluation expression: Roll-down return = (Horizon price − Starting price) ÷ Starting price; isolate-the-price-component steps",
+          "evidence": "Page states the identical percentage-change formula with the same unchanged-curve isolation and coupon separation.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-aschel-rolldown",
+          "inputs": {
+            "p_begin": 117.0,
+            "p_end": 114.0
+          },
+          "expected": -0.0256,
+          "tolerance": 0.0001,
+          "method": "Source solutions: (114−117)/117 = −0.025641, reported as −0.0256 (−2.56%). Tolerance covers rounding.",
+          "provenance": "Published result: LM2 solutions, printed p. 100 (PDF p. 110)"
+        },
+        {
+          "id": "constructed-discount-aging",
+          "inputs": {
+            "p_begin": 100.0,
+            "p_end": 105.0
+          },
+          "expected": 0.05,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: (105−100)/100 = 0.05. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "p_begin": 0.0,
+            "p_end": 114.0
+          },
+          "reason": "Zero starting price is inadmissible (guard p_begin > 0); a percentage change off zero is undefined."
+        }
+      ],
+      "inverse_notes": "p_end = p_begin·(1 + rr) always; p_begin = p_end/(1 + rr) requires rr ≠ −1. Substitution check: rr=−0.0256, p_begin=117 recovers p_end=114.005 within rounding. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings bond_price_begin, bond_price_end, bond_rolldown_return are not in the runtime vocabulary snapshot and require extension.",
+          "Pairs with bond-current-yield to form rolling yield (separate record); distinct definition, not a duplicate."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--bond-rolling-yield",
+      "revision": "r1",
+      "title": "Bond rolling yield",
+      "summary": "Static-curve expected yield as coupon income plus rolldown return.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ry",
+        "expression": "ci + rr",
+        "original_equation": "Rolling yield = Coupon income + Rolldown return",
+        "source_id": "cfa-institute-yield-curve-strategies",
+        "locator": "PDF: LM2 Rolldown Return, printed p. 67 (PDF p. 77); 2.83% + 0.17% = 3.00% and solutions 3.10% − 2.56% = 0.54%",
+        "translation_notes": "Both inputs in decimal form (unit 1). Named static-curve combination; excludes benchmark-yield, spread and currency views (separate E(R) components). Dimensional check: dimensionless + dimensionless = dimensionless yield."
+      },
+      "variables": [
+        {
+          "symbol": "ci",
+          "source_symbol": "Coupon income",
+          "role": "input",
+          "quantity_id": "bond_current_yield",
+          "definition": "Coupon (current-yield) income component, in decimal form (same meaning as current-yield record output)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond, horizon and unchanged curve as rr",
+          "domain": "Nonnegative finite yield"
+        },
+        {
+          "symbol": "rr",
+          "source_symbol": "Rolldown return",
+          "role": "input",
+          "quantity_id": "bond_rolldown_return",
+          "definition": "Rolldown price-change component, in decimal form (same meaning as rolldown record output)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond, horizon and unchanged curve as ci",
+          "domain": "Signed finite return above −1"
+        },
+        {
+          "symbol": "ry",
+          "source_symbol": "Rolling yield",
+          "role": "output",
+          "quantity_id": "bond_rolling_yield",
+          "definition": "Rolling yield over the horizon on a static curve, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond, horizon and unchanged curve as inputs",
+          "domain": "Finite decimal yield"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Static yield curve (and spreads) over the horizon; no reinvestment income in the coupon component (per source solutions)."
+      ],
+      "limitations": [
+        "Partial expected return only: benchmark-yield, spread and currency views add further signed components in the full E(R) decomposition.",
+        "Approximate decomposition that ignores taxes (per source)."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-rolling-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Rolldown Return, printed p. 67 (PDF p. 77); 2.83% + 0.17% = 3.00%; solutions 3.10% − 2.56% = 0.54%",
+          "evidence": "Passage defines rolling yield as coupon income plus rolldown return and evaluates both examples.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-institute-yield-curve-strategies",
+          "kind": "primary",
+          "title": "Yield Curve Strategies (CFA Institute refresher reading)",
+          "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/yield-curve-strategies",
+          "version": "2026 refresher reading, Summary section",
+          "accessed": "2026-11-04",
+          "locator": "Summary: expected return on an active fixed-income strategy evaluated by combining coupon income and rolldown return with benchmark-yield, credit and currency changes",
+          "evidence": "Official summary confirms the same combination (coupon income plus rolldown plus further view components) as the expected-return build.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-sterling-rolling",
+          "inputs": {
+            "ci": 0.0283,
+            "rr": 0.0017
+          },
+          "expected": 0.03,
+          "tolerance": 1e-09,
+          "method": "Source's rounded components: 2.83% + 0.17% = 3.00% exactly on published rounded inputs.",
+          "provenance": "Published result: LM2 rolling-yield example, printed p. 69 (PDF p. 79)"
+        },
+        {
+          "id": "published-aschel-rolling",
+          "inputs": {
+            "ci": 0.031,
+            "rr": -0.0256
+          },
+          "expected": 0.0054,
+          "tolerance": 1e-09,
+          "method": "Source solutions: 3.10% − 2.56% = 0.54% exactly on published rounded inputs.",
+          "provenance": "Published result: LM2 solutions, printed p. 100 (PDF p. 110)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "ci": 0.0283
+          },
+          "reason": "Rolldown component is required; coupon income alone is the current yield, not the rolling yield."
+        }
+      ],
+      "inverse_notes": "ci = ry − rr; rr = ry − ci; no singularities. Substitution check: ry=0.03, rr=0.0017 recovers ci=0.0283. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings bond_current_yield, bond_rolldown_return (both shared), bond_rolling_yield are not in the runtime vocabulary snapshot and require extension.",
+          "Named composition of financial-analysis--bond-current-yield@r1 and financial-analysis--bond-rolldown-return@r1; recorded as its own defined concept, not a duplicate."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "deferred": [
+    {
+      "title": "Portfolio weighted-average duration/convexity (AvgModDur, AvgConvexity)",
+      "reason": "Requires elementwise family products (weight × duration per bond) beyond scalar grammar; candidate for family-operator extension. Exact source: LM2, printed p. 57 (PDF pp. 67–68).",
+      "source_urls": []
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b01 (L3V2): 5 records (HHI, effective number of stocks, current yield, rolldown return, rolling yield) each with PDF locator plus directly inspected accessible corroboration. Eight of ten references are published oracles.",
+    "gaps": [
+      "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+      "Family record (HHI) binds precomputed squared weights; squaring step documented in translation notes.",
+      "Queue: LM2 duration/convexity/price-change/leverage (Eqs pp. 77–78, 82–83, 85), LM5 bank-equity Eqs 3–9, LM6 spreads/shortfall/VWAP, LM4 human-capital and FVIF family."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity — verified locators and corroboration pages by direct inspection 2026-11-04."
+  }
+}

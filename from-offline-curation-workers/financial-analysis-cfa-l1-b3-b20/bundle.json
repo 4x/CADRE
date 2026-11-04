@@ -1,0 +1,336 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b20",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--dupont-three-factor-return-on-equity",
+      "revision": "r1",
+      "title": "Three-factor DuPont return on equity",
+      "summary": "Return on equity decomposes into net margin, asset turnover and leverage.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "roe",
+        "expression": "margin * turnover * leverage",
+        "original_equation": "ROE = net profit margin × total asset turnover × financial leverage",
+        "source_id": "cfa-revenue-recognition",
+        "locator": "Printed p13, Figure 8: DuPont ROE formula",
+        "translation_notes": "All factors are dimensionless. This is a recognized decomposition of the independently defined return on equity and depends on the individual ratio records."
+      },
+      "variables": [
+        {
+          "symbol": "margin",
+          "source_symbol": "net profit margin",
+          "role": "input",
+          "quantity_id": "net_profit_margin",
+          "definition": "Net income divided by matching revenue",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "turnover",
+          "source_symbol": "total asset turnover",
+          "role": "input",
+          "quantity_id": "total_asset_turnover_ratio",
+          "definition": "Revenue divided by matching average total assets",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "leverage",
+          "source_symbol": "financial leverage",
+          "role": "input",
+          "quantity_id": "financial_leverage_ratio",
+          "definition": "Matching average assets divided by average equity",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "roe",
+          "source_symbol": "return on equity",
+          "role": "output",
+          "quantity_id": "return_on_average_equity",
+          "definition": "Net income divided by average equity",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Factors must be computed from the same entity, period, income and averaging conventions.",
+        "Revenue, average assets and average equity used to form the factors must be nonzero."
+      ],
+      "limitations": [
+        "The equation is an algebraic decomposition, not a causal estimate.",
+        "Precomputed factors must be compatible upstream; this scalar expression cannot enforce common underlying balances."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, DuPont Analysis, printed p225 (PDF p239), Equation (2)",
+          "evidence": "Return on equity decomposes into net margin, asset turnover and leverage.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-revenue-recognition",
+          "kind": "primary",
+          "title": "Revenue Recognition: Top Ten Questions Investors Should Ask",
+          "url": "https://rpc.cfainstitute.org/sites/default/files/-/media/documents/article/position-paper/revenue-recognition-top-ten-questions-investors-should-ask.pdf",
+          "version": "CFA Institute, 2018 position paper",
+          "accessed": "2026-11-03",
+          "locator": "Printed p13, Figure 8: DuPont ROE formula",
+          "evidence": "Figure 8 shows the return-on-equity decomposition through profitability, turnover, leverage, tax and interest burden.",
+          "license": "Copyright CFA Institute; formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "margin": 0.1,
+            "turnover": 2,
+            "leverage": 1.5
+          },
+          "expected": 0.3,
+          "tolerance": 1e-09,
+          "method": "10% margin times two turnovers times 1.5 leverage gives 30%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "loss",
+          "inputs": {
+            "margin": -0.05,
+            "turnover": 2,
+            "leverage": 2
+          },
+          "expected": -0.2,
+          "tolerance": 1e-09,
+          "method": "A negative five-percent margin times two times two gives negative 20%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "turnover": 2,
+            "leverage": 1.5
+          },
+          "reason": "margin is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "margin=roe/(turnover*leverage) when that product is nonzero; other factors are analogous. Zero factors make some inverses nonunique.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--dupont-five-factor-return-on-equity",
+      "revision": "r1",
+      "title": "Five-factor DuPont return on equity",
+      "summary": "Five ratios decompose ROE into tax burden, interest burden, EBIT margin, asset turnover and leverage.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "roe",
+        "expression": "tax * interest * margin * turnover * leverage",
+        "original_equation": "ROE = tax burden × interest burden × EBIT margin × asset turnover × leverage",
+        "source_id": "cfa-revenue-recognition",
+        "locator": "Printed p13, Figure 8: DuPont ROE formula",
+        "translation_notes": "The five-factor representation expands the net margin in the three-factor identity; both are reported because the source defines and uses their different component decompositions."
+      },
+      "variables": [
+        {
+          "symbol": "tax",
+          "source_symbol": "tax burden",
+          "role": "input",
+          "quantity_id": "dupont_tax_burden",
+          "definition": "Net income divided by pretax income",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "interest",
+          "source_symbol": "interest burden",
+          "role": "input",
+          "quantity_id": "dupont_interest_burden",
+          "definition": "Pretax income divided by EBIT",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "margin",
+          "source_symbol": "EBIT margin",
+          "role": "input",
+          "quantity_id": "dupont_ebit_margin",
+          "definition": "EBIT divided by revenue",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "turnover",
+          "source_symbol": "asset turnover",
+          "role": "input",
+          "quantity_id": "total_asset_turnover_ratio",
+          "definition": "Revenue divided by average total assets",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "leverage",
+          "source_symbol": "financial leverage",
+          "role": "input",
+          "quantity_id": "financial_leverage_ratio",
+          "definition": "Average assets divided by average equity",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "roe",
+          "source_symbol": "return on equity",
+          "role": "output",
+          "quantity_id": "return_on_average_equity",
+          "definition": "Net income divided by average equity",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "All factors use matching accounting scopes and periods; EBIT and pretax income are nonzero when constructing their ratios.",
+        "Average assets and equity and revenue are nonzero where used as denominators."
+      ],
+      "limitations": [
+        "The decomposition does not establish causation; intermediate zero subtotals can make individual factors undefined.",
+        "Consistent source quantities must be checked externally before combining factors."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, DuPont Analysis, printed p227 (PDF p241), Equation (3)",
+          "evidence": "Five ratios decompose ROE into tax burden, interest burden, EBIT margin, asset turnover and leverage.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-revenue-recognition",
+          "kind": "primary",
+          "title": "Revenue Recognition: Top Ten Questions Investors Should Ask",
+          "url": "https://rpc.cfainstitute.org/sites/default/files/-/media/documents/article/position-paper/revenue-recognition-top-ten-questions-investors-should-ask.pdf",
+          "version": "CFA Institute, 2018 position paper",
+          "accessed": "2026-11-03",
+          "locator": "Printed p13, Figure 8: DuPont ROE formula",
+          "evidence": "Figure 8 shows the return-on-equity decomposition through profitability, turnover, leverage, tax and interest burden.",
+          "license": "Copyright CFA Institute; formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "tax": 0.8,
+            "interest": 0.9,
+            "margin": 0.1,
+            "turnover": 2,
+            "leverage": 1.5
+          },
+          "expected": 0.216,
+          "tolerance": 1e-09,
+          "method": "0.8×0.9×0.1×2×1.5 = 0.216.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "loss",
+          "inputs": {
+            "tax": 1,
+            "interest": 1,
+            "margin": -0.05,
+            "turnover": 2,
+            "leverage": 2
+          },
+          "expected": -0.2,
+          "tolerance": 1e-09,
+          "method": "A negative EBIT margin yields a negative 0.2 return in this case.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "interest": 0.9,
+            "margin": 0.1,
+            "turnover": 2,
+            "leverage": 1.5
+          },
+          "reason": "tax is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Any factor can be solved by dividing ROE by the product of the other four if that product is nonzero. Zero products can make inversion nonunique.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,418 @@
+{
+ "batch_id": "financial-analysis-cfa-l3-v4-b05",
+ "created": "2026-11-04",
+ "curator": "buffy",
+ "deferred": [],
+ "domain": "financial-analysis",
+ "example_only": false,
+ "handoff": {
+  "summary": "Batch b05 (L3V4): 3 records (TRS net settlement, TRS-hedged portfolio P&L, partial-hedge blended return) each with PDF locator and directly inspected accessible corroboration.",
+  "gaps": [
+   "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+   "Queue: LM3 forward/option hedge strategies (qualitative, no double oracles found); fed funds Eq17/18 singles; variance-swap Eq12/14/16 singles; L3V4 close-out."
+  ],
+  "connections": [],
+  "queries": [],
+  "review_notes": "Validation and packing to be run after writing; verified locators and corroboration pages by direct inspection 2026-11-04."
+ },
+ "kit_version": "2026-10-31.9",
+ "schema_version": "cm-curation-batch/1",
+ "models": [
+  {
+   "id": "financial-analysis--trs-net-settlement",
+   "revision": "r1",
+   "title": "Total return swap net settlement",
+   "summary": "Net swap receipt as the signed equity-leg receipt plus the fixed-leg receipt for the period.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "n",
+    "expression": "e+f",
+    "original_equation": "Net payment on the swap = (signed equity-leg receipt) + (fixed-leg receipt)",
+    "source_id": "analystprep-targeted-equity",
+    "locator": "PDF: LM2 equity total-return swap, printed p. 101 (PDF p. 109), two scenarios on a $100M equity portfolio with a $30M notional swap (pay equity return, receive 2% fixed x 180/360): Scenario 1 (+5%): pay $30M x 5% = -$1,500,000, receive +$300,000, net -$1,200,000, combined P&L +$3,800,000, check 0.7x5%+0.3x[2%/2] = 3.8%; Scenario 2 (-5%): receive +$1,500,000 + $300,000, net +$1,800,000, combined P&L -$3,200,000, check 0.7x-5%+0.3x[2%/2] = -3.2%",
+    "translation_notes": "Currency units. Equity receipt is negative when the investor pays a positive equity return."
+   },
+   "variables": [
+    {
+     "symbol": "e",
+     "source_symbol": "Equity-leg receipt",
+     "role": "input",
+     "quantity_id": "swap_equity_receipt",
+     "definition": "Signed equity-leg cash flow (negative when paying), in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one swap settlement period",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "f",
+     "source_symbol": "Fixed-leg receipt",
+     "role": "input",
+     "quantity_id": "swap_fixed_receipt",
+     "definition": "Fixed-leg cash flow for the period, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same period",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "n",
+     "source_symbol": "Net payment on the swap",
+     "role": "output",
+     "quantity_id": "swap_net_settlement",
+     "definition": "Net swap settlement receipt, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same period",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Single netted settlement of the two legs; day-counted fixed accrual taken as given."
+   ],
+   "limitations": [
+    "Settlement arithmetic only; leg accruals (equity return, fixed day count) are separate."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-trs-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM2 equity total-return swap, printed p. 101 (PDF p. 109), two scenarios on a $100M equity portfolio with a $30M notional swap (pay equity return, receive 2% fixed x 180/360): Scenario 1 (+5%): pay $30M x 5% = -$1,500,000, receive +$300,000, net -$1,200,000, combined P&L +$3,800,000, check 0.7x5%+0.3x[2%/2] = 3.8%; Scenario 2 (-5%): receive +$1,500,000 + $300,000, net +$1,800,000, combined P&L -$3,200,000, check 0.7x-5%+0.3x[2%/2] = -3.2%",
+     "evidence": "Swap settlement lines for Scenarios 1 (-$1,200,000) and 2 (+$1,800,000).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-targeted-equity",
+     "kind": "primary",
+     "title": "Using Derivatives for Targeted Equity Exposure (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/using-derivatives-to-achieve-targeted-equity/",
+     "version": "Study notes, 11 Aug 2024",
+     "accessed": "2026-11-04",
+     "locator": "Equity-swap counterparties net the index total return against the fixed payment at pre-specified dates, with worked net-payment arithmetic (3.43%-2.25%)x$350 = $4.13 per share on 100,000 shares.",
+     "evidence": "Page states the same swap-netting mechanics with an independent worked oracle.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-bull-net-oracle",
+     "inputs": {
+      "e": -1500000.0,
+      "f": 300000.0
+     },
+     "expected": -1200000.0,
+     "tolerance": 0.01,
+     "method": "-1,500,000 + 300,000 = -1,200,000.",
+     "provenance": "Published result: LM2 TRS Scenario 1, printed p. 101 (PDF p. 109)"
+    },
+    {
+     "id": "published-bear-net-oracle",
+     "inputs": {
+      "e": 1500000.0,
+      "f": 300000.0
+     },
+     "expected": 1800000.0,
+     "tolerance": 0.01,
+     "method": "1,500,000 + 300,000 = 1,800,000.",
+     "provenance": "Published result: LM2 TRS Scenario 2, printed p. 101 (PDF p. 109)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "e": -1500000.0
+     },
+     "reason": "Fixed receipt is structurally required; a single leg is not a settlement."
+    }
+   ],
+   "inverse_notes": "f = n-e. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings swap legs and net settlement are not in the runtime vocabulary snapshot and require extension.",
+     "Fixed-leg accrual $30M x 2% x 180/360 = $300,000 is a single-oracle day-count computation, noted only."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--trs-hedged-portfolio-pnl",
+   "revision": "r1",
+   "title": "TRS-hedged portfolio profit and loss",
+   "summary": "Combined P&L as the underlying portfolio P&L plus the swap net settlement.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "h",
+    "expression": "p+n",
+    "original_equation": "P&L on the net position = (P&L on the stock portfolio) + (net payment on the swap)",
+    "source_id": "analystprep-targeted-equity",
+    "locator": "PDF: LM2 equity total-return swap, printed p. 101 (PDF p. 109), two scenarios on a $100M equity portfolio with a $30M notional swap (pay equity return, receive 2% fixed x 180/360): Scenario 1 (+5%): pay $30M x 5% = -$1,500,000, receive +$300,000, net -$1,200,000, combined P&L +$3,800,000, check 0.7x5%+0.3x[2%/2] = 3.8%; Scenario 2 (-5%): receive +$1,500,000 + $300,000, net +$1,800,000, combined P&L -$3,200,000, check 0.7x-5%+0.3x[2%/2] = -3.2%",
+    "translation_notes": "Currency units. Partial hedge: 70% exposure retained, 30% swapped."
+   },
+   "variables": [
+    {
+     "symbol": "p",
+     "source_symbol": "P&L on the stock portfolio",
+     "role": "input",
+     "quantity_id": "portfolio_pnl",
+     "definition": "Underlying portfolio profit and loss, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one scenario",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "n",
+     "source_symbol": "Net payment on the swap",
+     "role": "input",
+     "quantity_id": "swap_net_settlement",
+     "definition": "Swap net settlement receipt, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same scenario",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "h",
+     "source_symbol": "P&L on the net position",
+     "role": "output",
+     "quantity_id": "hedged_portfolio_pnl",
+     "definition": "Combined profit and loss, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same scenario",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Swap overlays the same equity market as the portfolio; single scenario."
+   ],
+   "limitations": [
+    "Scenario arithmetic only; hedge effectiveness over time is separate."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-hedgedpnl-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM2 equity total-return swap, printed p. 101 (PDF p. 109), two scenarios on a $100M equity portfolio with a $30M notional swap (pay equity return, receive 2% fixed x 180/360): Scenario 1 (+5%): pay $30M x 5% = -$1,500,000, receive +$300,000, net -$1,200,000, combined P&L +$3,800,000, check 0.7x5%+0.3x[2%/2] = 3.8%; Scenario 2 (-5%): receive +$1,500,000 + $300,000, net +$1,800,000, combined P&L -$3,200,000, check 0.7x-5%+0.3x[2%/2] = -3.2%",
+     "evidence": "Combined P&L lines for Scenarios 1 (+$3,800,000) and 2 (-$3,200,000).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-targeted-equity",
+     "kind": "primary",
+     "title": "Using Derivatives for Targeted Equity Exposure (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/using-derivatives-to-achieve-targeted-equity/",
+     "version": "Study notes, 11 Aug 2024",
+     "accessed": "2026-11-04",
+     "locator": "Equity-swap counterparties net the index total return against the fixed payment at pre-specified dates, with worked net-payment arithmetic (3.43%-2.25%)x$350 = $4.13 per share on 100,000 shares.",
+     "evidence": "Page states the same swap-netting mechanics with an independent worked oracle.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-bull-combined-oracle",
+     "inputs": {
+      "p": 5000000.0,
+      "n": -1200000.0
+     },
+     "expected": 3800000.0,
+     "tolerance": 0.01,
+     "method": "5,000,000 - 1,200,000 = 3,800,000.",
+     "provenance": "Published result: LM2 TRS Scenario 1, printed p. 101 (PDF p. 109)"
+    },
+    {
+     "id": "published-bear-combined-oracle",
+     "inputs": {
+      "p": -5000000.0,
+      "n": 1800000.0
+     },
+     "expected": -3200000.0,
+     "tolerance": 0.01,
+     "method": "-5,000,000 + 1,800,000 = -3,200,000.",
+     "provenance": "Published result: LM2 TRS Scenario 2, printed p. 101 (PDF p. 109)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "p": 5000000.0
+     },
+     "reason": "Swap settlement is structurally required; portfolio P&L alone is unhedged."
+    }
+   ],
+   "inverse_notes": "n = h-p. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings portfolio P&L, swap settlement, and combined P&L are not in the runtime vocabulary snapshot and require extension."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--partial-hedge-blended-return",
+   "revision": "r1",
+   "title": "Partial-hedge blended portfolio return",
+   "summary": "Reasonableness-check return as the retained equity weight times the equity return plus the swapped weight times the period fixed rate.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "b",
+    "expression": "w*r+(1-w)*f",
+    "original_equation": "Return = w x r + (1 - w) x f (0.7 x 5% + 0.3 x [2%/2] check)",
+    "source_id": "analystprep-targeted-equity",
+    "locator": "PDF: LM2 equity total-return swap, printed p. 101 (PDF p. 109), two scenarios on a $100M equity portfolio with a $30M notional swap (pay equity return, receive 2% fixed x 180/360): Scenario 1 (+5%): pay $30M x 5% = -$1,500,000, receive +$300,000, net -$1,200,000, combined P&L +$3,800,000, check 0.7x5%+0.3x[2%/2] = 3.8%; Scenario 2 (-5%): receive +$1,500,000 + $300,000, net +$1,800,000, combined P&L -$3,200,000, check 0.7x-5%+0.3x[2%/2] = -3.2%",
+    "translation_notes": "Decimals. f is the period (here semiannual) fixed rate, not the annualized quote."
+   },
+   "variables": [
+    {
+     "symbol": "w",
+     "source_symbol": "w",
+     "role": "input",
+     "quantity_id": "retained_equity_weight",
+     "definition": "Weight of retained equity exposure, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one scenario",
+     "domain": "Closed interval 0 to 1"
+    },
+    {
+     "symbol": "r",
+     "source_symbol": "r",
+     "role": "input",
+     "quantity_id": "equity_return",
+     "definition": "Equity market return for the period, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same scenario",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "f",
+     "source_symbol": "f",
+     "role": "input",
+     "quantity_id": "period_fixed_rate",
+     "definition": "Fixed rate earned on the swapped weight for the period, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same scenario",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "b",
+     "source_symbol": "Return",
+     "role": "output",
+     "quantity_id": "blended_hedged_return",
+     "definition": "Blended portfolio return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same scenario",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Swapped weight earns the fixed rate; single period; weights sum to one."
+   ],
+   "limitations": [
+    "Check identity only; assumes the swap exactly converts the swapped weight to fixed."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-blend-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM2 equity total-return swap, printed p. 101 (PDF p. 109), two scenarios on a $100M equity portfolio with a $30M notional swap (pay equity return, receive 2% fixed x 180/360): Scenario 1 (+5%): pay $30M x 5% = -$1,500,000, receive +$300,000, net -$1,200,000, combined P&L +$3,800,000, check 0.7x5%+0.3x[2%/2] = 3.8%; Scenario 2 (-5%): receive +$1,500,000 + $300,000, net +$1,800,000, combined P&L -$3,200,000, check 0.7x-5%+0.3x[2%/2] = -3.2%",
+     "evidence": "Reasonableness checks for Scenarios 1 (3.8%) and 2 (-3.2%).",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-targeted-equity",
+     "kind": "primary",
+     "title": "Using Derivatives for Targeted Equity Exposure (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/using-derivatives-to-achieve-targeted-equity/",
+     "version": "Study notes, 11 Aug 2024",
+     "accessed": "2026-11-04",
+     "locator": "Equity-swap counterparties net the index total return against the fixed payment at pre-specified dates, with worked net-payment arithmetic (3.43%-2.25%)x$350 = $4.13 per share on 100,000 shares.",
+     "evidence": "Page states the same swap-netting mechanics with an independent worked oracle.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-bull-blend-oracle",
+     "inputs": {
+      "w": 0.7,
+      "r": 0.05,
+      "f": 0.01
+     },
+     "expected": 0.038,
+     "tolerance": 1e-09,
+     "method": "0.7 x 5% + 0.3 x [2%/2] = 0.035 + 0.003 = 3.8%.",
+     "provenance": "Published result: LM2 TRS check, printed p. 101 (PDF p. 109)"
+    },
+    {
+     "id": "published-bear-blend-oracle",
+     "inputs": {
+      "w": 0.7,
+      "r": -0.05,
+      "f": 0.01
+     },
+     "expected": -0.032,
+     "tolerance": 1e-09,
+     "method": "0.7 x -5% + 0.3 x [2%/2] = -0.035 + 0.003 = -3.2%.",
+     "provenance": "Published result: LM2 TRS check, printed p. 101 (PDF p. 109)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "w": 0.7,
+      "r": 0.05
+     },
+     "reason": "Period fixed rate is structurally required; equity alone gives no blend."
+    }
+   ],
+   "inverse_notes": "No single-input inverse without fixing the other two. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings weight, equity return, period fixed rate, and blended return are not in the runtime vocabulary snapshot and require extension."
+    ],
+    "duplicate_of": []
+   }
+  }
+ ]
+}

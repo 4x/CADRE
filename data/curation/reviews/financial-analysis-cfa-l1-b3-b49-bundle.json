@@ -1,0 +1,290 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b49",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [
+    {
+      "title": "General FIFO and LIFO inventory-layer allocation",
+      "reason": "Financial Statement Analysis LM5, printed pp259–265/PDF pp273–279, Examples 2–3: complete allocation across an arbitrary number of inventory layers requires priority ordering plus conditional depletion or min/max. The scalar/family engine does not provide the necessary elementwise conditional allocation. Do not replace the general algorithm with an unguarded arithmetic branch; periodic weighted-average allocation is covered separately in Volume 1.",
+      "source_urls": [
+        "https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/"
+      ]
+    }
+  ],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. The comprehensive-per-share model is an explicitly identified algebraic decomposition of the public source’s comprehensive earnings numerator, not a claim that this non-GAAP analytical per-share measure is mandatory."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--horizontal-common-size-trend-index",
+      "revision": "r1",
+      "title": "Horizontal common-size trend index",
+      "summary": "The horizontal common-size statement expresses each period’s item relative to its base-period amount.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "index",
+        "expression": "current / base",
+        "original_equation": "Trend index = current-period amount / base-period amount",
+        "source_id": "csus-financial-statement-analysis",
+        "locator": "Slides 17–18, trend percentages",
+        "translation_notes": "The base index is one, equivalent to 100%; currency cancels with no 100 multiplier."
+      },
+      "variables": [
+        {
+          "symbol": "current",
+          "source_symbol": "current-period financial statement item",
+          "role": "input",
+          "quantity_id": "current_period_financial_statement_item",
+          "definition": "current-period financial statement item",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "base",
+          "source_symbol": "base-period same financial statement item",
+          "role": "input",
+          "quantity_id": "base_period_financial_statement_item",
+          "definition": "base-period same financial statement item",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "index",
+          "source_symbol": "trend index",
+          "role": "output",
+          "quantity_id": "financial_statement_trend_index",
+          "definition": "Current item as a multiple of the selected base-period amount",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "base > 0"
+      ],
+      "assumptions": [
+        "The same entity, financial item, accounting basis and currency are used in both periods.",
+        "The base amount is positive for the stated trend interpretation."
+      ],
+      "limitations": [
+        "Zero or negative bases require separate handling and interpretation.",
+        "This is a horizontal comparison, unlike a vertical common-size ratio against same-period revenues or assets."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Cross-Sectional, Trend Analysis and Relationships in Financial Statements, printed p196 (PDF p210), Exhibit 7 discussion",
+          "evidence": "The horizontal common-size statement expresses each period’s item relative to its base-period amount.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "csus-financial-statement-analysis",
+          "kind": "primary",
+          "title": "Financial Statement Analysis lecture slides",
+          "url": "https://www.csus.edu/indiv/p/pforsichh/accountinginfo/240/financial%20statement%20analysis/financialstmtanalysisppt%5B1%5D.pdf",
+          "version": "California State University Sacramento, university-hosted teaching slides; year not established",
+          "accessed": "2026-11-03",
+          "locator": "Slides 17–18, trend percentages",
+          "evidence": "The presentation divides the current year amount by the selected base year amount to construct a trend percentage.",
+          "license": "University-hosted material; reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cash",
+          "inputs": {
+            "current": 29,
+            "base": 39
+          },
+          "expected": 0.7435897435897436,
+          "tolerance": 1e-09,
+          "method": "29 current cash divided by 39 base cash is approximately 0.74.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "growth",
+          "inputs": {
+            "current": 150,
+            "base": 100
+          },
+          "expected": 1.5,
+          "tolerance": 1e-09,
+          "method": "150 against a 100 base is 1.5 times the base.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "base": 39
+          },
+          "reason": "current is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "current=index*base; base=current/index when index is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--comprehensive-earnings-per-common-share-components",
+      "revision": "r1",
+      "title": "Comprehensive earnings per share from EPS and OCI per share",
+      "summary": "The example adds other comprehensive income per share to earnings per share.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "comprehensive",
+        "expression": "eps + oci",
+        "original_equation": "Comprehensive EPS = EPS + OCI per share",
+        "source_id": "columbia-financial-statement-design",
+        "locator": "The Summary Earnings-Per-Share Number, printed p34",
+        "translation_notes": "The sum is the algebraic per-share decomposition of the comprehensive earnings numerator discussed by the public source; the source does not prescribe this particular label or a universally required metric."
+      },
+      "variables": [
+        {
+          "symbol": "eps",
+          "source_symbol": "net earnings per common share",
+          "role": "input",
+          "quantity_id": "earnings_per_common_share",
+          "definition": "net earnings per common share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "oci",
+          "source_symbol": "other comprehensive income per common share",
+          "role": "input",
+          "quantity_id": "other_comprehensive_income_per_common_share",
+          "definition": "other comprehensive income per common share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "comprehensive",
+          "source_symbol": "comprehensive earnings per common share",
+          "role": "output",
+          "quantity_id": "comprehensive_earnings_per_common_share",
+          "definition": "comprehensive earnings per common share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "EPS and OCI per share use identical share denominators, entity, period, ownership attribution and currency.",
+        "Comprehensive income is the sum of profit and other comprehensive income."
+      ],
+      "limitations": [
+        "This is an analytical per-share measure; it is not necessarily a required reported EPS measure.",
+        "Noncontrolling interests and preferred claims must be consistently allocated before forming per-share quantities."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 1, Comprehensive Income, printed pp49–50 (PDF pp63–64), Example 15 solution",
+          "evidence": "The example adds other comprehensive income per share to earnings per share.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "columbia-financial-statement-design",
+          "kind": "primary",
+          "title": "The Design of Financial Statements",
+          "url": "https://business.columbia.edu/sites/default/files-efs/imce-uploads/CEASA/Design%20of%20Financial%20Statements%20July%202016.pdf",
+          "version": "Columbia Business School, Center for Excellence in Accounting and Security Analysis, July 2016",
+          "accessed": "2026-11-03",
+          "locator": "The Summary Earnings-Per-Share Number, printed p34",
+          "evidence": "The paper proposes comprehensive earnings to common shareholders on a per-share basis; the per-share decomposition follows from its comprehensive numerator.",
+          "license": "University-hosted research; copyright and reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "company-a",
+          "inputs": {
+            "eps": 1.6,
+            "oci": -0.72
+          },
+          "expected": 0.88,
+          "tolerance": 1e-09,
+          "method": "1.60 EPS plus a 0.72 OCI loss per share gives 0.88 comprehensive EPS.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "company-b",
+          "inputs": {
+            "eps": 0.9,
+            "oci": -0.07
+          },
+          "expected": 0.83,
+          "tolerance": 1e-09,
+          "method": "0.90 EPS less 0.07 OCI loss per share gives 0.83.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "oci": -0.72
+          },
+          "reason": "eps is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "eps=comprehensive-oci; oci=comprehensive-eps.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,550 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b21",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic relationships from the assigned CFA Quantitative Methods volume, with exact PDF locators and inspected corroboration.",
+    "gaps": [
+      "Most financial/statistical quantity meanings require registry extension.",
+      "Duplicate checking is limited to the supplied catalog/vocabulary, assignment exclusions and this curator's public records; no global uniqueness claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: official validator rejects primary source url:null, which the CFA source brief explicitly requires for the purchased PDF. Toolkit left unchanged. Independent schema, expression/reference arithmetic, guard and rejection checks pass; ZIP checksum/membership checked. No passing official validation or intake-ready return claimed. Source fidelity, dimensions, contexts and inverse notes manually reviewed. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--forward-price-earnings-ratio",
+      "revision": "r1",
+      "title": "Forward price-to-earnings ratio",
+      "summary": "The book defines the forward P/E multiple as share price divided by projected earnings per share.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "pe",
+        "expression": "price / eps",
+        "original_equation": "Forward P/E=share price/projected EPS",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, Measures of Central Tendency, printed p115 (PDF p125), Example13 introduction and Exhibit42",
+        "translation_notes": "Price and annual-window earnings per share are both currency/share amounts, yielding a dimensionless annual-earnings multiple under dimensionless financial-period convention; never convert years to seconds."
+      },
+      "variables": [
+        {
+          "symbol": "price",
+          "source_symbol": "share price",
+          "role": "input",
+          "quantity_id": "current_equity_share_price",
+          "definition": "Nonnegative price per share at the declared valuation date",
+          "unit": "currency/share",
+          "dimensions": "currency per share",
+          "context": "One entity, accounting scope, reporting currency, inventory cost basis and declared accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "eps",
+          "source_symbol": "projectedEPS",
+          "role": "input",
+          "quantity_id": "forward_annual_earnings_per_share",
+          "definition": "Nonzero projected earnings per share for the explicitly declared upcoming annual reporting period",
+          "unit": "currency/share",
+          "dimensions": "currency per share for declared annual earnings window",
+          "context": "One entity, accounting scope, reporting currency, inventory cost basis and declared accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "pe",
+          "source_symbol": "P/E",
+          "role": "output",
+          "quantity_id": "forward_price_earnings_multiple",
+          "definition": "Price relative to projected annual earnings per share",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One entity, accounting scope, reporting currency, inventory cost basis and declared accounting period",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "price >= 0",
+        "eps ** 2 > 0"
+      ],
+      "assumptions": [
+        "Price and projected EPS use the same currency, share class and split/share convention. EPS belongs to a named future annual reporting window.",
+        "Positive-earnings valuation interpretation requireseps>0; the broader arithmetic definition permitseps<0 with explicit loss meaning."
+      ],
+      "limitations": [
+        "EPS0 makes the ratio undefined. A projected earnings input is supplied, not forecast here.",
+        "This is not a trailingP/E or a recommendation. Different forward windows must not be mixed."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Measures of Central Tendency, printed p115 (PDF p125), Example13 introduction and Exhibit42",
+          "evidence": "The book defines the forward P/E multiple as share price divided by projected earnings per share.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfi-forward-pe",
+          "kind": "primary",
+          "title": "Forward P/E Ratio",
+          "url": "https://corporatefinanceinstitute.com/resources/valuation/forward-pe-ratio/",
+          "version": "Tim Vipond, published2018-05-03; inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "What is the Formula for the Forward P/E Ratio?",
+          "evidence": "Forward price/earnings divides current share price by estimated future earnings per share.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfi-published-example",
+          "inputs": {
+            "price": 20,
+            "eps": 2
+          },
+          "expected": 10,
+          "tolerance": 1e-09,
+          "method": "Published current price20 and next-year EPS2 give forward multiple10.",
+          "provenance": "CFI forwardP/E article numerical example."
+        },
+        {
+          "id": "negative-forecast-earnings",
+          "inputs": {
+            "price": 20,
+            "eps": -2
+          },
+          "expected": -10,
+          "tolerance": 1e-09,
+          "method": "The signed quotient is-10 for projected losses of2per share; it is not a positive earnings valuation multiple.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "eps": 2
+          },
+          "reason": "price is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "price=pe*eps,requiringnonnegativeprice. eps=price/pe requirespe nonzero and nonzero result. pe10,eps2 recoversprice20. Atprice=pe0, anynonzeroeps is arithmetically possible; no earnings inference is identified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--trailing-ebitda-interest-coverage",
+      "revision": "r1",
+      "title": "Trailing EBITDA interest-expense coverage ratio",
+      "summary": "The covenant example defines interest coverage as trailing-four-quarter EBITDA divided by matching interest expense.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "ebitda / interest",
+        "original_equation": "Interest coverage=trailing-four-quarter EBITDA/interest expense",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module4, Discrete and Continuous Uniform Distribution, printed p245 (PDF p255), Example2 covenant definition",
+        "translation_notes": "Currency/currency cancels. Trailing-four-quarter EBITDA is the numerator scope explicitly named in the source; matching interest-period scope is required to use the ratio consistently. The projected charges in the example are treated as a supplied constant at the covenant check."
+      },
+      "variables": [
+        {
+          "symbol": "ebitda",
+          "source_symbol": "EBITDA",
+          "role": "input",
+          "quantity_id": "trailing_four_quarter_ebitda",
+          "definition": "Signed earnings before interest,taxes,depreciation andamortization over the four-quarter window",
+          "unit": "currency",
+          "dimensions": "currency",
+          "context": "One entity, accounting scope, reporting currency, inventory cost basis and declared accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "interest",
+          "source_symbol": "interest",
+          "role": "input",
+          "quantity_id": "matching_interest_expense",
+          "definition": "Strictly positive interest expense matched to that same four-quarter coverage window and covenant definition",
+          "unit": "currency",
+          "dimensions": "currency",
+          "context": "One entity, accounting scope, reporting currency, inventory cost basis and declared accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "EBITDA/interest",
+          "role": "output",
+          "quantity_id": "ebitda_interest_coverage_multiple",
+          "definition": "EBITDA coverage of matching interest expense",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One entity, accounting scope, reporting currency, inventory cost basis and declared accounting period",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "interest > 0"
+      ],
+      "assumptions": [
+        "EBITDA and interest expense use one currency, reporting entity, trailing window and covenant-specific scope.",
+        "Positive expense magnitude is the CFA convention; source-specific debt/lease adjustments require explicit binding."
+      ],
+      "limitations": [
+        "This EBITDA-based definition differs from EBIT-based times-interest-earned.",
+        "TradingView product documentation separately filters expense signs; its data-feed convention is not imported into the CFA positive-expense model.",
+        "A covenant threshold is contract-specific, not a universal2constant."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Discrete and Continuous Uniform Distribution, printed p245 (PDF p255), Example2 covenant definition",
+          "evidence": "The covenant example defines interest coverage as trailing-four-quarter EBITDA divided by matching interest expense.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "tradingview-ebitda-coverage",
+          "kind": "primary",
+          "title": "EBITDA interest coverage",
+          "url": "https://my.tradingview.com/support/solutions/43000734816/",
+          "version": "TradingView product-metric documentation, inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Opening definition and EBITDA interest coverage equation, English body on Malay-locale page",
+          "evidence": "The stated coverage definition divides EBITDA by interest expense on debt. Product-specific expense-sign filtering is separate from that quotient definition.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-low-ebitda",
+          "inputs": {
+            "ebitda": 40000000,
+            "interest": 25000000
+          },
+          "expected": 1.6,
+          "tolerance": 1e-09,
+          "method": "Published lower coverage endpoint1.6.",
+          "provenance": "CFA printed p245/PDF255, Example2."
+        },
+        {
+          "id": "negative-ebitda",
+          "inputs": {
+            "ebitda": -10000000,
+            "interest": 25000000
+          },
+          "expected": -0.4,
+          "tolerance": 1e-09,
+          "method": "An EBITDA loss of10million divided by positive25million interest givesnegativecoverage-.4.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "interest": 25000000
+          },
+          "reason": "ebitda is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ebitda=ratio*interest;interest=ebitda/ratio requiresratio nonzero and apositive result. Ratio1.6,interest25million givesEBITDA40million. EBITDA=ratio0 cannot identify positiveinterest.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--periodic-weighted-average-inventory-unit-cost",
+      "revision": "r1",
+      "title": "Periodic weighted-average inventory unit cost",
+      "summary": "The isolated inventory solution computes average cost per unit by dividing total available cost by total available units.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "unit_cost",
+        "expression": "cost / units",
+        "original_equation": "Average unit cost=cost of goods available/units available",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module7, practice solution39, printed p492 (PDF p502), unnumbered weighted-average inventory calculation",
+        "translation_notes": "Currency divided byitem count givescurrency/item. Both dimensions are explicit; raw lot quantities/costs are aggregated before this record. No source currency symbol determines an implicit FXconversion."
+      },
+      "variables": [
+        {
+          "symbol": "cost",
+          "source_symbol": "total cost",
+          "role": "input",
+          "quantity_id": "inventory_goods_available_cost",
+          "definition": "Nonnegative total cost of goods available in this periodic inventory pool",
+          "unit": "currency",
+          "dimensions": "currency",
+          "context": "One entity, accounting scope, reporting currency, inventory cost basis and declared accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "units",
+          "source_symbol": "total units",
+          "role": "input",
+          "quantity_id": "inventory_units_available",
+          "definition": "Positive count of homogeneous goods available,including beginning inventory and period additions",
+          "unit": "item",
+          "dimensions": "item count",
+          "context": "One entity, accounting scope, reporting currency, inventory cost basis and declared accounting period",
+          "domain": "Positive"
+        },
+        {
+          "symbol": "unit_cost",
+          "source_symbol": "average cost",
+          "role": "output",
+          "quantity_id": "periodic_average_inventory_unit_cost",
+          "definition": "Average cost assigned per item in this periodic pool",
+          "unit": "currency/item",
+          "dimensions": "currency per item",
+          "context": "One entity, accounting scope, reporting currency, inventory cost basis and declared accounting period",
+          "domain": "Nonnegative"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "cost >= 0",
+        "units > 0"
+      ],
+      "assumptions": [
+        "Periodic cost pool for homogeneous interchangeable units; availablecost andcount cover the same beginning balance and additions under the declared accounting policy.",
+        "Application boundary: nonnegative total available cost and positiveunits."
+      ],
+      "limitations": [
+        "This is a periodic average, not the moving average after each perpetual-system purchase.",
+        "CFApractice39 points to Question8, which is an unrelated ANOVA problem. The solution is therefore treated as an isolated worked example, not evidence of the missing full inventory fact pattern."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module7, practice solution39, printed p492 (PDF p502), unnumbered weighted-average inventory calculation",
+          "evidence": "The isolated inventory solution computes average cost per unit by dividing total available cost by total available units.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-periodic-average",
+          "kind": "primary",
+          "title": "Principles of Accounting, Volume1: Financial Accounting",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/10-2-calculate-the-cost-of-goods-sold-and-ending-inventory-using-the-periodic-method",
+          "version": "OpenStax edition as served2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section10.2, Weighted-Average Cost (AVG), average-unit-cost calculation and Figure10.11",
+          "evidence": "Periodic average inventory cost divides cost of all goods available by available units, and allocates that unit cost across sold and remaining units.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-purchases",
+          "inputs": {
+            "cost": 155000,
+            "units": 15000
+          },
+          "expected": 10.333333333333334,
+          "tolerance": 1e-09,
+          "method": "Exact155/15 currency per unit; do not round the intermediate rate to10.3333.",
+          "provenance": "CFA printed p492/PDF502, solution39."
+        },
+        {
+          "id": "zero-cost-goods",
+          "inputs": {
+            "cost": 0,
+            "units": 100
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Positive donated/zero-cost inventory units have zero pooled cost per unit in this arithmetic profile.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "units": 15000
+          },
+          "reason": "cost is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cost=unit_cost*units;units=cost/unit_cost requiresunit_cost>0 andpositive result. Rate155/15,units15000 recovers155000. Atcost=unit_cost0, positive availableunits cannot be recovered.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--periodic-average-cost-of-goods-sold",
+      "revision": "r1",
+      "title": "Cost of goods sold under a supplied periodic average unit cost",
+      "summary": "Periodic average COGS allocates the supplied pooled unit cost to the number of items sold.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cogs",
+        "expression": "unit_cost * sold",
+        "original_equation": "COGS=periodic average unit cost*units sold",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module7, practice solution39, printed p492 (PDF p502), final weighted-average cost-of-goods-sold multiplication",
+        "translation_notes": "Currency/item multiplied byitem givescurrency. Quantity can be a counted or continuously measured homogeneous item convention,as declared consistently. CFAquestion cross-reference is broken; only the directly displayed worked allocation is asserted."
+      },
+      "variables": [
+        {
+          "symbol": "unit_cost",
+          "source_symbol": "weighted average cost",
+          "role": "input",
+          "quantity_id": "periodic_average_inventory_unit_cost",
+          "definition": "Nonnegative average cost per item for the declared periodic inventory pool",
+          "unit": "currency/item",
+          "dimensions": "currency per item",
+          "context": "One entity, accounting scope, reporting currency, inventory cost basis and declared accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "sold",
+          "source_symbol": "units sold",
+          "role": "input",
+          "quantity_id": "inventory_units_sold",
+          "definition": "Nonnegative item count sold from that pool,not exceeding availableunits",
+          "unit": "item",
+          "dimensions": "item count",
+          "context": "One entity, accounting scope, reporting currency, inventory cost basis and declared accounting period",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "cogs",
+          "source_symbol": "cost of goods sold",
+          "role": "output",
+          "quantity_id": "periodic_average_cost_of_goods_sold",
+          "definition": "Cost allocated to the sold items under that periodic average",
+          "unit": "currency",
+          "dimensions": "currency",
+          "context": "One entity, accounting scope, reporting currency, inventory cost basis and declared accounting period",
+          "domain": "Nonnegative"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "unit_cost >= 0",
+        "sold >= 0"
+      ],
+      "assumptions": [
+        "The unit cost is the valid periodic average for the same homogeneous inventory pool; sold quantity belongs to that period and pool.",
+        "Bind available inventory externally and verify0<=sold<=available units; the engine cannot check an unavailable port."
+      ],
+      "limitations": [
+        "Sales revenue and selling price do not enter this cost allocation.",
+        "No perpetual moving-average update, tax rule or currency conversion is implied."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module7, practice solution39, printed p492 (PDF p502), final weighted-average cost-of-goods-sold multiplication",
+          "evidence": "Periodic average COGS allocates the supplied pooled unit cost to the number of items sold.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-periodic-average",
+          "kind": "primary",
+          "title": "Principles of Accounting, Volume1: Financial Accounting",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/10-2-calculate-the-cost-of-goods-sold-and-ending-inventory-using-the-periodic-method",
+          "version": "OpenStax edition as served2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section10.2, Weighted-Average Cost (AVG), average-unit-cost calculation and Figure10.11",
+          "evidence": "Periodic average inventory cost divides cost of all goods available by available units, and allocates that unit cost across sold and remaining units.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-unrounded-rate",
+          "inputs": {
+            "unit_cost": 10.333333333333334,
+            "sold": 12000
+          },
+          "expected": 124000,
+          "tolerance": 1e-09,
+          "method": "Published answer124000 using exact155000/15000 averagecost,with no intermediate rounding.",
+          "provenance": "CFA printed p492/PDF502, solution39."
+        },
+        {
+          "id": "no-sales",
+          "inputs": {
+            "unit_cost": 10,
+            "sold": 0
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "No items sold means no cost allocated to sales.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "sold": 12000
+          },
+          "reason": "unit_cost is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "sold=cogs/unit_cost requiresunit_cost>0;unit_cost=cogs/sold requiressold>0. COGS124000,rate155/15 gives12000sold. sold=cogs0 cannot identifyunitcost;unit_cost=cogs0cannot identifypositive soldquantity.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

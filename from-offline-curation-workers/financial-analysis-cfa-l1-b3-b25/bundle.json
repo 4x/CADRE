@@ -1,0 +1,428 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b25",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--cash-flow-long-term-debt-payment-coverage",
+      "revision": "r1",
+      "title": "Cash-flow long-term debt payment coverage",
+      "summary": "Cash-flow long-term debt payment coverage divides CFO by cash paid for long-term debt repayment.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "cfo / outflow",
+        "original_equation": "Cash-flow long-term debt payment coverage = CFO / cash paid for long-term debt repayment",
+        "source_id": "bsec-draft-ratios",
+        "locator": "Printed p61, Annexure C, Section F cash-flow ratios 7, 9 and 11",
+        "translation_notes": "Currency cancels; a negative CFO is preserved."
+      },
+      "variables": [
+        {
+          "symbol": "cfo",
+          "source_symbol": "cash flow from operating activities",
+          "role": "input",
+          "quantity_id": "cash_flow_from_operating_activities",
+          "definition": "cash flow from operating activities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "outflow",
+          "source_symbol": "cash paid for long-term debt repayment",
+          "role": "input",
+          "quantity_id": "cash_paid_long_term_debt_repayment",
+          "definition": "cash paid for long-term debt repayment",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Cash-flow long-term debt payment coverage",
+          "role": "output",
+          "quantity_id": "cash_flow_long_term_debt_payment_coverage",
+          "definition": "Cash-flow long-term debt payment coverage",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "outflow > 0"
+      ],
+      "assumptions": [
+        "Outflow is a positive magnitude, measured for the same entity, currency and reporting period as CFO."
+      ],
+      "limitations": [
+        "Different definitions of the financing and investing outflows change the measure.",
+        "The ratio is undefined when the selected outflow is zero."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Cash Flow Ratios, printed p165 (PDF p179), Exhibit 16",
+          "evidence": "Cash-flow long-term debt payment coverage divides CFO by cash paid for long-term debt repayment.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bsec-draft-ratios",
+          "kind": "primary",
+          "title": "Draft Corporate Governance Guidelines",
+          "url": "https://sec.gov.bd/crequest/Draft_Corporate_Governance_Guidelines_21.12.2017.pdf",
+          "version": "Bangladesh Securities and Exchange Commission, draft dated 21 December 2017",
+          "accessed": "2026-11-03",
+          "locator": "Printed p61, Annexure C, Section F cash-flow ratios 7, 9 and 11",
+          "evidence": "The draft lists cash interest, debt payment, and investing-and-financing coverage ratios.",
+          "license": "Government-hosted draft; exact reuse terms unknown. No claim that the draft is current law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "cfo": 200,
+            "outflow": 100
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "200 divided by 100 gives two.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative",
+          "inputs": {
+            "cfo": -50,
+            "outflow": 100
+          },
+          "expected": -0.5,
+          "tolerance": 1e-09,
+          "method": "A 50 cash outflow from operations gives negative one-half.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "outflow": 100
+          },
+          "reason": "cfo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cfo=ratio*outflow; outflow=cfo/ratio requires nonzero ratio.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--cash-flow-investing-financing-coverage",
+      "revision": "r1",
+      "title": "Cash-flow investing and financing coverage",
+      "summary": "Cash-flow investing and financing coverage divides CFO by cash outflows for investing and financing activities.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "cfo / outflow",
+        "original_equation": "Cash-flow investing and financing coverage = CFO / cash outflows for investing and financing activities",
+        "source_id": "bsec-draft-ratios",
+        "locator": "Printed p61, Annexure C, Section F cash-flow ratios 7, 9 and 11",
+        "translation_notes": "Currency cancels; a negative CFO is preserved."
+      },
+      "variables": [
+        {
+          "symbol": "cfo",
+          "source_symbol": "cash flow from operating activities",
+          "role": "input",
+          "quantity_id": "cash_flow_from_operating_activities",
+          "definition": "cash flow from operating activities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "outflow",
+          "source_symbol": "cash outflows for investing and financing activities",
+          "role": "input",
+          "quantity_id": "cash_outflows_investing_and_financing",
+          "definition": "cash outflows for investing and financing activities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Cash-flow investing and financing coverage",
+          "role": "output",
+          "quantity_id": "cash_flow_investing_financing_coverage",
+          "definition": "Cash-flow investing and financing coverage",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "outflow > 0"
+      ],
+      "assumptions": [
+        "Outflow is a positive magnitude, measured for the same entity, currency and reporting period as CFO."
+      ],
+      "limitations": [
+        "Different definitions of the financing and investing outflows change the measure.",
+        "The ratio is undefined when the selected outflow is zero."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Cash Flow Ratios, printed p165 (PDF p179), Exhibit 16",
+          "evidence": "Cash-flow investing and financing coverage divides CFO by cash outflows for investing and financing activities.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bsec-draft-ratios",
+          "kind": "primary",
+          "title": "Draft Corporate Governance Guidelines",
+          "url": "https://sec.gov.bd/crequest/Draft_Corporate_Governance_Guidelines_21.12.2017.pdf",
+          "version": "Bangladesh Securities and Exchange Commission, draft dated 21 December 2017",
+          "accessed": "2026-11-03",
+          "locator": "Printed p61, Annexure C, Section F cash-flow ratios 7, 9 and 11",
+          "evidence": "The draft lists cash interest, debt payment, and investing-and-financing coverage ratios.",
+          "license": "Government-hosted draft; exact reuse terms unknown. No claim that the draft is current law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "cfo": 200,
+            "outflow": 100
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "200 divided by 100 gives two.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative",
+          "inputs": {
+            "cfo": -50,
+            "outflow": 100
+          },
+          "expected": -0.5,
+          "tolerance": 1e-09,
+          "method": "A 50 cash outflow from operations gives negative one-half.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "outflow": 100
+          },
+          "reason": "cfo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cfo=ratio*outflow; outflow=cfo/ratio requires nonzero ratio.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--cash-interest-coverage-ratio",
+      "revision": "r1",
+      "title": "Cash interest coverage ratio",
+      "summary": "The numerator adds back interest and taxes included in CFO, then divides by interest paid.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "(cfo + interest + taxes) / interest",
+        "original_equation": "Cash interest coverage = (CFO + interest paid + taxes paid) / interest paid",
+        "source_id": "bsec-draft-ratios",
+        "locator": "Printed p61, Annexure C, Section F cash-flow ratios 7, 9 and 11",
+        "translation_notes": "Inputs and numerator are same-currency flows; positive interest is a payment magnitude. CFO may be negative."
+      },
+      "variables": [
+        {
+          "symbol": "cfo",
+          "source_symbol": "cash flow from operating activities",
+          "role": "input",
+          "quantity_id": "cash_flow_from_operating_activities",
+          "definition": "cash flow from operating activities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "interest",
+          "source_symbol": "interest paid",
+          "role": "input",
+          "quantity_id": "interest_paid_in_operating_cash_flow",
+          "definition": "interest paid",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "taxes",
+          "source_symbol": "taxes paid",
+          "role": "input",
+          "quantity_id": "taxes_paid_in_operating_cash_flow",
+          "definition": "taxes paid",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "cash interest coverage ratio",
+          "role": "output",
+          "quantity_id": "cash_interest_coverage_ratio",
+          "definition": "Pre-interest and pre-tax operating cash flow relative to cash interest paid",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "interest > 0",
+        "taxes >= 0"
+      ],
+      "assumptions": [
+        "Interest and taxes added back were included in the stated operating cash flow.",
+        "All flows cover the same entity, currency and period."
+      ],
+      "limitations": [
+        "When interest paid was classified as financing rather than operating, do not add it back; that alternative requires a different numerator.",
+        "This cash-based definition is not the EBIT interest-coverage ratio."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 3, Cash Flow Ratios, printed p165 (PDF p179), Exhibit 16 and note b",
+          "evidence": "The numerator adds back interest and taxes included in CFO, then divides by interest paid.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bsec-draft-ratios",
+          "kind": "primary",
+          "title": "Draft Corporate Governance Guidelines",
+          "url": "https://sec.gov.bd/crequest/Draft_Corporate_Governance_Guidelines_21.12.2017.pdf",
+          "version": "Bangladesh Securities and Exchange Commission, draft dated 21 December 2017",
+          "accessed": "2026-11-03",
+          "locator": "Printed p61, Annexure C, Section F cash-flow ratios 7, 9 and 11",
+          "evidence": "The draft lists cash interest, debt payment, and investing-and-financing coverage ratios.",
+          "license": "Government-hosted draft; exact reuse terms unknown. No claim that the draft is current law.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "cfo": 100,
+            "interest": 20,
+            "taxes": 30
+          },
+          "expected": 7.5,
+          "tolerance": 1e-09,
+          "method": "150 divided by 20 gives 7.5.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative",
+          "inputs": {
+            "cfo": -100,
+            "interest": 20,
+            "taxes": 30
+          },
+          "expected": -2.5,
+          "tolerance": 1e-09,
+          "method": "Negative 50 divided by 20 gives -2.5.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "interest": 20,
+            "taxes": 30
+          },
+          "reason": "cfo is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cfo=ratio*interest-interest-taxes; interest=(cfo+taxes)/(ratio-1) requires ratio not equal to one and positive resulting interest.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

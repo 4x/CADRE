@@ -1,0 +1,586 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.9",
+  "batch_id": "financial-analysis-cfa-l3-v1-b05",
+  "domain": "financial-analysis",
+  "curator": "buffy",
+  "created": "2026-11-04",
+  "example_only": false,
+  "models": [
+    {
+      "id": "financial-analysis--taylor-rule-nominal-policy-rate",
+      "revision": "r1",
+      "title": "Taylor rule nominal policy rate (growth-gap variant)",
+      "summary": "Central-bank target nominal rate as neutral real rate plus expected inflation plus half-weight growth and inflation gaps.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "istar",
+        "expression": "rN + pie + 0.5 * (g - gT) + 0.5 * (pie - piT)",
+        "original_equation": "i* = rneutral + πe + 0.5 (Ŷe − Ŷtrend) + 0.5 (πe − πtarget)",
+        "source_id": "fed-policy-rules-taylor",
+        "locator": "PDF: LM1 Analysis of Monetary and Fiscal Policies, printed p. 39 (PDF p. 49), Taylor rule equation with 6.25% worked example",
+        "translation_notes": "Decimal form (unit 1); source works in percentages. The 0.5 weights are the rule's fixed response coefficients (pure arithmetic literals), not conversions. The PDF uses a growth-rate gap (expected vs trend GDP growth); the corroborating Fed statement uses an output-level gap — the 0.5/0.5 response structure is identical. Dimensional check: all terms dimensionless rates."
+      },
+      "variables": [
+        {
+          "symbol": "rN",
+          "source_symbol": "rneutral",
+          "role": "input",
+          "quantity_id": "neutral_real_policy_rate",
+          "definition": "Neutral real policy rate targeted when growth is at trend and inflation on target, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same central bank and policy horizon as istar",
+          "domain": "Finite decimal real rate"
+        },
+        {
+          "symbol": "pie",
+          "source_symbol": "πe",
+          "role": "input",
+          "quantity_id": "expected_inflation_rate",
+          "definition": "Expected inflation rate over the policy horizon, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same economy and policy horizon as istar",
+          "domain": "Finite decimal inflation rate"
+        },
+        {
+          "symbol": "g",
+          "source_symbol": "Ŷe",
+          "role": "input",
+          "quantity_id": "expected_real_gdp_growth",
+          "definition": "Expected real GDP growth rate, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same economy and policy horizon as istar",
+          "domain": "Finite decimal growth rate"
+        },
+        {
+          "symbol": "gT",
+          "source_symbol": "Ŷtrend",
+          "role": "input",
+          "quantity_id": "trend_real_gdp_growth",
+          "definition": "Trend (potential) real GDP growth rate, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same economy and policy horizon as istar",
+          "domain": "Finite decimal growth rate"
+        },
+        {
+          "symbol": "piT",
+          "source_symbol": "πtarget",
+          "role": "input",
+          "quantity_id": "inflation_target",
+          "definition": "Central bank inflation target, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same central bank and policy horizon as istar",
+          "domain": "Finite decimal target rate"
+        },
+        {
+          "symbol": "istar",
+          "source_symbol": "i*",
+          "role": "output",
+          "quantity_id": "target_nominal_policy_rate",
+          "definition": "Taylor-rule target nominal short-term policy rate, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same central bank and policy horizon as inputs",
+          "domain": "Finite decimal nominal rate"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Policymaker reaction function with fixed 0.5 response coefficients on both gaps, per the source's generic illustration.",
+        "Inputs are the central bank's own trend/neutral/expectation judgments, which are not objectively observable (per source)."
+      ],
+      "limitations": [
+        "Illustrative rule, not a mechanical prescription: substantial judgment remains in every input (per source).",
+        "Growth-gap variant as stated in the PDF; level output-gap variants (e.g. the Fed's statement) are companion forms, not separately curated here."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-taylor-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM1 Analysis of Monetary and Fiscal Policies, printed p. 39 (PDF p. 49), Taylor rule equation and 6.25% example",
+          "evidence": "Passage gives the Taylor rule i* = rneutral + πe + 0.5(growth gap) + 0.5(inflation gap) and works 2.25% + 3% + 0.5(3.5%−2.5%) + 0.5(3.0%−2.0%) = 6.25% with a 3.25% real rate.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "fed-policy-rules-taylor",
+          "kind": "primary",
+          "title": "Policy Rules and How Policymakers Use Them (Board of Governors of the Federal Reserve System)",
+          "url": "https://www.federalreserve.gov/monetarypolicy/policy-rules-and-how-policymakers-use-them.htm",
+          "version": "Federal Reserve Board monetary policy principles page, accessed 2026-11-04",
+          "accessed": "2026-11-04",
+          "locator": "Examples of Policy Rules table: Taylor rule R = r^LR + π + 0.5(π − π*) + 0.5(y − y^P)",
+          "evidence": "Page states the Taylor rule as neutral real rate plus inflation plus half-weighted inflation and resource-utilization gaps — the same 0.5/0.5 response structure as the PDF's growth-gap variant.",
+          "license": "U.S. public domain (federal government work); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-6pt25-example",
+          "inputs": {
+            "rN": 0.0225,
+            "pie": 0.03,
+            "g": 0.035,
+            "gT": 0.025,
+            "piT": 0.02
+          },
+          "expected": 0.0625,
+          "tolerance": 1e-09,
+          "method": "Source inputs in decimals: 0.0225 + 0.03 + 0.5·(0.035−0.025) + 0.5·(0.03−0.02) = 0.0625, matching published 6.25%.",
+          "provenance": "Published result: LM1 Taylor rule example, printed p. 39 (PDF p. 49)"
+        },
+        {
+          "id": "neutral-on-target-boundary",
+          "inputs": {
+            "rN": 0.02,
+            "pie": 0.02,
+            "g": 0.025,
+            "gT": 0.025,
+            "piT": 0.02
+          },
+          "expected": 0.04,
+          "tolerance": 1e-09,
+          "method": "On-target growth and inflation give neutral real rate plus target inflation: 0.02 + 0.02 + 0 + 0 = 0.04. Independently constructed boundary check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed policy data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "rN": 0.0225,
+            "pie": 0.03,
+            "g": 0.035
+          },
+          "reason": "Trend growth and inflation target are required; without both gaps the rule cannot be evaluated."
+        }
+      ],
+      "inverse_notes": "Linear in each input: rN = istar − pie − 0.5(g−gT) − 0.5(pie−piT), and symmetrically for others; no singularities. Substitution check: istar=0.0625 with pie=0.03, gaps 0.01 each recovers rN=0.0225. Algebraic only; none of the inputs is objectively observable per the source.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings neutral_real_policy_rate, expected_inflation_rate, expected_real_gdp_growth, trend_real_gdp_growth, inflation_target, target_nominal_policy_rate are not in the runtime vocabulary snapshot and require extension.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--age-based-equity-allocation-120-minus-age",
+      "revision": "r1",
+      "title": "120-minus-age heuristic equity allocation",
+      "summary": "Age-based stock allocation heuristic: percentage in stocks equals 120 minus age in years.",
+      "kind": "empirical",
+      "relationship": {
+        "output_symbol": "weq",
+        "expression": "120 - age",
+        "original_equation": "120 − Age = Percentage allocated to stocks",
+        "source_id": "morningstar-rules-of-thumb",
+        "locator": "PDF: LM4 Heuristics, printed p. 272 (PDF p. 282)",
+        "translation_notes": "Heuristic rule of thumb with no theoretic basis (per source). 120 is the heuristic intercept in percentage points and age is in years; the output reads as a percentage (e.g. 95 means 95%). Both treated as plain counts; no conversion factor is inlined. Dimensional note: heuristic mixes an age count with a percent-points intercept by construction — documented here, not hidden."
+      },
+      "variables": [
+        {
+          "symbol": "age",
+          "source_symbol": "Age",
+          "role": "input",
+          "quantity_id": "investor_age",
+          "definition": "Investor age in years",
+          "unit": "years",
+          "dimensions": "time",
+          "context": "same investor and allocation decision as weq",
+          "domain": "Closed interval 0 to 120 years inclusive"
+        },
+        {
+          "symbol": "weq",
+          "source_symbol": "Percentage allocated to stocks",
+          "role": "output",
+          "quantity_id": "heuristic_equity_allocation",
+          "definition": "Heuristic equity allocation in percent (e.g. 95 means 95% in stocks, remainder in fixed income)",
+          "unit": "percent",
+          "dimensions": "dimensionless",
+          "context": "same investor and allocation decision as age",
+          "domain": "Closed interval 0 to 120 percent"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "age >= 0",
+        "age <= 120"
+      ],
+      "assumptions": [
+        "Application profile: age-driven risk-tolerance glide path; equity share falls linearly with age.",
+        "Remainder is implicitly fixed income (per source: age-based stock vs fixed-income split)."
+      ],
+      "limitations": [
+        "Source explicitly notes no theoretic basis; cousins 100-minus-age and 125-minus-age exist and would be separate records.",
+        "May be too conservative for the young (no fixed income needed with emergency fund) and misses sequence-of-returns nuances near retirement (per corroborating source)."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-120-age-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Heuristics and Other Approaches, printed p. 272 (PDF p. 282): 25-year-old allocates 95%; 76-year-old allocates 24%",
+          "evidence": "Passage states the 120-minus-age heuristic for the stock vs fixed-income split and applies it (25-year-old to 95% stocks; 2005 target-date vintage matching a 76-year-old at 24%).",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "morningstar-rules-of-thumb",
+          "kind": "primary",
+          "title": "Pinning Down Portfolio Rules of Thumb (Morningstar)",
+          "url": "https://www.morningstar.com/markets/pinning-down-portfolio-rules-thumb",
+          "version": "Morningstar markets article, accessed 2026-11-04",
+          "accessed": "2026-11-04",
+          "locator": "Keep 100 (or 120) Minus Your Age in Stocks section; Bogle advocated 120 minus age for equity allocations",
+          "evidence": "Article documents the 100/120-minus-age formulas for equity allocation, notes Bogle's advocacy of the 120 variant, and discusses its glide-path rationale and limitations — confirming the PDF's heuristic statement.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-25-year-old",
+          "inputs": {
+            "age": 25
+          },
+          "expected": 95,
+          "tolerance": 1e-09,
+          "method": "Source's example: 120 − 25 = 95, matching published 95% stocks.",
+          "provenance": "Published result: LM4 heuristic section, printed p. 272 (PDF p. 282)"
+        },
+        {
+          "id": "published-76-year-old",
+          "inputs": {
+            "age": 76
+          },
+          "expected": 44,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 120 − 76 = 44. (The PDF's nearby 24% figure for the 2005 vintage sits on the 100-minus-age line: 100 − 76 = 24; this reference checks the 120-variant formula itself.)",
+          "provenance": "Independent arithmetic check constructed for this record; PDF vintage comparison on printed p. 272 noted"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "age": 130
+          },
+          "reason": "Age above 120 gives a negative equity share under the heuristic (guard age <= 120); outside the rule's stated scope."
+        }
+      ],
+      "inverse_notes": "age = 120 − weq always; no singularities. Substitution check: weq=95 recovers age=25. Algebraic only; the rule infers a hidden age-driven risk tolerance, not an estimated quantity.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings investor_age, heuristic_equity_allocation are not in the runtime vocabulary snapshot and require extension.",
+          "100-minus-age and 125-minus-age cousins are not curated; each would be a separate record if covered."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--one-over-n-equal-weight",
+      "revision": "r1",
+      "title": "1/N equal-weight allocation rule",
+      "summary": "Naive diversification: allocate 1/N of wealth to each of N available assets at each rebalancing date.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "wi",
+        "expression": "1 / N",
+        "original_equation": "wi = 1/N for each of N assets",
+        "source_id": "quantmemo-naive-diversification",
+        "locator": "PDF: LM4 Heuristics, printed p. 276 (PDF p. 286), The 1/N Rule",
+        "translation_notes": "wi is the common weight of every asset; N is the count of available assets. Decimal form (unit 1). Dimensional check: dimensionless count reciprocal = dimensionless weight."
+      },
+      "variables": [
+        {
+          "symbol": "N",
+          "source_symbol": "N",
+          "role": "input",
+          "quantity_id": "asset_count",
+          "definition": "Number of assets available for investment at the rebalancing date",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment universe and rebalancing date as wi",
+          "domain": "Positive finite count; at least 1"
+        },
+        {
+          "symbol": "wi",
+          "source_symbol": "1/N of wealth",
+          "role": "output",
+          "quantity_id": "equal_portfolio_weight",
+          "definition": "Common portfolio weight allocated to each asset",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment universe and rebalancing date as N",
+          "domain": "Positive weight; at most 1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "N >= 1"
+      ],
+      "assumptions": [
+        "Calendar rebalancing to equal weighting (e.g. quarterly, per source); all assets treated as indistinguishable in mean, volatility, and correlation.",
+        "N is the count of eligible assets at that rebalancing date."
+      ],
+      "limitations": [
+        "Sidesteps estimation error but is in principle dominated by optimizations exploiting true return differences (per source empirical discussion).",
+        "Equal capital is not equal risk; pair with the risk-parity record, not as a substitute."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-one-over-n-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Heuristics, printed p. 276 (PDF p. 286), The 1/N Rule (DeMiguel, Garlappi, and Uppal 2009)",
+          "evidence": "Passage defines the rule as allocating 1/N of wealth to each of N assets at each rebalancing date, treating all assets as indistinguishable in means, volatilities, and correlations.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "quantmemo-naive-diversification",
+          "kind": "primary",
+          "title": "Just Split It Evenly: The Paper That Showed 1/N Beats the Fancy Models (Quant Memo on DeMiguel, Garlappi & Uppal 2009)",
+          "url": "https://quantmemo.com/writing/paper-demiguel-naive-diversification",
+          "version": "Essay on DeMiguel, Garlappi & Uppal, Review of Financial Studies 2009, accessed 2026-11-04",
+          "accessed": "2026-11-04",
+          "locator": "Opening definition: divide money by the number of assets and put an equal slice in each one; out-of-sample tests across 14 models and seven datasets",
+          "evidence": "Essay states the 1/N rule as dividing wealth by the asset count with an equal slice each, and describes the DeMiguel et al. out-of-sample finding that no optimized strategy consistently beat it on Sharpe, certainty-equivalent, or turnover — confirming the PDF's definition and discussion.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "four-asset-split",
+          "inputs": {
+            "N": 4
+          },
+          "expected": 0.25,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 1/4 = 0.25. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed portfolio data claimed"
+        },
+        {
+          "id": "single-asset-boundary",
+          "inputs": {
+            "N": 1
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "Single eligible asset takes the whole portfolio: 1/1 = 1. Boundary check.",
+          "provenance": "Definitional boundary check; not an empirical validation"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "N": 0
+          },
+          "reason": "Zero assets makes the weight undefined (guard N >= 1); an empty universe needs no allocation rule."
+        }
+      ],
+      "inverse_notes": "N = 1/wi; no singularities for admissible wi > 0. Substitution check: wi=0.25 recovers N=4. Algebraic only; N is a universe count, not an estimated quantity.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings asset_count, equal_portfolio_weight are not in the runtime vocabulary snapshot and require extension.",
+          "Distinct from the risk-parity record (equal risk vs equal capital); recorded with explicit non-conflation notes."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--shrinkage-vcv-element-weighted-average",
+      "revision": "r1",
+      "title": "Shrinkage VCV element as weighted average of sample and target",
+      "summary": "Each variance/covariance element of the shrinkage VCV estimate is the same-weighted average of the sample and target matrix elements.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "vest",
+        "expression": "w * vs + (1 - w) * vt",
+        "original_equation": "vest = w · vsample + (1 − w) · vtarget (per element, same weights)",
+        "source_id": "cfa-institute-cme2-refresher",
+        "locator": "PDF: LM2 Shrinkage Estimation of VCV Matrices, printed p. 109 (PDF p. 119)",
+        "translation_notes": "Formalizes the source's prose: each element of the final shrinkage VCV estimate is a weighted average of the corresponding sample and target elements with the same weights on all elements. Decimal form (unit 1); w is the weight on the sample matrix. Dimensional check: dimensionless weight times variance-dimensioned elements = variance-dimensioned estimate."
+      },
+      "variables": [
+        {
+          "symbol": "w",
+          "source_symbol": "introduced w for weight on the sample VCV matrix",
+          "role": "input",
+          "quantity_id": "shrinkage_sample_weight",
+          "definition": "Weight placed on the sample VCV element (analyst-chosen; 1 − w goes to the target)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same VCV estimation as vest",
+          "domain": "Closed interval 0 to 1 inclusive"
+        },
+        {
+          "symbol": "vs",
+          "source_symbol": "sample VCV element",
+          "role": "input",
+          "quantity_id": "sample_vcv_element",
+          "definition": "Sample variance/covariance matrix element from historical data, in decimal-variance units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset pair and estimation window as vest",
+          "domain": "Finite sample element"
+        },
+        {
+          "symbol": "vt",
+          "source_symbol": "target VCV element",
+          "role": "input",
+          "quantity_id": "target_vcv_element",
+          "definition": "Target (prior-knowledge) VCV matrix element, e.g. from a factor model, in decimal-variance units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset pair and prior structure as vest",
+          "domain": "Finite target element"
+        },
+        {
+          "symbol": "vest",
+          "source_symbol": "introduced vest for final shrinkage estimate element",
+          "role": "output",
+          "quantity_id": "shrinkage_vcv_element",
+          "definition": "Final shrinkage VCV estimate for the element: biased but lower mean-squared error than the sample element",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset pair and estimation as inputs",
+          "domain": "Finite estimate element"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "w >= 0",
+        "w <= 1"
+      ],
+      "assumptions": [
+        "Same weights applied to every element of the matrix (per source).",
+        "Application profile: analyst chooses w trading sample noise against target plausibility; a factor-model VCV is a reasonable target candidate (per source)."
+      ],
+      "limitations": [
+        "Scalar element form only; full-matrix shrinkage with cross-element consistency is outside this record.",
+        "Shrinkage is biased by construction; improvement is in mean-squared error, not unbiasedness."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-shrinkage-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Shrinkage Estimation of VCV Matrices, printed p. 109 (PDF p. 119); Example 9 Berkitz case",
+          "evidence": "Passage states each element of the final shrinkage VCV estimate is a weighted average of the corresponding sample and target elements with the same weights, and frames the sample-vs-factor-model tradeoff mitigated by shrinkage.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-institute-cme2-refresher",
+          "kind": "primary",
+          "title": "Capital Market Expectations, Part II: Forecasting Asset Class Returns (CFA Institute refresher reading)",
+          "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/capital-market-expectations-part-ii",
+          "version": "2026 refresher reading, Summary section",
+          "accessed": "2026-11-04",
+          "locator": "Summary: shrinkage estimation of the VCV matrix is a weighted average of the sample VCV matrix and a target VCV matrix reflecting prior knowledge",
+          "evidence": "Page confirms shrinkage VCV estimation as a weighted average of the sample matrix and a prior-knowledge target matrix — the same construction formalized here.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "equal-weight-blend",
+          "inputs": {
+            "w": 0.5,
+            "vs": 0.04,
+            "vt": 0.02
+          },
+          "expected": 0.03,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 0.5·0.04 + 0.5·0.02 = 0.03. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        },
+        {
+          "id": "full-sample-boundary",
+          "inputs": {
+            "w": 1,
+            "vs": 0.04,
+            "vt": 0.02
+          },
+          "expected": 0.04,
+          "tolerance": 1e-09,
+          "method": "Full weight on the sample recovers the sample element: 1·0.04 + 0·0.02 = 0.04. Boundary check.",
+          "provenance": "Definitional boundary check; not an empirical validation"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "w": 1.5,
+            "vs": 0.04,
+            "vt": 0.02
+          },
+          "reason": "Weight above 1 violates the averaging domain (guard w <= 1); extrapolation beyond the target is not shrinkage."
+        }
+      ],
+      "inverse_notes": "w = (vest − vt)/(vs − vt) requires vs ≠ vt; vs = (vest − (1−w)·vt)/w requires w ≠ 0; vt = (vest − w·vs)/(1−w) requires w ≠ 1. Boundary w=0 (pure target) and w=1 (pure sample) leave one source undetermined. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings shrinkage_sample_weight, sample_vcv_element, target_vcv_element, shrinkage_vcv_element are not in the runtime vocabulary snapshot and require extension.",
+          "Family (matrix) form would need index-family support; this scalar element form is the forward-only compatible statement."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "deferred": [
+    {
+      "title": "GDP trend-growth component split (labor inputs vs labor productivity)",
+      "reason": "LM1 (printed p. 23, PDF p. 33) gives a qualitative component list, not a closed equation; formalizing an additive split would over-claim. Defer unless a closed form with corroboration is found.",
+      "source_urls": []
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b05: 4 records (Taylor rule growth-gap variant, 120-minus-age heuristic, 1/N rule, shrinkage VCV element blend) each with PDF locator plus directly inspected accessible corroboration. Taylor and 120-age carry published oracles.",
+    "gaps": [
+      "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+      "Remaining coverage for later batches: tolerance-band corridors, economic balance sheet / human-capital glide path, hedging vs return-seeking split, 60/40 and endowment-model heuristic descriptions, currency-trade-flow relations, VIX-style volatility notes if quantifiable."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity — verified locators and corroboration pages by direct inspection 2026-11-04."
+  }
+}

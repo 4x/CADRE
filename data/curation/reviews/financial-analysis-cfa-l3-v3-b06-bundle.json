@@ -1,0 +1,568 @@
+{
+ "batch_id": "financial-analysis-cfa-l3-v3-b06",
+ "created": "2026-11-04",
+ "curator": "buffy",
+ "deferred": [],
+ "domain": "financial-analysis",
+ "example_only": false,
+ "handoff": {
+  "summary": "Batch b06 (L3V3): 4 records (sub-period TWR, geometric linking, Modified Dietz, asset-weighted composite return) each with PDF locator and directly inspected accessible corroboration.",
+  "gaps": [
+   "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+   "Queue: L3V3 close-out (dispersion Eqs 9-12 sqrt-form deferred; Modified IRR iterative deferred; MWR section check) + consolidated report."
+  ],
+  "connections": [],
+  "queries": [],
+  "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity - verified locators and corroboration pages by direct inspection 2026-11-04."
+ },
+ "kit_version": "2026-10-31.9",
+ "schema_version": "cm-curation-batch/1",
+ "models": [
+  {
+   "id": "financial-analysis--subperiod-twr",
+   "revision": "r1",
+   "title": "Sub-period time-weighted return",
+   "summary": "Single-period TWR with no external cash flows as value change over beginning value (also the sub-period engine under intra-period valuation).",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "r",
+    "expression": "(v1-v0)/v0",
+    "original_equation": "r_t = (V1 - V0)/V0 (Eq1)",
+    "source_id": "analystprep-twr-dietz",
+    "locator": "PDF: LM3 TWR Eq1 with worked valuation example, printed pp. 151-152 (PDF pp. 159-160): sub-period 1 (99,000-100,000)/100,000 = -1.00%, sub-period 2 (110,550-109,000)/109,000 = 1.42%",
+    "translation_notes": "Values include cash and accrued income; decimals. The same equation prices each sub-period in the intra-period valuation method."
+   },
+   "variables": [
+    {
+     "symbol": "v1",
+     "source_symbol": "V1",
+     "role": "input",
+     "quantity_id": "ending_value",
+     "definition": "Ending portfolio value including cash and accrued income, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one (sub-)period",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "v0",
+     "source_symbol": "V0",
+     "role": "input",
+     "quantity_id": "beginning_value",
+     "definition": "Beginning portfolio value including cash and accrued income, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same (sub-)period",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "r",
+     "source_symbol": "r_t",
+     "role": "output",
+     "quantity_id": "subperiod_twr",
+     "definition": "Time-weighted return for the (sub-)period, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same (sub-)period",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [
+    "v0 > 0"
+   ],
+   "assumptions": [
+    "No external cash flows within the (sub-)period; valuation per composite policy."
+   ],
+   "limitations": [
+    "Single-period only; multi-period totals require geometric linking (sibling record)."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-eq1-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM3 TWR Eq1 with worked valuation example, printed pp. 151-152 (PDF pp. 159-160): sub-period 1 (99,000-100,000)/100,000 = -1.00%, sub-period 2 (110,550-109,000)/109,000 = 1.42%",
+     "evidence": "Eq1 with the June valuation example: r_t,1 = -1.00%, r_t,2 = 1.42%.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-twr-dietz",
+     "kind": "primary",
+     "title": "Time-Weighted Return and Modified Dietz Method (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/fundamentals-of-compliance/",
+     "version": "Study notes, 27 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "R_t = (V1-V0)/V0 with no external cash flows; geometric linking r_twr = (1+r_t1)x...x(1+r_tn)-1 required by GIPS; Modified Dietz (V1-V0-CF)/(V0+sum CF_i w_i) with w_i = (CD-Di)/CD.",
+     "evidence": "Page states the same Eq1, linking, Dietz, and day-weight formulas used across the LM3 records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-subperiod-1-oracle",
+     "inputs": {
+      "v1": 99000.0,
+      "v0": 100000.0
+     },
+     "expected": -0.01,
+     "tolerance": 1e-09,
+     "method": "(99,000-100,000)/100,000 = -0.01, reported as -1.00%.",
+     "provenance": "Published result: LM3 valuation example, printed p. 152 (PDF p. 160)"
+    },
+    {
+     "id": "published-ex3-subperiod-1-oracle",
+     "inputs": {
+      "v1": 102000.0,
+      "v0": 100000.0
+     },
+     "expected": 0.02,
+     "tolerance": 1e-09,
+     "method": "(102,000-100,000)/100,000 = 0.02, part of the 8.00% true TWR.",
+     "provenance": "Published result: LM3 Exhibit 3, printed p. 155 (PDF p. 163)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "v1": 99000.0
+     },
+     "reason": "Beginning value is structurally required; the return has no scale without it."
+    },
+    {
+     "kind": "domain",
+     "inputs": {
+      "v1": 99000.0,
+      "v0": 0.0
+     },
+     "reason": "Guard v0 > 0 violated; division by a zero beginning value is undefined."
+    }
+   ],
+   "inverse_notes": "v0 = v1/(1+r) requires r != -1. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings period values and sub-period TWR are not in the runtime vocabulary snapshot and require extension.",
+     "Practice Q4 sub-periods (Jan 4.00%, Feb 4.33%/2.33%, Mar 2.66%/2.08%) are supporting oracles of the same form."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--geometric-linking-twr",
+   "revision": "r1",
+   "title": "Geometrically linked time-weighted return",
+   "summary": "Two-sub-period TWR as the compounded product of relative sub-period returns minus one.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "twr",
+    "expression": "(1+a)*(1+b)-1",
+    "original_equation": "r_twr = (1 + r_t,1) x (1 + r_t,2) - 1 (Eq2, two-sub-period form)",
+    "source_id": "analystprep-twr-dietz",
+    "locator": "PDF: LM3 geometric linking Eq2 with Exhibits 2-4, printed pp. 152-155 (PDF pp. 160-163): Ex2 true TWR (1-0.01)x(1+0.0142)-1 = 0.41%; Ex3/Ex4 true TWRs 8.00%; practice Q4 solutions, printed p. 187 (PDF p. 195): February 6.76%, March 4.80%, Q1 16.36%",
+    "translation_notes": "Fixed two-sub-period form (the PDF's Eq2 generalizes to n sub-periods; three-period Q1 total 16.36% is cited as supporting evidence). Decimals."
+   },
+   "variables": [
+    {
+     "symbol": "a",
+     "source_symbol": "r_t,1",
+     "role": "input",
+     "quantity_id": "first_subperiod_return",
+     "definition": "TWR of the first sub-period, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one full period",
+     "domain": "Greater than -1"
+    },
+    {
+     "symbol": "b",
+     "source_symbol": "r_t,2",
+     "role": "input",
+     "quantity_id": "second_subperiod_return",
+     "definition": "TWR of the second sub-period, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same full period",
+     "domain": "Greater than -1"
+    },
+    {
+     "symbol": "twr",
+     "source_symbol": "r_twr",
+     "role": "output",
+     "quantity_id": "linked_twr",
+     "definition": "Geometrically linked TWR for the full period, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same full period",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Sub-period returns from intra-period valuation at each large cash flow; GIPS requires geometric (multiplicative) linking."
+   ],
+   "limitations": [
+    "Two-sub-period closed form only; three or more sub-periods extend the product (Q1: 16.36% over Jan/Feb/Mar). Returns compound, never add."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-eq2-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM3 geometric linking Eq2 with Exhibits 2-4, printed pp. 152-155 (PDF pp. 160-163): Ex2 true TWR (1-0.01)x(1+0.0142)-1 = 0.41%; Ex3/Ex4 true TWRs 8.00%; practice Q4 solutions, printed p. 187 (PDF p. 195): February 6.76%, March 4.80%, Q1 16.36%",
+     "evidence": "Eq2 with practice Q4 February (6.76%) and March (4.80%) linkages; Ex2-Ex4 0.41%/8.00% cases.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-twr-dietz",
+     "kind": "primary",
+     "title": "Time-Weighted Return and Modified Dietz Method (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/fundamentals-of-compliance/",
+     "version": "Study notes, 27 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "R_t = (V1-V0)/V0 with no external cash flows; geometric linking r_twr = (1+r_t1)x...x(1+r_tn)-1 required by GIPS; Modified Dietz (V1-V0-CF)/(V0+sum CF_i w_i) with w_i = (CD-Di)/CD.",
+     "evidence": "Page states the same Eq1, linking, Dietz, and day-weight formulas used across the LM3 records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-february-link-oracle",
+     "inputs": {
+      "a": 0.0433,
+      "b": 0.0233
+     },
+     "expected": 0.0676,
+     "tolerance": 0.0001,
+     "method": "(1.0433)x(1.0233)-1 = 0.067629, reported as 6.76%.",
+     "provenance": "Published result: LM3 practice Q4 solution, printed p. 187 (PDF p. 195)"
+    },
+    {
+     "id": "published-march-link-oracle",
+     "inputs": {
+      "a": 0.0266,
+      "b": 0.0208
+     },
+     "expected": 0.048,
+     "tolerance": 0.0001,
+     "method": "(1.0266)x(1.0208)-1 = 0.047954, reported as 4.80%.",
+     "provenance": "Published result: LM3 practice Q4 solution, printed p. 187 (PDF p. 195)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "a": 0.0433
+     },
+     "reason": "Both sub-period returns are structurally required; linking a single leg is not a total return."
+    }
+   ],
+   "inverse_notes": "No single-input inverse; solving for one leg requires the other and the total. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings sub-period and linked TWR are not in the runtime vocabulary snapshot and require extension.",
+     "Exhibit 2 (0.41%), Exhibits 3-4 (8.00%), and Q1 (16.36%, three legs) are supporting oracles."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--modified-dietz-return",
+   "revision": "r1",
+   "title": "Modified Dietz estimated return",
+   "summary": "Day-weighted cash-flow approximation of TWR: net gain over beginning value plus day-weighted net flows.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "r",
+    "expression": "(v1-v0-cf)/(v0+cf*w)",
+    "original_equation": "r_ModDietz = (V1 - V0 - CF)/(V0 + sum CF_i x w_i) (Eq3, single-flow form)",
+    "source_id": "analystprep-twr-dietz",
+    "locator": "PDF: LM3 Modified Dietz Eq3 and day-weight Eq4 with Exhibits 2-3, printed pp. 153-155 (PDF pp. 161-163): w = (30-5)/30 = 0.83; Ex2-left (110,550-100,000-10,000)/(100,000+10,000x0.83) = 0.51%; Ex3-left 7.93%, Ex3-right 7.99%",
+    "translation_notes": "Single-net-flow closed form (CF = sum of signed flows; w = day weight from Eq4). Decimals. Multi-flow sums extend the denominator additively."
+   },
+   "variables": [
+    {
+     "symbol": "v1",
+     "source_symbol": "V1",
+     "role": "input",
+     "quantity_id": "ending_value",
+     "definition": "Ending portfolio value, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one measurement period",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "v0",
+     "source_symbol": "V0",
+     "role": "input",
+     "quantity_id": "beginning_value",
+     "definition": "Beginning portfolio value, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same period",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "cf",
+     "source_symbol": "CF",
+     "role": "input",
+     "quantity_id": "net_cash_flow",
+     "definition": "Net external cash flow (signed), in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same period",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "w",
+     "source_symbol": "w",
+     "role": "input",
+     "quantity_id": "day_weight",
+     "definition": "Day-weight of the flow (proportion of period held), decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same period",
+     "domain": "Closed interval 0 to 1"
+    },
+    {
+     "symbol": "r",
+     "source_symbol": "r_ModDietz",
+     "role": "output",
+     "quantity_id": "modified_dietz_return",
+     "definition": "Modified Dietz estimated return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same period",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "No valuation at the flow date (else use true TWR); flows assumed end-of-day per PDF note."
+   ],
+   "limitations": [
+    "Estimate, not true TWR (10 bp gap in the worked example: 0.51% vs 0.41%); accuracy degrades with large flows in volatile markets (Exhibits 2-4)."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-eq3-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM3 Modified Dietz Eq3 and day-weight Eq4 with Exhibits 2-3, printed pp. 153-155 (PDF pp. 161-163): w = (30-5)/30 = 0.83; Ex2-left (110,550-100,000-10,000)/(100,000+10,000x0.83) = 0.51%; Ex3-left 7.93%, Ex3-right 7.99%",
+     "evidence": "Eq3 with Exhibit 2-left (0.51%) and Exhibit 3-left (7.93%) computations; aggregate composite 0.62% as supporting oracle.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-twr-dietz",
+     "kind": "primary",
+     "title": "Time-Weighted Return and Modified Dietz Method (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/fundamentals-of-compliance/",
+     "version": "Study notes, 27 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "R_t = (V1-V0)/V0 with no external cash flows; geometric linking r_twr = (1+r_t1)x...x(1+r_tn)-1 required by GIPS; Modified Dietz (V1-V0-CF)/(V0+sum CF_i w_i) with w_i = (CD-Di)/CD.",
+     "evidence": "Page states the same Eq1, linking, Dietz, and day-weight formulas used across the LM3 records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-ex2-dietz-oracle",
+     "inputs": {
+      "v1": 110550.0,
+      "v0": 100000.0,
+      "cf": 10000.0,
+      "w": 0.833333
+     },
+     "expected": 0.0051,
+     "tolerance": 0.0001,
+     "method": "550/(100,000+8,333.33) = 0.0050769, reported as 0.51%.",
+     "provenance": "Published result: LM3 Exhibit 2, printed p. 154 (PDF p. 162)"
+    },
+    {
+     "id": "published-ex3-dietz-oracle",
+     "inputs": {
+      "v1": 118588.0,
+      "v0": 100000.0,
+      "cf": 10000.0,
+      "w": 0.833333
+     },
+     "expected": 0.0793,
+     "tolerance": 0.0001,
+     "method": "8,588/108,333.33 = 0.079276, reported as 7.93%.",
+     "provenance": "Published result: LM3 Exhibit 3, printed p. 155 (PDF p. 163)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "v1": 110550.0,
+      "v0": 100000.0,
+      "cf": 10000.0
+     },
+     "reason": "Day weight is structurally required; undated flows cannot be day-weighted."
+    }
+   ],
+   "inverse_notes": "w = ((v1-v0-cf)/r - v0)/cf requires r != 0 and cf != 0. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings period values, net flow, day weight, and Dietz return are not in the runtime vocabulary snapshot and require extension.",
+     "Weight construction is Eq4 (folded here; 25/30 = 0.83 published). Modified IRR (Eq5, iterative, 0.51%) is deferred as non-closed-form."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--composite-asset-weighted-return",
+   "revision": "r1",
+   "title": "Asset-weighted composite return",
+   "summary": "Composite return as the sum of portfolio return-times-weight products; family holds precomputed products.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "rc",
+    "expression": "sum(R)",
+    "original_equation": "r_C = sum r_pi x (V_0,pi/sum V_0,pi) (Eq7); alternate weights V_pi/sum V_pi (Eq8)",
+    "source_id": "analystprep-composite-twr",
+    "locator": "PDF: LM3 composite asset-weighting Eqs 7-8 with Exhibits 5-6, printed pp. 159-162 (PDF pp. 167-170): beginning-assets method 0.0051x0.23+0.0028x0.224+0.0032x0.2597+0.0136x0.2863 = 0.65%; plus-weighted-cash-flows method = 0.62%; aggregate Dietz 0.62%",
+    "translation_notes": "Family R holds precomputed r_pi x w_pi products (multiplication documented here as the per-element construction). Decimals. Eq7 (beginning assets) and Eq8 (plus weighted cash flows) share this form with different weights."
+   },
+   "variables": [
+    {
+     "symbol": "R",
+     "source_symbol": "r_pi x w_pi per portfolio (introduced family of products)",
+     "role": "family",
+     "quantity_id": "weighted_portfolio_return",
+     "definition": "Portfolio return times its composite weight, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one composite and month",
+     "domain": "Finite per element",
+     "max_size": 256
+    },
+    {
+     "symbol": "rc",
+     "source_symbol": "r_C",
+     "role": "output",
+     "quantity_id": "composite_return",
+     "definition": "Asset-weighted composite return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same composite and month",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Weights from one consistent method (Eq7 or Eq8) summing to 100%; portfolio returns contemporaneous."
+   ],
+   "limitations": [
+    "Weighting frequency matters: less-frequent asset-weighting misstates aggregate performance (PDF note). Arithmetic shared with portfolio-of-sectors sums; distinct GIPS equation and oracles (see gaps)."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v3-eq78-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 3 - Performance Measurement",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM3 composite asset-weighting Eqs 7-8 with Exhibits 5-6, printed pp. 159-162 (PDF pp. 167-170): beginning-assets method 0.0051x0.23+0.0028x0.224+0.0032x0.2597+0.0136x0.2863 = 0.65%; plus-weighted-cash-flows method = 0.62%; aggregate Dietz 0.62%",
+     "evidence": "Eqs 7-8 with Exhibit 6: beginning-assets 0.65%, plus-weighted-flows 0.62%, aggregate Dietz 0.62%.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-composite-twr",
+     "kind": "primary",
+     "title": "GIPS Valuation Requirements (AnalystPrep CFA Level III notes)",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/valuation-requirements/",
+     "version": "Study notes, 27 Nov 2023",
+     "accessed": "2026-11-04",
+     "locator": "Composite return as sum of portfolio returns times beginning-asset weights (worked 0.541%) and times beginning-assets-plus-weighted-cash-flow weights (worked 0.525%); aggregate method via Modified Dietz.",
+     "evidence": "Page states the same asset-weighting methods with independent worked oracles; corroborates the composite record's form.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-beginning-assets-oracle",
+     "inputs": {
+      "R": [
+       0.001173,
+       0.0006272,
+       0.00083104,
+       0.00389368
+      ]
+     },
+     "expected": 0.0065,
+     "tolerance": 0.0001,
+     "method": "Sum = 0.00652492, reported as 0.65%.",
+     "provenance": "Published result: LM3 Exhibit 6, printed p. 161 (PDF p. 169)"
+    },
+    {
+     "id": "published-weighted-flows-oracle",
+     "inputs": {
+      "R": [
+       0.00125256,
+       0.00068348,
+       0.00081952,
+       0.00345712
+      ]
+     },
+     "expected": 0.0062,
+     "tolerance": 0.0001,
+     "method": "Sum = 0.00621268, reported as 0.62%.",
+     "provenance": "Published result: LM3 Exhibit 6, printed p. 162 (PDF p. 170)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {},
+     "reason": "With no bound products there is nothing to sum; an empty composite has no return."
+    }
+   ],
+   "inverse_notes": "No algebraic inverse for single elements without fixing the rest. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings weighted portfolio return and composite return are not in the runtime vocabulary snapshot and require extension.",
+     "Same sum-of-products arithmetic as financial-analysis--portfolio-weighted-return-sum but a distinct GIPS composite concept with its own equations and oracles; not marked duplicate."
+    ],
+    "duplicate_of": []
+   }
+  }
+ ]
+}

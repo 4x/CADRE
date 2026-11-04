@@ -1,0 +1,167 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b93",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations. All records use inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; public corroboration carries the relationship when available, and documented owner-only fallbacks remain blocked for review. The public SEC sources separately support percentage commission arithmetic and the agent-consignment revenue context; the owner example supplies their combined application."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--consignment-agent-percentage-commission-revenue",
+      "revision": "r1",
+      "title": "Percentage commission earned by a consignment agent",
+      "summary": "The consignment agent earns a 25% commission on sales and reports only the commission as its revenue.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "commission",
+        "expression": "sales * rate",
+        "original_equation": "Agent commission = eligible consignment sales × commission rate",
+        "source_id": "allegro-sales-representative-commission",
+        "locator": "Notes to consolidated financial statements, revenue recognition, sales channels",
+        "translation_notes": "Sales and commission are same-period currency amounts; the commission rate is a base-one fraction."
+      },
+      "variables": [
+        {
+          "symbol": "sales",
+          "source_symbol": "eligible consignment sales",
+          "role": "input",
+          "quantity_id": "eligible_consignment_sales",
+          "definition": "Sales amount to which the contractual commission rate applies",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "rate",
+          "source_symbol": "commission rate",
+          "role": "input",
+          "quantity_id": "consignment_commission_rate",
+          "definition": "Fraction of eligible sales earned by the agent",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "commission",
+          "source_symbol": "commission revenue",
+          "role": "output",
+          "quantity_id": "consignment_agent_commission_revenue",
+          "definition": "Commission earned by the agent on eligible completed sales",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sales >= 0",
+        "rate >= 0",
+        "rate <= 1"
+      ],
+      "assumptions": [
+        "The company acts as an agent, rather than as principal, and the stated percentage applies to the defined eligible sales base.",
+        "The commission has been earned under the contract and the applicable revenue-recognition requirements; sales and commission use the same currency and period."
+      ],
+      "limitations": [
+        "The formula excludes fixed fees, tiered rates, returns, incentives, taxes and other contractual adjustments unless already reflected in the eligible base or rate.",
+        "The Allegro source describes a commission based on customer payment; a sales-based contract and a payment-based contract need not have the same base or timing."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 1, Revenue Recognition, printed p54 and p58 (PDF pp68 and 72), practice problem 6 and solution",
+          "evidence": "The consignment agent earns a 25% commission on sales and reports only the commission as its revenue.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "allegro-sales-representative-commission",
+          "kind": "primary",
+          "title": "Allegro MicroSystems 2026 Annual Report",
+          "url": "https://www.sec.gov/Archives/edgar/data/866291/000119312526280259/algm_fy26_annual_report.pdf",
+          "version": "Allegro MicroSystems, SEC annual report, 2026",
+          "accessed": "2026-11-04",
+          "locator": "Notes to consolidated financial statements, revenue recognition, sales channels",
+          "evidence": "The issuer states that sales-representative commission is a percentage of the related customer payment.",
+          "license": "Issuer SEC filing; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        },
+        {
+          "id": "baozun-agent-consignment-model",
+          "kind": "primary",
+          "title": "Baozun Inc. Annual Report 2024",
+          "url": "https://www.sec.gov/Archives/edgar/data/1625414/000110465925037722/tm2512874d1_ex99-2.pdf",
+          "version": "Baozun Inc., SEC filing, 2025",
+          "accessed": "2026-11-04",
+          "locator": "Management discussion and analysis, Consignment Model, printed p17",
+          "evidence": "The issuer describes acting as an agent in a consignment business, charging commission and principally generating service revenue.",
+          "license": "Issuer SEC filing; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner",
+          "inputs": {
+            "sales": 2000000,
+            "rate": 0.25
+          },
+          "expected": 500000,
+          "tolerance": 1e-09,
+          "method": "A 25% commission on 2,000,000 of consignment sales is 500,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "smaller",
+          "inputs": {
+            "sales": 10000,
+            "rate": 0.1
+          },
+          "expected": 1000,
+          "tolerance": 1e-09,
+          "method": "A 10% commission on 10,000 of eligible sales is 1,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "rate": 0.25
+          },
+          "reason": "sales is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "sales=commission/rate when rate is positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

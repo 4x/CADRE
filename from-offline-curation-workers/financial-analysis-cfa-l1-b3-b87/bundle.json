@@ -1,0 +1,169 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b87",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. Corrects b16 receivable-days record to preserve both owner-text turnover conventions and flags the credit-turnover subtype for registry review."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--days-of-sales-outstanding",
+      "revision": "r2",
+      "title": "Days of sales outstanding",
+      "summary": "Days of sales outstanding divides the reporting-period duration by its corresponding turnover.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "days",
+        "expression": "period / turnover",
+        "original_equation": "Days of sales outstanding = period length / matching turnover",
+        "source_id": "understanding-accounting-dso",
+        "locator": "Working definition and explanation",
+        "translation_notes": "Period is a physical duration in days, not an annualization factor; output retains the same duration unit. Turnover is a dimensionless count over that period."
+      },
+      "variables": [
+        {
+          "symbol": "period",
+          "source_symbol": "number of days in period",
+          "role": "input",
+          "quantity_id": "reporting_period_duration",
+          "definition": "Physical length of the reporting period",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive duration"
+        },
+        {
+          "symbol": "turnover",
+          "source_symbol": "period turnover",
+          "role": "input",
+          "quantity_id": "receivables_turnover_ratio",
+          "definition": "Receivables turnover for the reporting period, calculated consistently from either total revenue or credit sales and average receivables",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "days",
+          "source_symbol": "Days of sales outstanding",
+          "role": "output",
+          "quantity_id": "days_of_sales_outstanding",
+          "definition": "Days of sales outstanding as an elapsed duration",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "period > 0",
+        "turnover > 0"
+      ],
+      "assumptions": [
+        "Turnover and period duration cover the same entity, accounting period and averaging convention.",
+        "A year can contain 365, 366 or another number of days; it is supplied rather than hard-coded.",
+        "The turnover basis is explicitly identified: the financial-analysis module uses total revenue, while the corporate-issuer module specifies credit sales."
+      ],
+      "limitations": [
+        "Turnover is an accounting approximation and does not identify the actual holding time of each individual item.",
+        "Zero turnover has no finite duration in this model.",
+        "Total-sales and credit-sales versions can yield different days; credit-sales turnover can feed this formula only when the scopes of receivables and period match."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Activity Ratios, printed pp203–204 (PDF pp217–218), Exhibit 12; Corporate Issuers Learning Module 5, Measuring Liquidity, printed p779 (PDF p793), Exhibit 3",
+          "evidence": "The financial-analysis exhibit defines days using a total-revenue turnover; the corporate-issuer exhibit defines receivable days using sales on credit.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 6, 8, 10 and 11",
+          "evidence": "The public list defines receivables, inventory and payable days as period duration divided by the corresponding turnover and defines the cash conversion cycle.",
+          "license": "CFA Institute rights reserved; individual formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        },
+        {
+          "id": "understanding-accounting-dso",
+          "kind": "primary",
+          "title": "Days sales outstanding",
+          "url": "https://understandingaccounting.org/concepts/days-sales-outstanding/",
+          "version": "Understanding Accounting, concept guide updated 7 August 2026",
+          "accessed": "2026-11-04",
+          "locator": "Working definition and explanation",
+          "evidence": "The guide expresses DSO as period days divided by receivables turnover and states an equivalent credit-sales formulation.",
+          "license": "Author-hosted educational material; reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "year",
+          "inputs": {
+            "period": 360,
+            "turnover": 12
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "360 days divided by 12 turnovers gives 30 days.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "quarter",
+          "inputs": {
+            "period": 90,
+            "turnover": 3
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "90 days divided by three turnovers gives 30 days.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "turnover": 12
+          },
+          "reason": "period is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "period=days*turnover; turnover=period/days requires positive days. Zero turnover is excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection.",
+          "The credit_sales_receivables_turnover quantity is a scope-specific candidate subtype of the generic receivables_turnover_ratio input; registry review must resolve the mapping without equating the total-sales and credit-sales measures."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

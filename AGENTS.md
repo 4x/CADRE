@@ -4,11 +4,11 @@ Connected Models (aka **CADRE**: **C**omposable **A**tomic **D**eterministic **R
 
 ## Goal
 
-**Optimize for Meta Hackathon.** Find, refine, and present use cases in which CADRE will shine and beat bare LLM.
+**Optimize for Meta Hackathon** using the [Judging Rubric](JudgingRubric.md).
+
+Find, refine, and present use cases in which CADRE will shine and beat bare LLM.
 
 Fix any bugs, add important capabilities, and plan demo to highlight features.
-
-
 
 # Agent conduct
 

@@ -1,0 +1,843 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.9",
+  "batch_id": "financial-analysis-cfa-l3-v2-b03",
+  "domain": "financial-analysis",
+  "curator": "buffy",
+  "created": "2026-11-04",
+  "example_only": false,
+  "models": [
+    {
+      "id": "financial-analysis--after-tax-fvif-accrual",
+      "revision": "r1",
+      "title": "After-tax FVIF under accrual taxation",
+      "summary": "Per-unit accumulation when returns are taxed annually at a uniform rate.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "fvif",
+        "expression": "(1 + R * (1 - tx)) ** T",
+        "original_equation": "FVIFT = [1 + R(1 − tx)]^T",
+        "source_id": "analystprep-inflation-tax",
+        "locator": "PDF: LM4 Accrual Taxes, printed p. 256 (PDF p. 266), Equation 2; Kozlowska case [1 + 0.07(1−0.20)]^20 → EUR297,357 on EUR100,000",
+        "translation_notes": "Variable exponent T on a dimensionless base (allowed). Decimal rates; T is a dimensionless year count. Distinct from plain FVIF by the embedded annual tax drag (overlap note in integration). Dimensional check: dimensionless base to a count power = dimensionless factor."
+      },
+      "variables": [
+        {
+          "symbol": "R",
+          "source_symbol": "R",
+          "role": "input",
+          "quantity_id": "pre_tax_return",
+          "definition": "Pretax annual return, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, uniform annual tax regime and horizon as fvif",
+          "domain": "Finite decimal return above −1"
+        },
+        {
+          "symbol": "tx",
+          "source_symbol": "tx",
+          "role": "input",
+          "quantity_id": "accrual_tax_rate",
+          "definition": "Uniform annual tax rate on investment income, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment and horizon as R",
+          "domain": "Closed interval 0 to below 1"
+        },
+        {
+          "symbol": "T",
+          "source_symbol": "T",
+          "role": "input",
+          "quantity_id": "year_count",
+          "definition": "Investment horizon in years (dimensionless count)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment and tax regime as R",
+          "domain": "Nonnegative finite count"
+        },
+        {
+          "symbol": "fvif",
+          "source_symbol": "FVIFT",
+          "role": "output",
+          "quantity_id": "after_tax_fvif",
+          "definition": "After-tax accumulation factor per unit of currency invested",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, tax regime and horizon as inputs",
+          "domain": "Positive finite factor"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "R > -1",
+        "tx >= 0",
+        "tx < 1",
+        "T >= 0"
+      ],
+      "assumptions": [
+        "Single uniform tax rate on the full return; after-tax proceeds reinvested at the same pretax return R (per source)."
+      ],
+      "limitations": [
+        "Compounds the tax drag: the gain share consumed exceeds the nominal rate over long horizons (per source Exhibit 25).",
+        "No inflation adjustment (see inflation-adjusted sibling); no realization timing within the horizon."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-fvift-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Accrual Taxes, printed p. 256 (PDF p. 266), Equation 2; Kozlowska case, printed p. 257 (PDF p. 267): EUR297,357",
+          "evidence": "Passage defines the after-tax FVIF equation and the case study evaluates it at a 2.97357 factor (EUR297,357 on EUR100,000).",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-inflation-tax",
+          "kind": "primary",
+          "title": "Inflation & Taxes on Investments (AnalystPrep CFA Level III notes)",
+          "url": "https://analystprep.com/study-notes/cfa-level-iii/inflation-and-tax-on-investments/",
+          "version": "Study notes, 11 Jan 2025, Accrual-taxes section",
+          "accessed": "2026-11-04",
+          "locator": "FVIF under Accrual Taxes: FVIF_T = [1 + R(1 − tx)]^T with after-tax return R(1 − tx); John Davids worked example",
+          "evidence": "Page states the identical after-tax FVIF equation with a worked example applying it.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-kozlowska-accrual",
+          "inputs": {
+            "R": 0.07,
+            "tx": 0.2,
+            "T": 20.0
+          },
+          "expected": 2.97357,
+          "tolerance": 0.00001,
+          "method": "Source: [1 + 0.07×0.80]^20 = 1.056^20 = 2.9735696, reported as factor 2.97357 (EUR297,357). Tolerance covers rounding.",
+          "provenance": "Published result: LM4 Kozlowska case, printed p. 257 (PDF p. 267)"
+        },
+        {
+          "id": "published-low-return-variant",
+          "inputs": {
+            "R": 0.04,
+            "tx": 0.2,
+            "T": 20.0
+          },
+          "expected": 1.87756,
+          "tolerance": 0.00001,
+          "method": "Source Q4 variant: [1 + 0.04×0.80]^20 = 1.032^20 = 1.8775609, reported as factor 1.87756 (EUR187,756). Tolerance covers rounding.",
+          "provenance": "Published result: LM4 purchasing-power case, printed p. 264 (PDF p. 274)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "R": 0.07,
+            "tx": 1.0,
+            "T": 20.0
+          },
+          "reason": "A 100% annual tax rate is outside the modeling domain (guard tx < 1)."
+        }
+      ],
+      "inverse_notes": "R = (fvif**(1/T) − 1)/(1 − tx) requires T ≠ 0 and tx ≠ 1; tx = 1 − (fvif**(1/T) − 1)/R requires R ≠ 0, T ≠ 0. T = 0 gives fvif = 1 (no time, no accumulation). Substitution check: fvif=2.97357, tx=0.2, T=20 recovers R=0.07 within rounding. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings pre_tax_return, accrual_tax_rate, year_count, after_tax_fvif are not in the runtime vocabulary snapshot and require extension.",
+          "Overlap note: nearest existing ID is engineering-finance--lump-sum-future-value-discrete; this record is genuinely distinct by embedding the uniform annual tax drag in the compounding rate (PDF Eq2 vs plain FVIF).",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--after-tax-fvif-deferred-gains",
+      "revision": "r1",
+      "title": "After-tax FVIF with deferred capital-gains tax",
+      "summary": "Per-unit accumulation when gains are taxed once at liquidation.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "fvif",
+        "expression": "(1 + R) ** T * (1 - tcg) + tcg",
+        "original_equation": "FVIFCG = (1 + R)^T(1 − tCG) + tCG",
+        "source_id": "analystprep-inflation-tax",
+        "locator": "PDF: LM4 Deferral of Taxes, printed p. 258 (PDF p. 268), Equation 3; Kozlowska deferral case factor 3.2958 → EUR329,576",
+        "translation_notes": "The +tCG term returns the tax on the untaxed cost of the initial unit (per source). Variable exponent on dimensionless base. Decimal rates. Dimensional check: dimensionless throughout."
+      },
+      "variables": [
+        {
+          "symbol": "R",
+          "source_symbol": "R",
+          "role": "input",
+          "quantity_id": "pre_tax_return",
+          "definition": "Pretax annual return, in decimal form (same meaning as accrual sibling)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, deferred-gains regime and horizon as fvif",
+          "domain": "Finite decimal return above −1"
+        },
+        {
+          "symbol": "T",
+          "source_symbol": "T",
+          "role": "input",
+          "quantity_id": "year_count",
+          "definition": "Investment horizon in years (same meaning as accrual sibling)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment and tax regime as R",
+          "domain": "Nonnegative finite count"
+        },
+        {
+          "symbol": "tcg",
+          "source_symbol": "tCG",
+          "role": "input",
+          "quantity_id": "capital_gains_tax_rate",
+          "definition": "Capital-gains tax rate applied once at liquidation, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment and horizon as R",
+          "domain": "Closed interval 0 to below 1"
+        },
+        {
+          "symbol": "fvif",
+          "source_symbol": "FVIFCG",
+          "role": "output",
+          "quantity_id": "after_tax_fvif",
+          "definition": "After-tax accumulation factor per unit invested under gains deferral",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, tax regime and horizon as inputs",
+          "domain": "Positive finite factor"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "R > -1",
+        "T >= 0",
+        "tcg >= 0",
+        "tcg < 1"
+      ],
+      "assumptions": [
+        "Full pretax compounding with a single liquidation tax on the gain; cost basis equals the initial unit (B = 1; see basis sibling for B < 1)."
+      ],
+      "limitations": [
+        "Deferred tax drag is a fixed percentage of gains regardless of horizon (per source) — the deferral advantage, not a flaw, but the record does not value interim liquidity.",
+        "Single rate and horizon; graduated holding-period rates need extension."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-fvifcg-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Deferral of Taxes, printed p. 258 (PDF p. 268), Equation 3; Kozlowska deferral case, printed p. 259 (PDF p. 269): factor 3.2958 → EUR329,576",
+          "evidence": "Passage derives both algebraic forms of the deferred-gains FVIF and the case study evaluates it at factor 3.2958.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-inflation-tax",
+          "kind": "primary",
+          "title": "Inflation & Taxes on Investments (AnalystPrep CFA Level III notes)",
+          "url": "https://analystprep.com/study-notes/cfa-level-iii/inflation-and-tax-on-investments/",
+          "version": "Study notes, 11 Jan 2025, Deferred-taxes section",
+          "accessed": "2026-11-04",
+          "locator": "After-Tax Future Accumulation with Deferred Taxes: both FVIFCG forms with tCG defined",
+          "evidence": "Page states the identical two-form equation with the same quantities defined.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-kozlowska-deferral",
+          "inputs": {
+            "R": 0.07,
+            "T": 20.0,
+            "tcg": 0.2
+          },
+          "expected": 3.2958,
+          "tolerance": 0.0001,
+          "method": "Source: 1.07^20 × 0.80 + 0.20 = 3.2957476, reported as factor 3.2958 (EUR329,576). Tolerance covers rounding.",
+          "provenance": "Published result: LM4 Kozlowska deferral case, printed p. 259 (PDF pp. 269–270)"
+        },
+        {
+          "id": "constructed-moderate-case",
+          "inputs": {
+            "R": 0.05,
+            "T": 10.0,
+            "tcg": 0.25
+          },
+          "expected": 1.471671,
+          "tolerance": 0.000001,
+          "method": "Direct substitution: 1.05^10 × 0.75 + 0.25 = 1.47167097. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "R": 0.07,
+            "T": 20.0,
+            "tcg": 1.0
+          },
+          "reason": "A 100% liquidation tax rate is outside the modeling domain (guard tcg < 1)."
+        }
+      ],
+      "inverse_notes": "tcg = ((1+R)^T − fvif)/((1+R)^T − 1) requires (1+R)^T ≠ 1; R and T jointly identified only up to the pretax factor. Substitution check: fvif=3.2958, R=0.07, T=20 recovers tcg=0.20 within rounding. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings pre_tax_return, year_count (both shared), capital_gains_tax_rate, after_tax_fvif (shared) are not in the runtime vocabulary snapshot and require extension.",
+          "Overlap note: nearest existing ID is engineering-finance--lump-sum-future-value-discrete; distinct by single liquidation-time gains tax (PDF Eq3). Companion to (not duplicate of) the accrual sibling.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--after-tax-fvif-cost-basis",
+      "revision": "r1",
+      "title": "After-tax FVIF with below-market cost basis",
+      "summary": "Deferred-gains accumulation reduced by the embedded tax on a low basis.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "fvif",
+        "expression": "(1 + R) ** T * (1 - tcg) + tcg * B",
+        "original_equation": "FVIFCG,B = (1 + R)^T(1 − tCG) + tCGB",
+        "source_id": "analystprep-inflation-tax",
+        "locator": "PDF: LM4 Basis Impact, printed p. 261 (PDF p. 271), Equation 4; Kozlowska basis case [(1.07)^20(0.80) + 0.20(0.80)] → EUR325,575",
+        "translation_notes": "Generalizes the deferred-gains sibling: tCG·B is the after-tax basis (B = 1 recovers Eq3 exactly). B is a proportion of current market value. Dimensional check: dimensionless throughout."
+      },
+      "variables": [
+        {
+          "symbol": "R",
+          "source_symbol": "R",
+          "role": "input",
+          "quantity_id": "pre_tax_return",
+          "definition": "Pretax annual return, in decimal form (same meaning as siblings)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, deferred-gains regime and horizon as fvif",
+          "domain": "Finite decimal return above −1"
+        },
+        {
+          "symbol": "T",
+          "source_symbol": "T",
+          "role": "input",
+          "quantity_id": "year_count",
+          "definition": "Investment horizon in years (same meaning as siblings)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment and tax regime as R",
+          "domain": "Nonnegative finite count"
+        },
+        {
+          "symbol": "tcg",
+          "source_symbol": "tCG",
+          "role": "input",
+          "quantity_id": "capital_gains_tax_rate",
+          "definition": "Capital-gains tax rate at liquidation, in decimal form (same meaning as sibling)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment and horizon as R",
+          "domain": "Closed interval 0 to below 1"
+        },
+        {
+          "symbol": "B",
+          "source_symbol": "B",
+          "role": "input",
+          "quantity_id": "basis_proportion",
+          "definition": "Cost basis as a proportion of current market value (1 = basis equals market)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment and liquidation event as fvif",
+          "domain": "Closed interval 0 to 1"
+        },
+        {
+          "symbol": "fvif",
+          "source_symbol": "FVIFCG,B",
+          "role": "output",
+          "quantity_id": "after_tax_fvif",
+          "definition": "After-tax accumulation factor per unit of current market value with embedded basis liability",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, tax regime and horizon as inputs",
+          "domain": "Positive finite factor"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "R > -1",
+        "T >= 0",
+        "tcg >= 0",
+        "tcg < 1",
+        "B >= 0",
+        "B <= 1"
+      ],
+      "assumptions": [
+        "Single liquidation at the horizon; basis proportion measured against current market value (per source)."
+      ],
+      "limitations": [
+        "As-if-held-to-horizon: interim realization or step-up at bequest changes the liability (not modeled).",
+        "B above 1 (loss position) is excluded; loss-harvest value needs a separate record."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-fvifb-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Basis Impact, printed p. 261 (PDF p. 271), Equation 4; Kozlowska basis case, printed p. 262 (PDF p. 272): EUR325,575 at B = 0.80",
+          "evidence": "Passage derives the basis-adjusted FVIF and the case study evaluates it at factor 3.2558 (EUR325,575), EUR4,000 below the B = 1 case.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-inflation-tax",
+          "kind": "primary",
+          "title": "Inflation & Taxes on Investments (AnalystPrep CFA Level III notes)",
+          "url": "https://analystprep.com/study-notes/cfa-level-iii/inflation-and-tax-on-investments/",
+          "version": "Study notes, 11 Jan 2025, Basis section",
+          "accessed": "2026-11-04",
+          "locator": "FVIFCG,B = (1 + R)^T(1 − tCG) + tCG·B with B defined as cost basis proportion and tCG·B as the tax-exempt basis portion",
+          "evidence": "Page states the identical basis-adjusted formula with the same quantities and interpretation.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-kozlowska-basis",
+          "inputs": {
+            "R": 0.07,
+            "T": 20.0,
+            "tcg": 0.2,
+            "B": 0.8
+          },
+          "expected": 3.2558,
+          "tolerance": 0.0001,
+          "method": "Source: 1.07^20 × 0.80 + 0.20 × 0.80 = 3.2557476, reported as factor 3.2558 (EUR325,575). Tolerance covers rounding.",
+          "provenance": "Published result: LM4 Kozlowska basis case, printed p. 262 (PDF p. 272)"
+        },
+        {
+          "id": "constructed-half-basis",
+          "inputs": {
+            "R": 0.05,
+            "T": 10.0,
+            "tcg": 0.25,
+            "B": 0.5
+          },
+          "expected": 1.346671,
+          "tolerance": 0.000001,
+          "method": "Direct substitution: 1.62889463 × 0.75 + 0.25 × 0.5 = 1.34667097. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "R": 0.07,
+            "T": 20.0,
+            "tcg": 0.2,
+            "B": 1.5
+          },
+          "reason": "Basis above market value (B > 1) is outside this record's scope (guard B <= 1); loss positions need separate treatment."
+        }
+      ],
+      "inverse_notes": "B = (fvif − (1+R)^T(1 − tcg))/tcg requires tcg ≠ 0; tcg = ((1+R)^T − fvif)/((1+R)^T − B) requires (1+R)^T ≠ B. Substitution check: fvif=3.2558, R=0.07, T=20, tcg=0.2 recovers B=0.80 within rounding. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings pre_tax_return, year_count, capital_gains_tax_rate, after_tax_fvif (all shared), basis_proportion are not in the runtime vocabulary snapshot and require extension.",
+          "Generalizes financial-analysis--after-tax-fvif-deferred-gains@r1 (B = 1 recovers it exactly); recorded as the distinct Eq4 relationship, not a duplicate."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--after-tax-fvif-inflation-adjusted",
+      "revision": "r1",
+      "title": "Inflation-adjusted after-tax FVIF (accrual)",
+      "summary": "Real purchasing-power factor from after-tax nominal compounding deflated by inflation.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "fvif",
+        "expression": "((1 + R * (1 - tx)) / (1 + infl)) ** T",
+        "original_equation": "FVIFt,infl = [(1 + R(1 − tx))/(1 + infl)]^T",
+        "source_id": "analystprep-inflation-tax",
+        "locator": "PDF: LM4 Inflation, printed p. 262 (PDF p. 272), Equation 5; Kozlowska cases [1.07/1.03]^20 → 2.1411 (EUR214,110) and [1.056/1.03]^20 → 1.6450 (EUR164,500)",
+        "translation_notes": "Numerator is the accrual sibling's per-period factor; denominator is the inflation adjustment. Variable exponent on dimensionless base. Dimensional check: dimensionless ratio to a count power."
+      },
+      "variables": [
+        {
+          "symbol": "R",
+          "source_symbol": "R",
+          "role": "input",
+          "quantity_id": "pre_tax_return",
+          "definition": "Nominal pretax annual return, in decimal form (same meaning as siblings)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, tax regime, inflation and horizon as fvif",
+          "domain": "Finite decimal return above −1"
+        },
+        {
+          "symbol": "tx",
+          "source_symbol": "tx",
+          "role": "input",
+          "quantity_id": "accrual_tax_rate",
+          "definition": "Uniform annual tax rate, in decimal form (same meaning as accrual sibling)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment and horizon as R",
+          "domain": "Closed interval 0 to below 1"
+        },
+        {
+          "symbol": "infl",
+          "source_symbol": "infl",
+          "role": "input",
+          "quantity_id": "inflation_rate",
+          "definition": "Annual inflation rate, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same horizon as T",
+          "domain": "Above −1, excluding −1 exactly"
+        },
+        {
+          "symbol": "T",
+          "source_symbol": "T",
+          "role": "input",
+          "quantity_id": "year_count",
+          "definition": "Investment horizon in years (same meaning as siblings)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, tax regime and inflation as inputs",
+          "domain": "Nonnegative finite count"
+        },
+        {
+          "symbol": "fvif",
+          "source_symbol": "FVIFt,infl",
+          "role": "output",
+          "quantity_id": "real_after_tax_fvif",
+          "definition": "After-tax inflation-adjusted accumulation factor per unit invested",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, tax regime, inflation and horizon as inputs",
+          "domain": "Positive finite factor"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "R > -1",
+        "tx >= 0",
+        "tx < 1",
+        "T >= 0"
+      ],
+      "assumptions": [
+        "Taxes levied on nominal appreciation and inflation adjustment applied to the after-tax nominal factor (per source: taxes paid in nominal terms)."
+      ],
+      "limitations": [
+        "Single constant inflation rate; consumption-basket shifts over the life cycle are not modeled.",
+        "Accrual-tax leg only; the deferred-gains inflation form (Eq6) is the companion record."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-fvifinfl-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Inflation, printed p. 262 (PDF p. 272), Equation 5; Kozlowska inflation cases, printed p. 263 (PDF p. 273): factors 2.1411 and 1.6450",
+          "evidence": "Passage defines the inflation-adjusted accrual FVIF and both case studies evaluate it at factors 2.1411 (no tax) and 1.6450 (20% tax).",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-inflation-tax",
+          "kind": "primary",
+          "title": "Inflation & Taxes on Investments (AnalystPrep CFA Level III notes)",
+          "url": "https://analystprep.com/study-notes/cfa-level-iii/inflation-and-tax-on-investments/",
+          "version": "Study notes, 11 Jan 2025, Long-term-savings section",
+          "accessed": "2026-11-04",
+          "locator": "FVIFinfl = [(1 + R(1 − tx))/(1 + infl)]^T with numerator as after-tax return and denominator as inflation adjustment",
+          "evidence": "Page states the identical inflation-adjusted FVIF equation with the same numerator/denominator interpretation.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-no-tax-real",
+          "inputs": {
+            "R": 0.07,
+            "tx": 0.0,
+            "infl": 0.03,
+            "T": 20.0
+          },
+          "expected": 2.1411,
+          "tolerance": 0.002,
+          "method": "Source: [1.07/1.03]^20 computed by the text as 1.0388^20 = 2.1411 (EUR214,110). True-base value 2.1426; tolerance covers the published 4-decimal rounding of the base.",
+          "provenance": "Published result: LM4 Kozlowska inflation case Q1, printed p. 263 (PDF p. 273)"
+        },
+        {
+          "id": "published-taxed-real",
+          "inputs": {
+            "R": 0.07,
+            "tx": 0.2,
+            "infl": 0.03,
+            "T": 20.0
+          },
+          "expected": 1.645,
+          "tolerance": 0.002,
+          "method": "Source: [1.056/1.03]^20 computed by the text as 1.0252^20 = 1.6450 (EUR164,500). True-base value 1.6465; tolerance covers the published 4-decimal rounding of the base.",
+          "provenance": "Published result: LM4 Kozlowska inflation case Q2, printed p. 263 (PDF p. 273)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "R": 0.07,
+            "tx": 0.2,
+            "T": 20.0
+          },
+          "reason": "Inflation rate is required; without it this collapses to the nominal accrual sibling."
+        }
+      ],
+      "inverse_notes": "infl = (1 + R(1 − tx))/fvif**(1/T) − 1 requires T ≠ 0 and fvif > 0; tx and R jointly identified only up to the after-tax numerator. Substitution check: fvif=1.645, R=0.07, tx=0.2, T=20 recovers infl=0.03 within rounding. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings pre_tax_return, accrual_tax_rate, year_count (all shared), inflation_rate, real_after_tax_fvif are not in the runtime vocabulary snapshot and require extension.",
+          "Overlap note: nominal leg is engineering-finance--lump-sum-future-value-discrete with tax drag; distinct by joint tax-and-inflation adjustment (PDF Eq5). Companion to (not duplicate of) the nominal siblings.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--after-tax-fvif-deferred-gains-inflation",
+      "revision": "r1",
+      "title": "Inflation-adjusted deferred-gains FVIF with basis",
+      "summary": "Real purchasing-power factor from liquidation-taxed compounding deflated by inflation.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "fvif",
+        "expression": "((1 + R) ** T * (1 - tcg) + tcg * B) / (1 + infl) ** T",
+        "original_equation": "FVIFCG,B,infl = [(1 + R)^T(1 − tCG) + tCGB]/(1 + infl)^T",
+        "source_id": "analystprep-inflation-tax",
+        "locator": "PDF: LM4 inflation with deferral, printed p. 264 (PDF p. 274), Equation 6; Kozlowska cases 1.8027 (B = 0.80, EUR180,270) and 1.8248 (B = 1, EUR182,480)",
+        "translation_notes": "Numerator is the basis sibling's nominal factor; denominator deflates by inflation. Variable exponents on dimensionless bases. Dimensional check: dimensionless over dimensionless."
+      },
+      "variables": [
+        {
+          "symbol": "R",
+          "source_symbol": "R",
+          "role": "input",
+          "quantity_id": "pre_tax_return",
+          "definition": "Nominal pretax annual return, in decimal form (same meaning as siblings)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, tax regime, inflation and horizon as fvif",
+          "domain": "Finite decimal return above −1"
+        },
+        {
+          "symbol": "T",
+          "source_symbol": "T",
+          "role": "input",
+          "quantity_id": "year_count",
+          "definition": "Investment horizon in years (same meaning as siblings)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, tax regime and inflation as R",
+          "domain": "Nonnegative finite count"
+        },
+        {
+          "symbol": "tcg",
+          "source_symbol": "tCG",
+          "role": "input",
+          "quantity_id": "capital_gains_tax_rate",
+          "definition": "Capital-gains tax rate at liquidation, in decimal form (same meaning as sibling)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment and horizon as R",
+          "domain": "Closed interval 0 to below 1"
+        },
+        {
+          "symbol": "B",
+          "source_symbol": "B",
+          "role": "input",
+          "quantity_id": "basis_proportion",
+          "definition": "Cost basis as a proportion of current market value (same meaning as sibling)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment and liquidation event as fvif",
+          "domain": "Closed interval 0 to 1"
+        },
+        {
+          "symbol": "infl",
+          "source_symbol": "infl",
+          "role": "input",
+          "quantity_id": "inflation_rate",
+          "definition": "Annual inflation rate, in decimal form (same meaning as sibling)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same horizon as T",
+          "domain": "Above −1, excluding −1 exactly"
+        },
+        {
+          "symbol": "fvif",
+          "source_symbol": "FVIFCG,B,infl",
+          "role": "output",
+          "quantity_id": "real_after_tax_fvif",
+          "definition": "After-tax inflation-adjusted accumulation factor per unit of market value under gains deferral with basis B",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investment, tax regime, inflation and horizon as inputs",
+          "domain": "Positive finite factor"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "R > -1",
+        "T >= 0",
+        "tcg >= 0",
+        "tcg < 1",
+        "B >= 0",
+        "B <= 1"
+      ],
+      "assumptions": [
+        "Taxes levied on nominal appreciation while purchasing power is the objective (per source: inflation exacerbates the tax erosion)."
+      ],
+      "limitations": [
+        "Single constant inflation and single liquidation; interim consumption or partial sales need extension."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v2-fvifcginfl-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 2 — Portfolio Construction",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 deferral with inflation, printed p. 264 (PDF p. 274), Equation 6; purchasing-power cases, printed pp. 264–265 (PDF pp. 274–275): 1.8027 and 1.8248",
+          "evidence": "Passage defines the inflation-deflated deferred-gains FVIF and both cases evaluate it at 1.8027 (B = 0.80) and 1.8248 (B = 1).",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "analystprep-inflation-tax",
+          "kind": "primary",
+          "title": "Inflation & Taxes on Investments (AnalystPrep CFA Level III notes)",
+          "url": "https://analystprep.com/study-notes/cfa-level-iii/inflation-and-tax-on-investments/",
+          "version": "Study notes, 11 Jan 2025, Return-model-with-inflation section",
+          "accessed": "2026-11-04",
+          "locator": "FVIFCG,B,infl = [(1 + R)^T(1 − tCG) + tCG·B]/(1 + infl)^T with nominal-tax/real-value interpretation",
+          "evidence": "Page states the identical inflation-deflated deferred-gains formula with the same interpretation.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-low-basis-real",
+          "inputs": {
+            "R": 0.07,
+            "T": 20.0,
+            "tcg": 0.2,
+            "B": 0.8,
+            "infl": 0.03
+          },
+          "expected": 1.8027,
+          "tolerance": 0.0001,
+          "method": "Source: [1.07^20 × 0.80 + 0.16]/1.03^20 = 3.2557476/1.8061112 = 1.8027482, reported as 1.8027 (EUR180,270). Tolerance covers rounding.",
+          "provenance": "Published result: LM4 purchasing-power case Q1, printed pp. 264–265 (PDF pp. 274–275)"
+        },
+        {
+          "id": "published-full-basis-real",
+          "inputs": {
+            "R": 0.07,
+            "T": 20.0,
+            "tcg": 0.2,
+            "B": 1.0,
+            "infl": 0.03
+          },
+          "expected": 1.8248,
+          "tolerance": 0.0001,
+          "method": "Source: [1.07^20 × 0.80 + 0.20]/1.03^20 = 3.2957476/1.8061112 = 1.8247711, reported as 1.8248 (EUR182,480). Tolerance covers rounding.",
+          "provenance": "Published result: LM4 purchasing-power case Q2, printed p. 265 (PDF p. 275)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "R": 0.07,
+            "T": 20.0,
+            "tcg": 0.2,
+            "B": 0.8
+          },
+          "reason": "Inflation rate is required; without it this collapses to the nominal basis sibling."
+        }
+      ],
+      "inverse_notes": "B = (fvif·(1+infl)^T − (1+R)^T(1 − tcg))/tcg requires tcg ≠ 0; other directions mirror the nominal basis sibling with the inflation deflator carried through. Substitution check: fvif=1.8027 with the Q1 inputs recovers B=0.80 within rounding. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings pre_tax_return, year_count, capital_gains_tax_rate, basis_proportion, inflation_rate (all shared), real_after_tax_fvif (shared) are not in the runtime vocabulary snapshot and require extension.",
+          "Composition of the nominal basis sibling with inflation deflation; recorded as the distinct Eq6 relationship, not a duplicate."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "deferred": [
+    {
+      "title": "Combined income-plus-capital FVIF (PDF Eqs 7-8)",
+      "reason": "No worked oracle in the PDF (restates Eqs 2+3 additively); corroborating page states the form but the record would be a composition of two recorded siblings. Defer as composition rather than new coverage.",
+      "source_urls": [
+        "https://analystprep.com/study-notes/cfa-level-iii/inflation-and-tax-on-investments/"
+      ]
+    },
+    {
+      "title": "Tax-drag proportion of gains (31%/20%/43.7% cases)",
+      "reason": "Candidate for b04 with the AnalystPrep John Davids oracle (43.7%) as independent published check.",
+      "source_urls": [
+        "https://analystprep.com/study-notes/cfa-level-iii/inflation-and-tax-on-investments/"
+      ]
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b03 (L3V2): 5 records (accrual FVIF, deferred-gains FVIF, basis FVIF, inflation-adjusted accrual FVIF, inflation-adjusted deferred FVIF) each with PDF locator plus directly inspected accessible corroboration. Nine of ten references are published oracles.",
+    "gaps": [
+      "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+      "Variable exponents on dimensionless bases used throughout (grammar-allowed); overlap notes name the nearest banned plain-FVIF ID with distinctions.",
+      "Queue: tax-drag proportion (deferred to b04), human-capital HC0 (Eq1, p. 245), RDC currency compounding (p. 78), LM5 bank-equity Eqs 3–9, LM6 spreads/shortfall/VWAP, DTS/rebate-rate/futures-leverage (deferred from b02)."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity — verified locators and corroboration pages by direct inspection 2026-11-04."
+  }
+}

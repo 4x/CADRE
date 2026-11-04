@@ -1,0 +1,551 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b33",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 1 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--conditional-probability",
+      "revision": "r2",
+      "title": "Conditional probability from a joint and conditioning probability",
+      "summary": "Conditional probability divides joint occurrence by the strictly positive probability of the conditioning event.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "conditional",
+        "expression": "joint / given",
+        "original_equation": "P(A|B)=P(AB)/P(B), P(B)!=0",
+        "source_id": "openstax-probability",
+        "locator": "Section3.1, complement and conditional probability definitions",
+        "translation_notes": "Dimensional probability ratio is dimensionless but is declared conditional probability. Eq2 is an inverse view of this same relationship, not new coverage. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "joint",
+          "source_symbol": "P(AB)",
+          "role": "input",
+          "quantity_id": "joint_event_probability",
+          "definition": "Probability that bothAandB occur",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same probability space, precisely defined events and information set; probabilities supplied as decimal fractions",
+          "domain": "0<=value<=1"
+        },
+        {
+          "symbol": "given",
+          "source_symbol": "P(B)",
+          "role": "input",
+          "quantity_id": "conditioning_event_probability",
+          "definition": "Positive probability of the event conditioned upon",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same probability space, precisely defined events and information set; probabilities supplied as decimal fractions",
+          "domain": "0<=value<=1"
+        },
+        {
+          "symbol": "conditional",
+          "source_symbol": "P(A|B)",
+          "role": "output",
+          "quantity_id": "conditional_event_probability",
+          "definition": "Probability ofA conditional onB",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same probability space, precisely defined events and information set; probabilities supplied as decimal fractions",
+          "domain": "0<=value<=1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "given > 0",
+        "given <= 1",
+        "joint >= 0",
+        "joint <= given"
+      ],
+      "assumptions": [
+        "Source assumption: the joint event is the intersection ofAandB and P(B)>0."
+      ],
+      "limitations": [
+        "Conditioning on a probability-zero event needs additional measure-theoretic structure absent here."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Conditional and Joint Probability, printed p180 (PDF p190), Equations(1)-(2)",
+          "evidence": "Conditional probability divides joint occurrence by the strictly positive probability of the conditioning event.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-probability",
+          "kind": "primary",
+          "title": "Introductory Statistics 2e",
+          "url": "https://openstax.org/books/introductory-statistics-2e/pages/3-1-terminology",
+          "version": "OpenStax2e",
+          "accessed": "2026-11-03",
+          "locator": "Section3.1, complement and conditional probability definitions",
+          "evidence": "Complement probabilities sum to1 and conditional probability divides intersection probability by the conditioning-event probability.",
+          "license": "CC BY4.0 identified in page footer; https://creativecommons.org/licenses/by/4.0/; inspected2026-11-03.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-definition-case",
+          "inputs": {
+            "joint": 0.1,
+            "given": 0.5
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "Published definition example. Independent conditional count interpretation:10 joint cases among50 conditioning cases yields20%.",
+          "provenance": "CFA printed p180/PDF190."
+        },
+        {
+          "id": "subset-equality",
+          "inputs": {
+            "joint": 0.3,
+            "given": 0.3
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "If all conditioning outcomes are joint outcomes, conditional probability is certain.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "given": 0.5
+          },
+          "reason": "joint is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "joint=conditional*given with given>0. First example recovers.1=.2*.5. given=joint/conditional requires conditional>0 and feasible probability bounds; ifjoint=conditional=0, given is not identified. Atgiven0 the canonical conditional relationship is undefined.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--two-event-union-probability",
+      "revision": "r2",
+      "title": "Probability of the inclusive union of two events",
+      "summary": "The addition rule includes both events while removing the shared intersection once to prevent double counting.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "union",
+        "expression": "a + b - joint",
+        "original_equation": "P(A orB)=P(A)+P(B)-P(AB)",
+        "source_id": "openstax-probability-rules",
+        "locator": "Section3.3, Multiplication Rule and Addition Rule",
+        "translation_notes": "Probability addition/subtraction is dimensionless. The guards impose the feasible Frechet bounds joint<=min(a,b) andjoint>=a+b-1 without needing min/max operators. The mutually exclusive special case joint0 remains part of this record. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "a",
+          "source_symbol": "P(A)",
+          "role": "input",
+          "quantity_id": "event_probability",
+          "definition": "Marginal probability ofA",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same probability space, precisely defined events and information set; probabilities supplied as decimal fractions",
+          "domain": "0<=value<=1"
+        },
+        {
+          "symbol": "b",
+          "source_symbol": "P(B)",
+          "role": "input",
+          "quantity_id": "event_probability",
+          "definition": "Marginal probability ofB",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same probability space, precisely defined events and information set; probabilities supplied as decimal fractions",
+          "domain": "0<=value<=1"
+        },
+        {
+          "symbol": "joint",
+          "source_symbol": "P(AB)",
+          "role": "input",
+          "quantity_id": "joint_event_probability",
+          "definition": "Intersection probability forAandB",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same probability space, precisely defined events and information set; probabilities supplied as decimal fractions",
+          "domain": "0<=value<=1"
+        },
+        {
+          "symbol": "union",
+          "source_symbol": "P(A orB)",
+          "role": "output",
+          "quantity_id": "union_event_probability",
+          "definition": "Probability that at least one ofAandB occurs",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same probability space, precisely defined events and information set; probabilities supplied as decimal fractions",
+          "domain": "0<=value<=1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "a >= 0",
+        "a <= 1",
+        "b >= 0",
+        "b <= 1",
+        "joint >= 0",
+        "joint <= a",
+        "joint <= b",
+        "joint >= a + b - 1"
+      ],
+      "assumptions": [
+        "Source assumption: all three probabilities describe the same two events and sample space."
+      ],
+      "limitations": [
+        "Does not assume independence; joint must be supplied or obtained from another justified relationship."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Conditional and Joint Probability, printed p181 (PDF p191), Equation(3); worked values printed p182/PDF192",
+          "evidence": "The addition rule includes both events while removing the shared intersection once to prevent double counting.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-probability-rules",
+          "kind": "primary",
+          "title": "Introductory Statistics 2e",
+          "url": "https://openstax.org/books/introductory-statistics-2e/pages/3-3-two-basic-rules-of-probability",
+          "version": "OpenStax2e",
+          "accessed": "2026-11-03",
+          "locator": "Section3.3, Multiplication Rule and Addition Rule",
+          "evidence": "The union probability is the sum of marginals less their intersection; joint and conditional probabilities follow the multiplication identity.",
+          "license": "CC BY4.0 identified in page footer; https://creativecommons.org/licenses/by/4.0/; inspected2026-11-03.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-overlapping-events",
+          "inputs": {
+            "a": 0.5,
+            "b": 0.4,
+            "joint": 0.2
+          },
+          "expected": 0.7,
+          "tolerance": 1e-09,
+          "method": "Published.70; independent disjoint areas.3 Aonly,.2 overlap,.2 Bonly total.7.",
+          "provenance": "CFA printed p182/PDF192."
+        },
+        {
+          "id": "mutually-exclusive-events",
+          "inputs": {
+            "a": 0.25,
+            "b": 0.5,
+            "joint": 0
+          },
+          "expected": 0.75,
+          "tolerance": 1e-09,
+          "method": "Disjoint favorable areas.25and.5 add with no shared region.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "b": 0.4,
+            "joint": 0.2
+          },
+          "reason": "a is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "joint=a+b-union and each marginal follows by rearrangement with all feasibility bounds retained. Example .5+.4-.7=.2 recovers the overlap. If only the union is given, neither marginal is determined.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--mutually-independent-intersection-probability",
+      "revision": "r2",
+      "title": "Joint occurrence probability for mutually independent events",
+      "summary": "For mutually independent events, the probability of all events occurring equals the product of their marginal probabilities.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "joint",
+        "expression": "prod(probabilities)",
+        "original_equation": "P(ABC...)=P(A)P(B)P(C)... under mutual independence",
+        "source_id": "probabilitycourse-independence",
+        "locator": "Section1.4.1, independence of several events",
+        "translation_notes": "Finite product of dimensionless probabilities remains dimensionless. The two-event case is included without a separate clone. Conditional joint multiplication from Eq2 remains valid without independence but uses different conditional inputs. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "probabilities",
+          "source_symbol": "P(A),P(B),P(C),...",
+          "role": "family",
+          "quantity_id": "event_probability",
+          "definition": "Marginal probability for each mutually independent event",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same declared probability space, joint distribution, event definitions and information set",
+          "domain": "Every element between0and1",
+          "max_size": 256
+        },
+        {
+          "symbol": "joint",
+          "source_symbol": "P(ABC...)",
+          "role": "output",
+          "quantity_id": "joint_event_probability",
+          "definition": "Probability that all represented events occur",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same declared probability space, joint distribution, event definitions and information set",
+          "domain": "0<=joint<=1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "prod(probabilities) >= 0",
+        "prod(probabilities) <= 1"
+      ],
+      "assumptions": [
+        "Source assumption: mutual independence, not merely pairwise independence, for three or more events."
+      ],
+      "limitations": [
+        "All element probabilities must be in[0,1] at binding; product bounds alone are insufficient.",
+        "Historical independence is not assumed from labels or zero sample correlation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Multiplication Rule for Independent Events, printed p185 (PDF p195), Equation(4) and following multi-event generalization",
+          "evidence": "For mutually independent events, the probability of all events occurring equals the product of their marginal probabilities.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "probabilitycourse-independence",
+          "kind": "primary",
+          "title": "Introduction to Probability, Statistics, and Random Processes",
+          "url": "https://www.probabilitycourse.com/chapter1/1_4_1_independence.php",
+          "version": "Hossein Pishro-Nik, author-hosted online textbook, live version2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.4.1, independence of several events",
+          "evidence": "Mutual independence makes finite intersections factor into products of event probabilities.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-two-events",
+          "inputs": {
+            "probabilities": [
+              0.75,
+              0.5
+            ]
+          },
+          "expected": 0.375,
+          "tolerance": 1e-09,
+          "method": "Published.375; independent rectangular event area three-quarters times one-half.",
+          "provenance": "CFA printed p185/PDF195."
+        },
+        {
+          "id": "impossible-constituent",
+          "inputs": {
+            "probabilities": [
+              0.8,
+              0,
+              0.4
+            ]
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "An intersection containing an impossible event is impossible regardless of the other probabilities.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "probabilities is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "If all other probabilities are positive, a missing probability equals joint divided by their product and must lie in[0,1]. In the first case .375/.5=.75. A zero known factor forces joint0 and leaves another missing probability unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--law-total-probability",
+      "revision": "r2",
+      "title": "Total probability over a finite scenario partition",
+      "summary": "The unconditional probability of an event sums its probability mass across mutually exclusive exhaustive scenarios.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "p",
+        "expression": "sum(joints)",
+        "original_equation": "P(A)=sum_i P(A|S_i)P(S_i)=sum_i P(A intersect S_i)",
+        "source_id": "probabilitycourse-total",
+        "locator": "Section1.4.2, Law of Total Probability",
+        "translation_notes": "Exact reparameterization of the printed conditional/scenario products as joint masses. Although weighted-mean arithmetic is shared, this named probability identity relates conditional partition masses to one unconditional event probability. Each input and output is a probability, not an observation or return. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "joints",
+          "source_symbol": "introduced q_i=P(A|S_i)P(S_i)=P(A intersect S_i)",
+          "role": "family",
+          "quantity_id": "partition_joint_event_probability",
+          "definition": "Joint probability mass for eventA in each disjoint exhaustive scenario",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same declared probability space, joint distribution, event definitions and information set",
+          "domain": "Each element in[0,1]; total at most1",
+          "max_size": 256
+        },
+        {
+          "symbol": "p",
+          "source_symbol": "P(A)",
+          "role": "output",
+          "quantity_id": "event_probability",
+          "definition": "Unconditional probability ofA over the partition",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same declared probability space, joint distribution, event definitions and information set",
+          "domain": "0<=p<=1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sum(joints) >= 0",
+        "sum(joints) <= 1"
+      ],
+      "assumptions": [
+        "Source assumption: the scenarios form a disjoint exhaustive partition.",
+        "Each q_i uses the same target eventA; zero-probability scenarios can contribute zero without defining a conditional probability on them."
+      ],
+      "limitations": [
+        "Joint contributions must be prepared with their partition and likelihood provenance; raw paired family multiplication is unavailable."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Total Probability Rule, printed p188 (PDF p198), Equations(5)-(6); Bayes example printed p207/PDF217",
+          "evidence": "The unconditional probability of an event sums its probability mass across mutually exclusive exhaustive scenarios.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "probabilitycourse-total",
+          "kind": "primary",
+          "title": "Introduction to Probability, Statistics, and Random Processes",
+          "url": "https://www.probabilitycourse.com/chapter1/1_4_2_total_probability.php",
+          "version": "Hossein Pishro-Nik, author-hosted online textbook, live version2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.4.2, Law of Total Probability",
+          "evidence": "A partition permits an event probability to be summed from conditional probabilities times scenario probabilities.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "tech-and-nontech",
+          "inputs": {
+            "joints": [
+              0.12,
+              0.2
+            ]
+          },
+          "expected": 0.32,
+          "tolerance": 1e-09,
+          "method": "Independent frequency oracle:60tech and100nontech firms above the threshold among500 firms gives160/500=.32.",
+          "provenance": "CFA Exhibits19-20 printed p207/PDF217."
+        },
+        {
+          "id": "three-bags",
+          "inputs": {
+            "joints": [
+              0.25,
+              0.19999999999999998,
+              0.15
+            ]
+          },
+          "expected": 0.6,
+          "tolerance": 1e-09,
+          "method": "Published three equally likely bags contain180 red marbles out of300 equally weighted marble positions.",
+          "provenance": "ProbabilityCourse1.4.2 three-bag example."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "joints is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "One missing joint mass is p minus all other masses if partition consistency is retained. In the first example .32-.12=.20. Several missing scenarios or separate likelihoods and priors are not identified by the total alone.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

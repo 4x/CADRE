@@ -1,0 +1,550 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b13",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--interest-bearing-debt-to-assets",
+      "revision": "r1",
+      "title": "Interest-bearing debt-to-assets ratio",
+      "summary": "Interest-bearing debt-to-assets ratio expresses the stated financing relationship as a ratio.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "debt / assets",
+        "original_equation": "Debt-to-assets = total debt / total assets",
+        "source_id": "cfi-leverage",
+        "locator": "List of Common Leverage Ratios, formulas 1, 3, 4 and 5",
+        "translation_notes": "Uses the CFA reading definition of interest-bearing debt; excludes nonborrowed operating liabilities. Monetary units cancel; period counts are contextual."
+      },
+      "variables": [
+        {
+          "symbol": "debt",
+          "source_symbol": "total debt",
+          "role": "input",
+          "quantity_id": "total_interest_bearing_debt",
+          "definition": "total debt",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "assets",
+          "source_symbol": "total assets",
+          "role": "input",
+          "quantity_id": "balance_sheet_total_assets",
+          "definition": "total assets",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Interest-bearing debt-to-assets ratio",
+          "role": "output",
+          "quantity_id": "interest_bearing_debt_to_assets",
+          "definition": "Interest-bearing debt-to-assets ratio",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "debt >= 0",
+        "assets > 0"
+      ],
+      "assumptions": [
+        "Amounts use a consistent entity, currency, reporting basis and explicitly stated date or averaging convention.",
+        "Debt means interest-bearing short-term and long-term borrowings for this source profile."
+      ],
+      "limitations": [
+        "Other definitions of debt include broader liabilities; they are not interchangeable without explicit redefinition.",
+        "Denominators at or below zero are outside this positive-denominator analytical profile."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Balance Sheet Ratios, printed p106 (PDF p120), Exhibit 20; Learning Module 4, Solvency Ratios, printed p215 (PDF p229), Exhibit 16",
+          "evidence": "Interest-bearing debt-to-assets ratio expresses the stated financing relationship as a ratio.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfi-leverage",
+          "kind": "primary",
+          "title": "Leverage Ratios",
+          "url": "https://corporatefinanceinstitute.com/resources/accounting/leverage-ratios/",
+          "version": "Corporate Finance Institute educational guide, undated; directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "List of Common Leverage Ratios, formulas 1, 3, 4 and 5",
+          "evidence": "The guide lists debt to assets, debt to capital, debt to EBITDA, and assets to equity ratios.",
+          "license": "Terms unknown; short formula transcriptions and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "source-example",
+          "inputs": {
+            "debt": 20000000,
+            "assets": 50000000
+          },
+          "expected": 0.4,
+          "tolerance": 1e-09,
+          "method": "Public source example 20 million over 50 million.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "alternate",
+          "inputs": {
+            "debt": 100000,
+            "assets": 500000
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "100000 over 500000 gives 0.2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "assets": 50000000
+          },
+          "reason": "debt is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Each additive numerator can be recovered from the reported ratio and the remaining inputs. Inverting to recover a denominator requires a nonzero ratio; at zero ratio the denominator may be unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--balance-sheet-financial-leverage",
+      "revision": "r1",
+      "title": "Financial leverage ratio",
+      "summary": "Financial leverage ratio expresses the stated financing relationship as a ratio.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "assets / equity",
+        "original_equation": "Financial leverage = total assets / total equity",
+        "source_id": "cfi-leverage",
+        "locator": "List of Common Leverage Ratios, formulas 1, 3, 4 and 5",
+        "translation_notes": "CFA Exhibit 20 uses same-date balances; Exhibit 16 uses average assets and equity, a separate binding convention for the same quotient. Monetary units cancel; period counts are contextual."
+      },
+      "variables": [
+        {
+          "symbol": "assets",
+          "source_symbol": "total assets",
+          "role": "input",
+          "quantity_id": "balance_sheet_total_assets",
+          "definition": "total assets",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "equity",
+          "source_symbol": "total equity",
+          "role": "input",
+          "quantity_id": "total_shareholders_equity",
+          "definition": "total equity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Financial leverage ratio",
+          "role": "output",
+          "quantity_id": "balance_sheet_financial_leverage",
+          "definition": "Financial leverage ratio",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "assets >= 0",
+        "equity > 0"
+      ],
+      "assumptions": [
+        "Amounts use a consistent entity, currency, reporting basis and explicitly stated date or averaging convention.",
+        "Debt means interest-bearing short-term and long-term borrowings for this source profile."
+      ],
+      "limitations": [
+        "Other definitions of debt include broader liabilities; they are not interchangeable without explicit redefinition.",
+        "Denominators at or below zero are outside this positive-denominator analytical profile."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Balance Sheet Ratios, printed p106 (PDF p120), Exhibit 20; Learning Module 4, Solvency Ratios, printed p215 (PDF p229), Exhibit 16",
+          "evidence": "Financial leverage ratio expresses the stated financing relationship as a ratio.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfi-leverage",
+          "kind": "primary",
+          "title": "Leverage Ratios",
+          "url": "https://corporatefinanceinstitute.com/resources/accounting/leverage-ratios/",
+          "version": "Corporate Finance Institute educational guide, undated; directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "List of Common Leverage Ratios, formulas 1, 3, 4 and 5",
+          "evidence": "The guide lists debt to assets, debt to capital, debt to EBITDA, and assets to equity ratios.",
+          "license": "Terms unknown; short formula transcriptions and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "source-example",
+          "inputs": {
+            "assets": 50000000,
+            "equity": 25000000
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "50 million divided by 25 million is two.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "alternate",
+          "inputs": {
+            "assets": 300000,
+            "equity": 100000
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "300000 divided by 100000 is three.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "equity": 25000000
+          },
+          "reason": "assets is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Each additive numerator can be recovered from the reported ratio and the remaining inputs. Inverting to recover a denominator requires a nonzero ratio; at zero ratio the denominator may be unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--interest-bearing-debt-to-capital",
+      "revision": "r1",
+      "title": "Interest-bearing debt-to-capital ratio",
+      "summary": "Interest-bearing debt-to-capital ratio expresses the stated financing relationship as a ratio.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "debt / (debt + equity)",
+        "original_equation": "Debt-to-capital = debt / (debt + equity)",
+        "source_id": "cfi-leverage",
+        "locator": "List of Common Leverage Ratios, formulas 1, 3, 4 and 5",
+        "translation_notes": "Debt plus equity is the source-defined total capital, not total liabilities plus equity. Monetary units cancel; period counts are contextual."
+      },
+      "variables": [
+        {
+          "symbol": "debt",
+          "source_symbol": "total debt",
+          "role": "input",
+          "quantity_id": "total_interest_bearing_debt",
+          "definition": "total debt",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "equity",
+          "source_symbol": "total shareholders equity",
+          "role": "input",
+          "quantity_id": "total_shareholders_equity",
+          "definition": "total shareholders equity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Interest-bearing debt-to-capital ratio",
+          "role": "output",
+          "quantity_id": "interest_bearing_debt_to_capital",
+          "definition": "Interest-bearing debt-to-capital ratio",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "debt >= 0",
+        "equity > 0"
+      ],
+      "assumptions": [
+        "Amounts use a consistent entity, currency, reporting basis and explicitly stated date or averaging convention.",
+        "Debt means interest-bearing short-term and long-term borrowings for this source profile."
+      ],
+      "limitations": [
+        "Other definitions of debt include broader liabilities; they are not interchangeable without explicit redefinition.",
+        "Denominators at or below zero are outside this positive-denominator analytical profile."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Balance Sheet Ratios, printed p106 (PDF p120), Exhibit 20; Learning Module 4, Solvency Ratios, printed p215 (PDF p229), Exhibit 16",
+          "evidence": "Interest-bearing debt-to-capital ratio expresses the stated financing relationship as a ratio.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfi-leverage",
+          "kind": "primary",
+          "title": "Leverage Ratios",
+          "url": "https://corporatefinanceinstitute.com/resources/accounting/leverage-ratios/",
+          "version": "Corporate Finance Institute educational guide, undated; directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "List of Common Leverage Ratios, formulas 1, 3, 4 and 5",
+          "evidence": "The guide lists debt to assets, debt to capital, debt to EBITDA, and assets to equity ratios.",
+          "license": "Terms unknown; short formula transcriptions and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "simple",
+          "inputs": {
+            "debt": 100,
+            "equity": 100
+          },
+          "expected": 0.5,
+          "tolerance": 1e-09,
+          "method": "Equal debt and equity give one half.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "alternate",
+          "inputs": {
+            "debt": 200,
+            "equity": 600
+          },
+          "expected": 0.25,
+          "tolerance": 1e-09,
+          "method": "200 debt out of 800 total capital gives one quarter.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "equity": 100
+          },
+          "reason": "debt is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Each additive numerator can be recovered from the reported ratio and the remaining inputs. Inverting to recover a denominator requires a nonzero ratio; at zero ratio the denominator may be unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--interest-bearing-debt-to-ebitda",
+      "revision": "r1",
+      "title": "Interest-bearing debt to EBITDA",
+      "summary": "Interest-bearing debt to EBITDA expresses the stated financing relationship as a ratio.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "debt / earnings",
+        "original_equation": "Debt-to-EBITDA = total debt / EBITDA",
+        "source_id": "cfi-leverage",
+        "locator": "List of Common Leverage Ratios, formulas 1, 3, 4 and 5",
+        "translation_notes": "Debt is a stock while EBITDA is a period flow; the period must be explicit and consistent across comparisons. Monetary units cancel; period counts are contextual."
+      },
+      "variables": [
+        {
+          "symbol": "debt",
+          "source_symbol": "total debt",
+          "role": "input",
+          "quantity_id": "total_interest_bearing_debt",
+          "definition": "total debt",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "earnings",
+          "source_symbol": "EBITDA",
+          "role": "input",
+          "quantity_id": "earnings_before_interest_taxes_depreciation_amortization",
+          "definition": "EBITDA",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Interest-bearing debt to EBITDA",
+          "role": "output",
+          "quantity_id": "interest_bearing_debt_to_ebitda",
+          "definition": "Interest-bearing debt to EBITDA",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "debt >= 0",
+        "earnings > 0"
+      ],
+      "assumptions": [
+        "Amounts use a consistent entity, currency, reporting basis and explicitly stated date or averaging convention.",
+        "Debt means interest-bearing short-term and long-term borrowings for this source profile."
+      ],
+      "limitations": [
+        "Other definitions of debt include broader liabilities; they are not interchangeable without explicit redefinition.",
+        "Denominators at or below zero are outside this positive-denominator analytical profile."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Balance Sheet Ratios, printed p106 (PDF p120), Exhibit 20; Learning Module 4, Solvency Ratios, printed p215 (PDF p229), Exhibit 16",
+          "evidence": "Interest-bearing debt to EBITDA expresses the stated financing relationship as a ratio.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfi-leverage",
+          "kind": "primary",
+          "title": "Leverage Ratios",
+          "url": "https://corporatefinanceinstitute.com/resources/accounting/leverage-ratios/",
+          "version": "Corporate Finance Institute educational guide, undated; directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "List of Common Leverage Ratios, formulas 1, 3, 4 and 5",
+          "evidence": "The guide lists debt to assets, debt to capital, debt to EBITDA, and assets to equity ratios.",
+          "license": "Terms unknown; short formula transcriptions and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "public-example",
+          "inputs": {
+            "debt": 20000000,
+            "earnings": 5000000
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "20 million debt divided by 5 million EBITDA is four.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "alternate",
+          "inputs": {
+            "debt": 300000,
+            "earnings": 100000
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "300000 divided by 100000 is three.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "earnings": 5000000
+          },
+          "reason": "debt is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Each additive numerator can be recovered from the reported ratio and the remaining inputs. Inverting to recover a denominator requires a nonzero ratio; at zero ratio the denominator may be unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

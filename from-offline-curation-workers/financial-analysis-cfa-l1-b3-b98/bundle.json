@@ -1,0 +1,151 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b98",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations. All records use inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; public corroboration carries the relationship when available, and documented owner-only fallbacks remain blocked for review. This issuer-specific reconciliation is the adjusted EBIT input to the separately curated ConvaTec adjusted EBITDA model; retain the public filing details and individual reconciling items."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--convatec-adjusted-ebit-from-reported-and-reconciling-items",
+      "revision": "r1",
+      "title": "ConvaTec adjusted EBIT from reported operating profit",
+      "summary": "The owner reproduces the issuer’s reported operating profit and its column of adjustments leading to adjusted EBIT.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "adjusted",
+        "expression": "reported + adjustments",
+        "original_equation": "Adjusted EBIT = reported operating profit + net reconciling adjustments",
+        "source_id": "convatec-annual-report-2016-adjusted-ebit",
+        "locator": "Financial review, reconciliation to adjusted earnings, printed pp90–91, 2016 and 2015 operating-profit rows",
+        "translation_notes": "All values are same-period monetary flows; examples are in millions of USD."
+      },
+      "variables": [
+        {
+          "symbol": "reported",
+          "source_symbol": "reported operating profit",
+          "role": "input",
+          "quantity_id": "reported_operating_profit",
+          "definition": "reported operating profit",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same issuer, reporting period and currency; adjustments use the reported-to-adjusted sign convention",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "adjustments",
+          "source_symbol": "net signed operating-profit adjustments",
+          "role": "input",
+          "quantity_id": "convatec_adjusted_ebit_net_adjustments",
+          "definition": "net signed operating-profit adjustments",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same issuer, reporting period and currency; adjustments use the reported-to-adjusted sign convention",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "adjusted",
+          "source_symbol": "issuer-defined adjusted EBIT",
+          "role": "output",
+          "quantity_id": "issuer_defined_adjusted_ebit",
+          "definition": "issuer-defined adjusted EBIT",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same issuer, reporting period and currency; adjustments use the reported-to-adjusted sign convention",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "The adjustment input is the signed sum of precisely the issuer’s operating-profit reconciling items, not all adjustments shown elsewhere in the income statement.",
+        "Reported profit and adjustments use the same issuer, period and currency and do not double-count expenses."
+      ],
+      "limitations": [
+        "This is an issuer-defined non-IFRS measure; other companies and periods may define and label adjustments differently.",
+        "An add-back need not represent a nonrecurring cost, cash flow or an adjustment appropriate for an independent valuation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 9, Biased Accounting Choices, printed pp508–510 (PDF pp522–524), Example 2 reconciliation to adjusted earnings",
+          "evidence": "The owner reproduces the issuer’s reported operating profit and its column of adjustments leading to adjusted EBIT.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "convatec-annual-report-2016-adjusted-ebit",
+          "kind": "primary",
+          "title": "ConvaTec Group Plc Annual Report and Accounts 2016",
+          "url": "https://www.convatecgroup.com/globalassets/global-assets/pdf/convatec_ar16_interactive_2.pdf",
+          "version": "ConvaTec Group Plc, Annual Report and Accounts 2016",
+          "accessed": "2026-11-04",
+          "locator": "Financial review, reconciliation to adjusted earnings, printed pp90–91, 2016 and 2015 operating-profit rows",
+          "evidence": "The issuer reconciles reported operating profit to its adjusted EBIT by adding separately disclosed operating-profit adjustments.",
+          "license": "Issuer-hosted annual report; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "issuer-2016",
+          "inputs": {
+            "reported": 154,
+            "adjustments": 318.2
+          },
+          "expected": 472.2,
+          "tolerance": 1e-09,
+          "method": "Amounts in millions: 154.0 reported profit plus 318.2 in net adjustments gives 472.2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "issuer-2015",
+          "inputs": {
+            "reported": 230.4,
+            "adjustments": 206.4
+          },
+          "expected": 436.8,
+          "tolerance": 1e-09,
+          "method": "Amounts in millions: 230.4 reported profit plus 206.4 in net adjustments gives 436.8.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "adjustments": 318.2
+          },
+          "reason": "reported is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "reported=adjusted-adjustments.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,287 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b83",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--company-sales-from-industry-sales-and-market-share",
+      "revision": "r1",
+      "title": "Company sales from industry sales and market share",
+      "summary": "The text obtains company sales by multiplying total industry sales by the company market share.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "company",
+        "expression": "industry * share",
+        "original_equation": "Company sales = industry sales × company market share",
+        "source_id": "vskills-industry-market-share",
+        "locator": "Converting Industry Forecast to Company Sales Forecast",
+        "translation_notes": "Market share is a base-one fraction; sales use the same currency."
+      },
+      "variables": [
+        {
+          "symbol": "industry",
+          "source_symbol": "industry sales",
+          "role": "input",
+          "quantity_id": "industry_sales",
+          "definition": "industry sales",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "share",
+          "source_symbol": "company market share",
+          "role": "input",
+          "quantity_id": "company_sales_market_share",
+          "definition": "Company sales divided by matching industry sales",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "company",
+          "source_symbol": "company sales",
+          "role": "output",
+          "quantity_id": "company_sales_in_defined_market",
+          "definition": "company sales",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "industry >= 0",
+        "share >= 0",
+        "share <= 1"
+      ],
+      "assumptions": [
+        "Company and industry sales refer to the same market boundary, accounting basis, currency and period.",
+        "The market share is the fraction of the specified industry sales, not a relative share versus a competitor."
+      ],
+      "limitations": [
+        "This identity does not establish future sales or recommend an investment.",
+        "Revenue share and unit-volume share are not interchangeable when prices differ."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 10, Projecting Performance: An Input to Market-Based Valuation, printed p573 (PDF p587), unnumbered market-share relation",
+          "evidence": "The text obtains company sales by multiplying total industry sales by the company market share.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "vskills-industry-market-share",
+          "kind": "primary",
+          "title": "Converting Industry Forecast to Company Sales Forecast",
+          "url": "https://www.vskills.in/certification/tutorial/converting-industry-forecast-to-company-sales-forecast/",
+          "version": "Vskills, sales management tutorial, publication year not established",
+          "accessed": "2026-11-04",
+          "locator": "Converting Industry Forecast to Company Sales Forecast",
+          "evidence": "The tutorial applies a company market share to the industry sales total.",
+          "license": "Vskills copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "ordinary",
+          "inputs": {
+            "industry": 1000,
+            "share": 0.2
+          },
+          "expected": 200,
+          "tolerance": 1e-09,
+          "method": "A 20% share of 1,000 industry sales gives 200 company sales.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "zero-share",
+          "inputs": {
+            "industry": 1000,
+            "share": 0
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "A zero share gives zero company sales.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "share": 0.2
+          },
+          "reason": "industry is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "share=company/industry when industry is positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--noncash-working-capital-proportional-to-sales",
+      "revision": "r1",
+      "title": "Noncash working capital proportional to sales",
+      "summary": "The simplified example sets noncash working capital at a fixed fraction of annual sales.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "working",
+        "expression": "sales * fraction",
+        "original_equation": "Noncash working capital = sales × noncash working capital fraction",
+        "source_id": "uou-working-capital-percent-sales",
+        "locator": "Unit 12, section 12.7, percent of sales approach, printed pp185–186",
+        "translation_notes": "The fraction is a dimensionless ratio of a balance to period sales; working capital can be negative."
+      },
+      "variables": [
+        {
+          "symbol": "sales",
+          "source_symbol": "period sales",
+          "role": "input",
+          "quantity_id": "period_sales",
+          "definition": "period sales",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fraction",
+          "source_symbol": "noncash working capital fraction",
+          "role": "input",
+          "quantity_id": "noncash_working_capital_to_sales_fraction",
+          "definition": "Noncash working capital balance expressed relative to sales for the same period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "working",
+          "source_symbol": "noncash working capital balance",
+          "role": "output",
+          "quantity_id": "noncash_working_capital_balance",
+          "definition": "noncash working capital balance",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sales >= 0"
+      ],
+      "assumptions": [
+        "Noncash working capital and sales refer to the same business, currency and explicitly matched balance date and sales period.",
+        "The supplied fraction is appropriate for the intended working-capital definition and excludes cash."
+      ],
+      "limitations": [
+        "The public source gives a general working-capital relation; the owner example specifies noncash working capital.",
+        "A constant fraction is a modeling assumption, not an independently validated prediction.",
+        "This is a balance; investment in working capital is the change between balances."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 10, Projecting Multiple-Period Performance, printed pp578–579 (PDF pp592–593), Example 4 Exhibit 2 lines 1 and 9",
+          "evidence": "The simplified example sets noncash working capital at a fixed fraction of annual sales.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "uou-working-capital-percent-sales",
+          "kind": "primary",
+          "title": "Managerial Concepts: Working Capital Management",
+          "url": "https://uou.ac.in/sites/default/files/slm/BBAV-201.pdf",
+          "version": "Uttarakhand Open University, publication year not established",
+          "accessed": "2026-11-04",
+          "locator": "Unit 12, section 12.7, percent of sales approach, printed pp185–186",
+          "evidence": "The university text multiplies sales by the working-capital-to-sales percentage.",
+          "license": "Uttarakhand Open University copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner-example",
+          "inputs": {
+            "sales": 100,
+            "fraction": 0.9
+          },
+          "expected": 90,
+          "tolerance": 1e-09,
+          "method": "A 90% fraction of 100 sales gives noncash working capital of 90.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "university-example",
+          "inputs": {
+            "sales": 5000000,
+            "fraction": 0.1
+          },
+          "expected": 500000,
+          "tolerance": 1e-09,
+          "method": "A 10% fraction of 5,000,000 sales gives 500,000 in working capital.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "fraction": 0.9
+          },
+          "reason": "sales is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "fraction=working/sales when sales are nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

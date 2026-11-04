@@ -1,0 +1,547 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b26",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 1 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--cash-flow-value-additivity",
+      "revision": "r2",
+      "title": "Additivity of financial amounts valued at one date",
+      "summary": "Cash-flow amounts and stream values can be added when they are indexed at a common valuation date.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "V",
+        "expression": "sum(values)",
+        "original_equation": "Amounts of money indexed at the same point in time are additive.",
+        "source_id": "openstax-mixed-stream",
+        "locator": "Section 9.1, mixed-stream present value discussion following Equations 9.14-9.16 and Table 9.6",
+        "translation_notes": "Introduced family values maps the source prose to sum over same-date amounts. Currency terms add to currency. The same record supports sums of present values or future values; these are not minted as separate models. Individual cash-flow discounting is the covered discrete lump-sum relationship. Independent source contains a typo in Eq9.22; corroboration uses the explicit common-date addition prose and Table9.6, not that typo. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "values",
+          "source_symbol": "amounts indexed at the same point in time",
+          "role": "family",
+          "quantity_id": "dated_cash_flow_value",
+          "definition": "Values of individual cash flows or streams already transported to a common date",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same currency, price basis and valuation date; no double counting",
+          "domain": "Finite real scalar",
+          "max_size": 256
+        },
+        {
+          "symbol": "V",
+          "source_symbol": "combined value",
+          "role": "output",
+          "quantity_id": "aggregate_dated_cash_flow_value",
+          "definition": "Combined signed financial value at that common date",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same currency, price basis and valuation date as values",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Source assumption: amounts share one date before addition.",
+        "Source assumption: values share currency and nominal/real basis and represent distinct, nonoverlapping cash-flow claims."
+      ],
+      "limitations": [
+        "Raw differently dated cash flows must first be discounted or accumulated; this record does not perform that transformation.",
+        "Family bounded to 256 terms per evaluation; family inverses are unavailable."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 1, The Cash Flow Additivity Principle, printed p38 (PDF p48), Exhibit 15; unequal-cash-flow PV printed p25/PDF35 Exhibit 10",
+          "evidence": "Cash-flow amounts and stream values can be added when they are indexed at a common valuation date.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-mixed-stream",
+          "kind": "primary",
+          "title": "Principles of Finance",
+          "url": "https://openstax.org/books/principles-finance/pages/9-1-timing-of-cash-flows",
+          "version": "OpenStax, first edition, live page inspected 2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section 9.1, mixed-stream present value discussion following Equations 9.14-9.16 and Table 9.6",
+          "evidence": "After individual amounts are valued at a common date, their values add to the stream total.",
+          "license": "CC BY 4.0 identified in page footer; https://creativecommons.org/licenses/by/4.0/; inspected 2026-11-03. No page reproduction included.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "two-series",
+          "inputs": {
+            "values": [
+              202,
+              404
+            ]
+          },
+          "expected": 606,
+          "tolerance": 1e-09,
+          "method": "Published cross-check: combined $300 end-of-period payments produce $300*1.02+$300=$606.",
+          "provenance": "CFA printed p38/PDF48 Exhibit15."
+        },
+        {
+          "id": "signed-net-value",
+          "inputs": {
+            "values": [
+              100,
+              -40,
+              25
+            ]
+          },
+          "expected": 85,
+          "tolerance": 1e-09,
+          "method": "Independent ledger: receipt of 100 and 25 less payment of 40 leaves 85.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "values is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "With all but one amount and V known, the omitted amount is the residual V minus the other amounts. Example V=85 and 100,25 imply -40, and substitution gives 85. More than one missing amount is underdetermined; no family inverse is supported by the engine.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--rule-of-72-doubling-time",
+      "revision": "r2",
+      "title": "Rule of 72 approximate annual doubling time",
+      "summary": "A footnote gives the Rule of 72 as an ad hoc approximation for the number of annual periods needed to double an investment.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "N",
+        "expression": "0.72 / r",
+        "original_equation": "Approximate doubling periods = 72 / annual interest rate stated in percent",
+        "source_id": "pearson-rule72",
+        "locator": "Section 5.1, printed p208 (PDF p11), Example 11 and Rule of 72 paragraph",
+        "translation_notes": "r is already a decimal unit-1 rate. The normalized heuristic coefficient .72 is attributed in constants, not an additional percent conversion applied by the engine. Financial-year count is dimensionless. Comparison at r=.08 gives heuristic9 versus exact9.00647; approximation uncertainty is not measurement uncertainty. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "r",
+          "source_symbol": "stated interest rate",
+          "role": "input",
+          "quantity_id": "annual_discrete_interest_rate",
+          "definition": "Annual-compounding interest rate as a decimal",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "0.05 <= r <= 0.12"
+        },
+        {
+          "symbol": "N",
+          "source_symbol": "approximate number of years",
+          "role": "output",
+          "quantity_id": "approximate_doubling_period_count",
+          "definition": "Heuristic financial years to double principal under annual compounding",
+          "unit": "years",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive approximate financial-year count"
+        }
+      ],
+      "constants": [
+        {
+          "literal": 0.72,
+          "meaning": "Rule-of-72 approximation coefficient normalized for decimal rate input",
+          "unit": "1",
+          "source_id": "cfa-l1v1",
+          "locator": "Printed p32/PDF42 footnote9; Pearson p208/PDF11 gives 72/(100r)"
+        }
+      ],
+      "guards": [
+        "r >= 0.05",
+        "r <= 0.12"
+      ],
+      "assumptions": [
+        "Source assumption: annual discrete compounding at a constant positive rate.",
+        "Application profile: 5%-12% rate range follows inspected Pearson corroboration, narrower than the unqualified CFA heuristic."
+      ],
+      "limitations": [
+        "Approximate, with no rigorous source error bound. Exact time is log(2)/log(1+r), already an inverse of the covered discrete lump-sum model.",
+        "No prediction of future achieved returns is asserted."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 1, Solving for the Number of Periods, printed p32 (PDF p42), footnote 9 (Rule of 72)",
+          "evidence": "A footnote gives the Rule of 72 as an ad hoc approximation for the number of annual periods needed to double an investment.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "pearson-rule72",
+          "kind": "primary",
+          "title": "Mathematics of Finance, Chapter 5 publisher sample",
+          "url": "https://www.pearson.com/content/dam/one-dot-com/one-dot-com/us/en/higher-ed/en/products-services/course-products/lial-applied-mathematics-info/pdf/LGR-Finite-Ch5.pdf",
+          "version": "Pearson Lial/Greenwell/Ritchey sample; edition not stated",
+          "accessed": "2026-11-03",
+          "locator": "Section 5.1, printed p208 (PDF p11), Example 11 and Rule of 72 paragraph",
+          "evidence": "The Rule of 72 approximates doubling time for annual rates from five to twelve percent.",
+          "license": "Copyright Pearson. All rights reserved. Not for Sale; notice on PDF p11. No broader reuse terms found.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "eight-percent",
+          "inputs": {
+            "r": 0.08
+          },
+          "expected": 9,
+          "tolerance": 1e-09,
+          "method": "Published Rule-of-72 estimate, independently compared in source with an exact logarithmic time of 9.00647 years.",
+          "provenance": "Pearson printed p208/PDF11 Example11."
+        },
+        {
+          "id": "six-percent",
+          "inputs": {
+            "r": 0.06
+          },
+          "expected": 12,
+          "tolerance": 1e-09,
+          "method": "CFA footnote motivates the rule by the approximate twelve-year doubling at six percent; the expected output is the heuristic twelve, not the exact time.",
+          "provenance": "CFA printed p32/PDF42 footnote9."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "r is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Within the declared profile the heuristic inverse is r=.72/N and is unique. N=9 gives .08 and recovers9. Zero r is outside this approximation; this formula cannot represent its infinite doubling time.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--relative-frequency",
+      "revision": "r2",
+      "title": "Relative frequency of a category or bin",
+      "summary": "Relative frequency normalizes a category or bin count by the number of observations in its reference dataset.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "RF",
+        "expression": "f / n",
+        "original_equation": "Relative frequency = absolute frequency / total number of observations",
+        "source_id": "openstax-frequencies",
+        "locator": "Section 1.3, Frequency, Tables 1.10-1.12",
+        "translation_notes": "Source prose translated directly to f/n. Integer count units cancel to dimensionless fraction; no multiplication by100 is performed. Cumulative relative frequency is this same definition applied to a prefix-bin count, not a renamed model. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "f",
+          "source_symbol": "absolute frequency",
+          "role": "input",
+          "quantity_id": "category_observation_count",
+          "definition": "Count in one selected category or bin",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same observed dataset, units, categorical partition and ordering; counts refer to the same complete sample",
+          "domain": "Integer 0<=f<=n"
+        },
+        {
+          "symbol": "n",
+          "source_symbol": "total number of observations",
+          "role": "input",
+          "quantity_id": "record_count",
+          "definition": "Positive total observation count in the reference set",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same observed dataset, units, categorical partition and ordering; counts refer to the same complete sample",
+          "domain": "Positive integer"
+        },
+        {
+          "symbol": "RF",
+          "source_symbol": "relative frequency",
+          "role": "output",
+          "quantity_id": "relative_frequency",
+          "definition": "Observed fraction belonging to the selected category",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same observed dataset, units, categorical partition and ordering; counts refer to the same complete sample",
+          "domain": "0<=RF<=1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "n > 0",
+        "f >= 0",
+        "f <= n"
+      ],
+      "assumptions": [
+        "Source assumption: category and total refer to the same observation set.",
+        "Source assumption: f and n are counts; integrality is a semantic input contract, not expressible by the available guard operators."
+      ],
+      "limitations": [
+        "Relative frequency is an empirical fraction, not automatically a model probability.",
+        "Row or column conditional frequencies use the corresponding marginal count as n; distinct reference sets must be explicit."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 2, Summarizing Data Using Frequency Distributions, printed pp71-72 (PDF pp81-82), definition and Exhibit 8",
+          "evidence": "Relative frequency normalizes a category or bin count by the number of observations in its reference dataset.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-frequencies",
+          "kind": "primary",
+          "title": "Introductory Statistics 2e",
+          "url": "https://openstax.org/books/introductory-statistics-2e/pages/1-3-frequency-frequency-tables-and-levels-of-measurement",
+          "version": "OpenStax, 2e, live page inspected 2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section 1.3, Frequency, Tables 1.10-1.12",
+          "evidence": "Relative frequency divides a category count by the total count; cumulative frequencies add preceding categories.",
+          "license": "CC BY 4.0 identified in page footer; https://creativecommons.org/licenses/by/4.0/; inspected 2026-11-03. No page reproduction included.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "industrial-sector",
+          "inputs": {
+            "f": 73,
+            "n": 479
+          },
+          "expected": 0.152,
+          "tolerance": 0.0005,
+          "method": "Published15.2% converted to decimal; tolerance half of .1 percentage point.",
+          "provenance": "CFA Exhibit8 printed p72/PDF82."
+        },
+        {
+          "id": "openstax-count",
+          "inputs": {
+            "f": 3,
+            "n": 20
+          },
+          "expected": 0.15,
+          "tolerance": 1e-09,
+          "method": "Published3/20=.15 in independent source Table1.11.",
+          "provenance": "OpenStax1.3 Table1.11."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "n": 479
+          },
+          "reason": "f is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "f=RF*n with known positive n; .15*20=3 substitutes back. n=f/RF requires RF>0 and count consistency. If f=RF=0, total count is not identified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--equal-bin-width",
+      "revision": "r2",
+      "title": "Unrounded width of equal histogram bins",
+      "summary": "The construction divides the data range by a chosen number of bins before optional upward rounding.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "w",
+        "expression": "(upper - lower) / k",
+        "original_equation": "Bin width = Range / k",
+        "source_id": "openstax-histograms",
+        "locator": "Section 2.2, Example 2.7, unrounded class width",
+        "translation_notes": "The CFA chooses sample extrema; the corroborating example chooses enclosing endpoints. Both give width=(upper-lower)/k before rounding. Unit U divided by dimensionless count preserves U. Extrema and integer k must be supplied because the scalar grammar cannot compute min/max or enforce integer type. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "upper",
+          "source_symbol": "maximum value",
+          "role": "input",
+          "quantity_id": "data_upper_endpoint",
+          "definition": "Upper endpoint of the covered data span",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same observed dataset, units, categorical partition and ordering; counts refer to the same complete sample",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "lower",
+          "source_symbol": "minimum value",
+          "role": "input",
+          "quantity_id": "data_lower_endpoint",
+          "definition": "Lower endpoint of the covered data span",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same observed dataset, units, categorical partition and ordering; counts refer to the same complete sample",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "k",
+          "source_symbol": "k",
+          "role": "input",
+          "quantity_id": "histogram_bin_count",
+          "definition": "Chosen positive number of equal bins",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same observed dataset, units, categorical partition and ordering; counts refer to the same complete sample",
+          "domain": "Positive integer"
+        },
+        {
+          "symbol": "w",
+          "source_symbol": "bin width",
+          "role": "output",
+          "quantity_id": "histogram_bin_width",
+          "definition": "Unrounded width required to span the endpoints with k equal bins",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same observed dataset, units, categorical partition and ordering; counts refer to the same complete sample",
+          "domain": "Positive"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "upper > lower",
+        "k > 0"
+      ],
+      "assumptions": [
+        "Source assumption: equal-width bins span the chosen endpoints.",
+        "Application profile: nondegenerate data span; k is a positive integer supplied externally."
+      ],
+      "limitations": [
+        "Does not select k, round the width or count observations into bins.",
+        "Constant datasets need a separate bin-selection convention."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module 2, Summarizing Data Using Frequency Distributions, printed pp72-73 (PDF pp82-83), construction Steps2-5 and Exhibit9",
+          "evidence": "The construction divides the data range by a chosen number of bins before optional upward rounding.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-histograms",
+          "kind": "primary",
+          "title": "Introductory Statistics 2e",
+          "url": "https://openstax.org/books/introductory-statistics-2e/pages/2-2-histograms-frequency-polygons-and-time-series-graphs",
+          "version": "OpenStax, 2e",
+          "accessed": "2026-11-03",
+          "locator": "Section 2.2, Example 2.7, unrounded class width",
+          "evidence": "Equal class width divides the chosen upper-minus-lower span by the number of classes before optional upward rounding.",
+          "license": "CC BY 4.0 identified in page footer; https://creativecommons.org/licenses/by/4.0/; inspected 2026-11-03. No page reproduction included.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-span",
+          "inputs": {
+            "upper": 11.43,
+            "lower": -4.57,
+            "k": 4
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "Published four-unit bin width for a sixteen-unit span.",
+          "provenance": "CFA printed p73/PDF83 Exhibit9."
+        },
+        {
+          "id": "independent-span",
+          "inputs": {
+            "upper": 10,
+            "lower": -2,
+            "k": 3
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "Independent partition: [-2,2], [2,6], [6,10] spans twelve units in three equal intervals.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "lower": -4.57,
+            "k": 4
+          },
+          "reason": "upper is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "upper=lower+k*w, lower=upper-k*w and k=(upper-lower)/w for w>0, with integer-consistency checked outside the engine. Example -2+3*4=10 recovers the endpoint. Coincident endpoints produce zero width and fall outside this nondegenerate profile.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,550 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b15",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--inventory-turnover-ratio",
+      "revision": "r1",
+      "title": "Inventory turnover",
+      "summary": "Inventory turnover compares cost of goods sold to average inventory.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "turnover",
+        "expression": "flow / balance",
+        "original_equation": "Inventory turnover = cost of goods sold / average inventory",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 5, 7, 9 and 14",
+        "translation_notes": "Amounts share one currency; the quotient counts turnovers over the declared financial period. Different denominators define different economic measures."
+      },
+      "variables": [
+        {
+          "symbol": "flow",
+          "source_symbol": "cost of goods sold",
+          "role": "input",
+          "quantity_id": "cost_of_goods_sold",
+          "definition": "cost of goods sold for the stated period and accounting scope",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "balance",
+          "source_symbol": "average inventory",
+          "role": "input",
+          "quantity_id": "average_inventory",
+          "definition": "average inventory for the same period and entity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "turnover",
+          "source_symbol": "Inventory turnover",
+          "role": "output",
+          "quantity_id": "inventory_turnover_ratio",
+          "definition": "Amount of cost of goods sold per unit of average inventory in the stated period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "flow >= 0",
+        "balance > 0"
+      ],
+      "assumptions": [
+        "The flow and average balance use the same entity, currency, accounting basis and period.",
+        "The chosen averaging convention is specified and applied consistently."
+      ],
+      "limitations": [
+        "Inventory write-downs and seasonality affect the cost and average-balance measures.",
+        "A quarterly turnover is per quarter and must not be compared with an annual turnover without an explicit period adjustment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Activity Ratios, printed p203 (PDF p217), Exhibit 12",
+          "evidence": "Inventory turnover compares cost of goods sold to average inventory.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 5, 7, 9 and 14",
+          "evidence": "The public list defines receivables, inventory, payables and total-asset turnovers using their respective period flows and average balances.",
+          "license": "CFA Institute rights reserved; individual formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-example",
+          "inputs": {
+            "flow": 120000,
+            "balance": 10000
+          },
+          "expected": 12,
+          "tolerance": 1e-09,
+          "method": "The CFA example divides 120000 cost of sales by 10000 average inventory.",
+          "provenance": "CFA printed p203/PDF p217."
+        },
+        {
+          "id": "another",
+          "inputs": {
+            "flow": 300000,
+            "balance": 30000
+          },
+          "expected": 10,
+          "tolerance": 1e-09,
+          "method": "300000 cost divided by 30000 inventory is ten.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "balance": 10000
+          },
+          "reason": "flow is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "flow=turnover*balance; balance=flow/turnover requires a nonzero turnover. A zero average balance is excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--receivables-turnover-ratio",
+      "revision": "r1",
+      "title": "Receivables turnover",
+      "summary": "Receivables turnover compares total revenue to average receivables.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "turnover",
+        "expression": "flow / balance",
+        "original_equation": "Receivables turnover = total revenue / average receivables",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 5, 7, 9 and 14",
+        "translation_notes": "Amounts share one currency; the quotient counts turnovers over the declared financial period. Different denominators define different economic measures."
+      },
+      "variables": [
+        {
+          "symbol": "flow",
+          "source_symbol": "total revenue",
+          "role": "input",
+          "quantity_id": "net_period_revenue",
+          "definition": "total revenue for the stated period and accounting scope",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "balance",
+          "source_symbol": "average receivables",
+          "role": "input",
+          "quantity_id": "average_trade_receivables",
+          "definition": "average receivables for the same period and entity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "turnover",
+          "source_symbol": "Receivables turnover",
+          "role": "output",
+          "quantity_id": "receivables_turnover_ratio",
+          "definition": "Amount of total revenue per unit of average receivables in the stated period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "flow >= 0",
+        "balance > 0"
+      ],
+      "assumptions": [
+        "The flow and average balance use the same entity, currency, accounting basis and period.",
+        "The chosen averaging convention is specified and applied consistently."
+      ],
+      "limitations": [
+        "Total revenue includes cash sales; credit sales alone may better match receivables where available.",
+        "A quarterly turnover is per quarter and must not be compared with an annual turnover without an explicit period adjustment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Activity Ratios, printed p203 (PDF p217), Exhibit 12",
+          "evidence": "Receivables turnover compares total revenue to average receivables.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 5, 7, 9 and 14",
+          "evidence": "The public list defines receivables, inventory, payables and total-asset turnovers using their respective period flows and average balances.",
+          "license": "CFA Institute rights reserved; individual formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "simple",
+          "inputs": {
+            "flow": 1000000,
+            "balance": 100000
+          },
+          "expected": 10,
+          "tolerance": 1e-09,
+          "method": "1000000 revenue divided by 100000 receivables is ten.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "another",
+          "inputs": {
+            "flow": 450000,
+            "balance": 50000
+          },
+          "expected": 9,
+          "tolerance": 1e-09,
+          "method": "450000 divided by 50000 is nine.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "balance": 100000
+          },
+          "reason": "flow is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "flow=turnover*balance; balance=flow/turnover requires a nonzero turnover. A zero average balance is excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--trade-payables-turnover-ratio",
+      "revision": "r1",
+      "title": "Trade payables turnover",
+      "summary": "Trade payables turnover compares purchases to average trade payables.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "turnover",
+        "expression": "flow / balance",
+        "original_equation": "Trade payables turnover = purchases / average trade payables",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 5, 7, 9 and 14",
+        "translation_notes": "Amounts share one currency; the quotient counts turnovers over the declared financial period. Different denominators define different economic measures."
+      },
+      "variables": [
+        {
+          "symbol": "flow",
+          "source_symbol": "purchases",
+          "role": "input",
+          "quantity_id": "inventory_purchases",
+          "definition": "purchases for the stated period and accounting scope",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "balance",
+          "source_symbol": "average trade payables",
+          "role": "input",
+          "quantity_id": "average_trade_payables",
+          "definition": "average trade payables for the same period and entity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "turnover",
+          "source_symbol": "Trade payables turnover",
+          "role": "output",
+          "quantity_id": "trade_payables_turnover_ratio",
+          "definition": "Amount of purchases per unit of average trade payables in the stated period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "flow >= 0",
+        "balance > 0"
+      ],
+      "assumptions": [
+        "The flow and average balance use the same entity, currency, accounting basis and period.",
+        "The chosen averaging convention is specified and applied consistently."
+      ],
+      "limitations": [
+        "The interpretation assumes purchases correspond to the measured trade payables; cost of goods sold is only an approximation to purchases.",
+        "A quarterly turnover is per quarter and must not be compared with an annual turnover without an explicit period adjustment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Activity Ratios, printed p203 (PDF p217), Exhibit 12",
+          "evidence": "Trade payables turnover compares purchases to average trade payables.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 5, 7, 9 and 14",
+          "evidence": "The public list defines receivables, inventory, payables and total-asset turnovers using their respective period flows and average balances.",
+          "license": "CFA Institute rights reserved; individual formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "simple",
+          "inputs": {
+            "flow": 400000,
+            "balance": 100000
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "400000 purchases divided by 100000 payables gives four.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "another",
+          "inputs": {
+            "flow": 900000,
+            "balance": 150000
+          },
+          "expected": 6,
+          "tolerance": 1e-09,
+          "method": "900000 purchases divided by 150000 payables gives six.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "balance": 100000
+          },
+          "reason": "flow is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "flow=turnover*balance; balance=flow/turnover requires a nonzero turnover. A zero average balance is excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--total-asset-turnover-ratio",
+      "revision": "r1",
+      "title": "Total asset turnover",
+      "summary": "Total asset turnover compares total revenue to average total assets.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "turnover",
+        "expression": "flow / balance",
+        "original_equation": "Total asset turnover = total revenue / average total assets",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 5, 7, 9 and 14",
+        "translation_notes": "Amounts share one currency; the quotient counts turnovers over the declared financial period. Different denominators define different economic measures."
+      },
+      "variables": [
+        {
+          "symbol": "flow",
+          "source_symbol": "total revenue",
+          "role": "input",
+          "quantity_id": "net_period_revenue",
+          "definition": "total revenue for the stated period and accounting scope",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "balance",
+          "source_symbol": "average total assets",
+          "role": "input",
+          "quantity_id": "average_total_assets",
+          "definition": "average total assets for the same period and entity",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "turnover",
+          "source_symbol": "Total asset turnover",
+          "role": "output",
+          "quantity_id": "total_asset_turnover_ratio",
+          "definition": "Amount of total revenue per unit of average total assets in the stated period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "flow >= 0",
+        "balance > 0"
+      ],
+      "assumptions": [
+        "The flow and average balance use the same entity, currency, accounting basis and period.",
+        "The chosen averaging convention is specified and applied consistently."
+      ],
+      "limitations": [
+        "Asset carrying values, impairment and acquired assets affect cross-company comparability.",
+        "A quarterly turnover is per quarter and must not be compared with an annual turnover without an explicit period adjustment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Activity Ratios, printed p203 (PDF p217), Exhibit 12",
+          "evidence": "Total asset turnover compares total revenue to average total assets.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 5, 7, 9 and 14",
+          "evidence": "The public list defines receivables, inventory, payables and total-asset turnovers using their respective period flows and average balances.",
+          "license": "CFA Institute rights reserved; individual formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "simple",
+          "inputs": {
+            "flow": 1000000,
+            "balance": 500000
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "1000000 revenue divided by 500000 average assets gives two.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "another",
+          "inputs": {
+            "flow": 600000,
+            "balance": 800000
+          },
+          "expected": 0.75,
+          "tolerance": 1e-09,
+          "method": "600000 divided by 800000 gives 0.75.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "balance": 500000
+          },
+          "reason": "flow is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "flow=turnover*balance; balance=flow/turnover requires a nonzero turnover. A zero average balance is excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

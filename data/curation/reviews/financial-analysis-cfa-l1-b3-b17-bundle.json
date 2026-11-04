@@ -1,0 +1,462 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b17",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--working-capital-turnover-ratio",
+      "revision": "r1",
+      "title": "Working capital turnover",
+      "summary": "Working capital turnover divides period revenue by average working capital.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "turnover",
+        "expression": "revenue / base",
+        "original_equation": "Working capital turnover = revenue / average working capital",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 4, 12 and 13",
+        "translation_notes": "Currency cancels. The output is a count of turnovers within the declared financial period."
+      },
+      "variables": [
+        {
+          "symbol": "revenue",
+          "source_symbol": "total revenue",
+          "role": "input",
+          "quantity_id": "net_period_revenue",
+          "definition": "total revenue",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "base",
+          "source_symbol": "average working capital",
+          "role": "input",
+          "quantity_id": "average_working_capital",
+          "definition": "average working capital",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "turnover",
+          "source_symbol": "Working capital turnover",
+          "role": "output",
+          "quantity_id": "working_capital_turnover_ratio",
+          "definition": "Revenue per unit of average working capital over the stated period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "revenue >= 0",
+        "base > 0"
+      ],
+      "assumptions": [
+        "Revenue and average balance cover the same entity, currency and period.",
+        "The positive average-balance analytical profile and averaging method are explicit."
+      ],
+      "limitations": [
+        "A negative or zero average denominator is outside this profile; compare periods only after aligning their lengths.",
+        "Classification and accounting methods may differ across entities."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Activity Ratios, printed p203 (PDF p217), Exhibit 12",
+          "evidence": "Working capital turnover divides period revenue by average working capital.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 4, 12 and 13",
+          "evidence": "The list defines the defensive interval ratio and working-capital and fixed-asset turnover ratios.",
+          "license": "CFA Institute rights reserved; isolated formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "revenue": 600000,
+            "base": 100000
+          },
+          "expected": 6,
+          "tolerance": 1e-09,
+          "method": "600000 divided by 100000 equals six.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "revenue": 800000,
+            "base": 200000
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "800000 divided by 200000 equals four.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "base": 100000
+          },
+          "reason": "revenue is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "revenue=turnover*base; base=revenue/turnover requires positive turnover. Zero base is undefined.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--fixed-asset-turnover-ratio",
+      "revision": "r1",
+      "title": "Fixed asset turnover",
+      "summary": "Fixed asset turnover divides period revenue by average net fixed assets.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "turnover",
+        "expression": "revenue / base",
+        "original_equation": "Fixed asset turnover = revenue / average net fixed assets",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 4, 12 and 13",
+        "translation_notes": "Currency cancels. The output is a count of turnovers within the declared financial period."
+      },
+      "variables": [
+        {
+          "symbol": "revenue",
+          "source_symbol": "total revenue",
+          "role": "input",
+          "quantity_id": "net_period_revenue",
+          "definition": "total revenue",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "base",
+          "source_symbol": "average net fixed assets",
+          "role": "input",
+          "quantity_id": "average_net_fixed_assets",
+          "definition": "average net fixed assets",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "turnover",
+          "source_symbol": "Fixed asset turnover",
+          "role": "output",
+          "quantity_id": "fixed_asset_turnover_ratio",
+          "definition": "Revenue per unit of average net fixed assets over the stated period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "revenue >= 0",
+        "base > 0"
+      ],
+      "assumptions": [
+        "Revenue and average balance cover the same entity, currency and period.",
+        "The positive average-balance analytical profile and averaging method are explicit."
+      ],
+      "limitations": [
+        "A negative or zero average denominator is outside this profile; compare periods only after aligning their lengths.",
+        "Classification and accounting methods may differ across entities."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Activity Ratios, printed p203 (PDF p217), Exhibit 12",
+          "evidence": "Fixed asset turnover divides period revenue by average net fixed assets.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 4, 12 and 13",
+          "evidence": "The list defines the defensive interval ratio and working-capital and fixed-asset turnover ratios.",
+          "license": "CFA Institute rights reserved; isolated formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "revenue": 1000000,
+            "base": 200000
+          },
+          "expected": 5,
+          "tolerance": 1e-09,
+          "method": "1000000 divided by 200000 equals five.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "revenue": 900000,
+            "base": 300000
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "900000 divided by 300000 equals three.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "base": 200000
+          },
+          "reason": "revenue is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "revenue=turnover*base; base=revenue/turnover requires positive turnover. Zero base is undefined.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--defensive-interval-from-period-expenditures",
+      "revision": "r1",
+      "title": "Defensive interval from period cash expenditures",
+      "summary": "The defensive interval divides quick assets by average daily cash expenditures; daily expense is total period expense divided by its duration.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "interval",
+        "expression": "(cash + securities + receivables) * period / expenses",
+        "original_equation": "Defensive interval = (cash + short-term marketable investments + receivables) / daily cash expenditures",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 4, 12 and 13",
+        "translation_notes": "This is the source ratio with daily expenditures replaced by period cash expenditures divided by physical period duration; output uses days."
+      },
+      "variables": [
+        {
+          "symbol": "cash",
+          "source_symbol": "cash",
+          "role": "input",
+          "quantity_id": "cash_and_cash_equivalents",
+          "definition": "cash",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "securities",
+          "source_symbol": "short-term marketable investments",
+          "role": "input",
+          "quantity_id": "short_term_marketable_securities",
+          "definition": "short-term marketable investments",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "receivables",
+          "source_symbol": "receivables",
+          "role": "input",
+          "quantity_id": "current_trade_receivables",
+          "definition": "receivables",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "period",
+          "source_symbol": "period length",
+          "role": "input",
+          "quantity_id": "reporting_period_duration",
+          "definition": "Physical duration of the expenditure measurement period",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expenses",
+          "source_symbol": "period cash expenditures",
+          "role": "input",
+          "quantity_id": "period_cash_operating_expenditures",
+          "definition": "period cash expenditures",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "interval",
+          "source_symbol": "defensive interval",
+          "role": "output",
+          "quantity_id": "defensive_interval_duration",
+          "definition": "Elapsed duration for which specified liquid assets cover daily cash spending",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "cash >= 0",
+        "securities >= 0",
+        "receivables >= 0",
+        "period > 0",
+        "expenses > 0"
+      ],
+      "assumptions": [
+        "The denominator measures recurring cash expenditure and excludes noncash expense; the period matches the expenditure.",
+        "The estimate assumes the specified daily rate is maintained and no additional cash inflow."
+      ],
+      "limitations": [
+        "Taxes and irregular expenditures require explicit treatment; the result is a simplifying liquidity measure rather than a cash forecast."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Liquidity Ratios, printed pp209–210 (PDF pp223–224), Exhibit 14",
+          "evidence": "The defensive interval divides quick assets by average daily cash expenditures; daily expense is total period expense divided by its duration.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 4, 12 and 13",
+          "evidence": "The list defines the defensive interval ratio and working-capital and fixed-asset turnover ratios.",
+          "license": "CFA Institute rights reserved; isolated formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "cash": 40000,
+            "securities": 30000,
+            "receivables": 30000,
+            "period": 100,
+            "expenses": 200000
+          },
+          "expected": 50,
+          "tolerance": 1e-09,
+          "method": "100000 quick assets divided by 2000 per day gives 50 days.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "cash": 10000,
+            "securities": 10000,
+            "receivables": 10000,
+            "period": 90,
+            "expenses": 90000
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "30000 quick assets divided by 1000 per day gives 30 days.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "securities": 30000,
+            "receivables": 30000,
+            "period": 100,
+            "expenses": 200000
+          },
+          "reason": "cash is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "expenses=(cash+securities+receivables)*period/interval requires nonzero interval; cash can be isolated by multiplying the interval by expenses/period and subtracting the other assets.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

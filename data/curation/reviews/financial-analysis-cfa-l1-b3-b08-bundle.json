@@ -1,0 +1,427 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b08",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--cash-liquidity-ratio",
+      "revision": "r1",
+      "title": "Cash ratio including marketable securities",
+      "summary": "Cash and marketable securities are divided by current liabilities.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "(cash + securities) / liabilities",
+        "original_equation": "Cash ratio = (cash + marketable securities) / current liabilities",
+        "source_id": "openstax-cash-ratio",
+        "locator": "Equation 19.3, Cash Ratio",
+        "translation_notes": "All amounts share one currency; the quotient is dimensionless."
+      },
+      "variables": [
+        {
+          "symbol": "cash",
+          "source_symbol": "cash",
+          "role": "input",
+          "quantity_id": "cash_and_cash_equivalents",
+          "definition": "Cash and cash equivalents",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "securities",
+          "source_symbol": "marketable securities",
+          "role": "input",
+          "quantity_id": "short_term_marketable_securities",
+          "definition": "Eligible short-term marketable securities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "liabilities",
+          "source_symbol": "current liabilities",
+          "role": "input",
+          "quantity_id": "current_liabilities",
+          "definition": "Positive current liabilities",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "cash ratio",
+          "role": "output",
+          "quantity_id": "cash_liquidity_ratio",
+          "definition": "Cash and securities relative to current liabilities",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "cash >= 0",
+        "securities >= 0",
+        "liabilities > 0"
+      ],
+      "assumptions": [
+        "Components use the same reporting date, currency and non-overlapping classifications."
+      ],
+      "limitations": [
+        "Other definitions use cash and cash equivalents alone; marketable-security eligibility needs explicit judgment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Balance Sheet Ratios, printed p106 (PDF p120), Exhibit 20",
+          "evidence": "Cash and marketable securities are divided by current liabilities.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-cash-ratio",
+          "kind": "primary",
+          "title": "What Is Working Capital?",
+          "url": "https://openstax.org/books/principles-finance/pages/19-1-what-is-working-capital",
+          "version": "OpenStax Principles of Finance, section 19.1",
+          "accessed": "2026-11-03",
+          "locator": "Equation 19.3, Cash Ratio",
+          "evidence": "Cash plus marketable securities divided by current liabilities defines this cash ratio.",
+          "license": "OpenStax terms include AI and noncommercial restrictions; formula-level factual paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "cash": 80000,
+            "securities": 20000,
+            "liabilities": 100000
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "100000 qualifying assets divided by 100000 liabilities.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "cash": 30000,
+            "securities": 20000,
+            "liabilities": 100000
+          },
+          "expected": 0.5,
+          "tolerance": 1e-09,
+          "method": "50000 qualifying assets divided by 100000 liabilities.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "securities": 20000,
+            "liabilities": 100000
+          },
+          "reason": "cash is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "cash=ratio*liabilities-securities; liabilities=(cash+securities)/ratio when ratio is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--long-term-debt-to-equity-ratio",
+      "revision": "r1",
+      "title": "Long-term debt-to-equity ratio",
+      "summary": "Long-term debt-to-equity ratio compares total long-term debt with total equity.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "debt / equity",
+        "original_equation": "Long-term debt-to-equity ratio = total long-term debt / total equity",
+        "source_id": "nyu-debt-equity",
+        "locator": "Measuring Financial Leverage, Debt Ratios",
+        "translation_notes": "Currency cancels. Total debt and long-term debt are distinct numerator definitions; the latter excludes other borrowings."
+      },
+      "variables": [
+        {
+          "symbol": "debt",
+          "source_symbol": "total long-term debt",
+          "role": "input",
+          "quantity_id": "long_term_debt",
+          "definition": "total long-term debt",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "equity",
+          "source_symbol": "total equity",
+          "role": "input",
+          "quantity_id": "total_shareholders_equity",
+          "definition": "Positive total shareholders equity at the same date",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Long-term debt-to-equity ratio",
+          "role": "output",
+          "quantity_id": "long_term_debt_to_equity_ratio",
+          "definition": "total long-term debt divided by total equity",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "debt >= 0",
+        "equity > 0"
+      ],
+      "assumptions": [
+        "Debt and equity use consistent entity, date, currency and book-value measurement."
+      ],
+      "limitations": [
+        "Debt is the selected borrowing measure, not automatically all liabilities; a negative equity case is outside this profile."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Balance Sheet Ratios, printed p106 (PDF p120), Exhibit 20",
+          "evidence": "Long-term debt-to-equity ratio compares total long-term debt with total equity.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nyu-debt-equity",
+          "kind": "primary",
+          "title": "Capital Structure",
+          "url": "https://pages.stern.nyu.edu/adamodar/New_Home_Page/lectures/capstr.html",
+          "version": "Aswath Damodaran, NYU Stern lecture notes, undated",
+          "accessed": "2026-11-03",
+          "locator": "Measuring Financial Leverage, Debt Ratios",
+          "evidence": "Debt to equity divides debt by equity; long-term debt is a separately scoped variant.",
+          "license": "Terms unknown; no broader redistribution permission asserted.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "debt": 60000,
+            "equity": 120000
+          },
+          "expected": 0.5,
+          "tolerance": 1e-09,
+          "method": "Direct quotient of the two stated amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "debt": 150000,
+            "equity": 100000
+          },
+          "expected": 1.5,
+          "tolerance": 1e-09,
+          "method": "Direct quotient of the two stated amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "equity": 120000
+          },
+          "reason": "debt is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "debt=ratio*equity. equity=debt/ratio when ratio is nonzero; zero debt and zero ratio do not determine equity.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--total-debt-to-equity-ratio",
+      "revision": "r1",
+      "title": "Total debt-to-equity ratio",
+      "summary": "Total debt-to-equity ratio compares total debt with total equity.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "debt / equity",
+        "original_equation": "Total debt-to-equity ratio = total debt / total equity",
+        "source_id": "nyu-debt-equity",
+        "locator": "Measuring Financial Leverage, Debt Ratios",
+        "translation_notes": "Currency cancels. Total debt and long-term debt are distinct numerator definitions; the latter excludes other borrowings."
+      },
+      "variables": [
+        {
+          "symbol": "debt",
+          "source_symbol": "total debt",
+          "role": "input",
+          "quantity_id": "total_interest_bearing_debt",
+          "definition": "total debt",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "equity",
+          "source_symbol": "total equity",
+          "role": "input",
+          "quantity_id": "total_shareholders_equity",
+          "definition": "Positive total shareholders equity at the same date",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "Total debt-to-equity ratio",
+          "role": "output",
+          "quantity_id": "total_debt_to_equity_ratio",
+          "definition": "total debt divided by total equity",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "debt >= 0",
+        "equity > 0"
+      ],
+      "assumptions": [
+        "Debt and equity use consistent entity, date, currency and book-value measurement."
+      ],
+      "limitations": [
+        "Debt is the selected borrowing measure, not automatically all liabilities; a negative equity case is outside this profile."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 2, Balance Sheet Ratios, printed p106 (PDF p120), Exhibit 20",
+          "evidence": "Total debt-to-equity ratio compares total debt with total equity.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nyu-debt-equity",
+          "kind": "primary",
+          "title": "Capital Structure",
+          "url": "https://pages.stern.nyu.edu/adamodar/New_Home_Page/lectures/capstr.html",
+          "version": "Aswath Damodaran, NYU Stern lecture notes, undated",
+          "accessed": "2026-11-03",
+          "locator": "Measuring Financial Leverage, Debt Ratios",
+          "evidence": "Debt to equity divides debt by equity; long-term debt is a separately scoped variant.",
+          "license": "Terms unknown; no broader redistribution permission asserted.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "first",
+          "inputs": {
+            "debt": 100000,
+            "equity": 200000
+          },
+          "expected": 0.5,
+          "tolerance": 1e-09,
+          "method": "Direct quotient of the two stated amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "debt": 300000,
+            "equity": 100000
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "Direct quotient of the two stated amounts.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "equity": 200000
+          },
+          "reason": "debt is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "debt=ratio*equity. equity=debt/ratio when ratio is nonzero; zero debt and zero ratio do not determine equity.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,418 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b77",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--hotel-room-occupancy-rate",
+      "revision": "r1",
+      "title": "Hotel room occupancy rate",
+      "summary": "The exhibit measures occupancy as rooms sold divided by rooms available.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "occupancy",
+        "expression": "sold / available",
+        "original_equation": "Occupancy rate = rooms sold / rooms available",
+        "source_id": "sunstone-hotel-2022-operating-metrics",
+        "locator": "Operating Performance Indicators, occupancy and average daily room rate",
+        "translation_notes": "The rate is a base-one fraction; both counts use the same unit."
+      },
+      "variables": [
+        {
+          "symbol": "sold",
+          "source_symbol": "room-nights sold",
+          "role": "input",
+          "quantity_id": "hotel_room_nights_sold",
+          "definition": "room-nights sold",
+          "unit": "room_night",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "available",
+          "source_symbol": "room-nights available",
+          "role": "input",
+          "quantity_id": "hotel_room_nights_available",
+          "definition": "room-nights available",
+          "unit": "room_night",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "occupancy",
+          "source_symbol": "room occupancy rate",
+          "role": "output",
+          "quantity_id": "hotel_room_occupancy_rate",
+          "definition": "Sold room-nights divided by available room-nights",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sold >= 0",
+        "available > 0",
+        "sold <= available"
+      ],
+      "assumptions": [
+        "Counts refer to the same hotel portfolio and period and are measured on a room-night basis.",
+        "Sold room-nights do not exceed available room-nights."
+      ],
+      "limitations": [
+        "Definitions of available inventory and complimentary rooms vary among operators.",
+        "This is room occupancy rather than guest or bed occupancy."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Industry-Specific Financial Ratios, printed pp233–234 (PDF pp247–248), Exhibit 21",
+          "evidence": "The exhibit measures occupancy as rooms sold divided by rooms available.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sunstone-hotel-2022-operating-metrics",
+          "kind": "primary",
+          "title": "Sunstone Hotel Investors Form 10-Q, September 2022",
+          "url": "https://www.sec.gov/Archives/edgar/data/1295810/000155837022016802/sho-20220930x10q.htm",
+          "version": "Sunstone Hotel Investors, quarterly report filed 2022",
+          "accessed": "2026-11-04",
+          "locator": "Operating Performance Indicators, occupancy and average daily room rate",
+          "evidence": "The issuer defines occupancy as rooms sold over available and average daily rate as room revenue over rooms sold.",
+          "license": "Issuer filing; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "normal",
+          "inputs": {
+            "sold": 75,
+            "available": 100
+          },
+          "expected": 0.75,
+          "tolerance": 1e-09,
+          "method": "75 sold room-nights out of 100 available gives 75%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "empty",
+          "inputs": {
+            "sold": 0,
+            "available": 100
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Zero sold room-nights yields zero occupancy.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "available": 100
+          },
+          "reason": "sold is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "sold=occupancy*available.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--hotel-average-daily-room-rate",
+      "revision": "r1",
+      "title": "Hotel average daily room rate",
+      "summary": "The exhibit divides room revenue by the number of rooms sold.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "adr",
+        "expression": "revenue / sold",
+        "original_equation": "Average daily rate = room revenue / rooms sold",
+        "source_id": "sunstone-hotel-2022-operating-metrics",
+        "locator": "Operating Performance Indicators, occupancy and average daily room rate",
+        "translation_notes": "The output is currency per sold room-night."
+      },
+      "variables": [
+        {
+          "symbol": "revenue",
+          "source_symbol": "room revenue",
+          "role": "input",
+          "quantity_id": "hotel_room_revenue",
+          "definition": "room revenue",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "sold",
+          "source_symbol": "room-nights sold",
+          "role": "input",
+          "quantity_id": "hotel_room_nights_sold",
+          "definition": "room-nights sold",
+          "unit": "room_night",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "adr",
+          "source_symbol": "average daily room rate",
+          "role": "output",
+          "quantity_id": "hotel_average_daily_room_rate",
+          "definition": "Room revenue per sold room-night",
+          "unit": "USD_per_room_night",
+          "dimensions": "currency/count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "revenue >= 0",
+        "sold > 0"
+      ],
+      "assumptions": [
+        "Revenue and paid sold room-nights refer to the same portfolio and period.",
+        "Room revenue excludes other hotel services and rooms sold is positive."
+      ],
+      "limitations": [
+        "Operator-specific inclusions, discounts and taxes affect comparability.",
+        "Count room-nights for multiday periods; this is not revenue per available room."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Industry-Specific Financial Ratios, printed pp233–234 (PDF pp247–248), Exhibit 21",
+          "evidence": "The exhibit divides room revenue by the number of rooms sold.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "sunstone-hotel-2022-operating-metrics",
+          "kind": "primary",
+          "title": "Sunstone Hotel Investors Form 10-Q, September 2022",
+          "url": "https://www.sec.gov/Archives/edgar/data/1295810/000155837022016802/sho-20220930x10q.htm",
+          "version": "Sunstone Hotel Investors, quarterly report filed 2022",
+          "accessed": "2026-11-04",
+          "locator": "Operating Performance Indicators, occupancy and average daily room rate",
+          "evidence": "The issuer defines occupancy as rooms sold over available and average daily rate as room revenue over rooms sold.",
+          "license": "Issuer filing; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "normal",
+          "inputs": {
+            "revenue": 15000,
+            "sold": 100
+          },
+          "expected": 150,
+          "tolerance": 1e-09,
+          "method": "15,000 room revenue over 100 sold room-nights gives 150 per room-night.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "higher",
+          "inputs": {
+            "revenue": 24000,
+            "sold": 120
+          },
+          "expected": 200,
+          "tolerance": 1e-09,
+          "method": "24,000 over 120 gives 200 per room-night.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "sold": 100
+          },
+          "reason": "revenue is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "revenue=adr*sold.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--bank-net-interest-margin-average-earning-assets",
+      "revision": "r1",
+      "title": "Bank net interest margin on average earning assets",
+      "summary": "The exhibit divides net interest income by interest-earning assets; the corroborating issuer specifies an average asset denominator.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "margin",
+        "expression": "income / assets",
+        "original_equation": "Net interest margin = net interest income / average interest-earning assets",
+        "source_id": "bank-net-interest-margin-2024",
+        "locator": "Net Interest Income and Margin discussion",
+        "translation_notes": "The margin is a base-one return for the income period, without annualization."
+      },
+      "variables": [
+        {
+          "symbol": "income",
+          "source_symbol": "net interest income",
+          "role": "input",
+          "quantity_id": "bank_net_interest_income",
+          "definition": "net interest income",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "assets",
+          "source_symbol": "average interest-earning assets",
+          "role": "input",
+          "quantity_id": "bank_average_interest_earning_assets",
+          "definition": "average interest-earning assets",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "margin",
+          "source_symbol": "net interest margin",
+          "role": "output",
+          "quantity_id": "bank_net_interest_margin",
+          "definition": "Net interest income per unit of average earning assets",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "assets > 0"
+      ],
+      "assumptions": [
+        "Net interest income and the average asset denominator refer to the same institution and reporting period.",
+        "Average earning assets are strictly positive and consistently defined."
+      ],
+      "limitations": [
+        "Annualization and tax-equivalent adjustments vary by issuer and are not applied automatically.",
+        "The owner exhibit does not specify averaging; this record explicitly uses an average denominator."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Industry-Specific Financial Ratios, printed pp233–234 (PDF pp247–248), Exhibit 21",
+          "evidence": "The exhibit divides net interest income by interest-earning assets; the corroborating issuer specifies an average asset denominator.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bank-net-interest-margin-2024",
+          "kind": "primary",
+          "title": "Bank press release, net interest margin",
+          "url": "https://www.sec.gov/Archives/edgar/data/1075706/000143774924009993/ex_640289.htm",
+          "version": "Bank issuer exhibit filed 2024",
+          "accessed": "2026-11-04",
+          "locator": "Net Interest Income and Margin discussion",
+          "evidence": "The issuer defines net interest margin as net interest income relative to average earning assets.",
+          "license": "Issuer filing; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "positive",
+          "inputs": {
+            "income": 40,
+            "assets": 1000
+          },
+          "expected": 0.04,
+          "tolerance": 1e-09,
+          "method": "40 net interest income over 1,000 average earning assets gives 4% for the period.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative",
+          "inputs": {
+            "income": -10,
+            "assets": 1000
+          },
+          "expected": -0.01,
+          "tolerance": 1e-09,
+          "method": "A 10 net interest loss over 1,000 assets gives negative 1%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "assets": 1000
+          },
+          "reason": "income is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "income=margin*assets.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

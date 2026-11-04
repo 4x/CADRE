@@ -1,0 +1,432 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.9",
+  "batch_id": "financial-analysis-cfa-l3-v1-b07",
+  "domain": "financial-analysis",
+  "curator": "buffy",
+  "created": "2026-11-04",
+  "example_only": false,
+  "models": [
+    {
+      "id": "financial-analysis--credit-spread-expected-loss-plus-premium",
+      "revision": "r1",
+      "title": "Credit spread as expected default loss plus credit premium",
+      "summary": "Observed credit spread decomposes additively into compensation for expected default losses and the credit risk premium.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "spread",
+        "expression": "EL + CP",
+        "original_equation": "credit spread = expected default losses + credit premium",
+        "source_id": "cfa-institute-cme2-refresher",
+        "locator": "PDF: LM2 The Credit Premium, printed p. 76 (PDF p. 86)",
+        "translation_notes": "Formalizes the source's embedding statement (both components embedded in spreads) as the additive decomposition, confirmed by the corroborating summary. Decimal form (unit 1). Recovering the split from spreads alone requires imposed structure (per source: default-free rates, default probabilities, recovery rates). Dimensional check: dimensionless + dimensionless = dimensionless spread."
+      },
+      "variables": [
+        {
+          "symbol": "EL",
+          "source_symbol": "expected level of losses",
+          "role": "input",
+          "quantity_id": "expected_default_loss",
+          "definition": "Compensation for the expected level of default losses, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond universe and horizon as spread",
+          "domain": "Nonnegative finite loss compensation"
+        },
+        {
+          "symbol": "CP",
+          "source_symbol": "credit premium",
+          "role": "input",
+          "quantity_id": "credit_premium",
+          "definition": "Additional expected return for bearing default-loss risk beyond expected losses, in decimal form (same meaning as building-block record)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond universe and horizon as spread",
+          "domain": "Finite decimal premium"
+        },
+        {
+          "symbol": "spread",
+          "source_symbol": "credit spreads",
+          "role": "output",
+          "quantity_id": "credit_spread",
+          "definition": "Observed credit spread embedding both components, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same bond universe and horizon as inputs",
+          "domain": "Finite decimal spread"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "EL >= 0"
+      ],
+      "assumptions": [
+        "Additive embedding: the spread is the sum of the two compensations over the same horizon and bond universe."
+      ],
+      "limitations": [
+        "Decomposition is not identified from spreads alone; structural or reduced-form credit models (per source) are needed to split them.",
+        "Cyclical and supply effects move spreads without changing the decomposition logic."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-credit-spread-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 The Credit Premium, printed p. 76 (PDF p. 86)",
+          "evidence": "Passage defines the credit premium as additional expected return for default-loss risk beyond compensation for expected losses, and states both expected default losses and the credit premium are embedded in credit spreads.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-institute-cme2-refresher",
+          "kind": "primary",
+          "title": "Capital Market Expectations, Part II: Forecasting Asset Class Returns (CFA Institute refresher reading)",
+          "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/capital-market-expectations-part-ii",
+          "version": "2026 refresher reading, Summary section",
+          "accessed": "2026-11-04",
+          "locator": "Summary: credit spreads reflect both the credit premium (additional expected return) and expected losses due to default",
+          "evidence": "Page states credit spreads reflect both the credit premium and expected default losses — the same two-component decomposition formalized here.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "illustrative-investment-grade",
+          "inputs": {
+            "EL": 0.005,
+            "CP": 0.0075
+          },
+          "expected": 0.0125,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 0.005 + 0.0075 = 0.0125. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed spread data claimed"
+        },
+        {
+          "id": "zero-expected-loss-boundary",
+          "inputs": {
+            "EL": 0,
+            "CP": 0.01
+          },
+          "expected": 0.01,
+          "tolerance": 1e-09,
+          "method": "With no expected losses the spread equals the premium alone. Boundary check.",
+          "provenance": "Definitional boundary check; not an empirical validation"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "EL": 0.005
+          },
+          "reason": "Credit premium is required; expected losses alone do not determine the spread."
+        }
+      ],
+      "inverse_notes": "EL = spread − CP; CP = spread − EL; no singularities. Substitution check: spread=0.0125 with CP=0.0075 recovers EL=0.005. Algebraic only; splitting an observed spread needs imposed model structure per the source.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings expected_default_loss, credit_premium (shared with building-block record), credit_spread are not in the runtime vocabulary snapshot and require extension.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--age-based-equity-allocation-100-minus-age",
+      "revision": "r1",
+      "title": "100-minus-age heuristic equity allocation",
+      "summary": "Older age-based heuristic: percentage in stocks equals 100 minus age in years.",
+      "kind": "empirical",
+      "relationship": {
+        "output_symbol": "weq",
+        "expression": "100 - age",
+        "original_equation": "100 − Age = Percentage allocated to stocks",
+        "source_id": "justetf-100-minus-age",
+        "locator": "PDF: LM4 Heuristics, printed p. 272 (PDF p. 282), older-cousin variant; 76-year-old at 24%",
+        "translation_notes": "Heuristic rule of thumb with no theoretic basis (per source). 100 is the heuristic intercept in percentage points; age in years; output reads as a percentage. Same unit treatment as the b05 120-age record. Dimensional note: heuristic mixing documented, not hidden."
+      },
+      "variables": [
+        {
+          "symbol": "age",
+          "source_symbol": "Age",
+          "role": "input",
+          "quantity_id": "investor_age",
+          "definition": "Investor age in years (same meaning as 120-age record)",
+          "unit": "years",
+          "dimensions": "time",
+          "context": "same investor and allocation decision as weq",
+          "domain": "Closed interval 0 to 100 years inclusive"
+        },
+        {
+          "symbol": "weq",
+          "source_symbol": "Percentage allocated to stocks",
+          "role": "output",
+          "quantity_id": "heuristic_equity_allocation",
+          "definition": "Heuristic equity allocation in percent (same meaning as 120-age record)",
+          "unit": "percent",
+          "dimensions": "dimensionless",
+          "context": "same investor and allocation decision as age",
+          "domain": "Closed interval 0 to 100 percent"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "age >= 0",
+        "age <= 100"
+      ],
+      "assumptions": [
+        "Application profile: older, more conservative glide path than the 120 variant; remainder in fixed income."
+      ],
+      "limitations": [
+        "Same no-theoretic-basis caveat as the 120 variant; contemporary research suggests it may be too bond-heavy (per corroborating source).",
+        "Distinct named variant, not a duplicate of the 120-age record; the 125-age cousin is deferred for lack of independent corroboration."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-100-age-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Heuristics, printed p. 272 (PDF p. 282): older cousin 100-minus-age; 2005 target-date vintage at 24% for a 76-year-old",
+          "evidence": "Passage names 100-minus-age as the older cousin heuristic and shows the 100-variant line with the 2005 vintage at 24% equity for a 76-year-old (100 − 76 = 24).",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "justetf-100-minus-age",
+          "kind": "primary",
+          "title": "Should you follow the 100 minus your age rule? (justETF Academy)",
+          "url": "https://www.justetf.com/en/academy/100-minus-age-rule.html",
+          "version": "justETF Academy article, 14 Nov 2024",
+          "accessed": "2026-11-04",
+          "locator": "How the rule works: subtract age from 100 for the stock percentage (age 30 → 70% stocks; age 70 → 30%); Updates section names the 110 and 120 variants",
+          "evidence": "Article states the rule explicitly with worked examples (100−30 = 70% stocks; 100−70 = 30%) and documents the 110/120 variants — confirming both the formula and its variant family.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-76-year-old",
+          "inputs": {
+            "age": 76
+          },
+          "expected": 24,
+          "tolerance": 1e-09,
+          "method": "Source's 2005-vintage application: 100 − 76 = 24, matching published 24% equity.",
+          "provenance": "Published result: LM4 heuristic exhibit discussion, printed p. 272 (PDF p. 282)"
+        },
+        {
+          "id": "published-age-30",
+          "inputs": {
+            "age": 30
+          },
+          "expected": 70,
+          "tolerance": 1e-09,
+          "method": "Corroborating source's worked example: 100 − 30 = 70% stocks.",
+          "provenance": "Published result: justETF Academy article example"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "age": 110
+          },
+          "reason": "Age above 100 gives a negative equity share under this variant (guard age <= 100); longer horizons use the 120 variant."
+        }
+      ],
+      "inverse_notes": "age = 100 − weq always; no singularities. Substitution check: weq=24 recovers age=76. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings investor_age, heuristic_equity_allocation shared with the b05 120-age record; both require extension.",
+          "Named variant of the 120-age record with distinct intercept and domain; recorded separately with this overlap note, not as a duplicate."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--arch-unconditional-variance",
+      "revision": "r1",
+      "title": "ARCH-family unconditional (long-run) variance",
+      "summary": "Stationary long-run variance as the baseline constant divided by one minus total persistence.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "V",
+        "expression": "gam / (1 - alpha - beta)",
+        "original_equation": "Unconditional expected value of the variance = γ / (1 − α − β)",
+        "source_id": "riskhub-long-run-variance",
+        "locator": "PDF: LM2 Time-Varying Volatility: ARCH Models, printed p. 111 (PDF p. 121)",
+        "translation_notes": "Derived steady state of the b04 one-lag recursion (set σt² = σt−1² = ηt²-expectation = V and solve). Decimal-variance units (unit 1). Requires alpha + beta below 1 for a finite positive value. Dimensional check: variance-dimensioned constant over dimensionless persistence gap."
+      },
+      "variables": [
+        {
+          "symbol": "gam",
+          "source_symbol": "γ",
+          "role": "input",
+          "quantity_id": "arch_constant",
+          "definition": "Nonnegative baseline constant of the variance recursion, in decimal-variance units (same meaning as update record)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same return series and estimation as V",
+          "domain": "Nonnegative finite constant"
+        },
+        {
+          "symbol": "alpha",
+          "source_symbol": "α",
+          "role": "input",
+          "quantity_id": "variance_persistence",
+          "definition": "Persistence weight on prior-period variance (same meaning as update record)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same return series and estimation as V",
+          "domain": "Nonnegative; alpha + beta below 1"
+        },
+        {
+          "symbol": "beta",
+          "source_symbol": "β",
+          "role": "input",
+          "quantity_id": "variance_shock_loading",
+          "definition": "Loading of the current squared shock onto variance (same meaning as update record)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same return series and estimation as V",
+          "domain": "Nonnegative; alpha + beta below 1"
+        },
+        {
+          "symbol": "V",
+          "source_symbol": "unconditional expected value of the variance",
+          "role": "output",
+          "quantity_id": "unconditional_variance",
+          "definition": "Long-run (unconditional) variance the forecasts revert to, in decimal-variance units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same return series and estimation as inputs",
+          "domain": "Nonnegative finite variance"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "gam >= 0",
+        "alpha >= 0",
+        "beta >= 0",
+        "alpha + beta < 1"
+      ],
+      "assumptions": [
+        "Covariance-stationary process: persistence below 1 so the steady state exists and forecasts converge to it."
+      ],
+      "limitations": [
+        "Fragile in estimation: tiny denominator when persistence nears 1 makes V highly sensitive to parameter error (per corroborating source); the formula is exact given parameters, the parameters are not.",
+        "Companion to (not duplicate of) the b04 one-lag update record, which describes transitions rather than the anchor."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-arch-uncond-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Time-Varying Volatility: ARCH Models, printed p. 111 (PDF p. 121): unconditional value γ/(1 − α − β) = 0.0001 (1% daily) for γ=0.000002, α=0.9, β=0.08",
+          "evidence": "Passage states the unconditional expected variance as γ/(1 − α − β) and evaluates it at 0.0001, implying 1% daily standard deviation.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "riskhub-long-run-variance",
+          "kind": "primary",
+          "title": "Long-Run Variance in GARCH Models (RiskHub)",
+          "url": "https://riskhub.org/blogs/long-run-variance-in-garch-models",
+          "version": "Guide, 14 Oct 2026, section 1",
+          "accessed": "2026-11-04",
+          "locator": "Section 1: forecasts converge to VL = ω/(1 − α − β) when persistence α + β is below 1",
+          "evidence": "Guide derives the long-run variance as the baseline constant over one minus persistence under the same below-1 stationarity condition — the identical formula with ω for γ.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-daily-1pct",
+          "inputs": {
+            "gam": 0.000002,
+            "alpha": 0.9,
+            "beta": 0.08
+          },
+          "expected": 0.0001,
+          "tolerance": 1e-09,
+          "method": "Source inputs: 0.000002/(1 − 0.9 − 0.08) = 0.000002/0.02 = 0.0001, matching published 0.0001 (sqrt = 1% daily).",
+          "provenance": "Published result: LM2 ARCH example, printed p. 111 (PDF p. 121)"
+        },
+        {
+          "id": "constructed-moderate-persistence",
+          "inputs": {
+            "gam": 0.00001,
+            "alpha": 0.8,
+            "beta": 0.1
+          },
+          "expected": 0.0001,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 0.00001/(1 − 0.8 − 0.1) = 0.0001. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "gam": 0.000002,
+            "alpha": 0.9,
+            "beta": 0.1
+          },
+          "reason": "alpha + beta = 1.0 violates the stationarity guard (alpha + beta < 1); the long-run variance does not exist at unit persistence."
+        }
+      ],
+      "inverse_notes": "gam = V·(1 − alpha − beta) always; alpha = 1 − beta − gam/V requires V ≠ 0; beta likewise. Zero baseline with positive V is inadmissible (needs gam > 0 unless V = 0). Substitution check: V=0.0001, alpha=0.9, beta=0.08 recovers gam=0.000002. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings arch_constant, variance_persistence, variance_shock_loading (shared with update record), unconditional_variance are not in the runtime vocabulary snapshot and require extension.",
+          "Steady-state companion of financial-analysis--arch-conditional-variance-one-lag@r1 (batch b04); transitions vs anchor, not duplicates."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "deferred": [
+    {
+      "title": "125-minus-age heuristic variant",
+      "reason": "Named in LM4 (printed p. 272, PDF p. 282) but no independent accessible corroboration of the 125 intercept found (only CFA-derived copies); defer rather than force corroboration.",
+      "source_urls": []
+    },
+    {
+      "title": "Liquidity-premium baseline proxy (agency-minus-sovereign spread)",
+      "reason": "Stated only in the LM2 summary (printed p. 116, PDF p. 126) with no main-text derivation and no independent accessible corroboration found; defer rather than force it.",
+      "source_urls": []
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b07: 3 records (credit-spread decomposition, 100-minus-age, ARCH unconditional variance) each with PDF locator plus directly inspected accessible corroboration. Three of six references are published oracles.",
+    "gaps": [
+      "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+      "Coverage sweep: 27 records across b01–b07 cover the volume's closed-form models; residual items are qualitative (endowment model, 60/40 narrative, human-capital glide, currency narratives) or out-of-reach (Black-Litterman matrix math, IRR/YTM iteration, resampled MVO)."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity — verified locators and corroboration pages by direct inspection 2026-11-04."
+  }
+}

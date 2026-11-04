@@ -1,0 +1,729 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b34",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "5 atomic Volume 2 relationships with owner-PDF provenance and inspected public corroboration.",
+    "gaps": [
+      "Finance quantities and scientific fidelity require independent registry review.",
+      "Deduplication uses the available inventory and own prior returns, not a global registry."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The owner PDF is project-derivation with a null URL; public evidence carries each relationship."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--net-barter-terms-of-trade-index",
+      "revision": "r1",
+      "title": "Net barter terms of trade index",
+      "summary": "The text defines terms of trade as export prices relative to import prices, typically using price indexes.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "terms",
+        "expression": "exports / imports",
+        "original_equation": "Terms of trade index = export price index / import price index",
+        "source_id": "oecd-terms-of-trade",
+        "locator": "Definition",
+        "translation_notes": "Inputs and output are dimensionless base-one index values."
+      },
+      "variables": [
+        {
+          "symbol": "exports",
+          "source_symbol": "export price index",
+          "role": "input",
+          "quantity_id": "export_price_index",
+          "definition": "Export price index normalized to a declared base",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "imports",
+          "source_symbol": "import price index",
+          "role": "input",
+          "quantity_id": "import_price_index",
+          "definition": "Import price index normalized to the same base",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "terms",
+          "source_symbol": "terms of trade index",
+          "role": "output",
+          "quantity_id": "net_barter_terms_of_trade_index",
+          "definition": "Relative export-to-import price index",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "exports > 0",
+        "imports > 0"
+      ],
+      "assumptions": [
+        "The export and import indexes have the same normalization date and compatible coverage.",
+        "Both inputs are positive price indexes."
+      ],
+      "limitations": [
+        "An index expressed in base-100 display units must be converted by the unit layer rather than multiplied by 100 in the expression.",
+        "Changes in quality, composition and index weights affect interpretation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 7, Introduction and International Trade: Basic Terminology, printed p405 (PDF p417), unnumbered definition and Exhibit 1",
+          "evidence": "The text defines terms of trade as export prices relative to import prices, typically using price indexes.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "oecd-terms-of-trade",
+          "kind": "primary",
+          "title": "Terms of trade",
+          "url": "https://www.oecd.org/en/data/indicators/terms-of-trade.html",
+          "version": "OECD indicator definition, live page inspected 4 November 2026",
+          "accessed": "2026-11-04",
+          "locator": "Definition",
+          "evidence": "The OECD defines terms of trade as the export price index divided by the import price index.",
+          "license": "OECD material; reuse conditions not established for this record; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "improvement",
+          "inputs": {
+            "exports": 1.2,
+            "imports": 1.0
+          },
+          "expected": 1.2,
+          "tolerance": 1e-09,
+          "method": "An export price index of 1.2 divided by an import index of 1.0 gives 1.2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "base",
+          "inputs": {
+            "exports": 1,
+            "imports": 1
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "Equal base-period indexes produce an index of one.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "imports": 1.0
+          },
+          "reason": "exports is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "exports=terms*imports.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--specific-import-tariff-revenue",
+      "revision": "r1",
+      "title": "Revenue from a specific import tariff",
+      "summary": "Example 4 applies the per-unit tariff to the quantity imported after the tariff.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "revenue",
+        "expression": "tariff * imports",
+        "original_equation": "Tariff revenue = per-unit tariff × post-tariff imports",
+        "source_id": "conestoga-small-country-tariff",
+        "locator": "Section 4.2, The Economic Effects of an Import Tariff – The Small-Country Case",
+        "translation_notes": "Tariff is currency per unit, imports are units, and revenue is currency."
+      },
+      "variables": [
+        {
+          "symbol": "tariff",
+          "source_symbol": "per-unit tariff",
+          "role": "input",
+          "quantity_id": "import_tariff_per_unit",
+          "definition": "Specific tariff per physical unit",
+          "unit": "USD_per_unit",
+          "dimensions": "currency/count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "imports",
+          "source_symbol": "post-tariff quantity of imports",
+          "role": "input",
+          "quantity_id": "post_tariff_import_quantity",
+          "definition": "post-tariff quantity of imports",
+          "unit": "unit",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "revenue",
+          "source_symbol": "government tariff revenue",
+          "role": "output",
+          "quantity_id": "import_tariff_revenue",
+          "definition": "government tariff revenue",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "tariff >= 0",
+        "imports >= 0"
+      ],
+      "assumptions": [
+        "The tariff is charged uniformly on each recorded post-tariff imported unit.",
+        "The tariff and import quantity cover the same good and reporting period."
+      ],
+      "limitations": [
+        "Exemptions, evasion, collections costs and ad valorem rules require separate treatment."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 7, Trade and Capital Flows: Restrictions and Agreements, printed pp423–425 (PDF pp435–437), Exhibit 11 and Example 4",
+          "evidence": "Example 4 applies the per-unit tariff to the quantity imported after the tariff.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "conestoga-small-country-tariff",
+          "kind": "primary",
+          "title": "International Trade and Finance, Part 1",
+          "url": "https://openlibrary-repo.ecampusontario.ca/jspui/bitstream/123456789/2282/2/International-Trade-and-Finance-Part-1-1729516613.html",
+          "version": "Kenrick H. Jordan and Conestoga College, educational text, 2024",
+          "accessed": "2026-11-04",
+          "locator": "Section 4.2, The Economic Effects of an Import Tariff – The Small-Country Case",
+          "evidence": "The source decomposes consumer loss into producer gain, tariff revenue and production and consumption deadweight-loss triangles.",
+          "license": "Chapter credits state CC BY-NC-SA 4.0 for identified original material; conditions on incorporated third-party material may differ. Formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "paper",
+          "inputs": {
+            "tariff": 1,
+            "imports": 40000
+          },
+          "expected": 40000,
+          "tolerance": 1e-09,
+          "method": "One per ton on 40,000 imported tons yields 40,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "no-imports",
+          "inputs": {
+            "tariff": 2,
+            "imports": 0
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "A prohibitive tariff with no imports collects no import tariff revenue.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "imports": 40000
+          },
+          "reason": "tariff is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "tariff=revenue/imports when imports are positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--tariff-consumer-surplus-loss-linear-demand",
+      "revision": "r1",
+      "title": "Consumer surplus loss from a tariff with linear demand",
+      "summary": "Example 4 calculates the consumer loss as a rectangle plus the linear demand triangle.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "loss",
+        "expression": "tariff * (before + after) / 2",
+        "original_equation": "Consumer surplus loss = price rise × (before-demand + after-demand) / 2",
+        "source_id": "conestoga-small-country-tariff",
+        "locator": "Section 4.2, The Economic Effects of an Import Tariff – The Small-Country Case",
+        "translation_notes": "The factor 2 averages the two endpoint quantities; price per unit times units gives currency."
+      },
+      "variables": [
+        {
+          "symbol": "tariff",
+          "source_symbol": "per-unit tariff",
+          "role": "input",
+          "quantity_id": "import_tariff_per_unit",
+          "definition": "Specific tariff per physical unit",
+          "unit": "USD_per_unit",
+          "dimensions": "currency/count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "before",
+          "source_symbol": "quantity demanded before tariff",
+          "role": "input",
+          "quantity_id": "pre_tariff_domestic_demand",
+          "definition": "quantity demanded before tariff",
+          "unit": "unit",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "after",
+          "source_symbol": "quantity demanded after tariff",
+          "role": "input",
+          "quantity_id": "post_tariff_domestic_demand",
+          "definition": "quantity demanded after tariff",
+          "unit": "unit",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "loss",
+          "source_symbol": "consumer surplus loss",
+          "role": "output",
+          "quantity_id": "tariff_consumer_surplus_loss",
+          "definition": "consumer surplus loss",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "tariff >= 0",
+        "after >= 0",
+        "before >= after"
+      ],
+      "assumptions": [
+        "A competitive small importing country takes the world price as fixed; a specific per-unit tariff is fully passed into the domestic price.",
+        "Supply and demand are linear over the relevant changes; quantities use the same good, time period and units."
+      ],
+      "limitations": [
+        "These partial-equilibrium welfare areas omit other markets, externalities, administration and retaliation.",
+        "This small-country case cannot be applied unchanged when foreign export prices respond to the tariff.",
+        "The reported loss is a positive magnitude; the signed change in consumer surplus is its negative."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 7, Trade and Capital Flows: Restrictions and Agreements, printed pp423–425 (PDF pp435–437), Exhibit 11 and Example 4",
+          "evidence": "Example 4 calculates the consumer loss as a rectangle plus the linear demand triangle.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "conestoga-small-country-tariff",
+          "kind": "primary",
+          "title": "International Trade and Finance, Part 1",
+          "url": "https://openlibrary-repo.ecampusontario.ca/jspui/bitstream/123456789/2282/2/International-Trade-and-Finance-Part-1-1729516613.html",
+          "version": "Kenrick H. Jordan and Conestoga College, educational text, 2024",
+          "accessed": "2026-11-04",
+          "locator": "Section 4.2, The Economic Effects of an Import Tariff – The Small-Country Case",
+          "evidence": "The source decomposes consumer loss into producer gain, tariff revenue and production and consumption deadweight-loss triangles.",
+          "license": "Chapter credits state CC BY-NC-SA 4.0 for identified original material; conditions on incorporated third-party material may differ. Formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "paper",
+          "inputs": {
+            "tariff": 1,
+            "before": 200000,
+            "after": 170000
+          },
+          "expected": 185000,
+          "tolerance": 1e-09,
+          "method": "The average of 200,000 and 170,000 units times a 1 price rise is 185,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "unchanged-demand",
+          "inputs": {
+            "tariff": 2,
+            "before": 100,
+            "after": 100
+          },
+          "expected": 200,
+          "tolerance": 1e-09,
+          "method": "With fixed demand of 100, the 2 price rise reduces surplus by 200.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "before": 200000,
+            "after": 170000
+          },
+          "reason": "tariff is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "tariff=2*loss/(before+after) when the quantity sum is positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--tariff-producer-surplus-gain-linear-supply",
+      "revision": "r1",
+      "title": "Producer surplus gain from a tariff with linear supply",
+      "summary": "Example 4 calculates producer gain as a rectangle plus the linear supply triangle.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "gain",
+        "expression": "tariff * (before + after) / 2",
+        "original_equation": "Producer surplus gain = price rise × (before-supply + after-supply) / 2",
+        "source_id": "conestoga-small-country-tariff",
+        "locator": "Section 4.2, The Economic Effects of an Import Tariff – The Small-Country Case",
+        "translation_notes": "The factor 2 averages endpoint quantities; price per unit times units gives currency."
+      },
+      "variables": [
+        {
+          "symbol": "tariff",
+          "source_symbol": "per-unit tariff",
+          "role": "input",
+          "quantity_id": "import_tariff_per_unit",
+          "definition": "Specific tariff per physical unit",
+          "unit": "USD_per_unit",
+          "dimensions": "currency/count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "before",
+          "source_symbol": "quantity supplied before tariff",
+          "role": "input",
+          "quantity_id": "pre_tariff_domestic_supply",
+          "definition": "quantity supplied before tariff",
+          "unit": "unit",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "after",
+          "source_symbol": "quantity supplied after tariff",
+          "role": "input",
+          "quantity_id": "post_tariff_domestic_supply",
+          "definition": "quantity supplied after tariff",
+          "unit": "unit",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "gain",
+          "source_symbol": "producer surplus gain",
+          "role": "output",
+          "quantity_id": "tariff_producer_surplus_gain",
+          "definition": "producer surplus gain",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "tariff >= 0",
+        "before >= 0",
+        "after >= before"
+      ],
+      "assumptions": [
+        "A competitive small importing country takes the world price as fixed; a specific per-unit tariff is fully passed into the domestic price.",
+        "Supply and demand are linear over the relevant changes; quantities use the same good, time period and units."
+      ],
+      "limitations": [
+        "These partial-equilibrium welfare areas omit other markets, externalities, administration and retaliation.",
+        "This small-country case cannot be applied unchanged when foreign export prices respond to the tariff.",
+        "The gain is a positive magnitude and does not imply a net gain to the economy."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 7, Trade and Capital Flows: Restrictions and Agreements, printed pp423–425 (PDF pp435–437), Exhibit 11 and Example 4",
+          "evidence": "Example 4 calculates producer gain as a rectangle plus the linear supply triangle.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "conestoga-small-country-tariff",
+          "kind": "primary",
+          "title": "International Trade and Finance, Part 1",
+          "url": "https://openlibrary-repo.ecampusontario.ca/jspui/bitstream/123456789/2282/2/International-Trade-and-Finance-Part-1-1729516613.html",
+          "version": "Kenrick H. Jordan and Conestoga College, educational text, 2024",
+          "accessed": "2026-11-04",
+          "locator": "Section 4.2, The Economic Effects of an Import Tariff – The Small-Country Case",
+          "evidence": "The source decomposes consumer loss into producer gain, tariff revenue and production and consumption deadweight-loss triangles.",
+          "license": "Chapter credits state CC BY-NC-SA 4.0 for identified original material; conditions on incorporated third-party material may differ. Formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "paper",
+          "inputs": {
+            "tariff": 1,
+            "before": 110000,
+            "after": 130000
+          },
+          "expected": 120000,
+          "tolerance": 1e-09,
+          "method": "The average of 110,000 and 130,000 units times a 1 price rise is 120,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "unchanged-supply",
+          "inputs": {
+            "tariff": 2,
+            "before": 100,
+            "after": 100
+          },
+          "expected": 200,
+          "tolerance": 1e-09,
+          "method": "With fixed supply of 100, a 2 price rise yields 200.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "before": 110000,
+            "after": 130000
+          },
+          "reason": "tariff is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "tariff=2*gain/(before+after) when the quantity sum is positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--tariff-deadweight-loss-linear-small-country",
+      "revision": "r1",
+      "title": "Small-country tariff deadweight loss with linear supply and demand",
+      "summary": "Example 4 adds the production- and consumption-distortion triangle areas.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "loss",
+        "expression": "tariff * (supply_change + demand_drop) / 2",
+        "original_equation": "Deadweight loss = tariff × (supply increase + demand decrease) / 2",
+        "source_id": "conestoga-small-country-tariff",
+        "locator": "Section 4.2, The Economic Effects of an Import Tariff – The Small-Country Case",
+        "translation_notes": "The factor 2 is the triangle-area divisor; tariff times quantity gives currency."
+      },
+      "variables": [
+        {
+          "symbol": "tariff",
+          "source_symbol": "per-unit tariff",
+          "role": "input",
+          "quantity_id": "import_tariff_per_unit",
+          "definition": "Specific tariff per physical unit",
+          "unit": "USD_per_unit",
+          "dimensions": "currency/count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "supply_change",
+          "source_symbol": "increase in domestic supply",
+          "role": "input",
+          "quantity_id": "tariff_domestic_supply_increase",
+          "definition": "increase in domestic supply",
+          "unit": "unit",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "demand_drop",
+          "source_symbol": "decrease in domestic demand",
+          "role": "input",
+          "quantity_id": "tariff_domestic_demand_decrease",
+          "definition": "decrease in domestic demand",
+          "unit": "unit",
+          "dimensions": "count",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "loss",
+          "source_symbol": "tariff deadweight loss",
+          "role": "output",
+          "quantity_id": "tariff_deadweight_loss",
+          "definition": "tariff deadweight loss",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "tariff >= 0",
+        "supply_change >= 0",
+        "demand_drop >= 0"
+      ],
+      "assumptions": [
+        "A competitive small importing country takes the world price as fixed; a specific per-unit tariff is fully passed into the domestic price.",
+        "Supply and demand are linear over the relevant changes; quantities use the same good, time period and units."
+      ],
+      "limitations": [
+        "These partial-equilibrium welfare areas omit other markets, externalities, administration and retaliation.",
+        "This small-country case cannot be applied unchanged when foreign export prices respond to the tariff.",
+        "The result is the positive loss magnitude; the signed welfare change is negative."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 7, Trade and Capital Flows: Restrictions and Agreements, printed pp423–425 (PDF pp435–437), Exhibit 11 and Example 4",
+          "evidence": "Example 4 adds the production- and consumption-distortion triangle areas.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "conestoga-small-country-tariff",
+          "kind": "primary",
+          "title": "International Trade and Finance, Part 1",
+          "url": "https://openlibrary-repo.ecampusontario.ca/jspui/bitstream/123456789/2282/2/International-Trade-and-Finance-Part-1-1729516613.html",
+          "version": "Kenrick H. Jordan and Conestoga College, educational text, 2024",
+          "accessed": "2026-11-04",
+          "locator": "Section 4.2, The Economic Effects of an Import Tariff – The Small-Country Case",
+          "evidence": "The source decomposes consumer loss into producer gain, tariff revenue and production and consumption deadweight-loss triangles.",
+          "license": "Chapter credits state CC BY-NC-SA 4.0 for identified original material; conditions on incorporated third-party material may differ. Formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "paper",
+          "inputs": {
+            "tariff": 1,
+            "supply_change": 20000,
+            "demand_drop": 30000
+          },
+          "expected": 25000,
+          "tolerance": 1e-09,
+          "method": "Half of 1 times the combined 50,000-unit change is 25,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "no-response",
+          "inputs": {
+            "tariff": 2,
+            "supply_change": 0,
+            "demand_drop": 0
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "With no quantity response, the two distortion triangles are zero.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "supply_change": 20000,
+            "demand_drop": 30000
+          },
+          "reason": "tariff is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "tariff=2*loss/(supply_change+demand_drop) when total quantity change is positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

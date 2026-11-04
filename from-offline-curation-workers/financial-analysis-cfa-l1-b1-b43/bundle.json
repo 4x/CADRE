@@ -1,0 +1,547 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b43",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 1 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--supplied-affine-regression-response",
+      "revision": "r2",
+      "title": "Affine fitted response from supplied coefficients",
+      "summary": "A fitted response evaluates a supplied intercept and slope at a specified predictor value.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "fitted",
+        "expression": "intercept + slope * x",
+        "original_equation": "Yhat_f=bhat0+bhat1*X_f",
+        "source_id": "nist-linear-function",
+        "locator": "Section4.1.4.1, Definition of a Linear Least Squares Model",
+        "translation_notes": "YU+(YU/XU)*XU givesYU. Percentage-point examples are converted in the inputs and intercept, never by inlining conversion constants. The population stochastic relationYi=b0+b1Xi+epsilon_i is represented by this conditional mean plus an explicitly distinct error, not by puttingepsilon into a fittedYhat. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "intercept",
+          "source_symbol": "intercept",
+          "role": "input",
+          "quantity_id": "fitted_regression_intercept",
+          "definition": "Externally supplied fitted intercept",
+          "unit": "response-unit",
+          "dimensions": "YU",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "slope",
+          "source_symbol": "bhat1",
+          "role": "input",
+          "quantity_id": "fitted_regression_slope",
+          "definition": "Externally supplied fitted slope in response units per predictor unit",
+          "unit": "response-unit/predictor-unit",
+          "dimensions": "YU/XU",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "x",
+          "source_symbol": "X_f",
+          "role": "input",
+          "quantity_id": "regression_predictor_value",
+          "definition": "Declared predictor value; no forecast is inferred",
+          "unit": "predictor-unit",
+          "dimensions": "XU",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fitted",
+          "source_symbol": "fitted",
+          "role": "output",
+          "quantity_id": "fitted_regression_response",
+          "definition": "Deterministic response on the supplied fitted line",
+          "unit": "response-unit",
+          "dimensions": "YU",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Coefficients are already supplied in units consistent with predictor and response; this is deterministic evaluation, not fitting."
+      ],
+      "limitations": [
+        "The value is conditional model output, not an investment forecast or advice. Extrapolation validity and coefficient uncertainty are separate.",
+        "A future realized response can differ by an error term; no unknown error is silently set to an observation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module7, Prediction Using Simple Linear Regression and Prediction Intervals, printed p461 (PDF p471), Equation(19)",
+          "evidence": "A fitted response evaluates a supplied intercept and slope at a specified predictor value.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-linear-function",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/pmd/section1/pmd141.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section4.1.4.1, Definition of a Linear Least Squares Model",
+          "evidence": "A linear response function sums an intercept and coefficient-weighted explanatory variables.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-roa-decimal-units",
+          "inputs": {
+            "intercept": 0.04875,
+            "slope": 1.25,
+            "x": 0.06
+          },
+          "expected": 0.12375,
+          "tolerance": 1e-09,
+          "method": "Published12.375% atCAPEX6%; both percentages represented as decimal fractions.",
+          "provenance": "CFA printed p461/PDF471."
+        },
+        {
+          "id": "flat-model",
+          "inputs": {
+            "intercept": 3,
+            "slope": 0,
+            "x": 10
+          },
+          "expected": 3,
+          "tolerance": 1e-09,
+          "method": "A zero slope yields a constant fitted response3.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "slope": 1.25,
+            "x": 0.06
+          },
+          "reason": "intercept is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "x=(fitted-intercept)/slope requiresslope!=0; intercept=fitted-slope*x. Firstcase(.12375-.04875)/1.25=.06. At slope0, fittedintercept cannot identifyx. No stochastic/causal inverse is claimed.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--regression-response-residual",
+      "revision": "r2",
+      "title": "Signed regression response residual",
+      "summary": "A sample regression residual is the signed difference between an observed response and its fitted value.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "residual",
+        "expression": "observed - fitted",
+        "original_equation": "e_i=Y_i-Yhat_i",
+        "source_id": "nist-regression-residual",
+        "locator": "Section4.4.4, Residuals and opening R-squared definition",
+        "translation_notes": "Both response values areYU; subtraction preservesYU and the signed diagnostic. This is distinct from a standardized Pearson count residual. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "observed",
+          "source_symbol": "observed",
+          "role": "input",
+          "quantity_id": "observed_regression_response",
+          "definition": "Observed response for one predictor value",
+          "unit": "response-unit",
+          "dimensions": "YU",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fitted",
+          "source_symbol": "fitted",
+          "role": "input",
+          "quantity_id": "fitted_regression_response",
+          "definition": "Response on the supplied fitted line at that same predictor value",
+          "unit": "response-unit",
+          "dimensions": "YU",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "residual",
+          "source_symbol": "residual",
+          "role": "output",
+          "quantity_id": "regression_response_residual",
+          "definition": "Signed observed-minus-fitted response",
+          "unit": "response-unit",
+          "dimensions": "YU",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Observed and fitted response belong to the same case, predictor value, response unit and fitted model."
+      ],
+      "limitations": [
+        "A sample residual is not the unobservable population error; fitted residuals are constrained and need not be mutually independent."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module7, Estimating the Regression Line, printed p433 (PDF p443), unnumbered residual equation",
+          "evidence": "A sample regression residual is the signed difference between an observed response and its fitted value.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-regression-residual",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/pmd/section4/pmd44.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section4.4.4, Residuals and opening R-squared definition",
+          "evidence": "A residual is observed response minus fitted response; R-squared measures the fraction of total response variability accounted for by the model.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-company-c",
+          "inputs": {
+            "observed": 0.15,
+            "fitted": 0.11125
+          },
+          "expected": 0.03875,
+          "tolerance": 1e-09,
+          "method": "Published residual3.875percentage points in decimal return units.",
+          "provenance": "CFA printed p437/PDF447, Exhibit7."
+        },
+        {
+          "id": "below-line",
+          "inputs": {
+            "observed": 1,
+            "fitted": 3
+          },
+          "expected": -2,
+          "tolerance": 1e-09,
+          "method": "An observation two response units below the line has residual-2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "fitted": 0.11125
+          },
+          "reason": "observed is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "observed=fitted+residual;fitted=observed-residual. .11125+.03875=.15. Residual0 means the observation lies on the line and does not identify the model coefficients.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--regression-sum-of-squared-deviations",
+      "revision": "r2",
+      "title": "Regression sum of squared response deviations",
+      "summary": "Regression total, error, and explained sums of squares add the corresponding squared response deviations.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "SS",
+        "expression": "sum(q)",
+        "original_equation": "SSE=sum(e_i^2); SST=sum((Yi-Ybar)^2); SSR=sum((Yhat_i-Ybar)^2)",
+        "source_id": "nist-ls-diagnostics",
+        "locator": "Section4.4.3.1, General LS Criterion and Quality of Least Squares Estimates",
+        "translation_notes": "A sum of response-unit squares hasYU^2. The algebraic accumulation is canonical across the three named sums; their respective centering definitions remain mandatory metadata. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "q",
+          "source_symbol": "squared deviations",
+          "role": "family",
+          "quantity_id": "squared_response_deviation_terms",
+          "definition": "One nonnegative squared response deviation per included observation; binding declares residual, observed-centered, or fitted-centered definition",
+          "unit": "response-unit^2",
+          "dimensions": "YU^2",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "Finite real scalar",
+          "max_size": 256
+        },
+        {
+          "symbol": "SS",
+          "source_symbol": "SS",
+          "role": "output",
+          "quantity_id": "regression_sum_of_squares",
+          "definition": "Sum of squared deviations for the explicitly declared SSE/SST/SSR convention",
+          "unit": "response-unit^2",
+          "dimensions": "YU^2",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "len(q) >= 1",
+        "sum(q) >= 0"
+      ],
+      "assumptions": [
+        "Select one deviation definition and include every observation once; all terms are nonnegative squares with identical response units.",
+        "SSE, SST andSSR are distinct context-qualified uses of this single sum-of-squares relationship, not interchangeable ports."
+      ],
+      "limitations": [
+        "No fitted coefficients, means or residual terms are estimated by this expression. Elementwise square binding must be verified externally."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module7, printed p430 (PDF p440) Equation(1); p434 (PDF p444) Equation(4); p448 (PDF p458) Equation(10)",
+          "evidence": "Regression total, error, and explained sums of squares add the corresponding squared response deviations.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-ls-diagnostics",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/pmd/section4/pmd431.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section4.4.3.1, General LS Criterion and Quality of Least Squares Estimates",
+          "evidence": "Least-squares Q sums squared response residuals, and the residual standard deviation is sqrt(Q/(n-p)).",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "residual-vector",
+          "inputs": {
+            "q": [
+              1,
+              4,
+              1
+            ]
+          },
+          "expected": 6,
+          "tolerance": 1e-09,
+          "method": "Residuals[-1,2,-1] have squared Euclidean norm6.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "perfect-fit-residuals",
+          "inputs": {
+            "q": [
+              0,
+              0,
+              0
+            ]
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "All-zero residuals produce zeroSSE.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "q is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "One missing squared deviation equalsSS minus all other terms, requiring a nonnegative result. SS6 andknownterms1,4 recover1. Its unsquared deviation has roots-1,+1. SS0 forces all correctly bound nonnegative terms0.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--regression-coefficient-of-determination",
+      "revision": "r2",
+      "title": "Coefficient of determination for an OLS model with intercept",
+      "summary": "OLS with an intercept defines R-squared as explained centered response variation divided by total centered response variation.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "R2",
+        "expression": "explained / total",
+        "original_equation": "R^2=SSR/SST=1-SSE/SST",
+        "source_id": "nist-regression-residual",
+        "locator": "Section4.4.4, Residuals and opening R-squared definition",
+        "translation_notes": "YU^2/YU^2 is dimensionless, reported as a fraction. In one-predictor OLS with interceptR2=rXY^2; the squared-correlation expression is an equivalent qualified form, not an extra record. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "explained",
+          "source_symbol": "explained",
+          "role": "input",
+          "quantity_id": "explained_response_sum_of_squares",
+          "definition": "NonnegativeSSR=sum((Yhat-Ybar)^2) for this OLS fit",
+          "unit": "response-unit^2",
+          "dimensions": "YU^2",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "total",
+          "source_symbol": "total",
+          "role": "input",
+          "quantity_id": "total_response_sum_of_squares",
+          "definition": "PositiveSST=sum((Y-Ybar)^2) for the same observations",
+          "unit": "response-unit^2",
+          "dimensions": "YU^2",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "R2",
+          "source_symbol": "R^2",
+          "role": "output",
+          "quantity_id": "regression_coefficient_of_determination",
+          "definition": "Fraction of centered response variation explained by this fit",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "One supplied fitted model, sample, response unit YU and predictor unit XU; coefficients use exactly those numerical units",
+          "domain": "[0,1]"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "total > 0",
+        "explained >= 0",
+        "explained <= total"
+      ],
+      "assumptions": [
+        "This profile uses ordinary least squares with an intercept on the same sample and response scale; SST=SSR+SSE andSST>0."
+      ],
+      "limitations": [
+        "Constant observed responses giveSST0 and undefined centeredR2. Out-of-sample, no-intercept, weighted or differently defined scores can have different ranges.",
+        "HighR2 alone does not establish model validity or causation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module7, Analysis of Variance, printed p449 (PDF p459), Equation(11)",
+          "evidence": "OLS with an intercept defines R-squared as explained centered response variation divided by total centered response variation.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-regression-residual",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/pmd/section4/pmd44.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section4.4.4, Residuals and opening R-squared definition",
+          "evidence": "A residual is observed response minus fitted response; R-squared measures the fraction of total response variability accounted for by the model.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "four-fifths",
+          "inputs": {
+            "explained": 80,
+            "total": 100
+          },
+          "expected": 0.8,
+          "tolerance": 1e-09,
+          "method": "Explaining80 of100 squared-response units gives a fraction.8.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "intercept-only-fit",
+          "inputs": {
+            "explained": 0,
+            "total": 100
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "A fitted response constant atYbar explains zero centered variation.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "total": 100
+          },
+          "reason": "explained is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "explained=R2*total;total=explained/R2 requiresR2>0. R2.8,total100 givesexplained80. AtR2=explained0 the total cannot be recovered. The sign of correlation is lost on squaring.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,596 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b36",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "Citation corrections for 4 existing Volume 1 records.",
+    "gaps": [
+      "Finance quantities and source fidelity require independent review; validation does not certify scientific correctness."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Updated source policy: purchased PDF is project-derivation with null URL, and relationship points to an already-inspected accessible primary source. Original draft records are preserved."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--continuous-uniform-cdf-interior",
+      "revision": "r2",
+      "title": "Interior cumulative probability of a continuous uniform law",
+      "summary": "The interior uniform CDF is the fraction of support width from its lower endpoint to the query threshold.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "F",
+        "expression": "(x - a) / (b - a)",
+        "original_equation": "F(x)=(x-a)/(b-a) for a<=x<=b",
+        "source_id": "nist-uniform",
+        "locator": "Section1.3.6.6.2, Uniform Distribution, PDF, CDF and Common Statistics",
+        "translation_notes": "U/U is dimensionless probability. NIST states the standard support CDF F(z)=z; substituting z=(x-a)/(b-a) produces this general form exactly. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "x",
+          "source_symbol": "x",
+          "role": "input",
+          "quantity_id": "random_variable_threshold",
+          "definition": "Threshold inside the uniform support",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same scalar random variable, support, cumulative distribution and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "a",
+          "source_symbol": "a",
+          "role": "input",
+          "quantity_id": "uniform_lower_support",
+          "definition": "Lower support endpoint",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same scalar random variable, support, cumulative distribution and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "b",
+          "source_symbol": "b",
+          "role": "input",
+          "quantity_id": "uniform_upper_support",
+          "definition": "Upper support endpoint",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same scalar random variable, support, cumulative distribution and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "F",
+          "source_symbol": "F(x)",
+          "role": "output",
+          "quantity_id": "cumulative_distribution_probability",
+          "definition": "Probability X<=x under the uniform law",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same scalar random variable, support, cumulative distribution and measurement unit U",
+          "domain": "0<=F<=1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "b > a",
+        "x >= a",
+        "x <= b"
+      ],
+      "assumptions": [
+        "Source assumption: x lies in[a,b], with b>a."
+      ],
+      "limitations": [
+        "Full CDF has0 belowa and1 aboveb; those piecewise branches need a selector beyond this scalar profile."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Continuous Uniform Distribution, printed p244 (PDF p254), unnumbered piecewise CDF and F(3) example",
+          "evidence": "The interior uniform CDF is the fraction of support width from its lower endpoint to the query threshold.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-uniform",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda3662.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.6.6.2, Uniform Distribution, PDF, CDF and Common Statistics",
+          "evidence": "Uniform density is reciprocal support width; the standardized CDF is linear, with midpoint mean and width-squared-over-twelve variance.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-three-of-eight",
+          "inputs": {
+            "x": 3,
+            "a": 0,
+            "b": 8
+          },
+          "expected": 0.375,
+          "tolerance": 1e-09,
+          "method": "Published3/8 rectangle area under density1/8.",
+          "provenance": "CFA printed p244/PDF254."
+        },
+        {
+          "id": "upper-support-boundary",
+          "inputs": {
+            "x": 5,
+            "a": -1,
+            "b": 5
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "At the support upper endpoint all uniform probability has accumulated.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "a": 0,
+            "b": 8
+          },
+          "reason": "x is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "x=a+F*(b-a) with0<=F<=1; F.375,a0,b8 givesx3. Solving for an endpoint has singular casesF0or1 and must retain support ordering.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--continuous-uniform-mean",
+      "revision": "r2",
+      "title": "Mean of a continuous uniform distribution",
+      "summary": "The uniform distribution mean is the midpoint of its support.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "mu",
+        "expression": "(a + b) / 2",
+        "original_equation": "mu=(a+b)/2",
+        "source_id": "nist-uniform",
+        "locator": "Section1.3.6.6.2, Uniform Distribution, PDF, CDF and Common Statistics",
+        "translation_notes": "The arithmetic2 averages the two support endpoints, expressing the source symmetry result. U+U divided by a dimensionless count yieldsU. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "a",
+          "source_symbol": "a",
+          "role": "input",
+          "quantity_id": "uniform_lower_support",
+          "definition": "Lower support endpoint",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same scalar random variable, support, cumulative distribution and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "b",
+          "source_symbol": "b",
+          "role": "input",
+          "quantity_id": "uniform_upper_support",
+          "definition": "Upper support endpoint",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same scalar random variable, support, cumulative distribution and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "mu",
+          "source_symbol": "mu",
+          "role": "output",
+          "quantity_id": "uniform_distribution_mean",
+          "definition": "Population mean under the continuous uniform law",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same scalar random variable, support, cumulative distribution and measurement unit U",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "b > a"
+      ],
+      "assumptions": [
+        "Source assumption: continuous uniform probability law on a nondegenerate finite support."
+      ],
+      "limitations": [
+        "Not an estimated sample mean; input endpoints specify the distribution."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Example2, printed p245 (PDF p255), unnumbered uniform-mean formula and Solution2",
+          "evidence": "The uniform distribution mean is the midpoint of its support.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-uniform",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda3662.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.6.6.2, Uniform Distribution, PDF, CDF and Common Statistics",
+          "evidence": "Uniform density is reciprocal support width; the standardized CDF is linear, with midpoint mean and width-squared-over-twelve variance.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-coverage-ratio",
+          "inputs": {
+            "a": 1.6,
+            "b": 2.4
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "Published mean2; the density is symmetric about2.",
+          "provenance": "CFA Example2 printed p245/PDF255."
+        },
+        {
+          "id": "signed-support",
+          "inputs": {
+            "a": -6,
+            "b": 2
+          },
+          "expected": -2,
+          "tolerance": 1e-09,
+          "method": "Reflection symmetry about-2 pairs every deviation with its opposite.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "b": 2.4
+          },
+          "reason": "a is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "b=2*mu-a and a=2*mu-b withb>a. First case2*2-1.6=2.4. The mean alone cannot identify support width.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--continuous-uniform-variance",
+      "revision": "r2",
+      "title": "Variance of a continuous uniform distribution",
+      "summary": "Uniform distribution variance is support width squared divided by twelve.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "variance",
+        "expression": "(b - a) ** 2 / 12",
+        "original_equation": "sigma^2=(b-a)^2/12",
+        "source_id": "nist-uniform",
+        "locator": "Section1.3.6.6.2, Uniform Distribution, PDF, CDF and Common Statistics",
+        "translation_notes": "Squaring a support width producesU^2;12 is the source theoretical divisor, attributed as a constant. This is a distribution variance, not the sample n-1 estimator. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "a",
+          "source_symbol": "a",
+          "role": "input",
+          "quantity_id": "uniform_lower_support",
+          "definition": "Lower support endpoint",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same scalar random variable, support, cumulative distribution and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "b",
+          "source_symbol": "b",
+          "role": "input",
+          "quantity_id": "uniform_upper_support",
+          "definition": "Upper support endpoint",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same scalar random variable, support, cumulative distribution and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "variance",
+          "source_symbol": "sigma^2",
+          "role": "output",
+          "quantity_id": "uniform_distribution_variance",
+          "definition": "Population variance under the continuous uniform law",
+          "unit": "data-unit^2",
+          "dimensions": "U^2",
+          "context": "Same scalar random variable, support, cumulative distribution and measurement unit U",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [
+        {
+          "literal": 12,
+          "meaning": "Uniform centered-second-moment divisor",
+          "unit": "1",
+          "source_id": "cfa-l1v1",
+          "locator": "Printed p245/PDF255 Example2 variance formula"
+        }
+      ],
+      "guards": [
+        "b > a"
+      ],
+      "assumptions": [
+        "Source assumption: continuous uniform law with finite endpointsb>a."
+      ],
+      "limitations": [
+        "Support location cannot be inferred from variance alone."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Example2, printed pp245-246 (PDF pp255-256), unnumbered uniform-variance formula and Solution2",
+          "evidence": "Uniform distribution variance is support width squared divided by twelve.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-uniform",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda3662.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.6.6.2, Uniform Distribution, PDF, CDF and Common Statistics",
+          "evidence": "Uniform density is reciprocal support width; the standardized CDF is linear, with midpoint mean and width-squared-over-twelve variance.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-coverage-ratio",
+          "inputs": {
+            "a": 1.6,
+            "b": 2.4
+          },
+          "expected": 0.053333,
+          "tolerance": 5e-07,
+          "method": "Published.053333 rounded variance; tolerance half of the sixth decimal.",
+          "provenance": "CFA Example2 printed p246/PDF256."
+        },
+        {
+          "id": "unit-uniform",
+          "inputs": {
+            "a": 0,
+            "b": 1
+          },
+          "expected": 0.08333333333333333,
+          "tolerance": 1e-09,
+          "method": "Independent integration about the midpoint:integral_0^1(x-.5)^2 dx=1/12.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "b": 2.4
+          },
+          "reason": "a is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "width=sqrt(12*variance)>0; with one endpoint known choose the positive width so b>a. Unit-uniform variance1/12 recovers width1. Zero width is a degenerate distribution outside this continuous-density profile.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--binomial-probability-mass",
+      "revision": "r2",
+      "title": "Binomial probability of an exact success count",
+      "summary": "Binomial point probabilities multiply the number of matching sequences by the probability of each sequence of independent Bernoulli trials.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "mass",
+        "expression": "c * p ** x * (1 - p) ** (n - x)",
+        "original_equation": "P(X=x)=C(n,x)*p^x*(1-p)^(n-x)",
+        "source_id": "nist-binomial",
+        "locator": "Section1.3.6.6.18, Binomial Distribution, PMF and Common Statistics",
+        "translation_notes": "Introducedc is the printed combination term, not an independently adjustable fit parameter. All factors are dimensionless; countcweights the separate sequence probabilities. Factorials are supplied by the curated counting relationship rather than an unsupportedfactorialcall. Owner-PDF locator is retained on the project-derivation citation; the relationship source is the accessible corroboration."
+      },
+      "variables": [
+        {
+          "symbol": "n",
+          "source_symbol": "n",
+          "role": "input",
+          "quantity_id": "bernoulli_trial_count",
+          "definition": "Nonnegative number of independent binary trials",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same binomial trial count, fixed success probability, independent Bernoulli trials and defined success event",
+          "domain": "Nonnegative integer"
+        },
+        {
+          "symbol": "p",
+          "source_symbol": "p",
+          "role": "input",
+          "quantity_id": "bernoulli_success_probability",
+          "definition": "Common probability of success on every trial",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same binomial trial count, fixed success probability, independent Bernoulli trials and defined success event",
+          "domain": "0<=p<=1"
+        },
+        {
+          "symbol": "x",
+          "source_symbol": "x",
+          "role": "input",
+          "quantity_id": "binomial_success_count",
+          "definition": "Specified number of successes",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same binomial trial count, fixed success probability, independent Bernoulli trials and defined success event",
+          "domain": "Integer0<=x<=n"
+        },
+        {
+          "symbol": "c",
+          "source_symbol": "introduced c=C(n,x)",
+          "role": "input",
+          "quantity_id": "binomial_coefficient",
+          "definition": "Exact combination count for the matchingn,x, prepared by the multinomial-labeling model",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same binomial trial count, fixed success probability, independent Bernoulli trials and defined success event",
+          "domain": "Correct positive integer combination count"
+        },
+        {
+          "symbol": "mass",
+          "source_symbol": "p(x)",
+          "role": "output",
+          "quantity_id": "probability_mass",
+          "definition": "Probability of exactlyx successes inntrials",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same binomial trial count, fixed success probability, independent Bernoulli trials and defined success event",
+          "domain": "0<=mass<=1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "n >= 0",
+        "x >= 0",
+        "x <= n",
+        "p > 0",
+        "p < 1",
+        "c >= 1"
+      ],
+      "assumptions": [
+        "Source assumption: trials are mutually independent and share a common fixed probabilityp.",
+        "Application profile:0<p<1 avoids degenerate0^0 branches; x,n are nonnegative integers and c is their exact combination count."
+      ],
+      "limitations": [
+        "Degeneratep0or1 requires explicit endpoint branches and is deferred rather than assigning0^0 silently.",
+        "The evaluator exponent limit100 restricts numerical evaluation of larger scientifically admissible trial counts; no altered probability law is asserted."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Binomial Distribution, printed p247 (PDF p257), Equation(2); Exhibit6 printed p249/PDF259",
+          "evidence": "Binomial point probabilities multiply the number of matching sequences by the probability of each sequence of independent Bernoulli trials.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-binomial",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda366i.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.6.6.18, Binomial Distribution, PMF and Common Statistics",
+          "evidence": "A fixed-p binomial law has combination-weighted Bernoulli sequence probabilities, meannp and variancenp(1-p).",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "four-fair-trials",
+          "inputs": {
+            "n": 4,
+            "p": 0.5,
+            "x": 2,
+            "c": 6
+          },
+          "expected": 0.375,
+          "tolerance": 1e-09,
+          "method": "Independent enumeration:six sequences with two successes among sixteen equally likely four-trial paths.",
+          "provenance": "CFA Exhibit6 printed p249/PDF259."
+        },
+        {
+          "id": "one-bernoulli-trial",
+          "inputs": {
+            "n": 1,
+            "p": 0.3,
+            "x": 1,
+            "c": 1
+          },
+          "expected": 0.3,
+          "tolerance": 1e-09,
+          "method": "For one trial the probability of one success equals the original success probability.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "p": 0.5,
+            "x": 2,
+            "c": 6
+          },
+          "reason": "n is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "Given n,x,c and mass, solving forp may produce multiple roots. Forn4,x2,mass.375, p.5 is a peak and unique; for smaller interior masses symmetry can givep and1-p. No binomial probability inverse is claimed tested.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

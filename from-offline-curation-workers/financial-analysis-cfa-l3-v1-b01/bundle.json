@@ -1,0 +1,634 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.9",
+  "batch_id": "financial-analysis-cfa-l3-v1-b01",
+  "domain": "financial-analysis",
+  "curator": "buffy",
+  "created": "2026-11-04",
+  "example_only": false,
+  "models": [
+    {
+      "id": "financial-analysis--grinold-kroner-equity-expected-return",
+      "revision": "r1",
+      "title": "Grinold-Kroner decomposition of expected equity return",
+      "summary": "Expected equity return as dividend yield plus EPS growth (total earnings growth minus shares-outstanding growth) plus P/E repricing change.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "ERe",
+        "expression": "dy + (gE - gS) + gPE",
+        "original_equation": "E(Re) ≈ D/P + (%ΔE − %ΔS) + %ΔP/E",
+        "source_id": "cfa-institute-cme2-refresher",
+        "locator": "PDF: LM2 Forecasting Asset Class Returns, printed p. 84 (PDF p. 94), Eq. 1",
+        "translation_notes": "Source expresses rates as percentages; record uses decimal form (unit 1), so 2% is 0.02 with no conversion factor in the expression. dy is dividend yield D/P; gE total earnings growth %ΔE; gS shares-outstanding growth %ΔS (negative under net buybacks); gPE P/E repricing %ΔP/E. The ≈ reflects approximation, not a fitted residual. Dimensional check: all terms dimensionless rates, sum is a dimensionless rate."
+      },
+      "variables": [
+        {
+          "symbol": "dy",
+          "source_symbol": "D/P",
+          "role": "input",
+          "quantity_id": "dividend_yield",
+          "definition": "Dividend yield: current dividends per share divided by price, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same equity market and forecast horizon as ERe",
+          "domain": "Finite decimal yield; typically nonnegative"
+        },
+        {
+          "symbol": "gE",
+          "source_symbol": "%ΔE",
+          "role": "input",
+          "quantity_id": "total_earnings_growth_rate",
+          "definition": "Expected percentage change in total earnings over the horizon, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same equity market and forecast horizon as ERe",
+          "domain": "Finite decimal growth rate"
+        },
+        {
+          "symbol": "gS",
+          "source_symbol": "%ΔS",
+          "role": "input",
+          "quantity_id": "shares_outstanding_growth_rate",
+          "definition": "Expected percentage change in shares outstanding; negative under net share repurchases, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same equity market and forecast horizon as ERe",
+          "domain": "Finite decimal growth rate; greater than -1 (shares cannot fall more than 100%)"
+        },
+        {
+          "symbol": "gPE",
+          "source_symbol": "%ΔP/E",
+          "role": "input",
+          "quantity_id": "pe_ratio_growth_rate",
+          "definition": "Expected percentage change in the price-to-earnings ratio (repricing return), in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same equity market and forecast horizon as ERe",
+          "domain": "Finite decimal growth rate; greater than -1"
+        },
+        {
+          "symbol": "ERe",
+          "source_symbol": "E(Re)",
+          "role": "output",
+          "quantity_id": "equity_expected_return",
+          "definition": "Expected equity market return over the horizon, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same equity market and forecast horizon as inputs",
+          "domain": "Finite decimal expected return"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "The decomposition applies to a broad equity market over the stated forecast horizon with consistent timing of yield, growth, and repricing terms.",
+        "Source assumption: repurchases are captured through the change in shares outstanding, so (gE − gS) is EPS growth."
+      ],
+      "limitations": [
+        "Approximate identity (source uses ≈); compounding interactions between components over long horizons are not modeled.",
+        "Excludes taxes, fees, and implementation shortfall; not investment advice."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-grinold-kroner-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Forecasting Asset Class Returns, printed p. 84 (PDF p. 94), Eq. 1",
+          "evidence": "Passage presents the Grinold-Kroner model: expected equity return as dividend yield plus earnings-growth-minus-share-change plus P/E change, with the parenthesized term identified as EPS growth.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-institute-cme2-refresher",
+          "kind": "primary",
+          "title": "Capital Market Expectations, Part II: Forecasting Asset Class Returns (CFA Institute refresher reading)",
+          "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/capital-market-expectations-part-ii",
+          "version": "2026 refresher reading, Summary section",
+          "accessed": "2026-11-04",
+          "locator": "Summary: Grinold–Kroner model decomposes expected equity return into (1) dividend yield minus rate of change in shares outstanding, (2) nominal earnings growth, (3) P/E repricing",
+          "evidence": "Page states the model decomposes expected equity return into expected cash flow return (dividend yield minus change in shares outstanding), nominal earnings growth return, and repricing return from P/E change.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        },
+        {
+          "id": "analystprep-grinold-kroner",
+          "kind": "primary",
+          "title": "Grinold Kroner Model and Sustainable Growth (AnalystPrep study notes)",
+          "url": "https://analystprep.com/study-notes/cfa-level-2/relationship-between-long-run-rate-of-stock-market-appreciation-and-sustainable-growth-rate/",
+          "version": "Study notes, 05 Feb 2023",
+          "accessed": "2026-11-04",
+          "locator": "Equation block: E(Re) = dividend yield + repricing + inflation + real growth + change in shares outstanding",
+          "evidence": "Page gives the Grinold-Kroner decomposition of equity return into dividend yield, P/E repricing, inflation, real economic growth, and shares-outstanding change, matching the PDF's Eq. 1 structure.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "income-plus-growth-plus-repricing",
+          "inputs": {
+            "dy": 0.02,
+            "gE": 0.04,
+            "gS": -0.01,
+            "gPE": 0.005
+          },
+          "expected": 0.075,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 0.02 + (0.04 − (−0.01)) + 0.005 = 0.075. Independently constructed arithmetic check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        },
+        {
+          "id": "zero-boundary",
+          "inputs": {
+            "dy": 0,
+            "gE": 0,
+            "gS": 0,
+            "gPE": 0
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "All-zero inputs give zero expected return by direct substitution.",
+          "provenance": "Definitional boundary check; not an empirical validation"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "dy": 0.02,
+            "gE": 0.04
+          },
+          "reason": "Repricing return and share-change terms are required inputs; a partial input set cannot determine ERe."
+        }
+      ],
+      "inverse_notes": "Linear in each input: dy = ERe − (gE − gS) − gPE; gE = ERe − dy + gS − gPE; gS = gE − (ERe − dy − gPE); gPE = ERe − dy − (gE − gS). No singularities (no division). Substitution check: ERe=0.075 with dy=0.02, gE=0.04, gS=−0.01 recovers gPE=0.005. Algebraic inversion only; causal interpretation of repricing is not established by inversion.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings dividend_yield, total_earnings_growth_rate, shares_outstanding_growth_rate, pe_ratio_growth_rate, equity_expected_return are not in the runtime vocabulary snapshot and require extension.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04 (building-energy only)."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--real-estate-long-run-expected-return-cap-rate",
+      "revision": "r1",
+      "title": "Long-run commercial real estate expected return from cap rate and NOI growth",
+      "summary": "Steady-state expected return on commercial real estate equals the capitalization rate plus the constant NOI growth rate (Gordon growth applied to property).",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "ERre",
+        "expression": "cap + gNOI",
+        "original_equation": "E(Rre) = Cap rate + NOI growth rate",
+        "source_id": "getrefm-cap-rates-textbook",
+        "locator": "PDF: LM2 Forecasting Real Estate Returns, printed p. 94 (PDF p. 104), Eq. 7",
+        "translation_notes": "Source expresses rates as percentages; record uses decimal form (unit 1) with no conversion factor inlined. Cap rate is current-period NOI divided by property value. Long-run steady-state NOI growth is reasonably close to GDP growth per the source. Dimensional check: dimensionless + dimensionless = dimensionless rate."
+      },
+      "variables": [
+        {
+          "symbol": "cap",
+          "source_symbol": "Cap rate",
+          "role": "input",
+          "quantity_id": "capitalization_rate",
+          "definition": "Capitalization rate: current-period net operating income divided by property value, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same commercial property market and steady-state horizon as ERre",
+          "domain": "Finite decimal cap rate"
+        },
+        {
+          "symbol": "gNOI",
+          "source_symbol": "NOI growth rate",
+          "role": "input",
+          "quantity_id": "noi_growth_rate",
+          "definition": "Constant long-run steady-state growth rate of net operating income, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same commercial property market and steady-state horizon as ERre",
+          "domain": "Finite decimal growth rate; below the discount rate for Gordon-model validity"
+        },
+        {
+          "symbol": "ERre",
+          "source_symbol": "E(Rre)",
+          "role": "output",
+          "quantity_id": "real_estate_expected_return",
+          "definition": "Long-run expected (required) rate of return on commercial real estate, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same commercial property market and steady-state horizon as inputs",
+          "domain": "Finite decimal expected return"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Source assumption: NOI grows at a constant rate in perpetuity (Gordon growth applied to property).",
+        "Steady-state horizon; anticipated cap-rate change is zero over the long run."
+      ],
+      "limitations": [
+        "Long-run steady state only; finite-horizon repricing from cap-rate change requires the companion cap-rate-change record.",
+        "A portion of operating income may be reinvested, so the cap rate is not strictly a cash flow yield (per source note)."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-re-caprate-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Forecasting Real Estate Returns, printed p. 94 (PDF p. 104), Eq. 7; solution example in LM2 Solutions, printed p. 129 (PDF p. 139)",
+          "evidence": "Passage derives the long-run expected real estate return as cap rate plus constant NOI growth via the Gordon growth model, with steady-state NOI growth close to GDP growth.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "getrefm-cap-rates-textbook",
+          "kind": "primary",
+          "title": "Real Estate Finance and Investments: Risks and Opportunities, Linneman & Kirsch — Chapter 9, The Use and Selection of Cap Rates (online companion textbook)",
+          "url": "https://textbook.getrefm.com/chapter-9-the-use-and-selection-of-cap-rates/",
+          "version": "Online companion textbook chapter, accessed 2026-11-04",
+          "accessed": "2026-11-04",
+          "locator": "Summary: Gordon Model [NOI/(r-g)] for property with constant expected NOI growth in perpetuity; cap rate defined as stabilized NOI divided by property value",
+          "evidence": "Chapter states the Gordon Model NOI/(r−g) approximates DCF value under constant perpetual NOI growth, with cap rate as stabilized NOI over value — algebraically identical to required return equals cap rate plus growth.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-9pt3-solution",
+          "inputs": {
+            "cap": 0.047,
+            "gNOI": 0.046
+          },
+          "expected": 0.093,
+          "tolerance": 1e-09,
+          "method": "Source's stated inputs (4.70% cap rate, 4.60% NOI growth) converted to decimals and added: 0.047 + 0.046 = 0.093.",
+          "provenance": "Published result: LM2 Solutions (printed p. 129) gives E(Rre) = 4.70% + 4.60% = 9.30%"
+        },
+        {
+          "id": "constructed-mid-yield",
+          "inputs": {
+            "cap": 0.055,
+            "gNOI": 0.02
+          },
+          "expected": 0.075,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 0.055 + 0.02 = 0.075. Independently constructed arithmetic check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "cap": 0.05
+          },
+          "reason": "NOI growth rate is a required input; cap rate alone cannot determine expected return."
+        }
+      ],
+      "inverse_notes": "Linear inverses: cap = ERre − gNOI; gNOI = ERre − cap. No singularities. Substitution check: ERre=0.093 with gNOI=0.046 recovers cap=0.047. Inversion is algebraic; Gordon-model growth-below-discount validity still applies. Do not publish rearrangements as separate records.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings capitalization_rate, noi_growth_rate, real_estate_expected_return are not in the runtime vocabulary snapshot and require extension.",
+          "Distinct from the finite-horizon companion record (cap-rate-change term); that record is separately curated in this batch."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--real-estate-finite-horizon-expected-return-cap-rate-change",
+      "revision": "r1",
+      "title": "Finite-horizon real estate expected return with cap-rate change",
+      "summary": "Over finite horizons, expected real estate return equals cap rate plus NOI growth minus the percentage change in the cap rate (repricing term).",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "ERre",
+        "expression": "cap + gNOI - dcap",
+        "original_equation": "E(Rre) = Cap rate + NOI growth rate − %ΔCap rate",
+        "source_id": "cfa-institute-cme2-refresher",
+        "locator": "PDF: LM2 Forecasting Real Estate Returns, printed p. 94 (PDF p. 104), Eq. 8",
+        "translation_notes": "Source expresses rates as percentages; record uses decimal form (unit 1). dcap is the relative (percentage) change in the cap rate over the horizon, e.g. (5.5−5.7)/5.7 ≈ −0.035. A falling cap rate (negative dcap) raises expected return via price appreciation. Analogous to Grinold-Kroner repricing but with no share-buyback term, per source. Dimensional check: all dimensionless rates."
+      },
+      "variables": [
+        {
+          "symbol": "cap",
+          "source_symbol": "Cap rate",
+          "role": "input",
+          "quantity_id": "capitalization_rate",
+          "definition": "Capitalization rate at the start of the horizon: current-period NOI divided by property value, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same commercial property market and finite horizon as ERre",
+          "domain": "Finite decimal cap rate"
+        },
+        {
+          "symbol": "gNOI",
+          "source_symbol": "NOI growth rate",
+          "role": "input",
+          "quantity_id": "noi_growth_rate",
+          "definition": "Expected NOI growth rate over the horizon (nominal; real growth plus inflation where split), in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same commercial property market and finite horizon as ERre",
+          "domain": "Finite decimal growth rate"
+        },
+        {
+          "symbol": "dcap",
+          "source_symbol": "%ΔCap rate",
+          "role": "input",
+          "quantity_id": "cap_rate_change_rate",
+          "definition": "Anticipated relative change in the cap rate over the horizon (end minus start, divided by start), in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same commercial property market and finite horizon as ERre",
+          "domain": "Finite decimal relative change; greater than -1"
+        },
+        {
+          "symbol": "ERre",
+          "source_symbol": "E(Rre)",
+          "role": "output",
+          "quantity_id": "real_estate_expected_return",
+          "definition": "Expected rate of return on commercial real estate over the finite horizon, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same commercial property market and finite horizon as inputs",
+          "domain": "Finite decimal expected return"
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Finite horizon over which the cap rate moves from its starting level to the anticipated ending level.",
+        "NOI growth and cap-rate change are stated consistently (nominal terms) for the same horizon."
+      ],
+      "limitations": [
+        "Uses the source's additive approximation of NOI growth (real plus inflation) and rounded cap-rate change; exact compounding is not modeled.",
+        "No buyback-equivalent term exists for property (per source); do not force the equity Grinold-Kroner record onto real estate."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-re-caprate-change-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Forecasting Real Estate Returns, printed p. 94 (PDF p. 104), Eq. 8; industrial-sector solution in LM2 Solutions, printed p. 134 (PDF p. 144)",
+          "evidence": "Passage adjusts the long-run equation for finite horizons with the anticipated rate of change in the cap rate, noting the analogy to Grinold-Kroner without a buyback term.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-institute-cme2-refresher",
+          "kind": "primary",
+          "title": "Capital Market Expectations, Part II: Forecasting Asset Class Returns (CFA Institute refresher reading)",
+          "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/capital-market-expectations-part-ii",
+          "version": "2026 refresher reading, Summary section",
+          "accessed": "2026-11-04",
+          "locator": "Summary: E(Rre) = Cap rate + NOI growth rate − %ΔCap rate",
+          "evidence": "Page states the real-estate expected-return equation with the cap-rate-change term explicitly, matching the PDF's Eq. 8.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-industrial-11pt7",
+          "inputs": {
+            "cap": 0.057,
+            "gNOI": 0.025,
+            "dcap": -0.035
+          },
+          "expected": 0.117,
+          "tolerance": 1e-09,
+          "method": "Source's stated rounded inputs: 5.7% cap, 1% + 1.5% = 2.5% NOI growth, (5.5−5.7)/5.7 ≈ −3.5% cap change; 0.057 + 0.025 − (−0.035) = 0.117.",
+          "provenance": "Published result: LM2 Solutions (printed p. 134) gives 5.7% + 2.5% − (−3.5%) = 11.7%, with inputs as rounded by the source"
+        },
+        {
+          "id": "rising-cap-rate-drag",
+          "inputs": {
+            "cap": 0.06,
+            "gNOI": 0.03,
+            "dcap": 0.02
+          },
+          "expected": 0.07,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 0.06 + 0.03 − 0.02 = 0.07; a rising cap rate drags on return. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed market data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "cap": 0.057,
+            "gNOI": 0.025
+          },
+          "reason": "Anticipated cap-rate change is required for the finite-horizon form; without it only the long-run form applies."
+        }
+      ],
+      "inverse_notes": "Linear inverses: cap = ERre − gNOI + dcap; gNOI = ERre − cap + dcap; dcap = cap + gNOI − ERre. No singularities. Substitution check: ERre=0.117, cap=0.057, gNOI=0.025 recovers dcap=−0.035. Algebraic only; forecasting the cap-rate change itself is outside this record.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings capitalization_rate, noi_growth_rate, cap_rate_change_rate, real_estate_expected_return are not in the runtime vocabulary snapshot and require extension.",
+          "Companion to (not duplicate of) the long-run cap-rate record in this batch, which omits the repricing term."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--mean-variance-utility-certainty-equivalent-decimal",
+      "revision": "r1",
+      "title": "Mean-variance utility (certainty equivalent) in decimal form",
+      "summary": "Investor utility for an asset mix as expected return minus one-half the risk aversion coefficient times variance, with all rates in decimals.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "Um",
+        "expression": "ERm - 0.5 * lam * sig ** 2",
+        "original_equation": "Um = E(Rm) − 0.005 λ σm² (percent form); = E(Rm) − 0.5 λ σm² in decimals",
+        "source_id": "desjardins-risk-aversion-bkm",
+        "locator": "PDF: LM4 Mean–Variance Optimization Overview, printed p. 200 (PDF p. 210), Eq. 1",
+        "translation_notes": "Source Eq. 1 uses 0.005 because E(Rm) and σm are entered as percentages with % signs omitted (e.g. 10.0, 20). Record uses decimal form (unit 1), so the scale factor is 0.5 per the source's own decimal restatement: 0.10 − 0.5(2)(0.04) = 0.06. The 0.5 is a pure arithmetic scaling literal explained here, not an inlined unit conversion. Dimensional check: dimensionless − (dimensionless × dimensionless²) = dimensionless."
+      },
+      "variables": [
+        {
+          "symbol": "ERm",
+          "source_symbol": "E(Rm)",
+          "role": "input",
+          "quantity_id": "expected_portfolio_return",
+          "definition": "Expected return of asset mix m over the single-period horizon, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset mix m and single-period horizon as Um",
+          "domain": "Finite decimal expected return"
+        },
+        {
+          "symbol": "lam",
+          "source_symbol": "λ",
+          "role": "input",
+          "quantity_id": "risk_aversion_coefficient",
+          "definition": "Investor risk aversion coefficient: rate at which the investor forgoes expected return for less variance",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investor and asset mix m as Um",
+          "domain": "Nonnegative finite coefficient; zero is the risk-neutral boundary"
+        },
+        {
+          "symbol": "sig",
+          "source_symbol": "σm",
+          "role": "input",
+          "quantity_id": "return_volatility",
+          "definition": "Expected standard deviation of return for asset mix m, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset mix m and single-period horizon as Um",
+          "domain": "Nonnegative finite volatility; zero is the risk-free boundary"
+        },
+        {
+          "symbol": "Um",
+          "source_symbol": "Um",
+          "role": "output",
+          "quantity_id": "mean_variance_utility",
+          "definition": "Investor utility (certainty-equivalent return) of asset mix m, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset mix m, investor, and horizon as inputs",
+          "domain": "Finite decimal utility"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "lam >= 0",
+        "sig >= 0"
+      ],
+      "assumptions": [
+        "Single-period mean–variance framework: utility depends only on expected return and variance of the asset mix.",
+        "Source assumption: decimal inputs use the 0.5 scaling; percent inputs would use 0.005 with % signs omitted."
+      ],
+      "limitations": [
+        "Captures only mean–variance preferences; skewness, kurtosis, and non-variance risk notions (e.g. shortfall probability) are excluded — the source pairs this with a separate safety-first ratio.",
+        "The risk aversion coefficient must be estimated separately; the equation does not determine it."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-utility-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Mean–Variance Optimization Overview, printed p. 200 (PDF p. 210), Eq. 1; applied in Example 1, printed pp. 206–207 (PDF pp. 216–217)",
+          "evidence": "Passage states the MVO objective function Um = E(Rm) − 0.005 λ σm² with the 0.005/percent convention, gives the decimal restatement 0.10 − 0.5(2)(0.04) = 0.06, and interprets Um as a certainty-equivalent return.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "desjardins-risk-aversion-bkm",
+          "kind": "primary",
+          "title": "The Risk Aversion Coefficient (Desjardins Online Brokerage, citing Bodie–Kane–Marcus)",
+          "url": "https://www.disnat.com/en/learning/trading-basics/dbulletin/the-risk-aversion-coefficient",
+          "version": "Educational article citing Investments by Bodie, Kane, Marcus, Perrakis & Ryan (2014), McGraw Hill Ryerson, 8th Canadian ed., p. 156",
+          "accessed": "2026-11-04",
+          "locator": "Utility formula section: U = E(r) − 0.5 × A × σ² with two worked examples",
+          "evidence": "Page presents the mean-variance utility formula U = E(r) − 0.5·A·σ² with worked decimal examples (0.06 − 0.5·2·0.16² = 3.44%), confirming the decimal-form scaling used in this record.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-decimal-example",
+          "inputs": {
+            "ERm": 0.1,
+            "lam": 2,
+            "sig": 0.2
+          },
+          "expected": 0.06,
+          "tolerance": 1e-09,
+          "method": "Source's decimal restatement: 0.10 − 0.5(2)(0.04) = 0.06. Direct substitution matches.",
+          "provenance": "Published result: LM4 text, printed p. 200 (PDF p. 210)"
+        },
+        {
+          "id": "published-allocation-c",
+          "inputs": {
+            "ERm": 0.0525,
+            "lam": 2,
+            "sig": 0.05
+          },
+          "expected": 0.05,
+          "tolerance": 1e-09,
+          "method": "Example 1 allocation C (5.25% return, 5% volatility, λ=2) converted to decimals: 0.0525 − 0.5·2·0.0025 = 0.05, matching the published UC = 5.0%.",
+          "provenance": "Published result: LM4 Example 1, printed p. 207 (PDF p. 217), with documented percent-to-decimal conversion"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "ERm": 0.1,
+            "lam": -2,
+            "sig": 0.2
+          },
+          "reason": "Negative risk aversion contradicts the stated risk-averse penalty framing (guard lam >= 0); risk-seeking preferences need a different model."
+        },
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "ERm": 0.1,
+            "lam": 2
+          },
+          "reason": "Volatility is a required input; expected return and risk aversion alone cannot determine utility."
+        }
+      ],
+      "inverse_notes": "ERm = Um + 0.5·lam·sig² always; lam = 2·(ERm − Um)/sig² requires sig ≠ 0 (if sig = 0 then Um = ERm and lam is undetermined); sig = sqrt(2·(ERm − Um)/lam) requires lam > 0 and ERm ≥ Um. Substitution check: Um=0.06, lam=2, sig=0.2 recovers ERm=0.10. Algebraic only; risk aversion is estimated, not caused, by inversion.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings expected_portfolio_return, risk_aversion_coefficient, return_volatility, mean_variance_utility are not in the runtime vocabulary snapshot and require extension.",
+          "No existing catalog record duplicates this relationship; catalog-inventory checked 2026-11-04 (building-energy only)."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "deferred": [
+    {
+      "title": "Black–Litterman posterior expected returns (full mathematics)",
+      "reason": "Discovered in LM4 (printed pp. 219–220, PDF pp. 229–230) but requires matrix operators beyond the scalar format; deferring with exact source rather than approximating.",
+      "source_urls": [
+        "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/capital-market-expectations-part-ii"
+      ]
+    },
+    {
+      "title": "Multi-period integrated asset–liability optimization programs",
+      "reason": "LM4 notes multi-period models (Mulvey, Pauling, Madey 2003) are more comprehensive but need intertemporal chaining beyond one scalar record; deferring.",
+      "source_urls": []
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b01: 4 records (Grinold-Kroner, RE long-run cap-rate, RE finite-horizon cap-rate-change, mean-variance utility decimal) each with PDF locator plus directly inspected accessible corroboration. Two published-oracle references where the PDF gives worked numbers (utility, both RE records); constructed arithmetic checks elsewhere.",
+    "gaps": [
+      "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+      "Next candidates queued: Singer-Terhaar Eqs 2–6, building-block fixed-income sum, CAPM beta identity (Eq 3), net-exports identity, surplus/funding-ratio definitions, 120-age and 1/N heuristics, risk-parity equal-contribution condition, ARCH(1) variance Eq 17, shrinkage weighted-average VCV."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity — verified locators and corroboration pages by direct inspection 2026-11-04."
+  }
+}

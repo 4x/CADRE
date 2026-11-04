@@ -1,0 +1,154 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b60",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. Updates the pension source in b33: the previously accessible IAS 19 PDF now redirects to a subscription page; an inspected issuer filing corroborates the same deficit calculation. No asset-ceiling generalization is inferred from the filing."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--defined-benefit-plan-deficit",
+      "revision": "r3",
+      "title": "Defined benefit plan deficit or surplus",
+      "summary": "The example subtracts plan asset fair value from the present value of the defined benefit obligation.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "deficit",
+        "expression": "obligation - assets",
+        "original_equation": "Defined benefit deficit = present value of obligation - fair value of plan assets",
+        "source_id": "cameco-pension-disclosure-2022",
+        "locator": "Notes to consolidated financial statements, significant accounting policies, employee benefits, defined benefit pension plans",
+        "translation_notes": "Positive deficit is underfunding; a negative value is surplus. Values can be scaled consistently."
+      },
+      "variables": [
+        {
+          "symbol": "obligation",
+          "source_symbol": "present value of defined benefit obligation",
+          "role": "input",
+          "quantity_id": "defined_benefit_obligation_present_value",
+          "definition": "present value of defined benefit obligation",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "assets",
+          "source_symbol": "fair value of plan assets",
+          "role": "input",
+          "quantity_id": "defined_benefit_plan_assets_fair_value",
+          "definition": "fair value of plan assets",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "deficit",
+          "source_symbol": "defined benefit plan deficit",
+          "role": "output",
+          "quantity_id": "defined_benefit_plan_deficit",
+          "definition": "defined benefit plan deficit",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "obligation >= 0",
+        "assets >= 0"
+      ],
+      "assumptions": [
+        "The obligation and eligible plan assets are measured at the same reporting date for the same plan.",
+        "Inputs follow the applicable accounting definitions and are stated in the same currency."
+      ],
+      "limitations": [
+        "A negative output denotes a surplus before application of any asset ceiling, not necessarily the recognized net pension asset.",
+        "Reimbursement rights that do not qualify as plan assets are excluded."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 8, Introduction to Pensions and Other Post-Employment Benefits, printed pp477–479 (PDF pp491–493), Example 14 solution 3",
+          "evidence": "The example subtracts plan asset fair value from the present value of the defined benefit obligation.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cameco-pension-disclosure-2022",
+          "kind": "primary",
+          "title": "Cameco Corporation 2022 Annual Report",
+          "url": "https://www.sec.gov/Archives/edgar/data/1009001/000119312523093404/d495249dex991.pdf",
+          "version": "Cameco Corporation, 2022 annual report filed 2023",
+          "accessed": "2026-11-03",
+          "locator": "Notes to consolidated financial statements, significant accounting policies, employee benefits, defined benefit pension plans",
+          "evidence": "The issuer calculates the defined benefit pension liability from the present value of its obligation less the fair value of plan assets.",
+          "license": "Issuer filing; copyright and permissions not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "deficit",
+          "inputs": {
+            "obligation": 57327,
+            "assets": 50956
+          },
+          "expected": 6371,
+          "tolerance": 1e-09,
+          "method": "The obligation of 57,327 less assets of 50,956 yields a 6,371 deficit in consistent units.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "surplus",
+          "inputs": {
+            "obligation": 100,
+            "assets": 120
+          },
+          "expected": -20,
+          "tolerance": 1e-09,
+          "method": "Plan assets of 120 exceed an obligation of 100 by 20.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "assets": 50956
+          },
+          "reason": "obligation is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "obligation=deficit+assets; assets=obligation-deficit.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

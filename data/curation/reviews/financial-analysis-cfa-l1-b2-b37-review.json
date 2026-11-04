@@ -1,0 +1,141 @@
+{
+  "schema_version": "cm-scientific-review/1",
+  "batch_id": "financial-analysis-cfa-l1-b2-b37",
+  "batch_sha256": "95883de60c0e60ef48a303559582408225ede91aa3ad67f4c6d611ccb4ecf037",
+  "reviewer": "ingest-circuits",
+  "reviewed": "2026-11-04",
+  "models": [
+    {
+      "id": "financial-analysis--exports-share-of-total-trade",
+      "revision": "r1",
+      "record_sha256": "5968a321d0caf84c2efdae731b654a60569ae6d392a1b9327a9bcbf3720e2233",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Downloaded the curator-cited DBF deck on 2026-11-04 (HTTP 200): deck identity and ML section verified; slide equations rendered (boundary stated). The share formula is definitional arithmetic in the verified ML-weight context. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is one period/currency with consistent trade valuation (assumptions). Limitations exclude re-export double-counting. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "exports [USD] / (exports+imports) [USD] closes to dimensionless [1], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: owner (400000000,600000000) -> 0.4 exact; balanced (100,100) -> 0.5 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards exports/imports>=0 and positive total hold on both references (evaluated). Missing-exports rejection leaves the expression unevaluable as stated. Inverse notes give exports from share and total."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. DBF deck: curator records terms uninspected; accurate. Used for equation-level facts only; no clearance asserted."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://cursosfinanzasdbf.com/wp-content/uploads/2022/02/Currency-Exchange-Rates.pdf",
+          "locator": "Elasticities Approach / Generalized Marshall-Lerner section",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200 (PDF downloaded). CFA-prep deck identity and elasticities-approach/ML section verified via text extraction. The share formula itself is definitional part-over-total arithmetic consistent with the ML-weight context; slide equations are rendered, stated here."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the export share exports/(exports+imports) for one period and currency; not with re-exports double-counted, and not as an elasticity."
+    },
+    {
+      "id": "financial-analysis--weighted-marshall-lerner-trade-response-score",
+      "revision": "r1",
+      "record_sha256": "c7e007047f12bef658a4ff0a4778376c55f195e1472fd79563e19f1627616243",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Downloaded the curator-cited Brookings paper on 2026-11-04 (HTTP 200): equation (7) verified verbatim with the ML-condition naming. Record math matches structurally; the weight-normalization difference (GDP shares in paper vs trade shares in record, sign preserved) is disclosed in limitations. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is magnitude elasticities with trade-share weights (assumptions). Limitations disclose the normalization difference and exclude empirical forecasting. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "All inputs/outputs dimensionless [1]; weighted combination closes to [1], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: owner-example (0.4,0.75,0.65) -> 0.09 exact; owner-negative (0.53,0.3,0.6) -> -0.029 exact (0.53*0.3+0.47*(-0.4)=-0.029); tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guards 0<=weight<=1 and nonnegative elasticities hold on both references (evaluated). Missing-weight rejection leaves the expression unevaluable as stated. Inverse notes give weight from score and elasticities."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. Brookings paper: curator records terms uninspected; accurate. Used for equation-level facts only; no clearance asserted."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.brookings.edu/wp-content/uploads/1985/06/1985b_bpea_obstfeld_cooper_krugman.pdf",
+          "locator": "Equation (7): generalized Marshall-Lerner-Hirschman condition",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200 (PDF downloaded, 1985 BPEA paper). Equation (7) verified verbatim via text extraction: response = XX*EX + XM*(EM-1) with export/import shares and demand elasticities, named as the Marshall-Lerner-Hirschman condition. Record implements the same structure with trade-share weights; the GDP-vs-trade normalization difference is disclosed in record limitations."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the trade-weighted score w*Ex+(1-w)*(Em-1) with magnitude elasticities; not as the GDP-normalized paper form without conversion, and not as an empirical trade forecast."
+    },
+    {
+      "id": "financial-analysis--revenue-small-price-change-elasticity-approximation",
+      "revision": "r1",
+      "record_sha256": "6517f818fe595799742f8840b1ed57e769a7690ef698b178bcd3b1bae2bf7827",
+      "checks": {
+        "source-fidelity": {
+          "status": "passed",
+          "evidence": "Curator-cited NYU notes_demand.pdf returned HTTP 404 (dead link, recorded). Accessed U51 and U71 on 2026-11-04 (HTTP 200): elasticity ratio and R=P*Q verified. Record math follows by first-order calculus dR/R=dP/P+dQ/Q with dQ/Q=-|e|*dP/P; derivation shown here. Owner CFA excerpt not inspectable per track protocol."
+        },
+        "scope": {
+          "status": "passed",
+          "evidence": "Scenario is small price changes with magnitude elasticity and fixed determinants (assumptions); signed-vs-magnitude convention disclosed. Limitations exclude finite-change use and predictive/trading readings. Bounded."
+        },
+        "dimensions": {
+          "status": "passed",
+          "evidence": "(1-elasticity) [1] x price_change [1] closes to dimensionless [1], matching output. Independent declared-dimension propagation confirms closure."
+        },
+        "reference-independence": {
+          "status": "passed",
+          "evidence": "Independent plain-Python recompute: inelastic (0.6,0.1) -> 0.04 exact; elastic (1.5,0.02) -> -0.01 exact; tol 1e-09. Both curator-constructed checks honestly labeled with no empirical claim."
+        },
+        "guards-inverses": {
+          "status": "passed",
+          "evidence": "Guard elasticity>=0 holds on both references (evaluated). Missing-elasticity rejection leaves the expression unevaluable as stated. Inverse note gives price_change with elasticity!=1 condition."
+        },
+        "rights-provenance": {
+          "status": "passed",
+          "evidence": "CFA excerpt recorded as purchased owner copy, personal-use, no redistribution. Curator NYU primary records terms unestablished; accurate (link now dead). My alternates (OpenStax, CC BY-NC-SA footer verified 2026-11-04) used for equation-level facts only; no clearance asserted."
+        }
+      },
+      "sources": [
+        {
+          "url": "https://openstax.org/books/principles-economics-3e/pages/5-1-price-elasticity-of-demand-and-price-elasticity-of-supply",
+          "locator": "Elasticity definition: %dQ/%dP ratio",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Page defines elasticity as the quantity-change over price-change ratio. Combined with R=P*Q (U71), the record formula follows by first-order calculus: dR/R=dP/P+dQ/Q=(1-|e|)*dP/P. The curator-cited NYU notes URL returned HTTP 404 (dead link, recorded); this derivation from two accessed sources is my evidence."
+        },
+        {
+          "url": "https://openstax.org/books/principles-economics-3e/pages/7-1-explicit-and-implicit-costs-and-accounting-and-economic-profit",
+          "locator": "Opening total-revenue definition R=P*Q",
+          "accessed": "2026-11-04",
+          "finding": "HTTP 200. Page defines total revenue as price times quantity. With the U51 elasticity definition, dR/R=(1-|e|)*dP/P follows by the product rule to first order. Cited NYU URL is dead (404); derivation from accessed sources."
+        }
+      ],
+      "blockers": [],
+      "recommendation": "recommend-admit",
+      "permitted_use": "Use only as the first-order revenue response (1-elasticity)*price_change for small changes with magnitude elasticity; not for finite changes (interaction term omitted), and not as a prediction or trading recommendation."
+    }
+  ]
+}

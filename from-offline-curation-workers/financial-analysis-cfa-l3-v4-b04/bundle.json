@@ -1,0 +1,617 @@
+{
+ "batch_id": "financial-analysis-cfa-l3-v4-b04",
+ "created": "2026-11-04",
+ "curator": "buffy",
+ "deferred": [],
+ "domain": "financial-analysis",
+ "example_only": false,
+ "handoff": {
+  "summary": "Batch b04 (L3V4): 4 records (domestic-currency return, futures invoice amount, risk-free-asset currency risk, two-asset domestic variance) each with PDF locator and directly inspected accessible corroboration.",
+  "gaps": [
+   "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+   "Queue: LM2 currency-swap/forward oracles (Example 7), Fed funds inference, LM4/LM5 survey."
+  ],
+  "connections": [],
+  "queries": [],
+  "review_notes": "Validation and packing to be run after writing; verified locators and corroboration pages by direct inspection 2026-11-04."
+ },
+ "kit_version": "2026-10-31.9",
+ "schema_version": "cm-curation-batch/1",
+ "models": [
+  {
+   "id": "financial-analysis--domestic-currency-return",
+   "revision": "r1",
+   "title": "Domestic-currency return on a foreign asset",
+   "summary": "Domestic-currency return as the compounded product of the foreign-currency asset return and the exchange-rate move, minus one.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "d",
+    "expression": "(1+f)*(1+x)-1",
+    "original_equation": "RDC = (1 + RFC)(1 + RFX) - 1 (Eq1)",
+    "source_id": "analystprep-currency-risk-return",
+    "locator": "PDF: LM3 return decomposition Eq1, printed p. 149 (PDF p. 157): (1.10)(1.05)-1 = 15.5% (USD bond for eurozone investor); Nguyen example, printed pp. 196-197 (PDF pp. 204-205): (1.04)(1.05)-1 = 9.2% (Australia), (1.06)(1.05)-1 = 11.3% (New Zealand)",
+    "translation_notes": "Decimals. RFX uses the domestic currency as price currency (direct quote)."
+   },
+   "variables": [
+    {
+     "symbol": "f",
+     "source_symbol": "RFC",
+     "role": "input",
+     "quantity_id": "foreign_currency_return",
+     "definition": "Foreign-currency asset return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one foreign asset and period",
+     "domain": "Greater than -1"
+    },
+    {
+     "symbol": "x",
+     "source_symbol": "RFX",
+     "role": "input",
+     "quantity_id": "exchange_rate_move",
+     "definition": "Appreciation of foreign currency against domestic, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same asset and period",
+     "domain": "Greater than -1"
+    },
+    {
+     "symbol": "d",
+     "source_symbol": "RDC",
+     "role": "output",
+     "quantity_id": "domestic_currency_return",
+     "definition": "Domestic-currency return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same asset and period",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "RFX measured with domestic as price currency; single period."
+   ],
+   "limitations": [
+    "Single asset only; portfolios weight individual RDC values."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-rdc-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM3 return decomposition Eq1, printed p. 149 (PDF p. 157): (1.10)(1.05)-1 = 15.5% (USD bond for eurozone investor); Nguyen example, printed pp. 196-197 (PDF pp. 204-205): (1.04)(1.05)-1 = 9.2% (Australia), (1.06)(1.05)-1 = 11.3% (New Zealand)",
+     "evidence": "Eq1 with the 15.5% text example and the Nguyen 9.2%/11.3% computations.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-currency-risk-return",
+     "kind": "primary",
+     "title": "https://analystprep.com/study-notes/cfa-level-iii/currency-movement-on-portfolio-risk-and-return-2/",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/currency-movement-on-portfolio-risk-and-return-2/",
+     "version": "Study notes, 12 Aug 2024",
+     "accessed": "2026-11-04",
+     "locator": "Total return on domestic currency = (1+R_FC)x(1+R_FX)-1 with worked oracle (0.98614x0.98473)-1 = -2.892%; variance decomposition s2(R_DC) = s2(R_FC)+s2(R_FX)+2s(R_FC)s(R_FX)rho stated explicitly.",
+     "evidence": "Page states the same return-decomposition and variance-decomposition formulas with an independent worked oracle.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-eurozone-bond-oracle",
+     "inputs": {
+      "f": 0.1,
+      "x": 0.05
+     },
+     "expected": 0.155,
+     "tolerance": 1e-09,
+     "method": "(1.10)(1.05)-1 = 0.155.",
+     "provenance": "Published result: LM3 text, printed p. 149 (PDF p. 157)"
+    },
+    {
+     "id": "published-nguyen-australia-oracle",
+     "inputs": {
+      "f": 0.04,
+      "x": 0.05
+     },
+     "expected": 0.092,
+     "tolerance": 1e-09,
+     "method": "(1.04)(1.05)-1 = 0.092.",
+     "provenance": "Published result: LM3 Nguyen example, printed p. 196 (PDF p. 204)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "f": 0.1
+     },
+     "reason": "Both legs are structurally required; compounding a single leg is not a domestic return."
+    }
+   ],
+   "inverse_notes": "No single-input inverse without fixing the other leg. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings foreign return, FX move, and domestic return are not in the runtime vocabulary snapshot and require extension.",
+     "Eurozone/Canadian investor pair (-2.53%/+2.19%) and NZ leg (11.3%) are supporting oracles of the same form; weighted-average portfolio form (RDC = 10.3%) is qualitative here, Eq2 deferred (single 15.4% oracle)."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--futures-principal-invoice",
+   "revision": "r1",
+   "title": "Bond futures principal invoice amount",
+   "summary": "Cash due on bond-futures delivery as settlement price over 100 times conversion factor times contract size.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "a",
+    "expression": "(s/100)*c*z",
+    "original_equation": "Principal invoice amount = (Futures settlement price/100) x CF x $100,000 (Eq2)",
+    "source_id": "analystprep-ir-risk-derivatives",
+    "locator": "PDF: LM2 principal invoice amount Eq2, printed p. 91 (PDF p. 99), Example 4: Bond A 143.47/100 x 0.8388 x $100,000 = $120,342.64; Bond B 143.47/100 x 0.8883 x $100,000 = $127,444.40",
+    "translation_notes": "Decimals. No accrued interest in the worked example (dirty price equals clean)."
+   },
+   "variables": [
+    {
+     "symbol": "s",
+     "source_symbol": "Futures settlement price",
+     "role": "input",
+     "quantity_id": "futures_settlement_price",
+     "definition": "Futures settlement price, in index points",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one deliverable bond",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "c",
+     "source_symbol": "CF",
+     "role": "input",
+     "quantity_id": "conversion_factor",
+     "definition": "Bond conversion factor, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same bond",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "z",
+     "source_symbol": "Contract size",
+     "role": "input",
+     "quantity_id": "futures_contract_size",
+     "definition": "Contract size, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same bond",
+     "domain": "Positive finite"
+    },
+    {
+     "symbol": "a",
+     "source_symbol": "Principal invoice amount",
+     "role": "output",
+     "quantity_id": "principal_invoice_amount",
+     "definition": "Cash received on delivery, in currency units",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same bond",
+     "domain": "Positive finite"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Physical delivery of the chosen bond; invoice in contract currency."
+   ],
+   "limitations": [
+    "Excludes accrued interest handling; cheapest-to-deliver choice is separate (delivery gain/loss comparison)."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-invoice-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM2 principal invoice amount Eq2, printed p. 91 (PDF p. 99), Example 4: Bond A 143.47/100 x 0.8388 x $100,000 = $120,342.64; Bond B 143.47/100 x 0.8883 x $100,000 = $127,444.40",
+     "evidence": "Eq2 with the Bond A ($120,342.64) and Bond B ($127,444.40) computations.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-ir-risk-derivatives",
+     "kind": "primary",
+     "title": "https://analystprep.com/study-notes/cfa-level-iii/controlled-interest-rate-risks-for-futures-and-forwards-2/",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/controlled-interest-rate-risks-for-futures-and-forwards-2/",
+     "version": "Study notes, 11 Aug 2024",
+     "accessed": "2026-11-04",
+     "locator": "Principal invoice amount = (futures settlement price/100) x CF x contract size; basis = spot less futures times conversion factor.",
+     "evidence": "Page states the same invoice-amount formula corroborating the delivery record.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-bond-a-invoice-oracle",
+     "inputs": {
+      "s": 143.47,
+      "c": 0.8388,
+      "z": 100000.0
+     },
+     "expected": 120342.64,
+     "tolerance": 0.01,
+     "method": "143.47/100 x 0.8388 x 100,000 = 120,342.636, reported as 120,342.64.",
+     "provenance": "Published result: LM2 Example 4, printed p. 91 (PDF p. 99)"
+    },
+    {
+     "id": "published-bond-b-invoice-oracle",
+     "inputs": {
+      "s": 143.47,
+      "c": 0.8883,
+      "z": 100000.0
+     },
+     "expected": 127444.4,
+     "tolerance": 0.01,
+     "method": "143.47/100 x 0.8883 x 100,000 = 127,444.401, reported as 127,444.40.",
+     "provenance": "Published result: LM2 Example 4, printed p. 91 (PDF p. 99)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "s": 143.47,
+      "c": 0.8388
+     },
+     "reason": "Contract size is structurally required; points times factor gives no cash amount."
+    }
+   ],
+   "inverse_notes": "No single-input inverse without fixing the other two. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings settlement price, conversion factor, contract size, and invoice amount are not in the runtime vocabulary snapshot and require extension.",
+     "Delivery gain/loss (-$407.36/-$1,055.60) compares invoice to purchase value; CTD selection rule is qualitative."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--riskfree-asset-currency-risk",
+   "revision": "r1",
+   "title": "Domestic-currency risk of a risk-free foreign asset",
+   "summary": "When the foreign asset is risk-free, domestic-currency return risk is the gross foreign return scaling the exchange-rate volatility.",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "v",
+    "expression": "(1+r)*s",
+    "original_equation": "sigma(RDC) = (1 + RFC) x sigma(RFX) for sigma(RFC) = 0 (Nguyen results A/B)",
+    "source_id": "analystprep-currency-risk-return",
+    "locator": "PDF: LM3 Nguyen example results A/B, printed pp. 196-197 (PDF pp. 204-205): with risk-free foreign assets, expected domestic-currency risk is (1.04) x 8% = 8.3% (Australia) and (1.06) x 10% = 10.6% (New Zealand)",
+    "translation_notes": "Decimals. Exact (not approximate) because the asset leg has zero variance. Specialization of Eq5 with sigma(RFC) = 0."
+   },
+   "variables": [
+    {
+     "symbol": "r",
+     "source_symbol": "RFC",
+     "role": "input",
+     "quantity_id": "foreign_currency_return",
+     "definition": "Known foreign-currency asset return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one risk-free foreign asset",
+     "domain": "Greater than -1"
+    },
+    {
+     "symbol": "s",
+     "source_symbol": "sigma(RFX)",
+     "role": "input",
+     "quantity_id": "exchange_rate_volatility",
+     "definition": "Standard deviation of exchange-rate moves, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same asset",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "v",
+     "source_symbol": "sigma(RDC)",
+     "role": "output",
+     "quantity_id": "domestic_currency_risk",
+     "definition": "Standard deviation of domestic-currency return, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same asset",
+     "domain": "Non-negative finite"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Foreign-currency asset return known (risk-free); FX volatility estimated."
+   ],
+   "limitations": [
+    "Risk-free-asset case only; risky assets need the full variance decomposition (sibling record)."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-scaledrisk-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM3 Nguyen example results A/B, printed pp. 196-197 (PDF pp. 204-205): with risk-free foreign assets, expected domestic-currency risk is (1.04) x 8% = 8.3% (Australia) and (1.06) x 10% = 10.6% (New Zealand)",
+     "evidence": "Results A (8.3%) and B (10.6%) of the Nguyen example.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "analystprep-currency-risk-return",
+     "kind": "primary",
+     "title": "https://analystprep.com/study-notes/cfa-level-iii/currency-movement-on-portfolio-risk-and-return-2/",
+     "url": "https://analystprep.com/study-notes/cfa-level-iii/currency-movement-on-portfolio-risk-and-return-2/",
+     "version": "Study notes, 12 Aug 2024",
+     "accessed": "2026-11-04",
+     "locator": "Total return on domestic currency = (1+R_FC)x(1+R_FX)-1 with worked oracle (0.98614x0.98473)-1 = -2.892%; variance decomposition s2(R_DC) = s2(R_FC)+s2(R_FX)+2s(R_FC)s(R_FX)rho stated explicitly.",
+     "evidence": "Page states the same return-decomposition and variance-decomposition formulas with an independent worked oracle.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-australia-risk-oracle",
+     "inputs": {
+      "r": 0.04,
+      "s": 0.08
+     },
+     "expected": 0.083,
+     "tolerance": 0.001,
+     "method": "(1.04) x 8% = 8.32%, reported to one decimal as 8.3%.",
+     "provenance": "Published result: LM3 Nguyen result A, printed p. 197 (PDF p. 205)"
+    },
+    {
+     "id": "published-nz-risk-oracle",
+     "inputs": {
+      "r": 0.06,
+      "s": 0.1
+     },
+     "expected": 0.106,
+     "tolerance": 1e-09,
+     "method": "(1.06) x 10% = 10.6%.",
+     "provenance": "Published result: LM3 Nguyen result B, printed p. 197 (PDF p. 205)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "r": 0.04
+     },
+     "reason": "FX volatility is structurally required; scaling nothing gives no risk."
+    }
+   ],
+   "inverse_notes": "s = v/(1+r) requires r != -1. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings foreign return, FX volatility, and domestic risk are not in the runtime vocabulary snapshot and require extension."
+    ],
+    "duplicate_of": []
+   }
+  },
+  {
+   "id": "financial-analysis--two-asset-domestic-variance",
+   "revision": "r1",
+   "title": "Two-asset domestic-currency return variance",
+   "summary": "Variance of domestic-currency return for two foreign assets as weighted variances plus the correlation term (exact form for risk-free legs).",
+   "kind": "theoretical",
+   "relationship": {
+    "output_symbol": "p",
+    "expression": "w1*w1*v1+w2*w2*v2+2*w1*w2*s1*s2*r",
+    "original_equation": "s2(RDC) = w1^2 s2(R1) + w2^2 s2(R2) + 2 w1 w2 s(R1) s(R2) rho(R1,R2) (Eq4, risk-free-asset application)",
+    "source_id": "cfai-currency-management-rr",
+    "locator": "PDF: LM3 two-asset domestic variance Eq4, printed pp. 196-197 (PDF pp. 204-205), Nguyen example: equally weighted s2 = (0.5)2(8.3%)2+(0.5)2(10.6%)2+2(0.5)(0.5)(8.3%)(10.6%)(0.85) = 0.8%; long-short (w = -1/+1) s2 = 0.3%",
+    "translation_notes": "Decimals. Inputs s1/s2 are standard deviations; v1/v2 their squares as stated. Negative weights allowed (long-short)."
+   },
+   "variables": [
+    {
+     "symbol": "w1",
+     "source_symbol": "w1",
+     "role": "input",
+     "quantity_id": "first_asset_weight",
+     "definition": "Portfolio weight of the first foreign asset, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "one two-asset foreign portfolio",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "v1",
+     "source_symbol": "s2(R1)",
+     "role": "input",
+     "quantity_id": "first_asset_variance",
+     "definition": "Domestic-currency return variance of the first asset, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same portfolio",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "w2",
+     "source_symbol": "w2",
+     "role": "input",
+     "quantity_id": "second_asset_weight",
+     "definition": "Portfolio weight of the second foreign asset, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same portfolio",
+     "domain": "Finite signed"
+    },
+    {
+     "symbol": "v2",
+     "source_symbol": "s2(R2)",
+     "role": "input",
+     "quantity_id": "second_asset_variance",
+     "definition": "Domestic-currency return variance of the second asset, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same portfolio",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "s1",
+     "source_symbol": "s(R1)",
+     "role": "input",
+     "quantity_id": "first_asset_volatility",
+     "definition": "Domestic-currency return volatility of the first asset, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same portfolio",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "s2",
+     "source_symbol": "s(R2)",
+     "role": "input",
+     "quantity_id": "second_asset_volatility",
+     "definition": "Domestic-currency return volatility of the second asset, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same portfolio",
+     "domain": "Non-negative finite"
+    },
+    {
+     "symbol": "r",
+     "source_symbol": "rho",
+     "role": "input",
+     "quantity_id": "return_correlation",
+     "definition": "Correlation between the two domestic-currency returns, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same portfolio",
+     "domain": "Closed interval -1 to 1"
+    },
+    {
+     "symbol": "p",
+     "source_symbol": "s2(RDC)",
+     "role": "output",
+     "quantity_id": "portfolio_domestic_variance",
+     "definition": "Portfolio domestic-currency return variance, decimal",
+     "unit": "1",
+     "dimensions": "dimensionless",
+     "context": "same portfolio",
+     "domain": "Finite signed"
+    }
+   ],
+   "constants": [],
+   "guards": [],
+   "assumptions": [
+    "Two foreign assets; weights sum to one in the funded case; inputs contemporaneous estimates."
+   ],
+   "limitations": [
+    "Two-asset closed form only; more assets need the full double sum."
+   ],
+   "unresolved": [],
+   "sources": [
+    {
+     "id": "cfa-l3-v4-eq4-pdf",
+     "kind": "project-derivation",
+     "title": "CFA Program Curriculum 2025 Level III Core Volume 4 - Derivatives and Risk Management",
+     "url": null,
+     "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+     "accessed": "2026-11-04",
+     "locator": "PDF: LM3 two-asset domestic variance Eq4, printed pp. 196-197 (PDF pp. 204-205), Nguyen example: equally weighted s2 = (0.5)2(8.3%)2+(0.5)2(10.6%)2+2(0.5)(0.5)(8.3%)(10.6%)(0.85) = 0.8%; long-short (w = -1/+1) s2 = 0.3%",
+     "evidence": "Eq4 with the equally weighted (0.8%) and long-short (0.3%) computations.",
+     "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+     "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+    },
+    {
+     "id": "cfai-currency-management-rr",
+     "kind": "primary",
+     "title": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/currency-management-introduction",
+     "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/currency-management-introduction",
+     "version": "Refresher reading summary, 2026",
+     "accessed": "2026-11-04",
+     "locator": "Domestic-currency return components are multiplicative; multi-asset portfolio return is the weighted average of individual domestic-currency returns; domestic-currency risk approximated by a variance formula over asset and exchange-rate variances and correlations.",
+     "evidence": "CFA Institute states the same multiplicative decomposition, weighting, and variance structure corroborating the Eq1/Eq4 records.",
+     "license": "Terms page not located (unknown); accessed 2026-11-04",
+     "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+    }
+   ],
+   "references": [
+    {
+     "id": "published-equal-weight-variance-oracle",
+     "inputs": {
+      "w1": 0.5,
+      "v1": 0.006889,
+      "w2": 0.5,
+      "v2": 0.011236,
+      "s1": 0.083,
+      "s2": 0.106,
+      "r": 0.85
+     },
+     "expected": 0.008,
+     "tolerance": 0.0005,
+     "method": "0.25x0.006889+0.25x0.011236+2x0.25x0.083x0.106x0.85 = 0.0082704, reported as 0.8%.",
+     "provenance": "Published result: LM3 Nguyen example, printed p. 197 (PDF p. 205)"
+    },
+    {
+     "id": "published-longshort-variance-oracle",
+     "inputs": {
+      "w1": -1.0,
+      "v1": 0.006889,
+      "w2": 1.0,
+      "v2": 0.011236,
+      "s1": 0.083,
+      "s2": 0.106,
+      "r": 0.85
+     },
+     "expected": 0.003,
+     "tolerance": 0.0005,
+     "method": "0.006889+0.011236-2x0.083x0.106x0.85 = 0.0031684, reported as 0.3%.",
+     "provenance": "Published result: LM3 Nguyen example, printed p. 197 (PDF p. 205)"
+    }
+   ],
+   "rejection_cases": [
+    {
+     "kind": "missing-input",
+     "inputs": {
+      "w1": 0.5,
+      "v1": 0.006889,
+      "w2": 0.5,
+      "v2": 0.011236,
+      "s1": 0.083,
+      "s2": 0.106
+     },
+     "reason": "Correlation is structurally required; without co-movement there is no portfolio variance."
+    }
+   ],
+   "inverse_notes": "No single-input inverse without fixing the other six. Algebraic only.",
+   "integration": {
+    "status": "requires-extension",
+    "runtime_model": null,
+    "gaps": [
+     "Quantity meanings weights, variances, volatilities, correlation, and portfolio variance are not in the runtime vocabulary snapshot and require extension.",
+     "Single-asset Eq5 (0.0019) is the one-asset special case (single oracle, deferred); square roots 9.1%/5.6% chain off rounded 0.8%/0.3% and are deferred."
+    ],
+    "duplicate_of": []
+   }
+  }
+ ]
+}

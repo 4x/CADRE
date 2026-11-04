@@ -1,0 +1,295 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b29",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [
+    {
+      "title": "IFRS recoverable amount and impairment loss",
+      "reason": "Learning Module 6 printed pp362–364/PDF pp376–378: recoverable amount is max(fair value less disposal costs, value in use); loss applies only when carrying amount exceeds recoverable amount. Full relationship requires max and conditional operators unsupported by the engine. Public IAS 36 overview: https://www.ifrs.org/issued-standards/list-of-standards/ias-36-impairment-of-assets/",
+      "source_urls": []
+    },
+    {
+      "title": "IFRS impairment reversal cap",
+      "reason": "Learning Module 6 printed p365/PDF p379: reversal is limited by the carrying amount that would have existed absent impairment; general calculation requires a minimum and conditional operator. Public IAS 36 overview: https://www.ifrs.org/issued-standards/list-of-standards/ias-36-impairment-of-assets/",
+      "source_urls": []
+    }
+  ],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--long-lived-asset-sale-gain-loss",
+      "revision": "r1",
+      "title": "Gain or loss on sale of a long-lived asset",
+      "summary": "The gain or loss on an asset sale is the proceeds less its carrying amount.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "gain",
+        "expression": "proceeds - carrying",
+        "original_equation": "Gain or loss = sales proceeds - carrying amount at sale",
+        "source_id": "openstax-asset-sale",
+        "locator": "Investing Activities Leading to an Increase in Cash",
+        "translation_notes": "Positive output is a gain and negative output is a loss."
+      },
+      "variables": [
+        {
+          "symbol": "proceeds",
+          "source_symbol": "sales proceeds",
+          "role": "input",
+          "quantity_id": "asset_sale_proceeds",
+          "definition": "sales proceeds",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "carrying",
+          "source_symbol": "carrying amount at sale",
+          "role": "input",
+          "quantity_id": "asset_carrying_amount",
+          "definition": "carrying amount at sale",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "gain",
+          "source_symbol": "gain or loss",
+          "role": "output",
+          "quantity_id": "long_lived_asset_sale_gain_loss",
+          "definition": "gain or loss",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "proceeds >= 0",
+        "carrying >= 0"
+      ],
+      "assumptions": [
+        "Proceeds and carrying amount refer to the same asset, transaction date and currency.",
+        "The proceeds measure is consistent with the specified treatment of transaction costs."
+      ],
+      "limitations": [
+        "A gain or loss is not the same as total cash received.",
+        "Taxes, noncash consideration and transaction costs may require separate accounting."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 6, Derecognition, printed p366 (PDF p380), Example 15",
+          "evidence": "The gain or loss on an asset sale is the proceeds less its carrying amount.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-asset-sale",
+          "kind": "primary",
+          "title": "Prepare the Statement of Cash Flows Using the Indirect Method",
+          "url": "https://openstax.org/books/principles-financial-accounting/pages/16-3-prepare-the-statement-of-cash-flows-using-the-indirect-method",
+          "version": "OpenStax Principles of Accounting Volume 1, section 16.3, 2019",
+          "accessed": "2026-11-03",
+          "locator": "Investing Activities Leading to an Increase in Cash",
+          "evidence": "The source subtracts asset book value from cash proceeds to determine a gain or loss.",
+          "license": "OpenStax terms include noncommercial and AI-use restrictions; factual formula and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-gain",
+          "inputs": {
+            "proceeds": 3100000,
+            "carrying": 1900000
+          },
+          "expected": 1200000,
+          "tolerance": 1e-09,
+          "method": "3.1 million proceeds less 1.9 million carrying amount give a 1.2 million gain.",
+          "provenance": "CFA Example 15, printed p366/PDF p380."
+        },
+        {
+          "id": "loss",
+          "inputs": {
+            "proceeds": 80000,
+            "carrying": 100000
+          },
+          "expected": -20000,
+          "tolerance": 1e-09,
+          "method": "80000 proceeds less 100000 carrying amount give a 20000 loss.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "carrying": 1900000
+          },
+          "reason": "proceeds is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "proceeds=gain+carrying; carrying=proceeds-gain.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--fair-value-less-disposal-costs",
+      "revision": "r1",
+      "title": "Fair value less costs of disposal",
+      "summary": "Fair value less costs of disposal subtracts estimated disposal costs from fair value.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "net",
+        "expression": "fair - costs",
+        "original_equation": "Fair value less costs of disposal = fair value - disposal costs",
+        "source_id": "ifrs-ias36",
+        "locator": "About: fair value less costs to sell",
+        "translation_notes": "The calculation preserves the source-defined net-of-disposal-cost measure."
+      },
+      "variables": [
+        {
+          "symbol": "fair",
+          "source_symbol": "asset fair value",
+          "role": "input",
+          "quantity_id": "asset_fair_value",
+          "definition": "asset fair value",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "costs",
+          "source_symbol": "costs of disposal",
+          "role": "input",
+          "quantity_id": "asset_disposal_costs",
+          "definition": "costs of disposal",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "net",
+          "source_symbol": "fair value less costs of disposal",
+          "role": "output",
+          "quantity_id": "asset_fair_value_less_disposal_costs",
+          "definition": "fair value less costs of disposal",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "costs >= 0"
+      ],
+      "assumptions": [
+        "Fair value and disposal costs refer to the same asset or cash-generating unit, date and currency."
+      ],
+      "limitations": [
+        "This quantity is one input to recoverable amount; the higher-of test is not implemented here.",
+        "Actual proceeds and fair value are different quantities."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 6, Impairment of Assets, printed pp362–363 (PDF pp376–377), Example 13",
+          "evidence": "Fair value less costs of disposal subtracts estimated disposal costs from fair value.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ifrs-ias36",
+          "kind": "primary",
+          "title": "IAS 36 Impairment of Assets",
+          "url": "https://www.ifrs.org/issued-standards/list-of-standards/ias-36-impairment-of-assets/",
+          "version": "IFRS Foundation, IAS 36 public overview, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "About: fair value less costs to sell",
+          "evidence": "The overview defines fair value less costs to sell as a sale amount net of costs of disposal.",
+          "license": "IFRS Foundation terms unknown; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "source-example",
+          "inputs": {
+            "fair": 17000,
+            "costs": 2000
+          },
+          "expected": 15000,
+          "tolerance": 1e-09,
+          "method": "17000 less 2000 gives 15000; same arithmetic as the CFA pound-denominated example.",
+          "provenance": "CFA Example 13 printed p363/PDF p377, using currency-neutral illustrative USD."
+        },
+        {
+          "id": "second",
+          "inputs": {
+            "fair": 10000,
+            "costs": 500
+          },
+          "expected": 9500,
+          "tolerance": 1e-09,
+          "method": "10000 less 500 gives 9500.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "costs": 2000
+          },
+          "reason": "fair is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "fair=net+costs; costs=fair-net.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

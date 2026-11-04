@@ -1,0 +1,138 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b40",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 2 relationships with owner-PDF provenance and inspected public corroboration.",
+    "gaps": [
+      "Finance quantities and scientific fidelity require independent registry review.",
+      "Deduplication uses the available inventory and own prior returns, not a global registry."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The owner PDF is project-derivation with a null URL; public evidence carries each relationship."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--forward-implied-expected-spot-rate-no-risk-premium",
+      "revision": "r1",
+      "title": "Forward-implied expected future spot rate under speculative efficiency",
+      "summary": "The owner introduces the equality conditionally when forward rates are interpreted as expected future spot rates.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "expected_spot",
+        "expression": "forward_rate",
+        "original_equation": "Expected future spot rate = current forward rate",
+        "source_id": "bis-forward-bias-survey",
+        "locator": "Printed p32, exchange-rate fundamentals",
+        "translation_notes": "Forward and output have the same price-currency-per-base-currency unit; the sample currency pair is a concrete unit profile."
+      },
+      "variables": [
+        {
+          "symbol": "forward_rate",
+          "source_symbol": "forward exchange rate",
+          "role": "input",
+          "quantity_id": "forward_foreign_exchange_rate",
+          "definition": "forward exchange rate",
+          "unit": "USD per EUR",
+          "dimensions": "currency/currency",
+          "context": "Same price currency, base currency, quotation convention, valuation time and forward settlement date",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "expected_spot",
+          "source_symbol": "model-implied expected future spot rate",
+          "role": "output",
+          "quantity_id": "expected_future_spot_exchange_rate",
+          "definition": "model-implied expected future spot rate",
+          "unit": "USD per EUR",
+          "dimensions": "currency/currency",
+          "context": "Same price currency, base currency, quotation convention, valuation time and forward settlement date",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "forward_rate > 0"
+      ],
+      "assumptions": [
+        "Speculative efficiency holds in this quote and the relevant horizon, including no exchange-risk premium or other forward-expectation wedge.",
+        "The forward and expected spot use the same price/base quotation and settlement date."
+      ],
+      "limitations": [
+        "This conditional model is not a no-arbitrage identity or a guaranteed forecast; the BIS survey reports empirical rejection of unbiasedness.",
+        "The expected inverse exchange rate is generally not the inverse of the expected rate, so preserve quotation direction under uncertainty."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 8, Forward Calculations, printed p500 (PDF p512), unnumbered forward-equals-expected-spot expression",
+          "evidence": "The owner introduces the equality conditionally when forward rates are interpreted as expected future spot rates.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bis-forward-bias-survey",
+          "kind": "primary",
+          "title": "Asset prices and macroeconomic outcomes: a survey",
+          "url": "https://www.bis.org/publ/work676.pdf",
+          "version": "Bank for International Settlements, Working Paper 676, 2017",
+          "accessed": "2026-11-04",
+          "locator": "Printed p32, exchange-rate fundamentals",
+          "evidence": "The survey identifies the speculative-efficiency hypothesis as equality of forward and expected spot rates without a risk premium, and reports contrary empirical evidence.",
+          "license": "BIS research paper; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "premium",
+          "inputs": {
+            "forward_rate": 1.2
+          },
+          "expected": 1.2,
+          "tolerance": 1e-09,
+          "method": "Under the model assumption a forward quote of 1.2 implies an expected future spot quote of 1.2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "discount",
+          "inputs": {
+            "forward_rate": 0.9
+          },
+          "expected": 0.9,
+          "tolerance": 1e-09,
+          "method": "Under the same assumption a forward quote of 0.9 implies an expected future spot quote of 0.9.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "forward_rate is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "forward_rate=expected_spot under the same model assumptions.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

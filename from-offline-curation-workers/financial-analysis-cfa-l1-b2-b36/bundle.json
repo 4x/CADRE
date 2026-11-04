@@ -1,0 +1,449 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b36",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "3 atomic Volume 2 relationships with owner-PDF provenance and inspected public corroboration.",
+    "gaps": [
+      "Finance quantities and scientific fidelity require independent registry review.",
+      "Deduplication uses the available inventory and own prior returns, not a global registry."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The owner PDF is project-derivation with a null URL; public evidence carries each relationship."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--fx-outright-forward-from-spot-and-scaled-points",
+      "revision": "r1",
+      "title": "Outright forward quote from spot and scaled swap points",
+      "summary": "The text adds the signed forward-point difference, after scaling, to the matching spot quote.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "forward",
+        "expression": "spot + points",
+        "original_equation": "Outright forward = spot rate + scaled forward-point difference",
+        "source_id": "ignou-foreign-exchange-unit5",
+        "locator": "Sections 5.6.2–5.6.3",
+        "translation_notes": "All three quantities are price-currency units per base-currency unit; no implicit pip scale is applied."
+      },
+      "variables": [
+        {
+          "symbol": "spot",
+          "source_symbol": "spot exchange rate",
+          "role": "input",
+          "quantity_id": "fx_spot_quote_price_per_base",
+          "definition": "spot exchange rate",
+          "unit": "price_currency_per_base_currency",
+          "dimensions": "price currency/base currency",
+          "context": "Same named currency pair, quote orientation, dealer side and stated value dates",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "points",
+          "source_symbol": "scaled forward-point difference",
+          "role": "input",
+          "quantity_id": "fx_forward_minus_spot_quote_difference",
+          "definition": "scaled forward-point difference",
+          "unit": "price_currency_per_base_currency",
+          "dimensions": "price currency/base currency",
+          "context": "Same named currency pair, quote orientation, dealer side and stated value dates",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "forward",
+          "source_symbol": "outright forward rate",
+          "role": "output",
+          "quantity_id": "fx_forward_quote_price_per_base",
+          "definition": "outright forward rate",
+          "unit": "price_currency_per_base_currency",
+          "dimensions": "price currency/base currency",
+          "context": "Same named currency pair, quote orientation, dealer side and stated value dates",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "spot > 0",
+        "spot + points > 0"
+      ],
+      "assumptions": [
+        "Spot and forward use the same currency pair, quote orientation and side.",
+        "The input difference is already expressed in quote units, not in unscaled pip counts."
+      ],
+      "limitations": [
+        "A convention-specific pip or point count must be converted before this calculation.",
+        "Forward premium or discount is not a guaranteed forecast of the future spot rate."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 8, Forward Calculations, printed pp497–501 (PDF pp509–513), unnumbered forward-point and covered-parity equations",
+          "evidence": "The text adds the signed forward-point difference, after scaling, to the matching spot quote.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ignou-foreign-exchange-unit5",
+          "kind": "primary",
+          "title": "Foreign Exchange, Unit 5",
+          "url": "https://www.egyankosh.ac.in/bitstream/123456789/6398/1/Unit-5.pdf",
+          "version": "Indira Gandhi National Open University educational unit, publication year not established",
+          "accessed": "2026-11-04",
+          "locator": "Sections 5.6.2–5.6.3",
+          "evidence": "The text adds scaled swap points to spot quotations and describes forward premium or discount relative to spot.",
+          "license": "University educational material; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner",
+          "inputs": {
+            "spot": 1.15885,
+            "points": 0.00809
+          },
+          "expected": 1.16694,
+          "tolerance": 1e-09,
+          "method": "The 1.15885 spot quote plus a scaled 0.00809 difference gives 1.16694.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "discount",
+          "inputs": {
+            "spot": 1.2,
+            "points": -0.01
+          },
+          "expected": 1.19,
+          "tolerance": 1e-09,
+          "method": "A negative 0.01 scaled point difference reduces 1.2 spot to 1.19 forward.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "points": 0.00809
+          },
+          "reason": "spot is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "points=forward-spot.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--fx-forward-premium-over-spot",
+      "revision": "r1",
+      "title": "Forward premium or discount over spot",
+      "summary": "The text divides the forward quote by the spot quote and subtracts one to obtain the unannualized premium or discount.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "premium",
+        "expression": "forward / spot - 1",
+        "original_equation": "Forward premium = forward quote / spot quote − 1",
+        "source_id": "ignou-foreign-exchange-unit5",
+        "locator": "Sections 5.6.2–5.6.3",
+        "translation_notes": "The quote-unit dimensions cancel and the signed premium is a base-one fraction."
+      },
+      "variables": [
+        {
+          "symbol": "forward",
+          "source_symbol": "outright forward rate",
+          "role": "input",
+          "quantity_id": "fx_forward_quote_price_per_base",
+          "definition": "outright forward rate",
+          "unit": "price_currency_per_base_currency",
+          "dimensions": "price currency/base currency",
+          "context": "Same named currency pair, quote orientation, dealer side and stated value dates",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "spot",
+          "source_symbol": "spot exchange rate",
+          "role": "input",
+          "quantity_id": "fx_spot_quote_price_per_base",
+          "definition": "spot exchange rate",
+          "unit": "price_currency_per_base_currency",
+          "dimensions": "price currency/base currency",
+          "context": "Same named currency pair, quote orientation, dealer side and stated value dates",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "premium",
+          "source_symbol": "unannualized forward premium",
+          "role": "output",
+          "quantity_id": "fx_unannualized_forward_premium",
+          "definition": "Signed relative difference between the forward and spot quotes",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "spot > 0",
+        "forward > 0"
+      ],
+      "assumptions": [
+        "Spot and forward refer to the same currency pair, quotation orientation and compatible quote side.",
+        "Both exchange quotations are positive."
+      ],
+      "limitations": [
+        "The result covers the forward term and is not automatically annualized.",
+        "The premium on the inverse quotation has a different percentage magnitude."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 8, Forward Calculations, printed pp497–501 (PDF pp509–513), unnumbered forward-point and covered-parity equations",
+          "evidence": "The text divides the forward quote by the spot quote and subtracts one to obtain the unannualized premium or discount.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ignou-foreign-exchange-unit5",
+          "kind": "primary",
+          "title": "Foreign Exchange, Unit 5",
+          "url": "https://www.egyankosh.ac.in/bitstream/123456789/6398/1/Unit-5.pdf",
+          "version": "Indira Gandhi National Open University educational unit, publication year not established",
+          "accessed": "2026-11-04",
+          "locator": "Sections 5.6.2–5.6.3",
+          "evidence": "The text adds scaled swap points to spot quotations and describes forward premium or discount relative to spot.",
+          "license": "University educational material; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner",
+          "inputs": {
+            "forward": 1.16694,
+            "spot": 1.15885
+          },
+          "expected": 0.006981058808301466,
+          "tolerance": 1e-09,
+          "method": "1.16694/1.15885 minus one is approximately 0.698%.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "discount",
+          "inputs": {
+            "forward": 0.99,
+            "spot": 1
+          },
+          "expected": -0.01,
+          "tolerance": 1e-09,
+          "method": "A 0.99 forward quote against spot of one gives a 1% discount.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "spot": 1.15885
+          },
+          "reason": "forward is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "forward=spot*(1+premium).",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--fx-forward-covered-interest-parity-simple-accrual",
+      "revision": "r1",
+      "title": "Covered-interest-parity forward rate with simple accrual",
+      "summary": "The owner text computes the forward quote from spot and simple interest growth factors over the matched maturity.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "forward",
+        "expression": "spot * (1 + price_rate * fraction) / (1 + base_rate * fraction)",
+        "original_equation": "Forward A/B = spot A/B × (1 + A rate × year fraction) / (1 + B rate × year fraction)",
+        "source_id": "bis-covered-interest-parity-2017",
+        "locator": "Introduction and Section 2, covered interest parity equation",
+        "translation_notes": "A/B × dimensionless gross-factor ratio yields A/B. Year fraction is dimensionless and no fixed day-count conversion is embedded."
+      },
+      "variables": [
+        {
+          "symbol": "spot",
+          "source_symbol": "spot A per B rate",
+          "role": "input",
+          "quantity_id": "fx_spot_quote_price_per_base",
+          "definition": "spot A per B rate",
+          "unit": "price_currency_per_base_currency",
+          "dimensions": "price currency/base currency",
+          "context": "Same named currency pair, quote orientation, dealer side and stated value dates",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "price_rate",
+          "source_symbol": "annual simple rate in price currency A",
+          "role": "input",
+          "quantity_id": "fx_price_currency_annual_simple_rate",
+          "definition": "Annual simple money-market interest rate in the price currency",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "base_rate",
+          "source_symbol": "annual simple rate in base currency B",
+          "role": "input",
+          "quantity_id": "fx_base_currency_annual_simple_rate",
+          "definition": "Annual simple money-market interest rate in the base currency",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fraction",
+          "source_symbol": "year fraction",
+          "role": "input",
+          "quantity_id": "fx_forward_interest_year_fraction",
+          "definition": "Maturity expressed using the specified day-count convention",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "forward",
+          "source_symbol": "covered-parity forward A per B rate",
+          "role": "output",
+          "quantity_id": "fx_covered_parity_forward_quote_price_per_base",
+          "definition": "covered-parity forward A per B rate",
+          "unit": "price_currency_per_base_currency",
+          "dimensions": "price currency/base currency",
+          "context": "Same named currency pair, quote orientation, dealer side and stated value dates",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "spot > 0",
+        "fraction >= 0",
+        "1 + price_rate * fraction > 0",
+        "1 + base_rate * fraction > 0"
+      ],
+      "assumptions": [
+        "Interest rates, spot and forward share matching settlement dates, currency pair and term.",
+        "Annual simple rates use the same supplied year fraction and positive gross accrual factors.",
+        "The model assumes frictionless, matched credit and funding terms and zero cross-currency basis."
+      ],
+      "limitations": [
+        "Market forward quotations may differ because of bid-ask spreads, funding frictions, credit and cross-currency basis.",
+        "Simple accrual must not be substituted for compound growth over mismatched maturities."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 8, Forward Calculations, printed pp497–501 (PDF pp509–513), unnumbered forward-point and covered-parity equations",
+          "evidence": "The owner text computes the forward quote from spot and simple interest growth factors over the matched maturity.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "bis-covered-interest-parity-2017",
+          "kind": "primary",
+          "title": "Segmented Money Markets and Covered Interest Parity Arbitrage",
+          "url": "https://www.bis.org/publ/work651.pdf",
+          "version": "Rime, Schrimpf and Syrstad, BIS Working Paper 651, June 2017",
+          "accessed": "2026-11-04",
+          "locator": "Introduction and Section 2, covered interest parity equation",
+          "evidence": "The paper states the covered parity relation and discusses deviations arising from transaction and funding frictions.",
+          "license": "BIS states all rights reserved with brief excerpt permission subject to attribution; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner-30-days",
+          "inputs": {
+            "spot": 1.6555,
+            "price_rate": 0.03,
+            "base_rate": 0.02,
+            "fraction": 0.08333333333333333
+          },
+          "expected": 1.6568772878535771,
+          "tolerance": 1e-09,
+          "method": "The stated 30/360 year fraction gives approximately 1.6569.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "owner-one-year",
+          "inputs": {
+            "spot": 1.6535,
+            "price_rate": 0.05,
+            "base_rate": 0.035,
+            "fraction": 1
+          },
+          "expected": 1.677463768115942,
+          "tolerance": 1e-09,
+          "method": "The stated annual rates imply approximately 1.6775.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "price_rate": 0.03,
+            "base_rate": 0.02,
+            "fraction": 0.08333333333333333
+          },
+          "reason": "spot is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "spot=forward*(1+base_rate*fraction)/(1+price_rate*fraction).",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

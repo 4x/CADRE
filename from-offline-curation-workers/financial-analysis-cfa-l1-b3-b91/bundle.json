@@ -1,0 +1,145 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b91",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations. 1 owner-only fallback record(s), with documented searches; other records use inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; public corroboration carries the relationship when available, and documented owner-only fallbacks remain blocked for review. Supersedes b89 and b90; b90 handoff incorrectly claimed public corroboration despite the documented owner-only fallback. The record retains the denominator conflict and requires independent source review."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--lifo-reserve-to-reported-inventory",
+      "revision": "r3",
+      "title": "LIFO reserve relative to reported inventory",
+      "summary": "The owner discusses the LIFO reserve relative to reported inventory; its numerical example has an inconsistent denominator label.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "fraction",
+        "expression": "reserve / inventory",
+        "original_equation": "LIFO reserve as a fraction of reported inventory = reserve / reported inventory",
+        "source_id": "cfa-l1v3",
+        "locator": "Financial Statement Analysis Learning Module 10, Framework for Analyst Adjustments & Adjustments to Inventory, printed pp590–591 (PDF pp604–605), Example 10 and Exhibit 5",
+        "translation_notes": "Money divided by money produces a base-one ratio; multiply by 100 only to display a percentage."
+      },
+      "variables": [
+        {
+          "symbol": "reserve",
+          "source_symbol": "LIFO reserve",
+          "role": "input",
+          "quantity_id": "lifo_inventory_reserve",
+          "definition": "FIFO-equivalent inventory less LIFO inventory under the reported reserve convention",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "inventory",
+          "source_symbol": "reported inventory",
+          "role": "input",
+          "quantity_id": "reported_inventory",
+          "definition": "Reported inventory on the same date and reporting-entity basis as the reserve",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fraction",
+          "source_symbol": "LIFO reserve relative to reported inventory",
+          "role": "output",
+          "quantity_id": "lifo_reserve_to_reported_inventory_ratio",
+          "definition": "Signed reserve divided by reported inventory, expressed as a base-one fraction",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "inventory > 0"
+      ],
+      "assumptions": [
+        "The reserve and reported inventory are measured at the same date, for the same entity and currency.",
+        "Reported inventory is positive; the reserve may be signed."
+      ],
+      "limitations": [
+        "The denominator is reported total inventory, which can include non-LIFO inventories; do not confuse this comparison with the share of inventory accounted for under LIFO.",
+        "The ratio is not a direct measure of a tax saving or a liquidity ratio.",
+        "Example 10 divides the 20,000 reserve by 80,000 labeled current assets (including inventory), yet calls the result a percentage of inventory; the source does not separately give the inventory denominator."
+      ],
+      "unresolved": [
+        "No accessible source directly stating this ratio was found after searches for \"LIFO reserve percentage of LIFO inventory\", \"LIFO reserve as a percentage inventory LIFO\", and \"LIFO reserve divided by LIFO inventory ratio\"; the exact comparison was verified only in the owner PDF, which reviewers cannot open. A Wiley curriculum excerpt directly inspected at https://catalogimages.wiley.com/images/db/pdf/9781942471042.excerpt.pdf defines the reserve but does not independently establish this ratio.",
+        "Example 10 labels its 80,000 denominator as current assets in Exhibit 5 and as reported inventory in the solution. The actual inventory-only ratio cannot be determined from the disclosed table; the curator-constructed numerical reference is not an owner-example oracle."
+      ],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 10, Framework for Analyst Adjustments & Adjustments to Inventory, printed pp590–591 (PDF pp604–605), Example 10 and Exhibit 5",
+          "evidence": "The text defines a reserve-to-inventory comparison, but the example uses a table figure labeled total current assets as its denominator; the two figures cannot be equated without additional evidence.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        }
+      ],
+      "references": [
+        {
+          "id": "hypothetical",
+          "inputs": {
+            "reserve": 20000,
+            "inventory": 80000
+          },
+          "expected": 0.25,
+          "tolerance": 1e-09,
+          "method": "Hypothetically, a reserve of 20,000 divided by inventory of 80,000 gives 0.25; the PDF table reports 80,000 as current assets, not inventory.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative",
+          "inputs": {
+            "reserve": -10000,
+            "inventory": 100000
+          },
+          "expected": -0.1,
+          "tolerance": 1e-09,
+          "method": "A signed negative reserve of 10,000 divided by inventory of 100,000 gives −0.1.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "inventory": 80000
+          },
+          "reason": "reserve is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "reserve=fraction*inventory.",
+      "integration": {
+        "status": "blocked",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

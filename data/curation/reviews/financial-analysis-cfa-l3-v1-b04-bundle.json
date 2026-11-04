@@ -1,0 +1,644 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.9",
+  "batch_id": "financial-analysis-cfa-l3-v1-b04",
+  "domain": "financial-analysis",
+  "curator": "buffy",
+  "created": "2026-11-04",
+  "example_only": false,
+  "models": [
+    {
+      "id": "financial-analysis--surplus-optimization-objective-decimal",
+      "revision": "r1",
+      "title": "Surplus-optimization objective (certainty equivalent of surplus return) in decimal form",
+      "summary": "Liability-relative objective: expected surplus return minus one-half the risk aversion coefficient times surplus-return variance, in decimals.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "UmLR",
+        "expression": "ERs - 0.5 * lam * sigS ** 2",
+        "original_equation": "UmLR = E(Rs,m) − 0.005 λ σ²(Rs,m) (percent form); = E(Rs,m) − 0.5 λ σ²(Rs,m) in decimals",
+        "source_id": "desjardins-risk-aversion-bkm",
+        "locator": "PDF: LM4 Surplus Optimization, printed p. 240 (PDF p. 250), Eq. 2",
+        "translation_notes": "Source Eq. 2 uses 0.005 with percentage inputs (same convention as asset-only Eq. 1); record uses decimal form so the scale factor is 0.5, consistent with the source's own decimal restatement for Eq. 1. The 0.5 is a pure arithmetic scaling literal. Surplus return Rs,m = (change in asset value − change in liability value)/(initial asset value). Dimensional check: dimensionless throughout."
+      },
+      "variables": [
+        {
+          "symbol": "ERs",
+          "source_symbol": "E(Rs,m)",
+          "role": "input",
+          "quantity_id": "expected_surplus_return",
+          "definition": "Expected surplus return for asset mix m over the horizon, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset mix m, liabilities, and horizon as UmLR",
+          "domain": "Finite decimal expected surplus return"
+        },
+        {
+          "symbol": "lam",
+          "source_symbol": "λ",
+          "role": "input",
+          "quantity_id": "risk_aversion_coefficient",
+          "definition": "Investor risk aversion coefficient penalizing surplus-return volatility (same meaning as asset-only record)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same investor and asset mix m as UmLR",
+          "domain": "Nonnegative finite coefficient; zero is the risk-neutral boundary"
+        },
+        {
+          "symbol": "sigS",
+          "source_symbol": "σ(Rs,m)",
+          "role": "input",
+          "quantity_id": "surplus_return_volatility",
+          "definition": "Surplus-return volatility (standard deviation of surplus return) for mix m, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset mix m, liabilities, and horizon as UmLR",
+          "domain": "Nonnegative finite volatility"
+        },
+        {
+          "symbol": "UmLR",
+          "source_symbol": "UmLR",
+          "role": "output",
+          "quantity_id": "surplus_utility",
+          "definition": "Surplus objective value (certainty equivalent of surplus return) for mix m, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same asset mix m, liabilities, and horizon as inputs",
+          "domain": "Finite decimal utility"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "lam >= 0",
+        "sigS >= 0"
+      ],
+      "assumptions": [
+        "Surplus return is defined over the chosen horizon as asset change minus liability change per initial asset value; liability return captures time value plus expected discount-rate and cash-flow changes.",
+        "Single-period mean–variance framing applied to surplus rather than assets alone."
+      ],
+      "limitations": [
+        "Same algebraic form as the asset-only utility record (batch b01) but distinct scope; see integration gaps — not a duplicate.",
+        "Correlation between assets and liabilities must be estimated (expanded matrix); estimation error is outside this record."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-surplus-objective-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Surplus Optimization, printed p. 240 (PDF p. 250), Eq. 2 with surplus-return definition",
+          "evidence": "Passage substitutes surplus return for asset return in MVO, giving the quadratic objective UmLR = E(Rs,m) − 0.005 λ σ²(Rs,m) with surplus return defined as asset change minus liability change over initial assets.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "desjardins-risk-aversion-bkm",
+          "kind": "primary",
+          "title": "The Risk Aversion Coefficient (Desjardins Online Brokerage, citing Bodie–Kane–Marcus)",
+          "url": "https://www.disnat.com/en/learning/trading-basics/dbulletin/the-risk-aversion-coefficient",
+          "version": "Educational article citing Investments by Bodie, Kane, Marcus, Perrakis & Ryan (2014), McGraw Hill Ryerson, 8th Canadian ed., p. 156",
+          "accessed": "2026-11-04",
+          "locator": "Utility formula section: U = E(r) − 0.5 × A × σ² with two worked decimal examples",
+          "evidence": "Page confirms the decimal-form mean-variance penalty structure U = E − 0.5·A·σ²; this record applies that identical structure to surplus return as the PDF's Eq. 2 directs.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "analogous-decimal-check",
+          "inputs": {
+            "ERs": 0.08,
+            "lam": 2,
+            "sigS": 0.1
+          },
+          "expected": 0.07,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 0.08 − 0.5·2·0.01 = 0.07. Independently constructed check of the decimal scaling.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed plan data claimed"
+        },
+        {
+          "id": "zero-volatility-boundary",
+          "inputs": {
+            "ERs": 0.05,
+            "lam": 3,
+            "sigS": 0
+          },
+          "expected": 0.05,
+          "tolerance": 1e-09,
+          "method": "Zero surplus volatility gives utility equal to expected surplus return by substitution.",
+          "provenance": "Definitional boundary check; not an empirical validation"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "ERs": 0.08,
+            "lam": -1,
+            "sigS": 0.1
+          },
+          "reason": "Negative risk aversion contradicts the stated penalty framing (guard lam >= 0)."
+        },
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "ERs": 0.08,
+            "lam": 2
+          },
+          "reason": "Surplus-return volatility is required; expected surplus return and risk aversion alone cannot determine the objective."
+        }
+      ],
+      "inverse_notes": "ERs = UmLR + 0.5·lam·sigS² always; lam = 2·(ERs − UmLR)/sigS² requires sigS ≠ 0; sigS = sqrt(2·(ERs − UmLR)/lam) requires lam > 0 and ERs ≥ UmLR. Substitution check: UmLR=0.07, lam=2, sigS=0.1 recovers ERs=0.08. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings expected_surplus_return, surplus_return_volatility, surplus_utility (and shared risk_aversion_coefficient) are not in the runtime vocabulary snapshot and require extension.",
+          "Shares its algebraic form with financial-analysis--mean-variance-utility-certainty-equivalent-decimal@r1 (batch b01) but differs in scope (surplus vs asset return); recorded as a distinct model with this overlap note, not a duplicate."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--safety-first-ratio",
+      "revision": "r1",
+      "title": "Safety-first ratio (excess over threshold per unit of volatility)",
+      "summary": "Roy's safety-first ratio: expected portfolio return minus the threshold return, divided by return volatility; higher is better under normality.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "SFR",
+        "expression": "(ERp - RL) / sigp",
+        "original_equation": "[E(RP) − RL] / σP",
+        "source_id": "wikipedia-roys-safety-first",
+        "locator": "PDF: LM4 Example 1 setup, printed p. 206 (PDF p. 216), ratio expression; applied printed p. 207 (PDF p. 217)",
+        "translation_notes": "Decimal form (unit 1); RL is the threshold (minimum acceptable) return over the same horizon. Under a normal return assumption the ratio is the z-score-like distance whose maximization minimizes shortfall probability P(RP < RL). Dimensional check: (dimensionless − dimensionless)/dimensionless = dimensionless."
+      },
+      "variables": [
+        {
+          "symbol": "ERp",
+          "source_symbol": "E(RP)",
+          "role": "input",
+          "quantity_id": "expected_portfolio_return",
+          "definition": "Expected return of the portfolio over the horizon, in decimal form (same meaning as utility record)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and horizon as SFR",
+          "domain": "Finite decimal expected return"
+        },
+        {
+          "symbol": "RL",
+          "source_symbol": "RL",
+          "role": "input",
+          "quantity_id": "threshold_return",
+          "definition": "Minimum acceptable (threshold) return that must be achieved, e.g. to avoid invading capital, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and horizon as SFR",
+          "domain": "Finite decimal threshold return"
+        },
+        {
+          "symbol": "sigp",
+          "source_symbol": "σP",
+          "role": "input",
+          "quantity_id": "portfolio_return_volatility",
+          "definition": "Standard deviation of portfolio return over the horizon, in decimal form",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and horizon as SFR",
+          "domain": "Positive finite volatility"
+        },
+        {
+          "symbol": "SFR",
+          "source_symbol": "[E(RP) − RL]/σP",
+          "role": "output",
+          "quantity_id": "safety_first_ratio",
+          "definition": "Safety-first ratio: threshold-excess return per unit of volatility; higher means lower shortfall probability under normality",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio, threshold, and horizon as inputs",
+          "domain": "Finite ratio"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "sigp > 0"
+      ],
+      "assumptions": [
+        "Returns are approximately normal over the horizon, so the ratio maps to the probability of exceeding the threshold.",
+        "Threshold RL is fixed for the decision (e.g. 5% to avoid invading capital in the source example)."
+      ],
+      "limitations": [
+        "Under non-normal returns the ratio still ranks threshold-excess per unit volatility but no longer maps exactly to shortfall probability.",
+        "Complements, not replaces, the utility objective: allocations A and B in the source share utility 6% but differ in SFR."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-safety-first-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Example 1, printed pp. 206–207 (PDF pp. 216–217): ratio [E(RP) − RL]/σP with allocations A (10−5)/20 = 0.25, B (7−5)/10 = 0.20, C (5.25−5)/5 = 0.05",
+          "evidence": "Passage defines the threshold-exceedance ratio under a normal-return safety-first approach and applies it to rank three allocations with a 5% capital-preservation threshold.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "wikipedia-roys-safety-first",
+          "kind": "primary",
+          "title": "Roy's safety-first criterion (Wikipedia)",
+          "url": "https://en.wikipedia.org/wiki/Roy%27s_safety-first_criterion",
+          "version": "Article revision accessed 2026-11-04, Normally distributed return scenario section",
+          "accessed": "2026-11-04",
+          "locator": "SFRatio definition: (E(Ri) − R̲)/sqrt(Var(Ri)) with worked A/B portfolio example",
+          "evidence": "Article defines the safety-first ratio as expected return minus minimum acceptable return over standard deviation under normality, with a worked example (A: (10−0)/15 = 0.67; B: (8−0)/5 = 1.6) confirming the curated form.",
+          "license": "CC BY-SA (Wikipedia); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-allocation-a",
+          "inputs": {
+            "ERp": 0.1,
+            "RL": 0.05,
+            "sigp": 0.2
+          },
+          "expected": 0.25,
+          "tolerance": 1e-09,
+          "method": "Source's allocation A in decimals: (0.10 − 0.05)/0.20 = 0.25, matching published (10% − 5%)/20% = 0.25.",
+          "provenance": "Published result: LM4 Example 1, printed p. 207 (PDF p. 217)"
+        },
+        {
+          "id": "published-allocation-b",
+          "inputs": {
+            "ERp": 0.07,
+            "RL": 0.05,
+            "sigp": 0.1
+          },
+          "expected": 0.2,
+          "tolerance": 1e-09,
+          "method": "Source's allocation B in decimals: (0.07 − 0.05)/0.10 = 0.20, matching published (7% − 5%)/10% = 0.20.",
+          "provenance": "Published result: LM4 Example 1, printed p. 207 (PDF p. 217)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "ERp": 0.1,
+            "RL": 0.05,
+            "sigp": 0
+          },
+          "reason": "Zero volatility makes the ratio undefined (guard sigp > 0); a risk-free payoff meeting the threshold needs no shortfall ranking."
+        }
+      ],
+      "inverse_notes": "ERp = RL + SFR·sigp always; RL = ERp − SFR·sigp always; sigp = (ERp − RL)/SFR requires SFR ≠ 0 (zero excess with positive volatility gives SFR = 0, leaving sigp undetermined). Substitution check: SFR=0.25, RL=0.05, sigp=0.2 recovers ERp=0.10. Algebraic only; threshold choice is a preference, not an estimated quantity.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings threshold_return, portfolio_return_volatility, safety_first_ratio (and shared expected_portfolio_return) are not in the runtime vocabulary snapshot and require extension.",
+          "Distinct from the Sharpe ratio (risk-free rate in place of RL); do not relabel one as the other per the brief."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--arch-conditional-variance-one-lag",
+      "revision": "r1",
+      "title": "ARCH-family one-lag conditional variance update",
+      "summary": "Period-t variance as a constant plus persistence-weighted prior variance plus a shock coefficient times the squared unexpected return.",
+      "kind": "theoretical",
+      "relationship": {
+        "output_symbol": "sig2t",
+        "expression": "gam + alpha * sig2t1 + beta * eta2t",
+        "original_equation": "σt² = γ + α σt−1² + β ηt²",
+        "source_id": "wikipedia-arch",
+        "locator": "PDF: LM2 Time-Varying Volatility: ARCH Models, printed p. 111 (PDF p. 121), Eq. 17",
+        "translation_notes": "Source presents this as one of the simplest, heavily used forms of the ARCH class (rearranged second line shows the shock term ηt² − σt−1²). ηt is the mean-zero unexpected return component. Unconditional variance γ/(1 − α − β) is a derived identity, not separately curated. Dimensional check: variance + dimensionless×variance + dimensionless×(return²) — all variance-dimensioned in decimal-squared units."
+      },
+      "variables": [
+        {
+          "symbol": "gam",
+          "source_symbol": "γ",
+          "role": "input",
+          "quantity_id": "arch_constant",
+          "definition": "Nonnegative baseline constant of the variance recursion, in decimal-variance units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same return series and estimation as sig2t",
+          "domain": "Nonnegative finite constant"
+        },
+        {
+          "symbol": "alpha",
+          "source_symbol": "α",
+          "role": "input",
+          "quantity_id": "variance_persistence",
+          "definition": "Persistence weight on prior-period variance (memory/clustering strength)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same return series and estimation as sig2t",
+          "domain": "Nonnegative; alpha + beta below 1 for stationarity"
+        },
+        {
+          "symbol": "sig2t1",
+          "source_symbol": "σt−1²",
+          "role": "input",
+          "quantity_id": "prior_period_variance",
+          "definition": "Estimated variance at time t−1, in decimal-variance units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same return series and estimation as sig2t",
+          "domain": "Nonnegative finite variance"
+        },
+        {
+          "symbol": "beta",
+          "source_symbol": "β",
+          "role": "input",
+          "quantity_id": "variance_shock_loading",
+          "definition": "Loading of the current squared shock onto variance",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same return series and estimation as sig2t",
+          "domain": "Nonnegative; alpha + beta below 1 for stationarity"
+        },
+        {
+          "symbol": "eta2t",
+          "source_symbol": "ηt²",
+          "role": "input",
+          "quantity_id": "squared_unexpected_return",
+          "definition": "Squared unexpected return component in period t (mean-zero shock squared), in decimal-variance units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same return series, period t, and estimation as sig2t",
+          "domain": "Nonnegative finite squared shock"
+        },
+        {
+          "symbol": "sig2t",
+          "source_symbol": "σt²",
+          "role": "output",
+          "quantity_id": "conditional_variance",
+          "definition": "Conditional variance in period t, in decimal-variance units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same return series and estimation as inputs",
+          "domain": "Nonnegative finite variance"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "gam >= 0",
+        "alpha >= 0",
+        "beta >= 0",
+        "alpha + beta < 1"
+      ],
+      "assumptions": [
+        "Parameters are nonnegative with alpha + beta below 1 (stationarity, finite unconditional variance γ/(1 − α − β)), per source.",
+        "ηt is mean-zero conditional on time t−1 information; shock sign does not matter (squared)."
+      ],
+      "limitations": [
+        "One-lag, single-asset form only; multi-asset VCV extensions need many more parameters (per source, Engle 2002 class handles large matrices).",
+        "Estimation of γ, α, β themselves is outside this update record."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-arch-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM2 Time-Varying Volatility: ARCH Models, printed p. 111 (PDF p. 121), Eq. 17 with numeric example (γ=0.000002, α=0.9, β=0.08 → 0.000434; no-shock 1.9849%)",
+          "evidence": "Passage specifies period variance as a linear combination of yesterday's variance and a new volatility shock with nonnegative parameters summing below 1, and works the 0.000434 example plus the no-shock 1.9849% comparison.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "wikipedia-arch",
+          "kind": "primary",
+          "title": "Autoregressive conditional heteroskedasticity (Wikipedia)",
+          "url": "https://en.wikipedia.org/wiki/Autoregressive_conditional_heteroskedasticity",
+          "version": "Article revision accessed 2026-11-04, Model specification and GARCH sections",
+          "accessed": "2026-11-04",
+          "locator": "ARCH(q) spec σt² = α0 + Σαi·εt−i² (α0 > 0, αi ≥ 0); GARCH(p,q) adds lagged-variance terms βi·σt−i²",
+          "evidence": "Article specifies ARCH variance as a constant plus weighted past squared shocks with nonnegative coefficients, and GARCH as adding lagged variance terms — the same constant-plus-persistence-plus-shock structure as the PDF's Eq. 17.",
+          "license": "CC BY-SA (Wikipedia); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-shock-example",
+          "inputs": {
+            "gam": 0.000002,
+            "alpha": 0.9,
+            "sig2t1": 0.0004,
+            "beta": 0.08,
+            "eta2t": 0.0009
+          },
+          "expected": 0.000434,
+          "tolerance": 1e-09,
+          "method": "Source inputs (ηt = 0.03 so ηt² = 0.0009): 0.000002 + 0.9·0.0004 + 0.08·0.0009 = 0.000434, matching published σt² = 0.000434 (σ = 2.0833%).",
+          "provenance": "Published result: LM2 ARCH example, printed p. 111 (PDF p. 121)"
+        },
+        {
+          "id": "published-no-shock-example",
+          "inputs": {
+            "gam": 0.000002,
+            "alpha": 0.9,
+            "sig2t1": 0.0004,
+            "beta": 0.08,
+            "eta2t": 0.0004
+          },
+          "expected": 0.000394,
+          "tolerance": 1e-09,
+          "method": "No-shock case ηt² = σt−1² = 0.0004: 0.000002 + 0.9·0.0004 + 0.08·0.0004 = 0.000394, matching published σ = 1.9849% (sqrt(0.000394) = 0.019849).",
+          "provenance": "Published result: LM2 ARCH example no-shock comparison, printed p. 111 (PDF p. 121)"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "gam": 0.000002,
+            "alpha": 0.9,
+            "sig2t1": 0.0004,
+            "beta": 0.2,
+            "eta2t": 0.0009
+          },
+          "reason": "alpha + beta = 1.1 violates the stationarity guard (alpha + beta < 1); non-stationary persistence needs a different specification."
+        }
+      ],
+      "inverse_notes": "gam = sig2t − alpha·sig2t1 − beta·eta2t always; alpha = (sig2t − gam − beta·eta2t)/sig2t1 requires sig2t1 ≠ 0; beta = (sig2t − gam − alpha·sig2t1)/eta2t requires eta2t ≠ 0. Substitution check: sig2t=0.000434 with gam=0.000002, alpha=0.9, sig2t1=0.0004 recovers beta=0.08 given eta2t=0.0009. Algebraic only; parameter estimation is outside this record.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings arch_constant, variance_persistence, prior_period_variance, variance_shock_loading, squared_unexpected_return, conditional_variance are not in the runtime vocabulary snapshot and require extension.",
+          "Unconditional variance γ/(1−α−β) is a documented derived identity, not separately curated."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--risk-parity-equal-risk-contribution",
+      "revision": "r1",
+      "title": "Risk-parity equal risk contribution condition (variance form)",
+      "summary": "Each asset's weight times its covariance with the portfolio equals one-nth of portfolio variance.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "RCi",
+        "expression": "wi * covi",
+        "original_equation": "wi × Cov(ri, rp) = (1/n) σp²",
+        "source_id": "riskhub-risk-parity-intro",
+        "locator": "PDF: LM4 Solutions, printed p. 297 (PDF p. 307), Q7 solution",
+        "translation_notes": "Record's expression is the left-hand risk contribution RCi = wi·Covi; the defining condition equates it to σp²/n, checked in references. Equivalent to the volatility-share form RCi/σp = σp/n (each asset carries 1/n of total risk): multiply through by σp. Dimensional check: dimensionless weight × variance-dimensioned covariance = variance-dimensioned contribution, compared against variance/n."
+      },
+      "variables": [
+        {
+          "symbol": "wi",
+          "source_symbol": "wi",
+          "role": "input",
+          "quantity_id": "portfolio_weight",
+          "definition": "Fraction of portfolio money in asset i (weights sum to 1)",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and risk parity allocation as RCi",
+          "domain": "Closed interval 0 to 1 inclusive for the long-only case"
+        },
+        {
+          "symbol": "covi",
+          "source_symbol": "Cov(ri, rp)",
+          "role": "input",
+          "quantity_id": "asset_portfolio_covariance",
+          "definition": "Covariance of asset i return with the portfolio return, in decimal-variance units",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and estimation window as RCi",
+          "domain": "Finite covariance"
+        },
+        {
+          "symbol": "RCi",
+          "source_symbol": "introduced RCi for wi × Cov(ri, rp)",
+          "role": "output",
+          "quantity_id": "risk_contribution",
+          "definition": "Asset i's total contribution to portfolio variance; equals σp²/n under risk parity",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "same portfolio and estimation window as inputs",
+          "domain": "Nonnegative finite contribution in the long-only case"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "wi >= 0",
+        "covi >= 0"
+      ],
+      "assumptions": [
+        "Long-only, fully invested portfolio (weights sum to 1); contributions are nonnegative in this case.",
+        "Covariances estimated over a consistent window for all assets."
+      ],
+      "limitations": [
+        "Condition defines the allocation implicitly; solving weights requires optimization (per source, constrained weights summing to 100%).",
+        "Ignores expected returns by construction (per source critique); leverage/scale to investor risk appetite is a separate step."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l3-v1-risk-parity-pdf",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2025 Level III Core Volume 1 — Asset Allocation",
+          "url": null,
+          "version": "CFA Institute, 2025 ed. (May 2024 printing)",
+          "accessed": "2026-11-04",
+          "locator": "LM4 Solutions Q7, printed p. 297 (PDF p. 307): wi × Cov(ri, rp) = (1/n) σp²; four asset classes, portfolio variance 25%, each contributes 6.25%",
+          "evidence": "Solution states the equal-contribution condition wi × Cov(ri, rp) = (1/n) σp² and applies it with four classes and 25% portfolio variance for 6.25% each.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "riskhub-risk-parity-intro",
+          "kind": "primary",
+          "title": "Introduction to Risk Parity (RiskHub)",
+          "url": "https://riskhub.org/blogs/introduction-to-risk-parity",
+          "version": "Beginner guide, accessed 2026-11-04, sections 2–3",
+          "accessed": "2026-11-04",
+          "locator": "Sections 2–3: RCi = wi × MRCi with MRCi = (Σw)i/σp (asset covariance with portfolio); risk parity means every RCi equal (25% each with four assets)",
+          "evidence": "Guide defines each asset's risk contribution as weight times its covariance with the portfolio and states risk parity precisely as all RCi equal — the same condition as the PDF's variance-form equation up to the σp scaling.",
+          "license": "Terms page not located (unknown); accessed 2026-11-04",
+          "redistribution": "Short original paraphrase and single-formula transcription only; no extended quotation"
+        }
+      ],
+      "references": [
+        {
+          "id": "published-four-class-check",
+          "inputs": {
+            "wi": 0.25,
+            "covi": 0.25
+          },
+          "expected": 0.0625,
+          "tolerance": 1e-09,
+          "method": "Equal-weight illustration of the published case: 0.25 × 0.25 = 0.0625, matching the published (1/4 × 25%) = 6.25% per-class contribution.",
+          "provenance": "Published result with constructed weight/covariance split: LM4 Solutions Q7, printed p. 297 (PDF p. 307)"
+        },
+        {
+          "id": "constructed-unequal-weights",
+          "inputs": {
+            "wi": 0.5,
+            "covi": 0.1
+          },
+          "expected": 0.05,
+          "tolerance": 1e-09,
+          "method": "Direct substitution: 0.5 × 0.1 = 0.05; equals σp²/n with σp² = 0.2, n = 4. Independently constructed check.",
+          "provenance": "Independent arithmetic check constructed for this record; no observed portfolio data claimed"
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "wi": 0.25
+          },
+          "reason": "Asset–portfolio covariance is required; the weight alone cannot determine the risk contribution."
+        }
+      ],
+      "inverse_notes": "wi = RCi/covi requires covi ≠ 0; covi = RCi/wi requires wi ≠ 0. The parity condition itself (RCi = σp²/n for all i) is an allocation constraint solved by optimization, not by single-equation inversion. Algebraic only.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Quantity meanings portfolio_weight, asset_portfolio_covariance, risk_contribution are not in the runtime vocabulary snapshot and require extension.",
+          "The 1/N equal-weight rule (queued) is a distinct heuristic; do not conflate equal capital with equal risk contribution."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "deferred": [
+    {
+      "title": "Shrinkage VCV weighted-average estimator (element-wise form)",
+      "reason": "LM2 shrinkage section (printed p. 109, PDF p. 119) describes per-element weighted averaging of sample and target VCV matrices; formalizing the scalar element form is queued for b05.",
+      "source_urls": [
+        "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/capital-market-expectations-part-ii"
+      ]
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b04: 4 records (surplus-optimization objective, safety-first ratio, ARCH one-lag variance, risk-parity contribution) each with PDF locator plus directly inspected accessible corroboration. Five of eight references are published oracles.",
+    "gaps": [
+      "All finance quantity meanings require extension; integration status requires-extension with null runtime_model throughout.",
+      "Next candidates queued: 1/N rule, 120-age heuristic, 60/40 heuristic description, shrinkage VCV element form, GDP labor/productivity split, tolerance-band corridors, economic balance sheet identities."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Validation and packing to be run after writing; validator checks schema/arithmetic only, not source fidelity — verified locators and corroboration pages by direct inspection 2026-11-04."
+  }
+}

@@ -1,0 +1,563 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b16",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--days-of-inventory-on-hand",
+      "revision": "r1",
+      "title": "Days of inventory on hand",
+      "summary": "Days of inventory on hand divides the reporting-period duration by its corresponding turnover.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "days",
+        "expression": "period / turnover",
+        "original_equation": "Days of inventory on hand = period length / matching turnover",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 6, 8, 10 and 11",
+        "translation_notes": "Period is a physical duration in days, not an annualization factor; output retains the same duration unit. Turnover is a dimensionless count over that period."
+      },
+      "variables": [
+        {
+          "symbol": "period",
+          "source_symbol": "number of days in period",
+          "role": "input",
+          "quantity_id": "reporting_period_duration",
+          "definition": "Physical length of the reporting period",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive duration"
+        },
+        {
+          "symbol": "turnover",
+          "source_symbol": "period turnover",
+          "role": "input",
+          "quantity_id": "inventory_turnover_ratio",
+          "definition": "Positive turnover count for that same period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "days",
+          "source_symbol": "Days of inventory on hand",
+          "role": "output",
+          "quantity_id": "days_of_inventory_on_hand",
+          "definition": "Days of inventory on hand as an elapsed duration",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "period > 0",
+        "turnover > 0"
+      ],
+      "assumptions": [
+        "Turnover and period duration cover the same entity, accounting period and averaging convention.",
+        "A year can contain 365, 366 or another number of days; it is supplied rather than hard-coded."
+      ],
+      "limitations": [
+        "Turnover is an accounting approximation and does not identify the actual holding time of each individual item.",
+        "Zero turnover has no finite duration in this model."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Activity Ratios, printed pp203–204 (PDF pp217–218), Exhibit 12",
+          "evidence": "Days of inventory on hand divides the reporting-period duration by its corresponding turnover.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 6, 8, 10 and 11",
+          "evidence": "The public list defines receivables, inventory and payable days as period duration divided by the corresponding turnover and defines the cash conversion cycle.",
+          "license": "CFA Institute rights reserved; individual formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "year",
+          "inputs": {
+            "period": 360,
+            "turnover": 12
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "360 days divided by 12 turnovers gives 30 days.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "quarter",
+          "inputs": {
+            "period": 90,
+            "turnover": 3
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "90 days divided by three turnovers gives 30 days.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "turnover": 12
+          },
+          "reason": "period is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "period=days*turnover; turnover=period/days requires positive days. Zero turnover is excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--days-of-sales-outstanding",
+      "revision": "r1",
+      "title": "Days of sales outstanding",
+      "summary": "Days of sales outstanding divides the reporting-period duration by its corresponding turnover.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "days",
+        "expression": "period / turnover",
+        "original_equation": "Days of sales outstanding = period length / matching turnover",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 6, 8, 10 and 11",
+        "translation_notes": "Period is a physical duration in days, not an annualization factor; output retains the same duration unit. Turnover is a dimensionless count over that period."
+      },
+      "variables": [
+        {
+          "symbol": "period",
+          "source_symbol": "number of days in period",
+          "role": "input",
+          "quantity_id": "reporting_period_duration",
+          "definition": "Physical length of the reporting period",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive duration"
+        },
+        {
+          "symbol": "turnover",
+          "source_symbol": "period turnover",
+          "role": "input",
+          "quantity_id": "receivables_turnover_ratio",
+          "definition": "Positive turnover count for that same period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "days",
+          "source_symbol": "Days of sales outstanding",
+          "role": "output",
+          "quantity_id": "days_of_sales_outstanding",
+          "definition": "Days of sales outstanding as an elapsed duration",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "period > 0",
+        "turnover > 0"
+      ],
+      "assumptions": [
+        "Turnover and period duration cover the same entity, accounting period and averaging convention.",
+        "A year can contain 365, 366 or another number of days; it is supplied rather than hard-coded."
+      ],
+      "limitations": [
+        "Turnover is an accounting approximation and does not identify the actual holding time of each individual item.",
+        "Zero turnover has no finite duration in this model."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Activity Ratios, printed pp203–204 (PDF pp217–218), Exhibit 12",
+          "evidence": "Days of sales outstanding divides the reporting-period duration by its corresponding turnover.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 6, 8, 10 and 11",
+          "evidence": "The public list defines receivables, inventory and payable days as period duration divided by the corresponding turnover and defines the cash conversion cycle.",
+          "license": "CFA Institute rights reserved; individual formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "year",
+          "inputs": {
+            "period": 360,
+            "turnover": 12
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "360 days divided by 12 turnovers gives 30 days.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "quarter",
+          "inputs": {
+            "period": 90,
+            "turnover": 3
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "90 days divided by three turnovers gives 30 days.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "turnover": 12
+          },
+          "reason": "period is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "period=days*turnover; turnover=period/days requires positive days. Zero turnover is excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--days-of-trade-payables",
+      "revision": "r1",
+      "title": "Days of trade payables",
+      "summary": "Days of trade payables divides the reporting-period duration by its corresponding turnover.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "days",
+        "expression": "period / turnover",
+        "original_equation": "Days of trade payables = period length / matching turnover",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 6, 8, 10 and 11",
+        "translation_notes": "Period is a physical duration in days, not an annualization factor; output retains the same duration unit. Turnover is a dimensionless count over that period."
+      },
+      "variables": [
+        {
+          "symbol": "period",
+          "source_symbol": "number of days in period",
+          "role": "input",
+          "quantity_id": "reporting_period_duration",
+          "definition": "Physical length of the reporting period",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive duration"
+        },
+        {
+          "symbol": "turnover",
+          "source_symbol": "period turnover",
+          "role": "input",
+          "quantity_id": "trade_payables_turnover_ratio",
+          "definition": "Positive turnover count for that same period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "days",
+          "source_symbol": "Days of trade payables",
+          "role": "output",
+          "quantity_id": "days_of_trade_payables",
+          "definition": "Days of trade payables as an elapsed duration",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "period > 0",
+        "turnover > 0"
+      ],
+      "assumptions": [
+        "Turnover and period duration cover the same entity, accounting period and averaging convention.",
+        "A year can contain 365, 366 or another number of days; it is supplied rather than hard-coded."
+      ],
+      "limitations": [
+        "Turnover is an accounting approximation and does not identify the actual holding time of each individual item.",
+        "Zero turnover has no finite duration in this model."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Activity Ratios, printed pp203–204 (PDF pp217–218), Exhibit 12",
+          "evidence": "Days of trade payables divides the reporting-period duration by its corresponding turnover.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 6, 8, 10 and 11",
+          "evidence": "The public list defines receivables, inventory and payable days as period duration divided by the corresponding turnover and defines the cash conversion cycle.",
+          "license": "CFA Institute rights reserved; individual formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "year",
+          "inputs": {
+            "period": 360,
+            "turnover": 12
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "360 days divided by 12 turnovers gives 30 days.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "quarter",
+          "inputs": {
+            "period": 90,
+            "turnover": 3
+          },
+          "expected": 30,
+          "tolerance": 1e-09,
+          "method": "90 days divided by three turnovers gives 30 days.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "turnover": 12
+          },
+          "reason": "period is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "period=days*turnover; turnover=period/days requires positive days. Zero turnover is excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--cash-conversion-cycle",
+      "revision": "r1",
+      "title": "Cash conversion cycle",
+      "summary": "The cash conversion cycle is inventory days plus receivables days less payables days.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cycle",
+        "expression": "inventory + receivables - payables",
+        "original_equation": "Cash conversion cycle = days inventory on hand + days sales outstanding - days of payables",
+        "source_id": "cfa-ratio-list",
+        "locator": "p1, ratios 6, 8, 10 and 11",
+        "translation_notes": "All quantities are physical durations in days. A negative result is meaningful and is not excluded."
+      },
+      "variables": [
+        {
+          "symbol": "inventory",
+          "source_symbol": "days of inventory on hand",
+          "role": "input",
+          "quantity_id": "days_of_inventory_on_hand",
+          "definition": "Inventory duration",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "receivables",
+          "source_symbol": "days of sales outstanding",
+          "role": "input",
+          "quantity_id": "days_of_sales_outstanding",
+          "definition": "Receivables duration",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "payables",
+          "source_symbol": "days of payables",
+          "role": "input",
+          "quantity_id": "days_of_trade_payables",
+          "definition": "Payables duration",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "cycle",
+          "source_symbol": "cash conversion cycle",
+          "role": "output",
+          "quantity_id": "cash_conversion_cycle",
+          "definition": "Signed net operating cash conversion duration",
+          "unit": "d",
+          "dimensions": "time",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "inventory >= 0",
+        "receivables >= 0",
+        "payables >= 0"
+      ],
+      "assumptions": [
+        "All durations use the same period and underlying operating scope."
+      ],
+      "limitations": [
+        "The cycle may be negative when payment to suppliers follows customer collection; the expression is an approximation based on aggregate ratios."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Financial Statement Analysis Learning Module 4, Liquidity Ratios, printed pp210–211 (PDF pp224–225), Exhibit 14 and Example 9",
+          "evidence": "The cash conversion cycle is inventory days plus receivables days less payables days.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "cfa-ratio-list",
+          "kind": "primary",
+          "title": "Financial Ratio List",
+          "url": "https://www.cfainstitute.org/sites/default/files/-/media/documents/support/programs/cfa/cfa_program_level_ii_financial_ratio_list.pdf",
+          "version": "CFA Institute Level II financial ratio list, directly inspected",
+          "accessed": "2026-11-03",
+          "locator": "p1, ratios 6, 8, 10 and 11",
+          "evidence": "The public list defines receivables, inventory and payable days as period duration divided by the corresponding turnover and defines the cash conversion cycle.",
+          "license": "CFA Institute rights reserved; individual formulas and original paraphrases only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-apple",
+          "inputs": {
+            "inventory": 9,
+            "receivables": 27,
+            "payables": 112
+          },
+          "expected": -76,
+          "tolerance": 1e-09,
+          "method": "9+27-112 = -76 days in the source example.",
+          "provenance": "CFA Example 9 printed p211/PDF p225."
+        },
+        {
+          "id": "positive",
+          "inputs": {
+            "inventory": 30,
+            "receivables": 40,
+            "payables": 20
+          },
+          "expected": 50,
+          "tolerance": 1e-09,
+          "method": "30+40-20 = 50 days.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "receivables": 27,
+            "payables": 112
+          },
+          "reason": "inventory is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "inventory=cycle-receivables+payables; receivables=cycle-inventory+payables; payables=inventory+receivables-cycle.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

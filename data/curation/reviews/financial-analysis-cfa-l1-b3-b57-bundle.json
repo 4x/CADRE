@@ -1,0 +1,155 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b57",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "1 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--liquidation-net-proceeds-proportional-cost",
+      "revision": "r1",
+      "title": "Liquidation proceeds after proportional cost",
+      "summary": "The liquidity example deducts each proportional liquidation cost from asset fair value.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "net",
+        "expression": "value * (1 - cost)",
+        "original_equation": "Net proceeds = gross sale value × (1 - liquidation cost fraction)",
+        "source_id": "pliant-liquidation-2006",
+        "locator": "Note K, orderly liquidation of non-debtor entities",
+        "translation_notes": "Cost is a base-one fraction of gross value. The output shares the input currency."
+      },
+      "variables": [
+        {
+          "symbol": "value",
+          "source_symbol": "gross asset sale value",
+          "role": "input",
+          "quantity_id": "gross_asset_liquidation_value",
+          "definition": "Gross value before stated liquidation costs",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "cost",
+          "source_symbol": "liquidation cost fraction",
+          "role": "input",
+          "quantity_id": "liquidation_cost_fraction",
+          "definition": "Proportion of gross value consumed by liquidation costs",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "net",
+          "source_symbol": "net liquidation proceeds",
+          "role": "output",
+          "quantity_id": "net_asset_liquidation_proceeds",
+          "definition": "Gross proceeds less proportional liquidation costs",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "value >= 0",
+        "cost >= 0",
+        "cost <= 1"
+      ],
+      "assumptions": [
+        "Costs are a single proportion of gross value and gross value already reflects the transaction price assumption.",
+        "No other claims, taxes or fixed costs are deducted."
+      ],
+      "limitations": [
+        "Additional discounts, fixed fees and secured claims require separate inputs.",
+        "This is not necessarily the accounting fair value less costs of disposal under a particular standard."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 5, Liquidity and Short-Term Funding, printed pp776–777 (PDF pp790–791), Example 5",
+          "evidence": "The liquidity example deducts each proportional liquidation cost from asset fair value.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "pliant-liquidation-2006",
+          "kind": "primary",
+          "title": "Pliant Corporation liquidation analysis",
+          "url": "https://www.sec.gov/Archives/edgar/data/1049442/000110465906026537/a06-8764_3ex99d2.htm",
+          "version": "Pliant Corporation filing, 2006",
+          "accessed": "2026-11-03",
+          "locator": "Note K, orderly liquidation of non-debtor entities",
+          "evidence": "The analysis deducts estimated transaction costs expressed as a percentage of liquidation value before further claims.",
+          "license": "Issuer filing; copyright and permissions not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "inventory",
+          "inputs": {
+            "value": 20000000,
+            "cost": 0.1
+          },
+          "expected": 18000000,
+          "tolerance": 1e-09,
+          "method": "20 million gross asset value less a 10% cost gives 18 million.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "property",
+          "inputs": {
+            "value": 50000000,
+            "cost": 0.15
+          },
+          "expected": 42500000,
+          "tolerance": 1e-09,
+          "method": "50 million gross asset value less a 15% cost gives 42.5 million.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "cost": 0.1
+          },
+          "reason": "value is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "value=net/(1-cost) when cost is less than one; cost=1-net/value when value is positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

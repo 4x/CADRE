@@ -1,0 +1,711 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b1-b05",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v1",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "5 atomic relationships from the assigned CFA Quantitative Methods volume, with exact PDF locators and inspected corroboration.",
+    "gaps": [
+      "Most financial/statistical quantity meanings require registry extension.",
+      "Duplicate checking is limited to the supplied catalog/vocabulary, assignment exclusions and this curator's public records; no global uniqueness claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: official validator rejects primary source url:null, which the CFA source brief explicitly requires for the purchased PDF. Toolkit left unchanged. Independent schema, expression/reference arithmetic, guard and rejection checks pass; ZIP checksum/membership checked. No passing official validation or intake-ready return claimed. Source fidelity, dimensions, contexts and inverse notes manually reviewed. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--percentile-r6-location",
+      "revision": "r1",
+      "title": "R6 percentile location in an ordered dataset",
+      "summary": "The source locates a percentile by multiplying sample size plus one by its requested cumulative fraction.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "L",
+        "expression": "(n + 1) * p",
+        "original_equation": "L_y=(n+1)y/100",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, Quantiles, printed p117 (PDF p127), Equation(7)",
+        "translation_notes": "Introduced p is the decimal quantile fraction y/100. It uses unit1; no percent conversion factor is inlined. The arithmetic1 shifts from n to n+1 order spacing. Counts and locations are dimensionless."
+      },
+      "variables": [
+        {
+          "symbol": "n",
+          "source_symbol": "n",
+          "role": "input",
+          "quantity_id": "record_count",
+          "definition": "Number of sorted observations",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Positive integer"
+        },
+        {
+          "symbol": "p",
+          "source_symbol": "introduced p=y/100",
+          "role": "input",
+          "quantity_id": "quantile_fraction",
+          "definition": "Requested cumulative fraction",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "0<p<1"
+        },
+        {
+          "symbol": "L",
+          "source_symbol": "L_y",
+          "role": "output",
+          "quantity_id": "quantile_order_location",
+          "definition": "Possibly fractional one-based rank of the requested percentile",
+          "unit": "unit",
+          "dimensions": "dimensionless",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "0<L<n+1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "n > 0",
+        "p > 0",
+        "p < 1"
+      ],
+      "assumptions": [
+        "Source assumption: this is the n+1 percentile convention with one-based ascending order."
+      ],
+      "limitations": [
+        "Not a universal quantile convention; R7 and R8 differ.",
+        "At extreme p, L may lie outside the observed ranks1..n; this location record does not choose an endpoint-clamping rule."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Quantiles, printed p117 (PDF p127), Equation(7)",
+          "evidence": "The source locates a percentile by multiplying sample size plus one by its requested cumulative fraction.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-percentiles",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/prc/section2/prc262.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section7.2.6.2, Estimation of percentiles, R6 method",
+          "evidence": "The R6 convention uses location p(N+1) and linear interpolation between neighboring ordered values.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-third-quartile",
+          "inputs": {
+            "n": 11,
+            "p": 0.75
+          },
+          "expected": 9,
+          "tolerance": 1e-09,
+          "method": "Published third-quartile location9 for11 observations.",
+          "provenance": "CFA printed p117/PDF127."
+        },
+        {
+          "id": "nist-ninetieth",
+          "inputs": {
+            "n": 12,
+            "p": 0.9
+          },
+          "expected": 11.7,
+          "tolerance": 1e-09,
+          "method": "Published location11.7 in independent wafer example.",
+          "provenance": "NIST7.2.6.2 twelve-measurement example."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "p": 0.75
+          },
+          "reason": "n is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "p=L/(n+1) for positive n; n=L/p-1 for p>0 and an integer result. L9,n11 recovers.75. At p0 the location0 would be outside this interior-quantile profile.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--percentile-linear-interpolation",
+      "revision": "r1",
+      "title": "Interior percentile interpolation between adjacent order statistics",
+      "summary": "When the percentile location is nonintegral, the source interpolates linearly between the neighboring sorted observations.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "Q",
+        "expression": "low + d * (high - low)",
+        "original_equation": "For L_y=k+d, estimate the percentile by linear interpolation between X_(k) and X_(k+1).",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, Quantiles, printed p117 (PDF p127), paragraph following Equation(7), linear-interpolation rule",
+        "translation_notes": "Derived symbolic transcription of the source interpolation prose. U+d*(U-U) has unitU. d is introduced, not a printed CFA symbol. No precision beyond the supplied order statistics is implied."
+      },
+      "variables": [
+        {
+          "symbol": "low",
+          "source_symbol": "X_(k)",
+          "role": "input",
+          "quantity_id": "lower_adjacent_order_statistic",
+          "definition": "Observed value at externally selected integer rank k",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "high",
+          "source_symbol": "X_(k+1)",
+          "role": "input",
+          "quantity_id": "upper_adjacent_order_statistic",
+          "definition": "Observed value at the next rank",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "d",
+          "source_symbol": "introduced fractional part d of L_y",
+          "role": "input",
+          "quantity_id": "order_location_fraction",
+          "definition": "Fractional distance from rank k toward k+1",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "0<=d<1"
+        },
+        {
+          "symbol": "Q",
+          "source_symbol": "P_y",
+          "role": "output",
+          "quantity_id": "interpolated_quantile",
+          "definition": "Interior quantile value under the n+1 location convention",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "high >= low",
+        "d >= 0",
+        "d < 1"
+      ],
+      "assumptions": [
+        "Source assumption: adjacent order statistics and fractional position are supplied from one consistent sorted dataset.",
+        "Application profile: interior ranks; d=0 admits the exact lower order statistic."
+      ],
+      "limitations": [
+        "Sorting, floor/rank selection and endpoint clamping are not computed by this scalar record."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Quantiles, printed p117 (PDF p127), paragraph following Equation(7), linear-interpolation rule",
+          "evidence": "When the percentile location is nonintegral, the source interpolates linearly between the neighboring sorted observations.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-percentiles",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/prc/section2/prc262.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section7.2.6.2, Estimation of percentiles, R6 method",
+          "evidence": "The R6 convention uses location p(N+1) and linear interpolation between neighboring ordered values.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "nist-wafer-interpolation",
+          "inputs": {
+            "low": 95.1959,
+            "high": 95.199,
+            "d": 0.7
+          },
+          "expected": 95.1981,
+          "tolerance": 5e-05,
+          "method": "Published95.1981 with inputs to four decimals; tolerance.00005 reflects final rounding.",
+          "provenance": "NIST7.2.6.2 example; data-unit is ohm cm."
+        },
+        {
+          "id": "midpoint",
+          "inputs": {
+            "low": 2,
+            "high": 6,
+            "d": 0.5
+          },
+          "expected": 4,
+          "tolerance": 1e-09,
+          "method": "Equal rank-distance from the endpoints yields their midpoint4.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "high": 95.199,
+            "d": 0.7
+          },
+          "reason": "low is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "d=(Q-low)/(high-low) requires distinct endpoints and0<=d<1. Q4,low2,high6 givesd.5 and substitutes back. If endpoints coincide, Q is fixed and d is not identifiable.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--interquartile-range",
+      "revision": "r1",
+      "title": "Interquartile range",
+      "summary": "The interquartile range subtracts the first quartile from the third.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "IQR",
+        "expression": "q3 - q1",
+        "original_equation": "IQR=Q_3-Q_1",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, Quantiles, printed p117 (PDF p127), unnumbered IQR definition; Example14 printed p119/PDF129",
+        "translation_notes": "Subtract two U-valued quantiles to obtain a U-valued nonnegative spread. Reference percentage returns are decimal input numbers, not percent-scale unit values."
+      },
+      "variables": [
+        {
+          "symbol": "q3",
+          "source_symbol": "Q_3",
+          "role": "input",
+          "quantity_id": "third_quartile",
+          "definition": "75th percentile under the chosen convention",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "q1",
+          "source_symbol": "Q_1",
+          "role": "input",
+          "quantity_id": "first_quartile",
+          "definition": "25th percentile under the same convention",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "IQR",
+          "source_symbol": "IQR",
+          "role": "output",
+          "quantity_id": "interquartile_range",
+          "definition": "Width of the central quartile interval",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "q3 >= q1"
+      ],
+      "assumptions": [
+        "Source assumption: quartiles use the same sample, units and quantile convention."
+      ],
+      "limitations": [
+        "Does not measure tail extent or select a quantile method."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Quantiles, printed p117 (PDF p127), unnumbered IQR definition; Example14 printed p119/PDF129",
+          "evidence": "The interquartile range subtracts the first quartile from the third.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-scale",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda356.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.5.6, Definitions of Variability, range and interquartile range",
+          "evidence": "Range subtracts minimum from maximum; interquartile range subtracts the first quartile from the third.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-return-iqr",
+          "inputs": {
+            "q3": 0.0046,
+            "q1": -0.00293
+          },
+          "expected": 0.00753,
+          "tolerance": 1e-09,
+          "method": "Published.753% converted to decimal; exact subtraction of displayed quartiles.",
+          "provenance": "CFA Example14 printed p119/PDF129."
+        },
+        {
+          "id": "zero-spread",
+          "inputs": {
+            "q3": 5,
+            "q1": 5
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Equal quartiles give zero interquartile width even if outer-tail observations vary.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "q1": -0.00293
+          },
+          "reason": "q3 is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "q3=IQR+q1 or q1=q3-IQR with consistent ordering; .00753-.00460=.00293 gives q1=-.00293 after the correct rearrangement q3-IQR. IQR0 implies coincident quartiles but does not identify their level.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--boxplot-inner-fence",
+      "revision": "r1",
+      "title": "Tukey inner fence for a selected side of a boxplot",
+      "summary": "The source puts boxplot inner fences one and a half interquartile ranges beyond the first and third quartiles.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "fence",
+        "expression": "q + side * 1.5 * IQR",
+        "original_equation": "Upper fence=Q_3+1.5*IQR; lower fence=Q_1-1.5*IQR",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, Quantiles, printed p120 (PDF p130), unnumbered fence rules and Exhibit46",
+        "translation_notes": "Introduced signed side unifies the two otherwise identical fence definitions. All data terms have unitU and side is dimensionless. The1.5 multiplier is source-attributed in constants. No claim that source example rounding is exact."
+      },
+      "variables": [
+        {
+          "symbol": "q",
+          "source_symbol": "selected Q_3 or Q_1",
+          "role": "input",
+          "quantity_id": "selected_fence_quartile",
+          "definition": "UseQ3 for upper side andQ1 for lower side",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "side",
+          "source_symbol": "introduced side=+1 upper, -1 lower",
+          "role": "input",
+          "quantity_id": "boxplot_fence_side",
+          "definition": "Side code matched to the selected quartile",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Exactly+1 or-1"
+        },
+        {
+          "symbol": "IQR",
+          "source_symbol": "interquartile range",
+          "role": "input",
+          "quantity_id": "interquartile_range",
+          "definition": "Nonnegative spread of the same dataset",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "fence",
+          "source_symbol": "upper/lower fence",
+          "role": "output",
+          "quantity_id": "boxplot_inner_fence",
+          "definition": "Selected1.5-IQR outlier threshold",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [
+        {
+          "literal": 1.5,
+          "meaning": "Inner-fence IQR multiplier",
+          "unit": "1",
+          "source_id": "cfa-l1v1",
+          "locator": "Printed p120/PDF130 fence rule"
+        }
+      ],
+      "guards": [
+        "side ** 2 == 1",
+        "IQR >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: q is the matching first or third quartile and IQR uses the same dataset.",
+        "Application profile: side encodes the two source formulas in one canonical relationship."
+      ],
+      "limitations": [
+        "A fence is a threshold, not automatically the observed whisker endpoint; observations beyond it are potential outliers."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Quantiles, printed p120 (PDF p130), unnumbered fence rules and Exhibit46",
+          "evidence": "The source puts boxplot inner fences one and a half interquartile ranges beyond the first and third quartiles.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-boxplot",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/boxplot.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.3.7, Box plots with fences, Steps3-4",
+          "evidence": "Interquartile range is upper minus lower quartile; inner fences lie1.5 interquartile ranges beyond them.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "upper-fence",
+          "inputs": {
+            "q": 8,
+            "side": 1,
+            "IQR": 4
+          },
+          "expected": 14,
+          "tolerance": 1e-09,
+          "method": "Independent interval construction: quartiles4and8 span4; extending1.5 spans beyond8 reaches14.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "lower-fence",
+          "inputs": {
+            "q": 4,
+            "side": -1,
+            "IQR": 4
+          },
+          "expected": -2,
+          "tolerance": 1e-09,
+          "method": "Using the same quartile interval, extending one and a half widths below4 reaches-2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "side": 1,
+            "IQR": 4
+          },
+          "reason": "q is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "q=fence-side*1.5*IQR. IQR=(fence-q)/(side*1.5) with known side and IQR>=0. The upper case recovers4 from(14-8)/1.5. IfIQR0, fences coincide with their matching quartiles.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--data-range",
+      "revision": "r1",
+      "title": "Range of a numerical dataset",
+      "summary": "The data range is the difference between the largest and smallest observed values.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "R",
+        "expression": "maximum - minimum",
+        "original_equation": "Range=Maximum value-Minimum value",
+        "source_id": "cfa-l1v1",
+        "locator": "Learning Module2, Measures of Dispersion, printed p123 (PDF p133), Equation(8); earlier construction printed p72/PDF82",
+        "translation_notes": "The extrema are bound inputs because min/max are outside the scalar function set. U-U yieldsU; zero range is admitted for constant data."
+      },
+      "variables": [
+        {
+          "symbol": "maximum",
+          "source_symbol": "Maximum value",
+          "role": "input",
+          "quantity_id": "sample_maximum",
+          "definition": "Largest observation, supplied externally",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "minimum",
+          "source_symbol": "Minimum value",
+          "role": "input",
+          "quantity_id": "sample_minimum",
+          "definition": "Smallest observation, supplied externally",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "R",
+          "source_symbol": "Range",
+          "role": "output",
+          "quantity_id": "data_range",
+          "definition": "Full observed max-minus-min spread",
+          "unit": "data-unit",
+          "dimensions": "observation dimension U",
+          "context": "Same dataset, ascending ordering, numerical variable and measurement unit U",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "maximum >= minimum"
+      ],
+      "assumptions": [
+        "Source assumption: extrema belong to the same dataset and use the same units."
+      ],
+      "limitations": [
+        "Uses only two order statistics and does not describe within-range distribution."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v1",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 1: Quantitative Methods",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module2, Measures of Dispersion, printed p123 (PDF p133), Equation(8); earlier construction printed p72/PDF82",
+          "evidence": "The data range is the difference between the largest and smallest observed values.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "nist-scale",
+          "kind": "primary",
+          "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+          "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda356.htm",
+          "version": "Live handbook inspected2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Section1.3.5.6, Definitions of Variability, range and interquartile range",
+          "evidence": "Range subtracts minimum from maximum; interquartile range subtracts the first quartile from the third.",
+          "license": "Terms unknown; no redistribution permission inferred from accessibility.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "cfa-year-three",
+          "inputs": {
+            "maximum": 0.062,
+            "minimum": -0.015
+          },
+          "expected": 0.077,
+          "tolerance": 1e-09,
+          "method": "Published7.7% range from6.2% to-1.5%; all normalized to decimal.",
+          "provenance": "CFA printed p123/PDF133."
+        },
+        {
+          "id": "constant-dataset",
+          "inputs": {
+            "maximum": 3,
+            "minimum": 3
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "Identical observations have coincident extremes and zero range.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "minimum": -0.015
+          },
+          "reason": "maximum is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "maximum=minimum+R and minimum=maximum-R; .062-.077=-.015 recovers the minimum. Range0 identifies equal extrema but not their common level.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,548 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b13",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "4 atomic Volume 2 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "DRAFT: purchased-PDF primary URL null is required by source brief but rejected by installed official validator. Toolkit unchanged. Independent checks and ZIP checksum pass; no official intake approval claimed. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--real-output-period-growth",
+      "revision": "r1",
+      "title": "Simple growth of real economic output between two periods",
+      "summary": "Real economic growth measures proportional change in constant-price output across the stated periods.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "g",
+        "expression": "final / initial - 1",
+        "original_equation": "Real economic growth = percentage change in realGDP",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module3, Nominal and RealGDP and Economic Growth, printed pp129-130,173 (PDF pp141-142,185), unnumbered growth calculations; LM4 Types of Cycles printed pp206-207/PDF218-219",
+        "translation_notes": "Ratio cancels the common reference-currency dimension; pure1 removes the starting-level gross factor. For N equal periods, constant geometric growth satisfies final=initial*(1+g_annual)**N, already an accumulation/geometric-growth solve profile, not a new record."
+      },
+      "variables": [
+        {
+          "symbol": "initial",
+          "source_symbol": "beginning realGDP",
+          "role": "input",
+          "quantity_id": "initial_real_gdp",
+          "definition": "Positive real output in the starting period on a declared reference-price basis",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite realGDP"
+        },
+        {
+          "symbol": "final",
+          "source_symbol": "ending realGDP",
+          "role": "input",
+          "quantity_id": "final_real_gdp",
+          "definition": "Nonnegative real output in the ending period on the same reference-price basis",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite realGDP"
+        },
+        {
+          "symbol": "g",
+          "source_symbol": "growth inrealGDP",
+          "role": "output",
+          "quantity_id": "real_output_simple_growth",
+          "definition": "Fractional realGDP change over exactly the stated interval",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite rate at least-1"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "initial > 0",
+        "final >= 0"
+      ],
+      "assumptions": [
+        "Source assumption: identical geographic coverage, price reference and statistical frequency.",
+        "Application profile: initial output positive and final output nonnegative."
+      ],
+      "limitations": [
+        "One-period change is not automatically annualized or a CAGR. Nominal output growth includes price changes and cannot substitute here."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Nominal and RealGDP and Economic Growth, printed pp129-130,173 (PDF pp141-142,185), unnumbered growth calculations; LM4 Types of Cycles printed pp206-207/PDF218-219",
+          "evidence": "Real economic growth measures proportional change in constant-price output across the stated periods.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "openstax-growth-definition",
+          "kind": "primary",
+          "title": "Principles of Macroeconomics2e, AppendixA",
+          "url": "https://openstax.org/books/principles-macroeconomics-2e/pages/a-the-use-of-mathematics-in-principles-of-economics",
+          "version": "OpenStax2e, live page",
+          "accessed": "2026-11-03",
+          "locator": "Growth Rates, percentage change calculation",
+          "evidence": "A growth rate is the change in a quantity divided by its starting quantity.",
+          "license": "Exact inspected-page terms unknown; formula facts only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "source-three-percent",
+          "inputs": {
+            "initial": 5625000000,
+            "final": 5793750000
+          },
+          "expected": 0.03,
+          "tolerance": 1e-09,
+          "method": "The source automobile example increases physical production3percent while holding reference prices constant.",
+          "provenance": "CFA printed p130/PDF142."
+        },
+        {
+          "id": "contraction",
+          "inputs": {
+            "initial": 200,
+            "final": 180
+          },
+          "expected": -0.1,
+          "tolerance": 1e-09,
+          "method": "A20 output decline relative to initial200 is a ten-percent contraction.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "final": 5793750000
+          },
+          "reason": "initial is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "final=initial*(1+g); initial=final/(1+g) requiresg>-1 and positive result. First case reconstructs5793750000; substitution.03. Atg=-1,final0 and starting output cannot be recovered from final alone.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--signed-real-output-gap",
+      "revision": "r1",
+      "title": "Signed level gap between actual and potential real output",
+      "summary": "The cycle discussion measures actual output relative to potential, with negative recessionary gaps and positive above-potential gaps.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "gap",
+        "expression": "actual - potential",
+        "original_equation": "Output gap = actualGDP - potentialGDP",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module3, Recessionary Gap and Inflationary Gap, printed pp164,167 (PDF pp176,179), Exhibits22,24; LM4 printed pp206-209/PDF218-221 Exhibits3-5",
+        "translation_notes": "Currency subtraction preserves reference-output units. Normalized gap=(actual-potential)/potential and log-gap variants require explicit convention choice; no such variant is silently substituted for the defined level gap."
+      },
+      "variables": [
+        {
+          "symbol": "actual",
+          "source_symbol": "actualGDP",
+          "role": "input",
+          "quantity_id": "actual_real_output",
+          "definition": "Observed actual realGDP at the specified date/period",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite real output"
+        },
+        {
+          "symbol": "potential",
+          "source_symbol": "potentialGDP",
+          "role": "input",
+          "quantity_id": "potential_real_output",
+          "definition": "Externally estimated potentialGDP on the same reference-price basis",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite potential output"
+        },
+        {
+          "symbol": "gap",
+          "source_symbol": "gap between actualGDP andtrendGDP",
+          "role": "output",
+          "quantity_id": "signed_real_output_level_gap",
+          "definition": "Actual minus potential output in reference-currency units",
+          "unit": "EUR",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "actual >= 0",
+        "potential > 0"
+      ],
+      "assumptions": [
+        "Source assumption: actual and potential quantities share output coverage and reference prices.",
+        "Source assumption: potential output is independently estimated and not directly observed."
+      ],
+      "limitations": [
+        "Absolute currency gap is not a percentage gap; relative display uses gap/potential. Potential estimates can be substantially revised."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Recessionary Gap and Inflationary Gap, printed pp164,167 (PDF pp176,179), Exhibits22,24; LM4 printed pp206-209/PDF218-221 Exhibits3-5",
+          "evidence": "The cycle discussion measures actual output relative to potential, with negative recessionary gaps and positive above-potential gaps.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "imf-output-gap",
+          "kind": "primary",
+          "title": "The Output Gap: Veering from Potential",
+          "url": "https://www.imf.org/external/pubs/ft/fandd/basics/22_output-gap.htm",
+          "version": "IMF Finance and Development, Back to Basics compilation",
+          "accessed": "2026-11-03",
+          "locator": "Opening definition and positive/negative output-gap explanation",
+          "evidence": "Output gap measures the difference between actual and potential economic output.",
+          "license": "IMF exact page terms unknown; no source passages or pages redistributed.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "recessionary-gap",
+          "inputs": {
+            "actual": 90,
+            "potential": 100
+          },
+          "expected": -10,
+          "tolerance": 1e-09,
+          "method": "Actual90 is10 below the potential100.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "above-potential",
+          "inputs": {
+            "actual": 105,
+            "potential": 100
+          },
+          "expected": 5,
+          "tolerance": 1e-09,
+          "method": "Actual105 exceeds potential100 by5.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "potential": 100
+          },
+          "reason": "actual is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "actual=gap+potential; potential=actual-gap must remain positive. First case recovers actual90 via-10+100. The sign alone does not identify either level or cycle phase.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--industrial-capacity-utilization",
+      "revision": "r1",
+      "title": "Capacity utilization from compatible output and capacity measures",
+      "summary": "Capacity utilization measures how fully production capacity is used and is discussed as a condition affecting investment spending.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "u",
+        "expression": "output / capacity",
+        "original_equation": "Capacity utilization=actual production / production capacity",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module3, Capacity Utilization, printed p153 (PDF p165), prose definition; Learning Module4, Capital Spending, printed pp215-216 (PDF pp227-228), Exhibit8",
+        "translation_notes": "The declared index measures are dimensionless with matched normalization; the ratio is a base fraction. The source82-85percent discussion is a historical illustrative threshold, not a calibrated universal rule or guard."
+      },
+      "variables": [
+        {
+          "symbol": "output",
+          "source_symbol": "actual production",
+          "role": "input",
+          "quantity_id": "actual_industry_output_index",
+          "definition": "Actual production level or index over the declared industry and period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite compatible output measure"
+        },
+        {
+          "symbol": "capacity",
+          "source_symbol": "production capacity",
+          "role": "input",
+          "quantity_id": "industry_capacity_index",
+          "definition": "Sustainable practical capacity expressed in exactly the same output/index normalization",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite compatible capacity measure"
+        },
+        {
+          "symbol": "u",
+          "source_symbol": "capacity utilization",
+          "role": "output",
+          "quantity_id": "industrial_capacity_utilization",
+          "definition": "Fraction of practical production capacity utilized",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite utilization ratio"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "output >= 0",
+        "capacity > 0"
+      ],
+      "assumptions": [
+        "Source assumption: output and capacity have identical industry coverage and compatible index scaling.",
+        "Application profile: temporary output may exceed estimated sustainable practical capacity; the arithmetic ratio is not clipped at1."
+      ],
+      "limitations": [
+        "An industrial capacity index is not automatically the same as economy-wide potentialGDP.",
+        "Practical capacity estimation and output normalization are external inputs."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module3, Capacity Utilization, printed p153 (PDF p165), prose definition; Learning Module4, Capital Spending, printed pp215-216 (PDF pp227-228), Exhibit8",
+          "evidence": "Capacity utilization measures how fully production capacity is used and is discussed as a condition affecting investment spending.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "fed-capacity",
+          "kind": "primary",
+          "title": "Industrial Production and Capacity Utilization, Explanatory Note",
+          "url": "https://www.federalreserve.gov/releases/g17/CapNotes.htm",
+          "version": "Federal Reserve Board G.17 methodology, live note",
+          "accessed": "2026-11-03",
+          "locator": "Capacity utilization definition",
+          "evidence": "An industry utilization rate is the compatible output index divided by its capacity index.",
+          "license": "Government source; exact reuse terms unknown.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "eighty-percent",
+          "inputs": {
+            "output": 80,
+            "capacity": 100
+          },
+          "expected": 0.8,
+          "tolerance": 1e-09,
+          "method": "Actual80 relative to practical100 uses four fifths of capacity.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "above-estimated-capacity",
+          "inputs": {
+            "output": 105,
+            "capacity": 100
+          },
+          "expected": 1.05,
+          "tolerance": 1e-09,
+          "method": "Output105 is5percent above the estimated sustainable capacity100; no clipping is applied.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "capacity": 100
+          },
+          "reason": "output is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "output=u*capacity; capacity=output/u requiresu>0 and positive result. First reference reconstructs output80. Atu0,output0 and capacity cannot be inferred; capacity0 always excluded.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--inventory-to-sales-ratio",
+      "revision": "r1",
+      "title": "End-period inventories relative to period sales",
+      "summary": "The indicator compares inventories available for sale with the sales level over its reference period.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ratio",
+        "expression": "inventory / sales",
+        "original_equation": "Inventory-sales ratio=available inventories / sales",
+        "source_id": "cfa-l1v2",
+        "locator": "Learning Module4, Fluctuations in Inventory Levels, printed pp217-218 (PDF pp229-230), unnumbered definition and Exhibit9",
+        "translation_notes": "Currency divided by currency gives a ratio linked to the explicit sales reference period. Changing monthly sales to annualized sales changes its meaning; no implicit period conversion is applied. This is a defined economic inventory indicator, not a generic arithmetic quotient."
+      },
+      "variables": [
+        {
+          "symbol": "inventory",
+          "source_symbol": "inventories available for sale",
+          "role": "input",
+          "quantity_id": "closing_saleable_inventory_value",
+          "definition": "End-of-reference-period saleable merchandise inventory on the declared cost basis",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite inventory value"
+        },
+        {
+          "symbol": "sales",
+          "source_symbol": "level of sales",
+          "role": "input",
+          "quantity_id": "period_net_sales_value",
+          "definition": "Sales over one explicitly specified reference period, at selling prices on the same business coverage",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Positive finite sales"
+        },
+        {
+          "symbol": "ratio",
+          "source_symbol": "inventory-sales ratio",
+          "role": "output",
+          "quantity_id": "inventory_sales_ratio",
+          "definition": "Closing inventory value relative to sales value over one declared period",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Nonnegative finite ratio"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "inventory >= 0",
+        "sales > 0"
+      ],
+      "assumptions": [
+        "Source assumption: closing inventory and period sales cover the same businesses and product scope.",
+        "Application profile: Census monetary convention uses inventory at cost and sales at selling value; that convention must be retained when comparing series."
+      ],
+      "limitations": [
+        "The ratio is not automatically a physical months-supply measure when inventory and sales valuation bases differ.",
+        "It is not inventory turnover, whose cost-of-sales/average-inventory definition has different inputs."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "primary",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Learning Module4, Fluctuations in Inventory Levels, printed pp217-218 (PDF pp229-230), unnumbered definition and Exhibit9",
+          "evidence": "The indicator compares inventories available for sale with the sales level over its reference period.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "census-inventory-sales",
+          "kind": "primary",
+          "title": "Monthly Wholesale Trade, Definitions",
+          "url": "https://www.census.gov/wholesale/definitions.html",
+          "version": "US Census Bureau live definitions",
+          "accessed": "2026-11-03",
+          "locator": "Inventories and Inventories-to-Sales Ratio",
+          "evidence": "The inventory-sales ratio divides end-period inventory value at cost by sales value during the reference period.",
+          "license": "Government source; exact reuse terms unknown.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "two-periods-sales-value",
+          "inputs": {
+            "inventory": 200,
+            "sales": 100
+          },
+          "expected": 2,
+          "tolerance": 1e-09,
+          "method": "Two hundred of inventory value compares with100 in one period sales value, giving ratio2.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "low-stock-sales-ratio",
+          "inputs": {
+            "inventory": 75,
+            "sales": 150
+          },
+          "expected": 0.5,
+          "tolerance": 1e-09,
+          "method": "Inventory value75 is one half of period sales150.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "sales": 100
+          },
+          "reason": "inventory is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "inventory=ratio*sales. sales=inventory/ratio requiresratio>0. First case reconstructs inventory200 and substitutes2. Ifinventory0 andratio0, positive sales level is unidentified.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

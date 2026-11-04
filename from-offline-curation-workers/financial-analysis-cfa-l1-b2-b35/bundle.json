@@ -1,0 +1,679 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b2-b35",
+  "created": "2026-11-04",
+  "curator": "codex-cfa-l1v2",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "5 atomic Volume 2 relationships with owner-PDF provenance and inspected public corroboration.",
+    "gaps": [
+      "Finance quantities and scientific fidelity require independent registry review.",
+      "Deduplication uses the available inventory and own prior returns, not a global registry."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The owner PDF is project-derivation with a null URL; public evidence carries each relationship."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--bilateral-real-exchange-rate-domestic-per-foreign",
+      "revision": "r1",
+      "title": "Bilateral real exchange rate from matched goods prices",
+      "summary": "The owner text multiplies the domestic-per-foreign spot rate by the foreign price and divides by the domestic price.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "real",
+        "expression": "spot * foreign / domestic",
+        "original_equation": "Real rate = nominal domestic/foreign spot rate × foreign goods price / domestic goods price",
+        "source_id": "imf-real-exchange-rates",
+        "locator": "Core equation and worked illustration",
+        "translation_notes": "Domestic/foreign × foreign/basket ÷ domestic/basket is dimensionless. Currency identities and units require registry extension; no currency conversion is implicit."
+      },
+      "variables": [
+        {
+          "symbol": "spot",
+          "source_symbol": "domestic currency per foreign currency spot rate",
+          "role": "input",
+          "quantity_id": "spot_exchange_rate_domestic_per_foreign",
+          "definition": "domestic currency per foreign currency spot rate",
+          "unit": "domestic_currency_per_foreign_currency",
+          "dimensions": "specified currency / specified currency",
+          "context": "Named price and base currencies, dealer side and value date must match the stated quotation convention",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "foreign",
+          "source_symbol": "foreign-currency goods price",
+          "role": "input",
+          "quantity_id": "foreign_goods_price_foreign_currency",
+          "definition": "Foreign price for the specified comparable goods basket",
+          "unit": "foreign_currency_per_basket",
+          "dimensions": "foreign currency/basket",
+          "context": "Same basket, date and foreign currency as the exchange rate",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "domestic",
+          "source_symbol": "domestic-currency goods price",
+          "role": "input",
+          "quantity_id": "domestic_goods_price_domestic_currency",
+          "definition": "Domestic price for the same comparable goods basket",
+          "unit": "domestic_currency_per_basket",
+          "dimensions": "domestic currency/basket",
+          "context": "Same basket, date and domestic currency as the exchange rate",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "real",
+          "source_symbol": "bilateral real exchange rate",
+          "role": "output",
+          "quantity_id": "real_exchange_rate_foreign_goods_relative_domestic",
+          "definition": "Foreign goods price in domestic currency divided by domestic goods price",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "spot > 0",
+        "foreign > 0",
+        "domestic > 0"
+      ],
+      "assumptions": [
+        "Spot is explicitly domestic currency per foreign currency and the two prices apply to comparable goods baskets.",
+        "All quantities refer to consistent dates and positive prices."
+      ],
+      "limitations": [
+        "A CPI-based real-rate index requires compatible index base periods and does not, by itself, identify an absolute relative goods price.",
+        "The real-rate definition varies with quotation orientation; this is not an investment recommendation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 8, Introduction and the Foreign Exchange Market, printed p473 (PDF p485), unnumbered real exchange rate equations",
+          "evidence": "The owner text multiplies the domestic-per-foreign spot rate by the foreign price and divides by the domestic price.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "imf-real-exchange-rates",
+          "kind": "primary",
+          "title": "Real Exchange Rates: What Money Can Buy",
+          "url": "https://www.imf.org/en/publications/fandd/issues/series/back-to-basics/real-exchange-rates",
+          "version": "Luis Catão, International Monetary Fund, 19 March 2019",
+          "accessed": "2026-11-04",
+          "locator": "Core equation and worked illustration",
+          "evidence": "The IMF defines the real exchange rate as the domestic-currency price of foreign goods divided by the domestic price of comparable goods.",
+          "license": "IMF copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "imf-parity",
+          "inputs": {
+            "spot": 1.36,
+            "foreign": 2.5,
+            "domestic": 3.4
+          },
+          "expected": 1,
+          "tolerance": 1e-09,
+          "method": "1.36 domestic per foreign times 2.5 foreign per basket divided by 3.4 domestic per basket gives one.",
+          "provenance": "IMF worked goods-price illustration."
+        },
+        {
+          "id": "imf-relative",
+          "inputs": {
+            "spot": 1.36,
+            "foreign": 3,
+            "domestic": 3.4
+          },
+          "expected": 1.2,
+          "tolerance": 1e-09,
+          "method": "The same conversion of a foreign price of 3 yields a real relative price of 1.2.",
+          "provenance": "IMF worked goods-price illustration."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "foreign": 2.5,
+            "domestic": 3.4
+          },
+          "reason": "spot is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "spot=real*domestic/foreign when foreign price is positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--bilateral-real-exchange-rate-exact-change",
+      "revision": "r1",
+      "title": "Exact change in bilateral real exchange rate",
+      "summary": "The text derives exact real-rate growth from the changes in the nominal quote and both price levels.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "change",
+        "expression": "(1 + nominal) * (1 + foreign) / (1 + domestic) - 1",
+        "original_equation": "Real-rate change = (1 + nominal-rate change) × (1 + foreign inflation) / (1 + domestic inflation) − 1",
+        "source_id": "imf-real-exchange-rates",
+        "locator": "Core equation and worked illustration",
+        "translation_notes": "Inputs and output are signed base-one fractional changes; 1 converts each change to a gross factor."
+      },
+      "variables": [
+        {
+          "symbol": "nominal",
+          "source_symbol": "change in domestic-per-foreign nominal rate",
+          "role": "input",
+          "quantity_id": "nominal_exchange_rate_fractional_change",
+          "definition": "Fractional change in domestic currency per foreign currency quote",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "foreign",
+          "source_symbol": "foreign price inflation",
+          "role": "input",
+          "quantity_id": "foreign_price_level_fractional_change",
+          "definition": "Fractional change in foreign goods price level",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "domestic",
+          "source_symbol": "domestic price inflation",
+          "role": "input",
+          "quantity_id": "domestic_price_level_fractional_change",
+          "definition": "Fractional change in domestic goods price level",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "change",
+          "source_symbol": "real-rate change",
+          "role": "output",
+          "quantity_id": "real_exchange_rate_fractional_change",
+          "definition": "Fractional change in the domestic-per-foreign real rate",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "nominal > -1",
+        "foreign > -1",
+        "domestic > -1"
+      ],
+      "assumptions": [
+        "All changes cover the same two dates and consistent domestic and foreign price measures.",
+        "The spot quote is domestic currency per foreign currency and all gross factors are positive."
+      ],
+      "limitations": [
+        "This is the exact arithmetic transformation of the real-rate definition; a simple sum of changes is only an approximation.",
+        "The exchange-rate and price inputs are observations or scenarios, not a forecast."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 8, Introduction and the Foreign Exchange Market, printed p473 (PDF p485), unnumbered real exchange rate equations",
+          "evidence": "The text derives exact real-rate growth from the changes in the nominal quote and both price levels.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "imf-real-exchange-rates",
+          "kind": "primary",
+          "title": "Real Exchange Rates: What Money Can Buy",
+          "url": "https://www.imf.org/en/publications/fandd/issues/series/back-to-basics/real-exchange-rates",
+          "version": "Luis Catão, International Monetary Fund, 19 March 2019",
+          "accessed": "2026-11-04",
+          "locator": "Core equation and worked illustration",
+          "evidence": "The IMF defines the real exchange rate as the domestic-currency price of foreign goods divided by the domestic price of comparable goods.",
+          "license": "IMF copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner-exact",
+          "inputs": {
+            "nominal": 0.1,
+            "foreign": 0.05,
+            "domestic": 0.02
+          },
+          "expected": 0.13235294117647078,
+          "tolerance": 1e-09,
+          "method": "10% nominal change and 5% and 2% inflation produce approximately 13.2353% before the source approximation.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "unchanged",
+          "inputs": {
+            "nominal": 0,
+            "foreign": 0,
+            "domestic": 0
+          },
+          "expected": 0,
+          "tolerance": 1e-09,
+          "method": "No changes in the components imply no change in the real rate.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "foreign": 0.05,
+            "domestic": 0.02
+          },
+          "reason": "nominal is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "nominal=(1+change)*(1+domestic)/(1+foreign)-1.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--reciprocal-fx-bid-from-original-ask",
+      "revision": "r1",
+      "title": "Reciprocal currency bid from original ask",
+      "summary": "The owner example obtains the inverse-pair bid by inverting the original ask.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "bid",
+        "expression": "1 / ask",
+        "original_equation": "Inverse-pair bid = 1 / original-pair ask",
+        "source_id": "ignou-foreign-exchange-unit5",
+        "locator": "Sections 5.4.2–5.4.3 and Example 5.7",
+        "translation_notes": "Reciprocation reverses the two currency dimensions; 1 is the arithmetic numerator."
+      },
+      "variables": [
+        {
+          "symbol": "ask",
+          "source_symbol": "original quote ask",
+          "role": "input",
+          "quantity_id": "fx_original_pair_ask",
+          "definition": "original quote ask",
+          "unit": "price_currency_per_base_currency",
+          "dimensions": "specified currency / specified currency",
+          "context": "Named price and base currencies, dealer side and value date must match the stated quotation convention",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "bid",
+          "source_symbol": "inverse quote bid",
+          "role": "output",
+          "quantity_id": "fx_inverse_pair_bid",
+          "definition": "inverse quote bid",
+          "unit": "base_currency_per_price_currency",
+          "dimensions": "specified currency / specified currency",
+          "context": "Named price and base currencies, dealer side and value date must match the stated quotation convention",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "ask > 0"
+      ],
+      "assumptions": [
+        "Original ask is strictly positive and is expressed as price currency per base currency.",
+        "The inverse quote reverses the base and price currencies and preserves the same dealer and value date."
+      ],
+      "limitations": [
+        "The inverse bid comes from the original ask, not the original bid.",
+        "Fees, rounding and different dealer spreads affect executable transactions."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 8, Exchange Rate Quotations, printed pp489–492 (PDF pp501–504), Example 4 solution 2",
+          "evidence": "The owner example obtains the inverse-pair bid by inverting the original ask.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ignou-foreign-exchange-unit5",
+          "kind": "primary",
+          "title": "Foreign Exchange, Unit 5",
+          "url": "https://www.egyankosh.ac.in/bitstream/123456789/6398/1/Unit-5.pdf",
+          "version": "Indira Gandhi National Open University educational unit, publication year not established",
+          "accessed": "2026-11-04",
+          "locator": "Sections 5.4.2–5.4.3 and Example 5.7",
+          "evidence": "The university unit reverses bid and ask when inverting quotes and multiplies matching currency legs for a cross rate.",
+          "license": "University educational material; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner",
+          "inputs": {
+            "ask": 18.86
+          },
+          "expected": 0.053022269353128315,
+          "tolerance": 1e-09,
+          "method": "1/18.86 is approximately 0.05302.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "ignou",
+          "inputs": {
+            "ask": 0.81
+          },
+          "expected": 1.2345679012345678,
+          "tolerance": 1e-09,
+          "method": "1/0.81 is approximately 1.23457.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "ask is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "ask=1/bid.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--reciprocal-fx-ask-from-original-bid",
+      "revision": "r1",
+      "title": "Reciprocal currency ask from original bid",
+      "summary": "The owner example obtains the inverse-pair ask by inverting the original bid.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "ask",
+        "expression": "1 / bid",
+        "original_equation": "Inverse-pair ask = 1 / original-pair bid",
+        "source_id": "ignou-foreign-exchange-unit5",
+        "locator": "Sections 5.4.2–5.4.3 and Example 5.7",
+        "translation_notes": "Reciprocation reverses the two currency dimensions; 1 is the arithmetic numerator."
+      },
+      "variables": [
+        {
+          "symbol": "bid",
+          "source_symbol": "original quote bid",
+          "role": "input",
+          "quantity_id": "fx_original_pair_bid",
+          "definition": "original quote bid",
+          "unit": "price_currency_per_base_currency",
+          "dimensions": "specified currency / specified currency",
+          "context": "Named price and base currencies, dealer side and value date must match the stated quotation convention",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "ask",
+          "source_symbol": "inverse quote ask",
+          "role": "output",
+          "quantity_id": "fx_inverse_pair_ask",
+          "definition": "inverse quote ask",
+          "unit": "base_currency_per_price_currency",
+          "dimensions": "specified currency / specified currency",
+          "context": "Named price and base currencies, dealer side and value date must match the stated quotation convention",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "bid > 0"
+      ],
+      "assumptions": [
+        "Original bid is strictly positive; inverse quote reverses the currency order for the same dealer and value date."
+      ],
+      "limitations": [
+        "The inverse ask comes from the original bid, not the original ask.",
+        "Fees, rounding and different dealer spreads affect executable transactions."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 8, Exchange Rate Quotations, printed pp489–492 (PDF pp501–504), Example 4 solution 2",
+          "evidence": "The owner example obtains the inverse-pair ask by inverting the original bid.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ignou-foreign-exchange-unit5",
+          "kind": "primary",
+          "title": "Foreign Exchange, Unit 5",
+          "url": "https://www.egyankosh.ac.in/bitstream/123456789/6398/1/Unit-5.pdf",
+          "version": "Indira Gandhi National Open University educational unit, publication year not established",
+          "accessed": "2026-11-04",
+          "locator": "Sections 5.4.2–5.4.3 and Example 5.7",
+          "evidence": "The university unit reverses bid and ask when inverting quotes and multiplies matching currency legs for a cross rate.",
+          "license": "University educational material; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner",
+          "inputs": {
+            "bid": 18.858
+          },
+          "expected": 0.05302789267154523,
+          "tolerance": 1e-09,
+          "method": "1/18.858 is approximately 0.05303.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "ignou",
+          "inputs": {
+            "bid": 0.8
+          },
+          "expected": 1.25,
+          "tolerance": 1e-09,
+          "method": "1/0.8 equals 1.25.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {},
+          "reason": "bid is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "bid=1/ask.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--fx-cross-rate-multiplication",
+      "revision": "r1",
+      "title": "Currency cross rate from two aligned quotes",
+      "summary": "The owner text multiplies aligned CAD/USD and USD/EUR quotations to obtain CAD/EUR.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "cross",
+        "expression": "first * second",
+        "original_equation": "A per C = A per B × B per C",
+        "source_id": "ignou-foreign-exchange-unit5",
+        "locator": "Sections 5.4.2–5.4.3 and Example 5.7",
+        "translation_notes": "A/B × B/C yields A/C; these are distinct currency units rather than interchangeable dimensionless scalars."
+      },
+      "variables": [
+        {
+          "symbol": "first",
+          "source_symbol": "A per B exchange rate",
+          "role": "input",
+          "quantity_id": "fx_rate_a_per_b",
+          "definition": "A per B exchange rate",
+          "unit": "currency_a_per_currency_b",
+          "dimensions": "specified currency / specified currency",
+          "context": "Named price and base currencies, dealer side and value date must match the stated quotation convention",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "second",
+          "source_symbol": "B per C exchange rate",
+          "role": "input",
+          "quantity_id": "fx_rate_b_per_c",
+          "definition": "B per C exchange rate",
+          "unit": "currency_b_per_currency_c",
+          "dimensions": "specified currency / specified currency",
+          "context": "Named price and base currencies, dealer side and value date must match the stated quotation convention",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "cross",
+          "source_symbol": "A per C cross rate",
+          "role": "output",
+          "quantity_id": "fx_rate_a_per_c",
+          "definition": "A per C cross rate",
+          "unit": "currency_a_per_currency_c",
+          "dimensions": "specified currency / specified currency",
+          "context": "Named price and base currencies, dealer side and value date must match the stated quotation convention",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "first > 0",
+        "second > 0"
+      ],
+      "assumptions": [
+        "The intermediate currency B is identical in both quotes and the observations have matching value dates.",
+        "For two-sided executable quotes, inputs must be the compatible dealer sides for the intended transaction."
+      ],
+      "limitations": [
+        "Market quotes may differ from this implied rate because of spreads, fees, timing and arbitrage limits.",
+        "Multiplication applies only after orienting the quotes so the intermediate currency cancels."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v2",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 2: Economics, Financial Statement Analysis",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Economics Learning Module 8, Cross-Rate Calculations, printed pp492–494 (PDF pp504–506), unnumbered cross-rate equation and Example 5",
+          "evidence": "The owner text multiplies aligned CAD/USD and USD/EUR quotations to obtain CAD/EUR.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "ignou-foreign-exchange-unit5",
+          "kind": "primary",
+          "title": "Foreign Exchange, Unit 5",
+          "url": "https://www.egyankosh.ac.in/bitstream/123456789/6398/1/Unit-5.pdf",
+          "version": "Indira Gandhi National Open University educational unit, publication year not established",
+          "accessed": "2026-11-04",
+          "locator": "Sections 5.4.2–5.4.3 and Example 5.7",
+          "evidence": "The university unit reverses bid and ask when inverting quotes and multiplies matching currency legs for a cross rate.",
+          "license": "University educational material; specific reuse terms not established; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "owner",
+          "inputs": {
+            "first": 1.302,
+            "second": 1.1701
+          },
+          "expected": 1.5234702,
+          "tolerance": 1e-09,
+          "method": "1.3020 CAD/USD times 1.1701 USD/EUR gives 1.5234702 CAD/EUR.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "ignou",
+          "inputs": {
+            "first": 44.5,
+            "second": 1.2
+          },
+          "expected": 53.4,
+          "tolerance": 1e-09,
+          "method": "44.5 rupees per dollar times 1.2 dollars per euro gives 53.4 rupees per euro.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "second": 1.1701
+          },
+          "reason": "first is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "first=cross/second when the second rate is positive.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

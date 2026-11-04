@@ -1,0 +1,299 @@
+{
+  "batch_id": "financial-analysis-cfa-l1-b3-b53",
+  "created": "2026-11-03",
+  "curator": "codex-cfa-l1v3",
+  "deferred": [],
+  "domain": "financial-analysis",
+  "example_only": false,
+  "handoff": {
+    "summary": "2 atomic Volume 3 relationships with exact private-PDF citations and inspected public corroboration.",
+    "gaps": [
+      "Finance quantity meanings require registry review.",
+      "Deduplication limited to supplied inventory, assignment exclusions and own Volume 1/2 records; no global uniqueness claim."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "The purchased PDF is a project-derivation source; the accessible corroborating source carries the relationship. "
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "id": "financial-analysis--project-npv-including-real-option",
+      "revision": "r1",
+      "title": "Project NPV including real option value",
+      "summary": "The reading subtracts the incremental option cost and adds option value to the base DCF NPV.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "total",
+        "expression": "base - cost + value",
+        "original_equation": "Project NPV including option = base NPV - option cost + option value",
+        "source_id": "wiley-capital-budgeting-excerpt",
+        "locator": "NPVs and Stock Prices, Example 6; Real Options, project NPV expression",
+        "translation_notes": "Base and total NPV can be signed; cost and option value are nonnegative."
+      },
+      "variables": [
+        {
+          "symbol": "base",
+          "source_symbol": "base project net present value",
+          "role": "input",
+          "quantity_id": "base_project_net_present_value",
+          "definition": "base project net present value",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "cost",
+          "source_symbol": "present cost of obtaining option",
+          "role": "input",
+          "quantity_id": "real_option_obtaining_cost",
+          "definition": "present cost of obtaining option",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "value",
+          "source_symbol": "real option value",
+          "role": "input",
+          "quantity_id": "real_option_value",
+          "definition": "real option value",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "total",
+          "source_symbol": "project net present value including option",
+          "role": "output",
+          "quantity_id": "project_net_present_value_with_real_option",
+          "definition": "project net present value including option",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "cost >= 0",
+        "value >= 0"
+      ],
+      "assumptions": [
+        "The base NPV excludes both option cost and option value, so neither is double counted.",
+        "All values are present values at the same date and in the same currency."
+      ],
+      "limitations": [
+        "The model takes option value as an input; it does not price the option or optimize exercise.",
+        "Market expectations, risk and project interdependencies can alter valuation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 4, Real Options, printed pp748–749 (PDF pp762–763), unnumbered option-adjusted NPV and Example 7",
+          "evidence": "The reading subtracts the incremental option cost and adds option value to the base DCF NPV.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "wiley-capital-budgeting-excerpt",
+          "kind": "primary",
+          "title": "Capital Budgeting",
+          "url": "https://catalogimages.wiley.com/images/db/pdf/9781939515407.excerpt.pdf",
+          "version": "CFA Institute curriculum excerpt, Wiley publisher-hosted; exact publication year not established",
+          "accessed": "2026-11-03",
+          "locator": "NPVs and Stock Prices, Example 6; Real Options, project NPV expression",
+          "evidence": "The excerpt illustrates a project’s unanticipated NPV per share and adds real-option value net of its cost to base project NPV.",
+          "license": "Publisher and CFA Institute copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "example",
+          "inputs": {
+            "base": -400000,
+            "cost": 300000,
+            "value": 1200000
+          },
+          "expected": 500000,
+          "tolerance": 1e-09,
+          "method": "Negative base 400,000 less cost 300,000 plus option value 1.2 million yields 500,000.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "no-option",
+          "inputs": {
+            "base": 100,
+            "cost": 0,
+            "value": 0
+          },
+          "expected": 100,
+          "tolerance": 1e-09,
+          "method": "Without an option or incremental cost the adjusted NPV equals the base.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "cost": 300000,
+            "value": 1200000
+          },
+          "reason": "base is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "base=total+cost-value; value=total-base+cost.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "financial-analysis--unanticipated-project-npv-per-share",
+      "revision": "r1",
+      "title": "Unanticipated project NPV per existing share",
+      "summary": "The example divides a newly disclosed project NPV by the existing shares to determine the per-share effect.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "change",
+        "expression": "npv / shares",
+        "original_equation": "Change in value per share = unanticipated project NPV / existing shares",
+        "source_id": "wiley-capital-budgeting-excerpt",
+        "locator": "NPVs and Stock Prices, Example 6; Real Options, project NPV expression",
+        "translation_notes": "Share count is dimensionless; output is currency per one share and can be negative."
+      },
+      "variables": [
+        {
+          "symbol": "npv",
+          "source_symbol": "unanticipated project net present value",
+          "role": "input",
+          "quantity_id": "unanticipated_project_net_present_value",
+          "definition": "unanticipated project net present value",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "shares",
+          "source_symbol": "existing common shares outstanding",
+          "role": "input",
+          "quantity_id": "common_shares_outstanding",
+          "definition": "Positive number of unchanged common shares",
+          "unit": "1",
+          "dimensions": "dimensionless",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        },
+        {
+          "symbol": "change",
+          "source_symbol": "change in value per common share",
+          "role": "output",
+          "quantity_id": "project_npv_value_change_per_share",
+          "definition": "change in value per common share",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same security, currency, nominal/real basis, timing and period frequency as other quantities in this relationship",
+          "domain": "Finite real scalar"
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "shares > 0"
+      ],
+      "assumptions": [
+        "The full NPV is new information and accrues to existing common shareholders.",
+        "The share count and other expectations remain unchanged; financing is fairly priced."
+      ],
+      "limitations": [
+        "This is a simplified value identity, not a forecast of the market price response.",
+        "Anticipated projects, financing effects, dilution and information about other projects can change the result."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "cfa-l1v3",
+          "kind": "project-derivation",
+          "title": "CFA Program Curriculum 2023 Level I Volume 3: Financial Statement Analysis, Corporate Issuers",
+          "url": null,
+          "version": "CFA Institute, 2023 curriculum; copyright 2022",
+          "accessed": "2026-11-03",
+          "locator": "Corporate Issuers Learning Module 4, Corporate Use of Capital Allocation, printed p746 (PDF p760), Example 5 solution 1",
+          "evidence": "The example divides a newly disclosed project NPV by the existing shares to determine the per-share effect.",
+          "license": "Purchased owner copy; personal-use terms assumed; no redistribution",
+          "redistribution": "No redistribution; single-formula transcription with locator only; full PDF never transmitted or stored in returns"
+        },
+        {
+          "id": "wiley-capital-budgeting-excerpt",
+          "kind": "primary",
+          "title": "Capital Budgeting",
+          "url": "https://catalogimages.wiley.com/images/db/pdf/9781939515407.excerpt.pdf",
+          "version": "CFA Institute curriculum excerpt, Wiley publisher-hosted; exact publication year not established",
+          "accessed": "2026-11-03",
+          "locator": "NPVs and Stock Prices, Example 6; Real Options, project NPV expression",
+          "evidence": "The excerpt illustrates a project’s unanticipated NPV per share and adds real-option value net of its cost to base project NPV.",
+          "license": "Publisher and CFA Institute copyright; formula-level facts and original paraphrase only.",
+          "redistribution": "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted."
+        }
+      ],
+      "references": [
+        {
+          "id": "example",
+          "inputs": {
+            "npv": 250000000,
+            "shares": 200000000
+          },
+          "expected": 1.25,
+          "tolerance": 1e-09,
+          "method": "250 million NPV divided by 200 million existing shares yields 1.25 per share.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        },
+        {
+          "id": "negative",
+          "inputs": {
+            "npv": -1000000,
+            "shares": 1000000
+          },
+          "expected": -1,
+          "tolerance": 1e-09,
+          "method": "A negative one million value change over one million shares is negative one per share.",
+          "provenance": "Curator-constructed independent numerical check; no empirical validation claimed."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "shares": 200000000
+          },
+          "reason": "npv is required; no value is inferred from other inputs."
+        }
+      ],
+      "inverse_notes": "npv=change*shares; shares=npv/change when the change is nonzero.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Finance/statistics quantity meanings and their context contracts require registry review; research arithmetic is executable without a runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

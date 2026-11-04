@@ -326,6 +326,8 @@ def main() -> int:
                 )
                 print(f"  {direct['direct_text'][:800]}")
                 print(f"agreement: {record['agreement']['verdict']}")
+                if not record["agreement"]["details"]:
+                    print(f"  {record['agreement']['reason']}")
                 for detail in record["agreement"]["details"]:
                     print(
                         f"  {detail['meaning']}: expected {detail['expected']}, "

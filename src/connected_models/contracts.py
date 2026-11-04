@@ -110,7 +110,7 @@ CUBIC_METERS_PER_DECILITER = 1e-4
 NEWTONS_PER_POUND_FORCE = 4.4482216152605
 WATTS_PER_HORSEPOWER = 550 * METERS_PER_FOOT * NEWTONS_PER_POUND_FORCE  # Mechanical hp.
 KLEIBER_MASS_EXPONENT = Fraction(3, 4)
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1+envacct-1+demography-1+orbital-2+circuits-2+waves-1+waves-2+clinical-2+cs-5+clinical-3+mechanics-2+cs-6+be-3+query-2+query-3+query-4+glue-1+economics-6+query-5+glue-2+envacct-2+cs-7+water-1+economics-7+cs-8+cfa-l1-1"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1+envacct-1+demography-1+orbital-2+circuits-2+waves-1+waves-2+clinical-2+cs-5+clinical-3+mechanics-2+cs-6+be-3+query-2+query-3+query-4+glue-1+economics-6+query-5+glue-2+envacct-2+cs-7+water-1+economics-7+cs-8+cfa-l1-1+predmark-fx-1+predmark-1"
 DIMENSION_AXES = (
     "mass",
     "length",
@@ -571,6 +571,16 @@ UNIT_ALIASES = {
     "units": "unit",
     "dollar/unit": "USD/unit",
     "dollars/unit": "USD/unit",
+    # FX quote batch (predmark-fx-1): natural phrasings for the USD-per-EUR
+    # spot/forward quote. Lookup normalizes first, so "dollars per euro"
+    # reaches "dollars/euro" and "USD/EUR" reaches "usd/eur". Pair-order
+    # spellings ("EUR/USD") are deliberately absent: as a unit string that
+    # order reads euros-per-dollar, the inverse quote, so a fact stated in
+    # pair order cannot bind (unsupported unit) instead of silently
+    # meaning the inverse quote.
+    "dollar/euro": "USD per EUR",
+    "dollars/euro": "USD per EUR",
+    "usd/eur": "USD per EUR",
 }
 
 
@@ -1978,8 +1988,20 @@ MEANINGS = {
     "income_tax_expense": MONEY,
     "net_income": MONEY,
     "net_sales_revenue": MONEY,
+    # Prediction-market batch (predmark-1): binary-event payoff is money;
+    # Kelly net odds and event probabilities are dimensionless counts.
+    "binary_contract_payoff": MONEY,
+    "kelly_net_odds": DIMENSIONLESS,
+    "kelly_wealth_fraction": DIMENSIONLESS,
+    "event_probability": DIMENSIONLESS,
+    "complement_event_probability": DIMENSIONLESS,
+    "conditional_event_probability": DIMENSIONLESS,
+    "conditioning_event_probability": DIMENSIONLESS,
+    "joint_event_probability": DIMENSIONLESS,
 }
-ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
+ORIGINS = frozenset(
+    {"fixture", "user-scenario", "observation", "generated", "derived", "llm-computed"}
+)
 
 
 def finite(value: object, label: str) -> float:
@@ -2126,6 +2148,56 @@ class Node:
     branch: str | None = None
 
 
+MAX_LLM_INSTRUCTION_CHARS = 2000
+
+
+@dataclass(frozen=True)
+class LLMStep:
+    """A bounded in-context calculation filling a gap no eligible model covers.
+
+    Inputs bind to facts or upstream instances exactly like model inputs; the
+    output port declares the computed meaning, unit, and context; the
+    instruction states the arithmetic relationship using only the bound
+    inputs (no outside facts, recalled constants, or lookups).
+    """
+
+    id: str
+    inputs: dict[str, Port]
+    bindings: dict[str, Value | Reference]
+    output: Port
+    instruction: str
+
+    def validate(self) -> None:
+        """Check declarations, ports, bindings shape, and instruction bounds."""
+        if not self.id:
+            raise ModelError("LLM-computed steps need nonempty identifiers.")
+        if not self.inputs:
+            raise ModelError(
+                f"{self.id}: an LLM-computed step needs at least one input."
+            )
+        for port in (*self.inputs.values(), self.output):
+            port.validate()
+        if set(self.bindings) != set(self.inputs):
+            raise ModelError(
+                f"{self.id}: step bindings must cover every declared input exactly once."
+            )
+        for name, binding in self.bindings.items():
+            if isinstance(binding, tuple):
+                raise ModelError(
+                    f"{self.id}.{name}: LLM-computed steps take scalar bindings only."
+                )
+            if not isinstance(binding, (Value, Reference)):
+                raise ModelError(f"{self.id}.{name}: unsupported binding type.")
+        if not isinstance(self.instruction, str) or not self.instruction.strip():
+            raise ModelError(
+                f"{self.id}: an LLM-computed step needs a computation instruction."
+            )
+        if len(self.instruction) > MAX_LLM_INSTRUCTION_CHARS:
+            raise ModelError(
+                f"{self.id}: computation instruction exceeds the size limit."
+            )
+
+
 @dataclass(frozen=True)
 class Composition:
     """A bounded scenario request, its instances, and its requested results."""
@@ -2134,3 +2206,4 @@ class Composition:
     nodes: tuple[Node, ...]
     outputs: tuple[str, ...]
     purpose: str = "fixture"
+    llm_steps: tuple[LLMStep, ...] = ()

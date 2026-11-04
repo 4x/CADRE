@@ -45,6 +45,12 @@ class PromptTests(unittest.TestCase):
                 "node.input=amount",
                 "never compute or state result figures",
             ),
+            "answer-llm-steps.md": (
+                "no eligible model",
+                "partially grounded",
+                "using ONLY the bound inputs",
+                "At most 3 steps",
+            ),
         }
         for filename, phrases in expectations.items():
             with self.subTest(prompt=filename):

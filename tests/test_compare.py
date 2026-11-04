@@ -90,6 +90,19 @@ class CompareTests(unittest.TestCase):
         verdict = numeric_agreement(_grounded("rejected"), "107.29 m")
         self.assertEqual(verdict["verdict"], "unjudged")
 
+    def test_needs_input_against_numbers_is_guarded(self) -> None:
+        """An underdetermined question makes direct numbers ungrounded."""
+        verdict = numeric_agreement(
+            _grounded("needs-input"), "Kelly fraction: 25% of bankroll"
+        )
+        self.assertEqual(verdict["verdict"], "guarded")
+        self.assertIn("ungrounded", verdict["reason"])
+
+    def test_needs_input_without_numbers_stays_unjudged(self) -> None:
+        """Both sides abstaining is unjudged, not a guarded win."""
+        verdict = numeric_agreement(_grounded("needs-input"), "I cannot answer.")
+        self.assertEqual(verdict["verdict"], "unjudged")
+
     def test_compare_records_both_routes(self) -> None:
         """The comparison saves grounded and direct runs with an agreement."""
         grounded = _grounded("completed", {"n1": _output(107.2896)})

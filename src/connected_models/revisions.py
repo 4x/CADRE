@@ -5,11 +5,12 @@ from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
-from .contracts import ModelError, finite
+from .contracts import LLMStep, ModelError, Value, finite
 from .registry import Registry
 from .reports import diff_runs, read_run
-from .runtime import execute, save_run
+from .runtime import StepCompute, execute, save_run
 from .serialization import composition_from_dict, model_from_dict
+from .workflows import compute_llm_step, llm_steps_enabled
 
 RUNS_PATH = Path(".runs")
 
@@ -47,6 +48,7 @@ def revise_run(
     models: list[str],
     registry: Registry | None = None,
     directory: Path = RUNS_PATH,
+    inference_model: str | None = None,
 ) -> dict[str, Any]:
     """Rerun a saved graph with revised inputs and/or model revisions; preserve the parent run.
 
@@ -137,7 +139,19 @@ def revise_run(
     graph = composition_from_dict(data)
     if purpose == "fixture":
         graph = replace(graph, purpose="fixture")
-    manifest = execute(graph, catalog, admissions)
+    adapter: StepCompute | None = None
+    if graph.llm_steps:
+        if not llm_steps_enabled():
+            raise ModelError(
+                "This run contains LLM-computed steps; set "
+                "CADRE_ALLOW_LLM_STEPS=1 to revise it."
+            )
+
+        def adapter(step: LLMStep, values: dict[str, Value]) -> tuple[float, str]:
+            """Recompute one bounded step with fresh revised inputs."""
+            return compute_llm_step(step, values, inference_model)
+
+    manifest = execute(graph, catalog, admissions, adapter)
     manifest["revised_from"] = parent["run_id"]
     manifest["revision"] = {"sets": applied_sets, "models": applied_models}
     if parent.get("question"):
@@ -176,7 +190,12 @@ def replay_run(run_id: str, directory: Path = RUNS_PATH) -> dict[str, Any]:
     graph = composition_from_dict(composition_data)
     if purpose == "fixture":
         graph = replace(graph, purpose="fixture")
-    repeated = execute(graph, catalog, admissions)
+    carried = {
+        step["node"]: step["result"]["amount"]
+        for step in parent.get("steps", [])
+        if step.get("llm_step") and isinstance(step.get("result"), dict)
+    }
+    repeated = execute(graph, catalog, admissions, None, carried or None)
     old_outputs, new_outputs = (
         parent.get("outputs", {}) or {},
         repeated.get("outputs", {}) or {},

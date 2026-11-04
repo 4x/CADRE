@@ -67,7 +67,15 @@ def numeric_agreement(
     6.6 mL matches 6.6e-6 m^3), or falls back to raw and percent phrasing
     when no unit word converts. Pairs whose units convert to a different
     dimension never match. Blocked or rejected grounded runs are unjudged:
-    there is no oracle to compare against."""
+    there is no oracle to compare against. A needs-input grounded run
+    against a direct answer with numbers is guarded: the question is
+    underdetermined, so any direct number is ungrounded by construction."""
+    if grounded.get("status") == "needs-input" and extract_numbers(direct_text):
+        return {
+            "verdict": "guarded",
+            "reason": "grounded route needs input; direct numbers are ungrounded",
+            "details": [],
+        }
     if grounded.get("status") != "completed":
         return {
             "verdict": "unjudged",

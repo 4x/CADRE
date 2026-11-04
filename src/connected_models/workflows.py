@@ -11,7 +11,16 @@ from typing import Any
 from uuid import uuid4
 
 from .compatibility import audit_pairs
-from .contracts import Composition, Model, ModelError, Node, Value
+from .contracts import (
+    MAX_LLM_INSTRUCTION_CHARS,
+    Composition,
+    LLMStep,
+    Model,
+    ModelError,
+    Node,
+    Port,
+    Value,
+)
 from .demo import catalog
 from .inference import BudgetLedger, InferenceSettings, load_prompt, structured_request
 from .query_inputs import MAX_QUERY_CHARS, MAX_QUERY_FACTS, bind_fact, validate_fact
@@ -26,7 +35,7 @@ from .retrieval import (
     neighbors_from_audit,
     retrieve,
 )
-from .runtime import execute, save_run
+from .runtime import MAX_LLM_STEPS, execute, save_run
 from .serialization import (
     MAX_RECORD_BYTES,
     composition_from_dict,
@@ -44,6 +53,8 @@ FILL_IN_ENV_VAR = "FILL_IN_ASSUMPTIONS"
 FILL_IN_TRUTHY = {"1", "true", "yes", "on"}
 BASE_PROMPT_FILE = "answer-question.md"
 FILL_IN_PROMPT_FILE = "answer-fill-in-assumptions.md"
+LLM_STEPS_ENV_VAR = "CADRE_ALLOW_LLM_STEPS"
+LLM_STEPS_PROMPT_FILE = "answer-llm-steps.md"
 REPAIR_PROMPT_FILE = "answer-repair.md"
 MAX_COMPOSE_ATTEMPTS = 3
 
@@ -58,12 +69,85 @@ def fill_in_assumptions_enabled(
     return str(values.get(FILL_IN_ENV_VAR, "")).strip().lower() in FILL_IN_TRUTHY
 
 
-def compose_system_prompt(fill_in_assumptions: bool) -> str:
-    """Build the composer system prompt, appending the fill-in section only when enabled."""
+def llm_steps_enabled(environ: dict[str, str] | None = None) -> bool:
+    """Resolve the in-context-calculation opt-in from the environment toggle."""
+    values = environ if environ is not None else os.environ
+    return str(values.get(LLM_STEPS_ENV_VAR, "")).strip().lower() in FILL_IN_TRUTHY
+
+
+def compose_system_prompt(
+    fill_in_assumptions: bool, allow_llm_steps: bool = False
+) -> str:
+    """Build the composer system prompt, appending opt-in sections only when enabled."""
     prompt = load_prompt(BASE_PROMPT_FILE)
     if fill_in_assumptions:
         prompt += "\n\n" + load_prompt(FILL_IN_PROMPT_FILE)
+    if allow_llm_steps:
+        prompt += "\n\n" + load_prompt(LLM_STEPS_PROMPT_FILE)
     return prompt
+
+
+STEP_COMPUTE_SYSTEM = (
+    "You compute one bounded pipeline step in context. Use only the provided "
+    "input amounts and the stated instruction; combine them arithmetically. "
+    "Return the result amount in the requested unit with a short working "
+    "note. Never recall outside facts, constants, or lookup values."
+)
+
+
+def compute_llm_step(
+    step: LLMStep,
+    input_values: dict[str, Value],
+    inference_model: str | None = None,
+) -> tuple[float, str]:
+    """Compute one bounded pipeline step; execution validates the result."""
+    items = [
+        {
+            "name": name,
+            "amount": value.amount,
+            "unit": value.port.unit,
+            "meaning": value.port.meaning,
+            "context": value.port.context,
+        }
+        for name, value in input_values.items()
+    ]
+    response = live_request(
+        [
+            {"role": "system", "content": STEP_COMPUTE_SYSTEM},
+            {
+                "role": "user",
+                "content": json.dumps(
+                    {
+                        "instruction": step.instruction,
+                        "inputs": items,
+                        "output": {
+                            "meaning": step.output.meaning,
+                            "unit": step.output.unit,
+                            "context": step.output.context,
+                        },
+                    }
+                ),
+            },
+        ],
+        {
+            "type": "object",
+            "properties": {
+                "amount": {"type": "number"},
+                "working": {"type": "string"},
+            },
+            "required": ["amount", "working"],
+            "additionalProperties": False,
+        },
+        "AnswerLLMStep",
+        inference_model,
+    )
+    content = response["content"]
+    if not isinstance(content, dict):
+        raise ModelError("Step computation returned an invalid payload.")
+    amount = content.get("amount")
+    if isinstance(amount, bool) or not isinstance(amount, (int, float)):
+        raise ModelError("Step computation returned a non-numeric amount.")
+    return float(amount), str(content.get("working", ""))
 
 
 def live_request(
@@ -321,6 +405,7 @@ def answer(
     retrieval: str = "subset",
     retrieval_k: int = SEED_K,
     retrieval_cap: int = RETRIEVAL_CAP,
+    allow_llm_steps: bool | None = None,
 ) -> dict[str, Any]:
     """Answer a self-contained question, repairing machine-rejected proposals.
 
@@ -339,7 +424,13 @@ def answer(
         "fill_in_assumptions": bool(fill_in_assumptions),
         "assumptions": [],
         "attempts": [],
+        "allow_llm_steps": False,
+        "grounding": "full",
     }
+    allow_llm = (
+        llm_steps_enabled() if allow_llm_steps is None else bool(allow_llm_steps)
+    )
+    record["allow_llm_steps"] = allow_llm
     try:
         text(question)
         if len(question) > MAX_QUERY_CHARS:
@@ -394,6 +485,69 @@ def answer(
                             },
                         },
                         "required": ["id", "model", "bindings"],
+                        "additionalProperties": False,
+                    },
+                },
+                "llm_steps": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {"type": "string"},
+                            "inputs": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {"type": "string"},
+                                        "meaning": {"type": "string"},
+                                        "unit": {"type": "string"},
+                                        "context": {"type": "string"},
+                                    },
+                                    "required": [
+                                        "name",
+                                        "meaning",
+                                        "unit",
+                                        "context",
+                                    ],
+                                    "additionalProperties": False,
+                                },
+                            },
+                            "bindings": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "input": {"type": "string"},
+                                        "source": {
+                                            "type": "string",
+                                            "enum": ["node", "fact"],
+                                        },
+                                        "ref": {"type": "string"},
+                                    },
+                                    "required": ["input", "source", "ref"],
+                                    "additionalProperties": False,
+                                },
+                            },
+                            "output": {
+                                "type": "object",
+                                "properties": {
+                                    "meaning": {"type": "string"},
+                                    "unit": {"type": "string"},
+                                    "context": {"type": "string"},
+                                },
+                                "required": ["meaning", "unit", "context"],
+                                "additionalProperties": False,
+                            },
+                            "instruction": {"type": "string"},
+                        },
+                        "required": [
+                            "id",
+                            "inputs",
+                            "bindings",
+                            "output",
+                            "instruction",
+                        ],
                         "additionalProperties": False,
                     },
                 },
@@ -474,7 +628,7 @@ def answer(
             "solver_profile": PROFILE,
             "models": {key: catalog_card(model) for key, model in subset.items()},
         }
-        base_system = compose_system_prompt(fill_in_assumptions)
+        base_system = compose_system_prompt(fill_in_assumptions, allow_llm)
         prior: tuple[Any, str] | None = None
         for attempt in range(1, MAX_COMPOSE_ATTEMPTS + 1):
             _reset_attempt(record)
@@ -576,7 +730,7 @@ def answer(
                 if len(raw_graph.encode()) > MAX_RECORD_BYTES:
                     raise ModelError("Proposed graph exceeds size limit.")
                 graph_data = json.loads(raw_graph)
-                object_fields(graph_data, {"id", "nodes", "outputs"})
+                object_fields(graph_data, {"id", "nodes", "outputs"}, {"llm_steps"})
                 if not isinstance(graph_data["nodes"], list):
                     raise ModelError("Proposed graph nodes must be an array.")
                 facts_by_id = {
@@ -654,9 +808,151 @@ def answer(
                                 }
                             )
                     node["bindings"] = bindings
+                raw_steps = graph_data.get("llm_steps", [])
+                if not isinstance(raw_steps, list):
+                    raise ModelError("Proposed llm_steps must be an array.")
+                if raw_steps and not allow_llm:
+                    raise ModelError(
+                        "LLM-computed steps require CADRE_ALLOW_LLM_STEPS=1 "
+                        "in the environment."
+                    )
+                if len(raw_steps) > MAX_LLM_STEPS:
+                    raise ModelError(
+                        f"Graphs take at most {MAX_LLM_STEPS} LLM-computed steps."
+                    )
+                node_ids = {node["id"] for node in graph_data["nodes"]}
+                step_entries: list[dict[str, Any]] = []
+                for raw in raw_steps:
+                    object_fields(
+                        raw, {"id", "inputs", "bindings", "output", "instruction"}
+                    )
+                    step_id = text(raw["id"])
+                    if (
+                        not step_id
+                        or step_id in node_ids
+                        or any(entry["id"] == step_id for entry in step_entries)
+                    ):
+                        raise ModelError(
+                            "Step IDs must be nonempty and unique across the graph."
+                        )
+                    if not isinstance(raw["inputs"], list):
+                        raise ModelError("Step inputs must be an array.")
+                    declared: dict[str, Port] = {}
+                    for port_spec in raw["inputs"]:
+                        object_fields(port_spec, {"name", "meaning", "unit", "context"})
+                        pname = text(port_spec["name"])
+                        if pname in declared or not pname.isidentifier():
+                            raise ModelError(
+                                "Step input names must be unique valid identifiers."
+                            )
+                        port = Port(
+                            text(port_spec["meaning"]),
+                            text(port_spec["unit"]),
+                            text(port_spec["context"]),
+                        )
+                        port.validate()
+                        declared[pname] = port
+                    if not declared:
+                        raise ModelError(
+                            "LLM-computed steps need at least one declared input."
+                        )
+                    instruction = text(raw["instruction"])
+                    if not instruction.strip() or (
+                        len(instruction) > MAX_LLM_INSTRUCTION_CHARS
+                    ):
+                        raise ModelError(
+                            "Step instructions must be bounded and nonempty."
+                        )
+                    object_fields(raw["output"], {"meaning", "unit", "context"})
+                    output = Port(
+                        text(raw["output"]["meaning"]),
+                        text(raw["output"]["unit"]),
+                        text(raw["output"]["context"]),
+                    )
+                    output.validate()
+                    if not isinstance(raw["bindings"], list):
+                        raise ModelError("Step bindings must be an array.")
+                    step_bindings: dict[str, Any] = {}
+                    for binding in raw["bindings"]:
+                        object_fields(binding, {"input", "source", "ref"})
+                        name = text(binding["input"])
+                        ref = text(binding["ref"])
+                        if name in step_bindings:
+                            raise ModelError(
+                                "Composer repeated a binding for the same input."
+                            )
+                        if name not in declared:
+                            raise ModelError(
+                                "Proposed binding targets an undeclared input."
+                            )
+                        if binding["source"] == "node":
+                            step_bindings[name] = {"node": ref}
+                            continue
+                        if binding["source"] != "fact":
+                            raise ModelError(
+                                "Composer must bind a query fact or an upstream node, not a literal."
+                            )
+                        if ref not in facts_by_id:
+                            raise ModelError(
+                                "Composer referenced an unknown query fact; defaults and invented inputs are forbidden."
+                            )
+                        value = bind_fact(facts_by_id[ref], declared[name])
+                        step_bindings[name] = asdict(value)
+                        grounded.append(
+                            {
+                                "node": step_id,
+                                "input": name,
+                                "fact": ref,
+                                "assigned_port": asdict(declared[name]),
+                                "value": asdict(value),
+                                "role": "requested-output-target"
+                                if name == OUTPUT_BINDING
+                                else "known-input",
+                            }
+                        )
+                        if facts_by_id[ref].get("assumed"):
+                            record["assumptions"].append(
+                                {
+                                    "node": step_id,
+                                    "input": name,
+                                    "fact": ref,
+                                    "value": facts_by_id[ref]["value"],
+                                    "unit": facts_by_id[ref]["unit"],
+                                    "quote": facts_by_id[ref]["quote"],
+                                    "assumption": facts_by_id[ref]["assumption"],
+                                }
+                            )
+                    if set(step_bindings) != set(declared):
+                        raise ModelError(
+                            "Step bindings must cover every declared input exactly once."
+                        )
+                    step_entries.append(
+                        {
+                            "id": step_id,
+                            "inputs": {
+                                name: asdict(port) for name, port in declared.items()
+                            },
+                            "bindings": step_bindings,
+                            "output": asdict(output),
+                            "instruction": instruction,
+                        }
+                    )
+                graph_data["llm_steps"] = step_entries
                 record["input_bindings"] = grounded
                 graph = composition_from_dict(graph_data)
-                outcome = execute(graph, models, admissions)
+
+                def adapter(
+                    step: LLMStep, values: dict[str, Value]
+                ) -> tuple[float, str]:
+                    """Compute one bounded step with the request inference model."""
+                    return compute_llm_step(step, values, inference_model)
+
+                outcome = execute(
+                    graph,
+                    models,
+                    admissions,
+                    adapter if allow_llm and graph.llm_steps else None,
+                )
             except _TerminalAnswer as exc:
                 record["error"] = str(exc)
                 record["attempts"].append(

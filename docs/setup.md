@@ -1,6 +1,6 @@
 # Setup and running
 
-Requires uv and Python 3.12 or newer (`.python-version` pins 3.14 for development). No third-party runtime packages are required. Answering a question uses live inference and needs `META_API_KEY` in the environment (see below); inspection, reports, tests and curation tools run offline.
+Requires uv and Python 3.12 or newer (`.python-version` pins 3.14 for development). No third-party runtime packages are required. Answering a question uses live inference and needs `META_API_KEY` in the environment (see below); inspection, reports, tests and curation tools run offline. Copy [.env.example](../.env.example) to `.env` for the full variable list with defaults.
 
 ```powershell
 uv sync
@@ -25,6 +25,8 @@ uv run --env-file .env connected-models meta-smoke
 This sends one bounded paid structured-output request. The command prints only connection status, model, request identifier and conservative cost. It never displays the key or raw API response. Offline tests use a fake transport and placeholder credential.
 
 The persistent `.usage/meta.sqlite3` ledger reserves worst-case token cost before sending and settles against reported usage. Failed or ambiguous requests retain their reservation and are not retried automatically. Preserve this ledger across runs. Its ceiling covers calls through this application; spending in other tools or accounts is outside its accounting. Prices are pinned to the [Meta Standard-mode rates checked October 29, 2026](https://dev.meta.ai/docs/pricing-rate-limits); reverify pricing before changing models or rates. Use an account-side spending limit as well if the provider supports it.
+
+Partially grounded answers need one more opt-in flag: set `CADRE_ALLOW_LLM_STEPS=1` in the environment (or `.env`) to let the composer fill uncovered pipeline links with bounded in-context calculation. The flag defaults to off; without it, step-bearing manifests are refused, and every accepted answer stays fully grounded in reviewed models. Each step computation is a priced structured call settled through the same ledger. See the runs guide for the resulting `partial` grounding badge and replay/revise behaviour.
 
 ## Test
 

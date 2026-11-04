@@ -213,10 +213,19 @@ def run_section(run: dict[str, Any]) -> str:
     node_map = {
         node["id"]: node for node in run.get("composition", {}).get("nodes", [])
     }
+    node_map.update(
+        {step["id"]: step for step in run.get("composition", {}).get("llm_steps", [])}
+    )
     steps = {step["node"]: step for step in run.get("steps", [])}
+    grounding = run.get("grounding", "full")
+    grounding_note = (
+        ""
+        if grounding == "full"
+        else '<p class="muted">Grounding: partial — some results below depend on LLM-computed steps.</p>'
+    )
     cards = []
     for index, step in enumerate(steps.values(), start=1):
-        model = run["models"][step["model"]]
+        model = run["models"].get(step["model"], {})
         rows = []
         for name, binding in node_map[step["node"]]["bindings"].items():
             elements = (
@@ -227,7 +236,10 @@ def run_section(run: dict[str, Any]) -> str:
             for element_name, element in elements:
                 if "node" in element:
                     value = steps[element["node"]]["result"]
-                    origin = f"Calculated by {label(element['node'])}"
+                    if steps[element["node"]].get("llm_step"):
+                        origin = f"LLM-computed by {label(element['node'])}"
+                    else:
+                        origin = f"Calculated by {label(element['node'])}"
                 else:
                     value = element
                     origin = f"{label(value['origin'])} — {label(value['evidence'])}"
@@ -240,10 +252,29 @@ def run_section(run: dict[str, Any]) -> str:
                     f"<tr><td>{label(input_label)}</td><td>{amount(value)}</td><td>{origin}</td></tr>"
                 )
         assumptions = "".join(
-            f"<li>{label(item)}</li>" for item in model["assumptions"]
+            f"<li>{label(item)}</li>"
+            for item in model.get(
+                "assumptions",
+                [f"LLM-computed step: {label(step.get('instruction', ''))}"],
+            )
         )
         review = run.get("admissions", {}).get(step["model"], {})
-        review_note = f"Review: {label(review.get('reviewer', 'fixture / no admission'))}. {label(review.get('notes', ''))}"
+        if step.get("llm_step"):
+            review_note = "Review: none — LLM-computed step (operator allowed it)."
+        else:
+            review_note = f"Review: {label(review.get('reviewer', 'fixture / no admission'))}. {label(review.get('notes', ''))}"
+        llm_detail = ""
+        if step.get("llm_step"):
+            working = step.get("llm", {}).get("working", "")
+            verb = (
+                "carried from the recorded run"
+                if step.get("llm", {}).get("carried")
+                else "computed in context"
+            )
+            llm_detail = (
+                f"<details><summary>LLM working ({verb})</summary>"
+                f"<pre>{label(working)}</pre></details>"
+            )
         operation = ""
         if step.get("solve"):
             evidence = step["solve"]
@@ -254,10 +285,10 @@ def run_section(run: dict[str, Any]) -> str:
             )
         cards.append(
             f"<details><summary><span>{index}. {label(step['node'])}</span><b>{amount(step['result'])}</b></summary>"
-            f'<p class="muted">{label(step["model"])}</p><code>{label(model["expression"])}</code>{operation}'
+            f'<p class="muted">{label(step["model"])}</p><code>{label(model.get("expression", "in-context calculation; no reviewed model"))}</code>{operation}'
             "<table><thead><tr><th>Input</th><th>Value</th><th>Origin</th></tr></thead>"
-            f"<tbody>{''.join(rows)}</tbody></table><p>Source: {source_link(model['source'])}</p>"
-            f'<ul>{assumptions}</ul><p class="muted">{review_note}</p></details>'
+            f"<tbody>{''.join(rows)}</tbody></table><p>Source: {source_link(model.get('source', 'LLM working text shown in this card'))}</p>"
+            f'<ul>{assumptions}</ul><p class="muted">{review_note}</p>{llm_detail}</details>'
         )
     limits = "".join(f"<li>{label(item)}</li>" for item in run.get("limitations", []))
     error = f'<p class="error">{label(run["error"])}</p>' if run.get("error") else ""
@@ -295,7 +326,7 @@ def run_section(run: dict[str, Any]) -> str:
     return (
         f'<section><div class="eyebrow">{label(run.get("status", "unknown"))} · {label(run["run_id"])}</div>'
         f"<h2>{label(run.get('question', run.get('composition', {}).get('id', 'Saved run')))}</h2>"
-        f'<p class="muted">{label(run.get("created", ""))}</p>{revised}{error}{clarification_section}<div class="metrics">{outputs}</div>{input_section}'
+        f'<p class="muted">{label(run.get("created", ""))}</p>{revised}{error}{clarification_section}<div class="metrics">{outputs}</div>{grounding_note}{input_section}'
         f"<h3>What this answer assumes</h3><ul>{limits}</ul>"
         f'<h3>Follow the calculation</h3><p class="muted">Expand a step to inspect its inputs, model, sources and review.</p>{"".join(cards)}'
         f"<details><summary>Full saved evidence</summary><pre>{label(json.dumps(run, indent=2))}</pre></details></section>"

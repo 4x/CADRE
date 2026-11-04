@@ -42,6 +42,17 @@ For integer period-count targets, a non-polynomial equality can use finite enume
 
 Curators remain responsible for source relationships, scientific scope, variable roles/constants and domain constraints. The solver is a separate deterministic facility. Future derived implementations can be cached/indexed against a pinned source revision and solver profile without multiplying canonical model identities. Independently estimated inverse models or changed scientific assumptions would need their own linked evidence/review.
 
+## Partially grounded answers (LLM-computed steps)
+
+When no reviewed model covers one link of a pipeline, the composer may fill at most three gaps with bounded in-context calculation, so a run can still answer through the remaining reviewed models. Each step binds only already-known quantities, declares the scalar output it produces, and carries a short instruction that the inference call must follow using only those bound inputs. The call returns the amount plus a working note; non-numeric, out-of-unit or out-of-range results reject the run.
+
+```powershell
+$env:CADRE_ALLOW_LLM_STEPS = '1'
+uv run --env-file .env connected-models answer 'EUR/USD now trades at $1.12. Central bank rates are 2.65% and 4.00% for EUR and USD respectively. What could we expect the EUR/USD exchange rate to be 6 months from now?'
+```
+
+Steps are disabled unless `CADRE_ALLOW_LLM_STEPS` is set to a truthy value (`1`, `true`, `yes` or `on`); without it the composer never proposes them and any manifest containing them is refused. Partially grounded runs are labelled `partial`: outputs that rely on a step carry an `llm-computed` origin entry, the report names the computing model and shows the working note, and inputs with no model expression fall back to the step instruction as the documented assumption. `revise` and scenario exploration re-run the steps with the new inputs, while `replay` carries the recorded amounts deterministically without new inference calls. The composer only uses steps for gaps with no eligible model, never to replace a binding a reviewed model could satisfy.
+
 Local runtime artifacts are stored in `.registry/`, `.runs/` and `.usage/`, all excluded from version control. Preserve the registry and spend ledger when continuing the prototype.
 
 The canonical delivery plan is [MVP milestones](../knowledge/notes/mvp-build-sequence-and-extension-triggers.md); current project context is in [PROJECT_STATE.md](../PROJECT_STATE.md). Source/evidence records and design decisions live in Project Memory under `knowledge/`.

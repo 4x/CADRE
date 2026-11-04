@@ -6,6 +6,7 @@ import json
 import logging
 import math
 import platform
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from graphlib import CycleError, TopologicalSorter
@@ -22,6 +23,7 @@ from .contracts import (
     VOCABULARY_PROFILE,
     Composition,
     Family,
+    LLMStep,
     Model,
     ModelError,
     Node,
@@ -38,7 +40,13 @@ from .solving import SolveError, node_ports, solve, solve_all
 
 MAX_GRAPH_NODES = 64
 MAX_MODEL_INPUTS = 16
+MAX_LLM_STEPS = 3
 LOGGER = logging.getLogger(__name__)
+
+StepCompute = Callable[[LLMStep, dict[str, Value]], tuple[float, str]]
+# Step adapter: compute one bounded step from resolved input values, returning
+# the computed amount with a short working note. Execution validates
+# finiteness and port compatibility around every call.
 
 
 @dataclass(frozen=True)
@@ -52,6 +60,13 @@ class CompiledNode:
     inputs: dict[str, Port]
     output: Port
     families: dict[str, Family]
+
+
+@dataclass(frozen=True)
+class CompiledStep:
+    """A validated in-context calculation with declared input ports."""
+
+    step: LLMStep
 
 
 def validate_model(model: Model) -> tuple[ast.AST, tuple[ast.Compare, ...]]:
@@ -90,7 +105,7 @@ def compile_graph(
     composition: Composition,
     catalog: dict[str, Model],
     admissions: dict[str, dict[str, Any]] | None = None,
-) -> tuple[CompiledNode, ...]:
+) -> tuple[CompiledNode | CompiledStep, ...]:
     """Validate the complete graph before executing it in dependency order."""
     if composition.purpose not in {"fixture", "scenario"}:
         raise ModelError(
@@ -101,11 +116,21 @@ def compile_graph(
     nodes = {node.id: node for node in composition.nodes}
     if len(nodes) != len(composition.nodes) or any(not name for name in nodes):
         raise ModelError("Node instance IDs must be nonempty and unique.")
+    steps = {step.id: step for step in composition.llm_steps}
+    if len(steps) != len(composition.llm_steps) or any(not name for name in steps):
+        raise ModelError("LLM-computed step IDs must be nonempty and unique.")
+    if set(nodes) & set(steps):
+        raise ModelError("Node and step IDs must be unique across the graph.")
+    if len(steps) > MAX_LLM_STEPS:
+        raise ModelError(f"Graphs take at most {MAX_LLM_STEPS} LLM-computed steps.")
+    if len(nodes) + len(steps) > MAX_GRAPH_NODES:
+        raise ModelError(f"Graph must have 1–{MAX_GRAPH_NODES} nodes and steps.")
+    entries = {**nodes, **steps}
     if not composition.outputs or any(
-        name not in nodes for name in composition.outputs
+        name not in entries for name in composition.outputs
     ):
         raise ModelError("Requested outputs must refer to existing node instances.")
-    compiled: dict[str, CompiledNode] = {}
+    compiled: dict[str, CompiledNode | CompiledStep] = {}
     dependencies: dict[str, set[str]] = {}
     for node in composition.nodes:
         if node.model not in catalog:
@@ -136,16 +161,20 @@ def compile_graph(
         def check_element(element: Value | Reference, target: Port, label: str) -> None:
             """Apply the scalar upstream/origin/compatibility checks to one element."""
             if isinstance(element, Reference):
-                if element.node not in nodes:
+                if element.node not in entries:
                     raise ModelError(f"{label}: unknown upstream node {element.node}.")
-                if nodes[element.node].branch == "all":
-                    raise ModelError(
-                        f"{label}: branch 'all' outputs are terminal and cannot feed another node."
-                    )
-                upstream = catalog.get(nodes[element.node].model)
-                if upstream is None:
-                    raise ModelError(f"Missing upstream model for {element.node}.")
-                _, upstream_output = node_ports(nodes[element.node], upstream)
+                source = nodes.get(element.node)
+                if source is None:
+                    upstream_output = steps[element.node].output
+                else:
+                    if source.branch == "all":
+                        raise ModelError(
+                            f"{label}: branch 'all' outputs are terminal and cannot feed another node."
+                        )
+                    upstream = catalog.get(source.model)
+                    if upstream is None:
+                        raise ModelError(f"Missing upstream model for {element.node}.")
+                    _, upstream_output = node_ports(source, upstream)
                 upstream_output.require_compatible(target)
                 dependencies[node.id].add(element.node)
             elif isinstance(element, Value):
@@ -183,6 +212,42 @@ def compile_graph(
         compiled[node.id] = CompiledNode(
             node, model, expression, guards, inputs, output, model.families
         )
+    for step in composition.llm_steps:
+        step.validate()
+        dependencies[step.id] = set()
+        for name, binding in step.bindings.items():
+            target = step.inputs[name]
+            label = f"{step.id}.{name}"
+            if isinstance(binding, Reference):
+                if binding.node not in entries:
+                    raise ModelError(f"{label}: unknown upstream node {binding.node}.")
+                source = nodes.get(binding.node)
+                if source is None:
+                    upstream_output = steps[binding.node].output
+                else:
+                    if source.branch == "all":
+                        raise ModelError(
+                            f"{label}: branch 'all' outputs are terminal and cannot feed another node."
+                        )
+                    upstream = catalog.get(source.model)
+                    if upstream is None:
+                        raise ModelError(f"Missing upstream model for {binding.node}.")
+                    _, upstream_output = node_ports(source, upstream)
+                upstream_output.require_compatible(target)
+                dependencies[step.id].add(binding.node)
+            elif isinstance(binding, Value):
+                if composition.purpose == "scenario" and binding.origin in {
+                    "fixture",
+                    "generated",
+                    "derived",
+                }:
+                    raise ModelError(
+                        "Scenario inputs must be sourced observations or explicit user scenarios; generated estimates need owner consent."
+                    )
+                binding.bind(target)
+            else:
+                raise ModelError(f"{label}: unsupported binding type.")
+        compiled[step.id] = CompiledStep(step)
     try:
         order = tuple(TopologicalSorter(dependencies).static_order())
     except CycleError as exc:
@@ -196,8 +261,15 @@ def execute(
     composition: Composition,
     catalog: dict[str, Model],
     admissions: dict[str, dict[str, Any]] | None = None,
+    llm: StepCompute | None = None,
+    llm_values: dict[str, float] | None = None,
 ) -> dict[str, Any]:
-    """Return a self-contained successful or rejected run, without mutating definitions."""
+    """Return a self-contained successful or rejected run, without mutating definitions.
+
+    The llm adapter computes bounded steps the catalog cannot cover; pass
+    recorded amounts in llm_values to replay them without re-querying. A
+    graph with steps but neither adapter nor recorded values is rejected.
+    """
     definitions = {
         key: asdict(catalog[key])
         for key in sorted({node.model for node in composition.nodes})
@@ -225,6 +297,8 @@ def execute(
         "status": "rejected",
         "steps": [],
         "outputs": {},
+        "grounding": "full",
+        "llm_steps": [],
         "limitations": [
             "Fixture execution."
             if composition.purpose == "fixture"
@@ -238,6 +312,84 @@ def execute(
         reliance: dict[str, list[dict[str, Any]]] = {}
         envelopes: dict[str, dict[str, Any]] = {}
         for compiled in plan:
+            if isinstance(compiled, CompiledStep):
+                step = compiled.step
+                step_numbers: dict[str, float] = {}
+                step_origins: list[dict[str, Any]] = []
+                input_values: dict[str, Value] = {}
+                for input_name, step_binding in step.bindings.items():
+                    target = step.inputs[input_name]
+                    step_value = (
+                        values[step_binding.node]
+                        if isinstance(step_binding, Reference)
+                        else step_binding
+                    )
+                    input_values[input_name] = step_value
+                    step_numbers[input_name] = finite(
+                        step_value.bind(target) * UNITS[target.unit].scale,
+                        "Normalized input",
+                    )
+                    if isinstance(step_binding, Reference):
+                        step_origins.extend(reliance[step_binding.node])
+                        if values[step_binding.node].origin == "llm-computed":
+                            step_origins.append(
+                                {
+                                    "node": step_binding.node,
+                                    "input": input_name,
+                                    **asdict(values[step_binding.node]),
+                                }
+                            )
+                    else:
+                        step_origins.append(
+                            {
+                                "node": step.id,
+                                "input": input_name,
+                                **asdict(step_value),
+                            }
+                        )
+                carried = llm_values or {}
+                if step.id in carried:
+                    amount = finite(carried[step.id], f"Carried LLM-computed {step.id}")
+                    working, from_cache = "", True
+                    evidence = (
+                        f"Carried recorded LLM-computed value for {step.id}; "
+                        "not re-queried."
+                    )
+                else:
+                    if llm is None:
+                        total = len(composition.llm_steps)
+                        raise ModelError(
+                            f"{step.id}: composition needs {total} LLM-computed "
+                            "step(s); set CADRE_ALLOW_LLM_STEPS=1 to allow them."
+                        )
+                    raw_amount, working = llm(step, input_values)
+                    amount = finite(raw_amount, f"LLM-computed {step.id}")
+                    working = str(working or "")[:4000]
+                    from_cache = False
+                    evidence = f"LLM-computed {step.id}: {working}"
+                step_value = Value(amount, step.output, "llm-computed", evidence)
+                step_value.bind(step.output)
+                values[step.id], reliance[step.id] = step_value, step_origins
+                manifest["steps"].append(
+                    {
+                        "node": step.id,
+                        "model": "llm-computed",
+                        "llm_step": True,
+                        "instruction": step.instruction,
+                        "normalized_inputs": step_numbers,
+                        "result": asdict(step_value),
+                        "relies_on": step_origins,
+                        "llm": {"working": working, "carried": from_cache},
+                    }
+                )
+                manifest["llm_steps"].append(
+                    {
+                        "id": step.id,
+                        "instruction": step.instruction,
+                        "carried": from_cache,
+                    }
+                )
+                continue
             node, model = compiled.node, compiled.model
             numbers: dict[str, float] = {}
             family_numbers: dict[str, tuple[float, ...]] = {}
@@ -258,18 +410,26 @@ def execute(
                                 "Normalized family element",
                             )
                         )
-                        origins.extend(
-                            reliance[element.node]
-                            if isinstance(element, Reference)
-                            else [
+                        if isinstance(element, Reference):
+                            origins.extend(reliance[element.node])
+                            if values[element.node].origin == "llm-computed":
+                                origins.append(
+                                    {
+                                        "node": element.node,
+                                        "input": name,
+                                        "element": index,
+                                        **asdict(values[element.node]),
+                                    }
+                                )
+                        else:
+                            origins.append(
                                 {
                                     "node": node.id,
                                     "input": name,
                                     "element": index,
                                     **asdict(value),
                                 }
-                            ]
-                        )
+                            )
                     family_numbers[name] = tuple(elements)
                     continue
                 value = (
@@ -280,11 +440,18 @@ def execute(
                     * UNITS[compiled.inputs[name].unit].scale,
                     "Normalized input",
                 )
-                origins.extend(
-                    reliance[binding.node]
-                    if isinstance(binding, Reference)
-                    else [{"node": node.id, "input": name, **asdict(value)}]
-                )
+                if isinstance(binding, Reference):
+                    origins.extend(reliance[binding.node])
+                    if values[binding.node].origin == "llm-computed":
+                        origins.append(
+                            {
+                                "node": binding.node,
+                                "input": name,
+                                **asdict(values[binding.node]),
+                            }
+                        )
+                else:
+                    origins.append({"node": node.id, "input": name, **asdict(value)})
             solve_evidence = None
             if node.solve_for is not None and node.branch == "all":
                 roots, solve_evidence = solve_all(
@@ -369,6 +536,16 @@ def execute(
             name: envelopes[name] if name in envelopes else asdict(values[name])
             for name in composition.outputs
         }
+        for name in composition.outputs:
+            if name in values and values[name].origin == "llm-computed":
+                manifest["grounding"] = "partial"
+                break
+            if any(
+                entry.get("origin") == "llm-computed"
+                for entry in reliance.get(name, ())
+            ):
+                manifest["grounding"] = "partial"
+                break
         manifest["status"] = "completed"
         LOGGER.info(f"Completed run {manifest['run_id']} with {len(plan)} nodes")
     except ModelError as exc:

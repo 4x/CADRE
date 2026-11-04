@@ -207,7 +207,7 @@ def explore(
             )
             continue
         try:
-            revised = revise_run(run_id, sets, [], registry, directory)
+            revised = revise_run(run_id, sets, [], registry, directory, inference_model)
         except (ModelError, ValueError, TypeError, KeyError, OSError) as exc:
             results.append(
                 {

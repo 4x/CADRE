@@ -6,8 +6,10 @@ from dataclasses import asdict
 from typing import Any
 
 from .contracts import (
+    MAX_LLM_INSTRUCTION_CHARS,
     Composition,
     Family,
+    LLMStep,
     Model,
     ModelError,
     Node,
@@ -123,9 +125,38 @@ def decode_element(binding: Any) -> Value | Reference:
     )
 
 
+def step_from_dict(data: Any) -> LLMStep:
+    """Decode one bounded in-context calculation; never executable code."""
+    object_fields(data, {"id", "inputs", "bindings", "output", "instruction"})
+    if not isinstance(data["inputs"], dict) or not isinstance(data["bindings"], dict):
+        raise ModelError("Step inputs and bindings must be objects.")
+    inputs: dict[str, Port] = {}
+    for name, port in data["inputs"].items():
+        if not name.isidentifier():
+            raise ModelError("Step input symbols must be valid identifiers.")
+        inputs[name] = port_from_dict(port)
+    bindings: dict[str, Value | Reference] = {}
+    for name, binding in data["bindings"].items():
+        if isinstance(binding, list):
+            raise ModelError("LLM-computed steps take scalar bindings only.")
+        bindings[name] = decode_element(binding)
+    instruction = text(data["instruction"])
+    if len(instruction) > MAX_LLM_INSTRUCTION_CHARS:
+        raise ModelError("Computation instruction exceeds the size limit.")
+    step = LLMStep(
+        text(data["id"]),
+        inputs,
+        bindings,
+        port_from_dict(data["output"]),
+        instruction,
+    )
+    step.validate()
+    return step
+
+
 def composition_from_dict(data: Any) -> Composition:
     """Decode explicit graph bindings; never accept arbitrary agent executable code."""
-    object_fields(data, {"id", "nodes", "outputs"}, {"purpose"})
+    object_fields(data, {"id", "nodes", "outputs"}, {"purpose", "llm_steps"})
     if not isinstance(data["nodes"], list) or not isinstance(data["outputs"], list):
         raise ModelError("Nodes and outputs must be arrays.")
     nodes = []
@@ -157,11 +188,16 @@ def composition_from_dict(data: Any) -> Composition:
                 branch,
             )
         )
+    raw_steps = data.get("llm_steps", [])
+    if not isinstance(raw_steps, list):
+        raise ModelError("LLM-computed steps must be an array.")
+    steps = [step_from_dict(raw) for raw in raw_steps]
     return Composition(
         text(data["id"]),
         tuple(nodes),
         tuple(text(item) for item in data["outputs"]),
         "scenario",
+        tuple(steps),
     )
 
 

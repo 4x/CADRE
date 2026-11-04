@@ -20,11 +20,11 @@ def polynomial(expression: str, guards: tuple[str, ...] = ()) -> Model:
 
 
 def inverse(model: Model, target: str, known: dict[str, float], output: float,
-            relation: str = "equal") -> dict:
+            relation: str = "equal", branch: str | None = None) -> dict:
     """Execute one inverse instance with cited fixture input values."""
     bindings = {name: Value(value, model.inputs[name], "fixture", "Known test quantity") for name, value in known.items()}
     bindings[OUTPUT_BINDING] = Value(output, model.output, "fixture", "Requested original-output target")
-    node = Node("inverse", model.key, bindings, target, relation)
+    node = Node("inverse", model.key, bindings, target, relation, branch)
     return execute(Composition("inverse-case", (node,), (node.id,)), {model.key: model})
 
 
@@ -60,6 +60,36 @@ class SolvingTests(unittest.TestCase):
         self.assertEqual(positive["outputs"]["inverse"]["amount"], 2)
         self.assertEqual(negative["outputs"]["inverse"]["amount"], -2)
 
+    def test_branch_all_returns_single_guarded_root_as_amounts(self) -> None:
+        """A guarded quadratic lists one root and names the guard-excluded sign."""
+        run = inverse(polynomial("x ** 2", ("x > 0",)), "x", {}, 4, branch="all")
+        self.assertEqual(run["status"], "completed", run.get("error"))
+        output = run["outputs"]["inverse"]
+        self.assertEqual(output["amounts"], [2])
+        self.assertEqual(output["excluded"], [-2])
+        self.assertEqual(output["branch"], "all")
+        self.assertEqual(run["steps"][0]["solve"]["admitted_roots"], 1)
+
+    def test_branch_all_enumerates_both_roots_ascending(self) -> None:
+        """Without a guard both signs verify and list in ascending order."""
+        run = inverse(polynomial("x ** 2"), "x", {}, 4, branch="all")
+        self.assertEqual(run["status"], "completed", run.get("error"))
+        output = run["outputs"]["inverse"]
+        self.assertEqual(output["amounts"], [-2, 2])
+        self.assertEqual(output["excluded"], [])
+        self.assertEqual(run["steps"][0]["solve"]["admitted_roots"], 2)
+
+    def test_branch_all_output_cannot_feed_downstream(self) -> None:
+        """A multi-root envelope is terminal; referencing it rejects the graph."""
+        from connected_models.contracts import Reference
+        model = polynomial("x ** 2")
+        target = Value(4, SCALAR, "fixture", "known result")
+        branches = Node("branches", model.key, {OUTPUT_BINDING: target}, "x", "equal", "all")
+        consumer = Node("consumer", model.key, {"x": Reference("branches")})
+        run = execute(Composition("branched-chain", (branches, consumer), ("consumer",)), {model.key: model})
+        self.assertEqual(run["status"], "rejected")
+        self.assertIn("terminal", run["error"])
+
     def test_energy_mass_relation_as_unitless_algebra(self) -> None:
         """E=m*c² yields m and both c branches; no SI vocabulary coverage is implied."""
         model = Model("energy-algebra", "1", {"m": SCALAR, "c": SCALAR}, SCALAR,
@@ -94,6 +124,55 @@ class SolvingTests(unittest.TestCase):
         exponential = inverse(polynomial("2 ** x"), "x", {}, 8)
         self.assertEqual(cubic["solve_diagnostic"]["code"], "unsupported_degree")
         self.assertEqual(exponential["solve_diagnostic"]["code"], "unsupported_expression")
+
+    def test_bracketed_bisection_solves_cubic(self) -> None:
+        """A guarded cubic inverts by scan-then-bisection, not exact radicals."""
+        run = inverse(polynomial("x ** 3", ("x >= 0", "x <= 10")), "x", {}, 8)
+        self.assertEqual(run["status"], "completed", run.get("error"))
+        self.assertAlmostEqual(run["outputs"]["inverse"]["amount"], 2.0, places=7)
+        self.assertEqual(run["steps"][0]["solve"]["method"], "scan-then-bisection")
+
+    def test_bracketed_bisection_solves_unknown_exponent(self) -> None:
+        """2**x inverts for x once guards supply an explicit finite bracket."""
+        run = inverse(polynomial("2 ** x", ("x >= 0", "x <= 10")), "x", {}, 8)
+        self.assertEqual(run["status"], "completed", run.get("error"))
+        self.assertAlmostEqual(run["outputs"]["inverse"]["amount"], 3.0, places=7)
+
+    def test_bracketed_bisection_inverts_logarithm(self) -> None:
+        """B0*log(M) inverts for M under explicit bounds; the unguarded form stays unsupported."""
+        model = Model("log-bracket", "1", {"B0": SCALAR, "M": SCALAR}, SCALAR, "B0 * log(M)",
+                      ("B0 > 0", "M > 0", "M <= 100"), "Synthetic logarithm fixture", ("Unitless mathematical test only.",))
+        run = inverse(model, "M", {"B0": 3}, 3 * math.log(10))
+        self.assertEqual(run["status"], "completed", run.get("error"))
+        self.assertAlmostEqual(run["outputs"]["inverse"]["amount"], 10.0, places=6)
+
+    def test_bracketed_bisection_enumerates_all_crossings(self) -> None:
+        """x**3-x yields three verified roots; unbranched solving still refuses to choose."""
+        guards = ("x >= -2", "x <= 2")
+        ambiguous = inverse(polynomial("x ** 3 - x", guards), "x", {}, 0)
+        self.assertEqual(ambiguous["solve_diagnostic"]["code"], "multiple_solutions")
+        run = inverse(polynomial("x ** 3 - x", guards), "x", {}, 0, branch="all")
+        self.assertEqual(run["status"], "completed", run.get("error"))
+        amounts = run["outputs"]["inverse"]["amounts"]
+        self.assertEqual(len(amounts), 3)
+        for got, want in zip(amounts, (-1.0, 0.0, 1.0)):
+            self.assertAlmostEqual(got, want, places=6)
+
+    def test_bracketed_bisection_needs_both_bounds(self) -> None:
+        """A half-guarded cubic keeps the exact-method diagnostic, not a horizon guess."""
+        run = inverse(polynomial("x ** 3", ("x >= 0",)), "x", {}, 8)
+        self.assertEqual(run["solve_diagnostic"]["code"], "unsupported_degree")
+
+    def test_bisection_without_crossing_reports_no_solution(self) -> None:
+        """A bracket that cannot reach the target rejects without claiming elsewhere."""
+        run = inverse(polynomial("x ** 3", ("x >= 0", "x <= 1")), "x", {}, 8)
+        self.assertEqual(run["solve_diagnostic"]["code"], "no_admissible_solution")
+
+    def test_degenerate_equality_bracket_checks_single_point(self) -> None:
+        """An x==2 guard reduces the search to one verified evaluation."""
+        run = inverse(polynomial("x ** 3", ("x == 2",)), "x", {}, 8)
+        self.assertEqual(run["status"], "completed", run.get("error"))
+        self.assertEqual(run["outputs"]["inverse"]["amount"], 2)
 
     def test_fractional_power_rejects_unknown_base_but_solves_linear_factor(self) -> None:
         """B0*M**0.75 inverts exactly for B0 and reports unsupported_degree for M."""

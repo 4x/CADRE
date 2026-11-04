@@ -51,6 +51,18 @@ def check_entry(entry: dict, record: dict, tolerance: float) -> dict:
             if actual["port"]["unit"] != expected["unit"]:
                 failures.append(f"{expected['meaning']}: unit {actual['port']['unit']} != {expected['unit']}")
                 values_ok = False
+            if "amounts" in expected:
+                actual_list = actual.get("amounts")
+                if actual_list is None or len(actual_list) != len(expected["amounts"]):
+                    failures.append(f"{expected['meaning']}: {actual_list} != {expected['amounts']}")
+                    values_ok = False
+                else:
+                    for position, (got, want) in enumerate(zip(actual_list, expected["amounts"])):
+                        root_scale = max(1.0, abs(want))
+                        if abs(got - want) > tolerance * root_scale:
+                            failures.append(f"{expected['meaning']}[{position}]: {got} != {want}")
+                            values_ok = False
+                continue
             scale = max(1.0, abs(expected["amount"]))
             if abs(actual["amount"] - expected["amount"]) > tolerance * scale:
                 failures.append(f"{expected['meaning']}: {actual['amount']} != {expected['amount']}")

@@ -14,7 +14,8 @@ class PromptTests(unittest.TestCase):
         expectations = {
             "answer-question.md": ("backward chaining", "__output__", "EXACT numeric literal",
                                    "never fill a graph binding with an estimate silently",
-                                   "fewest gaps"),
+                                   "fewest gaps", "match what the question asked for",
+                                   'set branch to "all"', "bracketed bisection"),
             "answer-fill-in-assumptions.md": ("assumed fact", "implying", "Never assume the requested unknown",
                                               "Prefer FEWER assumptions"),
             "offline-model-extraction.md": ("offline model curator", "never suppress these"),

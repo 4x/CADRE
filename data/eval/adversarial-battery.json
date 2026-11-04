@@ -1,6 +1,6 @@
 {
   "name": "adversarial-battery",
-  "version": 1,
+  "version": 3,
   "tolerance_relative": 1e-06,
   "notes": "Head-to-head entries where a bare LLM is expected to lose: precision traps (rounding fails tolerance), guard traps (no valid completion; the engine must refuse), long fork-join chains, and multi-hop inverses. Trap entries carry trap=true with no expected outputs; the compare runner scores refusal as correct. Compare-runner only (run_chain_battery has no trap branch).",
   "entries": [
@@ -11,7 +11,11 @@
       "fill_in_assumptions": true,
       "expected_status": "completed",
       "expected_outputs": [
-        {"meaning": "future_value", "unit": "USD", "amount": 112012.62529862404}
+        {
+          "meaning": "future_value",
+          "unit": "USD",
+          "amount": 112012.62529862404
+        }
       ],
       "needs": "none; single forward model, exact (1.0375)^40 compounding.",
       "why_llm_loses": "Rounding the 40th power drifts past tolerance."
@@ -23,7 +27,11 @@
       "fill_in_assumptions": true,
       "expected_status": "completed",
       "expected_outputs": [
-        {"meaning": "real_rate", "unit": "1", "amount": 0.04807692307692313}
+        {
+          "meaning": "real_rate",
+          "unit": "1",
+          "amount": 0.04807692307692313
+        }
       ],
       "needs": "none; naive subtraction gives 0.05, exact is 0.04808.",
       "why_llm_loses": "The subtraction shortcut misses by 2e-3."
@@ -35,7 +43,11 @@
       "fill_in_assumptions": true,
       "expected_status": "completed",
       "expected_outputs": [
-        {"meaning": "megabyte_rate", "unit": "MB/s", "amount": 238.0952380952381}
+        {
+          "meaning": "megabyte_rate",
+          "unit": "MB/s",
+          "amount": 238.0952380952381
+        }
       ],
       "needs": "none; 7-node inverse chain with a non-terminating decimal.",
       "why_llm_loses": "Inversion plus a repeating decimal invite rounding."
@@ -48,7 +60,9 @@
       "fill_in_assumptions": false,
       "expected_status": "rejected",
       "expected_outputs": [],
-      "naive_amounts": [-500.0],
+      "naive_amounts": [
+        -500.0
+      ],
       "needs": "none; guard trap: k>g and i>g both fail, so no route completes.",
       "why_llm_loses": "In-context arithmetic divides by a negative spread without blinking."
     },
@@ -60,7 +74,9 @@
       "fill_in_assumptions": false,
       "expected_status": "rejected",
       "expected_outputs": [],
-      "naive_amounts": [1000.0],
+      "naive_amounts": [
+        1000.0
+      ],
       "needs": "none; guard trap: every periodic-payment route requires i>0; no zero-rate model exists.",
       "why_llm_loses": "The trivial $1,000 answer has no reviewed model behind it."
     },
@@ -71,8 +87,16 @@
       "fill_in_assumptions": true,
       "expected_status": "completed",
       "expected_outputs": [
-        {"meaning": "net_present_value", "unit": "USD", "amount": 16911.179291633438},
-        {"meaning": "periodic_payment", "unit": "USD", "amount": 1086.9436657630697}
+        {
+          "meaning": "net_present_value",
+          "unit": "USD",
+          "amount": 16911.179291633438
+        },
+        {
+          "meaning": "periodic_payment",
+          "unit": "USD",
+          "amount": 1086.9436657630697
+        }
       ],
       "needs": "none; 10-node two-graph question (NPV fork plus finance leg).",
       "why_llm_loses": "Ten exact steps across two domains with compounding in both."
@@ -84,7 +108,11 @@
       "fill_in_assumptions": true,
       "expected_status": "completed",
       "expected_outputs": [
-        {"meaning": "megabyte_rate", "unit": "MB/s", "amount": 462.962962962963}
+        {
+          "meaning": "megabyte_rate",
+          "unit": "MB/s",
+          "amount": 462.962962962963
+        }
       ],
       "needs": "none; array A is a same-unit distractor; only B's facts route through the 7-node chain.",
       "why_llm_loses": "Routing six same-unit facts to the right array, then exact inversion."
@@ -96,10 +124,26 @@
       "fill_in_assumptions": true,
       "expected_status": "completed",
       "expected_outputs": [
-        {"meaning": "interest_payment", "unit": "USD", "amount": 19455.000417591276},
-        {"meaning": "principal_payment", "unit": "USD", "amount": 9604.564178427603},
-        {"meaning": "absorbed_electrical_power", "unit": "W", "amount": 36.0},
-        {"meaning": "present_value", "unit": "USD", "amount": 25862.780375565493}
+        {
+          "meaning": "interest_payment",
+          "unit": "USD",
+          "amount": 19455.000417591276
+        },
+        {
+          "meaning": "principal_payment",
+          "unit": "USD",
+          "amount": 9604.564178427603
+        },
+        {
+          "meaning": "absorbed_electrical_power",
+          "unit": "W",
+          "amount": 36.0
+        },
+        {
+          "meaning": "present_value",
+          "unit": "USD",
+          "amount": 25862.780375565493
+        }
       ],
       "needs": "none; 9 nodes, three independent graphs, four outputs.",
       "why_llm_loses": "Keeping three graphs and four exact answers straight at once."
@@ -111,7 +155,11 @@
       "fill_in_assumptions": true,
       "expected_status": "completed",
       "expected_outputs": [
-        {"meaning": "member_capacity", "unit": "GB", "amount": 2000.0}
+        {
+          "meaning": "member_capacity",
+          "unit": "GB",
+          "amount": 2000.0
+        }
       ],
       "needs": "none; 7 nodes with four inverse views (rate, size, count, capacity).",
       "why_llm_loses": "Inverting the whole capacity stack backwards exactly."
@@ -123,10 +171,150 @@
       "fill_in_assumptions": true,
       "expected_status": "completed",
       "expected_outputs": [
-        {"meaning": "present_value", "unit": "USD", "amount": 399999.9914142119}
+        {
+          "meaning": "present_value",
+          "unit": "USD",
+          "amount": 399999.9914142119
+        }
       ],
       "needs": "none; double inverse (interest to payment to principal) through the schedule bridge.",
       "why_llm_loses": "Two nested inversions with schedule-position arithmetic."
+    },
+    {
+      "id": "at-growing-annuity",
+      "tier": 1,
+      "trap": true,
+      "question": "A growing annuity pays $1,000 first, growing at 10 percent per period, discounted at 8 percent per period for 10 periods. What is its present value?",
+      "fill_in_assumptions": false,
+      "expected_status": "rejected",
+      "expected_outputs": [],
+      "naive_amounts": [
+        10070.230864353523
+      ],
+      "needs": "none; guard trap: i>g fails, so no route completes.",
+      "why_llm_loses": "Evaluates the formula across the violated guard."
+    },
+    {
+      "id": "at-payment-index",
+      "tier": 1,
+      "trap": true,
+      "question": "Level payments of $2,000 at a 6 percent periodic rate run over 30 periods. What is the interest portion of payment 35?",
+      "fill_in_assumptions": false,
+      "expected_status": "rejected",
+      "expected_outputs": [],
+      "naive_amounts": [
+        -524.9539200000005
+      ],
+      "needs": "none; guard trap: t<=n fails on both split models.",
+      "why_llm_loses": "Plugs t=35 into the schedule formula without checking the domain."
+    },
+    {
+      "id": "at-raid-size",
+      "tier": 1,
+      "trap": true,
+      "question": "A homogeneous array of 2 disks of 1000 GB each is configured as RAID-5. What is its parity usable capacity in GB?",
+      "fill_in_assumptions": false,
+      "expected_status": "rejected",
+      "expected_outputs": [],
+      "naive_amounts": [
+        1000.0
+      ],
+      "needs": "none; guard trap: n>=3 fails; RAID-0 answers a different meaning.",
+      "why_llm_loses": "Applies (n-1)*C below the model's disk floor."
+    },
+    {
+      "id": "ac-mortgage-12",
+      "tier": 1,
+      "question": "A $400,000 loan at 6 percent nominal compounded annually is repaid in 30 level annual payments. What is the level payment, and what are the interest and principal portions of payment 12?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "periodic_payment",
+          "unit": "USD",
+          "amount": 29059.56459601888
+        },
+        {
+          "meaning": "interest_payment",
+          "unit": "USD",
+          "amount": 19455.000417591276
+        },
+        {
+          "meaning": "principal_payment",
+          "unit": "USD",
+          "amount": 9604.564178427603
+        }
+      ],
+      "needs": "none; all three must match, so interest+principal=payment is enforced.",
+      "why_llm_loses": "Three-way coherence: rounded parts stop adding to the payment."
+    },
+    {
+      "id": "ac-mortgage-1",
+      "tier": 1,
+      "question": "A $400,000 loan at 6 percent nominal compounded annually is repaid in 30 level annual payments. What is the level payment, and what are the interest and principal portions of payment 1?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "periodic_payment",
+          "unit": "USD",
+          "amount": 29059.56459601888
+        },
+        {
+          "meaning": "interest_payment",
+          "unit": "USD",
+          "amount": 24000.0
+        },
+        {
+          "meaning": "principal_payment",
+          "unit": "USD",
+          "amount": 5059.564596018881
+        }
+      ],
+      "needs": "none; all three must match, so interest+principal=payment is enforced.",
+      "why_llm_loses": "Three-way coherence: rounded parts stop adding to the payment."
+    },
+    {
+      "id": "ac-energy-value",
+      "tier": 1,
+      "question": "Delivered heat is 12000 kWh. A heat pump has seasonal performance 3 and electric resistance has seasonal performance 1. Tariff is 0.30 USD/kWh. The heat pump costs $8000 upfront. With a 5 percent discount rate over 15 years, what is the annual operating-cost saving, its present value, and the net present value of choosing the heat pump?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "annual_saving",
+          "unit": "USD",
+          "amount": 2400.0
+        },
+        {
+          "meaning": "present_value",
+          "unit": "USD",
+          "amount": 24911.179291633438
+        },
+        {
+          "meaning": "net_present_value",
+          "unit": "USD",
+          "amount": 16911.179291633438
+        }
+      ],
+      "needs": "none; all three must match, so saving-to-PV-to-NPV coherence is enforced.",
+      "why_llm_loses": "Rounded present value breaks both links of the chain."
+    },
+    {
+      "id": "ad-download-backup",
+      "tier": 1,
+      "question": "How long will it take to download a full backup of a homogeneous array of 4 disks of 2000 GB each configured as RAID-5 over a 100 Mbps link?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "transfer_time",
+          "unit": "s",
+          "amount": 480000.0
+        }
+      ],
+      "needs": "none; 10-node forward chain through the brief-15+17 bits bridges.",
+      "why_llm_loses": "Parity, bits-to-bytes, and conversions in one chain (direct matched it: tie)."
     }
   ]
 }

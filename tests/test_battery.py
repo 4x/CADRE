@@ -42,7 +42,12 @@ class ChainBatteryTests(unittest.TestCase):
                     self.assertTrue(entry["expected_outputs"])
                     for expected in entry["expected_outputs"]:
                         self.assertTrue(expected["meaning"] and expected["unit"])
-                        self.assertIsInstance(expected["amount"], (int, float))
+                        if "amounts" in expected:
+                            self.assertTrue(expected["amounts"])
+                            for amount in expected["amounts"]:
+                                self.assertIsInstance(amount, (int, float))
+                        else:
+                            self.assertIsInstance(expected["amount"], (int, float))
 
     def test_verdicts_cover_pass_fail_and_fixed(self) -> None:
         """Status/value comparison drives pass, fail, and tier-2 fixed detection."""
@@ -57,3 +62,15 @@ class ChainBatteryTests(unittest.TestCase):
         blocked = dict(entry, tier=2, expected_status="blocked")
         self.assertEqual(check_entry(blocked, good, 1e-6)["verdict"], "fixed")
         self.assertEqual(check_entry(blocked, bad, 1e-6)["verdict"], "fail")
+
+    def test_multi_expected_amounts_compare_elementwise(self) -> None:
+        """Branch-all oracles match the full root list in order, not one root."""
+        entry = {"id": "m", "tier": 1, "expected_status": "completed",
+                 "expected_outputs": [{"meaning": "m", "unit": "u", "amounts": [-2.0, 2.0]}]}
+        port = {"meaning": "m", "unit": "u"}
+        good = _record("completed", {"n1": {"amounts": [-2.0, 2.0], "port": port}})
+        self.assertEqual(check_entry(entry, good, 1e-6)["verdict"], "pass")
+        swapped = _record("completed", {"n1": {"amounts": [2.0, -2.0], "port": port}})
+        self.assertEqual(check_entry(entry, swapped, 1e-6)["verdict"], "fail")
+        scalar = _record("completed", {"n1": _output("m", "u", 2.0)})
+        self.assertEqual(check_entry(entry, scalar, 1e-6)["verdict"], "fail")

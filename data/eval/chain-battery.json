@@ -86,7 +86,7 @@
           "amount": 29059.56459601888
         }
       ],
-      "needs": "none; single model. Phrasing is stilted because the natural periodic-rate link is context-blocked (see t2-mortgage-full). Known engine limit: exponents above 100 reject, so 360-payment loans cannot execute yet.",
+      "needs": "none; single model. Phrasing is stilted because the natural periodic-rate link is context-blocked (see t2-mortgage-full). Former engine limit lifted 2026-11-04 by the eval-cap split (500): 360-payment loans now execute; see t1-mortgage-monthly.",
       "why_llm_loses": "Rounding drift across (1+i)^30 compounding."
     },
     {
@@ -231,6 +231,90 @@
       ],
       "needs": "none; bridge admitted and battery-verified FIXED 2026-11-04. Was: two availability bridges plus context alignment. Oracle ran MTBF, availability, downtime stepwise with 1-A hand-wired.",
       "why_llm_loses": "Series/parallel reliability math plus per-year accounting."
+    },
+    {
+      "id": "t1-mortgage-monthly",
+      "tier": 1,
+      "question": "A $400,000 loan at 6 percent nominal compounded monthly is repaid in 360 level monthly payments. What is the monthly payment and the interest portion of the first payment?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "periodic_payment",
+          "unit": "USD",
+          "amount": 2398.2021006110276
+        },
+        {
+          "meaning": "interest_payment",
+          "unit": "USD",
+          "amount": 2000.0
+        }
+      ],
+      "needs": "none; eval-cap split (500) unlocked 360-period powers 2026-11-04. Five-node chain nominal-rate to loan schedule to payment to interest portion, all edges audit-bound.",
+      "why_llm_loses": "(1.005)^360 compounding across a five-hop chain with exact schedule arithmetic."
+    },
+    {
+      "id": "t1-retirement-monthly",
+      "tier": 1,
+      "question": "An investor saves $500 at the end of every month, making 480 monthly contributions that earn 0.5 percent per month. What is the future value of the savings?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "future_value",
+          "unit": "USD",
+          "amount": 995745.3671655104
+        }
+      ],
+      "needs": "none; single model at n=480, unlocked by the eval-cap split (500) 2026-11-04.",
+      "why_llm_loses": "Rounding drift across (1+i)^480 compounding."
+    },
+    {
+      "id": "t1-cvp-coherence",
+      "tier": 1,
+      "question": "A product sells for $50 per unit with a $30 variable cost per unit. The shop sells 800 units; fixed operating costs are $10,000 for the period. What is the unit contribution margin, the total contribution income, the break-even unit sales, and the unit sales needed for a $20,000 target profit?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "contribution_margin_per_unit",
+          "unit": "USD/unit",
+          "amount": 20.0
+        },
+        {
+          "meaning": "contribution_margin_income",
+          "unit": "USD",
+          "amount": 16000.0
+        },
+        {
+          "meaning": "break_even_unit_quantity",
+          "unit": "unit",
+          "amount": 500.0
+        },
+        {
+          "meaning": "required_unit_sales_for_target_profit",
+          "unit": "unit",
+          "amount": 1500.0
+        }
+      ],
+      "needs": "none; in-batch 5-node CVP chain margin to income/break-even/target with the cost adapter on the FIX legs (composer may bind FIX facts directly; outputs verify either way).",
+      "why_llm_loses": "Four interlocked CVP quantities sharing one margin; bare answers divide by price instead of margin."
+    },
+    {
+      "id": "t1-glue-difference",
+      "tier": 1,
+      "question": "A project has a budget of $8,000 and spends $12,500. What is the budget balance, computed as budget minus spend?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "difference_of_money",
+          "unit": "USD",
+          "amount": -4500.0
+        }
+      ],
+      "needs": "none; single glue model. Role selection is the test: budget binds first, spend binds second, and the signed remainder survives.",
+      "why_llm_loses": "Ordered subtraction with sign: bare answers report the $4,500 overspend as a positive."
     }
   ]
 }

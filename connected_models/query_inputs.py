@@ -61,7 +61,11 @@ def validate_fact(raw: dict[str, Any], question: str, fill_in_assumptions: bool 
             explicit = UNIT_PATTERN.match(tail)
             source_unit = explicit.group(1) if explicit else None
             if fact["quote"][:mention.start()].rstrip().endswith("$"):
-                source_unit = "USD/kWh" if re.match(r"\s*/\s*kWh", tail, re.IGNORECASE) else "USD"
+                # A "$50 per unit" price carries its denominator in the tail;
+                # only phrasing before any further number belongs to this one.
+                head = NUMBER_PATTERN.split(tail, maxsplit=1)[0]
+                per = re.search(r"(?:\bper\s+|/\s*)([A-Za-z][\w^]*)", head)
+                source_unit = f"USD/{per.group(1)}" if per else "USD"
             else:
                 # "Per" phrasing ("15 mg per kg") otherwise misreads as its
                 # numerator prefix ("mg"); retry with "per" squeezed to "/"

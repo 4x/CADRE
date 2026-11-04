@@ -1,6 +1,6 @@
 # Chain battery
 
-Thirteen queries where connected-models should beat a plain LLM doing in-context arithmetic: exact inverse solving, guarded domains, unit/dimension discipline, and multi-hop chains with provenance. All thirteen are tier 1 and complete live as of 2026-11-04; five flipped from tier 2 when their bridges (context r2s and meaning adapters) were admitted. The runner still reports a tier-2 completion with correct values as `fixed`, so future blocked-until-bridged entries are detected automatically.
+Seventeen queries where connected-models should beat a plain LLM doing in-context arithmetic: exact inverse solving, guarded domains, unit/dimension discipline, and multi-hop chains with provenance. All seventeen are tier 1 and complete live as of 2026-11-04; five flipped from tier 2 when their bridges (context r2s and meaning adapters) were admitted. The runner still reports a tier-2 completion with correct values as `fixed`, so future blocked-until-bridged entries are detected automatically.
 
 ## Run it
 
@@ -19,7 +19,8 @@ uv --cache-dir .uv-cache run --env-file .env evals/run_compare_battery.py --batt
 
 - `chain-battery.json` — entries with questions, oracle amounts, tiers, and the blocker each tier-2 entry waits on. Oracle amounts were computed offline with `runtime.execute` (fixture purpose); tier-2 links ran stepwise with hand wiring.
 - `deep-battery.json` — eight longer entries: chains up to 9 nodes, mixed forward/inverse views, fork graphs, and fact-routing stress. All eight are tier 1 with end-to-end offline oracles as of 2026-11-04; d4 flipped when the brief-14 schedule-rate adapter was admitted.
-- `adversarial-battery.json` — ten head-to-head entries where a bare LLM is expected to lose: precision traps, guard traps (`trap: true`, refusal is correct, compare-runner only), long fork-join chains, and multi-hop inverses. The sweep scores each row win/tie/loss: win means only the grounded route was right.
+- `adversarial-battery.json` — seventeen head-to-head entries where a bare LLM is expected to lose: precision traps, guard traps (`trap: true`, refusal is correct, compare-runner only), long fork-join chains, multi-hop inverses, and coherence sets. The sweep scores each row win/tie/loss: win means only the grounded route was right.
+- `HEAD-TO-HEAD.md` — the standing scoreboard: method, per-entry results, history, and what separates the routes.
 - `../evals/run_chain_battery.py` — the chain runner. Matches live outputs to oracle values by meaning within 1e-6 relative tolerance, prints a verdict table, and saves `.runs/eval-<timestamp>/report.json`.
 - `../evals/run_compare_battery.py` — the compare runner (`--battery chain|deep`). Runs `compare` per entry (grounded answer vs direct LLM answer, engine as oracle) and saves `.runs/eval-<timestamp>-compare-battery/report.json`.
 

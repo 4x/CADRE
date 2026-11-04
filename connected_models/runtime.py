@@ -18,7 +18,7 @@ from .contracts import (Composition, DIMENSION_AXES, Family, MEANINGS, NUMERICAL
                         Node, Port, Reference, UNITS, VOCABULARY_PROFILE, Value, encode_dimensions, finite, unit_json)
 from .expressions import check_guard, dimensions, evaluate, guard_dimensions, parse
 from .serialization import model_digest
-from .solving import SolveError, node_ports, solve
+from .solving import SolveError, node_ports, solve, solve_all
 
 MAX_GRAPH_NODES = 64
 MAX_MODEL_INPUTS = 16
@@ -96,6 +96,8 @@ def compile_graph(composition: Composition, catalog: dict[str, Model],
             if isinstance(element, Reference):
                 if element.node not in nodes:
                     raise ModelError(f"{label}: unknown upstream node {element.node}.")
+                if nodes[element.node].branch == "all":
+                    raise ModelError(f"{label}: branch 'all' outputs are terminal and cannot feed another node.")
                 upstream = catalog.get(nodes[element.node].model)
                 if upstream is None:
                     raise ModelError(f"Missing upstream model for {element.node}.")
@@ -153,6 +155,7 @@ def execute(composition: Composition, catalog: dict[str, Model],
         plan = compile_graph(composition, catalog, admissions)
         values: dict[str, Value] = {}
         reliance: dict[str, list[dict[str, Any]]] = {}
+        envelopes: dict[str, dict[str, Any]] = {}
         for compiled in plan:
             node, model = compiled.node, compiled.model
             numbers: dict[str, float] = {}
@@ -173,6 +176,18 @@ def execute(composition: Composition, catalog: dict[str, Model],
                 numbers[name] = finite(value.bind(compiled.inputs[name]) * UNITS[compiled.inputs[name].unit].scale, "Normalized input")
                 origins.extend(reliance[binding.node] if isinstance(binding, Reference) else [{"node": node.id, "input": name, **asdict(value)}])
             solve_evidence = None
+            if node.solve_for is not None and node.branch == "all":
+                roots, solve_evidence = solve_all(model, compiled.expression, compiled.guards, node.solve_for, numbers, node.relation)
+                scale = UNITS[compiled.output.unit].scale
+                envelope = {"amounts": [finite(amount / scale, "Output") for amount in roots["amounts"]],
+                            "excluded": [finite(amount / scale, "Output") for amount in roots["excluded"]],
+                            "port": asdict(compiled.output), "origin": "derived",
+                            "source": f"{manifest['run_id']}/{node.id}", "branch": "all"}
+                envelopes[node.id], reliance[node.id] = envelope, origins
+                manifest["steps"].append({"node": node.id, "model": model.key, "normalized_inputs": numbers,
+                                          "normalized_family_inputs": {name: list(values) for name, values in family_numbers.items()},
+                                          "result": envelope, "relies_on": origins, "solve": solve_evidence})
+                continue
             if node.solve_for is not None:
                 canonical_result, solve_evidence = solve(model, compiled.expression, compiled.guards, node.solve_for, numbers, node.relation)
             else:
@@ -187,7 +202,8 @@ def execute(composition: Composition, catalog: dict[str, Model],
             manifest["steps"].append({"node": node.id, "model": model.key, "normalized_inputs": numbers,
                                       "normalized_family_inputs": {name: list(values) for name, values in family_numbers.items()},
                                       "result": asdict(value), "relies_on": origins, "solve": solve_evidence})
-        manifest["outputs"] = {name: asdict(values[name]) for name in composition.outputs}
+        manifest["outputs"] = {name: envelopes[name] if name in envelopes else asdict(values[name])
+                                for name in composition.outputs}
         manifest["status"] = "completed"
         LOGGER.info(f"Completed run {manifest['run_id']} with {len(plan)} nodes")
     except ModelError as exc:

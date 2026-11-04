@@ -261,7 +261,7 @@ def answer(registry: Registry, question: str, fill_in_assumptions: bool = False,
                 facts = {fact["id"]: fact for fact in record["query_inputs"]["facts"]}
                 grounded = []
                 for node in graph_data["nodes"]:
-                    object_fields(node, {"id", "model", "bindings"}, {"solve_for", "relation"})
+                    object_fields(node, {"id", "model", "bindings"}, {"solve_for", "relation", "branch"})
                     if node["model"] not in models or not isinstance(node["bindings"], list):
                         raise ModelError("Proposed node requires an eligible model revision and explicit bindings.")
                     model = models[node["model"]]

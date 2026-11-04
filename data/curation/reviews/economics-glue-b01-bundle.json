@@ -1,0 +1,916 @@
+{
+  "batch_id": "economics-glue-b01",
+  "created": "2026-11-04",
+  "curator": "compat-economics-glue",
+  "deferred": [
+    {
+      "reason": "Out of scope per the glue-batch assignment (no SUM variants): each wider aggregation is a separate relationship needing its own record, not an iterated application of the two-input sum, which SUM-orientation forbids. No new source investigation done.",
+      "source_urls": [],
+      "title": "Sums of three or more named amounts; family (indexed) money sums; running balances"
+    },
+    {
+      "reason": "Excluded by the conservative counts-only scope of economics--money-unit-rate (brief 19): BLS average-price practice spans physical measures, but this record admits dimensionless item counts only. A physical-measure sibling would need its own meaning and record.",
+      "source_urls": [
+        "https://www.bls.gov/opub/hom/cpi/calculation.htm"
+      ],
+      "title": "Physical-measure unit rates (per-gallon, per-ounce, per-pound, per-kilowatthour)"
+    },
+    {
+      "reason": "Different relationships: time-value-of-money payback and NPV need discount-rate ports and are covered by the engineering-finance lane, not by simple-payback glue.",
+      "source_urls": [
+        "https://www.energycodes.gov/methodology"
+      ],
+      "title": "Discounted payback and net-present-value investment rules"
+    }
+  ],
+  "domain": "economics",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "Scientific review pending for all 5 records; no review or admission was performed here.",
+      "Four records need vocabulary extension (named_money_amount, plain_multiplier, counted_unit_quantity, glue contexts) before runtime projection.",
+      "Registry reads were read-only on 2026-11-04 (mode=ro); nothing was staged, reviewed, admitted or otherwise touched."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical validation 2026-11-04 with the central package (see brief 19 for commands and outputs): validate on the bundle JSON, pack to the return ZIP, validate on the ZIP. Zero-edge verification (this script, registry read-only): no batch ID collides, the payback annual_saving input context differs from the home-A producer context, and the unit-rate output context differs from all 6 registry unit_price consumer contexts, so the batch binds no existing chain. Oracle independence: every record carries 2+ references from independent public publishers (GAAP-guide/CFI/Investopedia for money models; BLS/CBP for unit-rate; DOE state analyses for payback); Investopedia/CFI are never the formula authority. Checks not performed: independent scientific review; staging, review or admission (out of scope).",
+    "summary": "Glue batch economics-glue-b01 (curator compat-economics-glue): 5 economics arithmetic-glue records per glue-batch-brief-19 (total-of-two-money-amounts, scaled-money-amount, money-difference-first-minus-second, simple-payback-periods, money-unit-rate). Four records are requires-extension on new glue meanings (named_money_amount, plain_multiplier, counted_unit_quantity); simple-payback-periods is runtime-ready on pre-provisioned vocabulary. No SUM variants; SUM-orientation keeps input and output meanings distinct."
+  },
+  "kit_version": "2026-10-31.10",
+  "models": [
+    {
+      "assumptions": [
+        "Source rule: same-basis monetary amounts aggregate by addition into reported totals (ASC 230 sum-of-amounts; ASC 830-10-55-11 combination into annual totals).",
+        "Application profile: exactly two named USD components on one subject and basis; the inputs are identified components and the output is their anonymous total."
+      ],
+      "constants": [],
+      "guards": [],
+      "id": "economics--total-of-two-money-amounts",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning named_money_amount (money dimension) for the identified component inputs.",
+          "New glue context for same-subject, same-basis USD aggregation.",
+          "Output meaning sum_of_money exists in the registry vocabulary; no admitted producer emits it yet."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "A = S - B and B = S - A given the other input; both respect the original (empty) guard set. Substitution: S = 10500, B = 1500 gives A = 9000, and forward 9000 + 1500 = 10500. Single-output vs many-inputs: S alone underdetermines (A, B) - infinitely many pairs sum to S (e.g. S = 10500 admits both (9000, 1500) and (10000, 500)) - so the output cannot be inverted to named components, which is why sum_of_money stays a distinct meaning from named_money_amount (brief 19). Boundary S = 0 with A = 0 gives B = 0 uniquely; S = 0 with A = 5 gives B = -5 under the signed admission.",
+      "kind": "definition",
+      "limitations": [
+        "No currency conversion: amounts in other currencies must be translated to USD externally (ASC 830) before entry; this record never converts.",
+        "Two inputs only: three-or-more-component and family aggregates are separate relationships, deferred, not implied by repeated application (SUM-orientation: the sum output cannot re-enter as a named input).",
+        "Signed arithmetic is admitted; the record does not enforce nonnegativity or balance-sheet sign conventions."
+      ],
+      "references": [
+        {
+          "expected": 10500,
+          "id": "cfi-textile-total",
+          "inputs": {
+            "A": 9000,
+            "B": 1500
+          },
+          "method": "Published total kept as expected: CFI textile variable cost $9,000 plus fixed cost $1,500 brings the total cost to $10,500. Tolerance covers floating arithmetic only.",
+          "provenance": "https://corporatefinanceinstitute.com/resources/accounting/cost-of-production/, Total Cost section.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 170000000000,
+          "id": "investopedia-xyz-sum",
+          "inputs": {
+            "A": 50000000000,
+            "B": 120000000000
+          },
+          "method": "Published total kept as expected: Investopedia XYZ illustration computes ($50 billion + $120 billion) = $170 billion on the right side of the accounting equation. Exact integer USD arithmetic; tolerance is float hygiene only.",
+          "provenance": "https://www.investopedia.com/terms/a/accounting-equation.asp, XYZ Corp illustration.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 2500.75,
+          "id": "zero-component-identity",
+          "inputs": {
+            "A": 0,
+            "B": 2500.75
+          },
+          "method": "Limiting identity: a zero component adds nothing, pinning the additive identity of the sum. Curator-constructed boundary, not a published figure.",
+          "provenance": "Curator synthetic boundary; no observed data claimed.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A": 9000
+          },
+          "kind": "missing-input",
+          "reason": "B is omitted: without the second named amount there is no pair to total. A value of unknown meaning cannot fill the named_money_amount port, and neither can a sum_of_money output (SUM-orientation: input and output meanings stay distinct); the composition fails closed."
+        },
+        {
+          "inputs": {
+            "B": 1500
+          },
+          "kind": "missing-input",
+          "reason": "A is omitted: the record must not silently zero-fill a missing named component, which would fabricate a total from half the inputs."
+        }
+      ],
+      "relationship": {
+        "expression": "A + B",
+        "locator": "FSP 6.5 opening: beginning/ending balances agree to the sum of the balance-sheet amounts",
+        "original_equation": "S = A + B (same-currency, same-basis aggregation of two named amounts)",
+        "output_symbol": "S",
+        "source_id": "gaap-asc230-sum-of-amounts",
+        "translation_notes": "A and B are introduced symbols for the two named component amounts; S is the introduced total. Dimensional check: currency + currency = currency on a common USD scale and valuation basis. The codification aggregates same-basis monetary amounts into reported totals (ASC 230 sum-of-amounts; ASC 830-10-55-11 quarterly and monthly translated amounts combined into annual totals); this record applies that aggregation shape to two named USD amounts. No currency conversion is performed: cross-currency inputs are outside the context, not converted."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The guide states that the statement of cash flows must detail changes in the total of cash, cash equivalents and restricted cash for the period, and that the beginning and ending balances shown must agree to the sum of the balance-sheet amounts. Direct codification access at asc.fasb.org returned HTTP 403 on 2026-11-04 and the codification full-text pages on Viewpoint are premium-gated, so the rule was inspected in this open guide excerpt. The same aggregation shape is corroborated by the Topic 830 combination rule in source gaap-asc830-combine.",
+          "id": "gaap-asc230-sum-of-amounts",
+          "kind": "primary",
+          "license": "PwC Viewpoint terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "FSP 6.5 opening paragraphs and section 6.5.3.5 (cash-flow presentation of restricted cash)",
+          "redistribution": "Only short original paraphrases of the accounting rule and attributed figures; no Viewpoint or codification text reproduced.",
+          "title": "FASB Accounting Standards Codification Topic 230 (Statement of Cash Flows), sum-of-amounts presentation as amended by ASU 2016-18 (rule inspected via PwC Viewpoint guide excerpt)",
+          "url": "https://viewpoint.pwc.com/dt/us/en/pwc/accounting_guides/financial_statement_/financial_statement___18_US/chapter_6_statement__US/65_cash_cash_equival_US.html",
+          "version": "PwC Financial statement presentation guide, FSP 6.5 (live HTML inspected 2026-11-04)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The excerpted paragraph states that individual revenue and expense accounts for each quarter or month may be translated at that period average rate, and that the translated amounts for each quarter or month should then be combined for the annual totals: same-basis monetary combination into a reported total. Direct codification access at asc.fasb.org returned HTTP 403 on 2026-11-04 and the codification full-text pages on Viewpoint are premium-gated, so the rule was inspected in this open guide excerpt.",
+          "id": "gaap-asc830-combine",
+          "kind": "primary",
+          "license": "PwC Viewpoint terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "FX 5.5, ASC 830-10-55-11 excerpt",
+          "redistribution": "Only short original paraphrases of the accounting rule and attributed figures; no Viewpoint or codification text reproduced.",
+          "title": "FASB ASC 830-10-55-11, translation of financial statements: quarterly/monthly translated amounts combined into annual totals (paragraph inspected via PwC Viewpoint guide excerpt)",
+          "url": "https://viewpoint.pwc.com/dt/us/en/pwc/accounting_guides/foreign_currency/foreign_currency__2_US/chapter_5_translatin_US/55_exchange_rates_US.html",
+          "version": "PwC Foreign currency guide, FX 5.5 (live HTML inspected 2026-11-04)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Textile example: variable cost $9,000 plus fixed cost $1,500 brings the total cost to $10,500. Shirt example: $9 per unit over 1,000 units gives $9,000 total variable cost. The page defines average cost as the total cost of production divided by the number of units produced.",
+          "id": "cfi-average-cost-production",
+          "kind": "primary",
+          "license": "CFI website terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Total Cost section (textile example) and Variable Costs section (shirt example)",
+          "redistribution": "Only attributed example figures and short original paraphrases; no CFI text reproduced.",
+          "title": "Corporate Finance Institute, Average Cost of Production (textile total-cost and unit-extension examples)",
+          "url": "https://corporatefinanceinstitute.com/resources/accounting/cost-of-production/",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The page states total assets equal the sum of liabilities and shareholders equity, and illustrates with XYZ Corp: $50 billion equity plus $120 billion liabilities equals $170 billion assets, matching the reported asset value.",
+          "id": "investopedia-accounting-equation",
+          "kind": "primary",
+          "license": "Investopedia terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "XYZ Corp illustration: ($50 billion + $120 billion) = $170 billion",
+          "redistribution": "Only attributed example figures and short original paraphrases; no Investopedia text reproduced.",
+          "title": "Investopedia, Accounting Equation (XYZ Corporation illustration)",
+          "url": "https://www.investopedia.com/terms/a/accounting-equation.asp",
+          "version": "Live HTML inspected 2026-11-04"
+        }
+      ],
+      "summary": "Same-basis sum of two identified money amounts into one total. The named inputs and the anonymous sum carry distinct meanings, so computed sums never re-enter as named components (SUM-orientation; see glue-batch-brief-19).",
+      "title": "Total of two named money amounts",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same monetary subject, USD denomination and valuation basis for both named amounts and the sum; aggregation within one basis, not across currencies, subjects or bases.",
+          "definition": "First identified money amount entering the aggregation, denominated in USD on the stated basis; it carries its own account or line identity.",
+          "dimensions": "currency",
+          "domain": "Finite signed amount; negative values are admitted as credits or contra-amounts on the same basis.",
+          "quantity_id": "named_money_amount",
+          "role": "input",
+          "source_symbol": "Introduced A = first named amount",
+          "symbol": "A",
+          "unit": "USD"
+        },
+        {
+          "context": "Same monetary subject, USD denomination and valuation basis for both named amounts and the sum; aggregation within one basis, not across currencies, subjects or bases.",
+          "definition": "Second identified money amount entering the aggregation, denominated in USD on the stated basis; it carries its own account or line identity.",
+          "dimensions": "currency",
+          "domain": "Finite signed amount; negative values are admitted as credits or contra-amounts on the same basis.",
+          "quantity_id": "named_money_amount",
+          "role": "input",
+          "source_symbol": "Introduced B = second named amount",
+          "symbol": "B",
+          "unit": "USD"
+        },
+        {
+          "context": "Same monetary subject, USD denomination and valuation basis for both named amounts and the sum; aggregation within one basis, not across currencies, subjects or bases.",
+          "definition": "Total of the two named amounts on their shared basis; a computed aggregate, not a named component.",
+          "dimensions": "currency",
+          "domain": "Finite signed total; its meaning is distinct from the named inputs by design.",
+          "quantity_id": "sum_of_money",
+          "role": "output",
+          "source_symbol": "Introduced S = total of A and B",
+          "symbol": "S",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source rule: monetary amounts scale by dimensionless rates (ASC 830-30-45-3 current-rate and ASC 830-10-55-10 average-rate translation).",
+        "Application profile: same-currency scaling of one named USD amount; the factor is dimensionless and applicable to that subject and basis."
+      ],
+      "constants": [],
+      "guards": [],
+      "id": "economics--scaled-money-amount",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning named_money_amount (money dimension) for the base input.",
+          "New quantity meaning plain_multiplier (dimensionless) for the scaling factor.",
+          "New glue context for same-subject, same-basis USD scaling.",
+          "Output meaning scaled_money exists in the registry vocabulary; no admitted producer emits it yet."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "base = M / factor requires factor nonzero; factor = M / base requires base nonzero; both respect the original (empty) guard set. Substitution: M = 9000, factor = 1000 gives base = 9, and forward 9 x 1000 = 9000. factor = 0 with M = 0 leaves base underdetermined (any base fits); factor = 0 with M nonzero is incompatible. Likewise base = 0 with M = 0 leaves factor underdetermined.",
+      "kind": "definition",
+      "limitations": [
+        "Cross-currency translation is outside this record: rate selection and remeasurement follow ASC 830 externally; only the scaling shape is shared.",
+        "The factor is dimensionless: a rate carrying units (e.g. dollars per hour) is not a plain_multiplier.",
+        "Single multiplication only: no compounding, powers, or chained scaling (a scaled output cannot re-enter as a named base)."
+      ],
+      "references": [
+        {
+          "expected": 9000,
+          "id": "cfi-unit-extension",
+          "inputs": {
+            "base": 9,
+            "factor": 1000
+          },
+          "method": "Published total kept as expected: CFI shirt example extends $9 per unit over 1,000 units to $9,000 total variable cost. Tolerance covers floating arithmetic only.",
+          "provenance": "https://corporatefinanceinstitute.com/resources/accounting/cost-of-production/, Variable Costs section.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 25,
+          "id": "investopedia-commission",
+          "inputs": {
+            "base": 1000,
+            "factor": 0.025
+          },
+          "method": "Published commission kept as expected: Investopedia Conglomo example charges 2.5% on $1,000 of shares for $25, with the percent expressed as the decimal multiple 0.025. Tolerance covers floating arithmetic only.",
+          "provenance": "https://www.investopedia.com/terms/c/commission.asp, Conglomo Corp example.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1234.56,
+          "id": "unit-factor-identity",
+          "inputs": {
+            "base": 1234.56,
+            "factor": 1
+          },
+          "method": "Limiting identity: a unit factor returns the base unchanged, pinning the multiplicative identity. Curator-constructed boundary, not a published figure.",
+          "provenance": "Curator synthetic boundary; no observed data claimed.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "factor": 1.5
+          },
+          "kind": "missing-input",
+          "reason": "base is omitted while an ordinary decimal factor (1.5) is supplied: the factor alone cannot scale without the named amount it applies to; the composition fails closed."
+        },
+        {
+          "inputs": {
+            "base": 9
+          },
+          "kind": "missing-input",
+          "reason": "factor is omitted: the record must not silently default to a unit factor, which would fabricate an unscaled pass-through from a scaling request."
+        }
+      ],
+      "relationship": {
+        "expression": "base * factor",
+        "locator": "FX 5.5: ASC 830-30-45-3 (translate by current rate) and ASC 830-10-55-10 (average rate)",
+        "original_equation": "M = base x factor (same-currency scaling of a named amount by a dimensionless multiple)",
+        "output_symbol": "M",
+        "source_id": "gaap-asc830-translate-rate",
+        "translation_notes": "base is the introduced named amount; factor is the introduced dimensionless multiple; M is the introduced scaled amount. Dimensional check: currency x 1 = currency on the shared USD basis. The codification scales monetary amounts by dimensionless exchange rates (ASC 830); this record applies that scaling shape within one currency as the conservative restriction documented in brief 19: cross-currency translation needs ASC 830 rate selection outside this record."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The excerpted paragraphs state that all elements of financial statements shall be translated by using a current exchange rate, define the current rate by period or recognition date, and permit an appropriately weighted average exchange rate for income-statement translation: money amounts scaled by dimensionless rates. Direct codification access at asc.fasb.org returned HTTP 403 on 2026-11-04 and the codification full-text pages on Viewpoint are premium-gated, so the rule was inspected in this open guide excerpt.",
+          "id": "gaap-asc830-translate-rate",
+          "kind": "primary",
+          "license": "PwC Viewpoint terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "FX 5.5, ASC 830-30-45-3, ASC 830-30-45-4 and ASC 830-10-55-10 excerpts",
+          "redistribution": "Only short original paraphrases of the accounting rule and attributed figures; no Viewpoint or codification text reproduced.",
+          "title": "FASB ASC 830-30-45-3 and ASC 830-10-55-10, translation by current (or average) exchange rate (paragraphs inspected via PwC Viewpoint guide excerpt)",
+          "url": "https://viewpoint.pwc.com/dt/us/en/pwc/accounting_guides/foreign_currency/foreign_currency__2_US/chapter_5_translatin_US/55_exchange_rates_US.html",
+          "version": "PwC Foreign currency guide, FX 5.5 (live HTML inspected 2026-11-04)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Textile example: variable cost $9,000 plus fixed cost $1,500 brings the total cost to $10,500. Shirt example: $9 per unit over 1,000 units gives $9,000 total variable cost. The page defines average cost as the total cost of production divided by the number of units produced.",
+          "id": "cfi-average-cost-production",
+          "kind": "primary",
+          "license": "CFI website terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Total Cost section (textile example) and Variable Costs section (shirt example)",
+          "redistribution": "Only attributed example figures and short original paraphrases; no CFI text reproduced.",
+          "title": "Corporate Finance Institute, Average Cost of Production (textile total-cost and unit-extension examples)",
+          "url": "https://corporatefinanceinstitute.com/resources/accounting/cost-of-production/",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Susan buys 100 shares at $10 each ($1,000 of shares) and the broker 2.5% commission adds $25, i.e. $1,000 times 0.025 equals $25; on the later sale a 2% commission on the appreciated $1,100 is $22.",
+          "id": "investopedia-commission",
+          "kind": "primary",
+          "license": "Investopedia terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Conglomo Corp example: 100 shares at $10 with 2.5% commission",
+          "redistribution": "Only attributed example figures and short original paraphrases; no Investopedia text reproduced.",
+          "title": "Investopedia, Commission in Finance (Susan/Conglomo worked example)",
+          "url": "https://www.investopedia.com/terms/c/commission.asp",
+          "version": "Live HTML inspected 2026-11-04"
+        }
+      ],
+      "summary": "Same-currency scaling of one named money amount by a dimensionless multiple into a scaled amount. Decimal factors are ordinary inputs; a missing factor is never defaulted.",
+      "title": "Scaled money amount",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same monetary subject, USD denomination and valuation basis for the base and scaled amounts; the factor is a dimensionless multiple applicable to that subject and basis.",
+          "definition": "Identified money amount to be scaled, denominated in USD on the stated basis.",
+          "dimensions": "currency",
+          "domain": "Finite signed amount; negative values are admitted as credits or contra-amounts on the same basis.",
+          "quantity_id": "named_money_amount",
+          "role": "input",
+          "source_symbol": "Introduced base = named amount to scale",
+          "symbol": "base",
+          "unit": "USD"
+        },
+        {
+          "context": "Same monetary subject, USD denomination and valuation basis for the base and scaled amounts; the factor is a dimensionless multiple applicable to that subject and basis.",
+          "definition": "Dimensionless scaling multiple applied to the base amount: a share, rate-as-multiple, count multiple, or markup factor in decimal form.",
+          "dimensions": "1",
+          "domain": "Finite signed multiple; decimal factors such as 0.025 and 1.5 are ordinary inputs.",
+          "quantity_id": "plain_multiplier",
+          "role": "input",
+          "source_symbol": "Introduced factor = dimensionless multiple",
+          "symbol": "factor",
+          "unit": "1"
+        },
+        {
+          "context": "Same monetary subject, USD denomination and valuation basis for the base and scaled amounts; the factor is a dimensionless multiple applicable to that subject and basis.",
+          "definition": "Base amount after scaling on the shared basis.",
+          "dimensions": "currency",
+          "domain": "Finite signed scaled amount.",
+          "quantity_id": "scaled_money",
+          "role": "output",
+          "source_symbol": "Introduced M = scaled amount",
+          "symbol": "M",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source rule: ordered money differences are reported as first-minus-second amounts (ASC 830-30-45-7 translation difference; ASC 230 ending-minus-beginning change in total).",
+        "Application profile: two named USD amounts on one subject and basis with fixed order."
+      ],
+      "constants": [],
+      "guards": [],
+      "id": "economics--money-difference-first-minus-second",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning named_money_amount (money dimension) for the ordered inputs.",
+          "New glue context for same-subject, same-basis ordered USD difference.",
+          "Output meaning difference_of_money exists in the registry vocabulary; no admitted producer emits it yet."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "first = D + second and second = first - D given the other input; both respect the original (empty) guard set. Substitution: D = 36, second = 264 gives first = 300, and forward 300 - 264 = 36. D = 0 implies first = second but leaves the level underdetermined (any equal pair fits). No denominator or branch conditions.",
+      "kind": "definition",
+      "limitations": [
+        "Order is fixed by the ports: reversing the inputs negates the result, which is arithmetic, not a separate relationship.",
+        "No absolute value: magnitude-only comparisons need a different relationship.",
+        "Sign conventions (favorable vs unfavorable, surplus vs deficit) are external to this record."
+      ],
+      "references": [
+        {
+          "expected": 36,
+          "id": "pwc-fx-receivable-difference",
+          "inputs": {
+            "first": 300,
+            "second": 264
+          },
+          "method": "Published difference kept as expected: PwC Example FX 5-6 records USD 36 for the USD 300 receivable against the USD 264 translated payable under ASC 830-30-45-7. Tolerance covers floating arithmetic only.",
+          "provenance": "https://viewpoint.pwc.com/dt/us/en/pwc/accounting_guides/foreign_currency/foreign_currency__2_US/chapter_5_translatin_US/55_exchange_rates_US.html, Example FX 5-6.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 18,
+          "id": "cfi-target-cost",
+          "inputs": {
+            "first": 20,
+            "second": 2
+          },
+          "method": "Published difference kept as expected: CFI ABC Inc. target cost equals $20 selling price minus $2 profit margin, giving $18 per unit. Tolerance covers floating arithmetic only.",
+          "provenance": "https://corporatefinanceinstitute.com/resources/accounting/target-costing, Practical Example.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "equal-amounts-zero",
+          "inputs": {
+            "first": 750,
+            "second": 750
+          },
+          "method": "Limiting identity: equal named amounts difference to zero. Curator-constructed boundary, not a published figure.",
+          "provenance": "Curator synthetic boundary; no observed data claimed.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "second": 8
+          },
+          "kind": "missing-input",
+          "reason": "first is omitted: the record must not silently compute 0 - second or second - 0, which would fabricate a reversed-order sign from a missing minuend; the composition fails closed."
+        },
+        {
+          "inputs": {
+            "first": 8
+          },
+          "kind": "missing-input",
+          "reason": "second is omitted: the record must not silently assume a zero subtrahend, which would fabricate an unreduced pass-through of first."
+        }
+      ],
+      "relationship": {
+        "expression": "first - second",
+        "locator": "FX 5.5, Example FX 5-6 under ASC 830-30-45-7 (USD 300 vs USD 264, difference USD 36)",
+        "original_equation": "D = first - second (ordered same-currency difference of two named amounts)",
+        "output_symbol": "D",
+        "source_id": "gaap-asc830-difference",
+        "translation_notes": "first and second are introduced symbols for the ordered named amounts; D is the introduced difference. Dimensional check: currency - currency = currency on a common USD scale and basis. The codification reports ordered money differences (ASC 830-30-45-7 receivable equal to the USD 36 difference; ASC 230 change-in-total of ending minus beginning); this record applies that ordered-difference shape to two named USD amounts."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The example translates an intercompany payable to USD 264 against a USD 300 receivable on the parent books, and records an additional receivable equal to the USD 36 difference under ASC 830-30-45-7: an ordered money difference with published figures. Direct codification access at asc.fasb.org returned HTTP 403 on 2026-11-04 and the codification full-text pages on Viewpoint are premium-gated, so the rule was inspected in this open guide excerpt.",
+          "id": "gaap-asc830-difference",
+          "kind": "primary",
+          "license": "PwC Viewpoint terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "FX 5.5, Example FX 5-6 under ASC 830-30-45-7",
+          "redistribution": "Only short original paraphrases of the accounting rule and attributed figures; no Viewpoint or codification text reproduced.",
+          "title": "FASB ASC 830-30-45-7, receivable equal to the translation difference (Example FX 5-6: USD 300 vs USD 264)",
+          "url": "https://viewpoint.pwc.com/dt/us/en/pwc/accounting_guides/foreign_currency/foreign_currency__2_US/chapter_5_translatin_US/55_exchange_rates_US.html",
+          "version": "PwC Foreign currency guide, FX 5.5 with Example FX 5-6 (live HTML inspected 2026-11-04)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The guide states that the statement of cash flows must detail changes in the total of cash, cash equivalents and restricted cash for the period: a reported change is the ending total minus the beginning total, an ordered money difference. Direct codification access at asc.fasb.org returned HTTP 403 on 2026-11-04 and the codification full-text pages on Viewpoint are premium-gated, so the rule was inspected in this open guide excerpt.",
+          "id": "gaap-asc230-change-in-total",
+          "kind": "primary",
+          "license": "PwC Viewpoint terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "FSP 6.5 opening paragraphs and section 6.5.3.5",
+          "redistribution": "Only short original paraphrases of the accounting rule and attributed figures; no Viewpoint or codification text reproduced.",
+          "title": "FASB ASC Topic 230 (Statement of Cash Flows), change-in-total presentation as amended by ASU 2016-18 (rule inspected via PwC Viewpoint guide excerpt)",
+          "url": "https://viewpoint.pwc.com/dt/us/en/pwc/accounting_guides/financial_statement_/financial_statement___18_US/chapter_6_statement__US/65_cash_cash_equival_US.html",
+          "version": "PwC Financial statement presentation guide, FSP 6.5 (live HTML inspected 2026-11-04)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "ABC Inc. can charge $20 per unit; a 10% profit margin on the selling price is $2 per unit; target cost equals selling price minus profit margin ($20 minus $2), giving $18 per unit.",
+          "id": "cfi-target-costing",
+          "kind": "primary",
+          "license": "CFI website terms not separately inspected; unknown. No clearance claimed.",
+          "locator": "Practical Example: $20 selling price, 10% margin, $18 target cost",
+          "redistribution": "Only attributed example figures and short original paraphrases; no CFI text reproduced.",
+          "title": "Corporate Finance Institute, Target Costing (ABC Inc. practical example)",
+          "url": "https://corporatefinanceinstitute.com/resources/accounting/target-costing",
+          "version": "Live HTML inspected 2026-11-04 (page dated October 1, 2019)"
+        }
+      ],
+      "summary": "Ordered same-currency difference of two named money amounts. Order is significant: reversing the inputs negates the result, so a missing minuend must fail closed rather than flip.",
+      "title": "Money difference, first minus second",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same monetary subject, USD denomination and valuation basis for both named amounts and the difference; order is significant (first minus second).",
+          "definition": "First identified money amount (minuend), denominated in USD on the stated basis.",
+          "dimensions": "currency",
+          "domain": "Finite signed amount; negative values are admitted as credits or contra-amounts on the same basis.",
+          "quantity_id": "named_money_amount",
+          "role": "input",
+          "source_symbol": "Introduced first = minuend amount",
+          "symbol": "first",
+          "unit": "USD"
+        },
+        {
+          "context": "Same monetary subject, USD denomination and valuation basis for both named amounts and the difference; order is significant (first minus second).",
+          "definition": "Second identified money amount (subtrahend), denominated in USD on the stated basis.",
+          "dimensions": "currency",
+          "domain": "Finite signed amount; negative values are admitted as credits or contra-amounts on the same basis.",
+          "quantity_id": "named_money_amount",
+          "role": "input",
+          "source_symbol": "Introduced second = subtrahend amount",
+          "symbol": "second",
+          "unit": "USD"
+        },
+        {
+          "context": "Same monetary subject, USD denomination and valuation basis for both named amounts and the difference; order is significant (first minus second).",
+          "definition": "Ordered difference, positive when first exceeds second; carries sign for answer-layer reading.",
+          "dimensions": "currency",
+          "domain": "Finite signed difference.",
+          "quantity_id": "difference_of_money",
+          "role": "output",
+          "source_symbol": "Introduced D = first minus second",
+          "symbol": "D",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source definition (DOE): simple payback is the number of years required for energy cost savings to exceed the incremental first costs of a new code or code change.",
+        "Application profile: one investment measure with constant first-year-equivalent annual savings in USD; the cost and the savings describe the same measure."
+      ],
+      "constants": [],
+      "guards": [
+        "C >= 0",
+        "A > 0"
+      ],
+      "id": "economics--simple-payback-periods",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "Source definition (DOE): simple payback is the number of years required for energy cost savings to exceed the incremental first costs of a new code or code change.",
+            "Application profile: one investment measure with constant first-year-equivalent annual savings in USD; the cost and the savings describe the same measure.",
+            "Ignores the time value of money, the value of savings after payback, and maintenance or replacement costs after the initial investment (DOE scope); it is not a cost-effectiveness measure.",
+            "Periods are years only when the savings input is annual; the count itself is dimensionless.",
+            "Not life-cycle cost or net present value: financing, taxes, escalation and residual values are outside this record."
+          ],
+          "expression": "C / A",
+          "guards": [
+            "C >= 0",
+            "A > 0"
+          ],
+          "id": "economics--simple-payback-periods",
+          "inputs": {
+            "A": {
+              "context": "Same investment measure, USD cost basis and first-year-equivalent annual savings stream; simple undiscounted payback scope with constant savings and no time-value, post-payback or maintenance accounting.",
+              "meaning": "annual_saving",
+              "unit": "USD"
+            },
+            "C": {
+              "context": "Same investment measure, USD cost basis and first-year-equivalent annual savings stream; simple undiscounted payback scope with constant savings and no time-value, post-payback or maintenance accounting.",
+              "meaning": "upfront_cost",
+              "unit": "USD"
+            }
+          },
+          "output": {
+            "context": "Same investment measure, USD cost basis and first-year-equivalent annual savings stream; simple undiscounted payback scope with constant savings and no time-value, post-payback or maintenance accounting.",
+            "meaning": "payback_period_count",
+            "unit": "1"
+          },
+          "source": "Project formalization of the DOE Building Energy Codes Program simple-payback definition; see record sources.",
+          "version": "r1"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "C = P x A given P and A; A = C / P requires P nonzero. Substitution with clean figures: C = 1000, A = 250 gives P = 4, and inverse A = 1000 / 4 = 250. P = 0 with C = 0 leaves A underdetermined (any positive A fits the guards); P = 0 with C > 0 is impossible under the guards. Inverse outputs must re-satisfy C >= 0 and A > 0.",
+      "kind": "definition",
+      "limitations": [
+        "Ignores the time value of money, the value of savings after payback, and maintenance or replacement costs after the initial investment (DOE scope); it is not a cost-effectiveness measure.",
+        "Periods are years only when the savings input is annual; the count itself is dimensionless.",
+        "Not life-cycle cost or net present value: financing, taxes, escalation and residual values are outside this record."
+      ],
+      "references": [
+        {
+          "expected": 9.3,
+          "id": "doe-utah-2024-iecc",
+          "inputs": {
+            "A": 495,
+            "C": 4606
+          },
+          "method": "Published payback kept as expected: DOE Utah table reports $4,606 first cost, $495 annual savings and 9.3 years payback per home. The exact quotient 4,606/495 = 9.305... differs from the published one-decimal figure by 0.0051; tolerance 0.01 covers the state rounding.",
+          "provenance": "https://www.energycodes.gov/status/states/utah, Model Energy Code Impacts table.",
+          "tolerance": 0.01
+        },
+        {
+          "expected": 8.7,
+          "id": "doe-texas-2024-iecc",
+          "inputs": {
+            "A": 381,
+            "C": 3312
+          },
+          "method": "Published payback kept as expected: DOE Texas table reports $3,312 first cost, $381 annual savings and 8.7 years payback per home. The exact quotient 3,312/381 = 8.6929... differs from the published one-decimal figure by 0.0071; tolerance 0.01 covers the state rounding.",
+          "provenance": "https://www.energycodes.gov/status/states/texas, Model Energy Code Impacts table.",
+          "tolerance": 0.01
+        },
+        {
+          "expected": 0,
+          "id": "zero-cost-immediate",
+          "inputs": {
+            "A": 495,
+            "C": 0
+          },
+          "method": "Limiting identity: a zero-cost measure pays back in zero periods, pinning the C = 0 boundary admitted by C >= 0. Curator-constructed boundary, not a published figure.",
+          "provenance": "Curator synthetic boundary; no observed data claimed.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A": 0,
+            "C": 4606
+          },
+          "kind": "domain",
+          "reason": "A = 0 violates A > 0 (division undefined); nonpositive savings never pay back, and a negative saving is a cost increase outside the simple-payback scope."
+        },
+        {
+          "inputs": {
+            "C": 4606
+          },
+          "kind": "missing-input",
+          "reason": "A is omitted: without the annual saving no payback count is computable; the composition fails closed."
+        }
+      ],
+      "relationship": {
+        "expression": "C / A",
+        "locator": "Commercial cost-effectiveness paragraph and Residential measure 3 (Simple Payback)",
+        "original_equation": "P = C / A (incremental first cost divided by annual cost savings; constant-savings simple payback)",
+        "output_symbol": "P",
+        "source_id": "doe-becp-methodology",
+        "translation_notes": "C is the introduced upfront (first) cost; A is the introduced annual saving; P is the introduced payback count. Dimensional check: currency / currency = 1 (dimensionless count of periods; years under annual savings). DOE defines simple payback as years for savings to exceed first costs; with constant annual savings that is exactly C / A. Guards C >= 0 and A > 0 mirror the definition: a negative cost is not an investment, and nonpositive savings never pay back."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "DOE defines the simple payback calculation as the number of years required for energy cost savings to exceed the incremental first costs of a new code or code change, and states it is not a cost-effectiveness measure because it does not account for the time value of money, post-payback savings value, or maintenance and replacement costs after the initial investment.",
+          "id": "doe-becp-methodology",
+          "kind": "primary",
+          "license": "U.S. federal government work (17 U.S.C. 105 context); no third-party terms asserted by the page. No clearance claimed beyond the federal-work basis.",
+          "locator": "Commercial cost-effectiveness paragraph and Residential measure 3 (Simple Payback)",
+          "redistribution": "Only short original paraphrases of the public rule or methodology and attributed figures; no page text reproduced.",
+          "title": "U.S. Department of Energy, Building Energy Codes Program, Energy and Cost Analysis Methodology (simple payback definition and scope)",
+          "url": "https://www.energycodes.gov/methodology",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Utah table: incremental first cost of 2024 IECC $4,606 per home, annual energy cost savings $495 per home, simple payback period 9.3 years. The exact quotient 4,606/495 = 9.305... rounds to the published 9.3 at one decimal.",
+          "id": "doe-utah-2024-iecc",
+          "kind": "primary",
+          "license": "U.S. federal government work (17 U.S.C. 105 context); no third-party terms asserted by the page. No clearance claimed beyond the federal-work basis.",
+          "locator": "Model Energy Code Impacts table (per-home figures)",
+          "redistribution": "Only short original paraphrases of the public rule or methodology and attributed figures; no page text reproduced.",
+          "title": "U.S. DOE Building Energy Codes Program, Utah state status: 2024 IECC model-code impacts table",
+          "url": "https://www.energycodes.gov/status/states/utah",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Texas table: incremental first cost of 2024 IECC $3,312 per home, annual energy cost savings $381 per home, simple payback period 8.7 years. The exact quotient 3,312/381 = 8.6929... rounds to the published 8.7 at one decimal.",
+          "id": "doe-texas-2024-iecc",
+          "kind": "primary",
+          "license": "U.S. federal government work (17 U.S.C. 105 context); no third-party terms asserted by the page. No clearance claimed beyond the federal-work basis.",
+          "locator": "Model Energy Code Impacts table (per-home figures)",
+          "redistribution": "Only short original paraphrases of the public rule or methodology and attributed figures; no page text reproduced.",
+          "title": "U.S. DOE Building Energy Codes Program, Texas state status: 2024 IECC model-code impacts table",
+          "url": "https://www.energycodes.gov/status/states/texas",
+          "version": "Live HTML inspected 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Table 5.3 reports U.S. average electricity prices by end-use sector, e.g. residential 18.16 cents/kWh for August 2026 and 18.19 cents/kWh year-to-date 2026: the published energy-price basis in which annual energy cost savings are denominated. Used for scope and denomination, not as a payback oracle.",
+          "id": "eia-epm-2026-10-table53",
+          "kind": "primary",
+          "license": "U.S. federal government work (17 U.S.C. 105 context); no third-party terms asserted by the page. No clearance claimed beyond the federal-work basis.",
+          "locator": "Table 5.3, Total by End-Use Sector, 2016-August 2026 (cents per kilowatthour)",
+          "redistribution": "Only short original paraphrases of the public rule or methodology and attributed figures; no page text reproduced.",
+          "title": "U.S. Energy Information Administration, Electric Power Monthly, October 23 2026 release: Table 5.3 average price of electricity to ultimate customers",
+          "url": "https://www.eia.gov/electricity/monthly/xls/table_5_03.xlsx",
+          "version": "October 2026 release (data for August 2026; release page and XLSX table inspected 2026-11-04)"
+        }
+      ],
+      "summary": "Undiscounted payback period count: upfront cost divided by constant annual saving. Nonpositive annual savings are rejected; a zero upfront cost pays back in zero periods.",
+      "title": "Simple payback periods",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same investment measure, USD cost basis and first-year-equivalent annual savings stream; simple undiscounted payback scope with constant savings and no time-value, post-payback or maintenance accounting.",
+          "definition": "Incremental upfront cost of the measure, denominated in USD.",
+          "dimensions": "currency",
+          "domain": "Finite nonnegative cost; zero pays back immediately.",
+          "quantity_id": "upfront_cost",
+          "role": "input",
+          "source_symbol": "Introduced C = upfront (first) cost",
+          "symbol": "C",
+          "unit": "USD"
+        },
+        {
+          "context": "Same investment measure, USD cost basis and first-year-equivalent annual savings stream; simple undiscounted payback scope with constant savings and no time-value, post-payback or maintenance accounting.",
+          "definition": "Annual cost saving of the same measure in USD, first-year-equivalent under the constant-savings profile.",
+          "dimensions": "currency",
+          "domain": "Finite strictly positive saving; zero or negative savings never pay back.",
+          "quantity_id": "annual_saving",
+          "role": "input",
+          "source_symbol": "Introduced A = annual saving",
+          "symbol": "A",
+          "unit": "USD"
+        },
+        {
+          "context": "Same investment measure, USD cost basis and first-year-equivalent annual savings stream; simple undiscounted payback scope with constant savings and no time-value, post-payback or maintenance accounting.",
+          "definition": "Simple payback period count: periods for cumulative savings to cover the upfront cost.",
+          "dimensions": "1",
+          "domain": "Finite nonnegative count; years when the savings input is annual.",
+          "quantity_id": "payback_period_count",
+          "role": "output",
+          "source_symbol": "Introduced P = payback period count",
+          "symbol": "P",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source rule: prices are computed per normalized quantity (BLS Handbook) and totals apportioned over numbers of units (19 CFR 152.103(e)); deductive value uses the unit price in the greatest aggregate quantity (19 CFR 152.105).",
+        "Application profile: one lot of identical items with a common USD valuation and count basis; the total covers exactly the counted items (conservative counts-only scope; brief 19)."
+      ],
+      "constants": [],
+      "guards": [
+        "T >= 0",
+        "Q > 0"
+      ],
+      "id": "economics--money-unit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning named_money_amount (money dimension) for the lot-total input.",
+          "New quantity meaning counted_unit_quantity (dimensionless) for the item-count input.",
+          "New glue context for same-lot USD valuation and count basis.",
+          "Output meaning unit_price exists in the registry vocabulary; its 6 consumer contexts were read on 2026-11-04 and none equals this record output context, so this record binds no existing consumer."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "T = R x Q given R and Q; Q = T / R requires R nonzero; both must re-satisfy T >= 0 and Q > 0. Substitution: R = 95, Q = 500 gives T = 47500, and forward 47500 / 500 = 95. R = 0 with T = 0 leaves Q underdetermined (any positive count fits); R = 0 with T > 0 is impossible. Recovered counts need not be integers: fractional Q is arithmetic only and carries no item-fraction semantics.",
+      "kind": "definition",
+      "limitations": [
+        "Counts only: gallon, ounce, pound, kilowatthour and other physical-measure quantities are excluded and rejected (rejection case); they never enter counted_unit_quantity.",
+        "Identical items required: mixed lots need separate rates per homogeneous group, not one blended rate.",
+        "Not average production cost (see economics--average-total-production-cost: units produced, TC/Q) nor the family-weighted transaction mean (see economics--identical-product-mean-transaction-price); this record is the single-lot scalar transaction rate."
+      ],
+      "references": [
+        {
+          "expected": 0.23,
+          "id": "bls-corn-cans",
+          "inputs": {
+            "Q": 3,
+            "T": 0.69
+          },
+          "method": "BLS Handbook quantity-discount fact pattern (three 12-ounce cans for 69 cents); the per-can rate is derived by count division from the published figures, the same figures BLS uses to compute the per-ounce price. Tolerance covers floating arithmetic only.",
+          "provenance": "https://www.bls.gov/opub/hom/cpi/calculation.htm (inspected via Internet Archive capture), quantity-discount paragraph.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 95,
+          "id": "cbp-aggregate-note2",
+          "inputs": {
+            "Q": 500,
+            "T": 47500
+          },
+          "method": "Regulation fact pattern with an independently derived total: 19 CFR 152.105 note 2 publishes 500 units at $95 (and 400 at $90); the extended total $47,500 is derived by multiplication, and the record division recovers the published $95 unit price. Tolerance covers floating arithmetic only.",
+          "provenance": "https://www.law.cornell.edu/cfr/text/19/152.105, interpretative note 2.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-total-free-lot",
+          "inputs": {
+            "Q": 3,
+            "T": 0
+          },
+          "method": "Boundary: a zero-total (free) lot rates at zero per item, pinning the T = 0 boundary admitted by T >= 0. Curator-constructed boundary, not a published figure.",
+          "provenance": "Curator synthetic boundary; no observed data claimed.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Q": 0,
+            "T": 0.69
+          },
+          "kind": "domain",
+          "reason": "Q = 0 violates Q > 0 (division undefined). Gallon, ounce and other physical-measure quantities are likewise excluded: they never enter the counted_unit_quantity meaning, so a volume-denominated value fails closed at composition on meaning/unit mismatch rather than entering this division."
+        },
+        {
+          "inputs": {
+            "Q": 3
+          },
+          "kind": "missing-input",
+          "reason": "T is omitted: without the named lot total no rate is computable. A sum_of_money output cannot substitute for the named_money_amount total (SUM-orientation: input and output meanings stay distinct); the composition fails closed."
+        }
+      ],
+      "relationship": {
+        "expression": "T / Q",
+        "locator": "Average prices section and quantity-discount paragraph (corn; apples)",
+        "original_equation": "R = T / Q (lot total divided by counted identical items)",
+        "output_symbol": "R",
+        "source_id": "bls-hom-cpi-average-price",
+        "translation_notes": "T is the introduced lot total; Q is the introduced item count; R is the introduced unit rate. Dimensional check: currency / 1 = currency per unit on the shared USD basis. BLS converts collected prices to a price per normalized quantity and CBP apportions totals over numbers of units; this record applies that per-quantity shape to counted identical items as the conservative restriction documented in brief 19 (BLS practice also spans physical measures; this record admits counts only)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The Handbook states that all eligible prices are converted to a price per normalized quantity (flour per ounce averaged, times 16 for the published price per pound); that combined apple weight is divided by 2 and the 50-cent apple price divided by the average weight; and the quantity-discount fact pattern: a 12-ounce can of corn at 25 cents single, three cans for 69 cents, or five cans for $1, priced per ounce from the three-can offer. Per-can rates derive from the same figures by count division.",
+          "id": "bls-hom-cpi-average-price",
+          "kind": "primary",
+          "license": "U.S. federal government work (17 U.S.C. 105 context); no third-party terms asserted by the page. No clearance claimed beyond the federal-work basis.",
+          "locator": "Average prices section and quantity-discount paragraph (corn; apples)",
+          "redistribution": "Only short original paraphrases of the public rule or methodology and attributed figures; no page text reproduced.",
+          "title": "U.S. Bureau of Labor Statistics, Handbook of Methods, CPI chapter, Calculation: average prices and quantity-discount pricing",
+          "url": "https://www.bls.gov/opub/hom/cpi/calculation.htm",
+          "version": "Handbook text inspected 2026-11-04 via the Internet Archive capture of 2026-01-01 (live bls.gov returned HTTP 403 to the inspection client); chapter index capture 2024-12-31"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The regulation states the total value of an assist may be apportioned over the first shipment, the number of units produced up to first shipment, or the entire anticipated production, reasonably and under GAAP; the mold note apportions over 1,000, 4,000 or 10,000 units: a total divided by a unit count. Quantities throughout are unit counts.",
+          "id": "cbp-cfr-152-103-apportion",
+          "kind": "primary",
+          "license": "Federal regulation text; Cornell LII site terms not separately inspected. Only short original paraphrases of the public rule or methodology and attributed figures; no page text reproduced.",
+          "locator": "Paragraph (e) Apportionment with mold interpretative note (10,000 / 1,000 / 4,000 units)",
+          "redistribution": "Only short original paraphrases of the public rule or methodology and attributed figures; no page text reproduced.",
+          "title": "19 CFR 152.103(e), transaction-value apportionment of assists over units produced (regulation text inspected via Cornell LII)",
+          "url": "https://www.law.cornell.edu/cfr/text/19/152.103",
+          "version": "eCFR text via Cornell LII (live HTML inspected 2026-11-04)"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The regulation prices deductive value at the unit price sold in the greatest aggregate quantity, where the price with the greatest total volume sold wins; note 2 sells 500 units at $95 each and 400 at $90 each, so the unit price in the greatest aggregate quantity is $95: 500 counted units at a $95 unit price (extended $47,500).",
+          "id": "cbp-cfr-152-105-unit-price",
+          "kind": "primary",
+          "license": "Federal regulation text; Cornell LII site terms not separately inspected. Only short original paraphrases of the public rule or methodology and attributed figures; no page text reproduced.",
+          "locator": "Paragraphs (c) and (h); interpretative note 2 (500 units at $95; 400 at $90)",
+          "redistribution": "Only short original paraphrases of the public rule or methodology and attributed figures; no page text reproduced.",
+          "title": "19 CFR 152.105(c) and (h), deductive value: unit price in the greatest aggregate quantity (regulation text inspected via Cornell LII)",
+          "url": "https://www.law.cornell.edu/cfr/text/19/152.105",
+          "version": "eCFR text via Cornell LII (live HTML inspected 2026-11-04)"
+        }
+      ],
+      "summary": "Transaction unit rate: one lot total divided by its counted identical items. Counts only: physical-measure quantities (gallons, ounces, pounds, kilowatthours) are excluded by the conservative scope (brief 19).",
+      "title": "Money unit rate per counted item",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same transaction lot of identical items, common USD valuation and count basis across the declared interval; the total covers the lot and the count enumerates its identical items; physical-measure quantities are excluded.",
+          "definition": "Total money value of one lot of identical items, denominated in USD on the stated basis.",
+          "dimensions": "currency",
+          "domain": "Finite nonnegative lot total; zero covers free lots.",
+          "quantity_id": "named_money_amount",
+          "role": "input",
+          "source_symbol": "Introduced T = lot total",
+          "symbol": "T",
+          "unit": "USD"
+        },
+        {
+          "context": "Same transaction lot of identical items, common USD valuation and count basis across the declared interval; the total covers the lot and the count enumerates its identical items; physical-measure quantities are excluded.",
+          "definition": "Count of identical items in the lot; a dimensionless enumeration, never a physical measure.",
+          "dimensions": "U",
+          "domain": "Finite strictly positive count.",
+          "quantity_id": "counted_unit_quantity",
+          "role": "input",
+          "source_symbol": "Introduced Q = item count",
+          "symbol": "Q",
+          "unit": "unit"
+        },
+        {
+          "context": "Same transaction lot of identical items, common USD valuation and count basis across the declared interval; the total covers the lot and the count enumerates its identical items; physical-measure quantities are excluded.",
+          "definition": "Transaction price per counted item on the lot basis.",
+          "dimensions": "currency U^-1",
+          "domain": "Finite nonnegative rate.",
+          "quantity_id": "unit_price",
+          "role": "output",
+          "source_symbol": "Introduced R = unit rate",
+          "symbol": "R",
+          "unit": "USD/unit"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -77,7 +77,7 @@ def composition_from_dict(data: Any) -> Composition:
         raise ModelError("Nodes and outputs must be arrays.")
     nodes = []
     for raw in data["nodes"]:
-        object_fields(raw, {"id", "model", "bindings"}, {"solve_for", "relation"})
+        object_fields(raw, {"id", "model", "bindings"}, {"solve_for", "relation", "branch"})
         if not isinstance(raw["bindings"], dict):
             raise ModelError("Bindings must be an object.")
         bindings: dict[str, Value | Reference | tuple[Value | Reference, ...]] = {}
@@ -89,7 +89,10 @@ def composition_from_dict(data: Any) -> Composition:
         target = raw.get("solve_for")
         if target is not None:
             target = text(target)
-        nodes.append(Node(text(raw["id"]), text(raw["model"]), bindings, target, text(raw.get("relation", "equal"))))
+        branch = raw.get("branch")
+        if branch is not None:
+            branch = text(branch)
+        nodes.append(Node(text(raw["id"]), text(raw["model"]), bindings, target, text(raw.get("relation", "equal")), branch))
     return Composition(text(data["id"]), tuple(nodes), tuple(text(item) for item in data["outputs"]), "scenario")
 
 

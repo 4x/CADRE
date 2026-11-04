@@ -7,8 +7,8 @@ from typing import Any
 from .contracts import ModelError
 
 SCHEMA_VERSION = "cm-curation-batch/1"
-KIT_VERSION = "2026-10-31.9"
-SUPPORTED_KIT_VERSIONS = ("2026-10-31.1", "2026-10-31.2", "2026-10-31.3", "2026-10-31.4", "2026-10-31.5", "2026-10-31.6", "2026-10-31.7", "2026-10-31.8", KIT_VERSION)
+KIT_VERSION = "2026-10-31.10"
+SUPPORTED_KIT_VERSIONS = ("2026-10-31.1", "2026-10-31.2", "2026-10-31.3", "2026-10-31.4", "2026-10-31.5", "2026-10-31.6", "2026-10-31.7", "2026-10-31.8", "2026-10-31.9", KIT_VERSION)
 MAX_MODELS = 12
 MAX_BATCH_BYTES = 1_048_576
 DOMAINS = ("building-energy", "engineering-finance", "electric-circuits", "water-hydraulics", "classical-mechanics", "probability",

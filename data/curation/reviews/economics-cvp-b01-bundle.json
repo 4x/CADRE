@@ -1,0 +1,1333 @@
+{
+  "batch_id": "economics-cvp-b01",
+  "created": "2026-11-04",
+  "curator": "compat-cvp",
+  "deferred": [
+    {
+      "reason": "AccountingTools notes multi-product break-even is substantially harder; the single-product records here do not cover mix weights, which need their own record.",
+      "source_urls": [
+        "https://www.accountingtools.com/articles/how-to-calculate-contribution-per-unit.html"
+      ],
+      "title": "Multi-product weighted-average contribution margin"
+    },
+    {
+      "reason": "The ratio form (fixed / CM%) and sales-dollar targets are distinct relationships over revenue-denominated ports, not rearrangements of the unit records.",
+      "source_urls": [
+        "https://www.accountingtools.com/articles/breakeven-point"
+      ],
+      "title": "Contribution-margin ratio and sales-dollar break-even/target"
+    },
+    {
+      "reason": "The R6 bridge carries a nonnegative value only; any signed-elasticity consumption (negative demand elasticity) needs its own sign-convention record and does not bind the registry signed-elasticity meanings.",
+      "source_urls": [],
+      "title": "Signed price-elasticity-of-demand convention record"
+    }
+  ],
+  "domain": "economics",
+  "example_only": false,
+  "handoff": {
+    "connections": [
+      "contribution-margin-per-unit@r1 (C) -> contribution-margin-income@r1 (C).",
+      "contribution-margin-per-unit@r1 (C) -> break-even-units@r1 (C).",
+      "contribution-margin-per-unit@r1 (C) -> target-profit-units@r1 (C).",
+      "operating-cost-as-fixed-operating-cost@r1 (FIX) -> break-even-units@r1 (FIX).",
+      "operating-cost-as-fixed-operating-cost@r1 (FIX) -> target-profit-units@r1 (FIX).",
+      "Numerical closure (not port binding): contribution-margin-income evaluated at break-even volume reproduces FIX for the CFI, AccountingTools and Lumen families."
+    ],
+    "gaps": [
+      "Scientific review pending for all 6 records (brief-20 review): oracles replay published AccountingTools/CFI/Lumen numbers, but applicability and the shared-context roster design await review.",
+      "The R6 operating-leverage to price-elasticity relabel is an asserted, delegated prescription with no derived economic equivalence; its assumptions say so explicitly, and review must accept or reject the claim on its own terms.",
+      "The HBS Cost-Volume Profit Models note was verified by its hbs.edu listing abstract only (full note paywalled, not inspected); it is cited for scope agreement, never for equations or numbers.",
+      "Registry reads were read-only on 2026-11-04; no staging, review, or admission was performed."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical validation 2026-11-04 with the central package: `validate` on the bundle JSON -> status valid-data-awaiting-review, all 6 records runtime-ready with contract checks (22 arithmetic, 14 rejection); `pack` -> economics-cvp-b01-return.zip; `validate` on the ZIP -> valid-data-awaiting-review. Chain-connectivity proof (prove_chain.py, registry read-only): the C triple is byte-equal across the margin output and the income/break-even/target C inputs (Port.require_compatible passes on every margin->C leg); the FIX triple is byte-equal across the cost-adapter output and both volume-record FIX inputs; numerical closure Q*C=FIX at break-even recomputed for the CFI, AccountingTools and Lumen families. Orphan survey over all 251 registry models: every lane meaning is new (zero producers/consumers) except operating_cost, whose only ports are the home-A triple, which does not bind the CVP-context bridge face. Checks not performed: independent scientific review of the records (brief-20 review pending), in particular the asserted R6 relabel; no staging, review, or admission (out of scope).",
+    "summary": "CVP lane batch economics-cvp-b01 (curator compat-cvp): 4 lane-B CVP models (unit margin P-V, margin income Q*C, break-even FIX/C, target-profit (FIX+PI)/C) plus 2 identity adapters (relevant-range operating cost as fixed operating cost; operating leverage ratio as price elasticity of demand), all on one verbatim shared CVP context so the margin->income/break-even/target C legs and both adapter->volume FIX legs bind. See data/curation/corrections/cvp-lane-brief-20.md."
+  },
+  "kit_version": "2026-10-31.10",
+  "models": [
+    {
+      "assumptions": [
+        "Single homogeneous product/service: P and V describe the same unit on the same currency and price/cost basis within the stated relevant range and period; the variable-expense scope is complete for the chosen contribution definition and excludes all fixed expenses.",
+        "Linear CVP regime: unit price and unit variable cost are constant over the relevant range (no discounts, step costs, or volume-driven input-price change); quantities outside the range need re-measurement.",
+        "A negative unit margin is an admitted per-unit shortfall (loss before fixed costs), not a data error; records that require a nonnegative or positive margin reject it at their own C>=0/C>0 guards."
+      ],
+      "constants": [],
+      "guards": [
+        "P >= 0",
+        "V >= 0"
+      ],
+      "id": "economics--contribution-margin-per-unit",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "Single homogeneous product/service: P and V describe the same unit on the same currency and price/cost basis within the stated relevant range and period; the variable-expense scope is complete for the chosen contribution definition and excludes all fixed expenses.",
+            "Linear CVP regime: unit price and unit variable cost are constant over the relevant range (no discounts, step costs, or volume-driven input-price change); quantities outside the range need re-measurement.",
+            "A negative unit margin is an admitted per-unit shortfall (loss before fixed costs), not a data error; records that require a nonnegative or positive margin reject it at their own C>=0/C>0 guards.",
+            "Not a pricing recommendation: with only C known, infinitely many (P, V) pairs are compatible; minimum-price use additionally requires the full variable-expense scope.",
+            "Excludes fixed expenses, financing, taxes, inventory change, and multi-product mix effects; declining-returns or capacity regimes outside the relevant range are out of scope."
+          ],
+          "expression": "P - V",
+          "guards": [
+            "P >= 0",
+            "V >= 0"
+          ],
+          "id": "economics--contribution-margin-per-unit",
+          "inputs": {
+            "P": {
+              "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+              "meaning": "selling_price_per_unit",
+              "unit": "USD/unit"
+            },
+            "V": {
+              "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+              "meaning": "variable_cost_per_unit",
+              "unit": "USD/unit"
+            }
+          },
+          "output": {
+            "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+            "meaning": "contribution_margin_per_unit",
+            "unit": "USD/unit"
+          },
+          "source": "CVP definition; AccountingTools unit-CM example, CFI book example, Lumen kayak margin.",
+          "version": "r1"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "P=C+V given signed C and V>=0, requiring P>=0; V=P-C given P>=0, requiring V>=0. No denominator or root branches. Published substitution C=20, V=30 gives P=50; forward 20. At C=0, P=V and either variable follows from the other, including both zero. With only C known, infinitely many compatible price/cost pairs exist; no pricing recommendation follows.",
+      "kind": "definition",
+      "limitations": [
+        "Not a pricing recommendation: with only C known, infinitely many (P, V) pairs are compatible; minimum-price use additionally requires the full variable-expense scope.",
+        "Excludes fixed expenses, financing, taxes, inventory change, and multi-product mix effects; declining-returns or capacity regimes outside the relevant range are out of scope."
+      ],
+      "references": [
+        {
+          "expected": 20,
+          "id": "at-fifty-thirty",
+          "inputs": {
+            "P": 50,
+            "V": 30
+          },
+          "method": "Published AccountingTools worked example recomputed: 50 - 30 = 20.",
+          "provenance": "AccountingTools unit-contribution-margin page, $50 selling price / $30 variable cost example.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 95,
+          "id": "cfi-book",
+          "inputs": {
+            "P": 100,
+            "V": 5
+          },
+          "method": "Published CFI book example recomputed: 100 - 5 = 95.",
+          "provenance": "CFI break-even article, book contribution-margin passage.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 275,
+          "id": "lumen-kayak",
+          "inputs": {
+            "P": 500,
+            "V": 225
+          },
+          "method": "Published Lumen kayak margin recomputed: 500 - 225 = 275.",
+          "provenance": "Lumen target-profit page, Minnesota Kayak data ($500 price, $225 variable cost).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-boundary",
+          "inputs": {
+            "P": 0,
+            "V": 0
+          },
+          "method": "Nonnegative-guard admission boundary: zero price and zero variable cost give zero margin.",
+          "provenance": "Curator boundary check; not observed market data.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": -20,
+          "id": "negative-margin-admission",
+          "inputs": {
+            "P": 30,
+            "V": 50
+          },
+          "method": "Guard-scope demonstration: transposed AccountingTools inputs give a -20 per-unit shortfall, admitted because the guards constrain P and V only; downstream C>=0/C>0 guards reject it at their own ports.",
+          "provenance": "Curator guard-scope check on transposed published inputs.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "P": -1,
+            "V": 30
+          },
+          "kind": "domain",
+          "reason": "Negative selling price violates P>=0; below-zero prices need a different (subsidy/transfer) record."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Without price and variable cost no unit margin can be formed."
+        }
+      ],
+      "relationship": {
+        "expression": "P - V",
+        "locator": "Example of Unit Contribution Margin: $50 unit-specific revenue - $30 variable cost = $20 unit contribution margin",
+        "original_equation": "contribution margin per unit = selling price per unit - variable cost per unit",
+        "output_symbol": "C",
+        "source_id": "s-at-unit-cm",
+        "translation_notes": "Direct transcription with symbols P (selling price per unit) and V (variable cost per unit); the output C carries the batch-shared CVP context so the margin leg binds the income, break-even and target-profit records. Guards P>=0 and V>=0 admit the zero boundary (P=V=0 gives C=0) and admit P<V arithmetic (a negative unit margin is a per-unit shortfall); downstream records enforce C>=0/C>0 at their own ports. Check: USD/unit minus USD/unit."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "$50 selling price per unit with $30 variable cost ($15 materials + $10 direct labor + $5 variable overhead) gives a $20 unit contribution margin; with $10,000 of fixed costs the break-even is 500 units ($10,000 / $20), and each further unit earns $20 of profit.",
+          "id": "s-at-unit-cm",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "What is Unit Contribution Margin?; Example of Unit Contribution Margin",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "AccountingTools: How to calculate unit contribution margin (Steven Bragg)",
+          "url": "https://www.accountingtools.com/articles/how-do-i-calculate-unit-contribution-margin.html",
+          "version": "Article page dated August 02, 2026; fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Break-Even Quantity = Fixed Costs / (Sales Price per Unit - Variable Cost Per Unit); a $100 book with $5 variable cost gives a $95 unit contribution margin; Company A water bottles: $100,000 fixed costs, $12 price, $2 variable cost give a $10 unit contribution margin and a 10,000-unit break-even, with $120,000 revenue and $20,000 variable cost at that point.",
+          "id": "s-cfi-be",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Formula; book contribution passage; Company A water-bottle example; chart walk-through",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "CFI: Break-Even Analysis: How to Calculate the Break-Even Point",
+          "url": "https://corporatefinanceinstitute.com/resources/accounting/break-even-analysis/",
+          "version": "Article page fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Kayaks at $500 price, $225 variable cost, $275 unit CM and $7,700/month fixed costs break even at 28 kayaks; a $30,000 target profit needs $37,700 / $275 = 137.0909..., rounded UP to 138 kayaks (137 kayaks yield only $29,975); formula method: unit sales = (target profit + fixed expenses) / unit CM.",
+          "id": "s-lumen-tp",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Minnesota Kayak target-profit worked example; rounding note; formula method",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "Lumen Accounting for Managers, Module 8 CVP: Target Profit Analysis",
+          "url": "https://courses.lumenlearning.com/wm-accountingformanagers/chapter/target-profit-analysis/",
+          "version": "Course page fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The HBS listing describes the note as covering fixed, variable and semivariable costs and their role in building and interpreting cost-volume-profit models, including the cost-volume and contribution-volume-profit models and their uses and limitations. Cited for scope agreement only; every equation and number is verified against the inspected AccountingTools/CFI/Lumen sources above.",
+          "id": "s-hbs-cvp",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "HBS Faculty and Research publications listing abstract for the note",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "HBS: Cost-Volume Profit Models (Hawkins, Narayanan, Cohen, Jurgens)",
+          "url": "https://www.hbs.edu/faculty/research/publications/Pages/default.aspx?topic=Research&contentType=Teaching%20Materials&unit=Accounting%20and%20Management",
+          "version": "HBS listing abstract per hbs.edu search 2026-11-04; listing page 403 to automated fetch; full note paywalled, not inspected"
+        }
+      ],
+      "summary": "Defines the contribution margin per unit as selling price per unit less variable cost per unit: the per-unit contribution toward fixed operating costs and operating profit.",
+      "title": "Unit contribution margin from selling price and variable cost",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Sales revenue per homogeneous unit sold or produced.",
+          "dimensions": "currency U^-1",
+          "domain": "Finite nonnegative; P=0 admitted for the free-provision boundary.",
+          "quantity_id": "selling_price_per_unit",
+          "role": "input",
+          "source_symbol": "selling price per unit",
+          "symbol": "P",
+          "unit": "USD/unit"
+        },
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Complete variable expense per same unit.",
+          "dimensions": "currency U^-1",
+          "domain": "Finite nonnegative; includes all variable selling/production expenses triggered by the unit.",
+          "quantity_id": "variable_cost_per_unit",
+          "role": "input",
+          "source_symbol": "variable cost per unit",
+          "symbol": "V",
+          "unit": "USD/unit"
+        },
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Signed selling-price excess over all per-unit variable costs, before fixed expenses.",
+          "dimensions": "currency U^-1",
+          "domain": "Finite signed, including zero and per-unit shortfall when negative.",
+          "quantity_id": "contribution_margin_per_unit",
+          "role": "output",
+          "source_symbol": "contribution margin per unit",
+          "symbol": "C",
+          "unit": "USD/unit"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Linear accumulation: every counted unit earns the same unit margin C within the stated relevant range and period; no mix change, discounts, or step effects across the counted volume.",
+        "Q and C belong to the same CVP analysis, relevant range, currency, price/cost basis and period; Q counts units sold, or units produced under no inventory change within the period.",
+        "Chain closure: evaluated at break-even volume, Q*C equals the fixed operating cost of the same analysis (verified numerically against the CFI, AccountingTools and Lumen families in references)."
+      ],
+      "constants": [],
+      "guards": [
+        "Q >= 0",
+        "C >= 0"
+      ],
+      "id": "economics--contribution-margin-income",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "Linear accumulation: every counted unit earns the same unit margin C within the stated relevant range and period; no mix change, discounts, or step effects across the counted volume.",
+            "Q and C belong to the same CVP analysis, relevant range, currency, price/cost basis and period; Q counts units sold, or units produced under no inventory change within the period.",
+            "Chain closure: evaluated at break-even volume, Q*C equals the fixed operating cost of the same analysis (verified numerically against the CFI, AccountingTools and Lumen families in references).",
+            "Not operating profit: fixed operating costs must still be subtracted separately; not net income (financing and taxes excluded).",
+            "Declining-returns, capacity, demand-limit and achievability regimes outside the relevant range are out of scope."
+          ],
+          "expression": "Q * C",
+          "guards": [
+            "Q >= 0",
+            "C >= 0"
+          ],
+          "id": "economics--contribution-margin-income",
+          "inputs": {
+            "C": {
+              "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+              "meaning": "contribution_margin_per_unit",
+              "unit": "USD/unit"
+            },
+            "Q": {
+              "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+              "meaning": "units_sold_or_produced",
+              "unit": "unit"
+            }
+          },
+          "output": {
+            "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+            "meaning": "contribution_margin_income",
+            "unit": "USD"
+          },
+          "source": "CVP definition; ABC/Lumen/CFI at-break-even accumulations with FIX chain closure.",
+          "version": "r1"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "Q=CM/C given C>0; C=CM/Q given Q>0. At C=0, CM=0 for every Q (volume undetermined); at Q=0, CM=0 for every C>=0 (margin undetermined). Published substitution CM=6000, C=12 gives Q=500; forward 6000.",
+      "kind": "definition",
+      "limitations": [
+        "Not operating profit: fixed operating costs must still be subtracted separately; not net income (financing and taxes excluded).",
+        "Declining-returns, capacity, demand-limit and achievability regimes outside the relevant range are out of scope."
+      ],
+      "references": [
+        {
+          "expected": 6000,
+          "id": "abc-widgets",
+          "inputs": {
+            "C": 12,
+            "Q": 500
+          },
+          "method": "Published ABC International totals recomputed: 500 widgets x $12 = $6,000, matching the $20,000 - $14,000 total.",
+          "provenance": "AccountingTools contribution-per-unit page, ABC International purple-widget example.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 100000,
+          "id": "cfi-at-breakeven",
+          "inputs": {
+            "C": 10,
+            "Q": 10000
+          },
+          "method": "CFI break-even volume recomputed: 10,000 x $10 = $100,000, exactly the published CFI fixed-cost total (chain closure).",
+          "provenance": "CFI break-even article, Company A water-bottle example (10,000 units, $10 unit margin, $100,000 fixed).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 10000,
+          "id": "at-at-breakeven",
+          "inputs": {
+            "C": 20,
+            "Q": 500
+          },
+          "method": "AccountingTools break-even volume recomputed: 500 x $20 = $10,000, exactly the published fixed-cost total (chain closure).",
+          "provenance": "AccountingTools unit-contribution-margin page, 500-unit / $20-margin / $10,000-fixed example.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 7700,
+          "id": "lumen-at-breakeven",
+          "inputs": {
+            "C": 275,
+            "Q": 28
+          },
+          "method": "Lumen break-even volume recomputed: 28 x $275 = $7,700, exactly the published monthly fixed-cost total (chain closure).",
+          "provenance": "Lumen target-profit page, Minnesota Kayak break-even (28 kayaks, $275 unit CM, $7,700 fixed).",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "C": -5,
+            "Q": 500
+          },
+          "kind": "domain",
+          "reason": "Negative unit margin violates C>=0: per-unit shortfalls admitted upstream cannot accumulate into contribution income here."
+        },
+        {
+          "inputs": {
+            "Q": 500
+          },
+          "kind": "missing-input",
+          "reason": "Without the unit margin, volume alone determines no contribution income."
+        }
+      ],
+      "relationship": {
+        "expression": "Q * C",
+        "locator": "Example of Contribution per Unit: $6,000 contribution margin over 500 purple widgets at $12 per unit",
+        "original_equation": "contribution margin income = units sold or produced x contribution margin per unit",
+        "output_symbol": "CM",
+        "source_id": "s-at-cpu",
+        "translation_notes": "Direct transcription with symbols Q (units sold or produced) and C (contribution margin per unit); the C input triple is byte-identical to the margin record output, so the margin->income leg binds. Guard C>=0 rejects per-unit shortfalls admitted upstream; at break-even volume Q*C reproduces FIX (chain closure, verified in references). Check: unit times USD/unit."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "$10,000 of fixed costs with a $5 unit contribution margin gives a 2,000-unit break-even; ABC International: $20,000 of purple-widget revenue with $14,000 of variable costs gives $6,000 total contribution over 500 widgets sold, i.e. $12 contribution per unit.",
+          "id": "s-at-cpu",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Single-product break-even paragraph; Example of Contribution per Unit",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "AccountingTools: How to calculate contribution per unit (Steven Bragg)",
+          "url": "https://www.accountingtools.com/articles/how-to-calculate-contribution-per-unit.html",
+          "version": "Article page dated September 09, 2026; fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Break-Even Quantity = Fixed Costs / (Sales Price per Unit - Variable Cost Per Unit); a $100 book with $5 variable cost gives a $95 unit contribution margin; Company A water bottles: $100,000 fixed costs, $12 price, $2 variable cost give a $10 unit contribution margin and a 10,000-unit break-even, with $120,000 revenue and $20,000 variable cost at that point.",
+          "id": "s-cfi-be",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Formula; book contribution passage; Company A water-bottle example; chart walk-through",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "CFI: Break-Even Analysis: How to Calculate the Break-Even Point",
+          "url": "https://corporatefinanceinstitute.com/resources/accounting/break-even-analysis/",
+          "version": "Article page fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "$50 selling price per unit with $30 variable cost ($15 materials + $10 direct labor + $5 variable overhead) gives a $20 unit contribution margin; with $10,000 of fixed costs the break-even is 500 units ($10,000 / $20), and each further unit earns $20 of profit.",
+          "id": "s-at-unit-cm",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "What is Unit Contribution Margin?; Example of Unit Contribution Margin",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "AccountingTools: How to calculate unit contribution margin (Steven Bragg)",
+          "url": "https://www.accountingtools.com/articles/how-do-i-calculate-unit-contribution-margin.html",
+          "version": "Article page dated August 02, 2026; fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Kayaks at $500 price, $225 variable cost, $275 unit CM and $7,700/month fixed costs break even at 28 kayaks; a $30,000 target profit needs $37,700 / $275 = 137.0909..., rounded UP to 138 kayaks (137 kayaks yield only $29,975); formula method: unit sales = (target profit + fixed expenses) / unit CM.",
+          "id": "s-lumen-tp",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Minnesota Kayak target-profit worked example; rounding note; formula method",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "Lumen Accounting for Managers, Module 8 CVP: Target Profit Analysis",
+          "url": "https://courses.lumenlearning.com/wm-accountingformanagers/chapter/target-profit-analysis/",
+          "version": "Course page fetched 2026-11-04"
+        }
+      ],
+      "summary": "Defines total contribution margin income as units sold or produced times the contribution margin per unit: the period total available toward fixed operating costs and operating profit.",
+      "title": "Contribution margin income from volume and unit margin",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Number of homogeneous units sold or produced in the period.",
+          "dimensions": "count",
+          "domain": "Finite nonnegative; fractional quantities admitted exactly, rounding is downstream.",
+          "quantity_id": "units_sold_or_produced",
+          "role": "input",
+          "source_symbol": "units sold or produced",
+          "symbol": "Q",
+          "unit": "unit"
+        },
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Signed selling-price excess over all per-unit variable costs, before fixed expenses.",
+          "dimensions": "currency U^-1",
+          "domain": "Finite nonnegative at this port; negative per-unit shortfalls are rejected here.",
+          "quantity_id": "contribution_margin_per_unit",
+          "role": "input",
+          "source_symbol": "contribution margin per unit",
+          "symbol": "C",
+          "unit": "USD/unit"
+        },
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Total contribution toward fixed operating costs and operating profit: unit margin summed over volume.",
+          "dimensions": "currency",
+          "domain": "Finite nonnegative.",
+          "quantity_id": "contribution_margin_income",
+          "role": "output",
+          "source_symbol": "contribution margin income",
+          "symbol": "CM",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Exact-quotient semantics: the record returns FIX/C unrounded; whole-unit sellers round UP (never down), since rounding down leaves contribution short of fixed costs, per the Lumen rounding note.",
+        "Stable regime per AccountingTools: constant selling price, unit variable cost, fixed costs and sales mix over the relevant range; Q counts units sold, or units produced under no inventory change within the period.",
+        "FIX and C belong to the same CVP analysis, relevant range, currency, price/cost basis and period; positive unit margin (C>0) so fixed costs are coverable in finite volume."
+      ],
+      "constants": [],
+      "guards": [
+        "FIX >= 0",
+        "C > 0"
+      ],
+      "id": "economics--break-even-units",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "Exact-quotient semantics: the record returns FIX/C unrounded; whole-unit sellers round UP (never down), since rounding down leaves contribution short of fixed costs, per the Lumen rounding note.",
+            "Stable regime per AccountingTools: constant selling price, unit variable cost, fixed costs and sales mix over the relevant range; Q counts units sold, or units produced under no inventory change within the period.",
+            "FIX and C belong to the same CVP analysis, relevant range, currency, price/cost basis and period; positive unit margin (C>0) so fixed costs are coverable in finite volume.",
+            "Fractional admission: 833.33 units is the exact-quotient answer, not a shippable count; the round-up decision and any partial-unit economics live downstream.",
+            "Declining returns, step costs, discounts, capacity, demand limits and achievability outside the relevant range are out of scope; multi-product mix needs its own record."
+          ],
+          "expression": "FIX / C",
+          "guards": [
+            "FIX >= 0",
+            "C > 0"
+          ],
+          "id": "economics--break-even-units",
+          "inputs": {
+            "C": {
+              "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+              "meaning": "contribution_margin_per_unit",
+              "unit": "USD/unit"
+            },
+            "FIX": {
+              "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+              "meaning": "fixed_operating_cost",
+              "unit": "USD"
+            }
+          },
+          "output": {
+            "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+            "meaning": "break_even_unit_quantity",
+            "unit": "unit"
+          },
+          "source": "CVP definition; CFI/AccountingTools break-even oracles with exact-quotient semantics.",
+          "version": "r1"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "FIX=QB*C given C>0; C=FIX/QB given QB>0. At FIX=0, QB=0 for every C>0. Published substitution QB=10000, C=10 gives FIX=100000; forward 10000. At C<=0 no finite break-even exists.",
+      "kind": "definition",
+      "limitations": [
+        "Fractional admission: 833.33 units is the exact-quotient answer, not a shippable count; the round-up decision and any partial-unit economics live downstream.",
+        "Declining returns, step costs, discounts, capacity, demand limits and achievability outside the relevant range are out of scope; multi-product mix needs its own record."
+      ],
+      "references": [
+        {
+          "expected": 500,
+          "id": "at-basic",
+          "inputs": {
+            "C": 20,
+            "FIX": 10000
+          },
+          "method": "Published AccountingTools break-even recomputed: 10,000 / 20 = 500.",
+          "provenance": "AccountingTools unit-contribution-margin page, $10,000 fixed / $20 margin example.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 10000,
+          "id": "cfi-water",
+          "inputs": {
+            "C": 10,
+            "FIX": 100000
+          },
+          "method": "Published CFI break-even recomputed: 100,000 / (12 - 2) = 100,000 / 10 = 10,000.",
+          "provenance": "CFI break-even article, Company A water-bottle example.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1000,
+          "id": "at-cvp-month",
+          "inputs": {
+            "C": 50,
+            "FIX": 50000
+          },
+          "method": "Published AccountingTools CVP break-even recomputed: 50,000 / 50 = 1,000 units per month.",
+          "provenance": "AccountingTools CVP-components page, $50,000 fixed / $50 margin example.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 833.3333333333334,
+          "id": "fractional-admission",
+          "inputs": {
+            "C": 12,
+            "FIX": 10000
+          },
+          "method": "Cross-family worked quotient: AccountingTools $10,000 fixed over the ABC $12 unit margin gives 833.333... units, admitted exactly; whole-unit sellers round up to 834 since 833 units contribute only $9,996, per the Lumen round-up rule.",
+          "provenance": "Curator cross-family arithmetic on two published figures (AT $10,000 fixed; ABC $12 margin).",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "C": 0,
+            "FIX": 10000
+          },
+          "kind": "domain",
+          "reason": "Zero unit margin violates C>0: division is undefined and fixed costs are uncoverable at any volume."
+        },
+        {
+          "inputs": {
+            "C": 20,
+            "FIX": -100
+          },
+          "kind": "domain",
+          "reason": "Negative fixed operating cost violates FIX>=0; cost recoveries/credits need a different record."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Without fixed cost and unit margin no break-even volume can be formed."
+        }
+      ],
+      "relationship": {
+        "expression": "FIX / C",
+        "locator": "Break-Even Quantity = Fixed Costs / (Sales Price per Unit - Variable Cost Per Unit); Company A: $100,000 / ($12 - $2) = 10,000",
+        "original_equation": "break-even unit quantity = fixed operating cost / contribution margin per unit",
+        "output_symbol": "QB",
+        "source_id": "s-cfi-be",
+        "translation_notes": "Direct transcription with symbols FIX (fixed operating cost) and C (contribution margin per unit); the C input triple is byte-identical to the margin record output and the FIX input triple to the cost-adapter output, so both legs bind. Guard C>0 excludes zero and negative margins (uncoverable fixed costs); the record returns the exact quotient and admits fractional units, with whole-unit round-up a downstream decision per Lumen's stated rule. Check: USD per USD/unit."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Break-Even Quantity = Fixed Costs / (Sales Price per Unit - Variable Cost Per Unit); a $100 book with $5 variable cost gives a $95 unit contribution margin; Company A water bottles: $100,000 fixed costs, $12 price, $2 variable cost give a $10 unit contribution margin and a 10,000-unit break-even, with $120,000 revenue and $20,000 variable cost at that point.",
+          "id": "s-cfi-be",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Formula; book contribution passage; Company A water-bottle example; chart walk-through",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "CFI: Break-Even Analysis: How to Calculate the Break-Even Point",
+          "url": "https://corporatefinanceinstitute.com/resources/accounting/break-even-analysis/",
+          "version": "Article page fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "$50 selling price per unit with $30 variable cost ($15 materials + $10 direct labor + $5 variable overhead) gives a $20 unit contribution margin; with $10,000 of fixed costs the break-even is 500 units ($10,000 / $20), and each further unit earns $20 of profit.",
+          "id": "s-at-unit-cm",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "What is Unit Contribution Margin?; Example of Unit Contribution Margin",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "AccountingTools: How to calculate unit contribution margin (Steven Bragg)",
+          "url": "https://www.accountingtools.com/articles/how-do-i-calculate-unit-contribution-margin.html",
+          "version": "Article page dated August 02, 2026; fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "$10,000 of fixed costs with a $5 unit contribution margin gives a 2,000-unit break-even; ABC International: $20,000 of purple-widget revenue with $14,000 of variable costs gives $6,000 total contribution over 500 widgets sold, i.e. $12 contribution per unit.",
+          "id": "s-at-cpu",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Single-product break-even paragraph; Example of Contribution per Unit",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "AccountingTools: How to calculate contribution per unit (Steven Bragg)",
+          "url": "https://www.accountingtools.com/articles/how-to-calculate-contribution-per-unit.html",
+          "version": "Article page dated September 09, 2026; fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "$50,000/month fixed costs with a $50 average unit contribution margin gives a 1,000-unit break-even; adding a $20,000 target profit gives (50,000 + 20,000) / 50 = 1,400 units; adding $10,000 of fixed costs gives (70,000 + 10,000) / 50 = 1,600 units per month.",
+          "id": "s-at-cvp",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Examples of Cost Volume Profit Analysis (three worked bullets)",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "AccountingTools: The components of cost volume profit analysis (Steven Bragg)",
+          "url": "https://www.accountingtools.com/articles/what-are-the-components-of-cost-volume-profit-analysis.html",
+          "version": "Article page dated September 27, 2026; fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Unit break-even is total fixed expenses divided by the average contribution margin per unit; breakeven analysis assumes stable selling prices, variable costs, fixed costs and sales mix, and ignores cash-flow timing, customer demand limits, uncertainty and achievability.",
+          "id": "s-at-be",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Calculation formulas; scope paragraph after the Ninja Cutlery example",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "AccountingTools: Breakeven point definition (Steven Bragg)",
+          "url": "https://www.accountingtools.com/articles/breakeven-point",
+          "version": "Article page dated May 10, 2026; fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Kayaks at $500 price, $225 variable cost, $275 unit CM and $7,700/month fixed costs break even at 28 kayaks; a $30,000 target profit needs $37,700 / $275 = 137.0909..., rounded UP to 138 kayaks (137 kayaks yield only $29,975); formula method: unit sales = (target profit + fixed expenses) / unit CM.",
+          "id": "s-lumen-tp",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Minnesota Kayak target-profit worked example; rounding note; formula method",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "Lumen Accounting for Managers, Module 8 CVP: Target Profit Analysis",
+          "url": "https://courses.lumenlearning.com/wm-accountingformanagers/chapter/target-profit-analysis/",
+          "version": "Course page fetched 2026-11-04"
+        }
+      ],
+      "summary": "Defines the break-even unit quantity as fixed operating cost divided by the contribution margin per unit: the exact sales volume at which cumulative contribution covers fixed operating costs.",
+      "title": "Break-even unit quantity from fixed cost and unit margin",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Total fixed operating expense for the period: costs invariant with volume inside the relevant range.",
+          "dimensions": "currency",
+          "domain": "Finite nonnegative.",
+          "quantity_id": "fixed_operating_cost",
+          "role": "input",
+          "source_symbol": "fixed operating cost",
+          "symbol": "FIX",
+          "unit": "USD"
+        },
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Signed selling-price excess over all per-unit variable costs, before fixed expenses.",
+          "dimensions": "currency U^-1",
+          "domain": "Finite strictly positive at this port; zero/negative margins cannot cover fixed costs.",
+          "quantity_id": "contribution_margin_per_unit",
+          "role": "input",
+          "source_symbol": "contribution margin per unit",
+          "symbol": "C",
+          "unit": "USD/unit"
+        },
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Unit volume at which cumulative contribution exactly covers fixed operating cost (exact quotient; round up for whole-unit sale).",
+          "dimensions": "count",
+          "domain": "Finite nonnegative; fractional quotients admitted exactly.",
+          "quantity_id": "break_even_unit_quantity",
+          "role": "output",
+          "source_symbol": "break-even unit quantity",
+          "symbol": "QB",
+          "unit": "unit"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Relevant-range linearity: unit price, unit variable cost and fixed operating costs are constant over the range containing the required volume; PI=0 reduces exactly to the break-even record.",
+        "Declining-returns scope: beyond the relevant range, diminishing returns, input-price pressure, price discounts, step costs and capacity constraints shift P, V and FIX, and the quotient does not apply without re-measured parameters.",
+        "FIX, PI and C belong to the same CVP analysis, relevant range, currency, price/cost basis and period; exact-quotient semantics with whole-unit round-up downstream, as in the break-even record."
+      ],
+      "constants": [],
+      "guards": [
+        "FIX >= 0",
+        "PI >= 0",
+        "C > 0"
+      ],
+      "id": "economics--target-profit-units",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "Relevant-range linearity: unit price, unit variable cost and fixed operating costs are constant over the range containing the required volume; PI=0 reduces exactly to the break-even record.",
+            "Declining-returns scope: beyond the relevant range, diminishing returns, input-price pressure, price discounts, step costs and capacity constraints shift P, V and FIX, and the quotient does not apply without re-measured parameters.",
+            "FIX, PI and C belong to the same CVP analysis, relevant range, currency, price/cost basis and period; exact-quotient semantics with whole-unit round-up downstream, as in the break-even record.",
+            "Demand limits, achievability, cash-flow timing and uncertainty are ignored per the AccountingTools scope: the record answers the volume arithmetic, not whether the volume is attainable.",
+            "Loss targets (negative PI), multi-product mix, and post-range parameter drift are out of scope and need their own records."
+          ],
+          "expression": "(FIX + PI) / C",
+          "guards": [
+            "FIX >= 0",
+            "PI >= 0",
+            "C > 0"
+          ],
+          "id": "economics--target-profit-units",
+          "inputs": {
+            "C": {
+              "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+              "meaning": "contribution_margin_per_unit",
+              "unit": "USD/unit"
+            },
+            "FIX": {
+              "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+              "meaning": "fixed_operating_cost",
+              "unit": "USD"
+            },
+            "PI": {
+              "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+              "meaning": "target_operating_profit",
+              "unit": "USD"
+            }
+          },
+          "output": {
+            "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+            "meaning": "required_unit_sales_for_target_profit",
+            "unit": "unit"
+          },
+          "source": "CVP definition; AccountingTools target oracles and the Lumen kayak worked quotient.",
+          "version": "r1"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "PI=QT*C-FIX given C>0, requiring PI>=0; FIX=QT*C-PI; C=(FIX+PI)/QT given QT>0. Published substitution QT=1400, C=50, FIX=50000 gives PI=20000; forward 1400. At C<=0 no finite required volume exists.",
+      "kind": "definition",
+      "limitations": [
+        "Demand limits, achievability, cash-flow timing and uncertainty are ignored per the AccountingTools scope: the record answers the volume arithmetic, not whether the volume is attainable.",
+        "Loss targets (negative PI), multi-product mix, and post-range parameter drift are out of scope and need their own records."
+      ],
+      "references": [
+        {
+          "expected": 1400,
+          "id": "at-cvp-target",
+          "inputs": {
+            "C": 50,
+            "FIX": 50000,
+            "PI": 20000
+          },
+          "method": "Published AccountingTools target-profit example recomputed: (50,000 + 20,000) / 50 = 1,400.",
+          "provenance": "AccountingTools CVP-components page, $20,000-target bullet.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 137.0909090909091,
+          "id": "lumen-kayak-target",
+          "inputs": {
+            "C": 275,
+            "FIX": 7700,
+            "PI": 30000
+          },
+          "method": "Published Lumen kayak target recomputed: (7,700 + 30,000) / 275 = 137.0909..., returned exactly; the source rounds UP to 138 kayaks since 137 yield only $29,975 profit.",
+          "provenance": "Lumen target-profit page, Minnesota Kayak $30,000-target example with rounding note.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1600,
+          "id": "at-added-fixed",
+          "inputs": {
+            "C": 50,
+            "FIX": 60000,
+            "PI": 20000
+          },
+          "method": "Published AccountingTools added-fixed-cost example re-based: $60,000 total fixed ($50,000 + $10,000 added) plus $20,000 target, over $50 margin, gives 1,600 units/month.",
+          "provenance": "AccountingTools CVP-components page, added-fixed-cost bullet.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "C": 0,
+            "FIX": 50000,
+            "PI": 20000
+          },
+          "kind": "domain",
+          "reason": "Zero unit margin violates C>0: division is undefined and fixed costs plus profit are uncoverable."
+        },
+        {
+          "inputs": {
+            "C": 50,
+            "FIX": 50000,
+            "PI": -1
+          },
+          "kind": "domain",
+          "reason": "Negative target violates PI>=0; planned-loss volumes need a different record."
+        },
+        {
+          "inputs": {
+            "C": 50,
+            "FIX": 50000
+          },
+          "kind": "missing-input",
+          "reason": "Without the target profit the required volume is undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "(FIX + PI) / C",
+        "locator": "Target-profit bullet: ($50,000 fixed costs + $20,000 target) / $50 average contribution margin = 1,400 units",
+        "original_equation": "required unit sales for target profit = (fixed operating cost + target operating profit) / contribution margin per unit",
+        "output_symbol": "QT",
+        "source_id": "s-at-cvp",
+        "translation_notes": "Direct transcription with symbols FIX (fixed operating cost), PI (target operating profit) and C (contribution margin per unit); the C input triple is byte-identical to the margin record output and the FIX input triple to the cost-adapter output, so both legs bind. PI=0 reduces exactly to break-even. Exact-quotient semantics with downstream round-up, as in the break-even record. Check: USD per USD/unit."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "$50,000/month fixed costs with a $50 average unit contribution margin gives a 1,000-unit break-even; adding a $20,000 target profit gives (50,000 + 20,000) / 50 = 1,400 units; adding $10,000 of fixed costs gives (70,000 + 10,000) / 50 = 1,600 units per month.",
+          "id": "s-at-cvp",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Examples of Cost Volume Profit Analysis (three worked bullets)",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "AccountingTools: The components of cost volume profit analysis (Steven Bragg)",
+          "url": "https://www.accountingtools.com/articles/what-are-the-components-of-cost-volume-profit-analysis.html",
+          "version": "Article page dated September 27, 2026; fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Kayaks at $500 price, $225 variable cost, $275 unit CM and $7,700/month fixed costs break even at 28 kayaks; a $30,000 target profit needs $37,700 / $275 = 137.0909..., rounded UP to 138 kayaks (137 kayaks yield only $29,975); formula method: unit sales = (target profit + fixed expenses) / unit CM.",
+          "id": "s-lumen-tp",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Minnesota Kayak target-profit worked example; rounding note; formula method",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "Lumen Accounting for Managers, Module 8 CVP: Target Profit Analysis",
+          "url": "https://courses.lumenlearning.com/wm-accountingformanagers/chapter/target-profit-analysis/",
+          "version": "Course page fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Break-Even Quantity = Fixed Costs / (Sales Price per Unit - Variable Cost Per Unit); a $100 book with $5 variable cost gives a $95 unit contribution margin; Company A water bottles: $100,000 fixed costs, $12 price, $2 variable cost give a $10 unit contribution margin and a 10,000-unit break-even, with $120,000 revenue and $20,000 variable cost at that point.",
+          "id": "s-cfi-be",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Formula; book contribution passage; Company A water-bottle example; chart walk-through",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "CFI: Break-Even Analysis: How to Calculate the Break-Even Point",
+          "url": "https://corporatefinanceinstitute.com/resources/accounting/break-even-analysis/",
+          "version": "Article page fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "The HBS listing describes the note as covering fixed, variable and semivariable costs and their role in building and interpreting cost-volume-profit models, including the cost-volume and contribution-volume-profit models and their uses and limitations. Cited for scope agreement only; every equation and number is verified against the inspected AccountingTools/CFI/Lumen sources above.",
+          "id": "s-hbs-cvp",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "HBS Faculty and Research publications listing abstract for the note",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "HBS: Cost-Volume Profit Models (Hawkins, Narayanan, Cohen, Jurgens)",
+          "url": "https://www.hbs.edu/faculty/research/publications/Pages/default.aspx?topic=Research&contentType=Teaching%20Materials&unit=Accounting%20and%20Management",
+          "version": "HBS listing abstract per hbs.edu search 2026-11-04; listing page 403 to automated fetch; full note paywalled, not inspected"
+        }
+      ],
+      "summary": "Defines the required unit sales for a target operating profit as fixed operating cost plus target profit, divided by the contribution margin per unit.",
+      "title": "Required unit sales for a target operating profit",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Total fixed operating expense for the period: costs invariant with volume inside the relevant range.",
+          "dimensions": "currency",
+          "domain": "Finite nonnegative.",
+          "quantity_id": "fixed_operating_cost",
+          "role": "input",
+          "source_symbol": "fixed operating cost",
+          "symbol": "FIX",
+          "unit": "USD"
+        },
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Desired operating profit for the period, before financing and tax.",
+          "dimensions": "currency",
+          "domain": "Finite nonnegative; PI=0 reduces to break-even.",
+          "quantity_id": "target_operating_profit",
+          "role": "input",
+          "source_symbol": "target operating profit",
+          "symbol": "PI",
+          "unit": "USD"
+        },
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Signed selling-price excess over all per-unit variable costs, before fixed expenses.",
+          "dimensions": "currency U^-1",
+          "domain": "Finite strictly positive at this port; zero/negative margins cannot cover fixed costs plus profit.",
+          "quantity_id": "contribution_margin_per_unit",
+          "role": "input",
+          "source_symbol": "contribution margin per unit",
+          "symbol": "C",
+          "unit": "USD/unit"
+        },
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Unit sales volume at which cumulative contribution exactly covers fixed operating cost plus the target profit (exact quotient; round up for whole-unit sale).",
+          "dimensions": "count",
+          "domain": "Finite nonnegative; fractional quotients admitted exactly.",
+          "quantity_id": "required_unit_sales_for_target_profit",
+          "role": "output",
+          "source_symbol": "required unit sales for target profit",
+          "symbol": "QT",
+          "unit": "unit"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "All-fixed precondition: the variable-cost portion of operating cost is zero within the relevant range (a pure-fixed cost structure, or the fixed component isolated for the analysis), so total operating cost equals fixed operating cost; where a nonzero variable portion exists this bridge must not be used and the cost split must be modeled explicitly.",
+        "Same CVP analysis, relevant range, currency, price/cost basis and period as the batch-shared context; the carried value keeps its USD period-total meaning on both faces."
+      ],
+      "constants": [],
+      "guards": [
+        "OC >= 0"
+      ],
+      "id": "economics--operating-cost-as-fixed-operating-cost",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "All-fixed precondition: the variable-cost portion of operating cost is zero within the relevant range (a pure-fixed cost structure, or the fixed component isolated for the analysis), so total operating cost equals fixed operating cost; where a nonzero variable portion exists this bridge must not be used and the cost split must be modeled explicitly.",
+            "Same CVP analysis, relevant range, currency, price/cost basis and period as the batch-shared context; the carried value keeps its USD period-total meaning on both faces.",
+            "Not for mixed costs with a nonzero variable portion, and not across different analyses, periods, or currencies.",
+            "The registry home-A operating_cost ports (electricity-cost@1 output, annual-saving@1 inputs) carry a different context and do not bind either face of this bridge."
+          ],
+          "expression": "OC",
+          "guards": [
+            "OC >= 0"
+          ],
+          "id": "economics--operating-cost-as-fixed-operating-cost",
+          "inputs": {
+            "OC": {
+              "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+              "meaning": "operating_cost",
+              "unit": "USD"
+            }
+          },
+          "output": {
+            "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+            "meaning": "fixed_operating_cost",
+            "unit": "USD"
+          },
+          "source": "Project-derivation scope bridge into the in-batch FIX legs; CFI/AT fixed-cost carry values.",
+          "version": "r1"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "Identity inverts trivially: OC=FIX. Negative values are rejected in both directions; the inverse inherits the all-fixed precondition. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Not for mixed costs with a nonzero variable portion, and not across different analyses, periods, or currencies.",
+        "The registry home-A operating_cost ports (electricity-cost@1 output, annual-saving@1 inputs) carry a different context and do not bind either face of this bridge."
+      ],
+      "references": [
+        {
+          "expected": 100000,
+          "id": "cfi-fixed-carry",
+          "inputs": {
+            "OC": 100000
+          },
+          "method": "Published CFI fixed-cost total (property taxes + lease + executive salaries) carried unchanged; rechecked against the published total, not restated from the identity.",
+          "provenance": "CFI break-even article, Company A fixed-cost composition.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 10000,
+          "id": "at-fixed-carry",
+          "inputs": {
+            "OC": 10000
+          },
+          "method": "Published AccountingTools fixed-cost total carried unchanged; rechecked against the published figure.",
+          "provenance": "AccountingTools unit-contribution-margin page, $10,000 fixed-cost example.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "zero-boundary",
+          "inputs": {
+            "OC": 0
+          },
+          "method": "Shared zero boundary: zero operating cost reads as zero fixed operating cost.",
+          "provenance": "Curator boundary check; not observed firm data.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "OC": -1
+          },
+          "kind": "domain",
+          "reason": "Negative operating cost violates OC>=0; cost recoveries/credits need a different record."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Without the operating-cost value there is nothing to read as fixed operating cost."
+        }
+      ],
+      "relationship": {
+        "expression": "OC",
+        "locator": "FIX inputs of economics--break-even-units@r1 and economics--target-profit-units@r1 in this batch",
+        "original_equation": "FIX = OC (total relevant-range operating cost read as fixed operating cost under the all-fixed precondition)",
+        "output_symbol": "FIX",
+        "source_id": "s-cvp-fixed-scope",
+        "translation_notes": "Pure scope bridge: the input value passes through unchanged (expression OC); guards mirror nonnegativity; the all-fixed precondition lives in assumptions/limitations, not in the arithmetic. The output FIX triple is byte-identical to the FIX inputs of both in-batch volume records, so one output feeds both FIX legs. Check: USD equals USD."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Both in-batch FIX consumer ports are exactly (fixed_operating_cost, USD, the batch-shared CVP context); this record's output adopts that triple verbatim and binds both FIX legs. The carried totals are the published CFI $100,000 and AccountingTools $10,000 fixed-cost figures (sources s-cfi-be and s-at-unit-cm); the all-fixed precondition is stated in assumptions, never in arithmetic.",
+          "id": "s-cvp-fixed-scope",
+          "kind": "project-derivation",
+          "license": "Project-authored scope statement; no external quotation",
+          "locator": "FIX inputs of economics--break-even-units@r1 and economics--target-profit-units@r1 in this batch",
+          "redistribution": "Quotes only this batch's port identifiers and context strings",
+          "title": "Project scope: all-fixed reading of operating cost for the CVP FIX legs",
+          "url": null,
+          "version": "Batch economics-cvp-b01, 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Break-Even Quantity = Fixed Costs / (Sales Price per Unit - Variable Cost Per Unit); a $100 book with $5 variable cost gives a $95 unit contribution margin; Company A water bottles: $100,000 fixed costs, $12 price, $2 variable cost give a $10 unit contribution margin and a 10,000-unit break-even, with $120,000 revenue and $20,000 variable cost at that point.",
+          "id": "s-cfi-be",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Formula; book contribution passage; Company A water-bottle example; chart walk-through",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "CFI: Break-Even Analysis: How to Calculate the Break-Even Point",
+          "url": "https://corporatefinanceinstitute.com/resources/accounting/break-even-analysis/",
+          "version": "Article page fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "$50 selling price per unit with $30 variable cost ($15 materials + $10 direct labor + $5 variable overhead) gives a $20 unit contribution margin; with $10,000 of fixed costs the break-even is 500 units ($10,000 / $20), and each further unit earns $20 of profit.",
+          "id": "s-at-unit-cm",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "What is Unit Contribution Margin?; Example of Unit Contribution Margin",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "AccountingTools: How to calculate unit contribution margin (Steven Bragg)",
+          "url": "https://www.accountingtools.com/articles/how-do-i-calculate-unit-contribution-margin.html",
+          "version": "Article page dated August 02, 2026; fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Preliminary C-CPI-U uses the constant-elasticity-of-substitution (CES) formula with a dimensionless elasticity-of-substitution parameter sigma between the geometric-mean and Laspeyres assumptions; average prices are estimated per normalized quantity and period (e.g. flour prices per ounce times 16 for the per-pound publication quantity). Cited for the dimensionless-elasticity and price-basis/period measurement scope only; no demand-elasticity value is taken from BLS.",
+          "id": "s-bls-cpi",
+          "kind": "primary",
+          "license": "U.S. federal government work retrieved 2026-11-04; no clearance claimed.",
+          "locator": "C-CPI-U / constant elasticity of substitution; Average prices",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "BLS Handbook of Methods, Chapter 17 (CPI): Calculation",
+          "url": "https://www.bls.gov/opub/hom/cpi/calculation.htm",
+          "version": "Page fetched 2026-11-04 via the blsmon1.bls.gov mirror (www.bls.gov 403 to automated fetch)"
+        }
+      ],
+      "summary": "Scope adapter: total operating cost within the relevant range counts as fixed operating cost when the variable-cost portion is zero, so an operating-cost value binds the FIX legs of the break-even and target-profit records under exact meaning/context equality.",
+      "title": "Relevant-range operating cost read as fixed operating cost",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Total operating cost of the CVP analysis within the relevant range.",
+          "dimensions": "currency",
+          "domain": "Finite nonnegative.",
+          "quantity_id": "operating_cost",
+          "role": "input",
+          "source_symbol": "operating cost (relevant range)",
+          "symbol": "OC",
+          "unit": "USD"
+        },
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Total fixed operating expense for the period: the all-fixed reading of operating cost.",
+          "dimensions": "currency",
+          "domain": "Finite nonnegative.",
+          "quantity_id": "fixed_operating_cost",
+          "role": "output",
+          "source_symbol": "fixed operating cost",
+          "symbol": "FIX",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Asserted relabel (delegated prescription, scientific review pending): the operating-leverage ratio value at the CVP sales level reads as the price-elasticity-of-demand value of the same analysis, unchanged and unrescaled. This record derives no economic equivalence proof; the claim is stated here for review, not established.",
+        "Operating scope: above-break-even sales levels with positive net operating income, and constant price, unit variable cost, mix and fixed expenses within the relevant range (ceteris paribus); a dimensionless ratio throughout."
+      ],
+      "constants": [],
+      "guards": [
+        "DOL >= 0"
+      ],
+      "id": "economics--operating-leverage-as-price-elasticity",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "Asserted relabel (delegated prescription, scientific review pending): the operating-leverage ratio value at the CVP sales level reads as the price-elasticity-of-demand value of the same analysis, unchanged and unrescaled. This record derives no economic equivalence proof; the claim is stated here for review, not established.",
+            "Operating scope: above-break-even sales levels with positive net operating income, and constant price, unit variable cost, mix and fixed expenses within the relevant range (ceteris paribus); a dimensionless ratio throughout.",
+            "Not a substitute for demand-curve estimation: the registry signed point/midpoint elasticity records carry different meanings and do not bind here; any signed-elasticity use needs its own sign-convention record.",
+            "Below-break-even levels (negative leverage) are excluded by the guard; cross-analysis, cross-period, and rescaled uses are excluded."
+          ],
+          "expression": "DOL",
+          "guards": [
+            "DOL >= 0"
+          ],
+          "id": "economics--operating-leverage-as-price-elasticity",
+          "inputs": {
+            "DOL": {
+              "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+              "meaning": "operating_leverage_ratio",
+              "unit": "1"
+            }
+          },
+          "output": {
+            "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+            "meaning": "price_elasticity_of_demand",
+            "unit": "1"
+          },
+          "source": "Project-derivation scope bridge; CFI-worked DOL carry values; BLS dimensionless-elasticity scope.",
+          "version": "r1"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "Identity inverts trivially: DOL=E. Negative values are rejected in both directions; the inverse inherits the asserted scope. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Not a substitute for demand-curve estimation: the registry signed point/midpoint elasticity records carry different meanings and do not bind here; any signed-elasticity use needs its own sign-convention record.",
+        "Below-break-even levels (negative leverage) are excluded by the guard; cross-analysis, cross-period, and rescaled uses are excluded."
+      ],
+      "references": [
+        {
+          "expected": 3,
+          "id": "cfi-leverage-carry",
+          "inputs": {
+            "DOL": 3
+          },
+          "method": "DOL worked from the CFI water-bottle family at Q=15,000: contribution income 15,000 x $10 = $150,000 less $100,000 fixed gives $50,000 net operating income, so DOL = 150,000 / 50,000 = 3, carried unchanged through the identity.",
+          "provenance": "Curator-worked extension of the published CFI family (not a published CFI figure).",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 1,
+          "id": "no-fixed-boundary",
+          "inputs": {
+            "DOL": 1
+          },
+          "method": "Zero-fixed-cost boundary: net operating income equals contribution income, so DOL=1, carried unchanged.",
+          "provenance": "Curator boundary identity on the leverage definition.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "zero-boundary",
+          "inputs": {
+            "DOL": 0
+          },
+          "method": "Zero-contribution boundary: no contribution income gives DOL=0, carried unchanged.",
+          "provenance": "Curator boundary identity on the leverage definition.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "DOL": -2
+          },
+          "kind": "domain",
+          "reason": "Negative leverage violates DOL>=0; below-break-even levels are outside this bridge's scope."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Without the operating-leverage value there is nothing to relabel."
+        }
+      ],
+      "relationship": {
+        "expression": "DOL",
+        "locator": "Delegated lane prescription; DOL-side values worked from the CFI water-bottle family",
+        "original_equation": "E = DOL (operating leverage ratio read as price elasticity of demand in the same CVP analysis)",
+        "output_symbol": "E",
+        "source_id": "s-dol-elast-scope",
+        "translation_notes": "Pure scope bridge: the input value passes through unchanged (expression DOL); the guard DOL>=0 keeps the above-break-even scope and the relabel claim lives in assumptions/limitations, not in the arithmetic. No registry port carries either face, so the bridge orphans zero chains. Check: 1 equals 1."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Delegated prescription carries a nonnegative operating-leverage ratio unchanged into the price_elasticity_of_demand meaning in the same CVP analysis; no registry producer emits operating_leverage_ratio and no registry consumer takes price_elasticity_of_demand, so the bridge orphans zero chains. The relabel is asserted for review, not derived: see assumptions and the batch handoff gaps. DOL-side carried values are worked from the CFI family (source s-cfi-be); the dimensionless elasticity scope follows the BLS CES parameter (source s-bls-cpi).",
+          "id": "s-dol-elast-scope",
+          "kind": "project-derivation",
+          "license": "Project-authored scope statement; no external quotation",
+          "locator": "Delegated lane prescription; DOL-side values worked from the CFI water-bottle family",
+          "redistribution": "Quotes only this batch's port identifiers and context strings",
+          "title": "Project scope: asserted operating-leverage to price-elasticity relabel",
+          "url": null,
+          "version": "Batch economics-cvp-b01, 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Break-Even Quantity = Fixed Costs / (Sales Price per Unit - Variable Cost Per Unit); a $100 book with $5 variable cost gives a $95 unit contribution margin; Company A water bottles: $100,000 fixed costs, $12 price, $2 variable cost give a $10 unit contribution margin and a 10,000-unit break-even, with $120,000 revenue and $20,000 variable cost at that point.",
+          "id": "s-cfi-be",
+          "kind": "primary",
+          "license": "Page retrieved 2026-11-04 for numerical verification; site reuse terms not reviewed; no clearance claimed.",
+          "locator": "Formula; book contribution passage; Company A water-bottle example; chart walk-through",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "CFI: Break-Even Analysis: How to Calculate the Break-Even Point",
+          "url": "https://corporatefinanceinstitute.com/resources/accounting/break-even-analysis/",
+          "version": "Article page fetched 2026-11-04"
+        },
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Preliminary C-CPI-U uses the constant-elasticity-of-substitution (CES) formula with a dimensionless elasticity-of-substitution parameter sigma between the geometric-mean and Laspeyres assumptions; average prices are estimated per normalized quantity and period (e.g. flour prices per ounce times 16 for the per-pound publication quantity). Cited for the dimensionless-elasticity and price-basis/period measurement scope only; no demand-elasticity value is taken from BLS.",
+          "id": "s-bls-cpi",
+          "kind": "primary",
+          "license": "U.S. federal government work retrieved 2026-11-04; no clearance claimed.",
+          "locator": "C-CPI-U / constant elasticity of substitution; Average prices",
+          "redistribution": "Returns original formalization of arithmetic facts and minimal attributed example numbers; no reproduced page text or figures.",
+          "title": "BLS Handbook of Methods, Chapter 17 (CPI): Calculation",
+          "url": "https://www.bls.gov/opub/hom/cpi/calculation.htm",
+          "version": "Page fetched 2026-11-04 via the blsmon1.bls.gov mirror (www.bls.gov 403 to automated fetch)"
+        }
+      ],
+      "summary": "Scope adapter (asserted relabel, scientific review pending): a nonnegative operating-leverage ratio value reads as the price-elasticity-of-demand value of the same CVP analysis, unchanged and unrescaled.",
+      "title": "Operating leverage ratio read as price elasticity of demand",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Degree of operating leverage: total contribution relative to net operating income at the sales level.",
+          "dimensions": "dimensionless",
+          "domain": "Finite nonnegative; above-break-even levels where net operating income is positive.",
+          "quantity_id": "operating_leverage_ratio",
+          "role": "input",
+          "source_symbol": "operating leverage ratio",
+          "symbol": "DOL",
+          "unit": "1"
+        },
+        {
+          "context": "same CVP analysis, relevant range, currency, price/cost basis and period as P, V, C, Q, FIX, PI, OC and DOL",
+          "definition": "Carried ratio value read as a price-elasticity-of-demand figure in the same CVP analysis.",
+          "dimensions": "dimensionless",
+          "domain": "Finite nonnegative carried range; no signed-elasticity convention is asserted.",
+          "quantity_id": "price_elasticity_of_demand",
+          "role": "output",
+          "source_symbol": "price elasticity of demand",
+          "symbol": "E",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

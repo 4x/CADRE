@@ -27,6 +27,9 @@ def amount(value: dict[str, Any]) -> str:
     unit = value["port"]["unit"]
     if value["port"]["meaning"] == "period_count" and value["port"]["context"] == "annual-period-count" and unit == "1":
         unit = "years (annual periods)"
+    if "amounts" in value:
+        joined = "; ".join(f"{float(item):,.2f}" for item in value["amounts"])
+        return f"{joined} {label(unit)} (branch: all)"
     return f"{float(value['amount']):,.2f} {label(unit)}"
 
 

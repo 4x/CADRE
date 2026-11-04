@@ -67,7 +67,7 @@ def score_head_to_head(entry: dict, battery_verdict: str, grounded_status: str,
                 "direct": "answered" if answered else "refused"}
     grounded_correct = battery_verdict in ("pass", "fixed")
     pseudo = {"status": "completed", "outputs": {
-        f"e{index}": {"amount": expected["amount"],
+        f"e{index}": {"amount": expected.get("amount"), "amounts": expected.get("amounts"),
                       "port": {"unit": expected["unit"], "meaning": expected["meaning"]}}
         for index, expected in enumerate(entry["expected_outputs"])}}
     direct_correct = numeric_agreement(pseudo, direct_text or "")["verdict"] == "agree"

@@ -84,7 +84,7 @@ CUBIC_METERS_PER_DECILITER = 1e-4
 NEWTONS_PER_POUND_FORCE = 4.4482216152605
 WATTS_PER_HORSEPOWER = 550 * METERS_PER_FOOT * NEWTONS_PER_POUND_FORCE  # Mechanical hp.
 KLEIBER_MASS_EXPONENT = Fraction(3, 4)
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1+envacct-1+demography-1+orbital-2+circuits-2+waves-1+waves-2+clinical-2+cs-5+clinical-3+mechanics-2+cs-6+be-3+query-2+query-3+query-4"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1+envacct-1+demography-1+orbital-2+circuits-2+waves-1+waves-2+clinical-2+cs-5+clinical-3+mechanics-2+cs-6+be-3+query-2+query-3+query-4+glue-1+economics-6+query-5+glue-2"
 DIMENSION_AXES = ("mass", "length", "time", "currency", "temperature", "current", "amount")
 NUMERICAL_BASIS = f"kWh, m, s, USD, K, A, mol; mass base = {JOULES_PER_KWH} kg"
 
@@ -446,6 +446,11 @@ UNIT_ALIASES = {
     "decilitres": "dL",
     "dl": "dL",
     "mg/dl": "mg/dL",
+    # Query batch (query-5): per-unit money phrasing. "800 units" must read
+    # as the canonical count, and "$50"/"50 dollars" per unit as USD/unit.
+    "units": "unit",
+    "dollar/unit": "USD/unit",
+    "dollars/unit": "USD/unit",
 }
 
 
@@ -502,10 +507,21 @@ MEANINGS = {
     "electricity_tariff": PRICE,
     "operating_cost": MONEY,
     "annual_saving": MONEY,
+    # Glue batch: outputs-only comparison/scaling vocabulary. difference_of_money
+    # carries sign for answer-layer reading (no engine comparison operators).
+    "sum_of_money": MONEY,
+    "scaled_money": MONEY,
+    "difference_of_money": MONEY,
+    # Glue batch intake (economics-glue-b01): generic input-side vocabulary.
+    # Counts are dimensionless per the lane-B convention.
+    "named_money_amount": MONEY,
+    "plain_multiplier": DIMENSIONLESS,
+    "counted_unit_quantity": DIMENSIONLESS,
     "discount_rate": DIMENSIONLESS,
     "period_count": DIMENSIONLESS,
     "present_value": MONEY,
     "upfront_cost": MONEY,
+    "payback_period_count": DIMENSIONLESS,
     "net_present_value": MONEY,
     "mass": MASS,
     "position": LENGTH,
@@ -991,6 +1007,22 @@ MEANINGS = {
     "absolute_surroundings_temperature": TEMPERATURE,
     "absolute_surface_temperature": TEMPERATURE,
     "net_radiative_heat_rate": POWER,
+    # Economics batch (economics-cvp-b01): lane-B CVP unit-margin, volume,
+    # fixed-cost, target-profit and adapter meanings. Per-unit money follows
+    # the lane-A convention (MONEY, matching the currency^1 USD/unit axis);
+    # unit counts and ratios are dimensionless. Curator quantity IDs adopted
+    # verbatim.
+    "selling_price_per_unit": MONEY,
+    "variable_cost_per_unit": MONEY,
+    "contribution_margin_per_unit": MONEY,
+    "units_sold_or_produced": DIMENSIONLESS,
+    "contribution_margin_income": MONEY,
+    "fixed_operating_cost": MONEY,
+    "break_even_unit_quantity": DIMENSIONLESS,
+    "target_operating_profit": MONEY,
+    "required_unit_sales_for_target_profit": DIMENSIONLESS,
+    "operating_leverage_ratio": DIMENSIONLESS,
+    "price_elasticity_of_demand": DIMENSIONLESS,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 
@@ -1118,6 +1150,7 @@ class Node:
     bindings: dict[str, Value | Reference | tuple[Value | Reference, ...]]
     solve_for: str | None = None
     relation: str = "equal"
+    branch: str | None = None
 
 
 @dataclass(frozen=True)

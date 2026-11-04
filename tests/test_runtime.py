@@ -401,7 +401,11 @@ class RuntimeTests(unittest.TestCase):
                  "heat_transfer_area": ("m2", AREA),
                  "absolute_surroundings_temperature": ("K", TEMPERATURE),
                  "absolute_surface_temperature": ("K", TEMPERATURE),
-                 "net_radiative_heat_rate": ("W", POWER)}
+                 "net_radiative_heat_rate": ("W", POWER),
+                "sum_of_money": ("USD", MONEY),
+                "scaled_money": ("USD", MONEY),
+                "difference_of_money": ("USD", MONEY),
+                "payback_period_count": ("1", DIMENSIONLESS)}
         for meaning, (unit, dimensions) in pairs.items():
             Port(meaning, unit, "test-context").validate()
             self.assertEqual(MEANINGS[meaning], dimensions)

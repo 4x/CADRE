@@ -12,6 +12,7 @@ from .contracts import DIMENSIONLESS, Dimensions, ModelError, NumericalError, fi
 MAX_EXPRESSION_CHARS = 2048
 MAX_EXPRESSION_NODES = 128
 MAX_ABS_EXPONENT = 100
+MAX_ABS_EXPONENT_EVAL = 500
 MAX_EXPONENT_DENOMINATOR = 1024
 SCALAR_FUNCTIONS = frozenset({"log", "log10", "exp", "sqrt", "sum", "prod", "len"})
 ARITHMETIC = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv}
@@ -169,8 +170,8 @@ def evaluate(node: ast.AST, names: Mapping[str, float],
         if isinstance(node, ast.BinOp):
             left, right = evaluate(node.left, names, families, constants), evaluate(node.right, names, families, constants)
             if isinstance(node.op, ast.Pow):
-                if abs(right) > MAX_ABS_EXPONENT:
-                    raise NumericalError(f"Exponent exceeds supported magnitude {MAX_ABS_EXPONENT}.")
+                if abs(right) > MAX_ABS_EXPONENT_EVAL:
+                    raise NumericalError(f"Exponent exceeds supported magnitude {MAX_ABS_EXPONENT_EVAL}.")
                 if left < 0 and not float(right).is_integer():
                     raise ModelError("Real powers need a nonnegative base for a fractional exponent.")
                 return finite(left**right, "Power result")

@@ -72,7 +72,14 @@ def numeric_agreement(grounded: dict[str, Any], direct_text: str,
     if not pairs:
         return {"verdict": "unjudged", "reason": "no numbers in the direct answer", "details": []}
     details = []
+    expanded: dict[str, Any] = {}
     for node_id, value in (grounded.get("outputs") or {}).items():
+        if value.get("amounts") is not None:
+            for position, amount in enumerate(value["amounts"]):
+                expanded[f"{node_id}[{position}]"] = {"amount": amount, "port": value["port"]}
+        else:
+            expanded[node_id] = value
+    for node_id, value in expanded.items():
         expected = value["amount"]
         target = UNITS.get(value["port"]["unit"])
         scored = []

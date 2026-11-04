@@ -31,13 +31,22 @@ It returns an annual operating cost of **1200 USD**. Every run saves its complet
 
 The `answer` command accepts only a self-contained question: put assumptions, numbers, units and requested outputs in its text. It has no performance, tariff or investment options and uses only what the question states. The present-value model currently requires a positive discount rate and an integer horizon from 1 to 100 years. Performance must represent seasonal whole-system delivered heat divided by electricity use; a single temperature's COP rating is insufficient. Maintenance, cooling benefits, replacements, incentives, tariff escalation and uncertainty propagation are excluded from the initial heating models.
 
+### Demo
+
+```powershell
+uv run --no-env-file connected-models demo-seed
+uv run --no-env-file connected-models serve --port 8000
+```
+
+Then open http://127.0.0.1:8000/ in a browser: ask questions, watch the model graph animate, and revise scenarios with sliders. The page is one bundled file served from the standard library — no third-party packages, no external requests. Muse sessions can also invoke the repo skill with `/connected-models`. Guide and 3-minute video plan: [docs/demo.md](docs/demo.md), [docs/demo-video.md](docs/demo-video.md).
+
 ## Test
 
 ```powershell
 uv run pytest -q
 ```
 
-166 offline tests, no network calls. Details and the static gates (ruff, mypy strict): [docs/setup.md](docs/setup.md#test).
+176 offline tests, no network calls. Details and the static gates (ruff, mypy strict): [docs/setup.md](docs/setup.md#test).
 
 ## Implementation status
 
@@ -50,6 +59,8 @@ The registry workflow supports offline source extraction, candidate storage, att
 ```text
 src/connected_models/         installed package: contracts, runtime, workflows, CLI
 src/connected_models/prompts/ editable LLM system prompts (package data)
+src/connected_models/web/     single-file web demo page (package data)
+.agents/skills/               Muse skills (repo-level, including connected-models)
 src/connected_models/data/    bundled NIST source packet (package data)
 tests/                        offline suite, pytest + unittest compatible
 evals/                        live batteries (need credentials)
@@ -61,6 +72,8 @@ from-offline-curation-workers/ preserved worker returns (see ABOUT.md there)
 
 ## Docs
 
+- [Demo guide](docs/demo.md) — web UI, SKILL, video recording
+- [Demo video plan](docs/demo-video.md) — 3-minute shot list
 - [Setup and running](docs/setup.md) — install, inference config, tests, gates
 - [Architecture](docs/architecture.md) — representation, execution, LLM use
 - [Curation](docs/curation.md) — curate, review and reuse models

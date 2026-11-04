@@ -10,13 +10,16 @@ from .compare import compare
 from .compatibility import audit_pairs
 from .contracts import ModelError, describe_units
 from .demo import DEFAULT_CAPEX, DEFAULT_COP, DEFAULT_TARIFF, catalog, composition
+from .demo_seed import seed_demo
 from .inference import BudgetLedger, InferenceSettings, smoke_test
 from .registry import Registry
 from .reports import read_run, write_report
 from .revisions import replay_run, revise_run
 from .runtime import execute, save_run
+from .serve import ServerConfig, serve
 from .workflows import (
     REGISTRY_PATH,
+    RUNS_PATH,
     answer,
     curate,
     fill_in_assumptions_enabled,
@@ -37,6 +40,15 @@ def main() -> int:
     demo.add_argument("--tariff", type=float, default=DEFAULT_TARIFF)
     demo.add_argument(
         "--question", choices=("operating-cost", "investment"), default="investment"
+    )
+    serve_parser = commands.add_parser(
+        "serve", help="Serve the local web demo; no third-party packages"
+    )
+    serve_parser.add_argument("--port", type=int, default=8000)
+    serve_parser.add_argument("--bind", default="127.0.0.1")
+    commands.add_parser(
+        "demo-seed",
+        help="Seed labeled demo fixtures and scripted runs; offline, no inference",
     )
     commands.add_parser(
         "meta-smoke", help="One paid structured-output check using META_API_KEY"
@@ -158,6 +170,12 @@ def main() -> int:
         if args.command == "units":
             print(describe_units(args.filter))
             return 0
+        if args.command == "serve":
+            if not 1 <= args.port <= 65535:
+                print("Port must be between 1 and 65535.")
+                return 1
+            serve(ServerConfig(REGISTRY_PATH, RUNS_PATH), args.bind, args.port)
+            return 0
         if args.command in {"meta-smoke", "usage"}:
             settings = InferenceSettings.load(Path("inference.toml"))
             ledger = BudgetLedger(Path(".usage/meta.sqlite3"), settings)
@@ -179,6 +197,7 @@ def main() -> int:
             "revise",
             "compat-audit",
             "compare",
+            "demo-seed",
         }:
             registry = Registry(REGISTRY_PATH)
             if args.command == "seed-candidates":
@@ -191,6 +210,8 @@ def main() -> int:
                         indent=2,
                     )
                 )
+            elif args.command == "demo-seed":
+                print(json.dumps(seed_demo(registry, RUNS_PATH), indent=2))
             elif args.command == "curate":
                 candidate_id = curate(registry)
                 print(json.dumps(registry.candidate(candidate_id), indent=2))

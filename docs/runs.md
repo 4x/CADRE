@@ -14,6 +14,16 @@ Only direct value inputs can be revised; calculated upstream bindings are reject
 
 To verify deterministic reproduction without creating a new run, `replay RUN_ID` re-executes the saved graph against its pinned models and admissions and reports whether status, error and outputs match exactly. It saves nothing and exits nonzero on any mismatch.
 
+## Explore what-if scenarios in plain language
+
+`scenarios RUN_ID 'request'` asks Meta to design up to five named what-if variations of a completed run, then executes every proposal through the same revision machinery as `revise`. The model sees only the request plus the run's revisable inputs (node, input, unit, current amount) and executed outputs; it never computes results. Each scenario is accepted with executed engine figures or rejected with the exact machine error (unknown node, undeclared input, calculated binding, guard failure), and the exploration record preserves the proposal, the inference audit, and every per-scenario run id.
+
+```powershell
+uv run --env-file .env connected-models scenarios RUN_ID 'What if the heat pump underperforms and the quote was optimistic?'
+```
+
+Use `--max N` (1 to 5, default 3) to bound the proposal count. Proposed figures are never trusted: an accepted scenario's numbers come from deterministic execution, so `replay` and `report` verify them like any other run.
+
 ## Solve for another quantity in an existing relationship
 
 Directional solve views answer rearranged questions without separate scientific models for every rearrangement. A model revision retains its equation, source, interface meanings, guards and review. A run may select a declared input as `solve_for`, supply all other inputs and the known original output through the reserved `__output__` binding, and return the selected variable using its original unit/context. The composer creates these views through the same question-only interface. It never generates or executes a new formula as an agent-authored model.

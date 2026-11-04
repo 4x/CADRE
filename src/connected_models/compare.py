@@ -28,7 +28,7 @@ DIRECT_PROMPT_FILE = "direct-answer.md"
 AGREEMENT_TOLERANCE = 0.01
 RUNS_PATH = Path(".runs")
 
-NUMERIC_PATTERN = re.compile(r"-?\d[\d,]*\.?\d*(?:[eE]-?\d+)?")
+NUMERIC_PATTERN = re.compile(r"-?\$?\d[\d,]*\.?\d*(?:[eE]-?\d+)?")
 PAIR_PATTERN = re.compile(
     r"(-?\d[\d,]*\.?\d*(?:[eE]-?\d+)?)\s*([A-Za-z$%/\^0-9².]*[A-Za-z$%²])?"
 )
@@ -39,7 +39,7 @@ def extract_numbers(direct_text: str) -> list[float]:
     numbers = []
     for match in NUMERIC_PATTERN.finditer(direct_text):
         try:
-            numbers.append(float(match.group(0).replace(",", "")))
+            numbers.append(float(match.group(0).replace(",", "").replace("$", "")))
         except ValueError:
             continue
     return numbers

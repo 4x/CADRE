@@ -1,6 +1,6 @@
 {
   "name": "adversarial-battery",
-  "version": 4,
+  "version": 5,
   "tolerance_relative": 1e-06,
   "notes": "Head-to-head entries where a bare LLM is expected to lose: precision traps (rounding fails tolerance), guard traps (no valid completion; the engine must refuse), long fork-join chains, and multi-hop inverses. Trap entries carry trap=true with no expected outputs; the compare runner scores refusal as correct. Compare-runner only (run_chain_battery has no trap branch).",
   "entries": [
@@ -394,6 +394,62 @@
       ],
       "needs": "none; single inverse Fisher view (solve_for f); oracle verified offline via runtime.execute rational solve.",
       "why_llm_loses": "Implied-value inversion through near-cancellation: 1.09/1.089 needs 6 digits; subtraction errs by 9%."
+    },
+    {
+      "id": "dq-fuel-books",
+      "tier": 1,
+      "trap": true,
+      "question": "We bought 500 tons of diesel, started the year with 100 tons in the tank, and ended with 700. How much did we burn?",
+      "fill_in_assumptions": false,
+      "expected_status": "rejected",
+      "expected_outputs": [],
+      "naive_amounts": [
+        -100.0
+      ],
+      "needs": "none; guard trap: FuelP+FuelST>=FuelSE fails (500+100<700), so no route completes.",
+      "why_llm_loses": "Burns -100 tons flatly ('Burned: -100 tons') with no hedge \u2014 ending inventory exceeds purchases plus starting stock."
+    },
+    {
+      "id": "dq-leverage-income",
+      "tier": 1,
+      "trap": true,
+      "question": "Our contribution margin is $8,000 and our operating leverage is 0.8x. What's our operating income?",
+      "fill_in_assumptions": false,
+      "expected_status": "rejected",
+      "expected_outputs": [],
+      "naive_amounts": [
+        10000.0
+      ],
+      "needs": "none; guard trap: the inverse (solve_for NOI) back-check CM>=NOI fails (8000<10000), so no route completes.",
+      "why_llm_loses": "Inverts leverage to a $10,000 income ('$8,000 / 0.8 = $10,000') with no hedge \u2014 income above contribution margin implies negative fixed costs."
+    },
+    {
+      "id": "dq-delay-years",
+      "tier": 1,
+      "trap": true,
+      "question": "My statement says $2,000 at full retirement, and I'm getting $3,000. How many years did I delay?",
+      "fill_in_assumptions": false,
+      "expected_status": "rejected",
+      "expected_outputs": [],
+      "naive_amounts": [
+        6.25
+      ],
+      "needs": "none; guard trap: the inverse (solve_for y) back-check y<=4 fails (6.25>4), so no route completes.",
+      "why_llm_loses": "Inverts the benefit to 6.25 delay years ('Answer: 6.25 years') before backtracking \u2014 credits stop at 4 years (age 70)."
+    },
+    {
+      "id": "dq-profit-implicit",
+      "tier": 1,
+      "trap": true,
+      "question": "Our shop made $200,000 in revenue with $120,000 in costs, for a true profit of $100,000. What salary did I give up to run it?",
+      "fill_in_assumptions": false,
+      "expected_status": "rejected",
+      "expected_outputs": [],
+      "naive_amounts": [
+        -20000.0
+      ],
+      "needs": "none; guard trap: the inverse (solve_for C_imp) back-check C_imp>=0 fails (-20000<0), so no route completes.",
+      "why_llm_loses": "Inverts to a -$20,000 salary ('forgone salary = -20,000 dollars') before flagging it \u2014 profit above accounting profit implies negative opportunity cost."
     }
   ]
 }

@@ -33,6 +33,10 @@ class CompareTests(unittest.TestCase):
         """Commas and decimals parse; surrounding words are ignored."""
         self.assertEqual(extract_numbers("About 1,200.5 m, or 3 ft."), [1200.5, 3.0])
         self.assertEqual(extract_numbers("no numbers here"), [])
+        self.assertEqual(
+            extract_numbers("=-$20,000 and -$500.00 but $10,000"),
+            [-20000.0, -500.0, 10000.0],
+        )
 
     def test_agreement_matches_exact_and_percent_phrasing(self) -> None:
         """0.0485 matches 0.0485 and 4.85; anything else disagrees."""

@@ -2,9 +2,13 @@
 
 Connected Models (aka **CADRE**: **C**omposable **A**tomic **D**eterministic **R**egistry **E**ngine) connects reusable quantitative models across domains: one model's output can supply another's input, replacing arbitrary assumptions with explicit, traceable dependencies. It enables people and AI agents to compose and execute models to answer quantitative questions, explore scenarios, and support decisions.
 
-**Current priority: optimize for Meta Hackathon.** Focus on a bounded end-to-end workflow with inspectable inputs, model connections, execution, and results.
+## Goal
 
-Project Memory (`pmem`) is supporting tooling for structure, continuity, and decisions—not the product or the main deliverable. Use it to support implementation, not as a substitute for delivering the MVP.
+**Optimize for Meta Hackathon.** Find, refine, and present use cases in which CADRE will shine and beat bare LLM.
+
+Fix any bugs, add important capabilities, and plan demo to highlight features.
+
+
 
 # Agent conduct
 
@@ -26,6 +30,10 @@ The agent is encouraged to bring up questions for discussion **when direction is
 
 3. Merge up to main and push when completed features (or fixed bugs) have been tested.
 
+## API Budget
+
+You have **no hard limit** in terms of API usage - but the expectation is that you use it responsibly: run as many queries needed, as often as needed - but not more than that.
+
 # Safety and permissions
 
 - Direct access to `.env` files, account numbers, API tokens, and other secrets is normally off-limits unless the human explicitly grants permission. Running project scripts that normally read .env variables (e.g. for API tokens) is allowed.
@@ -37,6 +45,8 @@ The agent is encouraged to bring up questions for discussion **when direction is
 # Project Memory agent protocol
 
 This repository's durable project state lives in the repository, not in the current chat or agent session.
+
+Project Memory (`pmem`) is supporting tooling for structure, continuity, and decisions—not the product or the main deliverable. Use it to support implementation, not as a substitute for delivering the MVP.
 
 ## Mandatory preflight
 

@@ -568,29 +568,29 @@ def _verified_matches(
             {"method": "bounded-integer-enumeration", "domain": [lower, upper]}
         )
         matches: list[tuple[float, float]] = []
-        for candidate in range(lower, upper + 1):
-            accepted, output = valid(float(candidate))
-            if accepted and (
-                (relation == "at_least" and output >= expected)
-                or (
-                    relation == "equal"
-                    and math.isclose(
-                        output,
-                        expected,
-                        rel_tol=RESIDUAL_REL_TOL,
-                        abs_tol=RESIDUAL_ABS_TOL,
-                    )
+        for step in range(lower, upper + 1):
+            candidate = float(step)
+            accepted, output = valid(candidate)
+            if not accepted or output is None:
+                continue
+            if (relation == "at_least" and output >= expected) or (
+                relation == "equal"
+                and math.isclose(
+                    output,
+                    expected,
+                    rel_tol=RESIDUAL_REL_TOL,
+                    abs_tol=RESIDUAL_ABS_TOL,
                 )
             ):
                 if relation == "at_least":
                     evidence.update(
                         {
                             "original_output": output,
-                            "evaluations": candidate - lower + 1,
+                            "evaluations": step - lower + 1,
                         }
                     )
-                    return [(float(candidate), output)], [], evidence
-                matches.append((float(candidate), output))
+                    return [(candidate, output)], [], evidence
+                matches.append((candidate, output))
         if relation == "at_least":
             raise SolveError(
                 "no_crossing_in_domain",
@@ -603,6 +603,7 @@ def _verified_matches(
         return _iterative_matches(
             expression, guards, target, known, expected, evidence, valid
         )
+    assert converted is not None  # integer and iterative searches return above
     numerator, denominator = converted
     if denominator == (Fraction(0),):
         raise SolveError(
@@ -624,7 +625,9 @@ def _verified_matches(
     matches = []
     for candidate in proposed:
         accepted, output = valid(candidate)
-        if accepted and math.isclose(
+        if not accepted or output is None:
+            continue
+        if math.isclose(
             output, expected, rel_tol=RESIDUAL_REL_TOL, abs_tol=RESIDUAL_ABS_TOL
         ):
             matches.append((candidate, output))

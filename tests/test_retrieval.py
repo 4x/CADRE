@@ -13,7 +13,11 @@ from connected_models.retrieval import (
 
 
 def toy_model(
-    id: str, inputs: dict, output: Port, assumptions: tuple = (), guards: tuple = ()
+    id: str,
+    inputs: dict[str, Port],
+    output: Port,
+    assumptions: tuple[str, ...] = (),
+    guards: tuple[str, ...] = (),
 ) -> Model:
     """Build a minimal catalog model with distinctive vocabulary per field."""
     return Model(id, "1", inputs, output, "x + 1", guards, "Test-only.", assumptions)

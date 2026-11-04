@@ -9,6 +9,7 @@ reference model falls outside it. Offline; no inference calls.
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -29,9 +30,9 @@ from connected_models.workflows import REGISTRY_PATH, catalog_card  # noqa: E402
 BATTERY = ROOT / "data" / "eval" / "chain-battery.json"
 
 
-def latest_passing_rows() -> dict[str, dict]:
+def latest_passing_rows() -> dict[str, dict[str, Any]]:
     """Map each entry ID to its latest passing sweep row, newest report first."""
-    latest: dict[str, dict] = {}
+    latest: dict[str, dict[str, Any]] = {}
     reports = sorted((ROOT / ".runs").glob("eval-*/report.json"), reverse=True)
     for report in reports:
         try:

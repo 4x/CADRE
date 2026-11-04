@@ -122,7 +122,9 @@ class SolvingTests(unittest.TestCase):
 
     def test_branch_survives_proposal_decoding(self) -> None:
         """A composer proposal carrying branch all decodes and executes to amounts."""
-        bindings = {OUTPUT_BINDING: Value(4, SCALAR, "fixture", "known result")}
+        bindings: dict[str, Any] = {
+            OUTPUT_BINDING: Value(4, SCALAR, "fixture", "known result")
+        }
         node = Node("inverse", "polynomial@1", bindings, "x", "equal", "all")
         graph = Composition("proposal", (node,), (node.id,))
         decoded = replace(
@@ -354,6 +356,16 @@ class SolvingTests(unittest.TestCase):
         model = catalog()["uniform-present-value@1"]
         result = inverse(model, "years", {"annual": 0, "rate": 0.05}, 0)
         self.assertEqual(result["solve_diagnostic"]["code"], "multiple_solutions")
+
+    def test_unreachable_integer_target_searches_whole_domain(self) -> None:
+        """An integer equality with no match reports the exhausted domain, not a guess."""
+        model = catalog()["uniform-present-value@1"]
+        result = inverse(model, "years", {"annual": 2400, "rate": 0.05}, 0)
+        self.assertEqual(result["solve_diagnostic"]["code"], "no_admissible_solution")
+        evidence = result["solve_diagnostic"]["evidence"]
+        self.assertEqual(evidence["method"], "bounded-integer-enumeration")
+        self.assertEqual(evidence["domain"], [1, 100])
+        self.assertEqual(evidence["evaluations"], 100)
 
     def test_guards_on_known_inputs_are_not_lost(self) -> None:
         """Inversion still enforces rate and performance domains from the source."""

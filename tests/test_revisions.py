@@ -1,47 +1,79 @@
 """Saved-run revision: revised inputs or model revisions rerun with history preserved."""
 
-from dataclasses import asdict, replace
 import json
-from pathlib import Path
 import unittest
+from dataclasses import asdict, replace
+from pathlib import Path
+from typing import Any
 from unittest.mock import patch
 from uuid import uuid4
 
-from connected_models.contracts import ModelError, Value
+from connected_models.contracts import Composition, ModelError, Value
 from connected_models.demo import catalog, composition
 from connected_models.registry import Registry
 from connected_models.reports import write_report
 from connected_models.revisions import replay_run, revise_run
 from connected_models.runtime import execute, save_run
-from connected_models.workflows import curate, load_packet, PACKET_PATH, reference_check, seed_candidates
-from test_support import scratch_directory
+from connected_models.workflows import (
+    curate,
+    load_packet,
+    reference_check,
+    seed_candidates,
+)
+from tests.support import scratch_directory
 
 
 def approve_test_catalog(registry: Registry) -> None:
     """Admit scratch-only supporting definitions and a mocked extracted model."""
-    packet = load_packet(PACKET_PATH)
+    packet = load_packet()
     model = catalog()["uniform-present-value@1"]
     symbols = {"annual": "A0", "rate": "d", "years": "t", "output": "PV"}
-    extraction = {"content": {"expression": model.expression, "guards": list(model.guards),
-        "assumptions": list(model.assumptions), "unresolved": [], "limitations": ["No zero-rate execution in this profile."],
-        "source_map": [{"symbol": name, "source_symbol": source, "location": packet["location"]}
-                       for name, source in symbols.items()]}, "audit": {"model": "test-double", "call_id": "offline-test"}}
+    extraction = {
+        "content": {
+            "expression": model.expression,
+            "guards": list(model.guards),
+            "assumptions": list(model.assumptions),
+            "unresolved": [],
+            "limitations": ["No zero-rate execution in this profile."],
+            "source_map": [
+                {
+                    "symbol": name,
+                    "source_symbol": source,
+                    "location": packet["location"],
+                }
+                for name, source in symbols.items()
+            ],
+        },
+        "audit": {"model": "test-double", "call_id": "offline-test"},
+    }
     ids = seed_candidates(registry)
     with patch("connected_models.workflows.live_request", return_value=extraction):
         ids.append(curate(registry))
     for candidate_id in ids:
-        registry.review(candidate_id, "test-reviewer", "Test-only admission, not scientific validation.")
+        registry.review(
+            candidate_id,
+            "test-reviewer",
+            "Test-only admission, not scientific validation.",
+        )
 
 
-def scenario_graph(operation: str = "investment"):
+def scenario_graph(operation: str = "investment") -> Composition:
     """Build a scenario-purpose graph with operator-sourced inputs from fixtures."""
     base = composition(operation=operation)
-    profile_version = load_packet(PACKET_PATH)["profile"]["version"]
+    profile_version = load_packet()["profile"]["version"]
     nodes = []
     for node in base.nodes:
-        model = f"uniform-present-value@{profile_version}" if node.model == "uniform-present-value@1" else node.model
-        bindings = {name: replace(value, origin="user-scenario") if isinstance(value, Value) else value
-                    for name, value in node.bindings.items()}
+        model = (
+            f"uniform-present-value@{profile_version}"
+            if node.model == "uniform-present-value@1"
+            else node.model
+        )
+        bindings = {
+            name: replace(value, origin="user-scenario")
+            if isinstance(value, Value)
+            else value
+            for name, value in node.bindings.items()
+        }
         nodes.append(replace(node, model=model, bindings=bindings))
     return replace(base, purpose="scenario", nodes=tuple(nodes))
 
@@ -56,17 +88,26 @@ class RevisionTests(unittest.TestCase):
             old = execute(composition(), catalog())
             path = save_run(old, directory)
             contents = path.read_bytes()
-            new = revise_run(old["run_id"], ["upgrade-energy.performance=2"], [], None, directory)
+            new = revise_run(
+                old["run_id"], ["upgrade-energy.performance=2"], [], None, directory
+            )
             self.assertEqual(new["status"], "completed", new.get("error"))
             self.assertNotEqual(new["run_id"], old["run_id"])
             self.assertEqual(new["revised_from"], old["run_id"])
-            self.assertEqual(new["revision"]["sets"], {"upgrade-energy.performance": {"amount": 2.0, "unit": "1"}})
+            self.assertEqual(
+                new["revision"]["sets"],
+                {"upgrade-energy.performance": {"amount": 2.0, "unit": "1"}},
+            )
             self.assertEqual(new["outputs"]["annual-savings"]["amount"], 1800)
             self.assertEqual(old["outputs"]["annual-savings"]["amount"], 2400)
             self.assertEqual(new["diff"]["outputs"]["annual-savings"]["delta"], -600)
             self.assertEqual(path.read_bytes(), contents)
             self.assertTrue(Path(new["saved_path"]).is_file())
-            revised_binding = [node for node in new["composition"]["nodes"] if node["id"] == "upgrade-energy"][0]["bindings"]["performance"]
+            revised_binding = [
+                node
+                for node in new["composition"]["nodes"]
+                if node["id"] == "upgrade-energy"
+            ][0]["bindings"]["performance"]
             self.assertEqual(revised_binding["origin"], "user-scenario")
             self.assertIn(old["run_id"], revised_binding["evidence"])
 
@@ -76,11 +117,20 @@ class RevisionTests(unittest.TestCase):
             directory = Path(folder)
             old = execute(composition(), catalog())
             save_run(old, directory)
-            new = revise_run(old["run_id"], [], ["upgrade-energy=annual-saving@1"], None, directory)
+            new = revise_run(
+                old["run_id"], [], ["upgrade-energy=annual-saving@1"], None, directory
+            )
             self.assertEqual(new["status"], "rejected")
             self.assertIn("missing/extra inputs", new["error"])
-            self.assertEqual(new["revision"]["models"],
-                             {"upgrade-energy": {"old": "heat-to-electricity@1", "new": "annual-saving@1"}})
+            self.assertEqual(
+                new["revision"]["models"],
+                {
+                    "upgrade-energy": {
+                        "old": "heat-to-electricity@1",
+                        "new": "annual-saving@1",
+                    }
+                },
+            )
             self.assertEqual(new["revised_from"], old["run_id"])
             self.assertTrue(Path(new["saved_path"]).is_file())
 
@@ -94,10 +144,18 @@ class RevisionTests(unittest.TestCase):
             self.assertEqual(old["status"], "completed", old.get("error"))
             directory = Path(folder) / "runs"
             save_run(old, directory)
-            new = revise_run(old["run_id"], ["baseline-cost.tariff=0.25", "upgrade-cost.tariff=0.25"], [], registry, directory)
+            new = revise_run(
+                old["run_id"],
+                ["baseline-cost.tariff=0.25", "upgrade-cost.tariff=0.25"],
+                [],
+                registry,
+                directory,
+            )
             self.assertEqual(new["status"], "completed", new.get("error"))
             self.assertEqual(new["outputs"]["annual-savings"]["amount"], 2000)
-            self.assertEqual(new["diff"]["status"], {"old": "completed", "new": "completed"})
+            self.assertEqual(
+                new["diff"]["status"], {"old": "completed", "new": "completed"}
+            )
             self.assertEqual(len(new["diff"]["inputs"]), 2)
             self.assertTrue(new["admissions"])
 
@@ -109,8 +167,18 @@ class RevisionTests(unittest.TestCase):
             payload = json.loads(json.dumps(asdict(catalog()["heat-to-electricity@1"])))
             payload["version"] = "2"
             payload["expression"] = "heat / performance * 1.0"
-            candidate = registry.propose({"model": payload, "evidence": "test-only revision",
-                "checks": [reference_check(payload, {"inputs": {"heat": 120, "performance": 3}, "expected": 40})]})
+            candidate = registry.propose(
+                {
+                    "model": payload,
+                    "evidence": "test-only revision",
+                    "checks": [
+                        reference_check(
+                            payload,
+                            {"inputs": {"heat": 120, "performance": 3}, "expected": 40},
+                        )
+                    ],
+                }
+            )
             self.assertFalse(registry.candidate(candidate)["diagnostics"])
             registry.review(candidate, "test-reviewer", "Test-only second revision.")
             models, admissions = registry.snapshot()
@@ -118,13 +186,37 @@ class RevisionTests(unittest.TestCase):
             old = execute(scenario_graph("operating-cost"), models, admissions)
             directory = Path(folder) / "runs"
             save_run(old, directory)
-            new = revise_run(old["run_id"], [], ["upgrade-energy=heat-to-electricity@2"], registry, directory)
+            new = revise_run(
+                old["run_id"],
+                [],
+                ["upgrade-energy=heat-to-electricity@2"],
+                registry,
+                directory,
+            )
             self.assertEqual(new["status"], "completed", new.get("error"))
-            self.assertEqual(new["outputs"]["annual-savings"]["amount"], old["outputs"]["annual-savings"]["amount"])
-            self.assertEqual(new["revision"]["models"],
-                             {"upgrade-energy": {"old": "heat-to-electricity@1", "new": "heat-to-electricity@2"}})
-            self.assertEqual(new["diff"]["models"],
-                             [{"node": "upgrade-energy", "old": "heat-to-electricity@1", "new": "heat-to-electricity@2"}])
+            self.assertEqual(
+                new["outputs"]["annual-savings"]["amount"],
+                old["outputs"]["annual-savings"]["amount"],
+            )
+            self.assertEqual(
+                new["revision"]["models"],
+                {
+                    "upgrade-energy": {
+                        "old": "heat-to-electricity@1",
+                        "new": "heat-to-electricity@2",
+                    }
+                },
+            )
+            self.assertEqual(
+                new["diff"]["models"],
+                [
+                    {
+                        "node": "upgrade-energy",
+                        "old": "heat-to-electricity@1",
+                        "new": "heat-to-electricity@2",
+                    }
+                ],
+            )
             self.assertIn("heat-to-electricity@2", new["models"])
 
     def test_revise_rejects_bad_targets(self) -> None:
@@ -134,17 +226,39 @@ class RevisionTests(unittest.TestCase):
             old = execute(composition(), catalog())
             save_run(old, directory)
             with self.assertRaisesRegex(ModelError, "Unknown node"):
-                revise_run(old["run_id"], ["missing.performance=2"], [], None, directory)
+                revise_run(
+                    old["run_id"], ["missing.performance=2"], [], None, directory
+                )
             with self.assertRaisesRegex(ModelError, "no input"):
-                revise_run(old["run_id"], ["upgrade-energy.missing=2"], [], None, directory)
+                revise_run(
+                    old["run_id"], ["upgrade-energy.missing=2"], [], None, directory
+                )
             with self.assertRaisesRegex(ModelError, "calculated from"):
-                revise_run(old["run_id"], ["baseline-cost.energy=5"], [], None, directory)
+                revise_run(
+                    old["run_id"], ["baseline-cost.energy=5"], [], None, directory
+                )
             with self.assertRaisesRegex(ModelError, "must be a finite number"):
-                revise_run(old["run_id"], ["upgrade-energy.performance=much"], [], None, directory)
+                revise_run(
+                    old["run_id"],
+                    ["upgrade-energy.performance=much"],
+                    [],
+                    None,
+                    directory,
+                )
             with self.assertRaisesRegex(ModelError, "finite"):
-                revise_run(old["run_id"], ["upgrade-energy.performance=inf"], [], None, directory)
-            with self.assertRaisesRegex(ModelError, "Unknown model revision.*available"):
-                revise_run(old["run_id"], [], ["upgrade-energy=missing@9"], None, directory)
+                revise_run(
+                    old["run_id"],
+                    ["upgrade-energy.performance=inf"],
+                    [],
+                    None,
+                    directory,
+                )
+            with self.assertRaisesRegex(
+                ModelError, "Unknown model revision.*available"
+            ):
+                revise_run(
+                    old["run_id"], [], ["upgrade-energy=missing@9"], None, directory
+                )
             with self.assertRaisesRegex(ModelError, "Nothing to revise"):
                 revise_run(old["run_id"], [], [], None, directory)
 
@@ -152,11 +266,20 @@ class RevisionTests(unittest.TestCase):
         """A needs-input run has nothing to revise; the operator must ask a new question."""
         with scratch_directory() as folder:
             directory = Path(folder)
-            record = {"run_id": str(uuid4()), "status": "needs-input",
-                      "clarifications": ["What electricity price should be used?"]}
+            record: dict[str, Any] = {
+                "run_id": str(uuid4()),
+                "status": "needs-input",
+                "clarifications": ["What electricity price should be used?"],
+            }
             save_run(record, directory)
             with self.assertRaisesRegex(ModelError, "no executable graph"):
-                revise_run(record["run_id"], ["upgrade-energy.performance=2"], [], None, directory)
+                revise_run(
+                    record["run_id"],
+                    ["upgrade-energy.performance=2"],
+                    [],
+                    None,
+                    directory,
+                )
 
     def test_replay_matches_and_saves_nothing(self) -> None:
         """Replaying a saved run reproduces it exactly without writing new files."""
@@ -167,7 +290,9 @@ class RevisionTests(unittest.TestCase):
             before = sorted(path.name for path in directory.iterdir())
             result = replay_run(old["run_id"], directory)
             self.assertTrue(result["matched"])
-            self.assertEqual(result["status"], {"recorded": "completed", "repeated": "completed"})
+            self.assertEqual(
+                result["status"], {"recorded": "completed", "repeated": "completed"}
+            )
             self.assertEqual(result["outputs"]["annual-savings"]["amount"], 2400)
             self.assertEqual(sorted(path.name for path in directory.iterdir()), before)
 
@@ -193,7 +318,9 @@ class RevisionTests(unittest.TestCase):
             old = execute(scenario_graph(), models, admissions)
             directory = Path(folder) / "runs"
             save_run(old, directory)
-            bad = revise_run(old["run_id"], ["savings-present-value.rate=0"], [], registry, directory)
+            bad = revise_run(
+                old["run_id"], ["savings-present-value.rate=0"], [], registry, directory
+            )
             self.assertEqual(bad["status"], "rejected")
             result = replay_run(bad["run_id"], directory)
             self.assertTrue(result["matched"])
@@ -203,7 +330,11 @@ class RevisionTests(unittest.TestCase):
         """A needs-input run has nothing deterministic to reproduce."""
         with scratch_directory() as folder:
             directory = Path(folder)
-            record = {"run_id": str(uuid4()), "status": "needs-input", "clarifications": ["Which price?"]}
+            record: dict[str, Any] = {
+                "run_id": str(uuid4()),
+                "status": "needs-input",
+                "clarifications": ["Which price?"],
+            }
             save_run(record, directory)
             with self.assertRaisesRegex(ModelError, "no executable graph"):
                 replay_run(record["run_id"], directory)
@@ -214,14 +345,20 @@ class RevisionTests(unittest.TestCase):
             directory = Path(folder)
             old = execute(composition(), catalog())
             save_run(old, directory)
-            new = revise_run(old["run_id"], ["upgrade-energy.performance=2"], [], None, directory)
-            html = write_report([old["run_id"], new["run_id"]], directory).read_text(encoding="utf-8")
+            new = revise_run(
+                old["run_id"], ["upgrade-energy.performance=2"], [], None, directory
+            )
+            html = write_report([old["run_id"], new["run_id"]], directory).read_text(
+                encoding="utf-8"
+            )
             self.assertIn("What changed", html)
             self.assertIn("Changed inputs", html)
             self.assertIn("upgrade-energy.performance", html)
             self.assertIn("-600.00", html)
             self.assertIn("Revised from", html)
-            single = write_report([old["run_id"]], directory).read_text(encoding="utf-8")
+            single = write_report([old["run_id"]], directory).read_text(
+                encoding="utf-8"
+            )
             self.assertNotIn("What changed", single)
 
 

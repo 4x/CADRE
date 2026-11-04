@@ -1,14 +1,14 @@
 """Standalone inspection reports preserve run evidence without executing content."""
 
-from pathlib import Path
 import unittest
+from pathlib import Path
 
+from connected_models.contracts import Composition, Node, Value
 from connected_models.demo import catalog, composition
 from connected_models.reports import read_run, write_report
 from connected_models.runtime import execute, save_run
-from connected_models.contracts import Composition, Node, Value
 from connected_models.solving import OUTPUT_BINDING
-from test_support import scratch_directory
+from tests.support import scratch_directory
 
 
 class ReportTests(unittest.TestCase):
@@ -18,7 +18,17 @@ class ReportTests(unittest.TestCase):
         """Stored model text must remain inert even when it contains HTML or unsafe URLs."""
         run = execute(composition(), catalog())
         run["question"] = '<script>alert("injection")</script>'
-        run["query_inputs"] = {"facts": [{"name": "test input", "value": "3", "unit": "1", "value_type": "number", "quote": '<script>3</script>'}]}
+        run["query_inputs"] = {
+            "facts": [
+                {
+                    "name": "test input",
+                    "value": "3",
+                    "unit": "1",
+                    "value_type": "number",
+                    "quote": "<script>3</script>",
+                }
+            ]
+        }
         run["models"]["heat-to-electricity@1"]["source"] = "javascript:alert('bad')"
         with scratch_directory() as folder:
             directory = Path(folder)
@@ -47,11 +57,26 @@ class ReportTests(unittest.TestCase):
     def test_inverse_report_exposes_original_model_and_solver_domain(self) -> None:
         """An inverse report must distinguish a target value from a calculated source output."""
         model = catalog()["uniform-present-value@1"]
-        node = Node("payback", model.key, {
-            "annual": Value(2400, model.inputs["annual"], "fixture", "known annual savings"),
-            "rate": Value(0.05, model.inputs["rate"], "fixture", "known discount rate"),
-            OUTPUT_BINDING: Value(10000, model.output, "fixture", "requested threshold")}, "years", "at_least")
-        run = execute(Composition("payback-report", (node,), (node.id,)), {model.key: model})
+        node = Node(
+            "payback",
+            model.key,
+            {
+                "annual": Value(
+                    2400, model.inputs["annual"], "fixture", "known annual savings"
+                ),
+                "rate": Value(
+                    0.05, model.inputs["rate"], "fixture", "known discount rate"
+                ),
+                OUTPUT_BINDING: Value(
+                    10000, model.output, "fixture", "requested threshold"
+                ),
+            },
+            "years",
+            "at_least",
+        )
+        run = execute(
+            Composition("payback-report", (node,), (node.id,)), {model.key: model}
+        )
         with scratch_directory() as folder:
             directory = Path(folder)
             save_run(run, directory)

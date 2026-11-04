@@ -1,36 +1,50 @@
 """Offline research handoff, integrity and candidate-admission boundary regressions."""
 
-from copy import deepcopy
 import json
-from pathlib import Path
 import unittest
-from unittest.mock import patch
 import zipfile
+from copy import deepcopy
+from pathlib import Path
+from typing import Any
+from unittest.mock import patch
 
 from connected_models.contracts import ModelError
-from connected_models.curation import (ASSETS, build_kit, decode, digest, encoded, import_bundle,
-                                      init_batch, inventory_returns, load_bundle, pack_bundle, validate_bundle)
+from connected_models.curation import (
+    ASSETS,
+    build_kit,
+    decode,
+    digest,
+    encoded,
+    import_bundle,
+    init_batch,
+    inventory_returns,
+    load_bundle,
+    pack_bundle,
+    validate_bundle,
+)
 from connected_models.curation_schema import DOMAINS, KIT_VERSION, SCHEMA
 from connected_models.registry import Registry
 from connected_models.workflows import review_bundle
-from test_support import scratch_directory
+from tests.support import scratch_directory
 
 
 class CurationTests(unittest.TestCase):
     """Use synthetic teaching records and scratch registries; never publish real models."""
 
-    def example(self) -> dict:
+    def example(self) -> dict[str, Any]:
         """Load the deliberately non-importable worked contract fixture."""
         return load_bundle(ASSETS / "example-bundle.json")
 
-    def research(self) -> dict:
+    def research(self) -> dict[str, Any]:
         """Make a scratch-only submission from synthetic data for boundary testing."""
         bundle = self.example()
         bundle["example_only"] = False
         bundle["curator"] = "unit-test-fixture; not researched evidence"
         return bundle
 
-    def write(self, folder: str, bundle: dict, name: str = "bundle.json") -> Path:
+    def write(
+        self, folder: str, bundle: dict[str, Any], name: str = "bundle.json"
+    ) -> Path:
         """Write a bounded test payload to a test-owned workspace path."""
         path = Path(folder) / name
         path.write_bytes(encoded(bundle))
@@ -44,8 +58,12 @@ class CurationTests(unittest.TestCase):
         assignments = decode((ASSETS / "assignments.json").read_bytes())
         self.assertEqual({entry["domain"] for entry in assignments}, set(DOMAINS))
         self.assertTrue(all(len(entry["priorities"]) >= 3 for entry in assignments))
-        self.assertTrue(all(entry["session"]["minimum_work_minutes"] >= 60 for entry in assignments))
-        self.assertTrue(all("Start with" not in entry["mission"] for entry in assignments))
+        self.assertTrue(
+            all(entry["session"]["minimum_work_minutes"] >= 60 for entry in assignments)
+        )
+        self.assertTrue(
+            all("Start with" not in entry["mission"] for entry in assignments)
+        )
 
     def test_example_cannot_be_imported(self) -> None:
         """A valid teaching artifact does not become a candidate submission."""
@@ -80,27 +98,48 @@ class CurationTests(unittest.TestCase):
             self.assertEqual(registry.snapshot(), ({}, {}))
             candidate = registry.candidates()[0]
             self.assertFalse(candidate["diagnostics"])
-            self.assertEqual(candidate["evidence"]["record"], self.research()["models"][0])
-            self.assertEqual(candidate["evidence"]["curation_intake"]["batch_sha256"], first["batch_sha256"])
+            self.assertEqual(
+                candidate["evidence"]["record"], self.research()["models"][0]
+            )
+            self.assertEqual(
+                candidate["evidence"]["curation_intake"]["batch_sha256"],
+                first["batch_sha256"],
+            )
             with self.assertRaises(FileExistsError):
                 pack_bundle(source, archive)
 
-    def test_research_only_record_retains_physical_units_and_blocks_admission(self) -> None:
+    def test_research_only_record_retains_physical_units_and_blocks_admission(
+        self,
+    ) -> None:
         """Numerical checks never erase new physical vocabulary to gain eligibility."""
         bundle = self.research()
         item = bundle["models"][0]
-        item["integration"].update(status="requires-extension", runtime_model=None, gaps=["New physical meanings and units need review."])
-        item["variables"][0].update(quantity_id="building-energy:power", unit="W", dimensions="mass * length^2 / time^3")
+        item["integration"].update(
+            status="requires-extension",
+            runtime_model=None,
+            gaps=["New physical meanings and units need review."],
+        )
+        item["variables"][0].update(
+            quantity_id="building-energy:power",
+            unit="W",
+            dimensions="mass * length^2 / time^3",
+        )
         result = validate_bundle(bundle)
         self.assertFalse(result["checks"][0]["runtime_contract_checked"])
         with scratch_directory() as folder:
             registry = Registry(Path(folder) / "registry.sqlite3")
-            candidate_id = import_bundle(self.write(folder, bundle), registry)["candidates"][0]["candidate_id"]
+            candidate_id = import_bundle(self.write(folder, bundle), registry)[
+                "candidates"
+            ][0]["candidate_id"]
             candidate = registry.candidate(candidate_id)
             self.assertTrue(candidate["diagnostics"])
-            self.assertEqual(candidate["evidence"]["record"]["variables"][0]["unit"], "W")
+            self.assertEqual(
+                candidate["evidence"]["record"]["variables"][0]["unit"], "W"
+            )
             with self.assertRaises(ModelError):
-                registry.review(candidate_id, "test-reviewer", "Unsupported candidate must fail.")
+                registry.review(
+                    candidate_id, "test-reviewer", "Unsupported candidate must fail."
+                )
             with patch("connected_models.workflows.RUNS_PATH", Path(folder)):
                 report = review_bundle(registry).read_text(encoding="utf-8")
             self.assertIn(item["id"], report)
@@ -114,12 +153,18 @@ class CurationTests(unittest.TestCase):
         item["unresolved"] = ["Source price basis remains ambiguous."]
         with self.assertRaisesRegex(ModelError, "requires blocked status"):
             validate_bundle(bundle)
-        item["integration"].update(status="blocked", gaps=["Clarify the source price basis."])
+        item["integration"].update(
+            status="blocked", gaps=["Clarify the source price basis."]
+        )
         with scratch_directory() as folder:
             registry = Registry(Path(folder) / "registry.sqlite3")
-            candidate_id = import_bundle(self.write(folder, bundle), registry)["candidates"][0]["candidate_id"]
+            candidate_id = import_bundle(self.write(folder, bundle), registry)[
+                "candidates"
+            ][0]["candidate_id"]
             with self.assertRaisesRegex(ModelError, "blocking diagnostics"):
-                registry.review(candidate_id, "test-reviewer", "Cannot bypass unresolved evidence.")
+                registry.review(
+                    candidate_id, "test-reviewer", "Cannot bypass unresolved evidence."
+                )
 
     def test_revision_collision_preflights_entire_batch(self) -> None:
         """Changed immutable content fails before even an earlier new record is staged."""
@@ -131,7 +176,9 @@ class CurationTests(unittest.TestCase):
             new_record = deepcopy(bundle["models"][0])
             new_record["id"] += "-second"
             new_record["integration"]["runtime_model"]["id"] = new_record["id"]
-            bundle["models"][0]["summary"] = "Changed evidence under the old revision is forbidden."
+            bundle["models"][0]["summary"] = (
+                "Changed evidence under the old revision is forbidden."
+            )
             bundle["models"].insert(0, new_record)
             self.write(folder, bundle)
             with self.assertRaisesRegex(ModelError, "existing revision"):
@@ -145,7 +192,9 @@ class CurationTests(unittest.TestCase):
         with self.assertRaisesRegex(ModelError, "does not match"):
             validate_bundle(bundle)
         bundle = self.example()
-        bundle["models"][0]["references"][1]["inputs"] = bundle["models"][0]["references"][0]["inputs"]
+        bundle["models"][0]["references"][1]["inputs"] = bundle["models"][0][
+            "references"
+        ][0]["inputs"]
         with self.assertRaisesRegex(ModelError, "distinct inputs"):
             validate_bundle(bundle)
 
@@ -154,8 +203,11 @@ class CurationTests(unittest.TestCase):
         bundle = self.example()
         item = bundle["models"][0]
         item["relationship"]["expression"] = "energy * tariff * gravitational_constant"
-        item["integration"].update(status="requires-extension", runtime_model=None,
-                                   gaps=["Synthetic fixture: display-unit constant check."])
+        item["integration"].update(
+            status="requires-extension",
+            runtime_model=None,
+            gaps=["Synthetic fixture: display-unit constant check."],
+        )
         item["references"][0]["expected"] = 5 * 6.67430e-11
         item["references"][0]["tolerance"] = 1e-18
         item["references"][1]["expected"] = 0.0
@@ -174,8 +226,11 @@ class CurationTests(unittest.TestCase):
                 variable["unit"] = "h"
             elif variable["symbol"] == "cost":
                 variable["unit"] = "kWh"
-        item["integration"].update(status="requires-extension", runtime_model=None,
-                                   gaps=["Synthetic fixture: canonical replay check."])
+        item["integration"].update(
+            status="requires-extension",
+            runtime_model=None,
+            gaps=["Synthetic fixture: canonical replay check."],
+        )
         item["references"][0]["inputs"] = {"energy": 60, "tariff": 1000}
         item["references"][0]["expected"] = 60.0
         item["references"][0]["tolerance"] = 1e-6
@@ -192,13 +247,17 @@ class CurationTests(unittest.TestCase):
         case["inputs"]["energy"] = 1
         with self.assertRaisesRegex(ModelError, "rejection case is accepted"):
             validate_bundle(bundle)
-        case.update(kind="missing-input", inputs={"tariff": 0.25}, reason="Energy is absent.")
+        case.update(
+            kind="missing-input", inputs={"tariff": 0.25}, reason="Energy is absent."
+        )
         validate_bundle(bundle)
 
     def test_runtime_projection_cannot_change_ports_or_drop_limits(self) -> None:
         """An optional projection must faithfully retain the research declaration."""
         bundle = self.example()
-        bundle["models"][0]["integration"]["runtime_model"]["inputs"]["energy"]["context"] = "different-system"
+        bundle["models"][0]["integration"]["runtime_model"]["inputs"]["energy"][
+            "context"
+        ] = "different-system"
         with self.assertRaisesRegex(ModelError, "runtime port"):
             validate_bundle(bundle)
         bundle = self.example()
@@ -221,7 +280,9 @@ class CurationTests(unittest.TestCase):
             validate_bundle(bundle)
         bundle = self.example()
         bundle["models"][0]["relationship"]["expression"] = "__import__('os')"
-        with self.assertRaisesRegex(ModelError, "Only log, log10, exp, sqrt, sum, prod and len calls"):
+        with self.assertRaisesRegex(
+            ModelError, "Only log, log10, exp, sqrt, sum, prod and len calls"
+        ):
             validate_bundle(bundle)
 
     def test_zip_checksum_extra_members_and_secret_paths_fail(self) -> None:
@@ -232,13 +293,18 @@ class CurationTests(unittest.TestCase):
                 path = Path(folder) / f"bad-{index}.zip"
                 with zipfile.ZipFile(path, "w") as archive:
                     archive.writestr("bundle.json", raw)
-                    archive.writestr("manifest.json", encoded({"kit_version": KIT_VERSION, "sha256": "wrong"}))
+                    archive.writestr(
+                        "manifest.json",
+                        encoded({"kit_version": KIT_VERSION, "sha256": "wrong"}),
+                    )
                     if extra:
                         archive.writestr("../unexpected.txt", "must not extract")
                 with self.assertRaises(ModelError):
                     load_bundle(path)
             with self.assertRaisesRegex(ModelError, "public JSON/ZIP"):
-                load_bundle(Path(folder) / ".env")  # Rejected by name before any file access.
+                load_bundle(
+                    Path(folder) / ".env"
+                )  # Rejected by name before any file access.
 
     def test_kit_is_allowlisted_and_schema_matches(self) -> None:
         """A generic kit contains full curator instructions and no operator/task bundle."""
@@ -251,7 +317,12 @@ class CurationTests(unittest.TestCase):
                 self.assertNotIn("START-HERE.md", names)
                 self.assertNotIn("assignment.json", names)
                 self.assertNotIn("data/curation/assignments.json", names)
-                self.assertFalse(any(name.startswith(("knowledge/", "assignments/")) for name in names))
+                self.assertFalse(
+                    any(
+                        name.startswith(("knowledge/", "assignments/"))
+                        for name in names
+                    )
+                )
                 instructions = archive.read("AGENTS.md").decode("utf-8")
                 self.assertIn("## Mission", instructions)
                 self.assertIn("## Exact return format", instructions)
@@ -259,9 +330,14 @@ class CurationTests(unittest.TestCase):
                 self.assertIn("thousands of models", instructions)
                 self.assertNotIn("## Owner", instructions)
                 self.assertNotIn("-m connected_models.curation import", instructions)
-                self.assertNotIn("connected_models/inference.py", names)
-                self.assertFalse(any(".env" in name or ".sqlite" in name for name in names))
-                self.assertEqual(json.loads(archive.read("data/curation/batch.schema.json")), SCHEMA)
+                self.assertNotIn("src/connected_models/inference.py", names)
+                self.assertIn("src/connected_models/curation.py", names)
+                self.assertFalse(
+                    any(".env" in name or ".sqlite" in name for name in names)
+                )
+                self.assertEqual(
+                    json.loads(archive.read("data/curation/batch.schema.json")), SCHEMA
+                )
                 manifest = json.loads(archive.read("KIT-MANIFEST.json"))
                 for name, checksum in manifest["files"].items():
                     self.assertEqual(digest(archive.read(name)), checksum)
@@ -276,8 +352,15 @@ class CurationTests(unittest.TestCase):
                     task = json.loads(archive.read("assignment.json"))
                     self.assertEqual(task["domain"], domain)
                     self.assertNotIn("connection_targets", task)
-                    self.assertNotIn("data/curation/assignments.json", archive.namelist())
-                    self.assertFalse(any(name.startswith("assignments/") for name in archive.namelist()))
+                    self.assertNotIn(
+                        "data/curation/assignments.json", archive.namelist()
+                    )
+                    self.assertFalse(
+                        any(
+                            name.startswith("assignments/")
+                            for name in archive.namelist()
+                        )
+                    )
 
     def test_inventory_reports_identity_conflicts_before_import(self) -> None:
         """Individually valid returns may still collide under one immutable revision."""
@@ -286,8 +369,12 @@ class CurationTests(unittest.TestCase):
             pack_bundle(self.write(folder, first), Path(folder) / "first.zip")
             second = deepcopy(first)
             second["batch_id"] = "synthetic-next-batch"
-            second["models"][0]["summary"] = "Different evidence under the same revision."
-            pack_bundle(self.write(folder, second, "second.json"), Path(folder) / "second.zip")
+            second["models"][0]["summary"] = (
+                "Different evidence under the same revision."
+            )
+            pack_bundle(
+                self.write(folder, second, "second.json"), Path(folder) / "second.zip"
+            )
             (Path(folder) / "broken.zip").write_bytes(b"Not a ZIP.")
             result = inventory_returns(Path(folder))
             self.assertEqual(result["summary"]["valid_files"], 2)
@@ -296,7 +383,12 @@ class CurationTests(unittest.TestCase):
             self.assertEqual(len(result["records"]), 2)
             self.assertEqual(result["summary"]["unique_identities"], 1)
             self.assertTrue(any("error" in item for item in result["files"]))
-            self.assertTrue(all(item["scientific_review"] == "not-inferred" for item in result["records"]))
+            self.assertTrue(
+                all(
+                    item["scientific_review"] == "not-inferred"
+                    for item in result["records"]
+                )
+            )
 
     def test_identical_returns_and_inventory_kit_remain_data_only(self) -> None:
         """Duplicate transfer is distinguishable from conflicting evidence, and snapshots ship safely."""
@@ -318,16 +410,25 @@ class CurationTests(unittest.TestCase):
                 self.assertNotIn("data/curation/assignments.json", archive.namelist())
                 task = decode(archive.read("assignment.json"))
                 self.assertGreaterEqual(task["session"]["minimum_work_minutes"], 60)
-                self.assertEqual(task["session"]["on_batch_complete"], "save-validate-pack-and-continue")
-                self.assertIn("## Autonomous session contract", archive.read("AGENTS.md").decode())
+                self.assertEqual(
+                    task["session"]["on_batch_complete"],
+                    "save-validate-pack-and-continue",
+                )
+                self.assertIn(
+                    "## Autonomous session contract", archive.read("AGENTS.md").decode()
+                )
 
     def test_atomic_batch_needs_no_chain_or_sample_queries(self) -> None:
         """A qualified standalone relationship can be returned without a proposed use."""
         bundle = self.example()
         bundle["handoff"].update(connections=[], queries=[])
-        self.assertEqual(validate_bundle(bundle)["status"], "valid-data-awaiting-review")
+        self.assertEqual(
+            validate_bundle(bundle)["status"], "valid-data-awaiting-review"
+        )
 
-    def test_legacy_return_keeps_original_version_through_repack_and_intake(self) -> None:
+    def test_legacy_return_keeps_original_version_through_repack_and_intake(
+        self,
+    ) -> None:
         """Updated instructions must not strand already-dispatched workers or relabel evidence."""
         bundle = self.research()
         bundle["kit_version"] = "2026-10-31.1"
@@ -336,7 +437,10 @@ class CurationTests(unittest.TestCase):
             archive_path = Path(folder) / "legacy.zip"
             pack_bundle(source, archive_path)
             with zipfile.ZipFile(archive_path) as archive:
-                self.assertEqual(json.loads(archive.read("manifest.json"))["kit_version"], bundle["kit_version"])
+                self.assertEqual(
+                    json.loads(archive.read("manifest.json"))["kit_version"],
+                    bundle["kit_version"],
+                )
             self.assertEqual(load_bundle(archive_path), bundle)
             registry = Registry(Path(folder) / "registry.sqlite3")
             import_bundle(archive_path, registry)
@@ -350,7 +454,10 @@ class CurationTests(unittest.TestCase):
             path = Path(folder) / "mismatch.zip"
             with zipfile.ZipFile(path, "w") as archive:
                 archive.writestr("bundle.json", raw)
-                archive.writestr("manifest.json", encoded({"kit_version": "2026-10-31.1", "sha256": digest(raw)}))
+                archive.writestr(
+                    "manifest.json",
+                    encoded({"kit_version": "2026-10-31.1", "sha256": digest(raw)}),
+                )
             with self.assertRaisesRegex(ModelError, "versions differ"):
                 load_bundle(path)
             bundle = self.example()

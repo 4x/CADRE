@@ -1,18 +1,33 @@
 """Named physical constants resolved inside expressions."""
 
+import json
 import math
-from pathlib import Path
 import unittest
 import zipfile
-import json
+from pathlib import Path
 
-from connected_models.constants import CONSTANTS, CONSTANT_DIMENSIONS, CONSTANT_VALUES, Constant, constants_json, validate_constants
-from connected_models.contracts import DIMENSIONLESS, GRAVITATION, PER_AMOUNT, POWER, STEFAN_BOLTZMANN, TEMPERATURE, VELOCITY
+from connected_models.constants import (
+    CONSTANT_DIMENSIONS,
+    CONSTANT_VALUES,
+    CONSTANTS,
+    Constant,
+    constants_json,
+    validate_constants,
+)
+from connected_models.contracts import (
+    AREA,
+    DIMENSIONLESS,
+    GRAVITATION,
+    PER_AMOUNT,
+    POWER,
+    STEFAN_BOLTZMANN,
+    TEMPERATURE,
+    VELOCITY,
+    ModelError,
+)
 from connected_models.curation import build_kit, load_bundle, validate_bundle
-from connected_models.contracts import AREA
 from connected_models.expressions import dimensions, evaluate, parse
-from connected_models.contracts import ModelError
-from test_support import scratch_directory
+from tests.support import scratch_directory
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -28,11 +43,20 @@ class ConstantTests(unittest.TestCase):
         self.assertEqual(CONSTANT_DIMENSIONS["avogadro"], PER_AMOUNT)
         self.assertEqual(CONSTANT_DIMENSIONS["speed_of_light"], VELOCITY)
         self.assertAlmostEqual(CONSTANT_VALUES["pi"], math.pi)
-        self.assertAlmostEqual(CONSTANT_VALUES["stefan_boltzmann"], 5.670374419e-8 / 3600000)
-        self.assertAlmostEqual(CONSTANT_VALUES["gravitational_constant"], 6.67430e-11 * 3600000)
+        self.assertAlmostEqual(
+            CONSTANT_VALUES["stefan_boltzmann"], 5.670374419e-8 / 3600000
+        )
+        self.assertAlmostEqual(
+            CONSTANT_VALUES["gravitational_constant"], 6.67430e-11 * 3600000
+        )
         self.assertAlmostEqual(CONSTANT_VALUES["avogadro"], 6.02214076e23)
         self.assertAlmostEqual(CONSTANT_VALUES["speed_of_light"], 299792458)
-        self.assertTrue(all(isinstance(name, str) and constant.source.strip() for name, constant in CONSTANTS.items()))
+        self.assertTrue(
+            all(
+                isinstance(name, str) and constant.source.strip()
+                for name, constant in CONSTANTS.items()
+            )
+        )
 
     def test_radiative_expression_checks_and_evaluates(self) -> None:
         """The named sigma closes dimensionally to power and evaluates canonically."""
@@ -67,8 +91,12 @@ class ConstantTests(unittest.TestCase):
         """Records may use registry names but must not redeclare them."""
         bundle = load_bundle(ROOT / "data" / "curation" / "example-bundle.json")
         bundle["models"][0]["relationship"]["expression"] = "energy * tariff * pi / pi"
-        bundle["models"][0]["integration"]["runtime_model"]["expression"] = "energy * tariff * pi / pi"
-        self.assertEqual(validate_bundle(bundle)["status"], "valid-data-awaiting-review")
+        bundle["models"][0]["integration"]["runtime_model"]["expression"] = (
+            "energy * tariff * pi / pi"
+        )
+        self.assertEqual(
+            validate_bundle(bundle)["status"], "valid-data-awaiting-review"
+        )
         shadowed = load_bundle(ROOT / "data" / "curation" / "example-bundle.json")
         shadowed["models"][0]["relationship"]["expression"] = "energy * pi"
         for entry in shadowed["models"][0]["variables"]:
@@ -83,6 +111,8 @@ class ConstantTests(unittest.TestCase):
             path = Path(folder) / "kit.zip"
             build_kit(path)
             with zipfile.ZipFile(path) as archive:
-                payload = json.loads(archive.read("data/curation/runtime-vocabulary.json"))
+                payload = json.loads(
+                    archive.read("data/curation/runtime-vocabulary.json")
+                )
         self.assertEqual(payload["constants"], constants_json())
         self.assertEqual(payload["constants"]["stefan_boltzmann"]["unit"], "W/(m2*K^4)")

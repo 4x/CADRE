@@ -17,6 +17,7 @@ from .registry import Registry
 from .reports import read_run, write_report
 from .revisions import replay_run, revise_run
 from .runtime import execute, save_run
+from .scenarios import explore
 from .serve import ServerConfig, serve
 from .workflows import (
     REGISTRY_PATH,
@@ -161,6 +162,24 @@ def main() -> int:
         help="Re-execute a saved run's graph against its pinned models and compare; saves nothing",
     )
     replay.add_argument("run_id")
+    scenarios = commands.add_parser(
+        "scenarios",
+        help="Propose and execute named what-if scenarios for a saved run",
+    )
+    scenarios.add_argument("run_id")
+    scenarios.add_argument("request")
+    scenarios.add_argument(
+        "--model",
+        default=None,
+        help="Inference model; overrides LLM and inference.toml (must be priced)",
+    )
+    scenarios.add_argument(
+        "--max",
+        dest="max_scenarios",
+        type=int,
+        default=3,
+        help="Maximum scenarios to propose (1 to 5)",
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     try:
@@ -209,6 +228,7 @@ def main() -> int:
             "compat-audit",
             "compare",
             "demo-seed",
+            "scenarios",
         }:
             registry = Registry(REGISTRY_PATH)
             if args.command == "seed-candidates":
@@ -276,6 +296,32 @@ def main() -> int:
                         f"matched {detail['matched']}"
                     )
                 print(f"saved: {record['saved_path']}")
+                return 0
+            elif args.command == "scenarios":
+                record = explore(
+                    registry,
+                    args.run_id,
+                    args.request,
+                    args.model,
+                    max_scenarios=args.max_scenarios,
+                )
+                print(
+                    json.dumps(
+                        {
+                            key: record.get(key)
+                            for key in (
+                                "run_id",
+                                "parent_run_id",
+                                "request",
+                                "accepted",
+                                "rejected",
+                                "results",
+                                "saved_path",
+                            )
+                        },
+                        indent=2,
+                    )
+                )
                 return 0
             elif args.command == "review-bundle":
                 print(f"Review report: {review_bundle(registry)}")

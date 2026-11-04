@@ -40,6 +40,11 @@ class PromptTests(unittest.TestCase):
                 "never reinterpret",
             ),
             "direct-answer.md": ("directly", "no tools", "no catalog"),
+            "answer-scenarios.md": (
+                "scenario designer, not a calculator",
+                "node.input=amount",
+                "never compute or state result figures",
+            ),
         }
         for filename, phrases in expectations.items():
             with self.subTest(prompt=filename):

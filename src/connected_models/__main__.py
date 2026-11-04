@@ -5,6 +5,7 @@ import json
 import logging
 import sqlite3
 from pathlib import Path
+from uuid import UUID
 
 from .compare import compare
 from .compatibility import audit_pairs
@@ -28,6 +29,24 @@ from .workflows import (
     review_bundle,
     seed_candidates,
 )
+
+RUN_ID_COMMANDS = frozenset({"inspect", "replay", "revise", "scenarios", "report"})
+
+
+def command_run_ids(args: argparse.Namespace) -> list[str]:
+    """Collect the run ids a command addresses, so the CLI can validate them early."""
+    if args.command in {"inspect", "replay", "revise", "scenarios"}:
+        return [str(args.run_id)]
+    if args.command == "report":
+        return [str(run_id) for run_id in args.run_ids]
+    return []
+
+
+def is_missing_run_file(exc: BaseException) -> bool:
+    """Detect a saved-run lookup that failed because the run file is absent."""
+    return isinstance(exc, FileNotFoundError) and str(
+        getattr(exc, "filename", "") or ""
+    ).endswith(".json")
 
 
 def main() -> int:
@@ -181,6 +200,15 @@ def main() -> int:
         help="Maximum scenarios to propose (1 to 5)",
     )
     args = parser.parse_args()
+    for run_id in command_run_ids(args):
+        try:
+            UUID(run_id)
+        except ValueError:
+            print(
+                f"That run id is not valid: {run_id!r}. "
+                "Run ids are UUIDs printed by demo-seed; check the id and retry."
+            )
+            return 1
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     try:
         if args.command == "inspect":
@@ -201,7 +229,15 @@ def main() -> int:
             if not 1 <= args.port <= 65535:
                 print("Port must be between 1 and 65535.")
                 return 1
-            serve(ServerConfig(REGISTRY_PATH, RUNS_PATH), args.bind, args.port)
+            try:
+                serve(ServerConfig(REGISTRY_PATH, RUNS_PATH), args.bind, args.port)
+            except OSError:
+                logging.error(f"Serve failed on {args.bind}:{args.port} with OSError.")
+                print(
+                    f"Cannot serve on {args.bind}:{args.port}; "
+                    "the address may be in use or blocked. Try another --port."
+                )
+                return 1
             return 0
         if args.command == "mcp":
             run_stdio(ServerConfig(REGISTRY_PATH, RUNS_PATH))
@@ -393,6 +429,12 @@ def main() -> int:
     except (ModelError, OSError, sqlite3.Error, ValueError) as exc:
         if isinstance(exc, ModelError):
             print(f"Cannot complete operation: {exc}")
+        elif args.command in RUN_ID_COMMANDS and is_missing_run_file(exc):
+            logging.error(f"Run file missing for {args.command}.")
+            print(
+                "No saved run has that id. "
+                "Check the run id or run 'demo-seed' to create the scripted runs."
+            )
         else:
             logging.error(f"Operation failed with {type(exc).__name__}.")
             print(

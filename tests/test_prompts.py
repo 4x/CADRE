@@ -12,15 +12,33 @@ class PromptTests(unittest.TestCase):
     def test_shipped_prompts_load_with_key_instructions(self) -> None:
         """Fail closed on drift that would silently change model behavior."""
         expectations = {
-            "answer-question.md": ("backward chaining", "__output__", "EXACT numeric literal",
-                                   "never fill a graph binding with an estimate silently",
-                                   "fewest gaps", "match what the question asked for",
-                                   'set branch to "all"', "bracketed bisection"),
-            "answer-fill-in-assumptions.md": ("assumed fact", "implying", "Never assume the requested unknown",
-                                              "Prefer FEWER assumptions"),
-            "offline-model-extraction.md": ("offline model curator", "never suppress these"),
-            "answer-repair.md": ("Repair round", "machine_error", "complete fresh proposal",
-                                 "do not repeat a failing graph", "never reinterpret"),
+            "answer-question.md": (
+                "backward chaining",
+                "__output__",
+                "EXACT numeric literal",
+                "never fill a graph binding with an estimate silently",
+                "fewest gaps",
+                "match what the question asked for",
+                'set branch to "all"',
+                "bracketed bisection",
+            ),
+            "answer-fill-in-assumptions.md": (
+                "assumed fact",
+                "implying",
+                "Never assume the requested unknown",
+                "Prefer FEWER assumptions",
+            ),
+            "offline-model-extraction.md": (
+                "offline model curator",
+                "never suppress these",
+            ),
+            "answer-repair.md": (
+                "Repair round",
+                "machine_error",
+                "complete fresh proposal",
+                "do not repeat a failing graph",
+                "never reinterpret",
+            ),
             "direct-answer.md": ("directly", "no tools", "no catalog"),
         }
         for filename, phrases in expectations.items():

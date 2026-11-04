@@ -1,19 +1,27 @@
 """Grounded-vs-direct comparison: agreement logic and record shape."""
 
 import unittest
+from typing import Any, cast
 from unittest.mock import patch
 
 from connected_models.compare import compare, extract_numbers, numeric_agreement
+from connected_models.registry import Registry
 
 
-def _grounded(status: str, outputs: dict | None = None) -> dict:
+def _grounded(status: str, outputs: dict[str, Any] | None = None) -> dict[str, Any]:
     """Build a minimal grounded record for agreement testing."""
-    return {"run_id": "g", "status": status, "outputs": outputs or {},
-            "assumptions": [], "attempts": [{"attempt": 1}], "error": None,
-            "saved_path": "g.json"}
+    return {
+        "run_id": "g",
+        "status": status,
+        "outputs": outputs or {},
+        "assumptions": [],
+        "attempts": [{"attempt": 1}],
+        "error": None,
+        "saved_path": "g.json",
+    }
 
 
-def _output(amount: float, unit: str = "m", meaning: str = "length") -> dict:
+def _output(amount: float, unit: str = "m", meaning: str = "length") -> dict[str, Any]:
     """Build one executed output in the saved-run shape."""
     return {"amount": amount, "port": {"unit": unit, "meaning": meaning}}
 
@@ -77,12 +85,21 @@ class CompareTests(unittest.TestCase):
     def test_compare_records_both_routes(self) -> None:
         """The comparison saves grounded and direct runs with an agreement."""
         grounded = _grounded("completed", {"n1": _output(107.2896)})
-        direct = {"run_id": "d", "created": "now", "question": "q",
-                  "direct_text": "107.29 m", "inference": {}}
-        with patch("connected_models.compare.answer", return_value=grounded) as grounded_call, \
-                patch("connected_models.compare.direct_answer", return_value=direct), \
-                patch("connected_models.compare.save_run", return_value="c.json") as saved:
-            record = compare(object(), "How far?")
+        direct = {
+            "run_id": "d",
+            "created": "now",
+            "question": "q",
+            "direct_text": "107.29 m",
+            "inference": {},
+        }
+        with (
+            patch(
+                "connected_models.compare.answer", return_value=grounded
+            ) as grounded_call,
+            patch("connected_models.compare.direct_answer", return_value=direct),
+            patch("connected_models.compare.save_run", return_value="c.json") as saved,
+        ):
+            record = compare(cast(Registry, object()), "How far?")
         self.assertEqual(grounded_call.call_count, 1)
         self.assertEqual(record["grounded"]["status"], "completed")
         self.assertEqual(record["direct"]["run_id"], "d")
@@ -93,23 +110,42 @@ class CompareTests(unittest.TestCase):
     def test_direct_failure_keeps_the_grounded_result(self) -> None:
         """A dead direct route degrades to unjudged instead of failing."""
         from connected_models.contracts import ModelError
+
         grounded = _grounded("completed", {"n1": _output(107.2896)})
-        with patch("connected_models.compare.answer", return_value=grounded), \
-                patch("connected_models.compare.direct_answer", side_effect=ModelError("down")), \
-                patch("connected_models.compare.save_run", return_value="c.json"):
-            record = compare(object(), "How far?")
+        with (
+            patch("connected_models.compare.answer", return_value=grounded),
+            patch(
+                "connected_models.compare.direct_answer", side_effect=ModelError("down")
+            ),
+            patch("connected_models.compare.save_run", return_value="c.json"),
+        ):
+            record = compare(cast(Registry, object()), "How far?")
         self.assertEqual(record["direct"]["error"], "down")
         self.assertEqual(record["agreement"]["verdict"], "unjudged")
 
     def test_model_threads_to_both_routes_and_record(self) -> None:
         """One --model selection drives grounded and direct runs alike."""
-        registry = object()
-        grounded = {**_grounded("completed", {"n1": _output(107.2896)}), "model": "probe-m"}
-        direct = {"run_id": "d", "created": "now", "question": "q",
-                  "direct_text": "107.29 m", "inference": {"model": "probe-m"}}
-        with patch("connected_models.compare.answer", return_value=grounded) as grounded_call, \
-                patch("connected_models.compare.direct_answer", return_value=direct) as direct_call, \
-                patch("connected_models.compare.save_run", return_value="c.json"):
+        registry = cast(Registry, object())
+        grounded = {
+            **_grounded("completed", {"n1": _output(107.2896)}),
+            "model": "probe-m",
+        }
+        direct = {
+            "run_id": "d",
+            "created": "now",
+            "question": "q",
+            "direct_text": "107.29 m",
+            "inference": {"model": "probe-m"},
+        }
+        with (
+            patch(
+                "connected_models.compare.answer", return_value=grounded
+            ) as grounded_call,
+            patch(
+                "connected_models.compare.direct_answer", return_value=direct
+            ) as direct_call,
+            patch("connected_models.compare.save_run", return_value="c.json"),
+        ):
             record = compare(registry, "How far?", False, "probe-m")
         grounded_call.assert_called_once_with(registry, "How far?", False, "probe-m")
         direct_call.assert_called_once_with("How far?", "probe-m")
@@ -118,10 +154,17 @@ class CompareTests(unittest.TestCase):
     def test_record_model_falls_back_to_direct_audit(self) -> None:
         """A grounded run without audits still records the direct route's model."""
         grounded = _grounded("rejected")
-        direct = {"run_id": "d", "created": "now", "question": "q",
-                  "direct_text": "107.29 m", "inference": {"model": "probe-m"}}
-        with patch("connected_models.compare.answer", return_value=grounded), \
-                patch("connected_models.compare.direct_answer", return_value=direct), \
-                patch("connected_models.compare.save_run", return_value="c.json"):
-            record = compare(object(), "How far?")
+        direct = {
+            "run_id": "d",
+            "created": "now",
+            "question": "q",
+            "direct_text": "107.29 m",
+            "inference": {"model": "probe-m"},
+        }
+        with (
+            patch("connected_models.compare.answer", return_value=grounded),
+            patch("connected_models.compare.direct_answer", return_value=direct),
+            patch("connected_models.compare.save_run", return_value="c.json"),
+        ):
+            record = compare(cast(Registry, object()), "How far?")
         self.assertEqual(record["model"], "probe-m")

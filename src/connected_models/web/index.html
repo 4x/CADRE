@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connected Models — live demo</title>
+<style>
+  :root {
+    --ink: #16323d;
+    --teal: #143744;
+    --teal-bright: #1b7f9e;
+    --paper: #eef3f4;
+    --card: #ffffff;
+    --line: #d5e0e3;
+    --muted: #44606c;
+    --ochre: #9a5b00;
+    --good: #1f7a4d;
+    --bad: #a33327;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size: 15px; line-height: 1.5;
+  }
+  header {
+    background: var(--teal); color: #fff;
+    padding: 30px max(5vw, 20px) 26px;
+  }
+  header h1 { margin: 0 0 6px; font-size: 30px; font-weight: 650; letter-spacing: -0.01em; }
+  header h1 .thin { font-weight: 300; opacity: 0.85; }
+  header p { margin: 0; max-width: 60rem; color: #c4d8de; font-size: 15px; }
+  header a { color: #fff; }
+  main { max-width: 1180px; margin: 24px auto 60px; padding: 0 20px; }
+  section.card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 24px 26px; margin-bottom: 20px;
+  }
+  h2 { margin: 0 0 4px; font-size: 19px; font-weight: 650; }
+  p.sub { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+  textarea {
+    width: 100%; min-height: 66px; resize: vertical;
+    font: inherit; color: var(--ink); background: #f7fafb;
+    border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+  }
+  textarea:focus { outline: 2px solid var(--teal-bright); outline-offset: 1px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+  button {
+    font: inherit; font-weight: 600; cursor: pointer;
+    border-radius: 999px; padding: 9px 22px; border: 1px solid transparent;
+  }
+  button.primary { background: var(--teal); color: #fff; }
+  button.primary:hover { background: #0f2b36; }
+  button.primary:disabled { opacity: 0.55; cursor: wait; }
+  button.ghost { background: #fff; border-color: var(--line); color: var(--ink); font-weight: 500; }
+  button.ghost:hover { border-color: var(--teal-bright); color: var(--teal); }
+  button.chip {
+    background: #f0f6f7; color: var(--teal); font-weight: 500;
+    padding: 6px 14px; font-size: 13.5px;
+  }
+  button.chip:hover { background: #e0edf0; }
+  label.opt { display: inline-flex; gap: 7px; align-items: center; color: var(--muted); font-size: 13.5px; }
+  #status { font-size: 14px; color: var(--muted); min-height: 1.5em; margin-top: 10px; }
+  #status .spin {
+    display: inline-block; width: 14px; height: 14px; margin-right: 8px;
+    border: 2px solid var(--line); border-top-color: var(--teal-bright);
+    border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: -2px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin: 16px 0 6px; }
+  .metric {
+    background: var(--teal); color: #fff; border-radius: 12px; padding: 16px 18px;
+  }
+  .metric .k { font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.07em; color: #a9c6cf; }
+  .metric .v { font-size: 26px; font-weight: 700; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+  .metric .m { font-size: 12.5px; color: #c4d8de; }
+  #delta { margin: 14px 0 0; }
+  #delta table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  #delta th, #delta td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  #delta td.num { font-variant-numeric: tabular-nums; }
+  .up { color: var(--good); font-weight: 600; }
+  .down { color: var(--bad); font-weight: 600; }
+  #graph { width: 100%; height: auto; display: block; margin-top: 8px; }
+  #graph .node-box { fill: #fff; stroke: var(--teal); stroke-width: 1.6; }
+  #graph g.output .node-box { fill: var(--teal); }
+  #graph g.output text { fill: #fff; }
+  #graph text { font-family: "Segoe UI", system-ui, sans-serif; fill: var(--ink); }
+  #graph .fact { fill: #f0f6f7; stroke: var(--teal-bright); stroke-width: 1.2; stroke-dasharray: 5 3; }
+  #graph .edge { fill: none; stroke: var(--teal-bright); stroke-width: 1.8; }
+  #graph g.pop { opacity: 0; transform-box: fill-box; transform-origin: center; }
+  #graph g.pop.on { opacity: 1; transition: opacity 0.35s ease; }
+  #graph path.edge { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  #graph path.edge.on { transition: stroke-dashoffset 0.45s ease; stroke-dashoffset: 0; }
+  #graph .amt { font-variant-numeric: tabular-nums; font-weight: 700; }
+  details.step { border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin: 10px 0; }
+  details.step summary { cursor: pointer; font-weight: 600; }
+  details.step summary .r { float: right; font-variant-numeric: tabular-nums; color: var(--teal); padding-left: 12px; }
+  details.step table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 8px; }
+  details.step th, details.step td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  code.expr { font-family: var(--mono); font-size: 13px; background: #f3f6f8; padding: 2px 8px; border-radius: 6px; }
+  .rev-row { display: grid; grid-template-columns: 1fr 2fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .rev-row label { font-size: 14px; }
+  .rev-row label small { display: block; color: var(--muted); }
+  .rev-row input[type="range"] { width: 100%; accent-color: var(--teal); }
+  .rev-row input[type="number"] { width: 130px; font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; font-variant-numeric: tabular-nums; }
+  .banner { border-radius: 10px; padding: 14px 18px; margin-top: 12px; font-size: 14.5px; }
+  .banner.warn { background: #fdf3e3; color: #6d4300; border: 1px solid #e8cf9e; }
+  .banner.err { background: #fbeae6; color: var(--bad); border: 1px solid #eec2b8; }
+  .banner ul { margin: 8px 0 0; padding-left: 20px; }
+  .mono-sm { font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+  @media (max-width: 640px) {
+    section.card { padding: 18px; }
+    .rev-row { grid-template-columns: 1fr; }
+    details.step summary .r { float: none; display: block; padding: 4px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #status .spin { animation: none; }
+    #graph g.pop.on, #graph path.edge.on { transition: none; }
+    #graph g.pop { opacity: 1; }
+    #graph path.edge { stroke-dashoffset: 0; }
+  }
+</style>
+<body>
+<header>
+  <h1>Connected Models <span class="thin">— every number has a receipt</span></h1>
+  <p>Ask a self-contained quantitative question. The engine composes reviewed models, executes them deterministically, and shows the graph, inputs, and provenance behind each answer.</p>
+</header>
+<main>
+  <section class="card">
+    <h2>Ask</h2>
+    <p class="sub">State all numbers, units, and assumptions in the question. Live answers use the Meta API; revisions, replays, and reports are offline.</p>
+    <textarea id="question" aria-label="Question">Delivered heat is 12000 kWh. Heat pump seasonal performance is 3. Tariff is 0.30 USD/kWh. What is the annual operating cost?</textarea>
+    <div class="row">
+      <button id="ask-btn" class="primary">Answer</button>
+      <label class="opt"><input type="checkbox" id="fillin"> Fill in question-implied assumptions (explicit opt-in)</label>
+    </div>
+    <div class="row" id="samples"></div>
+    <div id="status" role="status"></div>
+  </section>
+  <section class="card" id="runs-card" hidden>
+    <h2>Recent runs</h2>
+    <p class="sub">Saved locally; opening one recomputes nothing.</p>
+    <div class="row" id="runs"></div>
+  </section>
+  <section class="card" id="result-card" hidden>
+    <h2 id="result-title">Result</h2>
+    <p class="sub mono-sm" id="result-meta"></p>
+    <div id="error"></div>
+    <div class="metrics" id="metrics"></div>
+    <div id="delta"></div>
+    <h2>How it connects</h2>
+    <p class="sub">Each box is one reviewed model; dashed chips are quoted inputs.</p>
+    <svg id="graph" role="img" aria-label="Model dependency graph"></svg>
+    <h2>Follow the calculation</h2>
+    <div id="steps"></div>
+    <h2>What if</h2>
+    <p class="sub">Drag a slider to revise this run's direct inputs. The original is preserved; the revision saves as a new run.</p>
+    <div id="revise"></div>
+    <div class="row">
+      <button id="revise-btn" class="primary">Apply revision</button>
+      <span id="report-link"></span>
+    </div>
+  </section>
+</main>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const SVGNS = "http://www.w3.org/2000/svg";
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let currentRun = null;
+let parentOutputs = null;
+
+const esc = (value) => String(value)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+  .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const fmt = (n) => Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 });
+
+async function getJSON(url) {
+  const res = await fetch(url);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || ("Request failed: " + res.status));
+  return data;
+}
+async function postJSON(url, body) {
+  const res = await fetch(url, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || ("Request failed: " + res.status));
+  return data;
+}
+
+function setStatus(html) { $("status").innerHTML = html; }
+
+async function boot() {
+  try {
+    const demo = await getJSON("/api/demo");
+    const samples = $("samples");
+    samples.innerHTML = "";
+    for (const [name, text] of Object.entries(demo.questions)) {
+      const btn = document.createElement("button");
+      btn.className = "chip";
+      btn.textContent = name;
+      btn.onclick = () => { $("question").value = text; };
+      samples.appendChild(btn);
+      const seeded = (demo.runs || {})[name];
+      if (seeded) {
+        const open = document.createElement("button");
+        open.className = "chip";
+        open.textContent = "open saved " + name;
+        open.onclick = () => loadRun(seeded.run_id, true);
+        samples.appendChild(open);
+      }
+    }
+    await refreshRuns();
+    const first = Object.values(demo.runs || {}).find(Boolean);
+    if (first) await loadRun(first.run_id, false);
+  } catch (err) {
+    setStatus("Could not reach the demo server: " + esc(err.message));
+  }
+}
+
+async function refreshRuns() {
+  try {
+    const runs = await getJSON("/api/runs");
+    const box = $("runs");
+    box.innerHTML = "";
+    $("runs-card").hidden = runs.length === 0;
+    for (const run of runs.slice(0, 12)) {
+      const btn = document.createElement("button");
+      btn.className = "ghost";
+      btn.textContent = run.title + " — " + run.status;
+      btn.onclick = () => loadRun(run.run_id, true);
+      box.appendChild(btn);
+    }
+  } catch { /* runs list is a convenience; the result view matters */ }
+}
+
+async function ask() {
+  const question = $("question").value.trim();
+  if (!question) { setStatus("Type a question first."); return; }
+  const btn = $("ask-btn");
+  btn.disabled = true;
+  const started = Date.now();
+  const timer = setInterval(() => {
+    const s = Math.floor((Date.now() - started) / 1000);
+    setStatus('<span class="spin"></span>Composing against reviewed models… ' + s + "s");
+  }, 500);
+  try {
+    const record = await postJSON("/api/answer", {
+      question, fill_in_assumptions: $("fillin").checked,
+    });
+    parentOutputs = null;
+    renderRun(record, true);
+    setStatus("Answered in " + Math.floor((Date.now() - started) / 1000) + "s.");
+    await refreshRuns();
+  } catch (err) {
+    setStatus("Could not answer: " + esc(err.message));
+  } finally {
+    clearInterval(timer);
+    btn.disabled = false;
+  }
+}
+
+async function loadRun(runId, animate) {
+  setStatus("Loading saved run…");
+  try {
+    const run = await getJSON("/api/run/" + encodeURIComponent(runId));
+    parentOutputs = null;
+    renderRun(run, animate);
+    setStatus("");
+  } catch (err) {
+    setStatus("Could not load run: " + esc(err.message));
+  }
+}
+function renderRun(run, animate) {
+  currentRun = run;
+  $("result-card").hidden = false;
+  const title = run.question
+    ? (run.question.length > 90 ? run.question.slice(0, 90) + "…" : run.question)
+    : ((run.composition || {}).id || "Saved run");
+  $("result-title").textContent = title;
+  $("result-meta").textContent =
+    run.status + " · " + run.run_id + " · " + (run.created || "");
+  const errBox = $("error");
+  errBox.innerHTML = "";
+  if (run.status !== "completed") {
+    const div = document.createElement("div");
+    div.className = "banner " + (run.status === "needs-input" ? "warn" : "err");
+    div.innerHTML = "<strong>" + esc(run.status) + ".</strong> " +
+      esc(run.error || "No executable result.") +
+      ((run.clarifications || []).length
+        ? "<ul>" + run.clarifications.map((c) =>
+          "<li>" + esc(typeof c === "string" ? c : (c.question || JSON.stringify(c))) + "</li>").join("") + "</ul>"
+        : "");
+    errBox.appendChild(div);
+  }
+  const metrics = $("metrics");
+  metrics.innerHTML = "";
+  for (const [name, value] of Object.entries(run.outputs || {})) {
+    const card = document.createElement("div");
+    card.className = "metric";
+    card.innerHTML = '<div class="k">' + esc(name) + '</div><div class="v">' +
+      esc(fmt(value.amount) + " " + value.port.unit) + '</div><div class="m">' +
+      esc(value.port.meaning + " · " + value.port.context) + "</div>";
+    metrics.appendChild(card);
+  }
+  renderDelta(run);
+  renderGraph(run, animate);
+  renderSteps(run);
+  buildRevise(run);
+  const link = $("report-link");
+  link.innerHTML = "";
+  const a = document.createElement("a");
+  a.href = "/api/report/" + encodeURIComponent(run.run_id);
+  a.target = "_blank";
+  a.rel = "noreferrer";
+  a.textContent = "Open standalone evidence report";
+  link.appendChild(a);
+  $("result-card").scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+}
+
+function renderDelta(run) {
+  const box = $("delta");
+  box.innerHTML = "";
+  if (!parentOutputs || !run.outputs) return;
+  const rows = Object.keys(run.outputs).map((name) => {
+    const after = run.outputs[name];
+    const before = parentOutputs[name];
+    if (!before || before.port.unit !== after.port.unit) return "";
+    const d = after.amount - before.amount;
+    const cls = d > 0 ? "up" : (d < 0 ? "down" : "");
+    return "<tr><td>" + esc(name) + "</td><td class='num'>" + esc(fmt(before.amount)) +
+      "</td><td class='num'>" + esc(fmt(after.amount) + " " + after.port.unit) +
+      "</td><td class='num " + cls + "'>" + esc((d >= 0 ? "+" : "") + fmt(d)) + "</td></tr>";
+  }).join("");
+  if (rows) {
+    box.innerHTML = "<h2>What changed</h2><table><thead><tr><th>Output</th><th>Before</th><th>After</th><th>Change</th></tr></thead><tbody>" +
+      rows + "</tbody></table>";
+  }
+}
+
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+function svgText(x, y, content, attrs) {
+  const el = svgEl("text", Object.assign({ x, y }, attrs || {}));
+  el.textContent = content;
+  return el;
+}
+
+function renderGraph(run, animate) {
+  const svg = $("graph");
+  svg.innerHTML = "";
+  const nodes = ((run.composition || {}).nodes || []).filter((n) => n && n.id);
+  if (!nodes.length) return;
+  const byId = Object.fromEntries(nodes.map((n) => [n.id, n]));
+  const results = {};
+  for (const step of (run.steps || [])) results[step.node] = step.result;
+  const outputSet = new Set((run.composition || {}).outputs || []);
+  const depthMemo = {};
+  const depth = (id) => {
+    if (depthMemo[id] !== undefined) return depthMemo[id];
+    const bindings = (byId[id] || {}).bindings || {};
+    let d = 0;
+    for (const b of Object.values(bindings)) {
+      if (b && typeof b === "object" && !Array.isArray(b) && b.node && byId[b.node]) {
+        d = Math.max(d, depth(b.node) + 1);
+      }
+    }
+    depthMemo[id] = d;
+    return d;
+  };
+  nodes.forEach((n) => depth(n.id));
+  const facts = [];
+  for (const n of nodes) {
+    for (const [name, b] of Object.entries(n.bindings || {})) {
+      if (b && typeof b === "object" && !Array.isArray(b) && b.amount !== undefined) {
+        facts.push({ key: n.id + "." + name, input: name, node: n.id, value: b });
+      }
+    }
+  }
+  const nodeW = 218, nodeH = 66, factW = 176, factH = 48;
+  const railW = 208, gapX = 92, rowH = 100, pad = 16;
+  const maxDepth = Math.max(0, ...nodes.map((n) => depthMemo[n.id]));
+  const colRows = {};
+  const pos = {};
+  for (const n of nodes) {
+    const d = depthMemo[n.id];
+    colRows[d] = colRows[d] || 0;
+    pos[n.id] = { x: railW + d * (nodeW + gapX), y: pad + (colRows[d]++) * rowH };
+  }
+  const factPos = {};
+  facts.forEach((f, i) => { factPos[f.key] = { x: pad, y: pad + i * (factH + 12) }; });
+  const nodeBottom = Math.max(...Object.values(colRows)) * rowH + pad;
+  const factBottom = facts.length * (factH + 12) + pad;
+  const width = railW + (maxDepth + 1) * (nodeW + gapX) + pad;
+  const height = Math.max(nodeBottom, factBottom, 120);
+  svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+  const ordered = [];
+  const arrow = svgEl("marker", {
+    id: "arrow", viewBox: "0 0 10 10", refX: 9, refY: 5,
+    markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse",
+  });
+  arrow.appendChild(svgEl("path", { d: "M 0 0 L 10 5 L 0 10 z", fill: "#1b7f9e" }));
+  const defs = svgEl("defs", {});
+  defs.appendChild(arrow);
+  svg.appendChild(defs);
+  const edge = (x1, y1, x2, y2) => {
+    const dx = Math.max(32, (x2 - x1) / 2);
+    const p = svgEl("path", {
+      d: "M " + x1 + " " + y1 + " C " + (x1 + dx) + " " + y1 + ", " +
+        (x2 - dx) + " " + y2 + ", " + (x2 - 3) + " " + y2,
+      class: "edge", pathLength: "1", "marker-end": "url(#arrow)",
+    });
+    svg.appendChild(p);
+    ordered.push(p);
+  };
+  for (const f of facts) {
+    const t = pos[f.node];
+    const fp = factPos[f.key];
+    edge(fp.x + factW, fp.y + factH / 2, t.x, t.y + nodeH / 2);
+  }
+  for (const n of nodes) {
+    const t = pos[n.id];
+    for (const b of Object.values(n.bindings || {})) {
+      if (b && typeof b === "object" && !Array.isArray(b) && b.node && pos[b.node]) {
+        const s = pos[b.node];
+        edge(s.x + nodeW, s.y + nodeH / 2, t.x, t.y + nodeH / 2);
+      }
+    }
+  }
+  const boxes = [];
+  for (const f of facts) {
+    const fp = factPos[f.key];
+    const g = svgEl("g", { class: "pop" });
+    g.appendChild(svgEl("rect", {
+      x: fp.x, y: fp.y, width: factW, height: factH, rx: 22, class: "fact",
+    }));
+    g.appendChild(svgText(fp.x + 14, fp.y + 19, f.node + "." + f.input, { "font-size": "11" }));
+    g.appendChild(svgText(fp.x + 14, fp.y + 36,
+      fmt(f.value.amount) + " " + f.value.port.unit, { "font-size": "12.5", class: "amt" }));
+    const tip = svgEl("title", {});
+    tip.textContent = (f.value.origin || "") + " — " + (f.value.evidence || "");
+    g.appendChild(tip);
+    svg.appendChild(g);
+    boxes.push(g);
+  }
+  for (const n of nodes) {
+    const p = pos[n.id];
+    const g = svgEl("g", { class: outputSet.has(n.id) ? "pop output" : "pop" });
+    g.appendChild(svgEl("rect", {
+      x: p.x, y: p.y, width: nodeW, height: nodeH, rx: 9, class: "node-box",
+    }));
+    g.appendChild(svgText(p.x + 12, p.y + 21, n.id, { "font-size": "13", "font-weight": "700" }));
+    g.appendChild(svgText(p.x + 12, p.y + 38, n.model, { "font-size": "11" }));
+    const r = results[n.id];
+    g.appendChild(svgText(p.x + 12, p.y + 56,
+      r ? fmt(r.amount) + " " + r.port.unit : "—", { "font-size": "12.5", class: "amt" }));
+    const tip = svgEl("title", {});
+    tip.textContent = n.model;
+    g.appendChild(tip);
+    svg.appendChild(g);
+    boxes.push(g);
+  }
+  const all = ordered.concat(boxes);
+  if (animate && !reducedMotion) {
+    all.forEach((el, i) => setTimeout(() => el.classList.add("on"), 120 + i * 130));
+  } else {
+    all.forEach((el) => el.classList.add("on"));
+  }
+}
+
+function renderSteps(run) {
+  const box = $("steps");
+  box.innerHTML = "";
+  const nodeMap = Object.fromEntries(
+    ((run.composition || {}).nodes || []).map((n) => [n.id, n]));
+  const stepResults = {};
+  for (const step of (run.steps || [])) stepResults[step.node] = step;
+  (run.steps || []).forEach((step, i) => {
+    const model = ((run.models || {})[step.model]) || {};
+    const det = document.createElement("details");
+    det.className = "step";
+    if (i === 0) det.open = true;
+    const sum = document.createElement("summary");
+    sum.innerHTML = esc((i + 1) + ". " + step.node) +
+      '<span class="r">' + esc(fmt(step.result.amount) + " " + step.result.port.unit) + "</span>";
+    det.appendChild(sum);
+    const rows = Object.entries((nodeMap[step.node] || {}).bindings || {}).map(([name, b]) => {
+      let val, origin;
+      if (Array.isArray(b)) {
+        val = esc(b.length + " elements (family input)");
+        origin = "tuple input";
+      } else if (b && b.node) {
+        const r = (stepResults[b.node] || {}).result;
+        val = esc(r ? fmt(r.amount) + " " + r.port.unit : "—");
+        origin = "Calculated by " + b.node;
+      } else {
+        val = esc(fmt(b.amount) + " " + b.port.unit);
+        origin = esc(b.origin + " — " + b.evidence);
+      }
+      return "<tr><td>" + esc(name) + "</td><td>" + val + "</td><td>" + origin + "</td></tr>";
+    }).join("");
+    const review = ((run.admissions || {})[step.model]) || {};
+    det.innerHTML += '<p><code class="expr">' + esc(model.expression || step.model) + "</code></p>" +
+      "<table><thead><tr><th>Input</th><th>Value</th><th>Origin</th></tr></thead><tbody>" +
+      rows + "</tbody></table>" +
+      "<p class='mono-sm'>Source: " + esc(model.source || "—") + "<br>Review: " +
+      esc(review.reviewer || "fixture / no admission") + ". " + esc(review.notes || "") + "</p>" +
+      "<ul>" + ((model.assumptions || []).map((a) => "<li>" + esc(a) + "</li>").join("")) + "</ul>";
+    box.appendChild(det);
+  });
+}
+
+function revisableInputs(run) {
+  const found = [];
+  for (const n of ((run.composition || {}).nodes || [])) {
+    for (const [name, b] of Object.entries(n.bindings || {})) {
+      if (b && typeof b === "object" && !Array.isArray(b) && b.amount !== undefined && name !== "__output__") {
+        found.push({ node: n.id, input: name, amount: b.amount, unit: b.port.unit });
+      }
+    }
+  }
+  return found;
+}
+
+function niceStep(span) {
+  const raw = span / 100;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const norm = raw / mag;
+  return (norm >= 5 ? 5 : (norm >= 2 ? 2 : 1)) * mag;
+}
+
+function buildRevise(run) {
+  const box = $("revise");
+  box.innerHTML = "";
+  $("revise-btn").disabled = run.status !== "completed";
+  if (run.status !== "completed") {
+    box.innerHTML = "<p class='mono-sm'>Only completed runs can be revised.</p>";
+    return;
+  }
+  const inputs = revisableInputs(run);
+  if (!inputs.length) {
+    box.innerHTML = "<p class='mono-sm'>This run has no direct inputs to revise.</p>";
+    return;
+  }
+  for (const item of inputs) {
+    const row = document.createElement("div");
+    row.className = "rev-row";
+    const lo = Math.min(0, item.amount * 0.5);
+    const hi = item.amount === 0 ? 1 : item.amount * 2;
+    row.innerHTML = "<label>" + esc(item.node + "." + item.input) +
+      "<small>was " + esc(fmt(item.amount) + " " + item.unit) + "</small></label>";
+    const slider = document.createElement("input");
+    slider.type = "range";
+    slider.min = String(lo);
+    slider.max = String(hi);
+    slider.step = String(niceStep(hi - lo));
+    slider.value = String(item.amount);
+    slider.dataset.key = item.node + "." + item.input;
+    slider.setAttribute("aria-label", item.node + "." + item.input);
+    const num = document.createElement("input");
+    num.type = "number";
+    num.value = String(item.amount);
+    num.step = "any";
+    num.dataset.key = item.node + "." + item.input;
+    num.setAttribute("aria-label", item.node + "." + item.input + " value");
+    slider.oninput = () => { num.value = slider.value; };
+    num.oninput = () => { slider.value = num.value; };
+    row.appendChild(slider);
+    row.appendChild(num);
+    box.appendChild(row);
+  }
+}
+
+async function applyRevision() {
+  if (!currentRun) return;
+  const sets = [];
+  for (const num of document.querySelectorAll('#revise input[type="number"]')) {
+    sets.push(num.dataset.key + "=" + num.value);
+  }
+  if (!sets.length) return;
+  setStatus("Revising (offline, deterministic)…");
+  try {
+    parentOutputs = Object.fromEntries(
+      Object.entries(currentRun.outputs || {}).map(([k, v]) => [k, { amount: v.amount, port: v.port }]));
+    const record = await postJSON("/api/revise", { run_id: currentRun.run_id, sets });
+    renderRun(record, true);
+    setStatus(record.status === "completed" ? "Revision saved as a new run." : ("Revision " + record.status + "."));
+    await refreshRuns();
+  } catch (err) {
+    setStatus("Could not revise: " + esc(err.message));
+  }
+}
+document.addEventListener("DOMContentLoaded", () => {
+  $("ask-btn").onclick = ask;
+  $("revise-btn").onclick = applyRevision;
+  boot();
+});
+</script>
+</body>
+</html>

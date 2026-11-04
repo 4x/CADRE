@@ -1,22 +1,33 @@
 """Chain-battery integrity and verdict semantics (the runner needs live inference)."""
 
 import json
-from pathlib import Path
 import unittest
+from pathlib import Path
+from typing import Any
 
 from evals.run_chain_battery import check_entry
 
-BATTERIES = (Path("data/eval/chain-battery.json"), Path("data/eval/deep-battery.json"),
-             Path("data/eval/adversarial-battery.json"))
+ROOT = Path(__file__).resolve().parent.parent
+BATTERIES = (
+    ROOT / "data/eval/chain-battery.json",
+    ROOT / "data/eval/deep-battery.json",
+    ROOT / "data/eval/adversarial-battery.json",
+)
 
 
-def _record(status: str, outputs: dict | None = None) -> dict:
+def _record(status: str, outputs: dict[str, Any] | None = None) -> dict[str, Any]:
     """Build a minimal answer record for verdict testing."""
-    return {"run_id": "test", "status": status, "outputs": outputs or {},
-            "saved_path": "test.json", "error": None, "clarifications": []}
+    return {
+        "run_id": "test",
+        "status": status,
+        "outputs": outputs or {},
+        "saved_path": "test.json",
+        "error": None,
+        "clarifications": [],
+    }
 
 
-def _output(meaning: str, unit: str, amount: float) -> dict:
+def _output(meaning: str, unit: str, amount: float) -> dict[str, Any]:
     """Build one node output in the saved-run shape."""
     return {"amount": amount, "port": {"meaning": meaning, "unit": unit}}
 
@@ -51,8 +62,12 @@ class ChainBatteryTests(unittest.TestCase):
 
     def test_verdicts_cover_pass_fail_and_fixed(self) -> None:
         """Status/value comparison drives pass, fail, and tier-2 fixed detection."""
-        entry = {"id": "t", "tier": 1, "expected_status": "completed",
-                 "expected_outputs": [{"meaning": "m", "unit": "u", "amount": 10.0}]}
+        entry = {
+            "id": "t",
+            "tier": 1,
+            "expected_status": "completed",
+            "expected_outputs": [{"meaning": "m", "unit": "u", "amount": 10.0}],
+        }
         good = _record("completed", {"n1": _output("m", "u", 10.0 + 1e-9)})
         self.assertEqual(check_entry(entry, good, 1e-6)["verdict"], "pass")
         bad = _record("completed", {"n1": _output("m", "u", 11.0)})

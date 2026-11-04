@@ -6,7 +6,7 @@ from connected_models.contracts import MASS, Model
 from connected_models.contracts import ModelError, NumericalError
 from connected_models.demo import catalog
 from connected_models.expressions import dimensions, evaluate, parse
-from test_solving import SCALAR, inverse
+from tests.test_solving import SCALAR, inverse
 
 MORTGAGE_ORACLE = 1798.6515754582572
 RETIRE_ORACLE = 1312406.6991666663

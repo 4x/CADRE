@@ -7,10 +7,10 @@ Nineteen queries where connected-models should beat a plain LLM doing in-context
 Needs live inference; run with credentials:
 
 ```powershell
-uv --cache-dir .uv-cache run --env-file .env evals/run_chain_battery.py
-uv --cache-dir .uv-cache run --env-file .env evals/run_chain_battery.py --ids t1-fisher,t1-dosing
-uv --cache-dir .uv-cache run --env-file .env evals/run_compare_battery.py --battery deep
-uv --cache-dir .uv-cache run --env-file .env evals/run_compare_battery.py --battery deep --models muse-spark-1.3
+uv run --env-file .env -m evals.run_chain_battery
+uv run --env-file .env -m evals.run_chain_battery --ids t1-fisher,t1-dosing
+uv run --env-file .env -m evals.run_compare_battery --battery deep
+uv run --env-file .env -m evals.run_compare_battery --battery deep --models muse-spark-1.3
 ```
 
 `--models` sweeps every selected entry once per model (each name validated against `MODEL_PRICING` before any call is sent). Rows carry the model actually used; the report adds the model list and the ledger's per-model spend. Only one model is priced today, so multi-model matrices await researched rates.
@@ -27,5 +27,5 @@ uv --cache-dir .uv-cache run --env-file .env evals/run_compare_battery.py --batt
 ## Design notes
 
 - The battery measures the composer, not the engine: the engine is the independent oracle.
-- `compat-audit` (`-m connected_models compat-audit`) reports the structural edges tier-2 entries wait for; use it to confirm a bridge landed before flipping an entry to tier 1.
+- `compat-audit` (`connected-models compat-audit`) reports the structural edges tier-2 entries wait for; use it to confirm a bridge landed before flipping an entry to tier 1.
 - Known engine limit surfaced by the battery: exponents above magnitude 100 reject, so 360-payment loans cannot execute yet (t1-loan-single uses 30 annual payments).

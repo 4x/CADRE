@@ -7,7 +7,7 @@ The owner copies that folder to the external worker location, drops the
 purchased PDFs into sources/, and dispatches one sentence per PDF.
 
 Run from the repo root:
-    uv --cache-dir .uv-cache run --no-env-file --offline data/curation/cfa/build_external_pack.py [--force]
+    uv run --no-env-file --offline data/curation/cfa/build_external_pack.py [--force]
 """
 
 from __future__ import annotations
@@ -15,15 +15,13 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
-import sys
 import tempfile
 import zipfile
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent.parent.parent
-sys.path.insert(0, str(ROOT))
+from connected_models.curation import build_kit, encoded, inventory_returns
 
-from connected_models.curation import build_kit, encoded, inventory_returns  # noqa: E402
+ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 CFA = ROOT / "data" / "curation" / "cfa"
 PACK = CFA / "external-pack"

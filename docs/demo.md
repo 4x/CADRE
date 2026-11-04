@@ -10,8 +10,12 @@ served by `connected-models serve`.
 
 ```powershell
 uv run --no-env-file connected-models demo-seed
-uv run --no-env-file connected-models serve --port 8000
+uv run --env-file .env connected-models serve --port 8000
 ```
+
+Start `serve` with `--env-file .env` whenever the page should answer new
+questions live; with `--no-env-file` the page still opens saved runs, revises,
+and reports, but Ask is blocked because the key never reaches the process.
 
 Then open http://127.0.0.1:8000/ in a browser. The page opens on a saved run,
 so it is useful before any inference:

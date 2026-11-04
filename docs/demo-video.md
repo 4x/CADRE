@@ -9,7 +9,7 @@ offline fallback.
 ```powershell
 uv sync
 uv run --no-env-file connected-models demo-seed
-uv run --no-env-file connected-models serve --port 8000
+uv run --env-file .env connected-models serve --port 8000
 ```
 
 Open http://127.0.0.1:8000/ and confirm a saved run renders. In the terminal,

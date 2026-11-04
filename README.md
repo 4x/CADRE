@@ -35,7 +35,7 @@ The `answer` command accepts only a self-contained question: put assumptions, nu
 
 ```powershell
 uv run --no-env-file connected-models demo-seed
-uv run --no-env-file connected-models serve --port 8000
+uv run --env-file .env connected-models serve --port 8000
 ```
 
 Then open http://127.0.0.1:8000/ in a browser: ask questions, watch the model graph animate, and revise scenarios with sliders. The page is one bundled file served from the standard library — no third-party packages, no external requests. Muse sessions can also invoke the repo skill with `/connected-models`. Guide and 3-minute video plan: [docs/demo.md](docs/demo.md), [docs/demo-video.md](docs/demo-video.md).

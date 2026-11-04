@@ -76,6 +76,8 @@ quantitatively through the engine instead of hallucinating arithmetic."
 
 Shot: Muse session, `/connected-models` answering a numbers question and
 citing a run id. Keep this beat to two commands and one cited answer.
+Alternative: show any MCP client calling the `answer` then `inspect` tools —
+same receipts, no Muse required.
 
 ## 2:50–3:00 — Close
 

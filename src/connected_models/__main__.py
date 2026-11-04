@@ -12,6 +12,7 @@ from .contracts import ModelError, describe_units
 from .demo import DEFAULT_CAPEX, DEFAULT_COP, DEFAULT_TARIFF, catalog, composition
 from .demo_seed import seed_demo
 from .inference import BudgetLedger, InferenceSettings, smoke_test
+from .mcp_server import run_stdio
 from .registry import Registry
 from .reports import read_run, write_report
 from .revisions import replay_run, revise_run
@@ -50,6 +51,7 @@ def main() -> int:
         "demo-seed",
         help="Seed labeled demo fixtures and scripted runs; offline, no inference",
     )
+    commands.add_parser("mcp", help="Serve MCP tools over stdio for agent clients")
     commands.add_parser(
         "meta-smoke", help="One paid structured-output check using META_API_KEY"
     )
@@ -175,6 +177,9 @@ def main() -> int:
                 print("Port must be between 1 and 65535.")
                 return 1
             serve(ServerConfig(REGISTRY_PATH, RUNS_PATH), args.bind, args.port)
+            return 0
+        if args.command == "mcp":
+            run_stdio(ServerConfig(REGISTRY_PATH, RUNS_PATH))
             return 0
         if args.command in {"meta-smoke", "usage"}:
             settings = InferenceSettings.load(Path("inference.toml"))

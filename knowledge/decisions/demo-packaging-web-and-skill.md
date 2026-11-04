@@ -50,4 +50,8 @@ Submission is due November 4, 9 PM ET with roughly a quarter of the reported rub
 
 ## Revisit if
 
-A hosted public demo is needed (this server binds loopback by default), the MCP agent-tool story gets scheduled, or full-catalog prompting outgrows the single-page demo and needs retrieval first.
+A hosted public demo is needed (this server binds loopback by default), or full-catalog prompting outgrows the single-page demo and needs retrieval first.
+
+## Follow-up — 2026-11-04
+
+The MCP agent-tool story was scheduled the same day: `connected-models mcp` now serves answer/inspect/revise/replay/report/units/registry_list over stdio with no new dependencies. The deferral above is spent; the roadmap item is `docs/mcp.md` plus `tests/test_mcp_server.py`.

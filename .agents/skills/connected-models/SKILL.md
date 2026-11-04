@@ -50,6 +50,7 @@ uv run connected-models demo-seed                          # offline demo regist
 
 ## Repo map
 
+- MCP server: `connected-models mcp` (stdio tools for any agent client)
 - CLI: `src/connected_models/__main__.py`
 - Engine and contracts: `src/connected_models/runtime.py`, `contracts.py`
 - Web demo: `src/connected_models/serve.py`, `src/connected_models/web/`

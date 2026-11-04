@@ -40,7 +40,7 @@ uv run --no-env-file connected-models demo-seed
 uv run --env-file .env connected-models serve --port 8000
 ```
 
-Then open http://127.0.0.1:8000/ in a browser: ask questions, watch the model graph animate, and revise scenarios with sliders. The page is one bundled file served from the standard library — no third-party packages, no external requests. Muse sessions can also invoke the repo skill with `/connected-models`, and any MCP client can register `connected-models mcp` as a stdio server. Guide and 3-minute video plan: [docs/demo.md](docs/demo.md), [docs/demo-video.md](docs/demo-video.md), [docs/mcp.md](docs/mcp.md).
+Then open http://127.0.0.1:8000/ in a browser: ask questions, watch the model graph animate, and revise scenarios with sliders. The page is one bundled file served from the standard library — no third-party packages, no external requests. Muse sessions can also invoke the repo skill with `/connected-models`, and any MCP client can register `connected-models mcp` as a stdio server. Live runbook, guide, and 3-minute video plan: [docs/demo-script.md](docs/demo-script.md), [docs/demo.md](docs/demo.md), [docs/demo-video.md](docs/demo-video.md), [docs/mcp.md](docs/mcp.md).
 
 ## Test
 
@@ -48,7 +48,7 @@ Then open http://127.0.0.1:8000/ in a browser: ask questions, watch the model gr
 uv run pytest -q
 ```
 
-217 offline tests, no network calls. Details and the static gates (ruff, mypy strict): [docs/setup.md](docs/setup.md#test).
+230 offline tests, no network calls. Details and the static gates (ruff, mypy strict): [docs/setup.md](docs/setup.md#test).
 
 ## Implementation status
 
@@ -75,6 +75,7 @@ from-offline-curation-workers/ preserved worker returns (see ABOUT.md there)
 ## Docs
 
 - [Impact](docs/impact.md) — who benefits, problem-statement fit, worked scenario
+- [Demo script](docs/demo-script.md) — live runbook: commands, expected outputs, fallbacks
 - [Demo guide](docs/demo.md) — web UI, SKILL, video recording
 - [Demo video plan](docs/demo-video.md) — 3-minute shot list
 - [MCP server](docs/mcp.md) — agent tools over stdio

@@ -14,7 +14,7 @@ uv run --env-file .env connected-models serve --port 8000
 
 Open http://127.0.0.1:8000/ and confirm a saved run renders. In the terminal,
 pre-run `compare` once so its output is warm (optional; screenshots work too).
-Set the terminal font large (18pt+) and clear the screen between beats.
+Run `demo-seed` last, after any revision experiments: the page opens the newest saved run per scenario, so a stale revision would displace the base $8,532.16 run. Exact commands, expected outputs, and per-step fallbacks are in [demo-script.md](demo-script.md). Set the terminal font large (18pt+) and clear the screen between beats.
 
 ## 0:00–0:25 — The hook: AI lies about numbers
 

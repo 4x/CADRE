@@ -1,8 +1,8 @@
 # Connected Models
 
-Connected Models connects reusable quantitative models across domains: one model's output can supply another's input, replacing arbitrary assumptions with explicit, traceable dependencies. It enables people and AI agents to compose and execute models to answer quantitative questions, explore scenarios, and support decisions.
+Connected Models (aka **CADRE**: **C**omposable **A**tomic **D**eterministic **R**egistry **E**ngine) connects reusable quantitative models across domains: one model's output can supply another's input, replacing arbitrary assumptions with explicit, traceable dependencies. It enables people and AI agents to compose and execute models to answer quantitative questions, explore scenarios, and support decisions.
 
-**Current priority: build a working MVP.** Focus on a bounded end-to-end workflow with inspectable inputs, model connections, execution, and results.
+**Current priority: optimize for Meta Hackathon.** Focus on a bounded end-to-end workflow with inspectable inputs, model connections, execution, and results.
 
 Project Memory (`pmem`) is supporting tooling for structure, continuity, and decisions—not the product or the main deliverable. Use it to support implementation, not as a substitute for delivering the MVP.
 
@@ -17,6 +17,14 @@ To the extent possible, the agent should do all activities needed to achieve the
 ## Ask
 
 The agent is encouraged to bring up questions for discussion **when direction is not clear or obvious**. Concisely present the options, pros, cons, expected consequences, implications, and recommendation as appropriate. If there is a strong recommendation, proceed with it rather than unnecessarily deferring the decision.
+
+## Version control
+
+1. Do not work directly on `main`
+
+2. Commit often, with meaningful commit messages
+
+3. Merge up to main and push when completed features (or fixed bugs) have been tested.
 
 # Safety and permissions
 

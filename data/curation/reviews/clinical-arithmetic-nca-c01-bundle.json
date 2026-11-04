@@ -1,0 +1,183 @@
+{
+  "batch_id": "clinical-arithmetic-nca-c01",
+  "created": "2026-11-03",
+  "curator": "native-dosing",
+  "deferred": [],
+  "domain": "clinical-arithmetic",
+  "example_only": false,
+  "handoff": {
+    "connections": [
+      "Enabled: clinical-arithmetic--weight-based-prescribed-mass r2 output D (prescribed_drug_mass_per_administration, kg) binds clinical-arithmetic--liquid-medication-prescribed-volume r2 input D (same meaning, same unit kg, identical context after this revision); no unit conversion; destination port verified in the r1 record and unchanged except context."
+    ],
+    "gaps": [
+      "Record-level integration gaps carry over unchanged from the r1 (requires-extension; no runtime projection in this research return).",
+      "The surface-area-based-prescribed-mass r1 output uses a third context for prescribed_drug_mass_per_administration; its alignment with this input is out of scope for brief 8."
+    ],
+    "queries": [],
+    "review_notes": "Corrects clinical-arithmetic--liquid-medication-prescribed-volume@r1 (clinical-arithmetic-codex-b02, recommend-admit): context-alignment only — no math, meaning, unit, guard, reference, source, or evidence change. Re-review required per protocol since record text changes.",
+    "summary": "Correction batch for brief 8 (data/curation/corrections/clinical-dosing-context-brief-8.md): context-alignment r2 of clinical-arithmetic--liquid-medication-prescribed-volume (r1 in clinical-arithmetic-codex-b02, recommend-admit, no blockers). Input D adopts the weight-based-prescribed-mass r2 output context verbatim so the mg/kg to mg to mL chain binds on exact meaning/context equality."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "assumptions": [
+        "Source-backed identity: compare desired active-drug amount with the labeled supply amount for the same drug and scale the corresponding liquid quantity.",
+        "Application profile: formulation is homogeneous and concentration remains fixed in the withdrawn portion. D and H have exactly matching active-moiety definitions.",
+        "Population scope: general prescription arithmetic illustrated by nursing exercises; no therapeutic validation for an age, pregnancy state, condition or route is claimed."
+      ],
+      "constants": [],
+      "guards": [
+        "D >= 0",
+        "H > 0",
+        "Q > 0"
+      ],
+      "id": "clinical-arithmetic--liquid-medication-prescribed-volume",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Need labeled_active_drug_reference_mass, labeled_liquid_reference_volume and prescribed_liquid_medication_volume meanings and m^3 unit; reuse prescribed_drug_mass_per_administration from b01/r2. No runtime projection.",
+          "Known inventory density relationship uses bulk mass_density rather than active-drug concentration; no duplicate ID is asserted because the quantity definitions differ."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Target D: V>=0, H>0, Q>0 give D=V*H/Q uniquely. Check V=7.5e-6 m^3, H=0.0004 kg, Q=5e-6 m^3 gives D=0.0006 kg and forward V=7.5e-6. V=0 gives D=0 uniquely. Target H: D>0, Q>0, V>0 give H=D*Q/V>0. Target Q: D>0, H>0, V>0 give Q=V*H/D>0. Retain original guards and formulation context. With D=V=0, H and Q remain underdetermined positive values; with D=0,V>0 there is no solution. With D>0,V=0 no finite positive H,Q can satisfy the identity. Inverting does not authorize changing a prescription or stock formulation.",
+      "kind": "definition",
+      "limitations": [
+        "Does not select a dose, stock strength, dilution, syringe or rounding policy; no clinical limits are inferred from educational examples.",
+        "Cannot use bulk solution density for H/Q, or use added diluent volume as final stock volume when reconstitution changes volume.",
+        "The source includes tablet and liquid examples; this record serializes the liquid-volume interface only and preserves other profiles as overlap notes."
+      ],
+      "references": [
+        {
+          "expected": 5e-07,
+          "id": "published-half-ml",
+          "inputs": {
+            "D": 2.5e-05,
+            "H": 5e-05,
+            "Q": 1e-06
+          },
+          "method": "Published 0.5 mL normalized to 5e-7 m^3 for prescribed 25 mg and labeled 50 mg/1 mL. Source result preserved; arithmetic-only 1e-16 m^3 tolerance because this is an exact pedagogical proportion, not a measured syringe volume.",
+          "provenance": "Langham Ch.14, Sample Exercise 14.3.",
+          "tolerance": 1e-16
+        },
+        {
+          "expected": 7.5e-07,
+          "id": "published-three-quarter-ml",
+          "inputs": {
+            "D": 1.5e-06,
+            "H": 2e-06,
+            "Q": 1e-06
+          },
+          "method": "Published 0.75 mL normalized to m^3 for 1.5 mg desired and 2 mg per 1 mL supply. Uses the explicit algebra in the answer, not an uninspected label image. Arithmetic-only tolerance.",
+          "provenance": "Langham Ch.14, Practice Set 14.2, answer 2.",
+          "tolerance": 1e-16
+        },
+        {
+          "expected": 7.5e-06,
+          "id": "independent-portion-count",
+          "inputs": {
+            "D": 0.0006,
+            "H": 0.0004,
+            "Q": 5e-06
+          },
+          "method": "Independent synthetic portion argument: one 5 mL portion holds 400 mg and another half portion holds 200 mg, so 600 mg occupies 7.5 mL. Tolerance covers binary arithmetic only.",
+          "provenance": "Curator-constructed stock-portion check, not observed clinical data.",
+          "tolerance": 1e-16
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "D": 2.5e-05,
+            "H": 0,
+            "Q": 1e-06
+          },
+          "kind": "domain",
+          "reason": "Zero stock active-drug amount cannot define the required positive concentration."
+        },
+        {
+          "inputs": {
+            "D": 2.5e-05,
+            "H": 5e-05
+          },
+          "kind": "missing-input",
+          "reason": "Stock reference volume is missing."
+        }
+      ],
+      "relationship": {
+        "expression": "D * Q / H",
+        "locator": "Chapter 14, Alternate Formula for Solving Medication Dose Problems; Sample Exercise 14.3",
+        "original_equation": "Desired Amount / Dose on hand x Volume = Dose (liquid quantity)",
+        "output_symbol": "V",
+        "source_id": "langham-liquid",
+        "translation_notes": "Preserve source D and H; introduced Q renames the source stock Volume to avoid collision with introduced output V (source liquid Dose). D,H are active-drug mass in kg, Q,V liquid volume in m^3. Normalize mg to kg and mL to m^3 before reference entry; expression D*Q/H has no conversion coefficient. Dimensions: M*L^3/M=L^3; runtime mass scale cancels. H/Q is constituent active-drug mass concentration, not bulk solution density: the building-energy inventory's generic density relationship concerns total substance mass and is not a compatible unqualified binding. Tablet counts are treated as an alternate desired-over-have profile in deferred notes, not another record created solely by unit spelling. Input D carries the weight-based-prescription context shared with clinical-arithmetic--weight-based-prescribed-mass, marking it as the independently authorized per-administration mass that record computes."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Scales labeled liquid volume by desired mass relative to labeled mass; example gives 0.5 mL and another gives 0.75 mL.",
+          "id": "langham-liquid",
+          "kind": "primary",
+          "license": "Chapter License section: Julia Langham, copyright 2023, CC BY 4.0, except where noted. https://creativecommons.org/licenses/by/4.0/ inspected 2026-11-03. Versioning History https://opentextbc.ca/nursingnumeracy/back-matter/versioning-history/ lists v1.00, June 28, 2023.",
+          "locator": "Alternate Formula; Sample Exercise 14.3; Practice Set 14.2 answer 2",
+          "redistribution": "Attribution: Julia Langham, A Guide to Numeracy in Nursing, BCcampus, 2023, CC BY 4.0. Changes: local symbols, coherent unit normalization, original evidence paraphrase and added mathematical checks. No source images or full chapters included; retain attribution, license link and change notice on redistribution. No endorsement claimed.",
+          "title": "Julia Langham: A Guide to Numeracy in Nursing, Chapter 14",
+          "url": "https://opentextbc.ca/nursingnumeracy/chapter/calculating-medication-dosage/",
+          "version": "Julia Langham; v1.00 (June 28, 2023), live HTML inspected 2026-11-03"
+        }
+      ],
+      "summary": "Converts an already specified active-drug mass into the corresponding volume of one labeled liquid formulation. It is a proportional amount identity; neither choosing an amount nor deciding to administer it is included.",
+      "title": "Liquid medication volume from prescribed mass and labeled strength",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same patient, drug/active-moiety mass basis, independently authorized prescription and one administration. Application profile: actual measured body mass is the independently authorized basis. The prescribed coefficient is per kilogram per administration, not per day or per time. Source examples are pediatric; the arithmetic has no drug-specific clinical validation population.",
+          "definition": "Active-drug mass already specified for this single administration on the same labeled active-moiety basis as H.",
+          "dimensions": "M",
+          "domain": "Finite nonnegative; zero is the no-amount arithmetic boundary, not a prescribed therapy.",
+          "quantity_id": "prescribed_drug_mass_per_administration",
+          "role": "input",
+          "source_symbol": "D (Desired Amount)",
+          "symbol": "D",
+          "unit": "kg"
+        },
+        {
+          "context": "Same independently authorized single administration, active drug/moiety and homogeneous liquid stock at its labeled concentration. The supplied reference mass H and volume Q describe the same final formulation. Source is nursing calculation education, not age-specific drug validation; patient eligibility and prescription appropriateness are external.",
+          "definition": "Mass of the specified active drug contained in stock reference volume Q; not total formulation mass.",
+          "dimensions": "M",
+          "domain": "Finite strictly positive labeled reference mass; same moiety/salt-equivalent convention as D.",
+          "quantity_id": "labeled_active_drug_reference_mass",
+          "role": "input",
+          "source_symbol": "H (Dose on hand)",
+          "symbol": "H",
+          "unit": "kg"
+        },
+        {
+          "context": "Same independently authorized single administration, active drug/moiety and homogeneous liquid stock at its labeled concentration. The supplied reference mass H and volume Q describe the same final formulation. Source is nursing calculation education, not age-specific drug validation; patient eligibility and prescription appropriateness are external.",
+          "definition": "Final liquid formulation volume containing labeled active-drug mass H.",
+          "dimensions": "L^3",
+          "domain": "Finite strictly positive; final homogeneous formulation, not diluent volume before reconstitution.",
+          "quantity_id": "labeled_liquid_reference_volume",
+          "role": "input",
+          "source_symbol": "Introduced Q maps to stock Volume in D/H x Volume",
+          "symbol": "Q",
+          "unit": "m^3"
+        },
+        {
+          "context": "Same independently authorized single administration, active drug/moiety and homogeneous liquid stock at its labeled concentration. The supplied reference mass H and volume Q describe the same final formulation. Source is nursing calculation education, not age-specific drug validation; patient eligibility and prescription appropriateness are external.",
+          "definition": "Unrounded liquid volume containing D under the specified stock mass-to-volume proportion.",
+          "dimensions": "L^3",
+          "domain": "Finite nonnegative proportional volume. Device resolution, available stock count and administration decisions are not outputs.",
+          "quantity_id": "prescribed_liquid_medication_volume",
+          "role": "output",
+          "source_symbol": "Introduced V maps to liquid Dose/Quantity for dose",
+          "symbol": "V",
+          "unit": "m^3"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

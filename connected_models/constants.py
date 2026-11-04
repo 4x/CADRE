@@ -49,6 +49,9 @@ validate_constants(CONSTANTS)
 
 CONSTANT_DIMENSIONS = {name: UNITS[constant.unit].dimensions for name, constant in CONSTANTS.items()}
 CONSTANT_VALUES = {name: constant.value * UNITS[constant.unit].scale for name, constant in CONSTANTS.items()}
+# Raw SI values for display-unit curation checks: reference/rejection cases are
+# stated in display units, so they resolve constants without canonical scaling.
+CONSTANT_DISPLAY_VALUES = {name: constant.value for name, constant in CONSTANTS.items()}
 
 
 def constants_json() -> dict[str, dict[str, object]]:

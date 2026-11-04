@@ -55,6 +55,16 @@ class CurationTests(unittest.TestCase):
                 import_bundle(self.write(folder, self.example()), registry)
             self.assertEqual(registry.candidates(), [])
 
+    def test_private_source_validates_only_as_project_derivation(self) -> None:
+        """A null-URL source (purchased PDF) validates as project-derivation, never as primary."""
+        bundle = self.research()
+        source = bundle["models"][0]["sources"][0]
+        self.assertEqual((source["kind"], source["url"]), ("project-derivation", None))
+        validate_bundle(bundle)
+        bundle["models"][0]["sources"][0]["kind"] = "primary"
+        with self.assertRaisesRegex(ModelError, "primary source URL is required"):
+            validate_bundle(bundle)
+
     def test_pack_roundtrip_and_idempotent_candidate_only_import(self) -> None:
         """Transport retains evidence; repeat imports create no reviews or duplicates."""
         with scratch_directory() as folder:
@@ -138,6 +148,42 @@ class CurationTests(unittest.TestCase):
         bundle["models"][0]["references"][1]["inputs"] = bundle["models"][0]["references"][0]["inputs"]
         with self.assertRaisesRegex(ModelError, "distinct inputs"):
             validate_bundle(bundle)
+
+    def test_reference_checks_use_display_constant_values(self) -> None:
+        """Display-unit references resolve named constants to SI values, not canonical scales."""
+        bundle = self.example()
+        item = bundle["models"][0]
+        item["relationship"]["expression"] = "energy * tariff * gravitational_constant"
+        item["integration"].update(status="requires-extension", runtime_model=None,
+                                   gaps=["Synthetic fixture: display-unit constant check."])
+        item["references"][0]["expected"] = 5 * 6.67430e-11
+        item["references"][0]["tolerance"] = 1e-18
+        item["references"][1]["expected"] = 0.0
+        result = validate_bundle(bundle)
+        self.assertEqual(result["status"], "valid-data-awaiting-review")
+
+    def test_canonical_identity_references_replay_through_registry_scales(self) -> None:
+        """A canonical-base-unit expression replays display references via unit scales."""
+        bundle = self.example()
+        item = bundle["models"][0]
+        item["relationship"]["expression"] = "energy * tariff"
+        for variable in item["variables"]:
+            if variable["symbol"] == "energy":
+                variable["unit"] = "W"
+            elif variable["symbol"] == "tariff":
+                variable["unit"] = "h"
+            elif variable["symbol"] == "cost":
+                variable["unit"] = "kWh"
+        item["integration"].update(status="requires-extension", runtime_model=None,
+                                   gaps=["Synthetic fixture: canonical replay check."])
+        item["references"][0]["inputs"] = {"energy": 60, "tariff": 1000}
+        item["references"][0]["expected"] = 60.0
+        item["references"][0]["tolerance"] = 1e-6
+        item["references"][1]["inputs"] = {"energy": 40, "tariff": 5}
+        item["references"][1]["expected"] = 0.2
+        item["references"][1]["tolerance"] = 1e-9
+        result = validate_bundle(bundle)
+        self.assertEqual(result["status"], "valid-data-awaiting-review")
 
     def test_invalid_negative_case_and_supported_missing_input_case(self) -> None:
         """A claimed rejected value must fail; no fabricated scientific guard is needed."""

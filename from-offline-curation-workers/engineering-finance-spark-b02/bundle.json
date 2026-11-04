@@ -1,0 +1,629 @@
+{
+  "batch_id": "engineering-finance-spark-b02",
+  "created": "2026-11-01",
+  "curator": "muse-spark",
+  "deferred": [
+    {
+      "reason": "Life-annuity valuation multiplies discount factors by survival probabilities, which is probabilistic estimation outside the assignment boundary (textbook identities and closed deterministic forms only). Continuation priority: keep excluded unless the domain expands to mortality-contingent forms.",
+      "source_urls": [
+        "https://en.wikipedia.org/wiki/Annuity"
+      ],
+      "title": "Life-contingent annuity present values"
+    },
+    {
+      "reason": "Variable and equity-indexed annuities link payments to market-index performance, which is probabilistic and market-forecasting outside the deterministic boundary. Fixed-rate riders would need their own fee-bearing sources.",
+      "source_urls": [
+        "https://en.wikipedia.org/wiki/Annuity"
+      ],
+      "title": "Variable and equity-indexed annuities"
+    }
+  ],
+  "domain": "engineering-finance",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "All four records are requires-extension: gradient_amount is a new meaning; periodic_payment, periodic_rate, period_count, present_value and future_value reuse the b01 proposed meanings, none of which exist in the current runtime snapshot.",
+      "No current-runtime projection was attempted; all expressions use only scalar-supported + - * / ** with evaluated exponents at most 84 in references.",
+      "Duplicate search limited to the supplied catalog-inventory snapshot plus b01 of this session; no annuity identities were present in the snapshot."
+    ],
+    "queries": [
+      "What accumulates from $100 end-of-period deposits over 4 periods at 12 percent?",
+      "What present value corresponds to 32 beginning-of-quarter payments of $9435.71 at 1.25 percent per quarter?",
+      "What level annual payment is equivalent to a maintenance gradient starting at $0 and rising $100 per year for 4 years at 12 percent?"
+    ],
+    "review_notes": "Arithmetic validated with the kit validator; source fidelity reviewed against the fetched UMD tutorial text and the Annuity article text. Not performed: visual PDF checks (no PDFs used), institutional-textbook confirmation of the due-factor notation beyond the two inspected sources, independent measurement beyond published examples and alternate-route derivations. The annuity-due records are mathematically distinct from uniform-present-value@source-3 by the beginning-of-period timing factor, per the assignment allowance.",
+    "summary": "Batch b02 extends the time-value family down the annuity queue: ordinary-annuity accumulation, beginning-of-period (due) present and future values with the source-stated (1+i) timing shift, and the arithmetic-gradient annual equivalent. Each record carries one published oracle plus a boundary or alternate-route check."
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: equal end-of-period deposits with the first one full period after time 0 accumulating at fixed per-period rate i (UMD end-of-year convention).",
+        "Application profile: accumulation of a savings or sinking-fund stream with no withdrawals; A and i fixed over the horizon.",
+        "All amounts on one price basis."
+      ],
+      "constants": [],
+      "guards": [
+        "A >= 0",
+        "i > 0",
+        "n >= 1"
+      ],
+      "id": "engineering-finance--ordinary-annuity-future-value",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Reuses b01 proposed meanings periodic_payment, periodic_rate, period_count, future_value; no current-runtime projection attempted.",
+          "The sinking-fund direction (solving A from F) is recorded as an inverse, not a separate model."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "A=F*i/((1+i)**n-1) needs i>0 and n>=1; checked against the UMD sinking-fund example 1000*0.12/(1.12**4-1)=209.235 versus the published 209.2 (rounding). Substitution check at n=1: F=A exactly (single end-of-period deposit accumulates nothing). The i-to-0 limit branch F=A*n is a different expression, never a guard relaxation.",
+      "kind": "theoretical",
+      "limitations": [
+        "Zero-rate accumulation (i=0) is excluded by guard; its limit branch F=A*n is a separate expression.",
+        "Beginning-of-period deposits need the annuity-due record, not this expression.",
+        "Solving for the rate or term needs iteration or a logarithm, unsupported by the scalar grammar."
+      ],
+      "references": [
+        {
+          "expected": 477.9,
+          "id": "umd-series-example",
+          "inputs": {
+            "A": 100,
+            "i": 0.12,
+            "n": 4
+          },
+          "method": "Source prints F=477.9 for A=100, i=12%, n=4; recomputation gives 477.933, so tolerance covers the $0.1 rounding.",
+          "provenance": "Published worked example in the UMD tutorial, Equal Payment-Series Compound Amount Factor section",
+          "tolerance": 0.05
+        },
+        {
+          "expected": 100.0,
+          "id": "single-payment-boundary",
+          "inputs": {
+            "A": 100,
+            "i": 0.05,
+            "n": 1
+          },
+          "method": "Boundary identity: one end-of-period deposit accumulates to itself; evaluates the closed form at n=1.",
+          "provenance": "Limiting identity of the source geometric-series derivation",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A": 100,
+            "i": 0,
+            "n": 4
+          },
+          "kind": "domain",
+          "reason": "Zero rate makes the divisor zero and needs the separate limit branch F=A*n; excluded by i>0."
+        },
+        {
+          "inputs": {
+            "A": 100,
+            "i": 0.12
+          },
+          "kind": "missing-input",
+          "reason": "Term count n is required; the accumulation horizon is undefined without it."
+        }
+      ],
+      "relationship": {
+        "expression": "A*((1+i)**n - 1)/i",
+        "locator": "UMD tutorial: Equal-Payment-Series Compound Amount Factor (geometric-series derivation F=A+A[1+i]+...+A[1+i]^(n-1); boxed factor; Example 1 with A=100, i=12%, n=4 giving F=477.9).",
+        "original_equation": "F = A * ([1+i]^n - 1)/i",
+        "output_symbol": "F",
+        "source_id": "umd-ence202",
+        "translation_notes": "Transcribed verbatim into scalar syntax. Dimensional check: currency times a dimensionless accumulation factor stays currency. Guards i>0 and n>=1 jointly keep the divisor i and the factor nonzero and positive. Reference exponents 4 and 1 are within the tooling cap."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Page derives the accumulation as a geometric series of end-of-year A payments, prints the boxed factor F=A*([1+i]^n-1)/i, and works A=100/i=12%/n=4 to F=477.9; the companion sinking-fund example works F=1000 to A=209.2.",
+          "id": "umd-ence202",
+          "kind": "primary",
+          "license": "Page footer states Copyright (c) 1996-1998, Department of Civil Engineering, University of Maryland; no open-license or terms page found on 2026-11-01.",
+          "locator": "Sections Equal-Payment-Series Compound Amount Factor (derivation, factor, Example 1) and Equal-Payment-Series Sinking-Fund Factor (Example 1).",
+          "redistribution": "No verbatim excerpts stored; only short original paraphrases, formula symbols and computed values.",
+          "title": "Introduction to Engineering Economics (ENCE 202 tutorial, Univ. of Maryland)",
+          "url": "https://user.eng.umd.edu/~austin/ence202.d/economics.html",
+          "version": "Tutorial text as printed; last modified February 1, 1998"
+        }
+      ],
+      "summary": "Future (accumulated) value of a level end-of-period payment series at a positive per-period rate.",
+      "title": "Future value of an ordinary (end-of-period) annuity",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-series:end-of-period-level-payments:fixed-rate",
+          "definition": "Level end-of-period deposit per period",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite payment",
+          "quantity_id": "periodic_payment",
+          "role": "input",
+          "source_symbol": "A (end-of-year payments of $A)",
+          "symbol": "A",
+          "unit": "USD"
+        },
+        {
+          "context": "same-series:end-of-period-level-payments:fixed-rate",
+          "definition": "Effective interest rate per payment period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite decimal; zero excluded (separate limit branch)",
+          "quantity_id": "periodic_rate",
+          "role": "input",
+          "source_symbol": "i (annual interest rate; here per payment period)",
+          "symbol": "i",
+          "unit": "1"
+        },
+        {
+          "context": "same-series:end-of-period-level-payments:fixed-rate",
+          "definition": "Number of equal deposits",
+          "dimensions": "count",
+          "domain": "At least one period; integer-valued counts in use",
+          "quantity_id": "period_count",
+          "role": "input",
+          "source_symbol": "n (number of payments/periods)",
+          "symbol": "n",
+          "unit": "periods"
+        },
+        {
+          "context": "same-series:end-of-period-level-payments:fixed-rate",
+          "definition": "Accumulated value immediately after the last deposit",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite amount",
+          "quantity_id": "future_value",
+          "role": "output",
+          "source_symbol": "F (total compound amount at year N)",
+          "symbol": "F",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: equal beginning-of-period payments with the first at time 0, each compounding one extra period relative to the immediate form (article due-factor relation).",
+        "Application profile: advance-payment streams such as rent, leases and insurance premiums named in the article; rate and payment fixed.",
+        "All amounts on one price basis."
+      ],
+      "constants": [],
+      "guards": [
+        "R >= 0",
+        "i > 0",
+        "n >= 1"
+      ],
+      "id": "engineering-finance--annuity-due-present-value",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Reuses b01 proposed meanings periodic_payment, periodic_rate, period_count, present_value; no current-runtime projection attempted.",
+          "Mathematically distinct from uniform-present-value@source-3 by the beginning-of-period (1+i) timing factor, per the assignment allowance for annuity-due variants."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R=P/((1-(1+i)**(-n))/i*(1+i)) needs i>0, n>=1 and P>=0; checked against the article present-value-to-payment example (70000/2.62571=26659.4 against published 26659.47, factor-rounding). Substitution check at n=1: the factor equals 1 so P=R (a single advance payment is already at time 0). The i-to-0 limit P=R*n is a separate branch.",
+      "kind": "theoretical",
+      "limitations": [
+        "Zero-rate case (i=0) is excluded by guard; its limit branch P=R*n is a separate expression.",
+        "End-of-period streams use the immediate form without the (1+i) multiple.",
+        "Life-contingent and indexed variants are excluded (see deferred)."
+      ],
+      "references": [
+        {
+          "expected": 250700.0,
+          "id": "quarterly-annuity-due",
+          "inputs": {
+            "R": 9435.71,
+            "i": 0.0125,
+            "n": 32
+          },
+          "method": "Article Example 2 values an annuity-due with PV 250700, quarterly i=0.0125, n=32 and payment 9435.71; recomputation from the rounded payment gives 250700.12, so tolerance covers the cent rounding of R.",
+          "provenance": "Published worked example (present value to payment, annuity-due, Example 2) in the Annuity article, run in the P direction",
+          "tolerance": 0.5
+        },
+        {
+          "expected": 5000.0,
+          "id": "single-advance-boundary",
+          "inputs": {
+            "R": 5000,
+            "i": 0.1,
+            "n": 1
+          },
+          "method": "Boundary identity: one beginning-of-period payment is already at time 0, so the due factor equals 1.",
+          "provenance": "Limiting identity of the source due-factor relation",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R": 1000,
+            "i": 0,
+            "n": 5
+          },
+          "kind": "domain",
+          "reason": "Zero rate makes the immediate divisor zero and needs the separate limit branch P=R*n; excluded by i>0."
+        },
+        {
+          "inputs": {
+            "R": 1000,
+            "n": 5
+          },
+          "kind": "missing-input",
+          "reason": "Without the per-period rate the discount factor is undefined."
+        }
+      ],
+      "relationship": {
+        "expression": "R*((1-(1+i)**(-n))/i)*(1+i)",
+        "locator": "Annuity article: Annuity-due section (present value factor a-double-dot = (1+i)*a-angle-n with a-angle-n = (1-(1+i)^-n)/i; present-value-to-payment formula R=A/(a-double-dot); Example 2 with A=250700, i=0.0125, n=32 giving R=9435.71).",
+        "original_equation": "a-double-dot_n|i = (1+i) * (1-(1+i)^-n)/i; P = R * a-double-dot_n|i",
+        "output_symbol": "P",
+        "source_id": "wikipedia-annuity",
+        "translation_notes": "Negative exponent is scalar-legal on the dimensionless base (1+i); evaluated exponents in references are -32 and -1, within the tooling magnitude cap. Dimensional check: currency times a dimensionless factor stays currency. Beginning-of-period timing is carried by the explicit (1+i) multiple, matching the source. Guards i>0 and n>=1 keep all divisors nonzero."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Article defines annuity-due as equal payments at the beginning of each period (rent, leases, insurance), prints the due present-value factor as (1+i) times the immediate factor (1-(1+i)^-n)/i, gives the present-value-to-payment formula with two worked examples (70000 at 15%/3 giving 26659.47; 250700 quarterly at 1.25%/32 giving 9435.71), and proves the immediate factor as a geometric series of discount factors.",
+          "id": "wikipedia-annuity",
+          "kind": "primary",
+          "license": "Wikimedia projects carry the CC BY-SA license via the site footer as standard; the footer text was not separately archived in this record on 2026-11-01, so treat the exact license version as unverified.",
+          "locator": "Sections Timing of payments; Valuation; Annuity-certain; Annuity-immediate (factor, proof, PV example 4495.50); Annuity-due (factors, PV examples); Example calculations.",
+          "redistribution": "Only short paraphrases and standard formula symbols; no passage copied.",
+          "title": "Annuity (Wikipedia, tertiary summary with textbook citations)",
+          "url": "https://en.wikipedia.org/wiki/Annuity",
+          "version": "Article revision as read on 2026-11-01"
+        }
+      ],
+      "summary": "Present value of a level beginning-of-period payment series via the source-stated (1+i) timing shift.",
+      "title": "Present value of an annuity-due (beginning-of-period)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-series:beginning-of-period-level-payments:fixed-rate",
+          "definition": "Level beginning-of-period payment",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite payment",
+          "quantity_id": "periodic_payment",
+          "role": "input",
+          "source_symbol": "R (level payment; article A for the given present value)",
+          "symbol": "R",
+          "unit": "USD"
+        },
+        {
+          "context": "same-series:beginning-of-period-level-payments:fixed-rate",
+          "definition": "Effective interest rate per payment period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite decimal; zero excluded (separate limit branch)",
+          "quantity_id": "periodic_rate",
+          "role": "input",
+          "source_symbol": "i (effective interest rate per period)",
+          "symbol": "i",
+          "unit": "1"
+        },
+        {
+          "context": "same-series:beginning-of-period-level-payments:fixed-rate",
+          "definition": "Number of equal advance payments",
+          "dimensions": "count",
+          "domain": "At least one period; integer-valued counts in use",
+          "quantity_id": "period_count",
+          "role": "input",
+          "source_symbol": "n (number of payments)",
+          "symbol": "n",
+          "unit": "periods"
+        },
+        {
+          "context": "same-series:beginning-of-period-level-payments:fixed-rate",
+          "definition": "Present (time-0) value of the advance-payment stream",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite amount",
+          "quantity_id": "present_value",
+          "role": "output",
+          "source_symbol": "P (present value; article A for the given value)",
+          "symbol": "P",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: equal beginning-of-period deposits with the first at time 0, each compounding one extra period relative to the immediate accumulation (article due-factor relation).",
+        "Application profile: advance-deposit accumulation with no withdrawals; payment and rate fixed.",
+        "All amounts on one price basis."
+      ],
+      "constants": [],
+      "guards": [
+        "R >= 0",
+        "i > 0",
+        "n >= 1"
+      ],
+      "id": "engineering-finance--annuity-due-future-value",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Reuses b01 proposed meanings periodic_payment, periodic_rate, period_count, future_value; no current-runtime projection attempted.",
+          "Mathematically distinct from the ordinary-annuity accumulation by the beginning-of-period (1+i) timing factor."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R=S/(((1+i)**n-1)/i*(1+i)) needs i>0 and n>=1. Substitution check at n=1: the factor equals (1+i), so F=R*(1+i) (a single advance deposit compounds exactly one period), unlike the immediate form where F=R. The i-to-0 limit F=R*n is a separate branch.",
+      "kind": "theoretical",
+      "limitations": [
+        "Zero-rate case (i=0) is excluded by guard; its limit branch F=R*n is a separate expression.",
+        "End-of-period deposits use the immediate accumulation without the (1+i) multiple.",
+        "Life-contingent and indexed variants are excluded (see deferred)."
+      ],
+      "references": [
+        {
+          "expected": 11730.01,
+          "id": "monthly-annuity-due",
+          "inputs": {
+            "R": 100,
+            "i": 0.0075,
+            "n": 84
+          },
+          "method": "Article prints FV_due(0.09/12, 7*12, 100) = 100*s-double-dot_84|0.0075 = 11730.01; recomputation gives 11730.013, so tolerance covers the cent rounding.",
+          "provenance": "Published worked example (future value of a 7-year monthly annuity-due) in the Annuity article",
+          "tolerance": 0.05
+        },
+        {
+          "expected": 112.0,
+          "id": "single-advance-boundary",
+          "inputs": {
+            "R": 100,
+            "i": 0.12,
+            "n": 1
+          },
+          "method": "Boundary identity: one beginning-of-period deposit compounds exactly one period, F=R*(1+i).",
+          "provenance": "Limiting identity of the source due-factor relation",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R": 100,
+            "i": -0.5,
+            "n": 5
+          },
+          "kind": "domain",
+          "reason": "Negative per-period rate is outside the declared positive-rate scope and violates i>0."
+        },
+        {
+          "inputs": {
+            "R": 100,
+            "i": 0.12
+          },
+          "kind": "missing-input",
+          "reason": "Term count n is required; the accumulation horizon is undefined without it."
+        }
+      ],
+      "relationship": {
+        "expression": "R*(((1+i)**n - 1)/i)*(1+i)",
+        "locator": "Annuity article: Annuity-due section (future value factor s-double-dot = (1+i)*s-angle-n with s-angle-n = ((1+i)^n-1)/i; FV example with j=0.09 monthly, n=84, R=100 giving 11730.01).",
+        "original_equation": "s-double-dot_n|i = (1+i) * ((1+i)^n-1)/i; FV_due = R * s-double-dot_n|i",
+        "output_symbol": "F",
+        "source_id": "wikipedia-annuity",
+        "translation_notes": "Dimensional check: currency times a dimensionless factor stays currency. Beginning-of-period timing is carried by the explicit (1+i) multiple, matching the source. Guards i>0 and n>=1 keep the divisor i and the factor positive. Reference exponents 84 and 1 are within the tooling cap."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Article prints the due future-value factor as (1+i) times the immediate factor ((1+i)^n-1)/i and works the 7-year monthly annuity-due (j=0.09, i=0.0075, n=84, R=100) to 11730.01.",
+          "id": "wikipedia-annuity",
+          "kind": "primary",
+          "license": "Wikimedia projects carry the CC BY-SA license via the site footer as standard; the footer text was not separately archived in this record on 2026-11-01, so treat the exact license version as unverified.",
+          "locator": "Section Annuity-due (future value factor and FV example).",
+          "redistribution": "Only short paraphrases and standard formula symbols; no passage copied.",
+          "title": "Annuity (Wikipedia, tertiary summary with textbook citations)",
+          "url": "https://en.wikipedia.org/wiki/Annuity",
+          "version": "Article revision as read on 2026-11-01"
+        }
+      ],
+      "summary": "Future (accumulated) value of a level beginning-of-period deposit series via the source-stated (1+i) timing shift.",
+      "title": "Future value of an annuity-due (beginning-of-period)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-series:beginning-of-period-level-deposits:fixed-rate",
+          "definition": "Level beginning-of-period deposit per period",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite deposit",
+          "quantity_id": "periodic_payment",
+          "role": "input",
+          "source_symbol": "R (level payment/deposit)",
+          "symbol": "R",
+          "unit": "USD"
+        },
+        {
+          "context": "same-series:beginning-of-period-level-deposits:fixed-rate",
+          "definition": "Effective interest rate per payment period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite decimal; zero excluded (separate limit branch)",
+          "quantity_id": "periodic_rate",
+          "role": "input",
+          "source_symbol": "i (effective interest rate per period)",
+          "symbol": "i",
+          "unit": "1"
+        },
+        {
+          "context": "same-series:beginning-of-period-level-deposits:fixed-rate",
+          "definition": "Number of equal advance deposits",
+          "dimensions": "count",
+          "domain": "At least one period; integer-valued counts in use",
+          "quantity_id": "period_count",
+          "role": "input",
+          "source_symbol": "n (number of payments)",
+          "symbol": "n",
+          "unit": "periods"
+        },
+        {
+          "context": "same-series:beginning-of-period-level-deposits:fixed-rate",
+          "definition": "Accumulated value immediately after the last period ends",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite amount",
+          "quantity_id": "future_value",
+          "role": "output",
+          "source_symbol": "F (accumulated/future value)",
+          "symbol": "F",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: cash flows of 0 at year 1, G at year 2, 2G at year 3, up to (n-1)G at year n, discounted at fixed rate i under the end-of-year convention.",
+        "Application profile: maintenance or operating costs rising by a constant arithmetic amount per period; gradient and rate fixed.",
+        "All amounts on one price basis."
+      ],
+      "constants": [],
+      "guards": [
+        "i > 0",
+        "n >= 1"
+      ],
+      "id": "engineering-finance--arithmetic-gradient-annual-equivalent",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new quantity meaning gradient_amount (periodic_payment, periodic_rate, period_count reuse b01 proposals); no current-runtime projection attempted.",
+          "The present-value-of-gradient direction is recorded as an inverse, not a separate model."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "G=A/(1/i-n/((1+i)**n-1)) needs i>0, n>1; at n=1 the factor is 0 so any G maps to A=0 and the inverse is underdetermined (a single zero-first-period stream carries no gradient information). Checked: 967.83/(1/0.08-10/(1.08**10-1))=250.0. The i-to-0 limit branch A=G*(n-1)/2 is a separate expression, untested here.",
+      "kind": "theoretical",
+      "limitations": [
+        "Zero-rate case (i=0) is excluded by guard; its limit branch A=G*(n-1)/2 is a separate expression.",
+        "Geometric (percentage-growth) gradients need a distinct growing-annuity record with its own source, not this arithmetic form.",
+        "Decreasing series are admitted by the unsigned math but the worked scope is rising costs; sign discipline belongs to the application."
+      ],
+      "references": [
+        {
+          "expected": 135.9,
+          "id": "umd-gradient-example",
+          "inputs": {
+            "G": 100,
+            "i": 0.12,
+            "n": 4
+          },
+          "method": "Source prints A=135.9 for G=100, i=12%, n=4; recomputation gives 135.885, so tolerance covers the $0.1 rounding.",
+          "provenance": "Published worked example in the UMD tutorial, Uniform Gradient-Series Factor section",
+          "tolerance": 0.05
+        },
+        {
+          "expected": 967.83,
+          "id": "termwise-pv-crosscheck",
+          "inputs": {
+            "G": 250,
+            "i": 0.08,
+            "n": 10
+          },
+          "method": "Expected rounded to cents (exact-form value 967.828); independently verified by discounting each of the 10 gradient cash flows 0,250,...,2250 individually (PV=6494.21) and converting with the UPV factor 6.71008, instead of re-evaluating the closed form.",
+          "provenance": "Independent derivation: term-by-term discounted-cash-flow summation from the source cash-flow definition",
+          "tolerance": 0.01
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "G": 100,
+            "i": 0,
+            "n": 4
+          },
+          "kind": "domain",
+          "reason": "Zero rate makes both divisors zero and needs the separate limit branch A=G*(n-1)/2; excluded by i>0."
+        },
+        {
+          "inputs": {
+            "G": 100,
+            "i": 0.12
+          },
+          "kind": "missing-input",
+          "reason": "Without the term count the gradient stream length is undefined."
+        }
+      ],
+      "relationship": {
+        "expression": "G*(1/i - n/((1+i)**n - 1))",
+        "locator": "UMD tutorial: Uniform Gradient-Series Factor (cash-flow definition 0, G, 2G, ..., (n-1)G; boxed factor A=G*(1/i-n/([1+i]^n-1)); Example 1 with G=100, i=12%, n=4 giving A=135.9).",
+        "original_equation": "A = G * (1/i - n/([1+i]^n - 1))",
+        "output_symbol": "A",
+        "source_id": "umd-ence202",
+        "translation_notes": "Transcribed verbatim into scalar syntax. Dimensional check: currency times a dimensionless bracket stays currency. Guards i>0 and n>=1 keep both divisors nonzero; at n=1 the bracket is exactly 0, an admitted no-gradient boundary. Reference exponents 4 and 10 are within the tooling cap."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Page defines the gradient cash flow as 0 at year 1 through (n-1)G at year n, prints the boxed factor A=G*(1/i-n/([1+i]^n-1)), and works G=100/i=12%/n=4 to A=135.9.",
+          "id": "umd-ence202",
+          "kind": "primary",
+          "license": "Page footer states Copyright (c) 1996-1998, Department of Civil Engineering, University of Maryland; no open-license or terms page found on 2026-11-01.",
+          "locator": "Section Uniform Gradient-Series Factor (definition, factor, Example 1); repeated in Equivalence Calculations with the same example.",
+          "redistribution": "No verbatim excerpts stored; only short original paraphrases, formula symbols and computed values.",
+          "title": "Introduction to Engineering Economics (ENCE 202 tutorial, Univ. of Maryland)",
+          "url": "https://user.eng.umd.edu/~austin/ence202.d/economics.html",
+          "version": "Tutorial text as printed; last modified February 1, 1998"
+        }
+      ],
+      "summary": "Level annual equivalent of an arithmetic gradient series starting at zero and rising by G per period.",
+      "title": "Annual equivalent of an arithmetic gradient series",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-series:arithmetic-gradient:end-of-period",
+          "definition": "Constant arithmetic rise per period (year-1 flow is 0, year-2 is G)",
+          "dimensions": "currency",
+          "domain": "Finite gradient amount; worked scope is nonnegative",
+          "quantity_id": "gradient_amount",
+          "role": "input",
+          "source_symbol": "G (gradient amount)",
+          "symbol": "G",
+          "unit": "USD"
+        },
+        {
+          "context": "same-series:arithmetic-gradient:end-of-period",
+          "definition": "Effective interest rate per period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite decimal; zero excluded (separate limit branch)",
+          "quantity_id": "periodic_rate",
+          "role": "input",
+          "source_symbol": "i (interest rate)",
+          "symbol": "i",
+          "unit": "1"
+        },
+        {
+          "context": "same-series:arithmetic-gradient:end-of-period",
+          "definition": "Number of periods in the gradient stream",
+          "dimensions": "count",
+          "domain": "At least one period; integer-valued counts in use",
+          "quantity_id": "period_count",
+          "role": "input",
+          "source_symbol": "n (number of years/periods)",
+          "symbol": "n",
+          "unit": "periods"
+        },
+        {
+          "context": "same-series:arithmetic-gradient:end-of-period",
+          "definition": "Level end-of-period annual equivalent of the gradient stream",
+          "dimensions": "currency",
+          "domain": "Finite level amount; zero when n=1",
+          "quantity_id": "periodic_payment",
+          "role": "output",
+          "source_symbol": "A (level annual equivalent)",
+          "symbol": "A",
+          "unit": "USD"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

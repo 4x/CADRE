@@ -1,0 +1,236 @@
+{
+  "name": "chain-battery",
+  "version": 1,
+  "tolerance_relative": 1e-06,
+  "notes": "Tier 1 should complete today (single models and the one verified same-batch chain). All entries are tier 1 as of 2026-11-04 (every named bridge landed and flipped live); the runner reports completed-with-correct-values on a blocked expectation as FIXED. Oracle amounts were computed offline with runtime.execute (fixture purpose); tier-2 links ran stepwise with hand wiring and are documented per entry. Battery runs need live inference: the owner runs evals/run_chain_battery.py with --env-file .env.",
+  "entries": [
+    {
+      "id": "t1-mechanics-2hop",
+      "tier": 1,
+      "question": "A car accelerates from rest to 60 mph in 8 seconds. What is its acceleration and how far does it travel?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "acceleration",
+          "unit": "m/s^2",
+          "amount": 3.3528
+        },
+        {
+          "meaning": "position",
+          "unit": "m",
+          "amount": 107.2896
+        }
+      ],
+      "needs": "none; inverse velocity view feeds displacement (audit-verified edge). v0/x0 come from fill-in.",
+      "why_llm_loses": "mph conversion plus average-velocity reasoning across an inverse solve."
+    },
+    {
+      "id": "t1-doppler",
+      "tier": 1,
+      "question": "An ambulance siren sounds at 800 Hz. The speed of sound is 343 m/s. The ambulance approaches a stationary observer at 25 m/s. What frequency does the observer hear?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "observed_wave_frequency",
+          "unit": "Hz",
+          "amount": 862.8930817610063
+        }
+      ],
+      "needs": "none; single four-input model. u_o=0 comes from fill-in.",
+      "why_llm_loses": "Sign conventions on approaching/receding velocities."
+    },
+    {
+      "id": "t1-carnot",
+      "tier": 1,
+      "question": "A reversible heat pump works between a cold reservoir at 270 K and a hot reservoir at 300 K. What is its maximum heating COP?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "carnot_heating_cop_bound",
+          "unit": "1",
+          "amount": 10.0
+        }
+      ],
+      "needs": "none; single model plus bound reasoning.",
+      "why_llm_loses": "Bound reasoning (is COP 5 plausible?) rather than arithmetic."
+    },
+    {
+      "id": "t1-fisher",
+      "tier": 1,
+      "question": "With a nominal interest rate of 8 percent and inflation of 3 percent, what is the exact real interest rate?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "real_rate",
+          "unit": "1",
+          "amount": 0.04854368932038833
+        }
+      ],
+      "needs": "none; single model.",
+      "why_llm_loses": "LLMs overwhelmingly answer 5% (8-3) instead of 4.854%."
+    },
+    {
+      "id": "t1-loan-single",
+      "tier": 1,
+      "question": "A $400,000 loan is repaid in 30 level annual payments at a periodic rate of 0.06. What is the annual payment?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "periodic_payment",
+          "unit": "USD",
+          "amount": 29059.56459601888
+        }
+      ],
+      "needs": "none; single model. Phrasing is stilted because the natural periodic-rate link is context-blocked (see t2-mortgage-full). Known engine limit: exponents above 100 reject, so 360-payment loans cannot execute yet.",
+      "why_llm_loses": "Rounding drift across (1+i)^30 compounding."
+    },
+    {
+      "id": "t1-gdp",
+      "tier": 1,
+      "question": "Personal consumption expenditure is $14,000,000,000,000, gross private domestic investment is $4,000,000,000,000, government consumption and gross investment is $4,000,000,000,000, exports of goods and services are $3,000,000,000,000 and imports of goods and services are $3,500,000,000,000. What is gross domestic product?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "gross_domestic_product_current_price",
+          "unit": "USD",
+          "amount": 21500000000000.0
+        }
+      ],
+      "needs": "none; single five-input identity.",
+      "why_llm_loses": "Dropped zeros and flipped import sign at trillion scale."
+    },
+    {
+      "id": "t1-mortgage-full",
+      "tier": 1,
+      "question": "A $400,000 loan at 6 percent nominal compounded annually is repaid in 30 level annual payments. What is the annual payment and the interest portion of the first payment?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "periodic_payment",
+          "unit": "USD",
+          "amount": 29059.56459601888
+        },
+        {
+          "meaning": "interest_payment",
+          "unit": "USD",
+          "amount": 24000.0
+        }
+      ],
+      "needs": "none; bridge admitted and battery-verified FIXED 2026-11-04. Was: periodic-rate-to-loan adapter still missing; loan-schedule r2 (brief-7) admitted with both edges audit-verified. Oracle ran periodic-rate, loan-payment, interest-portion stepwise.",
+      "why_llm_loses": "Three-hop chain with exact schedule arithmetic."
+    },
+    {
+      "id": "t1-dosing",
+      "tier": 1,
+      "question": "A 22 kg child is prescribed 15 mg per kg of a drug. The suspension contains 250 mg in 5 mL. What volume should be administered?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "prescribed_liquid_medication_volume",
+          "unit": "m^3",
+          "amount": 6.6e-06
+        }
+      ],
+      "needs": "none; dosing context r2 (brief-8) admitted, edge audit-verified. Oracle ran prescribed-mass then prescribed-volume stepwise.",
+      "why_llm_loses": "Dosing arithmetic across mg/kg, mg, and mL with an exact locator trail. Informational eval only, not medical advice."
+    },
+    {
+      "id": "t1-optics-chain",
+      "tier": 1,
+      "question": "A paraxial thin lens of refractive index 1.5 sits in a medium of index 1.0, with surface curvatures 5 and -5 per meter. An object is placed 0.3 m from the lens. What are the focal length, image distance, and transverse magnification?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "focal_length",
+          "unit": "m",
+          "amount": 0.2
+        },
+        {
+          "meaning": "image_distance",
+          "unit": "m",
+          "amount": 0.6
+        },
+        {
+          "meaning": "transverse_magnification",
+          "unit": "1",
+          "amount": -2.0
+        }
+      ],
+      "needs": "none; optics focal-length r2 (brief-9) admitted, both edges audit-verified. Oracle ran lens-maker, imaging, magnification stepwise.",
+      "why_llm_loses": "Sign conventions across a three-hop optics chain."
+    },
+    {
+      "id": "t1-raid-fill",
+      "tier": 1,
+      "question": "A homogeneous array of 4 disks of 2000 GB each is configured as RAID-5. How long does it take to fill it over an interface averaging 500 MB per second?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "transfer_time",
+          "unit": "s",
+          "amount": 12000.0
+        }
+      ],
+      "needs": "none; bridge admitted and battery-verified FIXED 2026-11-04. Was: three meaning adapters (usable-capacity to gigabyte-count to data-size; megabyte-rate to transfer-rate). Oracle ran the four links stepwise.",
+      "why_llm_loses": "Bits-vs-bytes and decimal-vs-binary traps across four hops."
+    },
+    {
+      "id": "t1-real-fv",
+      "tier": 1,
+      "question": "What is the real future value of $10,000 invested for 10 years at 8 percent nominal interest with 3 percent inflation, compounded annually?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "future_value",
+          "unit": "USD",
+          "amount": 16064.429531891092
+        }
+      ],
+      "needs": "none; bridge admitted and battery-verified FIXED 2026-11-04. Was: scoped real-rate bridge (or dedicated real-FV model). Oracle ran Fisher then lump-sum stepwise.",
+      "why_llm_loses": "Exact Fisher rate carried through ten years of compounding."
+    },
+    {
+      "id": "t1-co2e",
+      "tier": 1,
+      "question": "A facility burns fuel with an activity amount of 1000 kg at an emission factor of 3.15 kg per kg, and also emits 2 kg of methane with a global warming potential of 29.8. What is the total carbon dioxide equivalent?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "carbon_dioxide_equivalent",
+          "unit": "kg",
+          "amount": 3209.6
+        }
+      ],
+      "needs": "none; bridge admitted and battery-verified FIXED 2026-11-04. Was: emission-mass to greenhouse-gas-mass bridge plus CO2e context alignment. Oracle ran the three links stepwise.",
+      "why_llm_loses": "Multi-hop chain up a kg/tonne/g ladder."
+    },
+    {
+      "id": "t1-downtime",
+      "tier": 1,
+      "question": "A server element has a mean time to failure of 50,000 hours and a mean time to repair of 4 hours. How many hours per year is it down?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {
+          "meaning": "annual_downtime",
+          "unit": "h",
+          "amount": 0.7006878899379876
+        }
+      ],
+      "needs": "none; bridge admitted and battery-verified FIXED 2026-11-04. Was: two availability bridges plus context alignment. Oracle ran MTBF, availability, downtime stepwise with 1-A hand-wired.",
+      "why_llm_loses": "Series/parallel reliability math plus per-year accounting."
+    }
+  ]
+}

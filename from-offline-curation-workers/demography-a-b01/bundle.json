@@ -1,0 +1,853 @@
+{
+  "batch_id": "demography-a-b01",
+  "created": "2026-11-03",
+  "curator": "muse-spark",
+  "deferred": [
+    {
+      "reason": "Valuable adjacent discovery but explicitly excluded: assignment boundaries defer every doubling-time, half-life and exponential/logarithmic form with sources, never approximated. PRB defines doubling time as years for a population to double at the current growth rate; curating it needs log/exp operators and growth-rate inputs. Continuation priority: locate a primary exponential-growth/doubling-time equation source and curate with requires-extension for log.",
+      "source_urls": [
+        "https://www.prb.org/resource/glossary/",
+        "https://openstax.org/books/introduction-sociology-3e/pages/20-1-demography-and-population"
+      ],
+      "title": "Population doubling time from growth rate (exponential form)"
+    },
+    {
+      "reason": "Excluded by boundaries: fertility/mortality aggregates over age groups are supplied inputs, never computed from raw schedules here (no arrays); life tables and projection models are excluded. PRB glossary lists cohort, age-specific rates and related schedule concepts. Continuation priority: curate age-specific rates only as supplied scalar inputs with calibration scope, or defer schedule-based tables as unsupported families.",
+      "source_urls": [
+        "https://www.prb.org/resource/glossary/",
+        "https://ecampusontario.pressbooks.pub/demographyandeconomics/chapter/demographic-data/"
+      ],
+      "title": "Life tables and age-specific fertility/mortality schedules"
+    },
+    {
+      "reason": "Excluded by boundaries: projection models, life tables and stable-population theory are out of scope. Discovered via Eurostat EU population-projections use of net-migration-plus-adjustment and World Bank WPP sourcing. Continuation priority: retain stable-population/projection relationships as deferred with UN WPP methodology sources.",
+      "source_urls": [
+        "https://ec.europa.eu/eurostat/cache/metadata/en/demo_gind_esms.htm",
+        "https://databank.worldbank.org/metadataglossary/world-development-indicators/series/SP.POP.DPND"
+      ],
+      "title": "Stable-population theory and cohort-component projection models"
+    },
+    {
+      "reason": "Adjacent reusable ratio inside assignment scope but held for batch b02 to keep b01 bounded: child/woman ratio and sex ratio are defined on the PRB glossary page already inspected. Continuation priority: curate sex ratio (males per 100 females) and child-woman ratio as scalar ratios with explicit reference populations.",
+      "source_urls": [
+        "https://www.prb.org/resource/glossary/",
+        "https://openstax.org/books/introduction-sociology-3e/pages/20-1-demography-and-population"
+      ],
+      "title": "Sex ratio and child-woman ratio (held for next batch)"
+    }
+  ],
+  "domain": "demography",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "New quantity meanings used here (crude_birth_rate, crude_death_rate, live_birth_period_count, death_period_count, midperiod_reference_population, youth_dependent_population, elderly_dependent_population, working_age_population, dependency_ratio, initial/final population, immigration/emigration period counts) are not in the supplied runtime vocabulary snapshot; all four records use requires-extension with explicit gaps.",
+      "Rate-scale convention (per 1000 persons for vital rates; per 100 working-age persons for dependency) is carried by explicit scaling literals (1000, 100) in the expressions with output unit 1. A future registry rate-unit decision must not double-count these literals as unit conversions.",
+      "Duplicate search was limited to the supplied data/curation/catalog-inventory.json (building-energy records only, no demography entries) plus this batch; no global uniqueness is claimed.",
+      "No archive, PDF, screenshot or credential is included; precise source links and short paraphrases are recorded for later review."
+    ],
+    "queries": [],
+    "review_notes": "Validated with: uv --cache-dir .uv-cache run --no-env-file -m connected_models.curation validate returns/demography-a-b01/bundle.json (to be run after writing; revalidate after any edit and validate the packed ZIP). Arithmetic checked by hand: CBR 9500/1M*1000=9.5, 12000/300000*1000=40, 0-case=0; CDR 9500/1M*1000=9.5, 4500/180000*1000=25, 0-case=0; TDR 100*(20M+15M)/70M=50, 0-case=0; balance 1000000+12000-9000+5000-3000=1005000, no-change 50000. Source fidelity reviewed: symbolic equations come from World Bank methodology sentences and Eurostat 3.4 definitions; OpenStax/CDC/PRB/Hageman corroborate scope. Not reviewed: central scientific approval, broad cross-source reconciliation, and legal clearance beyond the license notes in each source entry.",
+    "summary": "Batch b01 curates the four seed relationships: crude birth rate, crude death rate, total dependency ratio and the demographic balancing identity, each with explicit reference population, period and scaling literal. All use requires-extension (new demography meanings). Sources inspected directly on 2026-11-03: OpenStax Sociology 3e s20.1, World Bank DataBank CBR/CDR/DPND glossaries (UN WPP-sourced, CC BY-4.0), Eurostat demo_gind reference metadata (27 July 2026), CDC/NCHS Health United States Rate page (16 Sept 2026), Hageman Demography and Economics ch.3, PRB glossary (2 Oct 2020). Deferred: doubling/exponential forms, life tables/schedules, stable-population/projection models, plus sex/child-woman ratios held for b02."
+  },
+  "kit_version": "2026-10-31.6",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: the reference population is the midyear estimate or equivalently the arithmetic mean of start/end stocks for the same period and residency definition (World Bank midyear divisor; Eurostat average of 1-January stocks; Hageman beginning/end average).",
+        "Application profile: the period is normally one calendar year, but the expression uses only the supplied period counts; no calendar-date arithmetic or physical-time conversion is performed.",
+        "Source assumption: the numerator counts live births and the denominator counts the same usually-resident reference population (Eurostat usually-resident definition; World Bank midyear population)."
+      ],
+      "constants": [
+        {
+          "literal": 1000,
+          "locator": "Methodology: The rate is usually expressed in terms of 1,000 people, with the worked illustration that 9.5 per 1000 in 1 million implies 9500 births.",
+          "meaning": "Conventional crude-rate base: rate expressed per 1000 persons",
+          "source_id": "worldbank-cbr-glossary",
+          "unit": "1"
+        }
+      ],
+      "guards": [
+        "P > 0",
+        "B >= 0"
+      ],
+      "id": "demography--crude-birth-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New meanings crude_birth_rate, live_birth_period_count and midperiod_reference_population are absent from the supplied runtime vocabulary; extension required.",
+          "Per-1000 rate convention is carried by the explicit ×1000 literal with output unit 1; a registry rate-scale decision must not double-count it as a unit conversion.",
+          "Time aggregation stays in supplied period counts; no physical-time conversion."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Forward solves CBR from B and P. Inverse B = CBR * P / 1000 needs known CBR and P with P > 0; inverse P = B * 1000 / CBR needs B and CBR with CBR > 0 (CBR = 0 with B = 0 leaves P underdetermined; CBR = 0 with B > 0 is inconsistent). Substitution check: CBR = 9.5 and P = 1000000 give B = 9500, matching reference cbr-worldbank-illustration. Original guards persist in inverse views; B >= 0 retained. Algebraic inversion does not imply causal invertibility.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes age structure: the crude rate does not adjust for sex/age composition and is not appropriate for comparing populations with very different age distributions (World Bank statistical concepts).",
+        "Excludes migration accounting and any causal or forecast claim: this is a period accounting rate, not a prediction of future births.",
+        "Reference-case counts are not reusable defaults: no fixed birth or population value is a default input."
+      ],
+      "references": [
+        {
+          "expected": 9.5,
+          "id": "cbr-worldbank-illustration",
+          "inputs": {
+            "B": 9500,
+            "P": 1000000
+          },
+          "method": "Invert the glossary worked illustration (9.5 per 1000 in 1 million implies 9500 births per year) to solve for the rate: 9500 / 1000000 * 1000 = 9.5.",
+          "provenance": "Value derived independently from the published World Bank CBR illustration by recomputation here, not copied as a reported result.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 40,
+          "id": "cbr-ordinary-synthetic",
+          "inputs": {
+            "B": 12000,
+            "P": 300000
+          },
+          "method": "Direct elementary division and scaling: 12000 / 300000 = 0.04, times 1000 = 40; chosen ordinary nonzero case materially different from 9.5.",
+          "provenance": "Independent elementary arithmetic check with synthetic inputs; no observed population claimed.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "cbr-zero-births",
+          "inputs": {
+            "B": 0,
+            "P": 250000
+          },
+          "method": "Zero-birth limiting identity: 0 / 250000 * 1000 = 0 for any admissible P.",
+          "provenance": "Definitional boundary check; not an empirical validation.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "B": 5000,
+            "P": 0
+          },
+          "kind": "domain",
+          "reason": "Zero reference population violates P > 0; division by zero persons has no demographic meaning and is rejected, never divided."
+        },
+        {
+          "inputs": {
+            "B": 5000
+          },
+          "kind": "missing-input",
+          "reason": "The rate needs both the event count and its reference population; omitting P leaves the per-1000 scaling undefined."
+        }
+      ],
+      "relationship": {
+        "expression": "B / P * 1000",
+        "locator": "Methodology paragraph of the SP.DYN.CBRT.IN glossary page (World Bank DataBank, UN WPP source); corroborated by Eurostat demo_gind section 3.4 crude-rates paragraph and CDC/Hageman/OpenStax passages cited in sources.",
+        "original_equation": "CBR = (live births in the period / midyear (average) population in the period) × 1000",
+        "source_id": "worldbank-cbr-glossary",
+        "translation_notes": "B maps the source phrase number of (live) births; P maps midyear population / average population (Eurostat: arithmetic mean of 1-January stocks; Hageman: beginning/end average). The literal 1000 is the conventional rate base (per 1000 persons), not a registry unit conversion: canonical inputs are count (scale 1) and person (scale 1) with output unit 1, so no inlined scale factor is double-counted. Dimensional check: count / person is dimensionless as persons counted; times pure number stays dimensionless on the conventional per-1000 scale. No date arithmetic: period stays in the supplied counts.",
+        "output_symbol": "CBR"
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Methodology paraphrased: CBR is births in a period divided by average (mid-year) population, usually expressed per 1000, with a worked 9.5-per-1000-in-1-million-implies-9500 illustration; subtracting CDR gives the rate of natural increase.",
+          "id": "worldbank-cbr-glossary",
+          "kind": "primary",
+          "license": "World Bank Data Catalog licensing page states the default CC BY-4.0 terms: https://datacatalog.worldbank.org/public-licenses#cc-by (Creative Commons Attribution 4.0 section), accessed 2026-11-03; this glossary page shows a CC BY-4.0 footer.",
+          "locator": "Glossary page SP.DYN.CBRT.IN, Methodology and Statistical concepts sections",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no dataset, table or verbatim passage is copied.",
+          "title": "World Bank DataBank glossary: Birth rate, crude (per 1,000 people), SP.DYN.CBRT.IN (UN World Population Prospects source)",
+          "url": "https://databank.worldbank.org/metadataglossary/gender-statistics/series/SP.DYN.CBRT.IN",
+          "version": "World Development Indicators / Gender Statistics metadata viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Reference metadata paraphrased: average population is the mean of 1-January stocks in consecutive years and feeds crude rates; a crude rate is events over average population times 1000, hence per 1000 persons.",
+          "id": "eurostat-demo-gind",
+          "kind": "primary",
+          "license": "No license statement was found on the inspected metadata page; terms treated as unknown (accessed 2026-11-03). Only a short paraphrase and synthetic numbers are retained.",
+          "locator": "Section 3.4 Statistical concepts and definitions: Average population; Crude rates",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no table or verbatim passage is copied.",
+          "title": "Eurostat reference metadata: Population change - Demographic balance and crude rates at national level (demo_gind), certified/posted/updated 27 July 2026",
+          "url": "https://ec.europa.eu/eurostat/cache/metadata/en/demo_gind_esms.htm",
+          "version": "ESMS metadata demo_gind, 27 July 2026"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Rate page paraphrased: crude birth rate is total live births in a year divided by midyear resident population, expressed per 1000 population (crude = entire population).",
+          "id": "cdc-hus-rate",
+          "kind": "primary",
+          "license": "US federal source page (CDC/NCHS); exact terms page not recorded, so terms treated as unknown (accessed 2026-11-03). Only a short paraphrase and synthetic numbers are retained.",
+          "locator": "Birth and related rates: Birth rate paragraph",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no verbatim passage is copied.",
+          "title": "CDC/NCHS Health, United States: Rate - birth and death rate definitions (updated 16 September 2026)",
+          "url": "https://www.cdc.gov/nchs/hus/sources-definitions/rate.htm",
+          "version": "Page update 16 September 2026"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Textbook passage paraphrased: sociologists measure fertility with the crude birthrate, the number of live births per 1000 people per year, alongside mortality and migration as the three critical aspects.",
+          "id": "openstax-sociology-3e",
+          "kind": "primary",
+          "license": "Preface states Introduction to Sociology 3e is under CC BY-NC-SA 4.0: https://openstax.org/books/introduction-sociology-3e/pages/preface (About OpenStax Resources), accessed 2026-11-03.",
+          "locator": "Section 20.1 Demography and Population, fertility-rate paragraph and migration paragraph",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no verbatim passage is copied.",
+          "title": "OpenStax Introduction to Sociology 3e (2021), Section 20.1 Demography and Population",
+          "url": "https://openstax.org/books/introduction-sociology-3e/pages/20-1-demography-and-population",
+          "version": "3e (2021)"
+        }
+      ],
+      "summary": "Crude birth rate: period live births per 1000 mid-period reference persons; accounting rate only.",
+      "title": "Crude birth rate from live births and mid-period population",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same reference population, reference period and residency definition as P and CBR",
+          "definition": "Number of live births occurring in the reference population during the reference period (usually one year)",
+          "dimensions": "count",
+          "domain": "Nonnegative finite count; zero admits the zero-birth boundary",
+          "quantity_id": "live_birth_period_count",
+          "role": "input",
+          "source_symbol": "live births (source: number of births / live births)",
+          "symbol": "B",
+          "unit": "count"
+        },
+        {
+          "context": "same reference population, reference period and residency definition as B and CBR",
+          "definition": "Mid-period (midyear or two-point average) usually-resident reference population exposed to risk in the same period",
+          "dimensions": "population",
+          "domain": "Positive finite population; zero is excluded and rejected (no division by zero)",
+          "quantity_id": "midperiod_reference_population",
+          "role": "input",
+          "source_symbol": "midyear / average population (source: midyear population; average population)",
+          "symbol": "P",
+          "unit": "person"
+        },
+        {
+          "context": "same reference population, reference period and residency definition as B and P",
+          "definition": "Crude birth rate: live births per 1000 mid-period persons in the reference period",
+          "dimensions": "dimensionless (conventional per-1000 scaling)",
+          "domain": "Nonnegative finite rate on the per-1000 scale; zero admits no births",
+          "quantity_id": "crude_birth_rate",
+          "role": "output",
+          "source_symbol": "crude birth rate (source: birth rate, crude; births per 1000)",
+          "symbol": "CBR",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: the reference population is the midyear estimate or equivalently the arithmetic mean of start/end stocks for the same period and residency definition (World Bank midyear divisor; Eurostat average of 1-January stocks; Hageman beginning/end average).",
+        "Application profile: the period is normally one calendar year, but the expression uses only the supplied period counts; no calendar-date arithmetic or physical-time conversion is performed.",
+        "Source assumption: the numerator counts deaths and the denominator counts the same usually-resident reference population."
+      ],
+      "constants": [
+        {
+          "literal": 1000,
+          "locator": "Methodology: The rate is usually expressed in terms of 1,000 people, with the worked illustration that 9.5 per 1000 in 1 million implies 9500 deaths.",
+          "meaning": "Conventional crude-rate base: rate expressed per 1000 persons",
+          "source_id": "worldbank-cdr-glossary",
+          "unit": "1"
+        }
+      ],
+      "guards": [
+        "P > 0",
+        "D >= 0"
+      ],
+      "id": "demography--crude-death-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New meanings crude_death_rate, death_period_count and midperiod_reference_population are absent from the supplied runtime vocabulary; extension required.",
+          "Per-1000 rate convention is carried by the explicit ×1000 literal with output unit 1; a registry rate-scale decision must not double-count it as a unit conversion.",
+          "Time aggregation stays in supplied period counts; no physical-time conversion."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Forward solves CDR from D and P. Inverse D = CDR * P / 1000 needs known CDR and P with P > 0; inverse P = D * 1000 / CDR needs D and CDR with CDR > 0 (CDR = 0 with D = 0 leaves P underdetermined; CDR = 0 with D > 0 is inconsistent). Substitution check: CDR = 9.5 and P = 1000000 give D = 9500, matching reference cdr-worldbank-illustration. Original guards persist in inverse views; D >= 0 retained. Algebraic inversion does not imply causal invertibility.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes age structure: the crude death rate depends on age-specific mortality and age structure, so it is not appropriate for comparing populations with very different age distributions (World Bank/Hageman).",
+        "Excludes migration accounting and any causal or forecast claim: this is a period accounting rate, not a prediction of future mortality.",
+        "Reference-case counts are not reusable defaults: no fixed death or population value is a default input."
+      ],
+      "references": [
+        {
+          "expected": 9.5,
+          "id": "cdr-worldbank-illustration",
+          "inputs": {
+            "D": 9500,
+            "P": 1000000
+          },
+          "method": "Invert the glossary worked illustration (9.5 per 1000 in 1 million implies 9500 deaths per year) to solve for the rate: 9500 / 1000000 * 1000 = 9.5.",
+          "provenance": "Value derived independently from the published World Bank CDR illustration by recomputation here, not copied as a reported result.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 25,
+          "id": "cdr-ordinary-synthetic",
+          "inputs": {
+            "D": 4500,
+            "P": 180000
+          },
+          "method": "Direct elementary division and scaling: 4500 / 180000 = 0.025, times 1000 = 25; chosen ordinary nonzero case materially different from 9.5.",
+          "provenance": "Independent elementary arithmetic check with synthetic inputs; no observed population claimed.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "cdr-zero-deaths",
+          "inputs": {
+            "D": 0,
+            "P": 500000
+          },
+          "method": "Zero-death limiting identity: 0 / 500000 * 1000 = 0 for any admissible P.",
+          "provenance": "Definitional boundary check; not an empirical validation.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "D": 4000,
+            "P": 0
+          },
+          "kind": "domain",
+          "reason": "Zero reference population violates P > 0; division by zero persons has no demographic meaning and is rejected, never divided."
+        },
+        {
+          "inputs": {
+            "D": 4000
+          },
+          "kind": "missing-input",
+          "reason": "The rate needs both the event count and its reference population; omitting P leaves the per-1000 scaling undefined."
+        }
+      ],
+      "relationship": {
+        "expression": "D / P * 1000",
+        "locator": "Methodology paragraph of the SP.DYN.CDRT.IN glossary page (World Bank DataBank, UN WPP source); corroborated by Eurostat demo_gind section 3.4 crude-rates paragraph and CDC/Hageman passages cited in sources.",
+        "original_equation": "CDR = (deaths in the period / midyear (average) population in the period) × 1000",
+        "source_id": "worldbank-cdr-glossary",
+        "translation_notes": "D maps the source phrase number of deaths; P maps midyear population / average population. The literal 1000 is the conventional rate base (per 1000 persons), not a registry unit conversion: canonical inputs are count (scale 1) and person (scale 1) with output unit 1. Dimensional check: count / person is dimensionless as persons counted; times pure number stays dimensionless on the conventional per-1000 scale. CDC expresses US death rates per 100000; this record keeps the internationally conventional per-1000 base stated by World Bank/Eurostat and does not convert between bases. No date arithmetic: period stays in the supplied counts.",
+        "output_symbol": "CDR"
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Methodology paraphrased: CDR is deaths in a period divided by the population exposed to risk (mid-year for human yearly populations), usually expressed per 1000, with a worked 9.5-per-1000-in-1-million-implies-9500 illustration; subtracting CDR from CBR gives the rate of natural increase.",
+          "id": "worldbank-cdr-glossary",
+          "kind": "primary",
+          "license": "World Bank Data Catalog licensing page states the default CC BY-4.0 terms: https://datacatalog.worldbank.org/public-licenses#cc-by (Creative Commons Attribution 4.0 section), accessed 2026-11-03; this glossary page shows a CC BY-4.0 footer.",
+          "locator": "Glossary page SP.DYN.CDRT.IN, Methodology and Statistical concepts sections",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no dataset, table or verbatim passage is copied.",
+          "title": "World Bank DataBank glossary: Death rate, crude (per 1,000 people), SP.DYN.CDRT.IN (UN World Population Prospects source)",
+          "url": "https://databank.worldbank.org/metadataglossary/world-development-indicators/series/SP.DYN.CDRT.IN",
+          "version": "World Development Indicators metadata viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Reference metadata paraphrased: average population is the mean of 1-January stocks and feeds crude rates; a crude rate is events over average population times 1000, hence per 1000 persons.",
+          "id": "eurostat-demo-gind",
+          "kind": "primary",
+          "license": "No license statement was found on the inspected metadata page; terms treated as unknown (accessed 2026-11-03). Only a short paraphrase and synthetic numbers are retained.",
+          "locator": "Section 3.4 Statistical concepts and definitions: Average population; Crude rates",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no table or verbatim passage is copied.",
+          "title": "Eurostat reference metadata: Population change - Demographic balance and crude rates at national level (demo_gind), certified/posted/updated 27 July 2026",
+          "url": "https://ec.europa.eu/eurostat/cache/metadata/en/demo_gind_esms.htm",
+          "version": "ESMS metadata demo_gind, 27 July 2026"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Rate page paraphrased: death rate is deaths in a year divided by midyear resident population; the page expresses US death rates per 100000 while crude birth rates are per 1000, and notes crude versus specific rates.",
+          "id": "cdc-hus-rate",
+          "kind": "primary",
+          "license": "US federal source page (CDC/NCHS); exact terms page not recorded, so terms treated as unknown (accessed 2026-11-03). Only a short paraphrase and synthetic numbers are retained.",
+          "locator": "Death and related rates: Death rate paragraph",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no verbatim passage is copied.",
+          "title": "CDC/NCHS Health, United States: Rate - birth and death rate definitions (updated 16 September 2026)",
+          "url": "https://www.cdc.gov/nchs/hus/sources-definitions/rate.htm",
+          "version": "Page update 16 September 2026"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Chapter passage paraphrased: crude death rate and net migration rate are computed the same way as CBR (events divided by midyear population, times 1000); crude rates ignore composition, so age structure can mislead comparisons.",
+          "id": "hageman-demographic-data",
+          "kind": "primary",
+          "license": "Pressbooks book page attributes CC BY 4.0 to Demography and Economics by Anya Hageman (researcher-verified footer 2026-11-03; re-verify at review). Only a short paraphrase and synthetic numbers are retained here.",
+          "locator": "Chapter 3 Demographic Data: crude birth/death/net-migration calculation paragraphs and crude-versus-fertility discussion",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no figure, table or verbatim passage is copied.",
+          "title": "Anya Hageman, Demography and Economics, Chapter 3: Demographic Data (eCampusOntario Pressbooks, 2024)",
+          "url": "https://ecampusontario.pressbooks.pub/demographyandeconomics/chapter/demographic-data/",
+          "version": "Pressbooks chapter viewed 2026-11-03"
+        }
+      ],
+      "summary": "Crude death rate: period deaths per 1000 mid-period reference persons; accounting rate only.",
+      "title": "Crude death rate from deaths and mid-period population",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same reference population, reference period and residency definition as P and CDR",
+          "definition": "Number of deaths occurring in the reference population during the reference period (usually one year)",
+          "dimensions": "count",
+          "domain": "Nonnegative finite count; zero admits the zero-death boundary",
+          "quantity_id": "death_period_count",
+          "role": "input",
+          "source_symbol": "deaths (source: number of deaths)",
+          "symbol": "D",
+          "unit": "count"
+        },
+        {
+          "context": "same reference population, reference period and residency definition as D and CDR",
+          "definition": "Mid-period (midyear or two-point average) usually-resident reference population exposed to risk in the same period",
+          "dimensions": "population",
+          "domain": "Positive finite population; zero is excluded and rejected (no division by zero)",
+          "quantity_id": "midperiod_reference_population",
+          "role": "input",
+          "source_symbol": "midyear / average population (source: midyear population; average population)",
+          "symbol": "P",
+          "unit": "person"
+        },
+        {
+          "context": "same reference population, reference period and residency definition as D and P",
+          "definition": "Crude death rate: deaths per 1000 mid-period persons in the reference period",
+          "dimensions": "dimensionless (conventional per-1000 scaling)",
+          "domain": "Nonnegative finite rate on the per-1000 scale; zero admits no deaths",
+          "quantity_id": "crude_death_rate",
+          "role": "output",
+          "source_symbol": "crude death rate (source: death rate, crude; deaths per 1000)",
+          "symbol": "CDR",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: age bands are 0-14 (youth), 65+ (elderly) and 15-64 (working age) in the same reference population and reference date (World Bank; PRB under-15/65-and-older versus 15-64).",
+        "Application profile: all three inputs count the same usually-resident population at the same reference date; no period-flow conversion is involved.",
+        "Source assumption: the ratio describes age composition only; it does not assert who works (World Bank/PRB dependency caveat)."
+      ],
+      "constants": [
+        {
+          "literal": 100,
+          "locator": "Methodology: Age dependency ratio is calculated as 100 x (Population (0-14) + Population (65+)) / Population (15-64); data shown as dependents per 100 working-age population.",
+          "meaning": "Conventional dependency base: dependents per 100 working-age persons",
+          "source_id": "worldbank-dependency-glossary",
+          "unit": "1"
+        }
+      ],
+      "guards": [
+        "W > 0",
+        "Y >= 0",
+        "O >= 0"
+      ],
+      "id": "demography--total-dependency-ratio",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New meanings dependency_ratio, youth_dependent_population, elderly_dependent_population and working_age_population are absent from the supplied runtime vocabulary; extension required.",
+          "Per-100 convention is carried by the explicit ×100 literal with output unit 1 (conventionally reported as dependents per 100 working-age); a registry percent/rate-scale decision must not double-count it.",
+          "No age-schedule computation is performed: youth and elderly aggregates are supplied inputs with stated scope, never computed from raw schedules."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Forward solves the total dependency ratio from Y, O and W. Inverses need the other two age stocks: e.g. W = 100*(Y+O)/TDR needs TDR > 0 (TDR = 0 with Y+O = 0 leaves W underdetermined; TDR = 0 with Y+O > 0 is inconsistent); Y = TDR*W/100 - O and O = TDR*W/100 - Y need TDR and W with W > 0. Substitution check: TDR = 50, W = 70 with O = 15 gives Y = 20, matching reference tdr-fifty. Guards persist; Y >= 0 and O >= 0 retained. No economic-dependency causality is claimed; inverse views of family models are documented by hand per format limits.",
+      "kind": "definition",
+      "limitations": [
+        "Shows only age composition, not economic dependency: some children and elderly participate in the labor force while many working-age people do not (World Bank statistical concepts).",
+        "Age-structure inputs inherit interpolation limits when sourced from five-year-cohort UN WPP estimates (World Bank notes annual/single-age interpolation may not reflect actual events).",
+        "Component detail is collapsed: youth versus old-age structure is not distinguished here; separate youth and old-age ratios are held for the next batch."
+      ],
+      "references": [
+        {
+          "expected": 50,
+          "id": "tdr-fifty",
+          "inputs": {
+            "O": 15,
+            "W": 70,
+            "Y": 20
+          },
+          "method": "Direct elementary arithmetic: (20 + 15) = 35; 100 * 35 / 70 = 50 dependents per 100 working-age.",
+          "provenance": "Independent elementary arithmetic check with small synthetic stocks; no observed population claimed.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 62.5,
+          "id": "tdr-aged-population",
+          "inputs": {
+            "O": 30,
+            "W": 80,
+            "Y": 20
+          },
+          "method": "Direct elementary arithmetic materially different from 50: (20 + 30) = 50; 100 * 50 / 80 = 62.5.",
+          "provenance": "Independent elementary arithmetic check with a more aged composition; synthetic inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "tdr-no-dependents",
+          "inputs": {
+            "O": 0,
+            "W": 100,
+            "Y": 0
+          },
+          "method": "No-dependent limiting identity: 100 * (0 + 0) / 100 = 0 for any admissible W.",
+          "provenance": "Definitional boundary check; not an empirical validation.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "O": 15,
+            "W": 0,
+            "Y": 20
+          },
+          "kind": "domain",
+          "reason": "Zero working-age population violates W > 0; division by zero working-age persons has no ratio meaning and is rejected, never divided."
+        },
+        {
+          "inputs": {
+            "O": 15,
+            "W": 70
+          },
+          "kind": "missing-input",
+          "reason": "The ratio needs both dependent age aggregates and the working-age denominator; omitting Y leaves the dependent total undefined."
+        }
+      ],
+      "relationship": {
+        "expression": "100 * (Y + O) / W",
+        "locator": "Methodology line of the SP.POP.DPND glossary page (World Bank DataBank, UN Population Division source); corroborated by PRB dependency-ratio entries and Eurostat age-composition context.",
+        "original_equation": "Age dependency ratio = 100 × (Population (0-14) + Population (65+)) / Population (15-64)",
+        "source_id": "worldbank-dependency-glossary",
+        "translation_notes": "Y maps Population (0-14); O maps Population (65+); W maps Population (15-64). Parentheses preserve the dependent-total addition before scaling. The literal 100 is the conventional base (dependents per 100 working-age), not a registry percent conversion: canonical units are person (scale 1) for all stocks with output unit 1, so no inlined scale factor is double-counted. Dimensional check: (person + person) / person is dimensionless; times pure number stays dimensionless on the conventional per-100 scale. Youth/elderly aggregates are supplied inputs with stated 0-14/65+/15-64 scope, never computed from raw schedules (no families used).",
+        "output_symbol": "TDR"
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Methodology paraphrased: dependency ratio is dependents (under 15 or over 64) over working-age (15-64), computed as 100 times the youth-plus-elderly sum divided by working-age and shown per 100 working-age; ratios capture age burden only, not economic dependency.",
+          "id": "worldbank-dependency-glossary",
+          "kind": "primary",
+          "license": "World Bank Data Catalog licensing page states the default CC BY-4.0 terms: https://datacatalog.worldbank.org/public-licenses#cc-by (Creative Commons Attribution 4.0 section), accessed 2026-11-03; this glossary page shows a CC BY-4.0 footer.",
+          "locator": "Glossary page SP.POP.DPND, definition and Methodology lines",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no dataset or verbatim passage is copied.",
+          "title": "World Bank DataBank glossary: Age dependency ratio (% of working-age population), SP.POP.DPND (UN Population Division source)",
+          "url": "https://databank.worldbank.org/metadataglossary/world-development-indicators/series/SP.POP.DPND",
+          "version": "World Development Indicators metadata viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Glossary paraphrased: dependency ratio is under-15 plus 65-and-older over ages 15-64, with a worked 0.45-means-45-per-100 illustration; doubling time and balancing-equation entries appear on the same page.",
+          "id": "prb-glossary",
+          "kind": "primary",
+          "license": "No license statement was recorded from the inspected glossary page; terms treated as unknown (accessed 2026-11-03). Only short paraphrases and synthetic numbers are retained.",
+          "locator": "Entries: Dependency Ratio; Age-Dependency Ratio; Doubling Time; Balancing Equation",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no verbatim passage is copied.",
+          "title": "Population Reference Bureau glossary of demographic terms (published 2 October 2020)",
+          "url": "https://www.prb.org/resource/glossary/",
+          "version": "Glossary page viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Textbook passage paraphrased: population composition includes sex ratio and pyramid distributions by age; fertility, mortality and migration make up total composition.",
+          "id": "openstax-sociology-3e",
+          "kind": "primary",
+          "license": "Preface states Introduction to Sociology 3e is under CC BY-NC-SA 4.0: https://openstax.org/books/introduction-sociology-3e/pages/preface (About OpenStax Resources), accessed 2026-11-03.",
+          "locator": "Section 20.1 Demography and Population, Population Growth / population-composition paragraph",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no verbatim passage is copied.",
+          "title": "OpenStax Introduction to Sociology 3e (2021), Section 20.1 Demography and Population",
+          "url": "https://openstax.org/books/introduction-sociology-3e/pages/20-1-demography-and-population",
+          "version": "3e (2021)"
+        }
+      ],
+      "summary": "Total (age) dependency ratio: youth plus elderly per 100 working-age persons; age-composition ratio only.",
+      "title": "Total dependency ratio from youth, elderly and working-age populations",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same reference population and reference date as O, W and TDR",
+          "definition": "Youth dependent population ages 0-14 in the same reference population and date",
+          "dimensions": "population",
+          "domain": "Nonnegative finite persons; zero admits no youth dependents",
+          "quantity_id": "youth_dependent_population",
+          "role": "input",
+          "source_symbol": "Population (0-14) (source: youth / under 15)",
+          "symbol": "Y",
+          "unit": "person"
+        },
+        {
+          "context": "same reference population and reference date as Y, W and TDR",
+          "definition": "Elderly dependent population ages 65 and over in the same reference population and date",
+          "dimensions": "population",
+          "domain": "Nonnegative finite persons; zero admits no elderly dependents",
+          "quantity_id": "elderly_dependent_population",
+          "role": "input",
+          "source_symbol": "Population (65+) (source: elderly / over 64 / 65 and older)",
+          "symbol": "O",
+          "unit": "person"
+        },
+        {
+          "context": "same reference population and reference date as Y, O and TDR",
+          "definition": "Working-age population ages 15-64 in the same reference population and date",
+          "dimensions": "population",
+          "domain": "Positive finite persons; zero is excluded and rejected (no division by zero)",
+          "quantity_id": "working_age_population",
+          "role": "input",
+          "source_symbol": "Population (15-64) (source: working-age population)",
+          "symbol": "W",
+          "unit": "person"
+        },
+        {
+          "context": "same reference population and reference date as Y, O and W",
+          "definition": "Total age dependency ratio: dependents (youth plus elderly) per 100 working-age persons",
+          "dimensions": "dimensionless (conventional per-100 scaling)",
+          "domain": "Nonnegative finite ratio on the per-100 scale; zero admits no dependents",
+          "quantity_id": "dependency_ratio",
+          "role": "output",
+          "source_symbol": "age dependency ratio (source: age dependency ratio / dependency ratio)",
+          "symbol": "TDR",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: all stocks and flows use the same reference area, residency definition and period: P0 is the start-of-period (1 January) usually-resident stock, P1 the next 1-January stock, and B/D/I/E are flows during year T in that area (Eurostat DEMOBAL/Unidemo timing).",
+        "Application profile: natural change is B - D and net migration is I - E; Eurostat notes published net migration can include a statistical adjustment residual, so I - E here means measured migration flows, with any adjustment disclosed rather than silently absorbed.",
+        "Source assumption: each live birth, death, immigration and emigration event changes the usually-resident stock by one person; the identity counts persons, not cases with multiple counting."
+      ],
+      "constants": [],
+      "guards": [
+        "P0 >= 0",
+        "B >= 0",
+        "D >= 0",
+        "I >= 0",
+        "E >= 0"
+      ],
+      "id": "demography--population-balance",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New meanings initial/final population and period immigration/emigration counts are absent from the supplied runtime vocabulary; extension required.",
+          "Eurostat net-migration-plus-statistical-adjustment practice means a future adapter may be needed to separate measured I - E from residual adjustment; this record keeps pure measured flows.",
+          "Time aggregation stays in supplied period stocks/flows; no physical-time conversion or date arithmetic is used."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Forward solves end-period stock P1 from P0, B, D, I and E with no division, so no singularities. Any single component can be solved when the other five are known, e.g. net migration M = P1 - P0 - B + D with M = I - E, or B = P1 - P0 + D - I + E. Substitution check: P1 = 1005000 with P0 = 1000000, D = 9000, I = 5000, E = 3000 gives B = 12000, matching reference balance-ordinary. Nonnegativity guards persist per component; a derived negative component flags inconsistent inputs. Algebraic rearrangement does not imply causal direction.",
+      "kind": "theoretical",
+      "limitations": [
+        "Does not enforce a nonnegative result: inputs satisfying the guards can still imply a negative P1, which flags inconsistent or out-of-scope inputs rather than a valid stock.",
+        "Explains nothing by itself: the identity separates accounting from causal or forecast claims about why births, deaths or migration took the supplied values.",
+        "Migration residuals are out of scope: Eurostat net migration plus statistical adjustment can bundle coverage error with I - E, and Hageman notes emigration must often be inferred; this identity uses measured flows only."
+      ],
+      "references": [
+        {
+          "expected": 1005000,
+          "id": "balance-ordinary",
+          "inputs": {
+            "B": 12000,
+            "D": 9000,
+            "E": 3000,
+            "I": 5000,
+            "P0": 1000000
+          },
+          "method": "Direct stock-flow arithmetic: 1000000 + 12000 - 9000 + 5000 - 3000 = 1005000; chosen ordinary nonzero-flow case.",
+          "provenance": "Independent elementary arithmetic check with synthetic inputs; no observed population claimed.",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 1002000,
+          "id": "balance-natural-only",
+          "inputs": {
+            "B": 8000,
+            "D": 6000,
+            "E": 0,
+            "I": 0,
+            "P0": 1000000
+          },
+          "method": "Closed-population check materially different from the open case: 1000000 + 8000 - 6000 = 1002000 with zero migration.",
+          "provenance": "Independent elementary arithmetic check with synthetic inputs; isolates natural change.",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 50000,
+          "id": "balance-no-change",
+          "inputs": {
+            "B": 0,
+            "D": 0,
+            "E": 0,
+            "I": 0,
+            "P0": 50000
+          },
+          "method": "No-change limiting identity: 50000 + 0 - 0 + 0 - 0 = 50000 for any admissible stock.",
+          "provenance": "Definitional boundary check; not an empirical validation.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "B": -5,
+            "D": 9000,
+            "E": 3000,
+            "I": 5000,
+            "P0": 1000000
+          },
+          "kind": "domain",
+          "reason": "Negative births violate B >= 0; a negative vital-event count is scientifically excluded and rejected."
+        },
+        {
+          "inputs": {
+            "B": 12000,
+            "D": 9000,
+            "I": 5000,
+            "P0": 1000000
+          },
+          "kind": "missing-input",
+          "reason": "The identity needs all five start/flow components; omitting E (emigration) leaves the end stock undefined."
+        }
+      ],
+      "relationship": {
+        "expression": "P0 + B - D + I - E",
+        "locator": "Eurostat demo_gind section 3.4 (Population change; Natural change; Net migration) plus Hageman ch.3 per-component growth sentence; corroborated by PRB Balancing Equation entry.",
+        "original_equation": "P1 = P0 + B − D + I − E, i.e. Population(time 2) = Population(time 1) + births − deaths + net migration with net migration = inflows − outflows",
+        "source_id": "eurostat-demo-gind",
+        "translation_notes": "P0 maps start-period (1 January) population and P1 the next 1-January stock; B/D/I/E map total births, deaths, immigration and emigration during year T. Signs follow Eurostat: population change is natural change plus net migration, natural change is births minus deaths, net migration is immigrants minus emigrants. No scaling literal and no unit conversion: canonical unit is person (scale 1) for every stock and flow, each event counting one usually-resident person. Dimensional check: population ± population ± population ± population ± population = population. Period handling is by supplied stocks/flows; no calendar-date arithmetic is encoded.",
+        "output_symbol": "P1"
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Reference metadata paraphrased: population change is end-minus-start stock and splits into natural change plus net migration; natural change is births minus deaths (positive = natural increase); net migration is immigrants minus emigrants, with a published plus-adjustment variant for residuals.",
+          "id": "eurostat-demo-gind",
+          "kind": "primary",
+          "license": "No license statement was found on the inspected metadata page; terms treated as unknown (accessed 2026-11-03). Only a short paraphrase and synthetic numbers are retained.",
+          "locator": "Section 3.4 Statistical concepts and definitions: Population change; Natural change of population; Net migration plus statistical adjustment; Average population",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no table or verbatim passage is copied.",
+          "title": "Eurostat reference metadata: Population change - Demographic balance and crude rates at national level (demo_gind), certified/posted/updated 27 July 2026",
+          "url": "https://ec.europa.eu/eurostat/cache/metadata/en/demo_gind_esms.htm",
+          "version": "ESMS metadata demo_gind, 27 July 2026"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Chapter box paraphrased: yearly population growth equals births minus deaths plus immigration minus emigration; natural increase is births minus deaths and net migration is immigrants minus emigrants in the same period.",
+          "id": "hageman-demographic-data",
+          "kind": "primary",
+          "license": "Pressbooks book page attributes CC BY 4.0 to Demography and Economics by Anya Hageman (researcher-verified footer 2026-11-03; re-verify at review). Only a short paraphrase and synthetic numbers are retained here.",
+          "locator": "Chapter 3 Demographic Data: fundamental-equation box and natural-increase/net-migration definition sentences",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no figure, table or verbatim passage is copied.",
+          "title": "Anya Hageman, Demography and Economics, Chapter 3: Demographic Data (eCampusOntario Pressbooks, 2024)",
+          "url": "https://ecampusontario.pressbooks.pub/demographyandeconomics/chapter/demographic-data/",
+          "version": "Pressbooks chapter viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Glossary paraphrased: the balancing equation estimates total change (or any unknown component) from births, deaths, immigration, emigration, in- and out-migration; companion entries define birth/death rates per 1000.",
+          "id": "prb-glossary",
+          "kind": "primary",
+          "license": "No license statement was recorded from the inspected glossary page; terms treated as unknown (accessed 2026-11-03). Only short paraphrases and synthetic numbers are retained.",
+          "locator": "Entries: Balancing Equation; Birth Rate; Death Rate; Emigration/Immigration",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no verbatim passage is copied.",
+          "title": "Population Reference Bureau glossary of demographic terms (published 2 October 2020)",
+          "url": "https://www.prb.org/resource/glossary/",
+          "version": "Glossary page viewed 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Textbook passage paraphrased: zero population growth means entries by birth or immigration equal exits by death or emigration; migration is split into immigration (in) and emigration (out).",
+          "id": "openstax-sociology-3e",
+          "kind": "primary",
+          "license": "Preface states Introduction to Sociology 3e is under CC BY-NC-SA 4.0: https://openstax.org/books/introduction-sociology-3e/pages/preface (About OpenStax Resources), accessed 2026-11-03.",
+          "locator": "Section 20.1 Demography and Population, migration and Zero Population Growth paragraphs",
+          "redistribution": "Retains only this short paraphrase and synthetic numerical checks; no verbatim passage is copied.",
+          "title": "OpenStax Introduction to Sociology 3e (2021), Section 20.1 Demography and Population",
+          "url": "https://openstax.org/books/introduction-sociology-3e/pages/20-1-demography-and-population",
+          "version": "3e (2021)"
+        }
+      ],
+      "summary": "Demographic balancing identity: end-period stock equals start stock plus births minus deaths plus immigrants minus emigrants; accounting only.",
+      "title": "Demographic balancing identity from vital and migration components",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same reference area, residency definition and period as B, D, I, E and P1",
+          "definition": "Usually-resident population stock at the start of the reference period (1 January of year T)",
+          "dimensions": "population",
+          "domain": "Nonnegative finite stock in persons",
+          "quantity_id": "initial_period_population",
+          "role": "input",
+          "source_symbol": "Population (time 1) (source: population at beginning; 1 January)",
+          "symbol": "P0",
+          "unit": "person"
+        },
+        {
+          "context": "same reference area, residency definition and period as P0, D, I, E and P1",
+          "definition": "Live births (each adding one usually-resident person) occurring during the reference period",
+          "dimensions": "population",
+          "domain": "Nonnegative finite flow in persons",
+          "quantity_id": "live_birth_period_count",
+          "role": "input",
+          "source_symbol": "births (source: births; live births)",
+          "symbol": "B",
+          "unit": "person"
+        },
+        {
+          "context": "same reference area, residency definition and period as P0, B, I, E and P1",
+          "definition": "Deaths (each removing one usually-resident person) occurring during the reference period",
+          "dimensions": "population",
+          "domain": "Nonnegative finite flow in persons",
+          "quantity_id": "death_period_count",
+          "role": "input",
+          "source_symbol": "deaths (source: deaths)",
+          "symbol": "D",
+          "unit": "person"
+        },
+        {
+          "context": "same reference area, residency definition and period as P0, B, D, E and P1",
+          "definition": "Immigrants (in-migrants taking up usual residence) arriving during the reference period",
+          "dimensions": "population",
+          "domain": "Nonnegative finite flow in persons",
+          "quantity_id": "immigration_period_count",
+          "role": "input",
+          "source_symbol": "immigration (source: immigrants; inflows)",
+          "symbol": "I",
+          "unit": "person"
+        },
+        {
+          "context": "same reference area, residency definition and period as P0, B, D, I and P1",
+          "definition": "Emigrants (out-migrants leaving usual residence) departing during the reference period",
+          "dimensions": "population",
+          "domain": "Nonnegative finite flow in persons",
+          "quantity_id": "emigration_period_count",
+          "role": "input",
+          "source_symbol": "emigration (source: emigrants; outflows)",
+          "symbol": "E",
+          "unit": "person"
+        },
+        {
+          "context": "same reference area, residency definition and period as P0, B, D, I and E",
+          "definition": "Usually-resident population stock at the end of the reference period (1 January of year T+1)",
+          "dimensions": "population",
+          "domain": "Nonnegative finite stock in persons for consistent inputs",
+          "quantity_id": "final_period_population",
+          "role": "output",
+          "source_symbol": "Population (time 2) (source: population at end; 1 January next year)",
+          "symbol": "P1",
+          "unit": "person"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

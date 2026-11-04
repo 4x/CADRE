@@ -1,0 +1,196 @@
+{
+  "batch_id": "electric-circuits-nec-c01",
+  "created": "2026-11-03",
+  "curator": "native-ec",
+  "deferred": [],
+  "domain": "electric-circuits",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [],
+    "queries": [],
+    "review_notes": "Corrects electric-circuits-codex-b02 r1, which passed scientific review recommend-admit (reviewer muse-separate-reviewer-20261101-y, 2026-11-02, no blockers) but could not project: delta_t used dimensionless finance-owned elapsed_time with unit s. Mechanical fix only; no evidence re-examined and no new coverage claimed. Checks: schema/grammar/reference-arithmetic/rejection validation plus runtime projection verification (registry verify_reference on all 3 references); 720 C / 4.00 s replays 180 A. Source fidelity, licensing, and scientific approval remain with central review. Tooling note: the kit's own connected_models package cannot run in place (shipped curation.py imports connected_models.constants, which the kit builder allowlist omitted), so validate/pack were executed with the identical central package (connected_models/constants.py present); kit_version 2026-10-31.7 supported by both. No kit code was modified.",
+    "summary": "Correction batch: electric-circuits--average-signed-current r1 (batch electric-circuits-codex-b02) revised to r2 per committed brief data/curation/corrections/electric-circuits-b02-avg-current-duration-brief.md. One research field changes: delta_t quantity_id elapsed_time -> duration (physical seconds-denominated duration; elapsed_time is finance-owned and dimensionless in the registry). Symbol, unit s, context, definition, expression delta_Q/delta_t, references, guards, and sources are unchanged. Record now projects runtime-ready with a validating runtime_model."
+  },
+  "kit_version": "2026-10-31.7",
+  "models": [
+    {
+      "assumptions": [
+        "Source definition (Eq. 9.1): charge and elapsed time refer to the same cross section and interval.",
+        "Application convention: the orientation is fixed throughout the accounting interval. Include charge moved during every part of the elapsed window; counting only active-time charge requires justification that other periods contribute zero.",
+        "No constant-current assumption is needed for the definition. A use as a steady DC value additionally requires current to be constant over the entire interval."
+      ],
+      "constants": [],
+      "guards": [
+        "delta_t > 0"
+      ],
+      "id": "electric-circuits--average-signed-current",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "Source definition (Eq. 9.1): charge and elapsed time refer to the same cross section and interval.",
+            "Application convention: the orientation is fixed throughout the accounting interval. Include charge moved during every part of the elapsed window; counting only active-time charge requires justification that other periods contribute zero.",
+            "No constant-current assumption is needed for the definition. A use as a steady DC value additionally requires current to be constant over the entire interval.",
+            "An average alone does not provide instantaneous current, peak current, RMS current, heating or power. Equal units do not authorize binding it to an instantaneous-current input.",
+            "An interval of zero duration is undefined. A zero net transfer can result from cancellation, so it does not imply zero energy dissipation. This record supplies no transient evolution, circuit solution or safety guidance."
+          ],
+          "expression": "delta_Q / delta_t",
+          "guards": [
+            "delta_t > 0"
+          ],
+          "id": "electric-circuits--average-signed-current",
+          "inputs": {
+            "delta_Q": {
+              "context": "Same oriented cross section or electrical port and the same continuous elapsed interval [t0,t1], with t1>t0; signed conventional charge crossing the positive reference direction, including all off-periods in that interval.",
+              "meaning": "net_transferred_electric_charge",
+              "unit": "C"
+            },
+            "delta_t": {
+              "context": "Same oriented cross section or electrical port and the same continuous elapsed interval [t0,t1], with t1>t0; signed conventional charge crossing the positive reference direction, including all off-periods in that interval.",
+              "meaning": "duration",
+              "unit": "s"
+            }
+          },
+          "output": {
+            "context": "Same oriented cross section or electrical port and the same continuous elapsed interval [t0,t1], with t1>t0; signed conventional charge crossing the positive reference direction, including all off-periods in that interval.",
+            "meaning": "time_averaged_electric_current",
+            "unit": "A"
+          },
+          "source": "OpenStax University Physics Volume 2, Section 9.1 Electrical Current, Eqs. 9.1-9.3; Example 9.1(a)",
+          "version": "r2"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "Solve delta_Q given I_avg,delta_t: delta_Q=I_avg*delta_t with delta_t>0; I_avg=-2 A,delta_t=3 s gives -6 C and forward substitution gives -2 A. I_avg=0 at any known positive duration gives unique delta_Q=0. Solve delta_t given delta_Q,I_avg: delta_t=delta_Q/I_avg requires I_avg!=0 and a strictly positive recovered duration (nonzero delta_Q and I_avg must have the same sign). delta_Q=-6 C,I_avg=-2 A gives 3 s and substitutes correctly. If both charge and average are zero, all positive durations are possible; if I_avg=0 with nonzero charge, no finite duration works. If charge is zero with nonzero average, the algebraic result delta_t=0 violates the original domain. Each admissible nonsingular inverse is single valued; no root choice. No reconstruction of a waveform or instantaneous current is possible from this scalar average alone.",
+      "kind": "definition",
+      "limitations": [
+        "An average alone does not provide instantaneous current, peak current, RMS current, heating or power. Equal units do not authorize binding it to an instantaneous-current input.",
+        "An interval of zero duration is undefined. A zero net transfer can result from cancellation, so it does not imply zero energy dissipation. This record supplies no transient evolution, circuit solution or safety guidance."
+      ],
+      "references": [
+        {
+          "expected": 180,
+          "id": "published-starter-average",
+          "inputs": {
+            "delta_Q": 720,
+            "delta_t": 4
+          },
+          "method": "Published expected 180 A is retained. The displayed classroom values are evaluated as nominal exact numbers, giving an exact quotient; 1e-10 A permits floating-point noise. This is a textbook arithmetic oracle, not an assertion of measured-input precision or physical uncertainty.",
+          "provenance": "openstax-average-current, Example 9.1(a), 720 C in 4.00 s. No peak or steady-current inference is made.",
+          "tolerance": 1e-10
+        },
+        {
+          "expected": -2,
+          "id": "negative-unit-charge-count",
+          "inputs": {
+            "delta_Q": -6,
+            "delta_t": 3
+          },
+          "method": "Independent unit-count construction: in each of three one-second bins, two one-coulomb packets cross opposite the positive orientation. Each bin has -2 C/s and their duration-weighted mean is -2 A. Total transfer is -6 C. Synthetic exact packets, not an electron-count experiment; tolerance is numerical only.",
+          "provenance": "Curator independent counting derivation from the ampere definition in Eq. 9.2.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "zero-net-transfer",
+          "inputs": {
+            "delta_Q": 0,
+            "delta_t": 5
+          },
+          "method": "Limiting identity: no net transferred charge over a positive window has zero signed average. Synthetic boundary; does not assert that instantaneous current was always zero.",
+          "provenance": "Curator definitional boundary check; numerical-only tolerance.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "delta_Q": 6,
+            "delta_t": 0
+          },
+          "kind": "domain",
+          "reason": "A zero-duration averaging window is undefined, including when transferred charge is also zero."
+        },
+        {
+          "inputs": {
+            "delta_Q": 6,
+            "delta_t": -3
+          },
+          "kind": "domain",
+          "reason": "Duration is defined as positive elapsed time; reverse charge orientation rather than using negative duration."
+        },
+        {
+          "inputs": {
+            "delta_Q": 6
+          },
+          "kind": "missing-input",
+          "reason": "Transferred charge alone does not identify the averaging duration."
+        }
+      ],
+      "relationship": {
+        "expression": "delta_Q / delta_t",
+        "locator": "9.1, Eq. 9.1; contrast Eq. 9.3",
+        "original_equation": "I_ave = Delta Q / Delta t",
+        "output_symbol": "I_avg",
+        "source_id": "openstax-average-current",
+        "translation_notes": "Local I_avg maps to source I_ave, delta_Q to Delta Q and delta_t to Delta t. Q denotes net charge transported across a chosen section, not the change of charge stored in an unrelated component. C=A*s; division by s gives A, dimension I. No conversion coefficient occurs. Positive orientation is arbitrary but consistent for transferred charge and current; negative values reverse it. Use a new interval-average quantity ID rather than silently binding to the batch-01 steady-current ports. The definition is broader than DC, while the assignment uses its DC-compatible average interpretation without adding a transient solver."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Average current divides net transported charge by elapsed time. The published starter example reports 180 A; the section distinguishes instantaneous current.",
+          "id": "openstax-average-current",
+          "kind": "primary",
+          "license": "Accessed 2026-10-31: https://openstax.org/books/university-physics-volume-2/pages/preface, Customization and Citation/Attribution; CC BY-NC-SA 4.0. Terms: https://creativecommons.org/licenses/by-nc-sa/4.0/ (same access date). OpenStax additionally states prior permission is needed for AI ingestion/offerings and commercial reuse. Applicability to these factual formalizations remains unresolved.",
+          "locator": "9.1, Eqs. 9.1–9.3; Example 9.1(a); Current in a Circuit, conventional charge direction",
+          "redistribution": "Attributed equations, brief original paraphrases and numerical tuples only; no source pages or artwork attached. No blanket redistribution clearance asserted. Any protected adaptation remains subject to applicable attribution, noncommercial and share-alike requirements; intended downstream AI/commercial use needs rights review. Access for free at https://openstax.org/books/university-physics-volume-2/pages/1-introduction",
+          "title": "Samuel J. Ling, William Moebs, Jeff Sanny; OpenStax, University Physics Volume 2 — Electrical Current",
+          "url": "https://openstax.org/books/university-physics-volume-2/pages/9-1-electrical-current",
+          "version": "Published 2016-10-06; live HTML accessed 2026-10-31, footer copyright 2026-06-11; no immutable content revision supplied. Not a PDF edition."
+        }
+      ],
+      "summary": "Exact finite-interval definition. The average is not automatically an instantaneous or steady DC current, even when its unit is amperes.",
+      "title": "Average signed electrical current from transferred charge",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same oriented cross section or electrical port and the same continuous elapsed interval [t0,t1], with t1>t0; signed conventional charge crossing the positive reference direction, including all off-periods in that interval.",
+          "definition": "Signed net conventional charge passing through the specified oriented section during the full interval.",
+          "dimensions": "I T (A s)",
+          "domain": "Finite signed charge, including zero; not unsigned carrier count, stored charge or a battery capacity rating.",
+          "quantity_id": "net_transferred_electric_charge",
+          "role": "input",
+          "source_symbol": "Introduced ASCII delta_Q maps to source Delta Q (ΔQ).",
+          "symbol": "delta_Q",
+          "unit": "C"
+        },
+        {
+          "context": "Same oriented cross section or electrical port and the same continuous elapsed interval [t0,t1], with t1>t0; signed conventional charge crossing the positive reference direction, including all off-periods in that interval.",
+          "definition": "Positive continuous elapsed duration t1-t0 defining the averaging window, including any non-operating periods.",
+          "dimensions": "T (s)",
+          "domain": "Finite strictly positive duration; not sample count or accumulated on-time across a larger interval.",
+          "quantity_id": "duration",
+          "role": "input",
+          "source_symbol": "Introduced ASCII delta_t maps to source Delta t (Δt).",
+          "symbol": "delta_t",
+          "unit": "s"
+        },
+        {
+          "context": "Same oriented cross section or electrical port and the same continuous elapsed interval [t0,t1], with t1>t0; signed conventional charge crossing the positive reference direction, including all off-periods in that interval.",
+          "definition": "Signed time-average of conventional current across the same section over the stated complete interval.",
+          "dimensions": "I (A)",
+          "domain": "Finite signed interval average; zero does not prove absence of charge motion or instantaneous current.",
+          "quantity_id": "time_averaged_electric_current",
+          "role": "output",
+          "source_symbol": "Introduced local I_avg maps to source I_ave.",
+          "symbol": "I_avg",
+          "unit": "A"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -1,0 +1,598 @@
+{
+  "batch_id": "building-energy-a-b02",
+  "created": "2026-10-31",
+  "curator": "buffy",
+  "deferred": [
+    {
+      "reason": "Newtonian convection Qdot=h*A*dT and overall U-factor assemblies need a load-bearing primary textbook/agency source for h in W/(m2*K) with calibration regime; OpenStax Univ. Physics 1.6 explicitly declines quantitative convection comparable to conduction, so only encyclopedic sources were found. Defer until Incropera/Holman or ASHRAE Fundamentals section is inspected directly.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-2/pages/1-6-mechanisms-of-heat-transfer"
+      ],
+      "title": "Convective rate coefficient and U-factor assemblies"
+    },
+    {
+      "reason": "Phase-change latent heat Q=m*Lf and temperature-dependent c(T) integration require out-of-format or additional parameter handling beyond the constant-c sensible-heat record in b01; retain as next thermal-storage priority with OpenStax 14.3/University Physics 1.4 calorimetry sources.",
+      "source_urls": [
+        "https://openstax.org/books/college-physics-2e/pages/14-3-phase-change-and-latent-heat"
+      ],
+      "title": "Latent heat and temperature-dependent specific heat"
+    }
+  ],
+  "domain": "building-energy",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "New quantities/units in b02 requiring extensions: point heating COP (1), seasonal HSPF (Btu/Wh), seasonal heat in Btu, seasonal electricity in Wh, absolute thermal resistance in K/W, density in kg/m3, volume in m3. Current runtime has no Btu, K/W, kg, m3, or performance meanings.",
+      "Quantity-alias notes: point heat-delivery and point work input are operating-point energies (J), not seasonal delivered_heat/electricity_consumption; seasonal HSPF electricity is seasonal Wh, not an arbitrary Wh sample; absolute Rth=L/(kA) in K/W vs b01 area-normalized R=L/k in m2*K/W; mass reuses b01 mass definition (homogeneous sample) with volume-based sourcing.",
+      "Duplicate search limited to runtime-vocabulary known_model_ids plus b01 IDs (constant-power consumption, sensible heat, slab rate, plane-layer R); no global catalog supplied, so global uniqueness is not claimed. Previously returned b01 records were not resubmitted."
+    ],
+    "queries": [],
+    "review_notes": "Validator run required after writing. Sources read directly 2026-10-31: OpenStax College Physics 2e 15.5 and 11.2 with preface license; ENERGY STAR key product criteria with HSPF2/COP notes; DOE FEMP air-source heat-pump page (Dec 2024) with Btu/Wh units; DOE web policies and EPA disclaimers for rights; Univ. Physics Vol 2 1.6 for R/Rth derivation (MIT page inspected but not cited as load-bearing due to equation-image extraction). Arithmetic replayed; HSPF references are honest independent illustrations (no published seasonal Q/W pair found). Dimensional checks in translation_notes; validator does not check research dimensions.",
+    "summary": "Batch b02 curates 4 distinct records: instantaneous heating COP, seasonal HSPF delivered-heat identity, absolute thermal resistance of one layer, and mass from density times volume. Complements b01 without resubmission; all require-extension."
+  },
+  "kit_version": "2026-10-31.2",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: Qh, Qc and W are positive magnitudes with directions on schematics; heat pump mission is Qh into the warm space with Qh=Qc+W (OpenStax 15.5).",
+        "Same single operating point and test condition for Qh and W (single test or single-condition interpolation per agency COP definition); identical energy units for numerator and denominator.",
+        "No seasonal averaging, duct, defrost, or auxiliary accounting in this record; seasonal performance is the separate HSPF record."
+      ],
+      "constants": [],
+      "guards": [
+        "W > 0",
+        "Qh >= 0"
+      ],
+      "id": "building-energy--heat-pump-coefficient-of-performance",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires extensions: point heating heat delivery in J, point work input in J, dimensionless point COP meaning. Must not be coerced to seasonal delivered_heat/seasonal_performance or to electricity_cost inputs.",
+          "Candidate aliases: heating COP at a stated operating condition; refrigerator COP (Qc/W) is a different record, not an inverse view."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Qh and positive COP give W=Qh/COP; W and COP give Qh=COP*W. Zero-Qh with positive W gives COP 0 (degenerate no-delivery boundary, not a useful heat pump). Zero W is excluded (no drive). Substitution checked: Qh=5.30, W=1.0 gives COP 5.30; inversion W=5.30/5.30=1.0. Algebraic inversion does not establish that a field unit achieves the Carnot bound.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes seasonal averaging (HSPF/HSPF2), EER in Btu/Wh, and refrigerator COPref=Qc/W; COPref=COP_hp-1 is a separate relation not curated here.",
+        "Real units range about 2-4 and degrade in very cold climates; Carnot value is an ideal upper bound between stated reservoir temperatures, not a default efficiency."
+      ],
+      "references": [
+        {
+          "expected": 5.3,
+          "id": "carnot-45c-minus15c",
+          "inputs": {
+            "Qh": 5.3,
+            "W": 1.0
+          },
+          "method": "Published result: OpenStax Eqs. 15.40-15.42 compute Carnot COP 1/0.1887=5.30 and state Qh=5.30W between Th=318K and Tc=258K. Replay 5.3/1.0=5.3 exact; tolerance 0.01 covers the reported two-decimal rounding (half unit 0.005).",
+          "provenance": "Published textbook ideal (Carnot) worked example, not a field measurement",
+          "tolerance": 0.01
+        },
+        {
+          "expected": 3.0,
+          "id": "consumer-cop-3",
+          "inputs": {
+            "Qh": 3.0,
+            "W": 1.0
+          },
+          "method": "Published consumer illustration: UMD Extension states COP=3.0 means about three units of heat per unit of electricity, inside OpenStax real range 2-4. Replay 3.0/1.0=3.0 exact.",
+          "provenance": "Published Extension fact-sheet example consistent with textbook real range; independent operating-point illustration",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Qh": 5.3,
+            "W": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero work input cannot drive cold-to-hot transfer; guard W>0 rejects division by zero and the free-heating implication."
+        },
+        {
+          "inputs": {
+            "Qh": 3.0
+          },
+          "kind": "missing-input",
+          "reason": "Work input W is required; delivered heat alone does not determine COP."
+        }
+      ],
+      "relationship": {
+        "expression": "Qh / W",
+        "locator": "Sec. 15.5 Heat Pumps, Eq. 15.37 (COPhp=Qh/W) with Eqs. 15.38-15.42 Carnot evaluation and real-range prose; ENERGY STAR COP note (single-test rate ratio, dimensionless) corroborates operating-point scope",
+        "original_equation": "COPhp = Qh/W (Eq. 15.37); COPhp = 1/Eff = 5.30 and Qh = 5.30W (Eqs. 15.40-15.42) for Th=45.0C, Tc=-15.0C",
+        "output_symbol": "COP",
+        "source_id": "openstax-cp2e-15-5",
+        "translation_notes": "Direct transcription: source Qh (heat to warm space), W (work input) mapped to locals. Units normalized to J/J so COP is dimensionless (1); any identical energy units cancel. Dimensional check: energy/energy = dimensionless. Point scope retained: single operating condition, not seasonal; no temperature inputs in this record."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: quality of a heat pump is judged by Qh into the warm space vs work W; COP_hp=Qh/W (15.37); since Eff=W/Qh, COP=1/Eff>1; Carnot example Th=318K/Tc=258K gives Eff 0.1887, COP 5.30, Qh=5.30W; real heat pumps range about 2-4 so Qh is 2-4x W.",
+          "id": "openstax-cp2e-15-5",
+          "kind": "primary",
+          "license": "CC BY-NC-SA 4.0 per OpenStax College Physics 2e Preface (About OpenStax Resources/Customization) at https://openstax.org/books/college-physics-2e/pages/preface, read 2026-10-31; non-commercial share-alike, attribution required.",
+          "locator": "OpenStax College Physics 2e (2e, 2022-07-13), Ch. 15, Sec. 15.5, Eq. 15.37, Eqs. 15.38-15.42, real-range paragraph",
+          "redistribution": "Contains only this short original paraphrase and published numeric checks; no verbatim long quotation.",
+          "title": "OpenStax College Physics 2e, Section 15.5 Heat Pumps and Refrigerators",
+          "url": "https://openstax.org/books/college-physics-2e/pages/15-5-applications-of-thermodynamics-heat-pumps-and-refrigerators",
+          "version": "2e (2022-07-13 web edition)"
+        },
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: consumer wording that COP is heat delivered over electricity consumed with example COP=3.0 delivering about three heat units per electricity unit, and that heat pumps deliver two to four times more heating energy than consumed electricity; consistent with the textbook 2-4 range.",
+          "id": "umd-heat-pump-2026",
+          "kind": "primary",
+          "license": "Terms unknown: no license statement rendered on the article page as accessed 2026-10-31; treat as all rights reserved institutional content, cite briefly with no redistribution.",
+          "locator": "Univ. of Maryland Extension, Home Energy: Heat Pump (Drew Schiavone, updated 2026-07-14), ratings subsection and opening 2-4x statement",
+          "redistribution": "Contains only this short original paraphrase; no verbatim reproduction beyond the equation sense.",
+          "title": "UMD Extension Home Energy: Heat Pump",
+          "url": "https://extension.umd.edu/resource/home-energy-heat-pump",
+          "version": "web page as accessed 2026-10-31"
+        }
+      ],
+      "summary": "Instantaneous heating coefficient of performance at one operating condition.",
+      "title": "Heat-pump heating COP at an operating point",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same operating point, test, and interval as W and COP",
+          "definition": "Heat delivered to the warm space at the stated operating point",
+          "dimensions": "energy",
+          "domain": "Nonnegative finite energy; zero is the degenerate no-delivery boundary",
+          "quantity_id": "point_heating_heat_delivery",
+          "role": "input",
+          "source_symbol": "Qh",
+          "symbol": "Qh",
+          "unit": "J"
+        },
+        {
+          "context": "same operating point, test, and interval as Qh and COP",
+          "definition": "Work (electrical drive) input required at the stated operating point",
+          "dimensions": "energy",
+          "domain": "Positive finite work input",
+          "quantity_id": "point_work_input",
+          "role": "input",
+          "source_symbol": "W",
+          "symbol": "W",
+          "unit": "J"
+        },
+        {
+          "context": "same operating point and test as inputs",
+          "definition": "Dimensionless ratio of heat delivered to work input at one operating condition",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite ratio; ideal heat pump exceeds 1",
+          "quantity_id": "point_heating_cop",
+          "role": "output",
+          "source_symbol": "COPhp",
+          "symbol": "COP",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: Region IV seasonal accounting per 10 CFR 430 App. M/M1; numerator is total seasonal space heating required and denominator is total seasonal electrical energy in the same season (ENERGY STAR note 4).",
+        "Same heat-pump system, same heating season, and same test procedure (Appendix M for HSPF, M1 for HSPF2) for Q, W, and HSPF; HSPF vs HSPF2 differ by procedure version, not by equation form.",
+        "Units as rated: Q in Btu, W in Wh, HSPF in Btu/Wh; conversion to dimensionless SPF needs division by 3.412 Wh/Btu-class factor handled outside this record."
+      ],
+      "constants": [],
+      "guards": [
+        "HSPF > 0",
+        "W >= 0"
+      ],
+      "id": "building-energy--seasonal-heating-performance-hspf",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires extensions: seasonal heating energy in Btu, seasonal electrical energy in Wh, seasonal performance in Btu/Wh. No current runtime unit or meaning fits; do not coerce to dimensionless seasonal_performance or kWh electricity_consumption.",
+          "HSPF2 vs HSPF is a procedure-version label (M1 vs M), not a separate equation; dimensionless SPF = HSPF/3.412-class conversion needs a separate adapter, not silently substituted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Q with positive HSPF gives W=Q/HSPF; Q and W with positive W give HSPF=Q/W. Zero seasonal electricity with zero seasonal heat leaves HSPF underdetermined (0/0); zero W with positive Q is excluded as a domain violation of the same-season accounting. Substitution checked: Q=7800, W=1000 gives HSPF=7.8. Seasonal inversion does not recover operating-point COP.",
+      "kind": "definition",
+      "limitations": [
+        "Rating-procedure scope only (Region IV, App. M/M1); field performance adds ducts, defrost, sizing, auxiliaries, and climate differences not in this record.",
+        "Excludes dimensionless SPF, SEER/SEER2, and EER/EER2; HSPF values such as 7.8/8.1/8.5/11 are threshold examples, not defaults for any house or climate."
+      ],
+      "references": [
+        {
+          "expected": 7800.0,
+          "id": "hspf-7-8-1000wh",
+          "inputs": {
+            "HSPF": 7.8,
+            "W": 1000.0
+          },
+          "method": "Independent arithmetic illustration of the agency-defined quotient: ENERGY STAR defines HSPF2 as seasonal Btu over seasonal Wh, so 7.8 Btu/Wh * 1000 Wh = 7800 Btu. No published seasonal Q/W pair was found; 7.8 is the ENERGY STAR split-system threshold used only as an illustrative input, not a default. Replay exact.",
+          "provenance": "Independent elementary illustration of the rated definition; not a field measurement",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 17000.0,
+          "id": "hspf-8-5-2000wh",
+          "inputs": {
+            "HSPF": 8.5,
+            "W": 2000.0
+          },
+          "method": "Independent illustration at a materially different scale: cold-climate non-ducted threshold 8.5 Btu/Wh with 2000 Wh gives 17000 Btu under the same definition. Replay exact.",
+          "provenance": "Independent elementary illustration of the rated definition; not a field measurement",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "HSPF": 0.0,
+            "W": 1000.0
+          },
+          "kind": "domain",
+          "reason": "Nonpositive seasonal performance contradicts the positive-rating definition; guard HSPF>0 rejects it."
+        },
+        {
+          "inputs": {
+            "W": 1000.0
+          },
+          "kind": "missing-input",
+          "reason": "Seasonal rating HSPF is required; seasonal electricity alone does not determine seasonal heat."
+        }
+      ],
+      "relationship": {
+        "expression": "HSPF * W",
+        "locator": "ENERGY STAR Key Product Criteria: HSPF2 definition note (seasonal Btu over seasonal Wh) and COP note (single-test dimensionless rate ratio); DOE FEMP heat-pump page Energy Use and Cost Assumptions (HSPF2 in Btu/Wh) and App. M/M1 reference",
+        "original_equation": "HSPF2 = total seasonal space heating (Btu) / total seasonal electrical energy (Wh); rearranged Q(Btu) = HSPF(Btu/Wh) * W(Wh)",
+        "output_symbol": "Q",
+        "source_id": "energystar-hp-criteria",
+        "translation_notes": "Algebraic rearrangement of the stated quotient definition into computable form Q=HSPF*W. Units: (Btu/Wh)*Wh=Btu (energy). Dimensional check: energy/energy-scale * energy = energy in the rated Btu/Wh convention. Seasonal scope (Region IV, same season/system/procedure) retained; point COP explicitly excluded."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: HSPF2 is total space heating required in region IV during the heating season in Btu divided by total electrical energy in the same season in Wh (M1 value is HSPF2, M value is HSPF); COP is the average heating rate over average electrical rate from a single test or single-condition interpolation and is dimensionless.",
+          "id": "energystar-hp-criteria",
+          "kind": "primary",
+          "license": "EPA disclaimers at https://www.epa.gov/web-policies-and-procedures/epa-disclaimers, read 2026-10-31: U.S. Government royalty-free license; documents may be freely distributed/used for non-commercial scientific/educational purposes; commercial use may be protected. No ENERGY STAR-specific terms page found.",
+          "locator": "ENERGY STAR Heat Pump Equipment Key Product Criteria, HSPF2/SEER2/EER2/COP definition notes with 10 CFR 430 App. M/M1 authority lines",
+          "redistribution": "Contains only this short original paraphrase and synthetic numeric illustrations; no table reproduction.",
+          "title": "ENERGY STAR Heat Pump Equipment Key Product Criteria",
+          "url": "https://www.energystar.gov/products/air_source_heat_pumps/key-product-criteria",
+          "version": "web page as accessed 2026-10-31"
+        },
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: acquisition guidance (updated Dec 2024) lists SEER2/HSPF2 thresholds (e.g., 15.2/7.8 ENERGY STAR, 24/11 best available) and states both metrics are shown in Btu/Wh under test method 10 CFR 430 App. M, with M1 denoting HSPF2/SEER2 values.",
+          "id": "doe-femp-hp-2024",
+          "kind": "primary",
+          "license": "DOE public domain per https://www.energy.gov/web-policies, read 2026-10-31: government information in the public domain, freely distributable/copiable with acknowledgement; private contributions excluded.",
+          "locator": "DOE FEMP Purchasing Energy-Efficient Residential Air-Source Heat Pumps, Tables 1-3 footnotes and Energy Use and Cost Assumptions",
+          "redistribution": "Contains only this short original paraphrase; no cost-table reproduction.",
+          "title": "DOE FEMP Purchasing Energy-Efficient Residential Air-Source Heat Pumps",
+          "url": "https://www.energy.gov/cmei/femp/purchasing-energy-efficient-residential-air-source-heat-pumps",
+          "version": "guidance updated Dec 2024 as accessed 2026-10-31"
+        }
+      ],
+      "summary": "Seasonal space-heating delivered from seasonal electricity via the HSPF rating.",
+      "title": "Seasonal heating delivered heat from HSPF",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same heat-pump system, heating season, and App. M/M1 procedure as Q and W",
+          "definition": "Heating seasonal performance factor rating in the stated procedure",
+          "dimensions": "energy / energy (rated as Btu per Wh)",
+          "domain": "Positive finite rating",
+          "quantity_id": "seasonal_heating_performance_hspf",
+          "role": "input",
+          "source_symbol": "HSPF (HSPF2 under Appendix M1)",
+          "symbol": "HSPF",
+          "unit": "Btu/Wh"
+        },
+        {
+          "context": "same heat-pump system, heating season, and procedure as Q and HSPF",
+          "definition": "Total seasonal electrical energy consumed by the heat-pump system",
+          "dimensions": "energy",
+          "domain": "Nonnegative finite seasonal electricity; zero admits the zero-demand boundary (Q=0)",
+          "quantity_id": "seasonal_electricity_consumption_hp",
+          "role": "input",
+          "source_symbol": "total seasonal electrical energy (Wh)",
+          "symbol": "W",
+          "unit": "Wh"
+        },
+        {
+          "context": "same heat-pump system, heating season, and procedure as inputs",
+          "definition": "Total seasonal space heating required/delivered in the rated season",
+          "dimensions": "energy",
+          "domain": "Nonnegative finite seasonal heat",
+          "quantity_id": "seasonal_space_heating_delivered",
+          "role": "output",
+          "source_symbol": "total seasonal space heating (Btu)",
+          "symbol": "Q",
+          "unit": "Btu"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: single homogeneous plane layer under steady 1D conduction with uniform thickness, constant conductivity, equal face areas, and negligible lateral escape (Univ. Physics 1.6 slab/rod setup).",
+        "Same layer, material, thickness interval, area, and conductivity reference for L, k, A, and Rth; faces isothermal.",
+        "Area-normalized R=L/k (b01) and absolute Rth=R/A are linked by the stated equal-area scope; unequal areas need 3D treatment outside this record."
+      ],
+      "constants": [],
+      "guards": [
+        "L > 0",
+        "k > 0",
+        "A > 0"
+      ],
+      "id": "building-energy--absolute-thermal-resistance-layer",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires extensions: conduction_thickness (m), thermal_conductivity (W/(m*K)), heat_transfer_area (m2), absolute thermal resistance (K/W). Distinct from b01 area-normalized R (m2*K/W); the bridge is Rth=R/A for equal areas.",
+          "Candidate alias: conduction thermal resistance in K/W for one layer; convective 1/(hA) and series sums need separate records."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Rth with known k,A gives L=Rth*k*A; with known L,A gives k=L/(Rth*A); with known L,k gives A=L/(Rth*k); all require the other two strictly positive. Zero thickness/area/conductivity excluded (no layer or infinite resistance). Substitution checked: Rth=39.8089, k=80, A=7.85e-05 gives L=39.8089*80*7.85e-05=0.25 m.",
+      "kind": "definition",
+      "limitations": [
+        "One-layer absolute resistance only; composite series/parallel sums and film coefficients are excluded though the source discusses the circuit analogy.",
+        "Excludes temperature/moisture-dependent k, contact resistance, and IP R units; table k values are near-0C representatives, not defaults."
+      ],
+      "references": [
+        {
+          "expected": 39.81,
+          "id": "steel-rod-rth",
+          "inputs": {
+            "A": 7.85e-05,
+            "L": 0.25,
+            "k": 80.0
+          },
+          "method": "Published inputs with arithmetic replay: Univ. Physics rods L=0.25 m, k=80 W/m*C, A=7.85e-05 m2 give 0.25/(80*7.85e-05)=39.8089 K/W; expected 39.81 K/W. Tolerance 0.05 covers the 3-significant rounding of A and the reported joint-T/rate rounding. Alternate-route check reported steel dT=58.7K over P=1.47W gives 39.93 K/W, consistent within that rounding.",
+          "provenance": "Source-backed derivation from published geometry/conductivity with reported-dT-over-P consistency check",
+          "tolerance": 0.05
+        },
+        {
+          "expected": 14.48,
+          "id": "aluminum-rod-rth",
+          "inputs": {
+            "A": 7.85e-05,
+            "L": 0.25,
+            "k": 220.0
+          },
+          "method": "Published inputs at materially different conductivity: L=0.25, k=220, A=7.85e-05 give 14.4760 K/W; expected 14.48 K/W. Tolerance 0.05 covers rounding. Alternate route reported Al dT=21.3K/1.47W=14.49 K/W, consistent.",
+          "provenance": "Source-backed derivation with reported-dT-over-P consistency check (aluminum branch)",
+          "tolerance": 0.05
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A": 0.0,
+            "L": 0.25,
+            "k": 80.0
+          },
+          "kind": "domain",
+          "reason": "Zero area ceases to describe a 1D slab path (infinite resistance limit); guard A>0 rejects it."
+        },
+        {
+          "inputs": {
+            "A": 7.85e-05,
+            "L": 0.25
+          },
+          "kind": "missing-input",
+          "reason": "Conductivity k is required; geometry alone does not determine resistance."
+        }
+      ],
+      "relationship": {
+        "expression": "L / (k * A)",
+        "locator": "Univ. Physics Sec. 1.6: Eq. 1.9 (P=kA(Th-Tc)/d), two-conductor second Solution ('Recall R=L/k; P=ADeltaT/R'), and Significance note ('resistance corresponds to R/A'); b01 plane-layer R record dependency",
+        "original_equation": "R = L/k; P = ADeltaT/R; absolute resistance = R/A = L/(kA)",
+        "output_symbol": "Rth",
+        "source_id": "openstax-univ-physics-1-6",
+        "translation_notes": "Derived definition (dependency identified): from source P=A*dT/R with R=L/k, define absolute Rth=dT/P=R/A=L/(kA). Local L renames source d/L thickness. Units: m/((W/(m*K))*m2)=K/W. Dimensional check: length/(conductivity*area)=temperature/power. Equal-area 1D scope retained; C-degree/W identical to K/W for differences."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: slab rate P=kA(Th-Tc)/d (Eq. 1.9); second solution recalls R=L/k with P=ADeltaT/R and evaluates Rsteel=3.13e-3 and RAl=1.14e-3 m2*C/W for 0.25 m rods of area 7.85e-05 m2, adding R factors in series; Significance note states the resistance corresponds to R/A and is additive even for unequal areas.",
+          "id": "openstax-univ-physics-1-6",
+          "kind": "primary",
+          "license": "CC BY 4.0 per OpenStax University Physics Volume 2 front matter via https://openstax.org/details/books/university-physics-volume-2, read via book page 2026-10-31; free reuse with attribution.",
+          "locator": "OpenStax University Physics Volume 2 (2016 web edition), Ch. 1, Sec. 1.6, Eq. 1.9 and two-conductor example (both solutions plus Significance note)",
+          "redistribution": "Contains only this short original paraphrase and computed checks; no verbatim long quotation.",
+          "title": "OpenStax University Physics Volume 2, Section 1.6 Mechanisms of Heat Transfer",
+          "url": "https://openstax.org/books/university-physics-volume-2/pages/1-6-mechanisms-of-heat-transfer",
+          "version": "2016 web edition as accessed 2026-10-31"
+        }
+      ],
+      "summary": "Absolute thermal resistance of one homogeneous plane layer.",
+      "title": "Absolute thermal resistance of one layer",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same layer and face pair as Rth",
+          "definition": "Uniform layer thickness along the heat-flow direction",
+          "dimensions": "length",
+          "domain": "Positive finite thickness",
+          "quantity_id": "conduction_thickness",
+          "role": "input",
+          "source_symbol": "L (source uses L and d for thickness)",
+          "symbol": "L",
+          "unit": "m"
+        },
+        {
+          "context": "same layer, material, and temperature reference as Rth",
+          "definition": "Thermal conductivity of the homogeneous layer",
+          "dimensions": "power / (length * temperature)",
+          "domain": "Positive finite conductivity",
+          "quantity_id": "thermal_conductivity",
+          "role": "input",
+          "source_symbol": "k",
+          "symbol": "k",
+          "unit": "W/(m*K)"
+        },
+        {
+          "context": "same layer and face pair as Rth",
+          "definition": "Face area normal to the 1D heat-flow direction",
+          "dimensions": "length^2",
+          "domain": "Positive finite area",
+          "quantity_id": "heat_transfer_area",
+          "role": "input",
+          "source_symbol": "A",
+          "symbol": "A",
+          "unit": "m2"
+        },
+        {
+          "context": "same layer and face pair as inputs",
+          "definition": "Absolute steady conduction resistance (temperature drop per unit heat rate)",
+          "dimensions": "temperature / power",
+          "domain": "Positive finite resistance",
+          "quantity_id": "absolute_thermal_resistance",
+          "role": "output",
+          "source_symbol": "introduced Rth for R/A (source R is area-normalized)",
+          "symbol": "Rth",
+          "unit": "K/W"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: homogeneous substance (solids/liquids grouping in Table 11.1) with tabulated density for the substance and phase; volume occupied by that mass.",
+        "Same substance sample, phase, and condition for rho, V, and m; gas compressibility/condition dependence excluded from this condensed-matter profile.",
+        "SI coherence: rho in kg/m3 with V in m3 gives m in kg; the source notes 1 g/cm3 = 1000 kg/m3 and water 1000 kg/m3 basis."
+      ],
+      "constants": [],
+      "guards": [
+        "rho > 0",
+        "V >= 0"
+      ],
+      "id": "building-energy--mass-from-density-volume",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires extensions: density in kg/m3 and volume in m3; mass in kg reuses b01 mass quantity. No runtime unit fits rho or V.",
+          "Supports b01 sensible-heat mass sourcing (e.g., water volume to mass via 1000 kg/m3); not a thermal law itself, included to explain source scope per assignment boundaries."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "m with positive rho gives V=m/rho; m with nonnegative V gives rho=m/V requiring V>0. Zero volume with zero mass leaves density underdetermined (0/0). Substitution checked: m=2.00e12, rho=1000 gives V=2.00e9 m3. Inversion does not identify composition (different substances can share a density).",
+      "kind": "definition",
+      "limitations": [
+        "Condensed-matter profile only as applied here; gases need stated T/p condition (Table 11.1 gas columns) and are excluded from reuse as defaults.",
+        "Excludes voids, mixtures, and buoyancy/floatation inferences; density identifies composition only with other evidence."
+      ],
+      "references": [
+        {
+          "expected": 2000000000000.0,
+          "id": "reservoir-mass",
+          "inputs": {
+            "V": 2000000000.0,
+            "rho": 1000.0
+          },
+          "method": "Published result: OpenStax Eqs. 11.4-11.5 compute V=Ah=50.0 km2*40.0 m=2.00e9 m3 and m=rho*V=1.00e3*2.00e9=2.00e12 kg. Replay exact in integer-exact double range; tolerance 1e6 kg is far below the 3-significant display rounding (half unit 5e9 kg) and above floating error.",
+          "provenance": "Published textbook worked example (reservoir mass from volume) with water density from Table 11.1",
+          "tolerance": 1000000.0
+        },
+        {
+          "expected": 0.25,
+          "id": "water-250ml",
+          "inputs": {
+            "V": 0.00025,
+            "rho": 1000.0
+          },
+          "method": "Published supporting step: OpenStax 14.2 solution states 0.250 L water has mass 0.250 kg via density 1000 kg/m3 (1 L = 1 kg); V=2.50e-4 m3 times 1000 gives 0.25 kg exact. Materially different scale from the reservoir case.",
+          "provenance": "Published textbook supporting computation (water-volume to mass) converted from L to m3",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "V": 1.0,
+            "rho": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero density ceases to describe condensed matter; guard rho>0 rejects it (vacuum needs a different model)."
+        },
+        {
+          "inputs": {
+            "V": 2000000000.0
+          },
+          "kind": "missing-input",
+          "reason": "Density rho is required; volume alone does not determine mass."
+        }
+      ],
+      "relationship": {
+        "expression": "rho * V",
+        "locator": "Sec. 11.2, Eqs. 11.1-11.3 (rho=m/V) solved as m=rhoV with Eqs. 11.4-11.5 reservoir evaluation and Table 11.1 densities",
+        "original_equation": "rho = m/V (Eqs. 11.1-11.2); solved m = rhoV; reservoir V=Ah=2.00e9 m3, m=1.00e3*2.00e9=2.00e12 kg (Eqs. 11.4-11.5)",
+        "output_symbol": "m",
+        "source_id": "openstax-cp2e-11-2",
+        "translation_notes": "Algebraic rearrangement of the defined quotient rho=m/V into computable m=rho*V; no unit normalization beyond SI (kg/m3 * m3 = kg). Dimensional check: (mass/length^3)*length^3=mass. Condensed-matter application profile stated separately; gas T/p dependence noted in limitations."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: density is mass per unit volume rho=m/V (Eqs. 11.1-11.2) in kg/m3 with Table 11.1 values (water 1.000e3, aluminum 2.7e3, etc.); reservoir example solves for m=rhoV with V=Ah=2.00e9 m3 and water 1.00e3 to get m=2.00e12 kg (Eqs. 11.3-11.5).",
+          "id": "openstax-cp2e-11-2",
+          "kind": "primary",
+          "license": "CC BY-NC-SA 4.0 per OpenStax College Physics 2e Preface (About OpenStax Resources/Customization) at https://openstax.org/books/college-physics-2e/pages/preface, read 2026-10-31; non-commercial share-alike, attribution required.",
+          "locator": "OpenStax College Physics 2e (2e, 2022-07-13), Ch. 11, Sec. 11.2 Density, Eqs. 11.1-11.5, Table 11.1",
+          "redistribution": "Contains only this short original paraphrase and published numeric checks; no table reproduction.",
+          "title": "OpenStax College Physics 2e, Section 11.2 Density",
+          "url": "https://openstax.org/books/college-physics-2e/pages/11-2-density",
+          "version": "2e (2022-07-13 web edition)"
+        }
+      ],
+      "summary": "Mass of a homogeneous sample from density and occupied volume.",
+      "title": "Mass from density and volume",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same homogeneous substance sample, phase, and condition as m",
+          "definition": "Mass density of the substance and phase",
+          "dimensions": "mass / length^3",
+          "domain": "Positive finite density for the stated substance and phase",
+          "quantity_id": "mass_density",
+          "role": "input",
+          "source_symbol": "rho",
+          "symbol": "rho",
+          "unit": "kg/m3"
+        },
+        {
+          "context": "same homogeneous substance sample as m",
+          "definition": "Volume occupied by the substance sample",
+          "dimensions": "length^3",
+          "domain": "Nonnegative finite volume; zero admits the zero-mass boundary",
+          "quantity_id": "volume",
+          "role": "input",
+          "source_symbol": "V",
+          "symbol": "V",
+          "unit": "m3"
+        },
+        {
+          "context": "same homogeneous substance sample as inputs",
+          "definition": "Mass of the homogeneous substance sample (same definition as b01 mass)",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg",
+          "quantity_id": "mass",
+          "role": "output",
+          "source_symbol": "m",
+          "symbol": "m",
+          "unit": "kg"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

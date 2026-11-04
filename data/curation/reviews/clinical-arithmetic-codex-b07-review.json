@@ -1,0 +1,69 @@
+{
+  "batch_id": "clinical-arithmetic-codex-b07",
+  "batch_sha256": "6ee3ecb60fceb29e59eae315dfb11b7545ed0ca0320525969e254a7f96f1c904",
+  "models": [
+    {
+      "blockers": [],
+      "checks": {
+        "dimensions": {
+          "evidence": "PASSED. Independently recomputed: expression (1-0.15*z)*(140-a)*w/(K*sCr) has dimension 1*M/(T*M*L^-3)=L^3*T^-1, matching output creatinine_clearance (m^3/s). K derivation verified: sCr[mg/dL]=100*sCr[kg/m^3] and 1 mL/min=1e-6/60 m^3/s, so K=72*100*60*1e6=432000000000 s (confirmed in Python). The r3 divisor-as-input reformulation resolves the staging failure: no bare dimensional literal remains; guards use K>0 only, avoiding dimensionally invalid equality to a seconds literal. Age term (140-a) is a year-index convention exactly as sourced; record labels it '1 (year index)', unit years, which is documented and consistent.",
+          "status": "passed"
+        },
+        "guards-inverses": {
+          "evidence": "PASSED. Guards a in [18,92] match the abstract's derivation ages 18-92; w>0, sCr>0, K>0 cover positivity/singularity; z*(z-1)==0 enforces the binary source branch. All 5 rejection cases inspected: sCr=0 and K=0 (singularities), a=17 (outside derivation profile), z=0.5 (non-binary mixing excluded), missing K (no hidden default). Inverse notes correctly disclaim clearance inversion, patient-input solve, and K-solving; no inverse branch is claimed, so algebraic reversibility is not conflated with causal invertibility.",
+          "status": "passed"
+        },
+        "reference-independence": {
+          "evidence": "PASSED with stated qualification. Recomputed all 3 scalar references via two routes: (a) the documented conventional-unit route (75, 63.75, 40 mL/min converted by exact rationals /60000000) and (b) direct SI evaluation of the expression; results 1.25e-6, 1.0625e-6, 6.666666666666667e-07 m^3/s all match expected within 1e-18 absolute. Provenance honestly labels these as synthetic constructed arithmetic in the inspected NKF equation, not published oracles or clinical validation, satisfying the oracle-vs-reproduction distinction.",
+          "status": "passed"
+        },
+        "rights-provenance": {
+          "evidence": "PASSED (qualified; no legal clearance granted). Inspected actual version/terms locations: FAQ PDF served 200 OK from official kidney.org URL (v5 filename marker); NKF copyright endpoint https://www.kidney.org/about/copyright returns HTTP 404 on 2026-11-03, so reuse license remains unknown exactly as curator states; PubMed record verified via eutils (bibliographic/abstract only). Record returns only short paraphrase plus relationship metadata, excludes PDF/full text, and records unresolved rights without inferring clearance. This pass attests accurate qualification, not permission for broader reuse.",
+          "status": "passed"
+        },
+        "scope": {
+          "evidence": "PASSED. The known NKF-FAQ calibration-scope gap is resolved: assumptions/limitations state the ~30-130 mL/min span concerns measured clearance (not sCr, not a predicted-output guard), assays are pre-standardization with no IDMS interchangeability, population is White-men derivation, female branch is formal arithmetic only, and output is non-BSA-indexed clearance, not GFR. Application profile restricts to forward arithmetic for qualified interpretation, excluding treatment/dose/monitoring decisions. No new serum-creatinine bounds or clinical validation are claimed.",
+          "status": "passed"
+        },
+        "source-fidelity": {
+          "evidence": "PASSED. All three cited primaries directly inspected on 2026-11-03. FAQ PDF Q16 (printed pp.7-8): CG 1976, 249 men, estimates mClcr ~30-130 mL/min, eClcr=(140-age)*weight/(72*SCr) x0.85 if female with units mL/min/years/kg/mg/dL, not BSA-adjusted, not for standardized Scr; Table 3 (printed p.7): White men, mClcr. NKF limitations page: 249 white males, 15% female adjustment estimated not quantified, pre-standardization assays, validated vs mCrCL which overestimates GFR. PubMed abstract (eutils XML): adult males, 15% less females, 249 derivation ages 18-92, 236 paired comparison, r=0.83; equation itself absent ('see article'). Original symbols, constants, units, and context faithfully transcribed.",
+          "status": "passed"
+        }
+      },
+      "id": "clinical-arithmetic--cockcroft-gault-creatinine-clearance",
+      "permitted_use": "Forward historical Cockcroft-Gault arithmetic only, for qualified adult assessments matching the evidenced profile: age 18-92, historical pre-standardization assay basis with independently confirmed applicability, caller-supplied K=432000000000 s with version provenance. Output is a non-BSA-indexed creatinine-clearance estimate, not GFR; female branch is formal arithmetic without validated female-population claim. Excludes treatment/dose/monitoring decisions, assay conversion, K-solving or any inversion, and redistribution of source documents.",
+      "recommendation": "recommend-admit",
+      "record_sha256": "b00b10fb4da02e931c4084bdf6a0db0b8af8ebfa9c35ab7605712f279755ac1b",
+      "revision": "r3",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "finding": "Paraphrased: Q16 states the Cockcroft-Gault formula was developed in 1976 from 249 men to estimate measured clearance over ~30-130 mL/min, gives eClcr=(140-age)*weight/(72*SCr) x0.85 if female with units mL/min, years, kg, mg/dL, and notes it is not BSA-adjusted and not expressed for standardized Scr; Q14 states clearance exceeds GFR ~10-40%; Table 3 lists population White men with reference method mClcr. Extracted from actual PDF bytes via stdlib stream decode.",
+          "locator": "Q16 printed pp.7-8; Table 3 printed p.7; Q14 printed p.7",
+          "url": "https://www.kidney.org/sites/default/files/441-8491_2202_faqs_aboutgfr_v5.pdf"
+        },
+        {
+          "accessed": "2026-11-03",
+          "finding": "Paraphrased: developed from 249 white males with the 15% female adjustment estimated rather than quantified; developed before Scr assay standardization (majority IDMS-standardized by 2011, ~12% lower Scr since); validated against measured creatinine clearance which overestimates GFR; NKF advocates moving to race-agnostic eGFR for medication decisions.",
+          "locator": "Limitations of the Cockcroft-Gault equation; Limitations of Practice Adaptations to C-G eCrCL",
+          "url": "https://www.kidney.org/professionals/kdoqi/cockcroft-gault-equation-estimating-creatinine-clearance"
+        },
+        {
+          "accessed": "2026-11-03",
+          "finding": "Paraphrased: formula predicts clearance from serum creatinine in adult males (15% less in females); derivation used age vs 24-hour excretion/kg in 249 patients aged 18-92; comparison against means of paired 24-hour clearances in 236 patients gave r=0.83. The equation itself is not in the abstract ('see article'); no sCr calibration limits or individual prediction interval given. Direct PubMed page returned a cookie wall (HTTP 203); abstract content verified through the NLM eutils record for the same PMID.",
+          "locator": "AbstractText of PMID 1244564 (Nephron 1976;16(1):31-41; DOI 10.1159/000180580); direct page https://pubmed.ncbi.nlm.nih.gov/1244564/ cookie-blocked",
+          "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=1244564&rettype=abstract&retmode=xml"
+        },
+        {
+          "accessed": "2026-11-03",
+          "finding": "Access failure recorded: NKF copyright/terms endpoint returns HTTP 404 Not Found, so no reuse license could be established; consistent with the record's stated unresolved rights. No clearance inferred.",
+          "locator": "Site copyright endpoint",
+          "url": "https://www.kidney.org/about/copyright"
+        }
+      ]
+    }
+  ],
+  "reviewed": "2026-11-03",
+  "reviewer": "revAJ-independent",
+  "schema_version": "cm-scientific-review/1"
+}

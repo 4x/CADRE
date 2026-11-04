@@ -1,0 +1,172 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.6",
+  "batch_id": "demography-a-b03c1",
+  "domain": "demography",
+  "curator": "muse-spark",
+  "created": "2026-11-03",
+  "example_only": false,
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: natural increase is the surplus (or deficit) of live births over deaths in the same period and territory (Eurostat wording).",
+        "application profile: inputs are period flow counts; the same identity holds for annual estimates, intercensal intervals, or projections provided B and D share period and territory."
+      ],
+      "constants": [],
+      "guards": [
+        "B >= 0",
+        "D >= 0"
+      ],
+      "id": "demography--natural-increase-count",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meaning demography:natural_increase_count needs runtime extension; runtime_model null. Complements (not duplicates) demography--natural-increase-rate (b02 per-1000 rate) and demography--population-balance (b01, which adds this difference to migration)."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Solve B = NI + D given deaths; solve D = B - NI given births. Both linear, no singularities. Substitution check: NI = 150000 with D = 750000 gives B = 900000. Zero case B = D gives NI = 0 regardless of level (a large balanced population still has zero natural increase). No causal invertibility: the count does not identify age-specific fertility or mortality schedules.",
+      "kind": "definition",
+      "limitations": [
+        "Counts alone do not standardise for population size or age structure; for comparison use the crude natural-increase rate (b02).",
+        "Does not separate the fertility and mortality contributions; equal and opposite changes in B and D leave NI unchanged."
+      ],
+      "references": [
+        {
+          "expected": 150000.0,
+          "id": "ordinary-surplus",
+          "inputs": {
+            "B": 900000.0,
+            "D": 750000.0
+          },
+          "method": "Independent ordinary case: 900000 - 750000 = 150000 exactly; checks the expression on a plain surplus.",
+          "provenance": "independent-derivation",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": -200000.0,
+          "id": "natural-decrease",
+          "inputs": {
+            "B": 500000.0,
+            "D": 700000.0
+          },
+          "method": "Independent materially different case: deaths exceed births, 500000 - 700000 = -200000; checks signed output (natural decrease).",
+          "provenance": "independent-derivation",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 0.0,
+          "id": "balanced-boundary",
+          "inputs": {
+            "B": 600000.0,
+            "D": 600000.0
+          },
+          "method": "Limiting identity: equal births and deaths give exactly zero natural increase.",
+          "provenance": "limiting-identity",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "B": -100.0,
+            "D": 50000.0
+          },
+          "kind": "domain",
+          "reason": "Negative birth count violates B >= 0; counts of vital events cannot be negative."
+        },
+        {
+          "inputs": {
+            "B": 900000.0
+          },
+          "kind": "missing-input",
+          "reason": "Death count missing; natural increase cannot be formed from births alone."
+        }
+      ],
+      "relationship": {
+        "expression": "B - D",
+        "locator": "Eurostat demo_gind general ESMS metadata, section 3.4 (Statistical concepts and definitions): natural change = live births minus deaths; corroborated by the balancing equation (b01 sources: PRB glossary, World Bank WDI methodology)",
+        "original_equation": "Natural change / natural increase: the difference between the number of live births and the number of deaths during the period (Eurostat).",
+        "output_symbol": "NI",
+        "source_id": "eurostat-demo-gind",
+        "translation_notes": "Dimensional check: persons minus persons = persons (unit 1). This is the level form; the b02 rate form divides by midyear population and scales per 1000, and the b01 balance adds net migration to this difference."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Section 3.4 defines natural change of population as the difference between the number of live births and the number of deaths during the year; a positive natural change (natural increase) occurs when live births outnumber deaths, and a negative one (natural decrease) when deaths exceed births. Verified live on the general ESMS page on access date.",
+          "id": "eurostat-demo-gind",
+          "kind": "primary",
+          "license": "Eurostat editorial content and statistics reusable under CC BY 4.0 with attribution.",
+          "locator": "General ESMS reference metadata for demo_gind, section 3.4 (Statistical concepts and definitions): 'Natural change of population'",
+          "redistribution": "Short evidence paraphrase and locator only; no verbatim reproduction or redistribution.",
+          "title": "Eurostat: demo_gind general ESMS reference metadata (natural change)",
+          "url": "https://ec.europa.eu/eurostat/cache/metadata/en/demo_gind_esms.htm",
+          "version": "demo_gind general ESMS metadata viewed 2026-11-03 (metadata last update 27 July 2026)"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Demographic balancing identity P1 = P0 + births - deaths + net migration, corroborating natural increase as the births-minus-deaths component of population change.",
+          "id": "prior-b01-balance",
+          "kind": "primary",
+          "license": "Prior-batch sources: World Bank WDI methodology (CC BY-4.0 underlying); PRB glossary (copyrighted, cite briefly).",
+          "locator": "b01 bundle sources for demography--population-balance",
+          "redistribution": "Short evidence paraphrase and locator only; no verbatim reproduction or redistribution.",
+          "title": "Prior batch b01: population-balance sources (corroboration)",
+          "url": "https://www.prb.org/resource/glossary/",
+          "version": "b01 bundle packed 2026-11-03"
+        }
+      ],
+      "summary": "Natural increase count: live births minus deaths in the same period and territory (signed; negative is natural decrease).",
+      "title": "Natural increase count (births minus deaths)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same territory and reference period as D",
+          "definition": "Number of live births during the period",
+          "dimensions": "count of persons (dimensionless)",
+          "domain": "count of persons, nonnegative",
+          "quantity_id": "live_birth_period_count",
+          "role": "input",
+          "source_symbol": "live births",
+          "symbol": "B",
+          "unit": "1"
+        },
+        {
+          "context": "same territory and reference period as B",
+          "definition": "Number of deaths during the period",
+          "dimensions": "count of persons (dimensionless)",
+          "domain": "count of persons, nonnegative",
+          "quantity_id": "death_period_count",
+          "role": "input",
+          "source_symbol": "deaths",
+          "symbol": "D",
+          "unit": "1"
+        },
+        {
+          "context": "same territory and reference period as B and D",
+          "definition": "Surplus of births over deaths; negative values are natural decrease",
+          "dimensions": "count of persons (dimensionless)",
+          "domain": "count of persons, signed",
+          "quantity_id": "natural_increase_count",
+          "role": "output",
+          "source_symbol": "introduced: NI",
+          "symbol": "NI",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "deferred": [],
+  "handoff": {
+    "summary": "Correction batch for demography-a-b03: re-issues demography--natural-increase-count as r2 with the eurostat-demo-gind source repointed to the general ESMS page, section 3.4. No science changes.",
+    "gaps": [
+      "Meaning demography:natural_increase_count needs runtime extension; runtime_model null. Unchanged from r1."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Corrects demography--natural-increase-count@r1 (batch demography-a-b03) per reviewer AB needs-revision: the r1 eurostat-demo-gind URL pointed at the Poland national metadata page, which does not contain the natural-change definition. r2 repoints source_id eurostat-demo-gind to the general ESMS page (demo_gind_esms.htm), section 3.4, verified live to define natural change as live births minus deaths. Equation, variables, references and guards unchanged."
+  }
+}

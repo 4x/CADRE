@@ -6,6 +6,8 @@ import logging
 from pathlib import Path
 import sqlite3
 
+from .compatibility import audit_pairs
+from .compare import compare
 from .contracts import ModelError, describe_units
 from .demo import DEFAULT_CAPEX, DEFAULT_COP, DEFAULT_TARIFF, catalog, composition
 from .inference import BudgetLedger, InferenceSettings, smoke_test
@@ -13,7 +15,7 @@ from .runtime import execute, save_run
 from .registry import Registry
 from .reports import read_run, write_report
 from .revisions import replay_run, revise_run
-from .workflows import REGISTRY_PATH, answer, curate, review_bundle, seed_candidates
+from .workflows import REGISTRY_PATH, answer, curate, fill_in_assumptions_enabled, review_bundle, seed_candidates
 
 
 def main() -> int:
@@ -32,6 +34,13 @@ def main() -> int:
     commands.add_parser("seed-candidates", help="Stage four supporting manual candidates; does not publish")
     commands.add_parser("curate", help="Offline Meta extraction from the bundled NIST source packet")
     commands.add_parser("registry-list", help="List eligible stored versions")
+    commands.add_parser("compat-audit", help="Audit chain compatibility across eligible models; no inference calls")
+    compare_parser = commands.add_parser("compare", help="Answer one question via the grounded route and directly, side by side")
+    compare_parser.add_argument("question", help="Self-contained question for both routes")
+    compare_parser.add_argument("--fill-in-assumptions", action="store_true",
+                                help="Let the grounded route fill question-implied assumptions (direct route unaffected)")
+    compare_parser.add_argument("--model", default=None,
+                                help="Inference model for both routes; overrides LLM and inference.toml (must be priced)")
     commands.add_parser("review-bundle", help="Prepare a readable review report without approving candidates")
     candidate = commands.add_parser("candidate", help="Inspect an extraction and its source/check evidence")
     candidate.add_argument("id")
@@ -42,6 +51,10 @@ def main() -> int:
     review.add_argument("--decision", required=True, choices=("accepted", "rejected", "withdrawn"))
     query = commands.add_parser("answer", help="Parse a self-contained question and compose reviewed stored models")
     query.add_argument("question")
+    query.add_argument("--fill-in-assumptions", action="store_true",
+                       help="Let the composer supply question-implied values as documented assumptions")
+    query.add_argument("--model", default=None,
+                       help="Inference model; overrides LLM and inference.toml (must be priced)")
     inspect = commands.add_parser("inspect", help="Inspect a saved run's result and actual lineage")
     inspect.add_argument("run_id")
     report = commands.add_parser("report", help="Export saved runs to a readable standalone HTML report")
@@ -77,7 +90,7 @@ def main() -> int:
             result = ledger.summary() if args.command == "usage" else smoke_test(settings, ledger)
             print(json.dumps(result, indent=2))
             return 0
-        if args.command in {"seed-candidates", "curate", "candidate", "review", "registry-list", "answer", "review-bundle", "revise"}:
+        if args.command in {"seed-candidates", "curate", "candidate", "review", "registry-list", "answer", "review-bundle", "revise", "compat-audit", "compare"}:
             registry = Registry(REGISTRY_PATH)
             if args.command == "seed-candidates":
                 print(json.dumps({"candidate_ids": seed_candidates(registry), "status": "awaiting-owner-review"}, indent=2))
@@ -91,6 +104,30 @@ def main() -> int:
             elif args.command == "registry-list":
                 _, admissions = registry.snapshot()
                 print(json.dumps(admissions, indent=2))
+            elif args.command == "compat-audit":
+                models, _ = registry.snapshot()
+                print(json.dumps(audit_pairs(models), indent=2))
+            elif args.command == "compare":
+                record = compare(registry, args.question, fill_in_assumptions_enabled(args.fill_in_assumptions),
+                                 args.model)
+                grounded, direct = record["grounded"], record["direct"]
+                print(f"question: {record['question']}")
+                print(f"model: {record.get('model')}")
+                print(f"grounded: {grounded['status']} in {grounded['latency_s']:.1f}s "
+                      f"({grounded['attempts']} attempt(s))")
+                for node_id, value in (grounded["outputs"] or {}).items():
+                    print(f"  {node_id}: {value['amount']} {value['port']['unit']} ({value['port']['meaning']})")
+                if grounded.get("error"):
+                    print(f"  error: {grounded['error']}")
+                latency = direct['latency_s']
+                print(f"direct: {'error: ' + direct['error'] if direct.get('error') else f'{latency:.1f}s'}")
+                print(f"  {direct['direct_text'][:800]}")
+                print(f"agreement: {record['agreement']['verdict']}")
+                for detail in record["agreement"]["details"]:
+                    print(f"  {detail['meaning']}: expected {detail['expected']}, "
+                          f"matched {detail['matched']}")
+                print(f"saved: {record['saved_path']}")
+                return 0
             elif args.command == "review-bundle":
                 print(f"Review report: {review_bundle(registry)}")
             elif args.command == "revise":
@@ -98,8 +135,9 @@ def main() -> int:
                 print(json.dumps({key: record.get(key) for key in ("run_id", "status", "revised_from", "revision", "outputs", "diff", "error", "saved_path")}, indent=2))
                 return 0 if record["status"] == "completed" else 1
             else:
-                record = answer(registry, args.question)
-                print(json.dumps({key: record.get(key) for key in ("run_id", "status", "outputs", "clarifications", "solve_diagnostic", "error", "saved_path")}, indent=2))
+                record = answer(registry, args.question, fill_in_assumptions_enabled(args.fill_in_assumptions),
+                                args.model)
+                print(json.dumps({key: record.get(key) for key in ("run_id", "status", "outputs", "assumptions", "clarifications", "solve_diagnostic", "error", "saved_path")}, indent=2))
                 return 0 if record["status"] == "completed" else 1
             return 0
         manifest = execute(composition(args.performance, args.investment, args.tariff, args.question), catalog())

@@ -1,0 +1,1 @@
+Answer the quantitative question directly with in-context calculation, the way a plain assistant would: no tools, no catalog, no model pipeline. Show your reasoning briefly, then state each requested number with its unit. If the question is ambiguous or underspecified, say what you assumed. Do not refuse a well-posed arithmetic question.

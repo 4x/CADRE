@@ -1,0 +1,691 @@
+{
+  "batch_id": "computer-science-b01",
+  "created": "2026-11-01",
+  "curator": "muse-spark",
+  "deferred": [
+    {
+      "reason": "Continuation priority: scaled-workload (Gustafson) speedup S = (1 - p) + p * s is scalar and in-scope but not yet curated; curate in a later batch with its own fixed-time workload assumption and source evidence. Not a duplicate of Amdahl's fixed-workload law.",
+      "source_urls": [
+        "https://en.wikipedia.org/wiki/Gustafson%27s_law"
+      ],
+      "title": "Gustafson scaled speedup (fixed-time workload)"
+    },
+    {
+      "reason": "Out of scalar-format scope: k-out-of-N / partial-operation availability (e.g. at least N-M of N components available) needs binomial summation over subsets, which the scalar + - * / ** format cannot express as one relationship. Retain for a future formalism; do not force as a two-component product.",
+      "source_urls": [
+        "https://www.eventhelix.com/fault-handling/system-reliability-availability/"
+      ],
+      "title": "Partial-operation (k-out-of-N) availability"
+    },
+    {
+      "reason": "Excluded by assignment boundaries: queueing/repair-contention availability (shared repair crews, non-independent downtimes) needs distributions and state-space methods (Markov/petri nets), not deterministic scalar arithmetic. Not curated.",
+      "source_urls": [
+        "https://sebokwiki.org/wiki/System_Reliability,_Availability,_and_Maintainability"
+      ],
+      "title": "Queueing-dependent availability with repair contention"
+    }
+  ],
+  "domain": "computer-science",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "All four records use new quantity meanings (overall_speedup, parallel_fraction, data_size, transfer_rate, record_count, storage_capacity, component_availability, series_availability) that are absent from data/curation/runtime-vocabulary.json; integration status is requires-extension with runtime_model null.",
+      "Data-size units (B, B/s, records) and dimensionless probability units (1) need explicit unit decisions at integration time; decimal vs binary byte conventions are documented in assumptions but no conversion coefficient is inlined in b01.",
+      "Duplicate search was limited to the supplied data/curation/catalog-inventory.json (building-energy records only) plus this batch; no computer-science records were present there, but global uniqueness beyond that snapshot is not claimed."
+    ],
+    "queries": [
+      "What sustained transfer rate delivers a 400 GB (decimal) object in under one hour, and which overheads must be added to the ideal D/R bound?",
+      "A two-component series system uses components with availabilities 0.99 and 0.9999 under asserted independence; what is the series availability? (Tests computer-science--series-availability directly.)"
+    ],
+    "review_notes": "2026-11-01 validate bundle: valid-data-awaiting-review, 4 records, 12 arithmetic checks, 8 rejection checks, runtime_contract_checked=false (all requires-extension, runtime_model null). Source fidelity/dimensions/applicability reviewed in curator text; central scientific review pending. Licensing: terms pages not inspected; only short paraphrases recorded. Integration gaps recorded; duplicate search limited to catalog-inventory.json snapshot + this batch.",
+    "summary": "Batch b01 curates 4 atomic computer-science records: Amdahl fixed-workload speedup, transfer time D/R, storage capacity N*r, and two-component series availability product. All use directly inspected sources (Wikipedia Amdahl/Availability/RBD, Berkeley CS61C Amdahl notes, GeeksforGeeks transfer-time page, NIST binary-prefix page, Wikipedia data-rate/gigabyte pages, EventHelix series/parallel page, ReliaSoft/Ebeling reference page) accessed 2026-11-01. Statuses are requires-extension (new meanings). 11 reference cases and 6 rejection cases included."
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: fixed workload W; f is the fraction of original (pre-enhancement) execution time affected by the enhancement, and s is the speedup factor applied to that affected part.",
+        "Application profile: deterministic bound ignoring parallel overhead, communication, synchronization and resource contention.",
+        "The unaffected fraction (1 - f) runs at original speed; the affected part runs s times faster."
+      ],
+      "constants": [],
+      "guards": [
+        "f >= 0",
+        "f <= 1",
+        "s > 0"
+      ],
+      "id": "computer-science--amdahl-speedup",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings overall_speedup, parallel_fraction and component_speedup are absent from runtime-vocabulary.json; scalar form 1/((1-f)+f/s) fits the engine once meanings exist.",
+          "Unit 1 (dimensionless) needs an explicit integration-time decision."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Solve directions: given S and s, f = (1 - 1/S)/(1 - 1/s) requires s != 1 and S != 0; given S and f (f != 1), s = f/((1/S) - (1 - f)) requires (1/S) > (1 - f). Boundaries: f=0 gives S=1 for any s (checked); f=1 gives S=s; as s -> infinity with f<1, S -> 1/(1-f). Substitution check: S=1.2, s=2 gives f=(1-1/1.2)/(1-1/2)=(1/6)/(1/2)=1/3, matching the Berkeley case. Zero/ambiguous: s=1 gives S=1 for all f (f underdetermined); s<=0 excluded by guard, not a scientific solve direction. Algebraic inversion does not establish causal invertibility of the workload split.",
+      "kind": "theoretical",
+      "limitations": [
+        "Excludes scaled-workload (Gustafson) interpretations where problem size grows with processor count.",
+        "Excludes overheads: communication, synchronization, load imbalance and non-constant s across the affected fraction.",
+        "f must be a time fraction of the original execution, not an instruction-count or code-size fraction; misidentifying f invalidates the bound."
+      ],
+      "references": [
+        {
+          "expected": 1.18,
+          "id": "wiki-p030-s2",
+          "inputs": {
+            "f": 0.3,
+            "s": 2
+          },
+          "method": "Published worked example on the inspected Wikipedia Amdahl's law page: p=0.3, s=2 yields S=1/(0.7+0.15)=1/0.85=1.17647 reported as 1.18. Expected keeps the reported rounded value; tolerance 0.005 covers the rounding.",
+          "provenance": "Published result from inspected source (Wikipedia Amdahl's law, Parallel programs section).",
+          "tolerance": 0.005
+        },
+        {
+          "expected": 1.2,
+          "id": "berkeley-third-double",
+          "inputs": {
+            "f": 0.3333333333333333,
+            "s": 2
+          },
+          "method": "Published Berkeley CS61C worked example: one third of a program accelerated by 2 gives 1/(2/3+(1/3)/2)=1.2. Inputs use the closest binary64 to 1/3; expected keeps the reported 1.2 with tolerance covering float rounding.",
+          "provenance": "Published result from inspected source (Berkeley CS61C parallel-performance notes, Amdahl examples section).",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 1,
+          "id": "boundary-zero-parallel",
+          "inputs": {
+            "f": 0,
+            "s": 2
+          },
+          "method": "Limiting identity: with no improvable fraction the overall speedup is 1 regardless of s. Independent of the equation under test as a definitional boundary of the workload split.",
+          "provenance": "Independent limiting identity (boundary check), not a source-reported measurement.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "f": 1.5,
+            "s": 2
+          },
+          "kind": "domain",
+          "reason": "Parallel time-fraction above 1 violates the f <= 1 guard; a fraction of original time cannot exceed the whole."
+        },
+        {
+          "inputs": {
+            "f": 0.3
+          },
+          "kind": "missing-input",
+          "reason": "Component speedup s is an asserted input, never inferred; omitting s leaves the bound undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "1 / ((1 - f) + f / s)",
+        "locator": "Definition section: overall-speedup display equation and parallel-programs worked example (S_latency = 1/(1-p+p/s)); derivation section defines p as the fraction of execution time benefiting and s as the acceleration factor.",
+        "original_equation": "Speedup_overall = 1 / ((1 - time_optimized) + time_optimized / speedup_optimized)",
+        "source_id": "wikipedia-amdahl",
+        "translation_notes": "Source symbols time_optimized (proportion of time) and speedup_optimized renamed to locals f and s; output Speedup_overall renamed to S. Dimensional check: all terms dimensionless (fraction divided by dimensionless factor), so S is dimensionless (unit 1). No unit conversion applied; pure arithmetic literals 1 only. Amdahl's 1967 AFIPS paper (DOI 10.1145/1465482.1465560, pp. 483-485) is cited as origin but the closed form is sourced here from the inspected pages, since the paper states the argument in prose.",
+        "output_symbol": "S"
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States overall speedup as execution time without enhancements divided by execution time with enhancements, then gives the overall-speedup display formula in time_optimized/speedup_optimized notation plus the p=0.3/s=2 worked result 1.18 and the four-part example yielding 2.19.",
+          "id": "wikipedia-amdahl",
+          "kind": "primary",
+          "license": "Terms page not inspected on 2026-11-01; rights unknown. See site terms before reuse.",
+          "locator": "Definition section and Parallel programs section of the inspected page revision.",
+          "redistribution": "Contains only short original paraphrase and synthetic numerical inputs; no extended quotation.",
+          "title": "Wikipedia: Amdahl's law (formula, derivation and worked examples)",
+          "url": "https://en.wikipedia.org/wiki/Amdahl%27s_law",
+          "version": "page revision inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Rewrites Amdahl as Exec-time-before over Exec-time-after (Eq. 2) and as 1/((1-frac_optimized)+frac_optimized/factor_improvement) (Eq. 3); worked example with frac 1/3 and factor 2 yields speedup 1.2; parallel limit Speedup(P)=1/(s+(1-s)/P) tends to 1/s.",
+          "id": "cs61c-amdahl",
+          "kind": "primary",
+          "license": "Terms page not inspected on 2026-11-01; rights unknown. See site terms before reuse.",
+          "locator": "Sections 3 (Amdahl's Law, Eqs. 1-3) and 4-5 (examples and parallel limit) of the inspected notes page.",
+          "redistribution": "Contains only short original paraphrase and synthetic numerical inputs; no extended quotation.",
+          "title": "Berkeley CS61C course notes: Amdahl's Law (P&H-derived)",
+          "url": "https://notes.cs61c.org/content/parallel-performance/",
+          "version": "notes page inspected 2026-11-01; cites Patterson & Hennessy Pitfall P&H 1.11"
+        }
+      ],
+      "summary": "Fixed-workload overall speedup from the improvable time fraction and its component speedup.",
+      "title": "Amdahl fixed-workload speedup from improvable time fraction",
+      "variables": [
+        {
+          "context": "same fixed-workload task and enhancement as S",
+          "definition": "Fraction of the original (pre-enhancement) execution time that is affected by the enhancement",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]; 0 admits the no-improvement boundary (S=1)",
+          "quantity_id": "parallel_fraction",
+          "role": "input",
+          "source_symbol": "time_optimized (also p, frac_optimized)",
+          "symbol": "f",
+          "unit": "1"
+        },
+        {
+          "context": "same fixed-workload task and enhancement as S",
+          "definition": "Speedup factor applied to the affected time fraction",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite factor; 1 means no local improvement; unbounded s is the ideal limit, not a measured claim",
+          "quantity_id": "component_speedup",
+          "role": "input",
+          "source_symbol": "speedup_optimized (also s, factor_improvement)",
+          "symbol": "s",
+          "unit": "1"
+        },
+        {
+          "context": "same fixed-workload task and enhancement as f and s",
+          "definition": "Overall execution-time speedup of the whole task at fixed workload",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite speedup; 1 means no overall gain",
+          "quantity_id": "overall_speedup",
+          "role": "output",
+          "source_symbol": "Speedup_overall (also S_latency)",
+          "symbol": "S",
+          "unit": "1"
+        }
+      ],
+      "unresolved": []
+    },
+    {
+      "assumptions": [
+        "Source assumption: transfer rate R is the sustained (not peak/burst) average rate over the transfer, excluding cache/buffer benefit, per the inspected HDD-performance wording.",
+        "Application profile: ideal bulk-transfer bound; seek time, rotational latency, protocol overhead and contention are excluded and accounted by separate models.",
+        "Data size D and rate R use consistent data units (both bytes or both bits); bit/byte and decimal/binary conversions are separate models."
+      ],
+      "constants": [],
+      "guards": [
+        "D >= 0",
+        "R > 0"
+      ],
+      "id": "computer-science--transfer-time",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings data_size, transfer_rate and transfer_time are absent from runtime-vocabulary.json; scalar form D/R fits the engine once meanings exist.",
+          "Units B and B/s (or bit and bit/s) and the decimal/binary convention need explicit integration-time decisions."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Solve directions: D = T*R requires T and R; R = D/T requires T != 0 plus the original guards (D>=0, R>0). Substitution check: T=8, R=125000000 gives D=1000000000, matching the gigabyte reference. Zero/ambiguous: D=0 gives T=0 for any positive R (degenerate empty transfer); T=0 with D>0 would require infinite R and is excluded by finite-rate guard. Inversion is algebraic only and does not turn a peak rate into a sustained rate.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes disk access components (seek, rotational latency): transfer time is one component of access time, not total I/O time.",
+        "Excludes protocol/encoding overhead, retransmissions and shared-link contention unless included in the asserted sustained rate.",
+        "A peak or interface rate must not be substituted for the sustained rate; doing so underestimates time."
+      ],
+      "references": [
+        {
+          "expected": 8,
+          "id": "gigabyte-at-125mbps",
+          "inputs": {
+            "D": 1000000000,
+            "R": 125000000
+          },
+          "method": "Independent arithmetic from two inspected unit facts: 1 GB = 10^9 B (NIST/IEC decimal) and 1 Gbit/s = 125,000,000 B/s (data-rate table). 10^9/125x10^6 = 8 s. Independence comes from combining unit definitions, not replaying a transfer-time example.",
+          "provenance": "Independent derivation from published unit definitions in inspected sources.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1.5,
+          "id": "ordinary-1500-at-1000",
+          "inputs": {
+            "D": 1500,
+            "R": 1000
+          },
+          "method": "Ordinary-case arithmetic check: 1500/1000 = 1.5. Synthetic inputs chosen to differ materially from the gigabyte case.",
+          "provenance": "Independent elementary arithmetic check with synthetic inputs.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "boundary-empty-transfer",
+          "inputs": {
+            "D": 0,
+            "R": 1000
+          },
+          "method": "Definitional boundary: transferring no data takes no bulk-transfer time at any positive sustained rate.",
+          "provenance": "Definitional boundary check; not an empirical measurement.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "D": 1000,
+            "R": 0
+          },
+          "kind": "domain",
+          "reason": "Zero or negative sustained rate violates R > 0; division by zero has no transfer-time meaning."
+        },
+        {
+          "inputs": {
+            "D": 1000
+          },
+          "kind": "missing-input",
+          "reason": "Rate R is an asserted input (sustained vs peak must be stated); omitting it leaves time undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "D / R",
+        "locator": "GeeksforGeeks transfer-time section: 'Transfer time = Data to be transfer / transfer rate' with the note that access time = seek + rotational latency + transfer time; sustained-vs-burst wording from the inspected HDD-performance/Data-rate pages.",
+        "original_equation": "Transfer time = Data to be transfer / transfer rate",
+        "source_id": "gfg-transfer",
+        "translation_notes": "Source prose formalized with locals D (data size) and R (sustained transfer rate), output T (transfer time). Dimensional check: data / (data/time) = time (unit s when D in B and R in B/s, or D in bit and R in bit/s). No conversion coefficient inlined; bit/byte (8) and decimal/binary conventions are separate models.",
+        "output_symbol": "T"
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines transfer time as data to be transferred divided by transfer rate, and separately defines data access time as seek time plus rotational latency plus data transfer time.",
+          "id": "gfg-transfer",
+          "kind": "primary",
+          "license": "Terms page not inspected on 2026-11-01; rights unknown. See site terms before reuse.",
+          "locator": "Sections '1. Transfer Time' and '2. Data Access Time' of the inspected page (updated 28 Apr 2020).",
+          "redistribution": "Contains only short original paraphrase and synthetic numerical inputs; no extended quotation.",
+          "title": "GeeksforGeeks: Transfer Time vs Disk Access Time (transfer-time formula)",
+          "url": "https://www.geeksforgeeks.org/operating-systems/difference-between-transfer-time-and-disk-access-time-in-disk-scheduling/",
+          "version": "page revision inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines data transfer rate as the average number of bits/characters/blocks per unit time through a link, and states that in data-rate contexts typically only decimal prefixes are used with standard SI interpretation.",
+          "id": "wikipedia-data-rate",
+          "kind": "primary",
+          "license": "Terms page not inspected on 2026-11-01; rights unknown. See site terms before reuse.",
+          "locator": "Lead definition and Unit prefixes sections of the inspected page.",
+          "redistribution": "Contains only short original paraphrase and synthetic numerical inputs; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (rate definition and decimal-prefix convention)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "page revision inspected 2026-11-01"
+        }
+      ],
+      "summary": "Ideal bulk data-transfer time as data size divided by asserted sustained transfer rate.",
+      "title": "Bulk transfer time from data size and sustained rate",
+      "variables": [
+        {
+          "context": "same transfer, link, encoding and averaging window as R and T",
+          "definition": "Amount of user data to be transferred",
+          "dimensions": "data",
+          "domain": "Nonnegative finite data size; zero admits the empty-transfer boundary (T=0)",
+          "quantity_id": "data_size",
+          "role": "input",
+          "source_symbol": "Data to be transfer",
+          "symbol": "D",
+          "unit": "B"
+        },
+        {
+          "context": "same transfer, link, encoding and averaging window as D and T",
+          "definition": "Sustained average transfer rate over the transfer, excluding cache/buffer burst benefit",
+          "dimensions": "data / time",
+          "domain": "Positive finite sustained rate in matching data units per second",
+          "quantity_id": "transfer_rate",
+          "role": "input",
+          "source_symbol": "transfer rate",
+          "symbol": "R",
+          "unit": "B/s"
+        },
+        {
+          "context": "same transfer, link, encoding and averaging window as D and R",
+          "definition": "Ideal bulk-transfer time for the stated data size at the asserted sustained rate",
+          "dimensions": "time",
+          "domain": "Nonnegative finite duration in seconds",
+          "quantity_id": "transfer_time",
+          "role": "output",
+          "source_symbol": "Transfer time",
+          "symbol": "T",
+          "unit": "s"
+        }
+      ],
+      "unresolved": []
+    },
+    {
+      "assumptions": [
+        "Source assumption: uniform record/object size r in the stated encoding, and a single stated decimal/binary unit convention (GB = 10^9 B vs GiB = 2^30 B per NIST/IEC 60027-2 and IEC 80000-13).",
+        "Application profile: raw capacity accounting; file-system metadata, spare/provisioned overhead, compression and deduplication are excluded.",
+        "Count N and size r refer to the same population of records and the same unit convention."
+      ],
+      "constants": [],
+      "guards": [
+        "N >= 0",
+        "r >= 0"
+      ],
+      "id": "computer-science--storage-capacity-count-size",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings record_count, record_size and storage_capacity are absent from runtime-vocabulary.json; scalar form N*r fits the engine once meanings exist.",
+          "Units for count (1 vs records) and data (B) and the decimal/binary convention need explicit integration-time decisions."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Solve directions: N = C/r requires r != 0; r = C/N requires N != 0; both retain the original nonnegative guards. Substitution check: C=400000000000, r=1000000000 gives N=400, matching the 400-GB reference. Zero/ambiguous: r=0 forces C=0 for any N (degenerate zero-size records); N=0 gives C=0. Inversion is algebraic and does not recover per-record overhead or the unit convention.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes file-system/directory metadata, RAID/parity overhead, spare provisioning, compression and deduplication.",
+        "A decimal/binary mix (e.g. GiB-sized records counted as GB) invalidates the result; the convention must be stated and consistent.",
+        "Non-uniform record sizes need summation, not this single-product form."
+      ],
+      "references": [
+        {
+          "expected": 400000000000,
+          "id": "four-hundred-gb-drive",
+          "inputs": {
+            "N": 400,
+            "r": 1000000000
+          },
+          "method": "Independent arithmetic from the inspected gigabyte facts: 1 GB = 10^9 B and the worked 400 GB drive example (400 x 10^9 B). 400*10^9 = 4x10^11 B. Distinct from replaying the same equation because unit facts come from separate inspected pages.",
+          "provenance": "Independent derivation from published unit definitions and the worked drive example.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 24,
+          "id": "three-8byte-records",
+          "inputs": {
+            "N": 3,
+            "r": 8
+          },
+          "method": "Ordinary-case check with a materially different scale: 3 records of 8 B (one 64-bit word each) give 24 B. Synthetic inputs.",
+          "provenance": "Independent elementary arithmetic check with synthetic inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-records",
+          "inputs": {
+            "N": 0,
+            "r": 1000000000
+          },
+          "method": "Definitional boundary: zero records occupy zero capacity at any record size.",
+          "provenance": "Definitional boundary check; not an empirical measurement.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "N": -1,
+            "r": 8
+          },
+          "kind": "domain",
+          "reason": "Negative record count violates N >= 0; counts are nonnegative."
+        },
+        {
+          "inputs": {
+            "N": 10
+          },
+          "kind": "missing-input",
+          "reason": "Record size r is an asserted input (including its unit convention); omitting it leaves capacity undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "N * r",
+        "locator": "Gigabyte page: 'one gigabyte is one billion bytes' with 400 GB drive = 400,000,000,000 bytes and 1 TB displayed as 931 GiB; NIST binary-prefix page: 1 GB = 10^9 B vs 1 GiB = 2^30 B = 1,073,741,824 B (IEC 60027-2 provenance). Formalizes total-bytes = count x bytes-each accounting.",
+        "original_equation": "total capacity = number of records x size per record (faithful formalization of stated byte-count accounting)",
+        "source_id": "wikipedia-gigabyte",
+        "translation_notes": "No single inspected page prints 'C = N*r' as a numbered equation, so this record formalizes the byte-count accounting the sources state in prose and worked examples (e.g. 400 GB = 400 x 10^9 B). Locals: N (count), r (bytes each), C (total bytes). Dimensional check: count x data = data. Conversion coefficients (10^9, 2^30, 8 bit/B) are not inlined and belong to separate conversion records.",
+        "output_symbol": "C"
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines 1 GB as 10^9 bytes (IEC 80000-13), specifies GiB as 2^30 bytes, and works the 400 GB drive displayed as 372 GiB and 1 TB displayed as 931 GB examples.",
+          "id": "wikipedia-gigabyte",
+          "kind": "primary",
+          "license": "Terms page not inspected on 2026-11-01; rights unknown. See site terms before reuse.",
+          "locator": "Lead definition, decimal/base-10 section, and consumer-confusion section of the inspected page.",
+          "redistribution": "Contains only short original paraphrase and synthetic numerical inputs; no extended quotation.",
+          "title": "Wikipedia: Gigabyte (decimal/binary definitions and drive examples)",
+          "url": "https://en.wikipedia.org/wiki/Gigabyte",
+          "version": "page revision inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Tabulates binary prefixes (Ki/Mi/Gi = 2^10/2^20/2^30) and states 1 GiB = 2^30 B = 1,073,741,824 B vs 1 GB = 10^9 B = 1,000,000,000 B, with IEC 60027-2 Second edition 2000-11 provenance and IEEE support.",
+          "id": "nist-binary",
+          "kind": "primary",
+          "license": "Terms page not inspected on 2026-11-01; rights unknown. See site terms before reuse.",
+          "locator": "Prefix table, examples/comparisons section, and official-publication section of the inspected NIST page.",
+          "redistribution": "Contains only short original paraphrase and synthetic numerical inputs; no extended quotation.",
+          "title": "NIST: Definitions of the SI units, the binary prefixes (IEC provenance and GB/GiB values)",
+          "url": "https://physics.nist.gov/cuu/Units/binary.html",
+          "version": "page revision inspected 2026-11-01; cites IEC 60027-2 Second edition 2000-11"
+        }
+      ],
+      "summary": "Raw storage capacity as record count times uniform per-record size under one stated unit convention.",
+      "title": "Raw storage capacity from count and uniform record size",
+      "variables": [
+        {
+          "context": "same stored population, encoding and unit convention as r and C",
+          "definition": "Number of uniform records/objects counted in the capacity",
+          "dimensions": "count",
+          "domain": "Nonnegative finite count; zero admits the empty-store boundary (C=0); fractional N is not a record count",
+          "quantity_id": "record_count",
+          "role": "input",
+          "source_symbol": "introduced N for number of records",
+          "symbol": "N",
+          "unit": "1"
+        },
+        {
+          "context": "same stored population, encoding and unit convention as N and C",
+          "definition": "Uniform size of one record/object in the stated data unit and decimal/binary convention",
+          "dimensions": "data",
+          "domain": "Nonnegative finite size; zero is the degenerate zero-size boundary",
+          "quantity_id": "record_size",
+          "role": "input",
+          "source_symbol": "introduced r for size per record",
+          "symbol": "r",
+          "unit": "B"
+        },
+        {
+          "context": "same stored population, encoding and unit convention as inputs",
+          "definition": "Raw total capacity of the counted records before metadata/overhead",
+          "dimensions": "data",
+          "domain": "Nonnegative finite capacity in matching data units",
+          "quantity_id": "storage_capacity",
+          "role": "output",
+          "source_symbol": "introduced C for total capacity",
+          "symbol": "C",
+          "unit": "B"
+        }
+      ],
+      "unresolved": []
+    },
+    {
+      "assumptions": [
+        "Source assumption: component up/down indicator variables are explicitly asserted to be mutually statistically independent at the evaluation instant (same steady-state mission/time and environment).",
+        "Application profile: binary repairable-component model; each Ai is the steady-state (limiting-average) availability, i.e. Pr[up], under stated conditions and ideal support unless otherwise qualified.",
+        "The two components form a series reliability block: the combination is up only if both parts are up."
+      ],
+      "constants": [],
+      "guards": [
+        "A1 >= 0",
+        "A1 <= 1",
+        "A2 >= 0",
+        "A2 <= 1"
+      ],
+      "id": "computer-science--series-availability",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings component_availability and series_availability are absent from runtime-vocabulary.json; scalar form A1*A2 fits the engine once meanings exist.",
+          "Unit 1 (probability) and the independence-assertion mechanism need explicit integration-time decisions."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Solve directions: A1 = A/A2 requires A2 != 0; A2 = A/A1 requires A1 != 0; both retain the [0,1] guards and the independence precondition. Substitution check: A=0.989901, A2=0.9999 gives A1=0.99, matching the EventHelix pair. Zero/ambiguous: A=0 with A2>0 gives A1=0 (one failed component forces series failure); A2=0 leaves A1 underdetermined at A=0. Inversion is algebraic only and does not test independence.",
+      "kind": "theoretical",
+      "limitations": [
+        "Requires asserted independence; common-cause failures, shared repair/logistics contention or correlated environments invalidate the product (use dynamic RBD/Markov instead).",
+        "Excludes maintainability/logistics detail (spares, diagnostics, repair status) and k-out-of-N partial operation; this record is the two-component series closed form only.",
+        "Steady-state/limiting-average availability only; instantaneous or interval availability needs the time-dependent model."
+      ],
+      "references": [
+        {
+          "expected": 0.9899,
+          "id": "eventhelix-series-pair",
+          "inputs": {
+            "A1": 0.99,
+            "A2": 0.9999
+          },
+          "method": "Published EventHelix series table: X=99% (3.65 days/yr) with Y=99.99% (52 min/yr) combine to 98.99%. Expected keeps the reported 0.9899; tolerance 0.00005 covers display rounding of the exact product 0.989901.",
+          "provenance": "Published result from inspected source (EventHelix series table).",
+          "tolerance": 5e-05
+        },
+        {
+          "expected": 1,
+          "id": "boundary-both-perfect",
+          "inputs": {
+            "A1": 1,
+            "A2": 1
+          },
+          "method": "Boundary identity: a series of perfect components is perfect under the definition. Independent limiting check.",
+          "provenance": "Independent limiting identity (boundary check).",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.5,
+          "id": "series-one-perfect",
+          "inputs": {
+            "A1": 1,
+            "A2": 0.5
+          },
+          "method": "Ordinary materially different case: a perfect component in series with a 0.5 component gives 0.5, showing the chain is bounded by its weakest link. Independent arithmetic.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A1": 1.2,
+            "A2": 0.99
+          },
+          "kind": "domain",
+          "reason": "Availability above 1 violates the probability guard A1 <= 1; availabilities lie in [0,1]."
+        },
+        {
+          "inputs": {
+            "A1": 0.99
+          },
+          "kind": "missing-input",
+          "reason": "Both component availabilities plus an explicit independence assertion are required; omitting A2 (or applying the product where independence was not asserted) is rejected per the RBD precondition."
+        }
+      ],
+      "relationship": {
+        "expression": "A1 * A2",
+        "locator": "Availability page series-vs-parallel section: series formula and the 10-hosts-at-50% parallel corollary; RBD page: closed forms require statistical independence and series R_SYS = R1 x R2 x ...; EventHelix series section: A = Ax*Ay with the 99%/99.99% -> 98.99% table; ReliaSoft page: Ebeling (1997) Eq. 11.15 p.259 for n independent components in series.",
+        "original_equation": "Availability of series component = (availability of component A) x (availability of component B) [x (availability of component C)]",
+        "source_id": "wikipedia-availability",
+        "translation_notes": "Two-component restriction of the n-ary series product to fit the scalar format; locals A1, A2 and output A. Dimensional check: probability x probability = probability (dimensionless, unit 1). No conversion coefficients. Independence is a precondition recorded in assumptions, per the RBD page and Ebeling Eq. 11.15 naming.",
+        "output_symbol": "A"
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States the series formula as the product of component availabilities and notes combined series availability is always lower than individual components; separately states unavailability is 1 minus availability and gives the 10-hosts-at-50% parallel corollary.",
+          "id": "wikipedia-availability",
+          "kind": "primary",
+          "license": "Terms page not inspected on 2026-11-01; rights unknown. See site terms before reuse.",
+          "locator": "Series vs Parallel components section of the inspected page.",
+          "redistribution": "Contains only short original paraphrase and synthetic numerical inputs; no extended quotation.",
+          "title": "Wikipedia: Availability (series/parallel composition)",
+          "url": "https://en.wikipedia.org/wiki/Availability",
+          "version": "page revision inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Derives the series rule from the both-parts-must-be-available condition as A = Ax*Ay and works the 99% x 99.99% = 98.99% table; parallel section gives A = 1-(1-Ax)^2 with the 99.99%/99.9999% tables.",
+          "id": "eventhelix-availability",
+          "kind": "primary",
+          "license": "Terms page not inspected on 2026-11-01; rights unknown. See site terms before reuse.",
+          "locator": "Availability in Series and Availability in Parallel sections of the inspected page.",
+          "redistribution": "Contains only short original paraphrase and synthetic numerical inputs; no extended quotation.",
+          "title": "EventHelix: System Reliability and Availability (series/parallel formulas and tables)",
+          "url": "https://www.eventhelix.com/fault-handling/system-reliability-availability/",
+          "version": "page revision inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States closed-form RBD solutions are available when blocks/components have statistical independence (otherwise dynamic RBD needed), with series R_SYS as the product of component reliabilities.",
+          "id": "wikipedia-rbd",
+          "kind": "primary",
+          "license": "Terms page not inspected on 2026-11-01; rights unknown. See site terms before reuse.",
+          "locator": "Lead evaluation paragraph ('To evaluate an RBD ...') and Calculating an RBD section of the inspected page.",
+          "redistribution": "Contains only short original paraphrase and synthetic numerical inputs; no extended quotation.",
+          "title": "Wikipedia: Reliability block diagram (independence precondition)",
+          "url": "https://en.wikipedia.org/wiki/Reliability_block_diagram",
+          "version": "page revision inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Names Ebeling, An Introduction to Reliability and Maintainability Engineering (McGraw-Hill, 1997), Eq. 11.15 p.259 for n independent components in series and Eq. 11.16 for parallel, with exponential 0.1/0.2 per-hour failure/repair example context.",
+          "id": "ebeling-via-reliasoft",
+          "kind": "primary",
+          "license": "Terms page not inspected on 2026-11-01; rights unknown. See site terms before reuse.",
+          "locator": "Reference Case and Result paragraphs of the inspected reference-example page.",
+          "redistribution": "Contains only short original paraphrase and synthetic numerical inputs; no extended quotation.",
+          "title": "ReliaSoft reference example citing Ebeling (1997) Eqs. 11.15/11.16",
+          "url": "https://help.reliasoft.com/articles/content/reference_examples/blocksim/availability_analysis_reference_example.html",
+          "version": "page revision inspected 2026-11-01"
+        }
+      ],
+      "summary": "Two-component series availability as the product of component availabilities under asserted independence.",
+      "title": "Series availability as product under independence",
+      "variables": [
+        {
+          "context": "same system, mission instant, environment and support conditions as A2 and A",
+          "definition": "Steady-state availability (probability operable) of the first series component",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]; endpoints admit perfect/failed boundaries",
+          "quantity_id": "component_availability",
+          "role": "input",
+          "source_symbol": "availability of component A (Ax)",
+          "symbol": "A1",
+          "unit": "1"
+        },
+        {
+          "context": "same system, mission instant, environment and support conditions as A1 and A",
+          "definition": "Steady-state availability (probability operable) of the second series component",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]; endpoints admit perfect/failed boundaries",
+          "quantity_id": "component_availability",
+          "role": "input",
+          "source_symbol": "availability of component B (Ay)",
+          "symbol": "A2",
+          "unit": "1"
+        },
+        {
+          "context": "same system, mission instant, environment and support conditions as inputs",
+          "definition": "Steady-state availability of the two-component series combination",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]; bounded above by min(A1,A2)",
+          "quantity_id": "series_availability",
+          "role": "output",
+          "source_symbol": "Availability of series component (A)",
+          "symbol": "A",
+          "unit": "1"
+        }
+      ],
+      "unresolved": []
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

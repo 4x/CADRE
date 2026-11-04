@@ -1,0 +1,814 @@
+{
+  "batch_id": "engineering-finance-spark-b01",
+  "created": "2026-11-01",
+  "curator": "muse-spark",
+  "deferred": [
+    {
+      "reason": "Continuous compounding (F=P*e^(r*t), effective rate i_a=e^r-1) is stated in the UMD tutorial but the scalar grammar supports + - * / ** only with no exp call, so no executable expression exists. Continuation priority: revisit if the runtime adds exp or a series adapter.",
+      "source_urls": [
+        "https://user.eng.umd.edu/~austin/ence202.d/economics.html"
+      ],
+      "title": "Continuous-compounding future value and effective rate"
+    },
+    {
+      "reason": "The two-stage DDM (short-run supernormal growth plus Gordon terminal price) is stated in the dividend-discount article but needs finite summation plus a terminal-price adapter, which the scalar single-expression format cannot express. Continuation priority: adapter/aggregation support.",
+      "source_urls": [
+        "https://en.wikipedia.org/wiki/Dividend_discount_model"
+      ],
+      "title": "Two-stage dividend discount model with terminal price"
+    },
+    {
+      "reason": "NIST IR 85-3273-38 states UPV and escalation-adjusted UPV* annuity factors, but plain UPV reporting would resubmit uniform-present-value@source-3 unchanged, which the assignment forbids; UPV* needs an escalation parameter outside the requested priorities. Continuation priority: growing-annuity closed form as a mathematically distinct record with its own source.",
+      "source_urls": [
+        "https://nvlpubs.nist.gov/nistpubs/ir/2023/NIST.IR.85-3273-38.pdf"
+      ],
+      "title": "Uniform and escalation-adjusted present-value annuity factors"
+    }
+  ],
+  "domain": "engineering-finance",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "All five records are requires-extension: quantity meanings future_value, nominal_rate, effective_rate, periodic_payment, periodic_rate, compounding_frequency, growth_rate, inflation_rate, real_rate, expected_dividend and required_return do not exist in the cm-vocabulary/mechanics-1 snapshot, and time units years/periods are outside its h-s profile; no runtime projection was attempted.",
+      "Source PDFs (NIST IR 85-3273-38) could not be parsed by the fetch tool as PDF; the record relies on a text-proxy rendering of the PDF plus the NIST catalog page, both recorded in locators. Printed-page versus PDF-page offsets were not visually verified; section-level locators are given instead.",
+      "Daily compounding (m=365) and very long monthly schedules exceed the tooling evaluated-exponent cap of 100 and were not reference-tested; references cover m in {1,12} and total periods up to 60."
+    ],
+    "queries": [
+      "What is the future value of $1000 invested for 4 years at 12 percent nominal compounded monthly?",
+      "What level end-of-period payment amortizes a $10000 loan at 0.5 percent per period over 60 periods?",
+      "What real interest rate corresponds to an 8 percent nominal rate with 3 percent inflation?"
+    ],
+    "review_notes": "Arithmetic validated with the kit validator (command and result recorded in SESSION handoff after packing); source fidelity reviewed by comparing each expression against the fetched page text quoted in evidence. Not performed: visual PDF page check, institutional-authentication full-text check of Gordon & Shapiro 1956 (paywalled), independent measurement beyond published worked examples and alternate-route derivations. Duplicate search limited to the supplied catalog-inventory snapshot plus this batch; no engineering-finance identities were present in the snapshot.",
+    "summary": "Batch b01 covers all five assignment priorities as closed-form scalar records: discrete lump-sum future value with frequency, effective annual rate, end-of-period level loan payment (with discounted-cash-flow-sum verification), Gordon constant-growth value with guard, and Fisher real-rate conversion. Each has two references (one published oracle, one boundary or alternate-route check) and one domain plus one missing-input rejection."
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: discrete compounding at the per-period rate r/m with interest credited at the end of each of the m*t equal periods (UMD single-payment compound-amount factor generalized by its compounding-frequency section).",
+        "Application profile: a single lump sum P invested at time 0 with no interim deposits or withdrawals; r and m fixed over the whole horizon.",
+        "All amounts sit on one price basis (all nominal or all real); no inflation adjustment occurs inside this expression."
+      ],
+      "constants": [],
+      "guards": [
+        "P >= 0",
+        "r >= 0",
+        "m >= 1",
+        "t >= 0"
+      ],
+      "id": "engineering-finance--lump-sum-future-value-discrete",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new quantity meanings: future_value, nominal_rate, compounding_frequency; time units years and periods/year are outside the current runtime profile, so no runtime projection was attempted.",
+          "Algebraic inverse of the NIST SPV framing P=Ct/(1+d)^t; kept as its own record because compounding frequency is explicit here."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "P=F/(1+r/m)**(m*t) needs m>=1, t>=0 and (1+r/m)>0, which the guards guarantee; checked 1612.23/(1.01)**48=1000.0024, matching 1000.00 within input rounding. Solving for r or t needs a logarithm, which the scalar grammar does not provide, so those directions are untested. Admitted ideal boundaries: P=0 gives F=0 (no investment) and t=0 gives F=P (no elapsed time); r=0 gives F=P.",
+      "kind": "theoretical",
+      "limitations": [
+        "Excludes continuous compounding (UMD limit i_a=e^r-1 needs exp, unsupported by the scalar grammar).",
+        "Reference validation exercised total periods m*t of 4 and 48 only; very long schedules were not reference-tested.",
+        "Does not convert between nominal and real bases; pair with the Fisher real-rate record for that step."
+      ],
+      "references": [
+        {
+          "expected": 1573.5,
+          "id": "umd-annual-example",
+          "inputs": {
+            "P": 1000,
+            "m": 1,
+            "r": 0.12,
+            "t": 4
+          },
+          "method": "Source prints F=$1,573.5 for P=$1000, i=12%, n=4; recomputation gives 1573.519, so tolerance covers the source $0.1 rounding.",
+          "provenance": "Published worked example in the UMD ENCE 202 tutorial, Interest Formulae section",
+          "tolerance": 0.05
+        },
+        {
+          "expected": 1612.23,
+          "id": "monthly-iterative-accumulation",
+          "inputs": {
+            "P": 1000,
+            "m": 12,
+            "r": 0.12,
+            "t": 4
+          },
+          "method": "Expected rounded to cents; independently verified by iterative month-by-month balance accumulation (48 successive 1% credits give 1612.22608), an implementation path independent of the closed form.",
+          "provenance": "Independent derivation from published per-period mechanics",
+          "tolerance": 0.01
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "P": 1000,
+            "m": 0,
+            "r": 0.12,
+            "t": 4
+          },
+          "kind": "domain",
+          "reason": "Zero compounding periods per year is meaningless and violates m>=1."
+        },
+        {
+          "inputs": {
+            "P": 1000,
+            "r": 0.12,
+            "t": 4
+          },
+          "kind": "missing-input",
+          "reason": "Compounding frequency m is required to fix the per-period rate; without it the nominal rate is ambiguous."
+        }
+      ],
+      "relationship": {
+        "expression": "P*(1+r/m)**(m*t)",
+        "output_symbol": "F",
+        "locator": "UMD tutorial: Interest Formulae / Single-Payment Compound-Amount Factor (F=P.[1+i]^n, Example 1) combined with Discrete and Continuous Compounding (r=nominal per year, m=periods per year) and Compounding and Payment Periods Coincide (10% semiannual = 5% per period, 6 periods).",
+        "original_equation": "F = P.[1 + i]^n with i = r/m per period and n = m*t periods",
+        "source_id": "umd-ence202",
+        "translation_notes": "Substituted per-period rate i=r/m and period count n=m*t into the source factor; no other change. Dimensional check: USD times a dimensionless compounding factor stays USD; m*t is dimensionless ((periods/year)*years). Pure arithmetic literal 1. End-of-period crediting preserved from source convention. Evaluated exponents in references are 4 and 48, within the tooling cap."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Page states the single-payment factor F=P.[1+i]^n with a $1000/12%/4-year example giving $1,573.5, defines r as nominal rate per year with m compounding periods per year via i=(1+r/m)^(l*m)-1, and shows 10%-semiannual handling as 5% per period over 6 periods.",
+          "id": "umd-ence202",
+          "kind": "primary",
+          "license": "Page footer states Copyright (c) 1996-1998, Department of Civil Engineering, University of Maryland; no open-license or terms page found on 2026-11-01.",
+          "locator": "Sections Interest Formulae (Notations; Single-Payment Compound-Amount Factor, Example 1) and Discrete and Continuous Compounding; cash-flow end-of-year convention section.",
+          "redistribution": "No verbatim excerpts stored; only short original paraphrases, formula symbols and computed values.",
+          "title": "Introduction to Engineering Economics (ENCE 202 tutorial, Univ. of Maryland)",
+          "url": "https://user.eng.umd.edu/~austin/ence202.d/economics.html",
+          "version": "Tutorial text as printed; last modified February 1, 1998"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Section Tables for Federal Life-Cycle Cost Analysis states the single present value relation P=Ct/(1+d)^t (SPV factor), the algebraic inverse of this future-value direction, with end-of-year discounting.",
+          "id": "nist-ir-2023",
+          "kind": "primary",
+          "license": "Document states availability free of charge via its DOI with a NIST Technical Series Policies / Copyright, Fair Use, and Licensing Statements section; U.S. federal authorship (NIST/DOE). Exact reuse terms beyond the free-availability line not verified.",
+          "locator": "Printed p.4, Tables for Federal Life-Cycle Cost Analysis (SPV formula); inspected via text-proxy rendering https://r.jina.ai/https://nvlpubs.nist.gov/nistpubs/ir/2023/NIST.IR.85-3273-38.pdf of the PDF at the canonical URL.",
+          "redistribution": "Only short paraphrases, formula symbols and computed values; no tables or passages reproduced.",
+          "title": "Energy Price Indices and Discount Factors for Life-Cycle Cost Analysis - 2023: Annual Supplement to NIST Handbook 135 (NIST IR 85-3273-38)",
+          "url": "https://nvlpubs.nist.gov/nistpubs/ir/2023/NIST.IR.85-3273-38.pdf",
+          "version": "September 2023"
+        }
+      ],
+      "summary": "Discrete-compounding future value of a present lump sum from a nominal rate and an explicit compounding frequency.",
+      "title": "Future value of a lump sum with stated nominal rate and compounding frequency",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-investment:nominal-basis:discrete-compounding",
+          "definition": "Present lump sum invested at time 0",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite amount; zero admits the no-investment boundary",
+          "quantity_id": "present_value",
+          "role": "input",
+          "source_symbol": "P (present principal sum)",
+          "symbol": "P",
+          "unit": "USD"
+        },
+        {
+          "context": "same-investment:nominal-basis:discrete-compounding",
+          "definition": "Nominal interest rate per year as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite decimal; zero admits the no-growth boundary",
+          "quantity_id": "nominal_rate",
+          "role": "input",
+          "source_symbol": "r (introduced; source uses r for nominal rate per year in the compounding section)",
+          "symbol": "r",
+          "unit": "1"
+        },
+        {
+          "context": "same-investment:nominal-basis:discrete-compounding",
+          "definition": "Number of compounding periods per year",
+          "dimensions": "count per time",
+          "domain": "At least annual compounding (m>=1); need not be integer-checked here",
+          "quantity_id": "compounding_frequency",
+          "role": "input",
+          "source_symbol": "m (reciprocal of the compounding-period length in years)",
+          "symbol": "m",
+          "unit": "periods/year"
+        },
+        {
+          "context": "same-investment:nominal-basis:discrete-compounding",
+          "definition": "Elapsed time in years over which interest accrues",
+          "dimensions": "time",
+          "domain": "Nonnegative finite years; zero admits the no-elapsed-time boundary",
+          "quantity_id": "elapsed_time",
+          "role": "input",
+          "source_symbol": "introduced t for horizon in years (source n counts periods)",
+          "symbol": "t",
+          "unit": "years"
+        },
+        {
+          "context": "same-investment:nominal-basis:discrete-compounding",
+          "definition": "Future value of the lump sum after m*t compounding periods",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite amount",
+          "quantity_id": "future_value",
+          "role": "output",
+          "source_symbol": "F (future sum)",
+          "symbol": "F",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: nominal rate r equals the per-period effective rate times m (UMD definition); this record fixes the interval to one year (l=1), so the exponent is the period count m.",
+        "r and ieff are per-annum decimal fractions on the same price basis."
+      ],
+      "constants": [],
+      "guards": [
+        "r >= 0",
+        "m >= 1"
+      ],
+      "id": "engineering-finance--effective-annual-rate-nominal",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new quantity meanings: effective_rate, nominal_rate, compounding_frequency; no current-runtime projection attempted.",
+          "Scalar form supports only finite m; the continuous limit is a different unsupported expression."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "r=m*((1+ieff)**(1/m)-1) needs m>=1 and (1+ieff)>0; fractional powers on dimensionless bases are scalar-legal but this direction is untested here. Checked with rounded table value: 12*((1.1956)**(1/12)-1)=0.17998, matching 0.18 within table rounding. Admitted boundaries: m=1 gives the identity ieff=r and r=0 gives ieff=0.",
+      "kind": "definition",
+      "limitations": [
+        "Reference-tested for m=1 and m=12 only; daily compounding (m=365) exceeds the tooling evaluated-exponent cap of 100 and was not reference-tested.",
+        "The continuous limit i_a=e^r-1 is stated separately by the source and needs exp, so it is outside this record.",
+        "This is a frequency conversion on one price basis, not a real-vs-nominal (inflation) conversion; that is the Fisher record."
+      ],
+      "references": [
+        {
+          "expected": 0.1956,
+          "id": "umd-monthly-table",
+          "inputs": {
+            "m": 12,
+            "r": 0.18
+          },
+          "method": "Source table gives 19.56% effective annual for 18% nominal compounded monthly; recomputation gives 0.195618, so tolerance covers the 2-decimal rounding.",
+          "provenance": "Published table value in the UMD tutorial, Discrete and Continuous Compounding section",
+          "tolerance": 5e-05
+        },
+        {
+          "expected": 0.12,
+          "id": "annual-identity",
+          "inputs": {
+            "m": 1,
+            "r": 0.12
+          },
+          "method": "Limiting identity: compounding once per year makes the effective rate equal the nominal rate.",
+          "provenance": "Limiting identity of the source formula with l*m=1",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "m": 0,
+            "r": 0.18
+          },
+          "kind": "domain",
+          "reason": "Zero compounding periods per year is meaningless and violates m>=1."
+        },
+        {
+          "inputs": {
+            "r": 0.18
+          },
+          "kind": "missing-input",
+          "reason": "Without the compounding frequency the nominal rate cannot be converted."
+        }
+      ],
+      "relationship": {
+        "expression": "(1+r/m)**m - 1",
+        "output_symbol": "ieff",
+        "locator": "UMD tutorial: Discrete and Continuous Compounding (formula i=[1+r/m]^(l*m)-1.0 with l=1; table of effective annual rates for 18% nominal: annually 18.00%, monthly 19.56%, daily 19.74%, continuously 19.72%).",
+        "original_equation": "i = [1 + r/m]^(l*m) - 1.0 with l = 1 year",
+        "source_id": "umd-ence202",
+        "translation_notes": "Set interval length l=1 year per the source note that l*m is the number of compounding periods in the interval. Dimensional check: dimensionless throughout; pure arithmetic literals 1. Reference exponents 12 and 1 are within the tooling cap."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Page defines the nominal rate r per year and m compounding periods per year, prints i=[1+r/m]^(l*m)-1 with the note that l*m is the compounding count, and tabulates 18% nominal as 19.56% effective with monthly compounding.",
+          "id": "umd-ence202",
+          "kind": "primary",
+          "license": "Page footer states Copyright (c) 1996-1998, Department of Civil Engineering, University of Maryland; no open-license or terms page found on 2026-11-01.",
+          "locator": "Section Discrete and Continuous Compounding, including the effective-rate table and the l*m=1 note.",
+          "redistribution": "No verbatim excerpts stored; only short original paraphrases, formula symbols and computed values.",
+          "title": "Introduction to Engineering Economics (ENCE 202 tutorial, Univ. of Maryland)",
+          "url": "https://user.eng.umd.edu/~austin/ence202.d/economics.html",
+          "version": "Tutorial text as printed; last modified February 1, 1998"
+        }
+      ],
+      "summary": "Definition converting a nominal annual rate to the effective annual rate for a stated compounding frequency.",
+      "title": "Effective annual rate from a nominal rate and compounding frequency",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-rate-year:nominal-basis:discrete-compounding",
+          "definition": "Nominal interest rate per year as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite decimal",
+          "quantity_id": "nominal_rate",
+          "role": "input",
+          "source_symbol": "r (nominal interest rate per year)",
+          "symbol": "r",
+          "unit": "1"
+        },
+        {
+          "context": "same-rate-year:nominal-basis:discrete-compounding",
+          "definition": "Number of compounding periods per year",
+          "dimensions": "count per time",
+          "domain": "At least annual compounding (m>=1)",
+          "quantity_id": "compounding_frequency",
+          "role": "input",
+          "source_symbol": "m (reciprocal of the compounding-period length in years)",
+          "symbol": "m",
+          "unit": "periods/year"
+        },
+        {
+          "context": "same-rate-year:nominal-basis:discrete-compounding",
+          "definition": "Effective annual interest rate as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite decimal",
+          "quantity_id": "effective_rate",
+          "role": "output",
+          "source_symbol": "i (effective interest rate in the one-year interval)",
+          "symbol": "ieff",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: equal end-of-period payments with the first payment one full period after disbursement at a fixed per-period rate (UMD end-of-year convention).",
+        "Application profile: fully amortizing loan - the last payment extinguishes principal plus accrued interest; no fees, prepayments, or rate resets.",
+        "i is the effective rate per payment period; convert a quoted nominal APR with the effective-rate record before use."
+      ],
+      "constants": [],
+      "guards": [
+        "P >= 0",
+        "i > 0",
+        "n >= 1"
+      ],
+      "id": "engineering-finance--level-loan-periodic-payment",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new quantity meanings: periodic_payment and periodic_rate (period_count exists but the payment-timing context is new); no current-runtime projection attempted.",
+          "Algebraic inverse-direction twin of the uniform-present-value framing; kept as its own record because the assignment requires the loan-payment direction with explicit end-of-period timing."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "P=A*((1+i)**n-1)/(i*(1+i)**n) needs i>0 and n>=1; checked 329.2 times the UPV factor at 12%/4 gives 999.9 within rounding. Substitution check at n=1: A=P*(1+i) exactly. Solving for i needs iteration and for n a logarithm, both unsupported by the scalar grammar, so those directions are untested. The i-to-0 limit branch A=P/n is a different expression, never a guard relaxation.",
+      "kind": "theoretical",
+      "limitations": [
+        "The zero-rate case i=0 is excluded by guard; its limit branch A=P/n is a separate expression stated here, not substituted silently.",
+        "Beginning-of-period (annuity-due) schedules need the distinct factor with an extra (1+i) multiple and are not covered.",
+        "Solving for the rate or term needs iteration or a logarithm, unsupported by the scalar grammar; closed forms only."
+      ],
+      "references": [
+        {
+          "expected": 329.2,
+          "id": "umd-mortgage-example",
+          "inputs": {
+            "P": 1000,
+            "i": 0.12,
+            "n": 4
+          },
+          "method": "Source prints A=$329.2 for P=$1000, i=12%, n=4 under the explicit statement This is the case of loans (mortgages); recomputation gives 329.234, so tolerance covers the $0.1 rounding.",
+          "provenance": "Published worked example in the UMD tutorial, Equal-Payment-Series Capital-Recovery Factor section",
+          "tolerance": 0.05
+        },
+        {
+          "expected": 193.33,
+          "id": "sixty-payment-dcf-sum",
+          "inputs": {
+            "P": 10000,
+            "i": 0.005,
+            "n": 60
+          },
+          "method": "Expected rounded to cents (exact-form value 193.32802); independently verified by summing the 60 individually discounted payments, which returns the 10000.00 principal, instead of re-evaluating the closed form.",
+          "provenance": "Independent derivation: term-by-term discounted-cash-flow summation from the source end-of-period mechanics",
+          "tolerance": 0.01
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "P": 1000,
+            "i": 0,
+            "n": 4
+          },
+          "kind": "domain",
+          "reason": "Zero periodic rate makes the denominator zero and needs the separate limit branch A=P/n; excluded by i>0."
+        },
+        {
+          "inputs": {
+            "P": 1000,
+            "i": 0.12
+          },
+          "kind": "missing-input",
+          "reason": "Term count n is required; a payment cannot be sized without the number of periods."
+        }
+      ],
+      "relationship": {
+        "expression": "P*i*(1+i)**n/((1+i)**n - 1)",
+        "output_symbol": "A",
+        "locator": "UMD tutorial: Equal-Payment-Series Capital-Recovery Factor (derivation equating P[1+i]^n to the uniform-series accumulation; boxed formula; This is the case of loans (mortgages); Example 1 with P=1000, i=12%, n=4 giving A=$329.2).",
+        "original_equation": "A = P * i*[1+i]^n / ([1+i]^n - 1)",
+        "source_id": "umd-ence202",
+        "translation_notes": "Transcribed verbatim into scalar syntax; only bracket grouping changed. Dimensional check: USD times a dimensionless capital-recovery factor stays USD. Guards i>0 and n>=1 jointly imply the denominator (1+i)^n-1 is positive, preserving the pre-simplification exclusion. End-of-period timing carried from the source convention into the variable definitions. Reference exponents 4 and 60 are within the tooling cap."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Page derives the factor by equating P[1+i]^n with the uniform-series accumulation, prints A=P*i[1+i]^n/([1+i]^n-1), states This is the case of loans (mortgages), and works P=1000/i=12%/n=4 to A=$329.2.",
+          "id": "umd-ence202",
+          "kind": "primary",
+          "license": "Page footer states Copyright (c) 1996-1998, Department of Civil Engineering, University of Maryland; no open-license or terms page found on 2026-11-01.",
+          "locator": "Section Equal-Payment-Series Capital-Recovery Factor, including derivation, mortgage statement, and Example 1.",
+          "redistribution": "No verbatim excerpts stored; only short original paraphrases, formula symbols and computed values.",
+          "title": "Introduction to Engineering Economics (ENCE 202 tutorial, Univ. of Maryland)",
+          "url": "https://user.eng.umd.edu/~austin/ence202.d/economics.html",
+          "version": "Tutorial text as printed; last modified February 1, 1998"
+        }
+      ],
+      "summary": "Level end-of-period payment that amortizes a principal P at a positive per-period rate over n periods.",
+      "title": "Level loan periodic payment (capital recovery) for a positive rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate",
+          "definition": "Financed principal disbursed at time 0",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite principal; zero admits the no-loan boundary",
+          "quantity_id": "present_value",
+          "role": "input",
+          "source_symbol": "P (deposit/principal now)",
+          "symbol": "P",
+          "unit": "USD"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate",
+          "definition": "Effective interest rate per payment period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite decimal; zero excluded (separate limit branch)",
+          "quantity_id": "periodic_rate",
+          "role": "input",
+          "source_symbol": "i (annual rate in source; here per payment period)",
+          "symbol": "i",
+          "unit": "1"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate",
+          "definition": "Number of equal payment periods",
+          "dimensions": "count",
+          "domain": "At least one period; integer-valued counts in use",
+          "quantity_id": "period_count",
+          "role": "input",
+          "source_symbol": "n (number of annual interest periods; here payment periods)",
+          "symbol": "n",
+          "unit": "periods"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate",
+          "definition": "Level end-of-period payment that fully amortizes the loan",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite payment",
+          "quantity_id": "periodic_payment",
+          "role": "output",
+          "source_symbol": "A (single payment in a series of n equal end-of-period payments)",
+          "symbol": "A",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: dividends grow at a constant rate g forever with valuation in discrete steps and next-period dividend D1 (geometric-series derivation shown in the article).",
+        "Application profile: stable-growth firm (regulated utility, large financial firm, REIT) with required return k above g, both per-annum decimals.",
+        "k and g sit on the same price basis, and the inflation assumption is consistent with the valuation currency (Damodaran basic premise)."
+      ],
+      "constants": [],
+      "guards": [
+        "D1 >= 0",
+        "k > g",
+        "g >= 0"
+      ],
+      "id": "engineering-finance--constant-growth-stock-present-value",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new quantity meanings: expected_dividend, required_return, growth_rate; output reuses the existing present_value meaning. No current-runtime projection attempted.",
+          "The Damodaran r notation and the article k notation denote the same required-return quantity; alias recorded here, not as separate meanings."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "k=D1/P0+g needs P0>0 and g>=0; checked ConEd: 2.142/41.80+0.05=0.10124 against published 0.1013 (rounding). g=k-D1/P0 under the same conditions; D1=P0*(k-g) needs k>g. Admitted boundary: D1=0 gives P0=0 (no distributions). The limit k-to-g from above is a blow-up, never an admissible equality, and the guard excludes it.",
+      "kind": "theoretical",
+      "limitations": [
+        "Short-run supernormal growth needs the explicitly separate two-stage DDM, not this expression.",
+        "The value is hypersensitive to (k-g) near the guard; the guard excludes equality but near-guard inputs remain economically fragile.",
+        "Perpetual growth above the economy nominal growth rate is inadmissible (Damodaran caps it near nominal GNP); that macro ceiling is textual, not an executable predicate."
+      ],
+      "references": [
+        {
+          "expected": 41.8,
+          "id": "con-edison-1996",
+          "inputs": {
+            "D1": 2.142,
+            "g": 0.05,
+            "k": 0.1013
+          },
+          "method": "Damodaran computes DPS1=2.04*1.05=2.142 and Value=2.142/(0.1013-0.05)=$41.80 with cost of equity 6%+0.75*5.5%=10.13%; recomputation gives 41.754, so tolerance covers the rounded inputs and $0.01 output rounding.",
+          "provenance": "Published worked example (Con Edison, January 1996) in Damodaran NYU Stern lecture notes, Stable Growth DDM section",
+          "tolerance": 0.05
+        },
+        {
+          "expected": 60.23,
+          "id": "jp-morgan-1996",
+          "inputs": {
+            "D1": 3.21,
+            "g": 0.07,
+            "k": 0.1233
+          },
+          "method": "Damodaran computes DPS1=3.00*1.07=3.21 and Value=3.21/(0.1233-0.07)=$60.23; recomputation gives 60.225, so tolerance covers the $0.01 output rounding.",
+          "provenance": "Published worked example (J.P. Morgan, January 1996) in Damodaran NYU Stern lecture notes, Stable Growth DDM section",
+          "tolerance": 0.05
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "D1": 2.142,
+            "g": 0.08,
+            "k": 0.05
+          },
+          "kind": "domain",
+          "reason": "Growth at or above the required return violates k>g and makes the infinite sum meaningless (source: r-g cannot be negative)."
+        },
+        {
+          "inputs": {
+            "D1": 2.142,
+            "k": 0.1013
+          },
+          "kind": "missing-input",
+          "reason": "Without the perpetual growth rate the Gordon form is indeterminate."
+        }
+      ],
+      "relationship": {
+        "expression": "D1/(k - g)",
+        "output_symbol": "P0",
+        "locator": "Wikipedia Dividend discount model: variables box (P=D1/(r-g)) with k-form equivalence P0=D1/(k-g) and section Growth cannot exceed cost of equity (r-g cannot be negative; model meaningless as g approaches r); Damodaran notes: Value of Stock=DPS1/(r-g) with ConEd and J.P. Morgan illustrations.",
+        "original_equation": "P0 = D1/(k - g)",
+        "source_id": "wikipedia-ddm",
+        "translation_notes": "Local symbols match the article k-form exactly; Damodaran r is the same required-return quantity under another letter. Dimensional check: currency divided by a dimensionless rate difference stays currency. Guards k>g (denominator exclusion) and g>=0/D1>=0 (stable-distribution scope) preserve the source validity conditions."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Article prints P=D1/(r-g) with D1 the dividend one period out, shows the geometric-series derivation requiring |r'|<1 with r'=(1+g)/(1+r), states r-g cannot be negative with the model meaningless as g approaches r, gives the k-form P0=D1/(k-g), and attributes the constant-growth form to Gordon & Shapiro 1956 (Management Science 3(1):102-110) following Williams 1938.",
+          "id": "wikipedia-ddm",
+          "kind": "primary",
+          "license": "Wikimedia projects carry the CC BY-SA license via the site footer as standard; the footer text was not separately archived in this record on 2026-11-01, so treat the exact license version as unverified.",
+          "locator": "Sections: constant-growth variables box and derivation; Growth cannot exceed cost of equity; k-form equivalence; References (Gordon & Shapiro 1956).",
+          "redistribution": "Only short paraphrases and standard formula symbols; no passage copied.",
+          "title": "Dividend discount model (Wikipedia, tertiary summary with primary citations)",
+          "url": "https://en.wikipedia.org/wiki/Dividend_discount_model",
+          "version": "Article revision as read on 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Notes print Value of Stock=DPS1/(r-g) with DPS1 expected dividends one year out, the premise that perpetual growth cannot exceed economy (GNP) growth by more than a small amount with a US nominal-GNP upper end near 8%, currency-consistency of the inflation rate, and the ConEd (41.80) and J.P. Morgan (60.23) valuations.",
+          "id": "damodaran-ddm",
+          "kind": "primary",
+          "license": "No license or terms statement found on the notes page (accessed 2026-11-01).",
+          "locator": "Section I. The Stable Growth DDM: Gordon Growth Model (formula, basic premise, Illustrations 1-2).",
+          "redistribution": "Only short paraphrases, formula symbols and computed values; no passage copied.",
+          "title": "Discounted Cashflow Models: What They Are and How to Choose the Right One (A. Damodaran, NYU Stern lecture notes)",
+          "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/lectures/ddm.html",
+          "version": "Lecture notes as read on 2026-11-01; illustrations dated January 1996"
+        }
+      ],
+      "summary": "Constant-growth (Gordon) present value of a dividend stream with the required return above the growth rate.",
+      "title": "Constant-growth (Gordon) present value with growth-below-return guard",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-equity:stable-growth:one-currency",
+          "definition": "Expected dividend per share one period from now",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite dividend; zero admits the no-distribution boundary",
+          "quantity_id": "expected_dividend",
+          "role": "input",
+          "source_symbol": "D1 (value of dividends at the end of the first period; Damodaran DPS1)",
+          "symbol": "D1",
+          "unit": "USD"
+        },
+        {
+          "context": "same-equity:stable-growth:one-currency",
+          "definition": "Required rate of return on equity as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Must exceed g under the guard",
+          "quantity_id": "required_return",
+          "role": "input",
+          "source_symbol": "k (article k-form; Damodaran r)",
+          "symbol": "k",
+          "unit": "1"
+        },
+        {
+          "context": "same-equity:stable-growth:one-currency",
+          "definition": "Constant perpetual dividend growth rate as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite growth below k",
+          "quantity_id": "growth_rate",
+          "role": "input",
+          "source_symbol": "g (constant growth rate in perpetuity)",
+          "symbol": "g",
+          "unit": "1"
+        },
+        {
+          "context": "same-equity:stable-growth:one-currency",
+          "definition": "Intrinsic equity value as the present value of the dividend stream",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite value",
+          "quantity_id": "present_value",
+          "role": "output",
+          "source_symbol": "P0 (present stock value)",
+          "symbol": "P0",
+          "unit": "USD"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Source assumption: exact discrete-period relation (1+inom)=(1+rreal)(1+f) over one consistent period (Fisher article; UMD one-year inflation-free rate i*=(1+i)/(1+f)-1).",
+        "All three rates are per-period decimals in one currency; prices and rates are projected both in real or both in nominal terms (Hanke cost-benefit consistency rule cited in the article)."
+      ],
+      "constants": [],
+      "guards": [
+        "inom >= 0",
+        "f > -1"
+      ],
+      "id": "engineering-finance--fisher-real-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new quantity meanings: real_rate and inflation_rate (nominal_rate shared with the rate-conversion records); no current-runtime projection attempted.",
+          "NIST HB 135 real-vs-nominal discipline (10 CFR 436 conversion; constant dollars with real rates) is the agency application context, recorded in sources."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "inom=(1+rreal)*(1+f)-1 needs f>-1; f=(1+inom)/(1+rreal)-1 needs rreal>-1; checked (1.0485437)*(1.03)-1=0.08. Admitted boundaries: f=0 gives rreal=inom (no inflation) and inom=f gives 0. Negative-nominal-rate regimes are outside the declared scope and untested.",
+      "kind": "theoretical",
+      "limitations": [
+        "The linear approximation rreal ~= inom-f holds only for rates near zero; reference b quantifies the neglected-product gap (rreal*f=0.00146).",
+        "Expected versus realized inflation (forecast error, indexed-bond basis) is outside this identity.",
+        "Negative nominal rates are outside the tested scope."
+      ],
+      "references": [
+        {
+          "expected": 0.03,
+          "id": "nist-2023-rate-trio",
+          "inputs": {
+            "f": 0.002,
+            "inom": 0.032
+          },
+          "method": "NIST IR 85-3273-38 publishes the 2023 DOE nominal rate 3.2% with implied long-term inflation 0.2% alongside the 3.0% real floor; recomputation gives 0.02994, so tolerance covers the 0.1% rate rounding. Note the implied inflation was itself derived from these rates, so this checks arithmetic consistency with published data, not an independent measurement.",
+          "provenance": "Values published in NIST IR 85-3273-38 (2023), Section 1; real rate recomputed from the published nominal and implied inflation",
+          "tolerance": 0.0001
+        },
+        {
+          "expected": 0.05,
+          "id": "small-rate-approximation",
+          "inputs": {
+            "f": 0.03,
+            "inom": 0.08
+          },
+          "method": "Source-stated linear approximation r=inom-f gives 0.05 as an independent cross-check of the exact 0.04854; tolerance 0.002 covers the neglected product rreal*f=0.00146 with margin.",
+          "provenance": "Independent cross-check via the source-stated small-rate approximation (same article)",
+          "tolerance": 0.002
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "f": -1,
+            "inom": 0.08
+          },
+          "kind": "domain",
+          "reason": "Inflation of -100% collapses the divisor 1+f to zero and violates f>-1."
+        },
+        {
+          "inputs": {
+            "inom": 0.08
+          },
+          "kind": "missing-input",
+          "reason": "Without the inflation rate the nominal rate cannot be split into real and inflation parts."
+        }
+      ],
+      "relationship": {
+        "expression": "(1+inom)/(1+f) - 1",
+        "output_symbol": "rreal",
+        "locator": "Wikipedia Fisher equation: exact form (1+i)=(1+r)(1+pi) with rearrangement r=(1+i)/(1+pi)-1 and approximation r=i-pi; Cost-benefit analysis section (prices and rates both real or both nominal). UMD: one-year inflation-free rate i*=(1+i)/(1+f)-1. NIST IR 2023 p.1: real/nominal/implied-inflation trio with 10 CFR 436 conversion method.",
+        "original_equation": "r = (1+i)/(1+pi) - 1",
+        "source_id": "wikipedia-fisher",
+        "translation_notes": "Local symbols renamed (inom for nominal i, f for inflation pi, rreal for real r); algebra unchanged. Dimensional check: dimensionless throughout. Guard f>-1 preserves the divisor exclusion 1+f=0. References use small positive rates; the approximation check documents the near-zero scope."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Article prints the exact relation (1+i)=(1+r)(1+pi) with r real, i nominal, pi inflation, the rearrangement r=(1+i)/(1+pi)-1, the small-rate approximation r=i-pi, and the cost-benefit rule that prices and interest rates must both be projected in real or in nominal terms (Hanke, Carver & Bugg).",
+          "id": "wikipedia-fisher",
+          "kind": "primary",
+          "license": "Wikimedia projects carry the CC BY-SA license via the site footer as standard; the footer text was not separately archived in this record on 2026-11-01, so treat the exact license version as unverified.",
+          "locator": "Lead section (exact form, rearrangement, approximation); Applications / Cost-benefit analysis; Further reading (Fisher 1930).",
+          "redistribution": "Only short paraphrases and standard formula symbols; no passage copied.",
+          "title": "Fisher equation (Wikipedia, tertiary summary with primary citations)",
+          "url": "https://en.wikipedia.org/wiki/Fisher_equation",
+          "version": "Article revision as read on 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Section 1 publishes the 2023 DOE real rate 3.0%, nominal rate 3.2% and implied inflation 0.2%, describes nominal-to-real conversion per 10 CFR 436, and requires constant-dollar analysis with real rates (escalation in matching terms).",
+          "id": "nist-ir-2023",
+          "kind": "primary",
+          "license": "Document states availability free of charge via its DOI with a NIST Technical Series Policies / Copyright, Fair Use, and Licensing Statements section; U.S. federal authorship (NIST/DOE). Exact reuse terms beyond the free-availability line not verified.",
+          "locator": "Printed pp.1-5: rate trio and 10 CFR 436 method (p.1); end-of-year convention and real/nominal matching rule (pp.3-4); inspected via text-proxy rendering of the canonical PDF URL.",
+          "redistribution": "Only short paraphrases, formula symbols and computed values; no tables or passages reproduced.",
+          "title": "Energy Price Indices and Discount Factors for Life-Cycle Cost Analysis - 2023: Annual Supplement to NIST Handbook 135 (NIST IR 85-3273-38)",
+          "url": "https://nvlpubs.nist.gov/nistpubs/ir/2023/NIST.IR.85-3273-38.pdf",
+          "version": "September 2023"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Title page confirms the 1930 Macmillan edition (The Theory of Interest, as determined by Impatience to Spend Income and Opportunity to Invest it, New York: Macmillan, 1930) and states The text is in the public domain; chapter listing confirms Part I, Chapter II on money versus real interest.",
+          "id": "oll-fisher-1930",
+          "kind": "primary",
+          "license": "Title page states: The text is in the public domain.",
+          "locator": "OLL title page: citation block and Copyright block.",
+          "redistribution": "No book text excerpted; title-page facts only.",
+          "title": "The Theory of Interest (Online Library of Liberty title page for Fisher 1930)",
+          "url": "https://oll.libertyfund.org/titles/fisher-the-theory-of-interest",
+          "version": "OLL record as read on 2026-11-01; facsimile of the 1930 Macmillan edition"
+        }
+      ],
+      "summary": "Exact Fisher conversion from a nominal rate to a real rate given inflation, on a consistent period and price basis.",
+      "title": "Real interest rate from nominal rate and inflation (Fisher exact relation)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-period:same-currency:exact-fisher",
+          "definition": "Nominal interest rate per period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite decimal within the tested scope",
+          "quantity_id": "nominal_rate",
+          "role": "input",
+          "source_symbol": "i (nominal interest rate; UMD market rate)",
+          "symbol": "inom",
+          "unit": "1"
+        },
+        {
+          "context": "same-period:same-currency:exact-fisher",
+          "definition": "General inflation rate per period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Above -100% (f>-1); tested at small nonnegatives",
+          "quantity_id": "inflation_rate",
+          "role": "input",
+          "source_symbol": "pi (inflation rate; UMD f average inflation rate)",
+          "symbol": "f",
+          "unit": "1"
+        },
+        {
+          "context": "same-period:same-currency:exact-fisher",
+          "definition": "Real (inflation-adjusted) interest rate per period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Above -100%; tested at small nonnegatives",
+          "quantity_id": "real_rate",
+          "role": "output",
+          "source_symbol": "r (real interest rate; UMD i* inflation-free rate)",
+          "symbol": "rreal",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

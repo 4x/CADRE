@@ -1,0 +1,179 @@
+"""Construct curator-owned research data; does not alter the curation toolkit."""
+import json
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+DAY = "2026-11-03"
+PREFIX = "clinical-arithmetic--"
+
+def variable(symbol, source_symbol, role, quantity_id, definition, unit, dimensions, context, domain):
+    return dict(symbol=symbol, source_symbol=source_symbol, role=role, quantity_id=quantity_id,
+                definition=definition, unit=unit, dimensions=dimensions, context=context, domain=domain)
+
+def source(id, title, url, version, locator, evidence, license, redistribution):
+    return dict(id=id, kind="primary", title=title, url=url, version=version, accessed=DAY,
+                locator=locator, evidence=evidence, license=license, redistribution=redistribution)
+
+def reference(id, inputs, expected, tolerance, method, provenance):
+    return dict(id=id, inputs=inputs, expected=expected, tolerance=tolerance, method=method, provenance=provenance)
+
+def rejection(inputs, reason, kind="domain"):
+    return dict(kind=kind, inputs=inputs, reason=reason)
+
+def record(slug, title, summary, kind, output, expression, original, sid, locator, translation,
+           variables, guards, assumptions, limitations, sources, references, rejections, inverse, gaps,
+           constants=None):
+    return dict(id=PREFIX+slug, revision="r1", title=title, summary=summary, kind=kind,
+                relationship=dict(output_symbol=output, expression=expression, original_equation=original,
+                                  source_id=sid, locator=locator, translation_notes=translation),
+                variables=variables, constants=constants or [], guards=guards, assumptions=assumptions,
+                limitations=limitations, unresolved=[], sources=sources, references=references,
+                rejection_cases=rejections, inverse_notes=inverse,
+                integration=dict(status="requires-extension", runtime_model=None, gaps=gaps, duplicate_of=[]))
+
+BC_LICENSE = ("Chapter License section: Julia Langham, copyright 2023, CC BY 4.0, except where noted. "
+              "https://creativecommons.org/licenses/by/4.0/ inspected 2026-11-03. Versioning History "
+              "https://opentextbc.ca/nursingnumeracy/back-matter/versioning-history/ lists v1.00, June 28, 2023.")
+BC_REDIST = ("Attribution: Julia Langham, A Guide to Numeracy in Nursing, BCcampus, 2023, CC BY 4.0. "
+             "Changes: local symbols, coherent unit normalization, original evidence paraphrase and added mathematical checks. "
+             "No source images or full chapters included; retain attribution, license link and change notice on redistribution. No endorsement claimed.")
+BCVER = "Julia Langham; v1.00 (June 28, 2023), live HTML inspected 2026-11-03"
+FLOW_URL = "https://opentextbc.ca/nursingnumeracy/chapter/iv-flow-rates/"
+WEIGHT_URL = "https://opentextbc.ca/nursingnumeracy/chapter/calculating-medication-doses-based-on-weight/"
+CDC_LICENSE = ("CDC Use of Agency Materials, https://www.cdc.gov/other/agencymaterials.html, inspected 2026-11-03: "
+               "most agency information is public domain, with third-party and jurisdictional exceptions; attribution, "
+               "no-endorsement notice and free source availability are required for reuse. No blanket clearance inferred.")
+CDC_REDIST = ("Source: CDC; original short paraphrase and equation transcription, no logos or images. "
+              "Available free at the linked CDC page. CDC, ATSDR, HHS and the U.S. Government do not endorse this record. "
+              "Third-party and non-U.S. rights remain subject to the agency terms.")
+
+def main():
+    path = ROOT / "returns/clinical-arithmetic-codex-b01/bundle.json"
+    batch = json.loads(path.read_text(encoding="utf-8"))
+    batch["created"] = DAY
+    models = []
+    ctx = ("Same human, measured body mass and standing height at the same assessment. Source scope: ages 2 years and older, "
+           "with adult use from age 20; arithmetic index only. Age-specific percentiles and clinical interpretation are outside this record.")
+    models.append(record(
+        "body-mass-index", "Body mass index from body mass and height",
+        "Metric BMI definition, without classification or diagnosis. CDC supplies the same arithmetic for children aged 2–19 and adults aged 20 or older; no empirical prediction of body fat is claimed.",
+        "definition", "bmi", "w / h ** 2", "BMI = weight (kg) / [height (m)] squared", "cdc-bmi", "BMI as a measure; BMI calculators",
+        "Introduced w and h map to the source weight and height; bmi maps to BMI. kg/m^2 is a proposed unit, with scale equal to kg because m is base length. "
+        "The expression is homogeneous and unchanged in the runtime's mass base (3600000 kg); output conversion must use that same mass scale. "
+        "No 10000 centimetre factor is inlined. Dimensions: M/L^2 = M L^-2. Literal 2 denotes squaring. "
+        "CDC FAQ's published 200 lb, 68 in example is normalized to 90.718474 kg and 1.7272 m using exact international definitions; expected 30.4 is retained.",
+        [variable("w", "Introduced w maps to weight (kg)", "input", "body_mass", "Measured mass of the same person; weight is used colloquially by the source, not gravitational force.", "kg", "M", ctx, "Finite strictly positive measured body mass."),
+         variable("h", "Introduced h maps to height (m)", "input", "standing_body_height", "Measured standing body height of the same person.", "m", "L", ctx, "Finite strictly positive height; not recumbent infant length."),
+         variable("bmi", "BMI", "output", "body_mass_index", "Body mass divided by squared standing height; not a body-fat fraction or BMI-for-age percentile.", "kg/m^2", "M L^-2", ctx, "Finite strictly positive arithmetic index; clinical categories are not outputs.")],
+        ["w > 0", "h > 0"],
+        ["Source scope: CDC presents this arithmetic for children and adolescents aged 2–19 and adults aged 20 or older.",
+         "Application profile: use measured mass and standing height from one assessment. Population eligibility is a context precondition; the scalar guards do not verify age.",
+         "Permitted use: quantitative definition for qualified interpretation, without selecting a therapy or assigning a diagnostic category."],
+        ["The index does not distinguish fat, muscle and bone or locate fat; it is not an independently validated estimate of body-fat percentage.",
+         "No infant, pregnancy-specific or disease-specific interpretation is validated here; no fixed adult category is applied to children."],
+        [source("cdc-bmi", "CDC: About Body Mass Index (BMI)", "https://www.cdc.gov/bmi/about/index.html", "Page dated December 16, 2025; live HTML", "BMI as a measure; BMI calculators", "Defines BMI by body mass and squared height; distinguishes adult and child tools and cautions about composition.", CDC_LICENSE, CDC_REDIST),
+         source("cdc-faq", "CDC: BMI Frequently Asked Questions", "https://www.cdc.gov/bmi/faq/index.html", "Page dated June 28, 2024; live HTML", "How is BMI calculated?; How is BMI interpreted for adults?", "Publishes 30.4 for an adult of 200 pounds and 5 feet 8 inches.", CDC_LICENSE, CDC_REDIST),
+         source("nist-inch", "NIST: SI Units – Length", "https://www.nist.gov/pml/owm/si-units-length", "Updated September 19, 2025; HTML", "FAQ: When did the metric redefinition of the inch occur?", "States the exact 25.4 mm international inch and displays 0.0254 m per inch.", "NIST copyright/licensing page https://www.nist.gov/open/copyright-fair-use-and-licensing-statements-srd-data-software-and-technical-series-publications inspected 2026-11-03, Fair Use of Other NIST Data/Works: federal employee works generally lack U.S. copyright, subject to third-party and foreign exceptions and acknowledgment requirements.", "NIST acknowledged for the inch definition. Curator uses the numeric definition only, not images or a reproduced page. No endorsement or blanket clearance is asserted."),
+         source("osha-pound", "OSHA Technical Manual, Section X, Chapter 1: Metric System", "https://www.osha.gov/otm/section-10-miscellaneous/chapter-1", "Live HTML inspected 2026-11-03; no edition date established", "Table X:1-9, Mass Weight", "Lists 0.45359237 kilogram for one avoirdupois pound.", "Specific redistribution terms for this accessed manual page were not established; terms unknown. No blanket clearance inferred from government hosting.", "Only the numeric unit definition and an original short paraphrase are included; no page, logo or tables reproduced. Rights for wider reuse remain to be assessed.")],
+        [reference("published-cdc-adult", {"w":90.718474,"h":1.7272}, 30.4, 0.05,
+                   "Published result: preserve 30.4 kg/m^2 after exact input conversion (200 x 0.45359237 kg; 68 x 0.0254 m). Absolute tolerance 0.05 is half the published tenth-unit rounding increment. This checks agreement with a separate published example, not empirical body-fat validity.", "CDC FAQ, adult example; nist-inch FAQ and osha-pound Table X:1-9 supply the conversion definitions."),
+         reference("constructed-square-area", {"w":100,"h":2}, 25, 1e-10, "Independent definitional arithmetic: a 2 m by 2 m square has area 4 m^2; dividing 100 kg into its four equal unit areas gives 25 kg/m^2. Synthetic measured values; tolerance covers floating-point arithmetic only.", "Curator-constructed definition check, not observed clinical data.")],
+        [rejection({"w":70,"h":0}, "Zero standing height is outside the defined human-size domain and makes the denominator zero."),
+         rejection({"h":1.7}, "BMI cannot be calculated without body mass.", "missing-input")],
+        "For target w, known bmi>0 and h>0 give w=bmi*h**2; retain the same-person and age/scope preconditions. Substitution: bmi=25, h=2 gives w=100 kg and forward BMI=25. bmi=0 implies w=0 and violates this person's positive-mass domain, rather than allowing arbitrary mass. Height inversion is a root form and is deferred under the assignment; no inverse-root execution or separate inverse record is supplied.",
+        ["Need standing_body_height and body_mass_index meanings and kg/m^2 unit with scale 1/3600000 in this snapshot's mass base; body_mass already exists. No runtime projection attempted."]
+    ))
+    ctx = ("Same patient, drug/active-moiety mass basis, independently authorized prescription and one administration. "
+           "The prescribed coefficient is per kilogram per administration, not per day or per time. Source examples are pediatric; the arithmetic has no drug-specific clinical validation population.")
+    models.append(record(
+        "weight-based-prescribed-mass", "Prescribed drug mass from a per-body-mass amount",
+        "Translates an already authorized mass-per-body-mass prescription into drug mass for one administration. It neither chooses the coefficient nor establishes that the resulting amount is safe for any patient population.",
+        "definition", "D", "d * w", "amount per administration = amount per kilogram per administration x client body mass", "langham-weight", "Chapter 15, Calculating Weight Based Doses, formula following Sample Exercise 15.2; Sample Exercises 15.1 and 15.3",
+        "Introduced D, d and w map respectively to mg per administration, amount per dose, and client weight. d is stored as kg of active drug per kg of body mass (unit 1); e.g. 0.2 mg/kg = 2e-7 kg/kg. D is kg. "
+        "Dimensions: (M_drug/M_body)*M_body=M_drug, physically M; quantity meaning preserves the different mass supports despite cancellation. With the runtime mass base, d is unchanged and D and w acquire the same scale, so expression d*w is canonical without a conversion literal. No frequency or daily total is inferred.",
+        [variable("d", "Introduced d maps to amount per dose per kg in the formula", "input", "prescribed_drug_mass_per_body_mass", "Independently specified active-drug mass per body mass for one administration, already normalized to kg/kg.", "1", "M/M = 1", ctx, "Finite nonnegative; drug, route, age eligibility and selected body-mass convention must already be authorized. Zero is a mathematical no-amount boundary, not a prescription."),
+         variable("w", "Introduced w maps to weight of client", "input", "body_mass", "Patient body mass on the independently specified dosing-weight basis; measured total mass only when that is the prescribed basis.", "kg", "M", ctx, "Finite strictly positive. No ideal/adjusted weight is calculated or silently substituted."),
+         variable("D", "Introduced D maps to source amount in mg", "output", "prescribed_drug_mass_per_administration", "Active-drug mass corresponding to the specified coefficient and body mass for one administration.", "kg", "M", ctx, "Finite nonnegative arithmetic amount; no therapeutic appropriateness implied.")],
+        ["d >= 0", "w > 0"],
+        ["Source-backed arithmetic: the nursing text multiplies a prescribed per-kilogram per-dose amount by patient mass; examples include children of 14 and 37 kg.",
+         "Application profile: coefficient, drug/active-moiety basis, patient eligibility and mass convention are external inputs to qualified interpretation; no drug-specific validated population is asserted by this arithmetic definition.",
+         "Application profile: zero d is admitted solely as the no-drug arithmetic limit; actual administration decisions are excluded."],
+        ["A daily or continuous-rate prescription has different temporal semantics and cannot be bound to d unchanged.",
+         "No maximum-dose, renal, obesity, neonatal, pregnancy or route-specific adjustment is established; the source's illustrative drug orders are numerical examples, not reusable defaults."],
+        [source("langham-weight", "Julia Langham: A Guide to Numeracy in Nursing, Chapter 15", WEIGHT_URL, BCVER, "Calculating Weight Based Doses; Sample Exercises 15.1–15.3", "Multiplies a prescribed per-kilogram amount by client mass; reports 2.8 mg and 925 mg in two examples.", BC_LICENSE, BC_REDIST)],
+        [reference("published-child-fourteen-kg", {"d":2e-7,"w":14}, 2.8e-6, 1e-15, "Published result 2.8 mg converted to 0.0000028 kg; input 0.2 mg/kg becomes 0.0000002 kg/kg. Source examples are pedagogical, not measured outcomes. Exact decimal arithmetic is intended; 1e-15 kg permits numerical representation error only.", "Langham Ch.15, Sample Exercise 15.1."),
+         reference("published-child-thirty-seven-kg", {"d":0.000025,"w":37}, 0.000925, 1e-12, "Published 925 mg converted to 0.000925 kg, with 25 mg/kg normalized to 0.000025 kg/kg. Distinct nonzero coefficient and mass test the scale. Tolerance 1e-12 kg covers floating arithmetic, not clinical uncertainty.", "Langham Ch.15, Sample Exercise 15.3."),
+         reference("independent-equal-portions", {"d":0.00001,"w":12.5}, 0.000125, 1e-12, "Independent synthetic counting check: twelve 10 mg portions plus one half portion total 125 mg. Tolerance 1e-12 kg is arithmetic only.", "Curator-created aggregation argument independent of running the stored expression.")],
+        [rejection({"d":0.00001,"w":0}, "Patient mass must be positive."), rejection({"w":14}, "No mass-per-body-mass amount is specified.", "missing-input")],
+        "Target d: known D>=0 and w>0 give d=D/w, uniquely, with original contexts and guards. Check D=0.000125 kg and w=12.5 kg gives d=0.00001 and forward D=0.000125. D=0 gives d=0 and is admitted as the stated arithmetic boundary. Target w: known D and d>0 give w=D/d and require w>0 (hence D>0). If d=0 and D=0 every positive w satisfies the identity; if d=0 and D>0 none does. This is algebraic inversion of an amount definition, not identification of an appropriate clinical weight or coefficient.",
+        ["Need prescribed_drug_mass_per_body_mass and prescribed_drug_mass_per_administration meanings. kg and body_mass are present; preserve active-drug versus patient-mass semantics even though d is dimensionless. No dosing recommendation or runtime projection."]
+    ))
+    ctx = ("Same independently prescribed IV infusion, final fluid volume and continuous elapsed infusion interval; arithmetic applies across patient ages "
+           "only after an appropriate order is supplied. This definition has no independently validated therapeutic population; no pause or flush volume is silently included.")
+    models.append(record(
+        "mean-volumetric-infusion-rate", "Mean volumetric infusion rate over an interval",
+        "Fluid volume divided by its complete infusion interval; equal to a constant target rate only when constant delivery is the specified application. This is not an order or pump programming instruction.",
+        "definition", "q", "V / t", "rate = total volume / time in hours", "langham-flow", "Chapter 16, Calculating the IV Infusion Rate; Sample Exercise 16.1",
+        "Introduced V and t map to total volume and time; q maps to rate. Normalize mL to m^3 and hours to seconds before entering the research record. Output is m^3/s; no 3600 or 1e-6 is embedded in the expression. "
+        "Dimensions: L^3/T = L^3 T^-1. Source describes a specified rate; defining an interval mean is the exact volume/time meaning, and a constant-rate profile is separately declared. Time inversion belongs to this same relationship, not a new model.",
+        [variable("V", "Introduced V maps to total volume", "input", "infused_fluid_volume", "Final infusion-fluid volume assigned to the complete interval at the stated delivery boundary.", "m^3", "L^3", ctx, "Finite nonnegative; zero denotes no delivered volume over a positive observation interval."),
+         variable("t", "Introduced t maps to time in hours, normalized to seconds", "input", "duration", "Continuous elapsed duration of the same complete interval, in seconds; not accumulated daily operation or a count.", "s", "T", ctx, "Finite strictly positive interval; a pause, if included, contributes elapsed time and lowers the interval mean."),
+         variable("q", "Introduced q maps to rate", "output", "mean_volumetric_infusion_rate", "Volume per elapsed time averaged over the same complete interval; a constant target only under the declared constant-delivery profile.", "m^3/s", "L^3 T^-1", ctx, "Finite nonnegative mean volumetric rate.")],
+        ["V >= 0", "t > 0"],
+        ["Derived definition: source volume/time arithmetic is represented as the mean rate for the stated interval; a fixed target delivery profile assumes constant rate and no interruptions.",
+         "Population scope: arithmetic identity independent of age; source is nursing education, not validation of a therapeutic rate. The volume, interval and patient appropriateness must be specified independently."],
+        ["An interval mean does not describe instantaneous variation, device accuracy, dead volume or actual patient absorption.",
+         "No fluid choice, volume, duration, rounding rule, treatment selection or monitoring protocol is supplied."],
+        [source("langham-flow", "Julia Langham: A Guide to Numeracy in Nursing, Chapter 16", FLOW_URL, BCVER, "Calculating the IV Infusion Rate, formula and Sample Exercise 16.1", "Divides total fluid volume by infusion time; example reports 125 mL/h for 500 mL over four hours.", BC_LICENSE, BC_REDIST)],
+        [reference("published-five-hundred-ml", {"V":0.0005,"t":14400}, 3.472222222222222e-8, 1e-18, "Published 125 mL/h normalized by 1 mL=1e-6 m^3 and 1 h=3600 s; inputs are 500 mL and 4 h. Expected preserves the reported exact 125, not a newly rounded display. Tolerance covers floating-point representation only.", "Langham Ch.16, Sample Exercise 16.1."),
+         reference("independent-six-equal-hours", {"V":0.0018,"t":21600}, 8.333333333333333e-8, 1e-18, "Independent synthetic equal-partition check: six 300 mL portions total 1800 mL over six one-hour slots, so 300 mL/h. Convert that independently counted rate to m^3/s. Arithmetic-only tolerance.", "Curator-created equal-interval count; not observed clinical data."),
+         reference("zero-volume-positive-interval", {"V":0,"t":3600}, 0, 1e-20, "Definitional boundary: no volume delivered in a positive hour means zero mean flow. This is not a zero-duration infusion.", "Limiting/no-delivery identity; positive interval remains defined.")],
+        [rejection({"V":0.0005,"t":0}, "A zero interval cannot define this mean rate."), rejection({"V":-0.0005,"t":3600}, "The infused-volume magnitude cannot be negative.")],
+        "Target V: known q>=0, t>0 give V=q*t; q=0 gives V=0 uniquely. Target t: known V>0 and q>0 give t=V/q>0, retaining all original scope conditions. Check V=0.001 m^3 and q=3.472222222222222e-8 m^3/s give t=28800 s (8 h); substituting yields 125 mL/h, also the source's Sample Exercise 16.4 inverse example. With V=q=0, any t>0 fits; with q=0 and V>0 none fits. V=0 with q>0 would give t=0 and is excluded. No causal delivery or clinical safety inference follows.",
+        ["Need infused_fluid_volume and mean_volumetric_infusion_rate meanings plus m^3 and m^3/s units; s and duration already exist. No runtime projection. This is distinct from data transfer-time records by the conserved quantity and delivery context."]
+    ))
+    ctx = ("Same gravity IV infusion, fluid, calibrated administration set, final volume and continuous infusion interval. "
+           "Applicable as arithmetic for an independently authorized order; source is nursing education, with no patient-age efficacy calibration. The set's drop factor must match the actual fluid and equipment conditions.")
+    models.append(record(
+        "gravity-infusion-mean-drop-rate", "Unrounded gravity-infusion mean drop rate",
+        "Number of drops corresponding to a specified fluid volume, divided by the matched infusion interval. Produces a real mean drop rate; selecting a whole-drop setting is outside this record.",
+        "definition", "g", "V * f / t", "Drop Rate = Infusion Rate x Drop Factor, with Infusion Rate = total volume/time", "langham-drip", "Chapter 16, Calculating the IV Drop Rate, displayed main formula and 125 mL/h x 10 gtts/mL worked example; volume/time definition in preceding subsection",
+        "Source-backed derivation: substitute total volume/time into the source main drop-rate identity to obtain V*f/t. Introduced g,V,f,t map to drop rate, volume, drop factor and elapsed time. "
+        "Use m^3, drops/m^3, seconds and drops/s, so the expression needs no mL/hour/minute conversion literals. Dimensions: L^3*(count L^-3)/T=count T^-1; drop count is physically dimensionless but carries equipment semantics. "
+        "The source's printed intermediate 20.83 gtts/min is retained as a rounded published oracle; the final 21 gtts/min is a whole-drop setting and is not the continuous mean. Do not use the inconsistent units/formula in that chapter's Key Takeaways or Sample Exercise 16.3 text.",
+        [variable("V", "Introduced V maps to total volume in preceding infusion-rate definition", "input", "infused_fluid_volume", "Final fluid volume assigned to the infusion interval at the drip-chamber calibration basis.", "m^3", "L^3", ctx, "Finite nonnegative; zero is the no-volume arithmetic boundary."),
+         variable("f", "Introduced f maps to Drop Factor", "input", "administration_set_drop_factor", "Number of drops per fluid volume for the selected set and applicable fluid conditions; not a universal drop volume.", "drops/m^3", "count L^-3", ctx, "Finite strictly positive manufacturer/calibration-supplied value; for example 10 drops/mL equals 10000000 drops/m^3. No value is a default."),
+         variable("t", "Introduced t maps to time in the rate denominator", "input", "duration", "Continuous elapsed infusion duration in seconds over the same volume interval.", "s", "T", ctx, "Finite strictly positive; no untreated pauses silently omitted."),
+         variable("g", "Introduced g maps to Drop Rate", "output", "mean_gravity_infusion_drop_rate", "Real-valued mean drops per second corresponding to the specified volume, factor and interval.", "drops/s", "count T^-1", ctx, "Finite nonnegative; fractional mean rate is allowed although each physical drop is discrete.")],
+        ["V >= 0", "f > 0", "t > 0"],
+        ["Source assumption: drop factor means drops per volume for the actual set; the source's main dimensional calculation supplies the relationship.",
+         "Application profile: calibrated drop factor is constant over the volume interval. Source examples are educational; use supplies no independent population-specific safety validation.",
+         "Application profile: zero volume is admitted as zero mean drops over a positive observation interval, not an administered order."],
+        ["Unrounded mean rate does not determine a whole-drop setting, guarantee device delivery, or account for varying drop size or interruptions.",
+         "The chapter contains typographical errors in its Key Takeaways and one exercise; only the internally consistent main derivation and identified oracle are used. OpenStax 13.3 also labels its factor incorrectly; that alternative is not the equation authority."],
+        [source("langham-drip", "Julia Langham: A Guide to Numeracy in Nursing, Chapter 16", FLOW_URL, BCVER, "Calculating the IV Drop Rate: main formula, factor definition and 125 mL/h example", "The main dimensional derivation uses drops per mL and reports an intermediate 20.83 drops/min before whole-drop rounding.", BC_LICENSE, BC_REDIST)],
+        [reference("published-unrounded-intermediate", {"V":0.000125,"f":10000000,"t":3600}, 0.3471666666666667, 0.000083333333334,
+                   "Published intermediate 20.83 drops/min divided by 60 to give drops/s; volume is one hour's 125 mL. Tolerance is half the printed 0.01 drops/min increment, converted to drops/s, plus 1e-15 representation allowance. The final rounded setting 21 is deliberately not substituted for the mean.", "Langham Ch.16, main worked example immediately following Drop Rate = Infusion Rate x Drop Factor."),
+         reference("independent-counted-drops", {"V":0.00036,"f":20000000,"t":3600}, 2, 1e-12, "Independent synthetic count: 360 one-mL portions with 20 drops in each make 7200 drops; distribute across 3600 one-second slots, two per slot. Tolerance is floating arithmetic only; no equipment accuracy inferred.", "Curator-created discrete count and equal-time partition."),
+         reference("zero-volume", {"V":0,"f":10000000,"t":3600}, 0, 1e-20, "Definitional no-flow boundary with positive set factor and positive duration.", "Curator limiting identity, not empirical evidence.")],
+        [rejection({"V":0.000125,"f":10000000,"t":0}, "A zero duration makes the mean rate undefined."), rejection({"V":0.000125,"f":0,"t":3600}, "A valid drop-producing administration set requires positive drops per volume.")],
+        "Target V: g>=0, f>0, t>0 give V=g*t/f, uniquely. Target f: known V>0, g>0, t>0 give f=g*t/V>0. Target t: V>0, f>0, g>0 give t=V*f/g>0. Retain original domain/context in every direction. Check g=2 drops/s, f=20000000 drops/m^3, t=3600 s gives V=0.00036 m^3; substituting returns g=2. When V=g=0, any positive f and t satisfy the relation, so neither f nor t is identifiable; g>0 with V=0, or g=0 with V>0 and f>0, has no admissible finite positive-duration solution. These inversions do not select equipment or an infusion order.",
+        ["Need administration_set_drop_factor and mean_gravity_infusion_drop_rate meanings; m^3, drops/m^3 and drops/s units with base scales 1. Infused volume uses the same proposed meaning as the mean-volumetric-rate record. No runtime projection."]
+    ))
+    batch["models"] = models
+    batch["deferred"] = [
+        dict(title="Cockcroft-Gault clearance and source-image inspection", reason="Continue in b02. PubMed original abstract directly inspected (249 derivation patients aged 18–92, 236 comparisons, r=0.83); original PDF opened but has no extracted text and screenshot calls returned no inspectable image. Shell PDF download blocked by network sandbox. An official eviQ HTML equation and scope were inspected; finish source normalization and resolve symbol/unit ambiguity before completing a record.", source_urls=["https://pubmed.ncbi.nlm.nih.gov/1244564/", "https://www.drugtnt.com/ref/RenalDosing/Cockcroft_1976.pdf", "https://www.eviq.org.au/clinical-resources/eviq-calculators/3200-creatinine-clearance-calculator"]),
+        dict(title="Infusion duration as a separate record", reason="Equivalent inverse of clinical-arithmetic--mean-volumetric-infusion-rate; source Sample Exercise 16.4 is documented in inverse_notes. Do not mint a duplicate.", source_urls=[FLOW_URL]),
+        dict(title="OpenStax gravity-infusion wording and licensing", reason="Not used as the equation authority: section labels the drop factor with a rate unit. Main example is dimensionally coherent but independent BCcampus derivation was preferred. OpenStax live page states CC BY-NC-SA 4.0 plus AI-use restrictions; no clearance for downstream AI/commercial use is inferred. Keep this source-discovery/rights uncertainty visible; no full source text is redistributed.", source_urls=["https://openstax.org/books/clinical-nursing-skills/pages/13-3-intravenous-infusion", "https://openstax.org/books/clinical-nursing-skills/pages/11-2-dosing"])
+    ]
+    batch["handoff"] = dict(
+        summary="First checkpoint: four atomic arithmetic definitions covering BMI, prescribed weight-based drug mass, mean fluid flow and gravity drop rate. All are unreviewed candidates requiring vocabulary extension. No therapeutic choice or monitoring protocol is included.",
+        gaps=["Duplicate search covered the supplied 2026-11-01 inventory (218 records), vocabulary snapshot and this batch; no global uniqueness claim.",
+              "Clinical meanings and coherent volume/drop units are missing; kg has the snapshot's non-SI base scale, which cancels correctly in these homogeneous equations. No toolkit or registry changes made.",
+              "Cockcroft-Gault source-image access and full numerical/source review continue in the next batch. Root-based forms remain assigned for sourced deferral."],
+        connections=[], queries=[],
+        review_notes="Primary HTML pages inspected directly; source symbols, scope, units, dimensions, numerical oracles, inverse singularities and rights reviewed by curator. BCcampus attribution/change notices are included. No clinical/scientific approval. JSON/ZIP validation will be recorded after execution in the checkpoint log; handoff must be updated with actual results before packing. Published oracles remain rounded source values. Prior local return model IDs: none. Known inventory body_mass meaning reused; generic density record is not duplicated here. All context/age/order eligibility remains a caller precondition beyond numeric guards.")
+    path.write_text(json.dumps(batch, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+
+if __name__ == "__main__":
+    main()

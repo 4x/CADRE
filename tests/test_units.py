@@ -1,13 +1,14 @@
 """Canonical unit registry, lexical aliases, and their inspection surface."""
 
 import json
+from fractions import Fraction
 from pathlib import Path
 import unittest
 import zipfile
 
-from connected_models.contracts import UNITS, UNIT_ALIASES, describe_units
+from connected_models.contracts import JOULES_PER_KWH, UNITS, UNIT_ALIASES, Port, describe_units
 from connected_models.curation import build_kit
-from connected_models.query_inputs import UNIT_PATTERN, unit_identity
+from connected_models.query_inputs import UNIT_PATTERN, bind_fact, unit_identity, validate_fact
 from test_support import scratch_directory
 
 
@@ -45,6 +46,115 @@ class UnitRegistryTests(unittest.TestCase):
         self.assertEqual(UNIT_PATTERN.match(" dollars").group(1), "dollars")
         self.assertEqual(UNIT_PATTERN.match(" ohm m").group(1), "ohm m")
         self.assertIsNone(UNIT_PATTERN.match(" furlongs"))
+
+    def test_mile_units_bind_with_exact_scales(self) -> None:
+        """Faithful mph/mile facts execute; the mile is exactly 1609.344 m."""
+        self.assertEqual(UNITS["mi"].scale, 1609.344)
+        self.assertEqual(UNITS["mph"].scale, 1609.344 / 3600)
+        self.assertEqual(UNITS["mph"].dimensions, UNITS["m/s"].dimensions)
+        self.assertEqual(UNITS["mi"].dimensions, UNITS["m"].dimensions)
+        for spelling, canonical in (("mile", "mi"), ("miles", "mi"),
+                                    ("miles/hour", "mph"), ("mi/h", "mph"),
+                                    ("miles per hour", "mph"), ("MPH", "mph")):
+            with self.subTest(spelling=spelling):
+                self.assertEqual(unit_identity(spelling), canonical)
+        self.assertEqual(UNIT_PATTERN.match(" mph").group(1), "mph")
+        self.assertEqual(UNIT_PATTERN.match(" miles").group(1), "miles")
+
+    def test_imperial_batch_scales_derive_from_exact_definitions(self) -> None:
+        """Query-3 lengths, volumes, masses and rates match their exact definitions."""
+        self.assertEqual(UNITS["in"].scale, 0.0254)
+        self.assertEqual(UNITS["ft"].scale, 0.3048)
+        self.assertEqual(UNITS["yd"].scale, 0.9144)
+        self.assertEqual(UNITS["nmi"].scale, 1852)
+        self.assertEqual(UNITS["ft/s"].scale, 0.3048)
+        self.assertEqual(UNITS["kn"].scale, 1852 / 3600)
+        self.assertEqual(UNITS["L"].scale, 0.001)
+        self.assertEqual(UNITS["mL"].scale, 1e-6)
+        self.assertEqual(UNITS["gal"].scale, 3.785411784e-3)
+        self.assertEqual(UNITS["qt"].scale, 3.785411784e-3 / 4)
+        self.assertEqual(UNITS["lb"].scale, 0.45359237 / JOULES_PER_KWH)
+        self.assertEqual(UNITS["oz"].scale, 0.45359237 / 16 / JOULES_PER_KWH)
+        self.assertEqual(UNITS["lbf"].scale, 4.4482216152605 / JOULES_PER_KWH)
+        self.assertEqual(UNITS["cal"].scale, 4.184 / JOULES_PER_KWH)
+        self.assertEqual(UNITS["kcal"].scale, 4184 / JOULES_PER_KWH)
+        self.assertEqual(UNITS["hp"].scale, 550 * 0.3048 * 4.4482216152605 / JOULES_PER_KWH)
+        for spelling, canonical in (
+                ("inch", "in"), ("inches", "in"), ("foot", "ft"), ("feet", "ft"),
+                ("feet/second", "ft/s"), ("feet per second", "ft/s"),
+                ("yard", "yd"), ("yards", "yd"), ("nmi", "nmi"),
+                ("nautical mile", "nmi"), ("nautical miles", "nmi"),
+                ("knot", "kn"), ("knots", "kn"), ("liter", "L"), ("liters", "L"),
+                ("litre", "L"), ("litres", "L"), ("milliliters", "mL"),
+                ("ml", "mL"), ("ML", "mL"), ("cc", "mL"), ("gallon", "gal"),
+                ("gallons", "gal"), ("quart", "qt"), ("quarts", "qt"),
+                ("pound", "lb"), ("pounds", "lb"), ("lbs", "lb"),
+                ("ounce", "oz"), ("ounces", "oz"), ("calorie", "cal"),
+                ("calories", "cal"), ("kilocalorie", "kcal"),
+                ("kilocalories", "kcal"), ("horsepower", "hp")):
+            with self.subTest(spelling=spelling):
+                self.assertEqual(unit_identity(spelling), canonical)
+        self.assertEqual(UNIT_PATTERN.match(" ft").group(1), "ft")
+        self.assertEqual(UNIT_PATTERN.match(" gallons").group(1), "gallons")
+        self.assertEqual(UNIT_PATTERN.match(" feet/second").group(1), "feet/second")
+
+    def test_imperial_facts_bind_to_si_ports(self) -> None:
+        """Everyday imperial spellings validate and bind instead of blocking."""
+        cases = (
+            ("12", "inches", "in", "length", "m"),
+            ("6", "feet", "ft", "length", "m"),
+            ("100", "yards", "yd", "length", "m"),
+            ("3", "nautical miles", "nmi", "length", "m"),
+            ("88", "feet/second", "ft/s", "speed", "m/s"),
+            ("20", "knots", "kn", "speed", "m/s"),
+            ("2", "gallons", "gal", "volume", "m3"),
+            ("5", "liters", "L", "volume", "m3"),
+            ("1", "quart", "qt", "volume", "m3"),
+            ("500", "milliliters", "mL", "volume", "m3"),
+            ("10", "cc", "mL", "volume", "m3"),
+            ("150", "pounds", "lb", "mass", "kg"),
+            ("8", "ounces", "oz", "mass", "kg"),
+            ("200", "lbf", "lbf", "force", "N"),
+            ("250", "calories", "cal", "translational_kinetic_energy", "J"),
+            ("2", "kilocalories", "kcal", "translational_kinetic_energy", "J"),
+            ("3", "horsepower", "hp", "electrical_power", "W"),
+        )
+        for literal, spelling, canonical, meaning, target_unit in cases:
+            with self.subTest(spelling=spelling):
+                quote = f"{literal} {spelling}"
+                fact = validate_fact(
+                    {"id": "fact-x", "name": "reading", "value_type": "number",
+                     "value": literal, "unit": spelling, "quote": quote}, quote)
+                value = bind_fact(fact, Port(meaning, target_unit, "probe-context"))
+                self.assertEqual(value.port.unit, canonical)
+
+    def test_clinical_batch_binds_dosing_facts(self) -> None:
+        """Query-4 mass and concentration spellings validate and bind."""
+        self.assertEqual(UNITS["mg"].scale, 1e-6 / JOULES_PER_KWH)
+        self.assertEqual(UNITS["mg/kg"].scale, 1e-6)
+        self.assertEqual(UNITS["dL"].scale, 1e-4)
+        ratio = UNITS["mg/dL"].scale / UNITS["kg/m^3"].scale
+        self.assertEqual(Fraction(ratio).limit_denominator(1000), Fraction(1, 100))
+        for spelling, canonical in (
+                ("milligram", "mg"), ("milligrams", "mg"),
+                ("mg per kg", "mg/kg"), ("mg/kg", "mg/kg"),
+                ("deciliter", "dL"), ("deciliters", "dL"), ("dl", "dL"),
+                ("mg/dL", "mg/dL"), ("mg per dl", "mg/dL"), ("mg/dl", "mg/dL")):
+            with self.subTest(spelling=spelling):
+                self.assertEqual(unit_identity(spelling), canonical)
+        cases = (
+            ("250", "milligrams", "mg", "labeled_active_drug_reference_mass", "kg"),
+            ("15", "mg per kg", "mg/kg", "prescribed_drug_mass_per_body_mass", "1"),
+            ("1.2", "mg/dL", "mg/dL", "serum_creatinine_mass_concentration", "kg/m^3"),
+        )
+        for literal, spelling, canonical, meaning, target_unit in cases:
+            with self.subTest(spelling=spelling):
+                quote = f"{literal} {spelling}"
+                fact = validate_fact(
+                    {"id": "fact-x", "name": "reading", "value_type": "number",
+                     "value": literal, "unit": spelling, "quote": quote}, quote)
+                value = bind_fact(fact, Port(meaning, target_unit, "probe-context"))
+                self.assertEqual(value.port.unit, canonical)
 
     def test_kit_ships_aliases_with_vocabulary(self) -> None:
         """Curators see the alias map offline next to units and meanings."""

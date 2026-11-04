@@ -1,0 +1,106 @@
+{
+  "name": "deep-battery",
+  "version": 1,
+  "tolerance_relative": 1e-06,
+  "notes": "Longer chains (up to 9 nodes), mixed forward/inverse views, fork graphs, and fact-routing stress. Oracle amounts computed offline with runtime.execute end to end; d4 ran stepwise with i hand-wired until brief-14 lands. Run with evals/run_compare_battery.py --battery deep.",
+  "entries": [
+    {
+      "id": "d1-energy",
+      "tier": 1,
+      "question": "Delivered heat is 12000 kWh. A heat pump has seasonal performance 3 and electric resistance has seasonal performance 1. Tariff is 0.30 USD/kWh. The heat pump costs $8000 upfront. With a 5 percent discount rate over 15 years, what is the net present value of choosing the heat pump?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {"meaning": "net_present_value", "unit": "USD", "amount": 16911.179291633438}
+      ],
+      "needs": "none; 7-node fork-join (heat x2, cost x2, saving, UPV, NPV). Oracle ran end to end.",
+      "why_llm_loses": "Seven exact steps with compounding; routing two performance facts to the right heaters."
+    },
+    {
+      "id": "d2-raid-inverse",
+      "tier": 1,
+      "question": "A homogeneous array of 4 disks of 2000 GB each is configured as RAID-5. What interface rate in MB per second fills it in 2 hours?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {"meaning": "megabyte_rate", "unit": "MB/s", "amount": 833.3333333333334}
+      ],
+      "needs": "none; 7-node mixed forward/inverse chain through three adapters. Oracle ran end to end.",
+      "why_llm_loses": "Inverting time = size/rate through decimal capacity and rate conversions."
+    },
+    {
+      "id": "d3-loan-inverse",
+      "tier": 1,
+      "question": "What loan principal is repaid by 60 level monthly payments of $500 at a periodic rate of 0.005?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {"meaning": "present_value", "unit": "USD", "amount": 25862.780375565493}
+      ],
+      "needs": "none; single inverse solve with exponent inside the engine bound.",
+      "why_llm_loses": "Affordability inversion with exact (1+i)^60 compounding."
+    },
+    {
+      "id": "d4-mortgage-fork",
+      "tier": 1,
+      "question": "A $400,000 loan at 6 percent nominal compounded annually is repaid in 30 level annual payments. What are the interest and principal portions of payment 12?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {"meaning": "interest_payment", "unit": "USD", "amount": 19455.000417591276},
+        {"meaning": "principal_payment", "unit": "USD", "amount": 9604.564178427603}
+      ],
+      "needs": "none; 6-node chain through the brief-14 schedule-rate adapter. Oracle ran end to end (matches the earlier stepwise values).",
+      "why_llm_loses": "Schedule-position arithmetic (t=12 of 30) across a forked chain."
+    },
+    {
+      "id": "d5-envacct-fork",
+      "tier": 1,
+      "question": "A facility has fuel activity of 1000 kg at an emission factor of 3.15 kg per kg, plus further activity of 500 kg at 2.0 kg per kg. The first gas has a global warming potential of 29.8 and the second of 273.0. What is the total carbon dioxide equivalent?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {"meaning": "carbon_dioxide_equivalent", "unit": "kg", "amount": 366870.0}
+      ],
+      "needs": "none; 9-node fork (two full activity-to-component legs into the total). Oracle ran end to end.",
+      "why_llm_loses": "Pairing two activities, factors, and potentials across nine exact steps."
+    },
+    {
+      "id": "d6-ohmic-power",
+      "tier": 1,
+      "question": "A current of 3 A flows through a 4 ohm resistor. What electrical power is absorbed?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {"meaning": "absorbed_electrical_power", "unit": "W", "amount": 36.0}
+      ],
+      "needs": "none; two-hop V=IR then P=VI chain.",
+      "why_llm_loses": "Short chain; electrics coverage more than difficulty."
+    },
+    {
+      "id": "d7-routing",
+      "tier": 1,
+      "question": "A sonar pulse returns after 2 s in water where sound travels at 1500 m/s. Separately, an 800 Hz siren approaches a stationary observer at 25 m/s where sound travels at 343 m/s. What is the sonar range and the heard frequency?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {"meaning": "acoustic_target_range", "unit": "m", "amount": 1500.0},
+        {"meaning": "observed_wave_frequency", "unit": "Hz", "amount": 862.8930817610063}
+      ],
+      "needs": "none; two independent graphs, one question. u_o=0 comes from fill-in.",
+      "why_llm_loses": "Routing two speeds, two times, and two frequencies to the right models."
+    },
+    {
+      "id": "d8-population",
+      "tier": 1,
+      "question": "A region has 1,200,000 residents, with 18,000 live births, 9,000 deaths, 5,000 immigrants and 3,000 emigrants over the period. What is the final population?",
+      "fill_in_assumptions": true,
+      "expected_status": "completed",
+      "expected_outputs": [
+        {"meaning": "final_period_population", "unit": "person", "amount": 1211000.0}
+      ],
+      "needs": "none; five same-unit facts routed to five same-unit ports by name.",
+      "why_llm_loses": "Sign discipline (+B-D+I-E) and exact large-integer arithmetic."
+    }
+  ]
+}

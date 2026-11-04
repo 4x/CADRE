@@ -1,0 +1,144 @@
+{
+  "batch_id": "waves-and-optics-codex-b09",
+  "created": "2026-11-03",
+  "curator": "codex",
+  "deferred": [],
+  "domain": "waves-and-optics",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "Installed portable toolkit 2026-10-31.6 predates named registry constants and rejects the expression. Compatible curation/runtime 0.28.0 validation and projection remain pending; toolkit and schema were not modified."
+    ],
+    "queries": [],
+    "review_notes": "Owner-supplied finding: reviewer AG recommended admit for r1; scientific evidence and scope were not questioned, but staging rejected the dimensionless literal with Expression/output dimensions differ. That recommendation is carried as reported, not promoted to r2 approval. Only revision, expression, translation_notes and constants change. Variables, ports, units, guards, sources, assumptions, limitations, inverse notes, references and integration metadata are unchanged. Exact serialized reference-array bytes, dimensions, two reference computations and two rejection cases checked by correction.py. Stock validator JSON/ZIP incompatibility is recorded in validation-report.json. Return archive is data-only, packed after the limited checks; full compatible-toolkit validation and re-review required.",
+    "summary": "Mechanical correction of waves-and-optics--refractive-index-phase-speed@r1 from codex-b02 to r2: use dimensioned registry speed_of_light instead of a bare numeric literal. No new scientific coverage."
+  },
+  "kit_version": "2026-10-31.6",
+  "models": [
+    {
+      "assumptions": [
+        "Source profile: ordinary transparent media with a real positive index at least one, plus vacuum.",
+        "Source condition: refractive index depends on optical wavelength and material conditions; use the supplied value for the selected mode and state."
+      ],
+      "constants": [],
+      "guards": [
+        "n >= 1"
+      ],
+      "id": "waves-and-optics--refractive-index-phase-speed",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Add phase_refractive_index; reuse wave_phase_speed from b01 with an optical-mode context. Units 1 and m/s exist. Phase/group distinction must survive any downstream binding."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Inverse n=299792458/v requires 0<v<=299792458 in this n>=1 profile; one positive root, c remains fixed. v=149896229 m/s yields n=2 and forward substitution returns 149896229. Vacuum v=c yields n=1. v=0 has no finite index and v>c would leave this declared profile, though that is not a universal prohibition on phase velocity in other regimes.",
+      "kind": "definition",
+      "limitations": [
+        "The n>=1 scope is not a universal statement for anomalous-dispersion, plasma, complex-index or metamaterial phase velocities.",
+        "Phase speed is not automatically pulse/group speed or information speed; do not apply this record to a pulse travel time without additional support."
+      ],
+      "references": [
+        {
+          "expected": 156000000,
+          "id": "published-zircon-speed",
+          "inputs": {
+            "n": 1.923
+          },
+          "method": "Published Example 1.1 reports 1.56e8 m/s, kept as expected. That example uses rounded c=3.00e8; the record uses exact SI c and gives about 1.55898e8. Difference about 1.02e5 m/s is within half the source's 1e6 m/s output increment (5e5). No empirical index uncertainty is claimed.",
+          "provenance": "https://openstax.org/books/university-physics-volume-3/pages/1-1-the-propagation-of-light# Table 1.1 and Example 1.1; n at 589 nm vacuum wavelength",
+          "tolerance": 500000
+        },
+        {
+          "expected": 299792458,
+          "id": "vacuum-defining-constant",
+          "inputs": {
+            "n": 1
+          },
+          "method": "Definitional limiting identity: in vacuum the propagation speed is the SI defining c, independent of material data. Expected is exactly the NIST value; 1e-6 m/s only permits floating-point representation, not uncertainty in c.",
+          "provenance": "https://www.nist.gov/pml/owm/si-units-length# SI Units - Length",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "n": 0
+          },
+          "kind": "domain",
+          "reason": "Zero index is outside the ordinary-medium profile and makes the reciprocal undefined."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "A material/state-specific refractive index is required; it is not assumed from a material label."
+        }
+      ],
+      "relationship": {
+        "expression": "speed_of_light / n",
+        "locator": "University Physics 3 Eqs. 1.1-1.2, Table 1.1 and Example 1.1; NIST metre definition for exact c",
+        "original_equation": "n = c/v",
+        "output_symbol": "v",
+        "source_id": "os-up3-1-1-the-propagation-of-light",
+        "translation_notes": "Solve n=c/v for v, resolving fixed c through the registry constant speed_of_light (runtime 0.28.0: exactly 299792458 m/s, SI defining constant), whose m/s dimensions are retained by the engine. Registry-named constants are not repeated in constants metadata or exposed as freely variable inputs; the exact SI value remains attributed to the unchanged NIST source. n is dimensionless, so (L*T^-1)/1=L*T^-1; m/s has base scale 1. 'Phase' identifies the refractive-index meaning, as opposed to group or signal speed. Source Table 1.1 explicitly ties indices to 589 nm vacuum wavelength and lists material-state conditions; those are reference data, not global defaults. Its blanket n>=1 prose is retained as this ordinary-medium profile, not asserted for every dispersive/anomalous medium."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Index is vacuum light speed divided by material light speed. The section treats ordinary transparent media with n at least one and supplies wavelength-specific values; its zircon example reports 1.56e8 m/s from n=1.923.",
+          "id": "os-up3-1-1-the-propagation-of-light",
+          "kind": "primary",
+          "license": "Directly inspected section footer Citation/Attribution and volume Preface, About OpenStax resources / Customization, https://openstax.org/books/university-physics-volume-3/pages/preface, accessed 2026-11-03: identifies CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/, deed inspected). Footer additionally asserts prior written permission for LLM ingestion/AI offerings and commercial use. The current web version's terms are recorded without inferring an older license or resolving their legal interaction.",
+          "locator": "Eqs. 1.1-1.2; Speed of Light in Matter; Table 1.1 and Example 1.1",
+          "redistribution": "Return contains short original evidence paraphrases, mathematical relationships, attribution and numerical data; no source images, pages or PDFs. This is not a legal clearance. Applicability of NC/SA and asserted AI-use restrictions to these research records and downstream commercial/AI use remains an owner rights-review question; no permission obtained or claimed.",
+          "title": "OpenStax, University Physics Volume 3: 1.1 The Propagation of Light",
+          "url": "https://openstax.org/books/university-physics-volume-3/pages/1-1-the-propagation-of-light",
+          "version": "Original publication 2016-09-29; live HTML edition inspected 2026-11-03; footer copyright 2026-06-11. Authors Ling, Sanny, Moebs (Volume 1 lists Moebs first)."
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "The SI metre definition fixes vacuum light speed to exactly 299792458 m/s; this is a defining value, not a fitted medium parameter.",
+          "id": "nist-si-length",
+          "kind": "primary",
+          "license": "Inspected NIST policy https://www.nist.gov/open/copyright-fair-use-and-licensing-statements-srd-data-software-and-technical-series-publications (redirect from /open/license), 2026-11-03, Fair Use of Other NIST Data/Works: distinguishes NIST employee works from protected SRD/extramural material. No blanket rights claim for every item on the site.",
+          "locator": "SI Units - Length opening definition and unit-of-speed bullet",
+          "redistribution": "Only an attributed SI defining value and original concise paraphrase are supplied; no NIST graphics or SRD compilation. No legal clearance beyond the documented evidence is asserted.",
+          "title": "NIST Office of Weights and Measures: SI Units - Length",
+          "url": "https://www.nist.gov/pml/owm/si-units-length",
+          "version": "Created 2010-04-12; updated 2025-09-19, as displayed; live page inspected 2026-11-03"
+        }
+      ],
+      "summary": "Refractive-index definition for ordinary transparent media in the source's n>=1 regime, using exact SI vacuum light speed. The material index remains supplied and state-specific.",
+      "title": "Light phase speed and refractive index",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same ordinary transparent homogeneous medium, wave mode/polarization where relevant, optical frequency (or vacuum wavelength), composition/phase, temperature, pressure and medium rest frame. n is the real phase refractive index for that state, and v the matching monochromatic phase speed; vacuum is the n=1 boundary.",
+          "definition": "Real phase refractive index: vacuum light speed divided by the monochromatic phase speed of the selected transparent-medium mode.",
+          "dimensions": "1 (dimensionless)",
+          "domain": "Finite n>=1 for this ordinary transparent-medium profile, including vacuum n=1; supplied at the matching optical frequency and material state.",
+          "quantity_id": "phase_refractive_index",
+          "role": "input",
+          "source_symbol": "n",
+          "symbol": "n",
+          "unit": "1"
+        },
+        {
+          "context": "Same ordinary transparent homogeneous medium, wave mode/polarization where relevant, optical frequency (or vacuum wavelength), composition/phase, temperature, pressure and medium rest frame. n is the real phase refractive index for that state, and v the matching monochromatic phase speed; vacuum is the n=1 boundary.",
+          "definition": "Positive speed of a constant optical phase in the selected medium rest frame.",
+          "dimensions": "L T^-1 (m s^-1)",
+          "domain": "Finite 0<v<=299792458 m/s in this stated n>=1 profile.",
+          "quantity_id": "wave_phase_speed",
+          "role": "output",
+          "source_symbol": "v",
+          "symbol": "v",
+          "unit": "m/s"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

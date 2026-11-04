@@ -1,0 +1,186 @@
+{
+  "batch_id": "waves-and-optics-nwo-c01",
+  "created": "2026-11-03",
+  "curator": "native-wo",
+  "deferred": [],
+  "domain": "waves-and-optics",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "No new vocabulary: focal_length, object_distance and image_distance meanings and m are admitted. Runtime projection omitted (research-only candidate); admission projects the revised f-input context.",
+      "Duplicate search: this correction batch contains only the r2 of the known waves-and-optics-codex-b01 r1 record; no catalog inventory was supplied with this correction task."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical validation 2026-11-03 with the central package (uv --cache-dir .uv-cache run --no-env-file --offline -m connected_models.curation): validate bundle.json -> valid-data-awaiting-review, waves-and-optics--gaussian-finite-conjugate-imaging@r2 requires-extension with 3 arithmetic and 3 rejection checks; pack -> waves-and-optics-nwo-c01-return.zip; validate on the ZIP -> valid-data-awaiting-review. Source-fidelity review: r1 sources, evidence, assumptions, limitations, expression, guards and references byte-identical; only the briefed changes applied (f-input context, translation-notes sentence, revision, integration gaps). Checks not performed: central scientific re-review and admission (out of scope for this return).",
+    "summary": "Correction batch waves-and-optics-nwo-c01 (curator native-wo): r2 revision of waves-and-optics--gaussian-finite-conjugate-imaging from batch waves-and-optics-codex-b01 r1, implementing exactly the committed correction brief data/curation/corrections/optics-focal-length-context-brief-9.md. Input f context := the thin-lens-maker output context (byte-identical), plus the translation-notes alignment sentence. This closes the focal_length near-miss so the lens-maker to imaging to magnification chain executes; the recommend-admit review findings stand."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: paraxial geometric optics; thin-lens thickness negligible relative to curvature scales, or small-aperture spherical mirror.",
+        "Source assumption for lens: one homogeneous surrounding medium on both sides, with supplied focal length for its refractive index and wavelength.",
+        "Application profile: a finite real object is used, matching the directly inspected derivations and examples; images and focal lengths retain either supported sign."
+      ],
+      "constants": [],
+      "guards": [
+        "f ** 2 > 0",
+        "d_o > 0",
+        "(d_o - f) ** 2 > 0"
+      ],
+      "id": "waves-and-optics--gaussian-finite-conjugate-imaging",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Revision r2 supersedes the r1 f-input context under the same scientific ID; only that context string and the translation-notes alignment sentence changed. Admission must project the new f-input context so thin-lens-maker focal lengths bind; d_o/d_i contexts are unchanged, preserving the imaging-to-magnification edge.",
+          "Mirror-branch supply stays unbound: no producer emits this f-input context for a mirror element, so spherical-mirror imaging values do not auto-bind (fail-closed); a separate mirror-side alignment would be needed."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Solve d_o given f,d_i: d_o=f*d_i/(d_i-f); require f!=0,d_i!=0,d_i!=f and reconstructed d_o>0, then all original forward guards. Solve f given d_o,d_i: f=d_o*d_i/(d_o+d_i); require d_o>0,d_i!=0,d_o+d_i!=0; resulting f finite/nonzero. Unique roots in either direction. Check f=0.1,d_i=0.125 -> d_o=0.5 and 1/0.5+1/0.125=10=1/f. Virtual case d_o=0.05,d_i=-0.1 -> f=0.1. d_i=f requires object at infinity, outside finite inputs. d_i=-d_o corresponds to zero optical power/infinite f, not f=0. At d_o=f the physically meaningful collimated limit is excluded only from this finite-output serialization.",
+      "kind": "theoretical",
+      "limitations": [
+        "No finite image distance exists when d_o=f: the output beam is collimated, rather than physically impossible.",
+        "Finite-scalar model excludes object at infinity and zero-power optical elements with infinite focal length.",
+        "Aberrations, diffraction and thick-lens principal planes require other descriptions; this relation alone does not locate lens surfaces."
+      ],
+      "references": [
+        {
+          "expected": 0.125,
+          "id": "published-real-image",
+          "inputs": {
+            "d_o": 0.5,
+            "f": 0.1
+          },
+          "method": "Published Example 2.4(a): preserve reported 12.5 cm as expected 0.125 m. A 0.0005 m tolerance is half of its 0.1 cm reporting increment; inputs are the textbook nominal values, not measured uncertainty bounds.",
+          "provenance": "https://openstax.org/books/university-physics-volume-3/pages/2-4-thin-lenses# Example 2.4(a)",
+          "tolerance": 0.0005
+        },
+        {
+          "expected": -0.1,
+          "id": "published-virtual-image",
+          "inputs": {
+            "d_o": 0.05,
+            "f": 0.1
+          },
+          "method": "Published Example 2.4(b): preserve -10.0 cm as -0.100 m; tolerance half of its last reported 0.1 cm increment. This changes image sign and is not a zero boundary.",
+          "provenance": "https://openstax.org/books/university-physics-volume-3/pages/2-4-thin-lenses# Example 2.4(b)",
+          "tolerance": 0.0005
+        },
+        {
+          "expected": -0.15,
+          "id": "independent-ray-intersection",
+          "inputs": {
+            "d_o": 0.6,
+            "f": -0.2
+          },
+          "method": "Independent geometric construction with a synthetic 0.010 m object. The undeviated center ray has height y=-x/60; the incident-parallel ray emerges with y=0.010+x/20, extending back to focus -0.2 m. Intersect: -x/60=0.010+x/20, giving x=-0.15 m. This uses two ray rules, not reevaluation of the serialized rational expression. Tolerance covers binary arithmetic on these exact synthetic values.",
+          "provenance": "https://openstax.org/books/university-physics-volume-3/pages/2-4-thin-lenses# Ray Tracing and Thin Lenses; independently constructed dimensions",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "d_o": 0.1,
+            "f": 0.1
+          },
+          "kind": "domain",
+          "reason": "Object at focal point gives parallel output rays; the finite image-distance denominator vanishes."
+        },
+        {
+          "inputs": {
+            "d_o": 0.5,
+            "f": 0
+          },
+          "kind": "domain",
+          "reason": "Zero focal length was excluded in the original reciprocal equation and cannot be restored by algebraic simplification."
+        },
+        {
+          "inputs": {
+            "d_o": 0,
+            "f": 0.1
+          },
+          "kind": "domain",
+          "reason": "Object at the reference plane is not a finite conjugate under the original reciprocal equation."
+        }
+      ],
+      "relationship": {
+        "expression": "f * d_o / (d_o - f)",
+        "locator": "University Physics 3 Eq. 2.19 (thin lens) and Eq. 2.5 (spherical mirror); lens Fig. 2.25 and Example 2.4",
+        "original_equation": "1/d_o + 1/d_i = 1/f",
+        "output_symbol": "d_i",
+        "source_id": "os-up3-2-4-thin-lenses",
+        "translation_notes": "Solve the source equation for d_i, preserving the original exclusions f!=0 and d_o!=0 as well as d_o-f!=0. Local underscores replace source subscripts. Dimensions: L*L/L=L. All distances use m (scale 1); no in-expression cm conversion. Thin lenses have the same surrounding refractive index on both sides, as in the derivation. Mirror and lens sign meanings are stated in context rather than using Cartesian coordinate signs. The source's real-object examples support d_o>0 here; no new record should be minted just to add a virtual-object solve profile. Revision r2: the f input context now names the supplying paraxial thin-lens element description (identical to the thin-lens-maker output context) so lens-maker focal lengths bind here; d_o and d_i keep the imaging-instance context."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "The source states reciprocal conjugate distances and signed linear magnification. Its examples include a 0.125 m real image and a -0.100 m virtual image for the same 0.100 m focal length. At the focus, emergent rays are parallel.",
+          "id": "os-up3-2-4-thin-lenses",
+          "kind": "primary",
+          "license": "Directly inspected section footer Citation/Attribution and volume Preface, About OpenStax resources / Customization, https://openstax.org/books/university-physics-volume-3/pages/preface, accessed 2026-11-03: identifies CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/, deed inspected). Footer additionally asserts prior written permission for LLM ingestion/AI offerings and commercial use. The current web version's terms are recorded without inferring an older license or resolving their legal interaction.",
+          "locator": "Eqs. 2.19 and 2.22; Sign conventions for lenses; Examples 2.4(a-c) and 2.5; Fig. 2.25",
+          "redistribution": "Return contains short original evidence paraphrases, mathematical relationships, attribution and numerical data; no source images, pages or PDFs. This is not a legal clearance. Applicability of NC/SA and asserted AI-use restrictions to these research records and downstream commercial/AI use remains an owner rights-review question; no permission obtained or claimed.",
+          "title": "OpenStax, University Physics Volume 3: 2.4 Thin Lenses",
+          "url": "https://openstax.org/books/university-physics-volume-3/pages/2-4-thin-lenses",
+          "version": "Original publication 2016-09-29; live HTML edition inspected 2026-11-03; footer copyright 2026-06-11. Authors Ling, Sanny, Moebs (Volume 1 lists Moebs first)."
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "The same conjugate-distance and transverse-magnification relationships hold for paraxial spherical mirrors, with real images positive, concave focal lengths positive, and convex focal lengths negative.",
+          "id": "os-up3-2-2-spherical-mirrors",
+          "kind": "primary",
+          "license": "Directly inspected section footer Citation/Attribution and volume Preface, About OpenStax resources / Customization, https://openstax.org/books/university-physics-volume-3/pages/preface, accessed 2026-11-03: identifies CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/, deed inspected). Footer additionally asserts prior written permission for LLM ingestion/AI offerings and commercial use. The current web version's terms are recorded without inferring an older license or resolving their legal interaction.",
+          "locator": "Eqs. 2.5 and 2.9; Sign convention for spherical mirrors; paraxial scope following Eq. 2.2",
+          "redistribution": "Return contains short original evidence paraphrases, mathematical relationships, attribution and numerical data; no source images, pages or PDFs. This is not a legal clearance. Applicability of NC/SA and asserted AI-use restrictions to these research records and downstream commercial/AI use remains an owner rights-review question; no permission obtained or claimed.",
+          "title": "OpenStax, University Physics Volume 3: 2.2 Spherical Mirrors",
+          "url": "https://openstax.org/books/university-physics-volume-3/pages/2-2-spherical-mirrors",
+          "version": "Original publication 2016-09-29; live HTML edition inspected 2026-11-03; footer copyright 2026-06-11. Authors Ling, Sanny, Moebs (Volume 1 lists Moebs first)."
+        }
+      ],
+      "summary": "One canonical finite-conjugate imaging law under a real-is-positive convention; focal length includes either sign and the image may be real or virtual. Real objects are the directly evidenced application profile.",
+      "title": "Thin-lens and paraxial spherical-mirror imaging",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same paraxial homogeneous thin lens, ordered incident and exit surfaces, common homogeneous exterior medium on both sides, wavelength and material state. Real-is-positive focal convention: positive converging, negative diverging. Positive signed surface curvature has its center on the outgoing side; first biconvex curvature positive and second negative.",
+          "definition": "Signed paraxial focal distance of the selected optical element in its supplied exterior medium and wavelength conditions.",
+          "dimensions": "L (m)",
+          "domain": "Finite nonzero; positive for a converging lens/concave mirror and negative for a diverging lens/convex mirror.",
+          "quantity_id": "focal_length",
+          "role": "input",
+          "source_symbol": "f",
+          "symbol": "f",
+          "unit": "m"
+        },
+        {
+          "context": "Same paraxial thin lens (center reference, same exterior medium on both sides) or spherical mirror (vertex reference), optical axis, real object and wavelength/medium conditions. Real-is-positive convention: d_o>0, d_i>0 for real images and d_i<0 for virtual images; f>0 converging lens/concave mirror, f<0 diverging lens/convex mirror.",
+          "definition": "Real-is-positive axial distance from lens center or mirror vertex to the real object.",
+          "dimensions": "L (m)",
+          "domain": "Finite strictly positive real-object profile; d_o=f excluded in the forward finite-image view.",
+          "quantity_id": "object_distance",
+          "role": "input",
+          "source_symbol": "d_o",
+          "symbol": "d_o",
+          "unit": "m"
+        },
+        {
+          "context": "Same paraxial thin lens (center reference, same exterior medium on both sides) or spherical mirror (vertex reference), optical axis, real object and wavelength/medium conditions. Real-is-positive convention: d_o>0, d_i>0 for real images and d_i<0 for virtual images; f>0 converging lens/concave mirror, f<0 diverging lens/convex mirror.",
+          "definition": "Real-is-positive axial image conjugate distance: lens real image on outgoing side, mirror real image on incident side; virtual image negative.",
+          "dimensions": "L (m)",
+          "domain": "Finite nonzero signed distance; infinite conjugates are not scalar outputs.",
+          "quantity_id": "image_distance",
+          "role": "output",
+          "source_symbol": "d_i",
+          "symbol": "d_i",
+          "unit": "m"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -145,9 +145,15 @@ def guard_dimensions(node: ast.AST, names: Mapping[str, Dimensions],
 
 
 def evaluate(node: ast.AST, names: Mapping[str, float],
-             family_values: Mapping[str, tuple[float, ...]] | None = None) -> float:
-    """Evaluate the validated algebra, checking domains and every intermediate."""
+             family_values: Mapping[str, tuple[float, ...]] | None = None,
+             constants: Mapping[str, float] | None = None) -> float:
+    """Evaluate the validated algebra, checking domains and every intermediate.
+
+    Named constants default to canonical values; pass CONSTANT_DISPLAY_VALUES
+    when evaluating display-unit reference cases.
+    """
     families = family_values or {}
+    table = CONSTANT_VALUES if constants is None else constants
     try:
         if isinstance(node, ast.Constant):
             return finite(node.value, "Literal")
@@ -155,13 +161,13 @@ def evaluate(node: ast.AST, names: Mapping[str, float],
             return names[node.id]
         if isinstance(node, ast.Name) and node.id in families:
             raise ModelError(f"Family '{node.id}' may only appear inside sum, prod or len.")
-        if isinstance(node, ast.Name) and node.id in CONSTANT_VALUES:
-            return CONSTANT_VALUES[node.id]
+        if isinstance(node, ast.Name) and node.id in table:
+            return table[node.id]
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
-            result = evaluate(node.operand, names, families)
+            result = evaluate(node.operand, names, families, constants)
             return -result if isinstance(node.op, ast.USub) else result
         if isinstance(node, ast.BinOp):
-            left, right = evaluate(node.left, names, families), evaluate(node.right, names, families)
+            left, right = evaluate(node.left, names, families, constants), evaluate(node.right, names, families, constants)
             if isinstance(node.op, ast.Pow):
                 if abs(right) > MAX_ABS_EXPONENT:
                     raise NumericalError(f"Exponent exceeds supported magnitude {MAX_ABS_EXPONENT}.")
@@ -181,7 +187,7 @@ def evaluate(node: ast.AST, names: Mapping[str, float],
                 """Expand a family name to its elements, anything else to one value."""
                 if isinstance(arg, ast.Name) and arg.id in families:
                     return list(families[arg.id])
-                return [evaluate(arg, names, families)]
+                return [evaluate(arg, names, families, constants)]
 
             if name in {"sum", "prod"}:
                 if not args:
@@ -192,7 +198,7 @@ def evaluate(node: ast.AST, names: Mapping[str, float],
                 if name == "sum":
                     return finite(sum(values), "Sum result")
                 return finite(math.prod(values), "Product result")
-            values = [evaluate(arg, names, families) for arg in args]
+            values = [evaluate(arg, names, families, constants) for arg in args]
             if len(values) != 1:
                 raise ModelError(f"{name} takes exactly one argument.")
             if name == "log":
@@ -220,7 +226,8 @@ def evaluate(node: ast.AST, names: Mapping[str, float],
 
 
 def check_guard(node: ast.Compare, names: Mapping[str, float],
-                family_values: Mapping[str, tuple[float, ...]] | None = None) -> bool:
+                family_values: Mapping[str, tuple[float, ...]] | None = None,
+                constants: Mapping[str, float] | None = None) -> bool:
     """Evaluate a previously validated domain predicate."""
-    return COMPARISONS[type(node.ops[0])](evaluate(node.left, names, family_values),
-                                          evaluate(node.comparators[0], names, family_values))
+    return COMPARISONS[type(node.ops[0])](evaluate(node.left, names, family_values, constants),
+                                          evaluate(node.comparators[0], names, family_values, constants))

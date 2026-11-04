@@ -1,0 +1,332 @@
+{
+  "batch_id": "building-energy-nbe-c01-pending-both-r2s",
+  "created": "2026-11-03",
+  "curator": "native-be",
+  "deferred": [],
+  "domain": "building-energy",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [],
+    "queries": [],
+    "review_notes": "Radiative r2: schema/grammar/reference-arithmetic/rejection validation passes with the kit-version tools (central package, see tooling note); blackbody replays 58.245519 (tol 1e-6), person-dark-room replays -98.538579 against published -99.0 (tol 1.0). No runtime_model: vocabulary lacks thermal_emissivity/heat_transfer_area/absolute surroundings+surface temperature/net_radiative_heat_rate meanings and the m2 unit, so requires-extension stands; nothing relabeled to force projection. Constant-power r2 (excluded): authored byte-exact per brief (P*t/1000 -> P*t, translation_notes canonical-units statement, r2 bump; all else identical to be-a-b01 r1, muse-b01 r1 untouched). Kit validate rejects it with 'numerical reference does not match (60000.0)': the kit checks references in display units while the briefed expression is canonical, so the brief's 'replay passes unchanged' holds only for runtime (canonical) replay, which was verified separately with a runtime-ready sketch (Registry verify_reference True on both references: 60 W x 1000 h -> 60.0 kWh, 40 W x 5 h -> 0.2 kWh). Needs a brief or validator revision (canonical-aware research replay or a display_expression field); the defect is not in the authored data. Tooling note: the kit's own connected_models package cannot run in place (shipped curation.py imports connected_models.constants, which the kit builder allowlist omitted; same finding as the native-ec return), so validate/pack were executed with the byte-identical central package (all 9 kit modules hash-identical to central; connected_models/constants.py present); kit_version 2026-10-31.7 supported by both. No kit code, committed bundle, review, brief, or registry entry was modified. Source fidelity, licensing, and scientific approval remain with central review.",
+    "summary": "UNVALIDATED pending file (do not pack/import): both assigned r2s as briefed. Correction batch (partial: 1 of 2 assigned records): building-energy--net-radiative-exchange-gray-surface r1 (batch building-energy-a-b04) revised to r2 per committed brief data/curation/corrections/building-energy-b04-radiative-named-constant-brief.md. Expression names registry constant stefan_boltzmann; the sigma constants entry is dropped; blackbody-near-ambient expected recomputed to 58.245519; person-dark-room expected unchanged (-99.0). The companion constant-power-electricity-consumption r2 (brief data/curation/corrections/building-energy-b01-constant-power-canonical-brief.md) is authored exactly as briefed but is EXCLUDED from this packed return because it cannot pass kit validation: canonical expression P*t with display-unit references fails the kit's display-arithmetic gate (60000.0 vs 60.0); see review_notes. Its as-briefed JSON is kept alongside as pending work, not as a packed return member."
+  },
+  "kit_version": "2026-10-31.7",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: object at T1 in uniform-temperature surroundings T2 with gray-surface balance depending on the object emissivity alone (source Eq. 14.44 prose).",
+        "Same surface, enclosure pair, and infrared-band emissivity for e, A, To, Ts, P; absolute kelvins required (fourth-power law).",
+        "Steady temperatures over the evaluation instant; no participating medium or spectral selectivity beyond the single emissivity."
+      ],
+      "constants": [],
+      "guards": [
+        "e >= 0",
+        "e <= 1",
+        "A > 0",
+        "To > 0",
+        "Ts > 0"
+      ],
+      "id": "building-energy--net-radiative-exchange-gray-surface",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires extensions: emissivity (1), absolute temperatures (K, offset scale), net radiative rate (W, signed), and fourth-power Stefan-Boltzmann form with inlined sigma. No runtime unit/operator fits.",
+          "Linearized heat-transfer-coefficient form h_rad needs a separate adapter, not silently substituted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "P with e, A, and one temperature gives the other temperature via fourth root: To=(P/(sigma e A)+Ts^4)**0.25 requiring a nonnegative radicand and the physical nonnegative root (negative roots extraneous); e=0 forces P=0 regardless of temperatures (reflective limit). Substitution checked: -98.53207283/(5.67e-08*0.97*1.5)+306^4=295^4 within rounding. Inversion does not separate emission from absorption components.",
+      "kind": "theoretical",
+      "limitations": [
+        "Excludes convection and conduction, which also transfer energy in real rooms (person example discusses 125 W metabolic vs radiative loss).",
+        "Small-temperature-difference linearization and view-factor/enclosure details are outside this record; Earth/atmosphere feedback discussed in source is out of scope."
+      ],
+      "references": [
+        {
+          "expected": -99.0,
+          "id": "person-dark-room",
+          "inputs": {
+            "A": 1.5,
+            "To": 295.0,
+            "Ts": 306.0,
+            "e": 0.97
+          },
+          "method": "Published result: source Eqs. 14.45-14.47 report -99 W for the stated inputs. Replay with the registry stefan_boltzmann value gives -98.538579 W (diff 0.46). Tolerance 1.0 W covers the two-significant display rounding (half unit 0.5 W) plus input rounding.",
+          "provenance": "Published textbook worked example (unclothed person in dark room)",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 58.245519,
+          "id": "blackbody-near-ambient",
+          "inputs": {
+            "A": 1.0,
+            "To": 300.0,
+            "Ts": 290.0,
+            "e": 1.0
+          },
+          "method": "Independent calculation at a materially different near-ambient pair for an ideal black surface: 5.670374419e-8*1*(300^4-290^4)=58.245519 W. Replay exact in double precision.",
+          "provenance": "Independent elementary illustration of the net-difference form",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A": 1.5,
+            "To": 295.0,
+            "Ts": 306.0,
+            "e": 1.5
+          },
+          "kind": "domain",
+          "reason": "Emissivity above 1 contradicts the gray-surface definition (black limit 1); guard e<=1 rejects it."
+        },
+        {
+          "inputs": {
+            "To": 295.0,
+            "Ts": 306.0,
+            "e": 0.97
+          },
+          "kind": "missing-input",
+          "reason": "Surface area A is required; temperatures and emissivity alone do not determine the rate."
+        }
+      ],
+      "relationship": {
+        "expression": "e * stefan_boltzmann * A * (To**4 - Ts**4)",
+        "locator": "Sec. 14.7, Eqs. 14.43-14.46 with person example (e=0.97, A=1.50, T2=295K, T1=306K gives -99 W)",
+        "original_equation": "Q/t = sigma e A T^4 (Eq. 14.43, emission); Qnet/t = sigma e A (T2^4 - T1^4) (Eq. 14.44, net with surroundings T2 and object T1)",
+        "output_symbol": "P",
+        "source_id": "openstax-cp2e-14-7",
+        "translation_notes": "Local e/A map to source e/A; local To/Ts map to source T2 (surroundings) and T1 (object). The Stefan-Boltzmann constant is named as registry constant stefan_boltzmann (5.670374419e-8 W/(m2*K^4), CODATA 2022, exact) per source Eq. 14.43; no variable, input, or family is added for it. Units: e dimensionless, sigma W/(m2*K4), A m2, T K, P W. Dimensional check: (W/(m2*K4))*m2*K4=W. Sign follows surroundings-minus-object (negative = net loss)."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: emission rate is Q/t=sigma e A T^4 (14.43) with sigma=5.67e-08, A area, T absolute kelvin, e emissivity (black 1, reflector 0); net rate with uniform surroundings is sigma e A (T2^4-T1^4) (14.44) depending on object emissivity alone; person example e=0.97, A=1.50, T2=295K, T1=306K gives -99 W net loss.",
+          "id": "openstax-cp2e-14-7",
+          "kind": "primary",
+          "license": "CC BY-NC-SA 4.0 per OpenStax College Physics 2e Preface at https://openstax.org/books/college-physics-2e/pages/preface, read 2026-10-31; non-commercial share-alike, attribution required.",
+          "locator": "Ch. 14, Sec. 14.7, Eqs. 14.43-14.47 with person worked example and emissivity prose",
+          "redistribution": "Contains only this short original paraphrase and computed checks; no verbatim long quotation.",
+          "title": "OpenStax College Physics 2e, Section 14.7 Radiation",
+          "url": "https://openstax.org/books/college-physics-2e/pages/14-7-radiation",
+          "version": "2e (2022-07-13 web edition)"
+        }
+      ],
+      "summary": "Signed net radiative rate into an object from uniform surroundings via the Stefan-Boltzmann gray-surface difference of fourth powers.",
+      "title": "Net radiative exchange of a gray surface with uniform surroundings",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same surface and infrared band as P",
+          "definition": "Total hemispherical emissivity of the object surface (1 ideal black, 0 perfect reflector)",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval 0 to 1 inclusive",
+          "quantity_id": "thermal_emissivity",
+          "role": "input",
+          "source_symbol": "e",
+          "symbol": "e",
+          "unit": "1"
+        },
+        {
+          "context": "same surface as P",
+          "definition": "Radiating surface area of the object",
+          "dimensions": "length^2",
+          "domain": "Positive finite area",
+          "quantity_id": "heat_transfer_area",
+          "role": "input",
+          "source_symbol": "A",
+          "symbol": "A",
+          "unit": "m2"
+        },
+        {
+          "context": "same enclosure pair as Ts and P",
+          "definition": "Absolute temperature of the uniform surroundings",
+          "dimensions": "temperature",
+          "domain": "Positive finite absolute temperature",
+          "quantity_id": "absolute_surroundings_temperature",
+          "role": "input",
+          "source_symbol": "T2 (surroundings)",
+          "symbol": "To",
+          "unit": "K"
+        },
+        {
+          "context": "same enclosure pair as To and P",
+          "definition": "Absolute temperature of the object surface",
+          "dimensions": "temperature",
+          "domain": "Positive finite absolute temperature",
+          "quantity_id": "absolute_surface_temperature",
+          "role": "input",
+          "source_symbol": "T1 (object)",
+          "symbol": "Ts",
+          "unit": "K"
+        },
+        {
+          "context": "same surface and enclosure pair as inputs",
+          "definition": "Signed net radiative rate into the object (positive gain, negative net loss)",
+          "dimensions": "power",
+          "domain": "Finite signed rate",
+          "quantity_id": "net_radiative_heat_rate",
+          "role": "output",
+          "source_symbol": "Qnet/t",
+          "symbol": "P",
+          "unit": "W"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: electrical power P is effectively constant over the declared operating interval (OpenStax E=Pt with P for time t; EIA one-Watt-for-one-hour definition).",
+        "application profile: t is total active operating time in hours within the interval (accumulated on-time); off-period consumption is treated as zero and is not inferred.",
+        "Same device/operating condition and the same energy boundary for P and E; device consumption does not by itself establish purchased grid electricity or tariff scope."
+      ],
+      "constants": [
+        {
+          "literal": 1000.0,
+          "locator": "Eqs. 20.35-20.36: 60,000 W*h = 60.0 kW*h; EIA example 200 Wh = 0.2 kWh",
+          "meaning": "watts per kilowatt; converts watt-hours to kilowatt-hours",
+          "source_id": "openstax-cp2e-20-4",
+          "unit": "W/kW"
+        }
+      ],
+      "guards": [
+        "P >= 0",
+        "t >= 0"
+      ],
+      "id": "building-energy--constant-power-electricity-consumption",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires vocabulary/dimension extensions: input quantity electrical_power in W, input quantity operating_duration in h, and power*time=energy dimensional rule. Current runtime has electricity_consumption in kWh but no power or hour quantities.",
+          "Candidate alias: electrical_power means constant active electrical input power of the device over the declared interval, not instantaneous peak or nameplate alone."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "E and positive t determine P = E*1000/t; E and positive P determine t = E*1000/P. Zero-duration guard excludes division by zero for P inversion; zero-power with zero-energy leaves duration underdetermined (any t satisfies 0=0). Substitution checked: E=60, t=1000 gives P=60*1000/1000=60 W. No negative-power branch; export/generation needs a separate signed model.",
+      "kind": "theoretical",
+      "limitations": [
+        "Excludes time-varying power (needs load profile or integral over P(t), not expressible in scalar v1).",
+        "Excludes losses outside the declared device boundary, standby/off consumption, and tariff/billing rules; energy quantity alone does not establish cost or grid scope."
+      ],
+      "references": [
+        {
+          "expected": 60.0,
+          "id": "openstax-60w-1000h",
+          "inputs": {
+            "P": 60.0,
+            "t": 1000.0
+          },
+          "method": "Published result: OpenStax Eq. 20.35 reports E=(60 W)(1000 h)=60,000 W*h and Eq. 20.36 reports 60.0 kW*h. Arithmetic replay 60*1000/1000=60 exactly; no rounding beyond the reported one-decimal kWh.",
+          "provenance": "Published textbook worked example converted from reported W*h to kWh by the source itself",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.2,
+          "id": "eia-40w-5h",
+          "inputs": {
+            "P": 40.0,
+            "t": 5.0
+          },
+          "method": "Published result: EIA Measuring electricity states a 40-W (0.04 kW) bulb for five hours uses 200 Wh, i.e. 0.2 kWh. Arithmetic replay 40*5/1000=0.2 exactly.",
+          "provenance": "Published agency example; reported Wh converted to kWh by the source (200 Wh = 0.2 kWh)",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "P": -10.0,
+            "t": 1.0
+          },
+          "kind": "domain",
+          "reason": "Negative constant power violates the nonnegative-consumption profile; generation/export requires a different signed model."
+        },
+        {
+          "inputs": {
+            "P": 60.0
+          },
+          "kind": "missing-input",
+          "reason": "Operating duration t is required; power alone does not determine energy."
+        }
+      ],
+      "relationship": {
+        "expression": "P * t",
+        "locator": "Section 20.4, Eq. 20.34 (E=Pt) with Eqs. 20.35-20.36 unit step; EIA page sections 'Electricity is measured in Watts and kilowatts' and 'Electricity use over time is measured in Watthours' with 40-W 5-hour example",
+        "original_equation": "E = Pt (Eq. 20.34); E = (60 W)(1000 h) = 60,000 W*h = 60.0 kW*h (Eqs. 20.35-20.36); EIA: 40-W bulb for 5 hours = 200 Wh = 0.2 kWh",
+        "output_symbol": "E",
+        "source_id": "openstax-cp2e-20-4",
+        "translation_notes": "Source E=Pt is stated generally (P in watts, t in seconds gives joules; t in hours gives watt-hours). This record specializes units for building-energy accounting: P in W, t in h, E in kWh, with the expression written in canonical base units as E=P*t and the /1000 W/kW prefix step carried by the W/kWh registry unit scales. Pure literal 1000 is the exact W/kW prefix factor (NIST SP 811 prefix rule; OpenStax/EIA examples divide by 1000). Dimensional check: W*h = Wh (energy); Wh/(W/kW) = kWh (energy). No other substitution; constant-power scope retained from source."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: power is the rate of energy use so E=Pt (Eq. 20.34); the billing unit kWh is consistent with E=Pt; students can verify 1 kW*h=3.6e6 J; worked example computes (60 W)(1000 h)=60,000 W*h = 60.0 kW*h and cost at $0.12/kWh.",
+          "id": "openstax-cp2e-20-4",
+          "kind": "primary",
+          "license": "CC BY-NC-SA 4.0 per OpenStax College Physics 2e Preface (About OpenStax Resources/Customization), read 2026-10-31 at https://openstax.org/books/college-physics-2e/pages/preface; non-commercial share-alike, attribution required.",
+          "locator": "OpenStax College Physics 2e (2e, 2022-07-13), Ch. 20, Sec. 20.4 Electric Power and Energy, Eqs. 20.34-20.37 and Cost of Electricity prose",
+          "redistribution": "Contains only this short original paraphrase and synthetic/published numeric checks; no verbatim quotation beyond short equation identifiers.",
+          "title": "OpenStax College Physics 2e, Section 20.4 Electric Power and Energy",
+          "url": "https://openstax.org/books/college-physics-2e/pages/20-4-electric-power-and-energy",
+          "version": "2e (2022-07-13 web edition)"
+        },
+        {
+          "accessed": "2026-10-31",
+          "evidence": "Paraphrase: watts measure power at an instant; watthours measure use over time where one Wh is one watt for one hour; utilities bill in kWh where one kWh is one kilowatt for one hour; example 40-W (0.04 kW) bulb for 5 hours uses 200 Wh = 0.2 kWh.",
+          "id": "eia-measuring-electricity",
+          "kind": "primary",
+          "license": "U.S. government public domain per EIA Copyrights and Reuse page (https://www.eia.gov/about/copyrights_reuse.php), read 2026-10-31; reuse allowed with acknowledgment including publication date; photos/logo excluded.",
+          "locator": "EIA Electricity Explained: Measuring electricity; subsections on Watts/kilowatts and Watthours with 40-W example",
+          "redistribution": "Contains only this short original paraphrase; no EIA photos or logos reproduced.",
+          "title": "EIA Electricity Explained: Measuring electricity",
+          "url": "https://www.eia.gov/energyexplained/electricity/measuring-electricity.php",
+          "version": "web page as accessed 2026-10-31"
+        }
+      ],
+      "summary": "Electrical energy from constant power over a declared operating duration with explicit W*h to kWh conversion.",
+      "title": "Constant-power electricity consumption over a declared duration",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same device and operating interval as E",
+          "definition": "Constant active electrical input power averaged over the declared operating duration",
+          "dimensions": "power",
+          "domain": "Nonnegative finite power; zero admits the zero-demand boundary",
+          "quantity_id": "electrical_power",
+          "role": "input",
+          "source_symbol": "P",
+          "symbol": "P",
+          "unit": "W"
+        },
+        {
+          "context": "same device and operating interval as E",
+          "definition": "Total active operating time accumulated in the interval; off-periods contribute zero",
+          "dimensions": "time",
+          "domain": "Nonnegative finite duration in hours; zero admits the zero-demand boundary",
+          "quantity_id": "operating_duration",
+          "role": "input",
+          "source_symbol": "t",
+          "symbol": "t",
+          "unit": "h"
+        },
+        {
+          "context": "same device and operating interval as P and t",
+          "definition": "Electrical energy consumed at constant power over the declared duration",
+          "dimensions": "energy",
+          "domain": "Nonnegative finite energy in kWh",
+          "quantity_id": "electricity_consumption",
+          "role": "output",
+          "source_symbol": "E",
+          "symbol": "E",
+          "unit": "kWh"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

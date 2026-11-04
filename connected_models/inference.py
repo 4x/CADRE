@@ -19,6 +19,11 @@ from uuid import uuid4
 
 from .contracts import ModelError
 
+MODEL_VARIABLE = "LLM"
+# Researched per-million-token rates (input, output); the ledger refuses to
+# price anything else. Add a row with verified rates before selecting a new
+# model through the LLM environment variable or inference.toml.
+MODEL_PRICING = {"muse-spark-1.3": (Decimal("1.25"), Decimal("4.25"))}
 PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
 MAX_PROMPT_FILE_BYTES = 32_768
 APPROVED_BUDGET_USD = Decimal("150")
@@ -58,6 +63,17 @@ KEY_VARIABLE = "META_API_KEY"
 LOGGER = logging.getLogger(__name__)
 
 
+def _apply_priced_model(data: dict[str, Any], model: str, source: str) -> dict[str, Any]:
+    """Apply a priced model selection; unknown models fail closed with a named fix."""
+    if model not in MODEL_PRICING:
+        known = ", ".join(sorted(MODEL_PRICING))
+        raise ModelError(f"Unknown model {model!r} in {source}; priced models: {known}. "
+                         "Add researched rates to MODEL_PRICING first.")
+    return {**data, "model": model,
+            "input_usd_per_million": float(MODEL_PRICING[model][0]),
+            "output_usd_per_million": float(MODEL_PRICING[model][1])}
+
+
 @dataclass(frozen=True)
 class InferenceSettings:
     """Public settings with a ceiling bounded by the user's authorization."""
@@ -71,10 +87,17 @@ class InferenceSettings:
     reasoning_effort: str = "low"
 
     @classmethod
-    def load(cls, path: Path) -> "InferenceSettings":
-        """Load public TOML settings; accept only the researched priced model."""
+    def load(cls, path: Path, model_override: str | None = None) -> "InferenceSettings":
+        """Load public TOML settings; explicit override beats the LLM variable beats TOML."""
         with path.open("rb") as handle:
             data = tomllib.load(handle)
+        flag = (model_override or "").strip()
+        if flag:
+            data = _apply_priced_model(data, flag, "--model")
+        else:
+            override = os.environ.get(MODEL_VARIABLE, "").strip()
+            if override:
+                data = _apply_priced_model(data, override, MODEL_VARIABLE)
         try:
             settings = cls(
                 data["model"], Decimal(str(data["total_budget_usd"])),
@@ -89,8 +112,13 @@ class InferenceSettings:
 
     def validate(self) -> None:
         """Reject unknown pricing and accidental budget/limit expansion."""
-        if self.model != "muse-spark-1.3":
-            raise ModelError("Verify pricing and token limits before enabling another model.")
+        if self.model not in MODEL_PRICING:
+            known = ", ".join(sorted(MODEL_PRICING))
+            raise ModelError(f"Unknown model {self.model!r}; priced models: {known}. "
+                             "Add researched rates to MODEL_PRICING first.")
+        listed = MODEL_PRICING[self.model]
+        if (self.input_usd_per_million, self.output_usd_per_million) != listed:
+            raise ModelError(f"Rates differ from the verified {self.model} price; reverify before sending.")
         if self.reasoning_effort not in {"minimal", "low", "medium", "high"}:
             raise ModelError("Unsupported reasoning effort setting.")
         if not self.total_budget_usd.is_finite() or not Decimal(0) < self.total_budget_usd <= APPROVED_BUDGET_USD:
@@ -99,8 +127,6 @@ class InferenceSettings:
             raise ModelError("Unsupported completion token limit.")
         if type(self.timeout_seconds) is not int or not 0 < self.timeout_seconds <= 120:
             raise ModelError("Timeout must be between 1 and 120 seconds.")
-        if self.input_usd_per_million != Decimal("1.25") or self.output_usd_per_million != Decimal("4.25"):
-            raise ModelError("Rates differ from the verified Spark Standard price; reverify before sending.")
 
     def cost(self, input_tokens: int, output_tokens: int) -> int:
         """Return conservatively rounded microdollars, ignoring cache discounts."""
@@ -117,7 +143,10 @@ class BudgetLedger:
         path.parent.mkdir(parents=True, exist_ok=True)
         self.path, self.settings = path, settings
         with closing(sqlite3.connect(path)) as connection, connection:
-            connection.execute("CREATE TABLE IF NOT EXISTS calls (id TEXT PRIMARY KEY, amount INTEGER NOT NULL, state TEXT NOT NULL)")
+            connection.execute("CREATE TABLE IF NOT EXISTS calls (id TEXT PRIMARY KEY, amount INTEGER NOT NULL, state TEXT NOT NULL, model TEXT)")
+            columns = {row[1] for row in connection.execute("PRAGMA table_info(calls)").fetchall()}
+            if "model" not in columns:
+                connection.execute("ALTER TABLE calls ADD COLUMN model TEXT")
 
     def reserve(self) -> str:
         """Atomically reserve the maximum context plus allowed completion cost."""
@@ -129,7 +158,7 @@ class BudgetLedger:
             spent = connection.execute("SELECT COALESCE(SUM(amount), 0) FROM calls").fetchone()[0]
             if spent + amount > ceiling:
                 raise ModelError("Inference budget cannot cover the next request; no request was sent.")
-            connection.execute("INSERT INTO calls VALUES (?, ?, ?)", (call_id, amount, "reserved"))
+            connection.execute("INSERT INTO calls VALUES (?, ?, ?, ?)", (call_id, amount, "reserved", self.settings.model))
         return call_id
 
     def settle(self, call_id: str, usage: dict[str, Any]) -> int:
@@ -149,8 +178,12 @@ class BudgetLedger:
         """Report only charges/reservations and counts, never prompts or credentials."""
         with closing(sqlite3.connect(self.path)) as connection:
             rows = connection.execute("SELECT state, COUNT(*), SUM(amount) FROM calls GROUP BY state").fetchall()
+            per_model = connection.execute(
+                "SELECT COALESCE(model, 'unattributed'), COUNT(*), SUM(amount) FROM calls GROUP BY 1").fetchall()
         return {"budget_usd": float(self.settings.total_budget_usd), "groups": {
-            state: {"calls": count, "conservative_usd": amount / MINOR_UNITS_PER_USD} for state, count, amount in rows}}
+            state: {"calls": count, "conservative_usd": amount / MINOR_UNITS_PER_USD} for state, count, amount in rows},
+            "by_model": {model: {"calls": count, "conservative_usd": amount / MINOR_UNITS_PER_USD}
+                         for model, count, amount in per_model}}
 
 
 def structured_request(settings: InferenceSettings, ledger: BudgetLedger, messages: list[dict[str, str]],
@@ -197,6 +230,53 @@ def structured_request(settings: InferenceSettings, ledger: BudgetLedger, messag
                 "conservative_cost_usd": amount / MINOR_UNITS_PER_USD}}
     except ModelError:
         LOGGER.warning(f"Meta structured request did not complete: {call_id}. Check its ledger entry before retrying.")
+        raise
+    except (OSError, http.client.HTTPException, ValueError, KeyError, IndexError, TypeError) as exc:
+        # Do not log arbitrary exception bodies: a transport can include request data.
+        LOGGER.error(f"Meta request {call_id} failed with {type(exc).__name__}; no automatic retry.")
+        raise ModelError("Meta connection or response failed. Inspect the usage ledger before retrying; unverified charges remain reserved.") from None
+    finally:
+        connection.close()
+
+
+def text_request(settings: InferenceSettings, ledger: BudgetLedger, messages: list[dict[str, str]]) -> dict[str, Any]:
+    """Send a bounded plain-text request; same priced adapter and ledger discipline."""
+    settings.validate()
+    key = os.environ.get(KEY_VARIABLE)
+    if not key:
+        raise ModelError("META_API_KEY is not available to this process. Set it in your launch environment.")
+    payload = {
+        "model": settings.model,
+        "messages": messages,
+        "max_completion_tokens": settings.max_completion_tokens,
+        "reasoning_effort": settings.reasoning_effort,
+    }
+    body = json.dumps(payload).encode()
+    if len(body) > MAX_PROMPT_BYTES:
+        raise ModelError("Prompt exceeds the configured byte limit.")
+    call_id = ledger.reserve()
+    connection = http.client.HTTPSConnection(API_HOST, timeout=settings.timeout_seconds)
+    try:
+        connection.request("POST", API_PATH, body=body, headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
+        response = connection.getresponse()
+        if response.status != 200:
+            raise ModelError(f"Meta returned HTTP {response.status}; request {call_id} reservation retained. No automatic retry.")
+        raw = response.read(MAX_RESPONSE_BYTES + 1)
+        if len(raw) > MAX_RESPONSE_BYTES:
+            raise ModelError("Meta response exceeded the size limit; reservation retained.")
+        result = json.loads(raw)
+        amount = ledger.settle(call_id, result["usage"])
+        choice = result["choices"][0]
+        if choice["finish_reason"] != "stop":
+            raise ModelError(f"Meta generation ended with {choice['finish_reason']}; usage recorded. Reasoning and visible output share the token limit.")
+        content = choice["message"]["content"]
+        if not isinstance(content, str) or not content.strip():
+            raise ModelError("Meta returned empty text content; usage recorded.")
+        LOGGER.info(f"Meta text request completed: {call_id}.")
+        return {"text": content, "audit": {"model": settings.model, "call_id": call_id,
+                "conservative_cost_usd": amount / MINOR_UNITS_PER_USD}}
+    except ModelError:
+        LOGGER.warning(f"Meta text request did not complete: {call_id}. Check its ledger entry before retrying.")
         raise
     except (OSError, http.client.HTTPException, ValueError, KeyError, IndexError, TypeError) as exc:
         # Do not log arbitrary exception bodies: a transport can include request data.

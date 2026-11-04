@@ -1,0 +1,745 @@
+{
+  "batch_id": "economics-codex-b03",
+  "created": "2026-11-01",
+  "curator": "codex",
+  "deferred": [
+    {
+      "title": "Real GDP components versus aggregate; statistical discrepancy",
+      "reason": "Keep the b01 nominal expenditure identity separate from independently estimated income totals and nonadditive chained-dollar components. Chapter 2 distinguishes GNP, GNI and statistical discrepancy; do not treat these as observed identical values. Further investigation can retain a discrepancy definition if independently useful, with no equilibrium claim.",
+      "source_urls": [
+        "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-02.pdf",
+        "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-04.pdf"
+      ]
+    },
+    {
+      "title": "Compound growth special cases as separate models",
+      "reason": "Annual, quarterly annualized and one-period growth with equal m,n are qualified profiles of b01 annualized-geometric-endpoint-growth. Do not mint a renamed CAGR or simple-growth clone. If a direct one-period record is later useful for zero/negative endpoints, reconcile canonical scope first.",
+      "source_urls": [
+        "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-04.pdf"
+      ]
+    }
+  ],
+  "domain": "economics",
+  "example_only": false,
+  "handoff": {
+    "summary": "Four current-account/price definitions: GNP residence adjustment, net domestic product, signed personal saving, and implicit deflator. b01/b02 IDs preserved. Accounts use current-price flows; implicit deflator alone pairs matching nominal and chained values. All numerical oracles are explicitly synthetic independent ledger/limiting checks rather than claimed published national statistics.",
+    "gaps": [
+      "All four require economics quantities/context and reference-year currency conventions beyond runtime snapshot.",
+      "BEA citing policies inspected; full redistribution terms not established, with no agency endorsement or universal clearance inferred.",
+      "A scalar numeric guard cannot check residency, current-account classification, reference year or vintage consistency."
+    ],
+    "review_notes": "Inspected direct BEA glossary/FAQ definitions and precise handbook passages on 2026-11-01. Reviewed residency rather than citizenship, CFC current-cost/economic-life basis, ordinary versus disaster loss, complete personal outlays, signed saving, and price-index levels versus growth. Arithmetic, domains and inverse singularities reviewed. Actual toolkit JSON/ZIP validation logs accompany the return. Duplicate search includes all prior own batches and supplied 37-record inventory/runtime snapshot only; scientific review remains pending. Toolkit JSON validation passed: four models, 11 arithmetic and six rejection checks, all requires-extension. Final prose edit revalidated before packing.",
+    "connections": [],
+    "queries": []
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "id": "economics--current-price-gross-national-product",
+      "revision": "r1",
+      "title": "Current-price GNP from GDP and cross-border income",
+      "summary": "Accounting change from domestic production to production attributable to resident labor and property. Residence-based scope is distinct from citizenship, location of sales or ownership of all output from a foreign plant.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "GNP",
+        "expression": "GDP + R - P",
+        "original_equation": "GNP = GDP + income receipts from the rest of the world - income payments to the rest of the world.",
+        "source_id": "bea-national-concepts",
+        "locator": "Chapter 2, Geographic coverage, printed p.2-6 (PDF p.6); GNP definition on 2-13 (PDF p.13)",
+        "translation_notes": "Introduced R and P label the source's gross directional income receipts/payments; GDP and GNP retained. Currency+currency-currency=currency. Components are current interval flows on matching price/vintage bases. No gross plant output abroad is added: only the income attributable to resident labor/property is included. Do not substitute export/import values, capital transfers or a person's full foreign remittance. No statistical discrepancy correction is silently applied; the handbook distinguishes GNI as a separately estimated income measure."
+      },
+      "variables": [
+        {
+          "symbol": "GDP",
+          "source_symbol": "GDP",
+          "role": "input",
+          "quantity_id": "gross_domestic_product_current_price",
+          "definition": "Current-price domestic production for the matching accounting interval.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same domestic economy/residency boundary, accounting interval, NIPA conventions and revision vintage; all amounts are current-price USD flows with identical seasonal/annual-rate conventions. Income receipts/payments use source sign conventions and cover production-related income, not merchandise trade or remittances as such.",
+          "domain": "Finite, with NIPA scope and sign conventions established externally."
+        },
+        {
+          "symbol": "R",
+          "source_symbol": "Introduced R maps to income receipts from rest of world",
+          "role": "input",
+          "quantity_id": "income_receipts_rest_of_world",
+          "definition": "Production-related income receivable by residents from rest of world under NIPA conventions.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same domestic economy/residency boundary, accounting interval, NIPA conventions and revision vintage; all amounts are current-price USD flows with identical seasonal/annual-rate conventions. Income receipts/payments use source sign conventions and cover production-related income, not merchandise trade or remittances as such.",
+          "domain": "Finite accounting amount on source convention; not an estimate of gross foreign production owned by residents."
+        },
+        {
+          "symbol": "P",
+          "source_symbol": "Introduced P maps to income payments to rest of world",
+          "role": "input",
+          "quantity_id": "income_payments_rest_of_world",
+          "definition": "Production-related income payable to nonresidents from domestic activity under NIPA conventions.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same domestic economy/residency boundary, accounting interval, NIPA conventions and revision vintage; all amounts are current-price USD flows with identical seasonal/annual-rate conventions. Income receipts/payments use source sign conventions and cover production-related income, not merchandise trade or remittances as such.",
+          "domain": "Finite accounting amount supplied before subtraction; not already entered as a negative adjustment."
+        },
+        {
+          "symbol": "GNP",
+          "source_symbol": "GNP",
+          "role": "output",
+          "quantity_id": "gross_national_product_current_price",
+          "definition": "Current-price gross production attributable to resident labor and property regardless of geographic production location.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same domestic economy/residency boundary, accounting interval, NIPA conventions and revision vintage; all amounts are current-price USD flows with identical seasonal/annual-rate conventions. Income receipts/payments use source sign conventions and cover production-related income, not merchandise trade or remittances as such.",
+          "domain": "Finite accounting total; not an asset stock or resident consumption."
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Source accounting convention: national coverage follows residence and attribution of production income; domestic coverage follows production location.",
+        "Application scope: current-price additive amounts with matching period, geography, valuation and revision vintage."
+      ],
+      "limitations": [
+        "Different independently measured product/income estimates may differ by a statistical discrepancy; do not assert observed GNP equals independently estimated GNI.",
+        "Does not estimate omitted income components or support a counterfactual change in GDP/GNP."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "bea-national-concepts",
+          "kind": "primary",
+          "title": "BEA, NIPA Handbook Chapter 2: Fundamental Concepts",
+          "url": "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-02.pdf",
+          "version": "Updated December 2024; PDF 31 pages",
+          "accessed": "2026-11-01",
+          "locator": "Printed 2-6 (PDF p.6) Geographic coverage; 2-7 (PDF p.7) Income and saving; 2-12 to 2-14 (PDF pp.12-14) major measures",
+          "evidence": "Domestic and national measures differ by income attributable to resident labor/property abroad versus nonresidents domestically. Gross-to-net measures deduct CFC. Saving is current income not used for outlays/taxes and excludes asset holding gains, capital transfers and disasters.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        },
+        {
+          "id": "bea-gnp",
+          "kind": "primary",
+          "title": "BEA Glossary: Gross national product (GNP)",
+          "url": "https://www.bea.gov/help/glossary/gross-national-product-gnp",
+          "version": "Page modified 2018-04-13; inspected 2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Definition paragraph",
+          "evidence": "GNP concerns goods/services produced by labor and property supplied by U.S. residents regardless of location; residence is not citizenship.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        }
+      ],
+      "references": [
+        {
+          "id": "synthetic-attribution-ledger",
+          "inputs": {
+            "GDP": 1000,
+            "R": 150,
+            "P": 200
+          },
+          "expected": 950,
+          "tolerance": 1E-10,
+          "method": "Independent residency ledger: domestic production income is 800 to residents and 200 to nonresidents; residents also earn 150 abroad. Resident-attributable total is 800+150=950, while domestic output is 1000. No other flows. Cross-checks production location against residence attribution rather than rearranging the same three supplied terms.",
+          "provenance": "Curator synthetic complete production-income attribution ledger, not measured national data."
+        },
+        {
+          "id": "balanced-cross-border-boundary",
+          "inputs": {
+            "GDP": 400,
+            "R": 30,
+            "P": 30
+          },
+          "expected": 400,
+          "tolerance": 1E-10,
+          "method": "Limiting accounting case: equal resident foreign income and nonresident domestic income leave national and domestic gross totals equal even though both cross-border flows are present.",
+          "provenance": "Curator synthetic equal-flow boundary."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "GDP": 1000,
+            "R": 150
+          },
+          "reason": "Income payments missing; zero cannot be assumed."
+        }
+      ],
+      "inverse_notes": "Given GNP,R,P, GDP=GNP-R+P; given GNP,GDP,P, R=GNP-GDP+P; given GNP,GDP,R, P=GDP+R-GNP. Each additive inverse is unique with all other amounts known, no denominator restrictions. Ledger check GNP=950,GDP=1000,R=150 yields P=200 and forward GNP=950. If GDP=GNP and R is zero, recovered P=0; no singularity. If only GDP and GNP are known, R and P remain underdetermined even if both are zero in one possible case. Inverses do not infer causal effects or residency classifications.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "New GNP and cross-border-income meanings; reuse b01 current-price GDP only at matched NIPA context. No monetary unit extension alone can establish the resident attribution."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "economics--current-price-net-domestic-product",
+      "revision": "r1",
+      "title": "Current-price net domestic product",
+      "summary": "Domestic gross production net of the fixed capital consumed in producing it. A net flow of production, retaining the distinction from capital stocks, capital gains and catastrophic asset losses.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "NDP",
+        "expression": "GDP - CFC",
+        "original_equation": "NDP = GDP - CFC",
+        "source_id": "bea-ndp",
+        "locator": "BEA NDP Glossary definition; NIPA Chapter 2 printed p.2-13 (PDF p.13)",
+        "translation_notes": "Source symbols retained. Dimensions currency-currency=currency; GDP and CFC are flows over the same interval, not a current-dollar output minus the opening asset stock. NIPA CFC is current-cost economic depreciation rather than a tax/book depreciation schedule. Keep signed net output: the definition does not impose CFC<=GDP or clip a negative result. Nominal scope selected to avoid subtracting incompatible separately chained real measures."
+      },
+      "variables": [
+        {
+          "symbol": "GDP",
+          "source_symbol": "GDP",
+          "role": "input",
+          "quantity_id": "gross_domestic_product_current_price",
+          "definition": "Current-price gross domestic production during the accounting interval.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same domestic economy and current-production accounting interval, current-price USD, source vintage and seasonal/annual-rate basis. CFC must have NIPA current replacement-cost valuation/economic service lives for domestic fixed assets; ordinary depreciation and catastrophic losses are distinguished.",
+          "domain": "Finite nonnegative in this positive gross-production profile."
+        },
+        {
+          "symbol": "CFC",
+          "source_symbol": "CFC",
+          "role": "input",
+          "quantity_id": "consumption_fixed_capital_current_price",
+          "definition": "Current-cost charge for domestic private/government fixed capital used up through normal wear, aging, obsolescence and ordinary accidental damage during the interval.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same domestic economy and current-production accounting interval, current-price USD, source vintage and seasonal/annual-rate basis. CFC must have NIPA current replacement-cost valuation/economic service lives for domestic fixed assets; ordinary depreciation and catastrophic losses are distinguished.",
+          "domain": "Finite nonnegative flow; excludes catastrophic loss and pure holding gains/losses; not historical-cost tax depreciation."
+        },
+        {
+          "symbol": "NDP",
+          "source_symbol": "NDP",
+          "role": "output",
+          "quantity_id": "net_domestic_product_current_price",
+          "definition": "Current-price domestic production after replacing the fixed capital consumed in producing it.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same domestic economy and current-production accounting interval, current-price USD, source vintage and seasonal/annual-rate basis. CFC must have NIPA current replacement-cost valuation/economic service lives for domestic fixed assets; ordinary depreciation and catastrophic losses are distinguished.",
+          "domain": "Finite signed net production; no universal nonnegative net-product condition imposed."
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "GDP >= 0",
+        "CFC >= 0"
+      ],
+      "assumptions": [
+        "Source definition: deduct consumption of fixed capital from gross domestic production.",
+        "Source convention: NIPA CFC uses current-cost valuation/economic lives and excludes catastrophic asset loss.",
+        "Application profile: nonnegative gross production and CFC; identical interval, price basis and vintage."
+      ],
+      "limitations": [
+        "Does not estimate CFC, use a depreciation rate, or update a capital stock.",
+        "No welfare/sustainability prediction; subtraction alone does not establish feasible future consumption. Independently chained real series require separate aggregation review."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "bea-ndp",
+          "kind": "primary",
+          "title": "BEA Glossary: Net domestic product (NDP)",
+          "url": "https://www.bea.gov/help/glossary/net-domestic-product-ndp",
+          "version": "Page modified 2018-04-13; inspected 2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Definition paragraph",
+          "evidence": "NDP equals GDP less consumption of fixed capital. It is a net-production measure; do not interpret it as asset stock.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        },
+        {
+          "id": "bea-cfc",
+          "kind": "primary",
+          "title": "BEA Glossary: Consumption of fixed capital (CFC)",
+          "url": "https://www.bea.gov/help/glossary/consumption-fixed-capital-cfc",
+          "version": "Page modified 2018-04-13; inspected 2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Definition paragraph",
+          "evidence": "CFC charges for the using up of private and government fixed capital in domestic production, including ordinary aging, wear and obsolescence.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        },
+        {
+          "id": "bea-cfc-basis",
+          "kind": "primary",
+          "title": "BEA FAQ: Does BEA adjust source data that are used to estimate GDP and related measures?",
+          "url": "https://www.bea.gov/index.php/help/faq/1486",
+          "version": "Page modified 2026-04-09; inspected 2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "First type of adjustment",
+          "evidence": "Tax-return depreciation based on historical cost and tax lives is adjusted to NIPA current-cost valuation and economic service lives.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        },
+        {
+          "id": "bea-disaster-accounting",
+          "kind": "primary",
+          "title": "BEA FAQ 1013: How are measures of production and income affected by a disaster?",
+          "url": "https://www.bea.gov/help/faq/1013",
+          "version": "Published 2012-11-28; page modified 2022-10-26",
+          "accessed": "2026-11-01",
+          "locator": "Section 2: Damage or destruction of assets",
+          "evidence": "CFC covers normal damage, while catastrophic losses are other changes in asset volume and are not included as CFC against current production income.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        },
+        {
+          "id": "bea-national-concepts",
+          "kind": "primary",
+          "title": "BEA, NIPA Handbook Chapter 2: Fundamental Concepts",
+          "url": "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-02.pdf",
+          "version": "Updated December 2024; PDF 31 pages",
+          "accessed": "2026-11-01",
+          "locator": "Printed 2-6 (PDF p.6) Geographic coverage; 2-7 (PDF p.7) Income and saving; 2-12 to 2-14 (PDF pp.12-14) major measures",
+          "evidence": "Domestic and national measures differ by income attributable to resident labor/property abroad versus nonresidents domestically. Gross-to-net measures deduct CFC. Saving is current income not used for outlays/taxes and excludes asset holding gains, capital transfers and disasters.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        }
+      ],
+      "references": [
+        {
+          "id": "synthetic-net-use-ledger",
+          "inputs": {
+            "GDP": 1000,
+            "CFC": 80
+          },
+          "expected": 920,
+          "tolerance": 1E-10,
+          "method": "Independent production/use ledger: output consists of consumption 700, replacement capital 80 and net capital additions 220. Gross output is 1000; consumption plus net capital additions is 920. The 80 replacement charge is the complete ordinary capital use; no holding gain or disaster. Cross-check net final uses against gross-to-net product.",
+          "provenance": "Curator complete synthetic resource ledger; not an observed economy."
+        },
+        {
+          "id": "no-capital-use-boundary",
+          "inputs": {
+            "GDP": 500,
+            "CFC": 0
+          },
+          "expected": 500,
+          "tolerance": 1E-10,
+          "method": "Limiting identity: no capital consumption means gross and net domestic output coincide.",
+          "provenance": "Curator boundary case, does not assert actual economies have zero CFC."
+        },
+        {
+          "id": "negative-net-production",
+          "inputs": {
+            "GDP": 50,
+            "CFC": 80
+          },
+          "expected": -30,
+          "tolerance": 1E-10,
+          "method": "Independent capital-use ledger: all 50 current output units replace part of 80 capital units consumed at one dollar each; 30 units of existing capital are not replaced. Net available product is a 30-dollar shortfall. This illustrates signed net arithmetic, not a disaster charge.",
+          "provenance": "Curator synthetic low-output interval, not empirical national data."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "GDP": 1000,
+            "CFC": -1
+          },
+          "reason": "Capital consumption charge is nonnegative in this ordinary-depreciation profile."
+        },
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "GDP": 1000
+          },
+          "reason": "No CFC amount supplied."
+        }
+      ],
+      "inverse_notes": "GDP=NDP+CFC given NDP,CFC, retaining GDP>=0,CFC>=0; CFC=GDP-NDP given GDP,NDP, retaining CFC>=0,GDP>=0. Unique additive solutions with no denominator. Ordinary ledger NDP=920,CFC=80 gives GDP=1000 and forward 920. At CFC=0 recovered GDP=NDP; zero case is nonsingular. A requested inverse with NDP>GDP yields negative CFC and is rejected by original profile; negative NDP itself is allowed. No inference of a capital stock or depreciation schedule.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "New NDP/CFC meanings required. Reuse current-price GDP from b01 only with identical domestic scope and interval. Do not bind CFC to generic accounting fixed_cost."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "economics--personal-saving-current-account",
+      "revision": "r1",
+      "title": "Personal saving from income, outlays and current taxes",
+      "summary": "Signed NIPA current saving of persons; consumption, personal interest and current transfers belong in outlays. Includes dissaving and excludes revaluation of existing assets from saving.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "S",
+        "expression": "PI - O - T",
+        "original_equation": "Personal saving = personal income - personal outlays - personal current taxes.",
+        "source_id": "bea-personal-saving",
+        "locator": "Glossary Personal saving; corroborated Chapter 2 printed 2-7 and Account 3 on 2-30 (PDF pp.7 and 30)",
+        "translation_notes": "Introduced PI,O,T,S map precise prose labels; no arbitrary household cash budget is claimed to equal the national aggregate. Dimensions currency-currency-currency=currency. PI includes source-defined current transfers and imputed income, so it is not merely wages or cash income; O is not merely PCE; T is personal current taxes. No nonnegative-saving restriction: signed outlays/income values retain NIPA measurement conventions. Asset-sale proceeds or borrowed principal are funding transactions, not extra PI in this identity. A no-capital-gain synthetic budget is used only for an independent oracle."
+      },
+      "variables": [
+        {
+          "symbol": "PI",
+          "source_symbol": "Introduced PI = Personal income",
+          "role": "input",
+          "quantity_id": "personal_income_current_price",
+          "definition": "Income accruing to the source-defined persons sector under NIPA current-account conventions, before personal current taxes.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same NIPA persons sector (households, qualifying nonprofits, welfare/trust funds), domestic/residency and accounting boundaries, interval, current-price USD, seasonal/annual-rate basis and source vintage for income, outlays and personal current taxes. These are current flows, not wealth levels.",
+          "domain": "Finite source-defined signed accounting amount; all components/classifications established externally."
+        },
+        {
+          "symbol": "O",
+          "source_symbol": "Introduced O = Personal outlays",
+          "role": "input",
+          "quantity_id": "personal_outlays_current_price",
+          "definition": "PCE plus personal interest payments plus personal current transfer payments for persons over the interval.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same NIPA persons sector (households, qualifying nonprofits, welfare/trust funds), domestic/residency and accounting boundaries, interval, current-price USD, seasonal/annual-rate basis and source vintage for income, outlays and personal current taxes. These are current flows, not wealth levels.",
+          "domain": "Finite complete outlay amount on NIPA conventions; not only consumption."
+        },
+        {
+          "symbol": "T",
+          "source_symbol": "Introduced T = Personal current taxes",
+          "role": "input",
+          "quantity_id": "personal_current_taxes",
+          "definition": "Current personal income/property taxes under the NIPA definition for the interval.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same NIPA persons sector (households, qualifying nonprofits, welfare/trust funds), domestic/residency and accounting boundaries, interval, current-price USD, seasonal/annual-rate basis and source vintage for income, outlays and personal current taxes. These are current flows, not wealth levels.",
+          "domain": "Finite tax amount on source sign convention, allowing net-refund cases when classified that way."
+        },
+        {
+          "symbol": "S",
+          "source_symbol": "Introduced S = Personal saving",
+          "role": "output",
+          "quantity_id": "personal_saving_current_price",
+          "definition": "Signed current saving after personal outlays and current taxes, distinct from asset revaluation, wealth stock or cash balances.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same NIPA persons sector (households, qualifying nonprofits, welfare/trust funds), domestic/residency and accounting boundaries, interval, current-price USD, seasonal/annual-rate basis and source vintage for income, outlays and personal current taxes. These are current flows, not wealth levels.",
+          "domain": "Finite signed; negative means current outlays exceed disposable personal income."
+        }
+      ],
+      "constants": [],
+      "guards": [],
+      "assumptions": [
+        "Source convention: NIPA persons sector and complete current income/outlay/tax definitions, consistent across ports.",
+        "Source distinction: holding gains, capital transfers and disaster stock changes are not current saving."
+      ],
+      "limitations": [
+        "Does not equal the change in net worth when asset prices, capital transfers or other volume changes occur.",
+        "The aggregate definition is not a forecast or behavioral saving propensity; no automatic mapping to an individual banking budget."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "bea-personal-saving",
+          "kind": "primary",
+          "title": "BEA Glossary: Personal saving",
+          "url": "https://www.bea.gov/help/glossary/personal-saving",
+          "version": "Modified 2018-04-13; live definition inspected 2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Definition paragraph",
+          "evidence": "Personal saving equals personal income less personal outlays and personal current taxes.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        },
+        {
+          "id": "bea-outlays",
+          "kind": "primary",
+          "title": "BEA Glossary: Personal outlays",
+          "url": "https://www.bea.gov/help/glossary/personal-outlays",
+          "version": "Modified 2018-04-13; inspected 2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Definition paragraph",
+          "evidence": "Personal outlays include PCE, personal interest payments and personal current transfer payments; consumption alone is insufficient.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        },
+        {
+          "id": "bea-personal-income",
+          "kind": "primary",
+          "title": "BEA Glossary: Personal income",
+          "url": "https://www.bea.gov/help/glossary/personal-income",
+          "version": "Modified 2026-04-02; inspected 2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Definition paragraphs",
+          "evidence": "Personal income includes production income and government/business current transfers, less social-insurance contributions under the detailed NIPA convention.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        },
+        {
+          "id": "bea-personal-taxes",
+          "kind": "primary",
+          "title": "BEA Glossary: Personal current taxes",
+          "url": "https://www.bea.gov/help/glossary/personal-current-taxes",
+          "version": "Modified 2018-04-13; inspected 2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Definition paragraph",
+          "evidence": "Personal current taxes include taxes on income, realized net capital gains and personal property; their scope differs from taxes on production or corporate income.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        },
+        {
+          "id": "bea-negative-saving",
+          "kind": "primary",
+          "title": "BEA FAQ 65: How is it possible for personal saving to be negative?",
+          "url": "https://www.bea.gov/help/faq/65",
+          "version": "Published 2005-12-05; modified 2018-04-25",
+          "accessed": "2026-11-01",
+          "locator": "First two paragraphs",
+          "evidence": "Spending above disposable income leads to negative saving and may be financed from previous savings, asset sales or borrowing. Saving is not the stock of assets.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        },
+        {
+          "id": "bea-national-concepts",
+          "kind": "primary",
+          "title": "BEA, NIPA Handbook Chapter 2: Fundamental Concepts",
+          "url": "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-02.pdf",
+          "version": "Updated December 2024; PDF 31 pages",
+          "accessed": "2026-11-01",
+          "locator": "Printed 2-6 (PDF p.6) Geographic coverage; 2-7 (PDF p.7) Income and saving; 2-12 to 2-14 (PDF pp.12-14) major measures",
+          "evidence": "Domestic and national measures differ by income attributable to resident labor/property abroad versus nonresidents domestically. Gross-to-net measures deduct CFC. Saving is current income not used for outlays/taxes and excludes asset holding gains, capital transfers and disasters.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        }
+      ],
+      "references": [
+        {
+          "id": "synthetic-current-financial-ledger",
+          "inputs": {
+            "PI": 1000,
+            "O": 780,
+            "T": 100
+          },
+          "expected": 120,
+          "tolerance": 1E-10,
+          "method": "Independent full ledger: income receipts 720 wages+100 dividends+180 transfers; outflows 70 income tax+30 property tax+700 consumption+50 personal interest+30 transfers paid. Financial account independently records a 120 deposit acquisition and no borrowing/capital transfers/revaluations. Current account balances with that 120 saving. Inputs aggregate ledger categories; expected taken from financial side.",
+          "provenance": "Curator synthetic complete persons-sector ledger with simplifying no-imputation/no-revaluation profile for this oracle only."
+        },
+        {
+          "id": "synthetic-dissaving-ledger",
+          "inputs": {
+            "PI": 1000,
+            "O": 950,
+            "T": 100
+          },
+          "expected": -50,
+          "tolerance": 1E-10,
+          "method": "Independent financial account: zero net asset purchases and 50 new liability incurred to finance current expenditures, with no holding gains or capital transfers. Thus saving is -50. Receipt-side income is 1000; taxes 100; current outlays 950; borrowing is not added to PI.",
+          "provenance": "Curator synthetic dissaving ledger; finance possibilities supported by BEA FAQ 65."
+        },
+        {
+          "id": "zero-saving-ledger",
+          "inputs": {
+            "PI": 1000,
+            "O": 900,
+            "T": 100
+          },
+          "expected": 0,
+          "tolerance": 1E-12,
+          "method": "Limiting balanced current account with no financial asset accumulation or liability change; zero saving.",
+          "provenance": "Curator synthetic zero-saving boundary."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "PI": 1000,
+            "O": 780
+          },
+          "reason": "Personal current taxes missing; cannot default to zero."
+        }
+      ],
+      "inverse_notes": "PI=S+O+T, O=PI-T-S, T=PI-O-S with all other values known and source accounting conventions retained. All additive directions unique; no zero exclusions or roots. Financial-ledger check PI=1000,T=100,S=120 gives O=780 and forward S=120. At S=0, PI=O+T; values still uniquely recoverable when only one port is unknown. Two missing current-account components remain underdetermined. Does not invert saving into asset-price gains or identify a behavioral saving rule.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "New personal-income/outlay/tax/saving meanings and persons-sector metadata needed; USD support does not provide these meanings. No synonym binding to operating_cost or annual_saving."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "economics--implicit-price-deflator",
+      "revision": "r1",
+      "title": "Implicit price deflator of a corresponding current/chained series",
+      "summary": "Index-level accounting ratio on a reference-year-equals-100 scale. Distinguishes current-dollar activity from its corresponding chained-dollar activity; does not reconstruct the chain index from commodity data.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "D",
+        "expression": "100 * N / R",
+        "original_equation": "IPD_t = (current-dollar value_t / corresponding chained-dollar value_t) * 100.",
+        "source_id": "bea-ipd",
+        "locator": "BEA Glossary IPD; NIPA Chapter 4 printed p.4-27 (PDF p.27)",
+        "translation_notes": "Introduced D=source IPD, N=current-dollar series, R=corresponding chained-dollar series. Both monetary numerics use the same USD scale but different price bases, so ratio yields the price-level index. Dimensions currency/currency=1; literal 100 normalizes index points, not percent inflation. This is the implicit deflator formula, neither Laspeyres nor Paasche nor a newly assumed fixed basket. Basket/coverage is precisely that of the input aggregate's official chain-type quantity series; the reference year is an input context, not fixed to 2017 by this reusable definition. Positive-series profile excludes zero/negative component levels for which a positive price index may be uninterpretable. No pixel-based PDF formula claim needed: direct official glossary prose defines the ratio completely."
+      },
+      "variables": [
+        {
+          "symbol": "N",
+          "source_symbol": "Introduced N = current-dollar value",
+          "role": "input",
+          "quantity_id": "economic_series_current_price",
+          "definition": "Current-price value of the same GDP or eligible aggregate in the current interval.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same strictly positive BEA GDP or eligible series, geography/coverage, current interval and revision vintage; nominal current USD and corresponding chained reference-year USD level share scale and annual-rate/seasonal convention. Reference year and full underlying chain-type basket/weight methodology explicitly accompany real series.",
+          "domain": "Finite strictly positive in this price-index profile; aggregate identity/coverage provided in context."
+        },
+        {
+          "symbol": "R",
+          "source_symbol": "Introduced R = corresponding chained-dollar value",
+          "role": "input",
+          "quantity_id": "economic_series_chained_price",
+          "definition": "Corresponding inflation-adjusted aggregate in chained USD of the declared reference year.",
+          "unit": "USD_ref",
+          "dimensions": "currency",
+          "context": "Same strictly positive BEA GDP or eligible series, geography/coverage, current interval and revision vintage; nominal current USD and corresponding chained reference-year USD level share scale and annual-rate/seasonal convention. Reference year and full underlying chain-type basket/weight methodology explicitly accompany real series.",
+          "domain": "Finite strictly positive, same nominal dollar scale and aggregate scope; reference year and chain methodology supplied."
+        },
+        {
+          "symbol": "D",
+          "source_symbol": "Introduced D = IPD_t",
+          "role": "output",
+          "quantity_id": "implicit_price_deflator",
+          "definition": "Implicit price-level index relative to the series' reference year at 100.",
+          "unit": "index-point",
+          "dimensions": "1",
+          "context": "Same strictly positive BEA GDP or eligible series, geography/coverage, current interval and revision vintage; nominal current USD and corresponding chained reference-year USD level share scale and annual-rate/seasonal convention. Reference year and full underlying chain-type basket/weight methodology explicitly accompany real series.",
+          "domain": "Finite strictly positive index level; not a growth rate or percentage-point change."
+        }
+      ],
+      "constants": [
+        {
+          "literal": 100,
+          "meaning": "Reference-year price-index normalization to 100 points",
+          "unit": "1",
+          "source_id": "bea-ipd",
+          "locator": "Glossary definition paragraph"
+        }
+      ],
+      "guards": [
+        "N > 0",
+        "R > 0"
+      ],
+      "assumptions": [
+        "Source definition: numerator is current-dollar value and denominator its corresponding chained-dollar value, multiplied by 100.",
+        "Application profile: a strictly positive eligible series with the same aggregate basket/coverage and temporal convention; reference-year index level 100."
+      ],
+      "limitations": [
+        "Does not identify commodity weights or compute CPI, Laspeyres, Paasche or Fisher indices from prices/quantities.",
+        "Nominal-to-real conversion by rearrangement requires the deflator for this exact series and reference year, not another inflation measure. Chained components are not generally additive."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "bea-ipd",
+          "kind": "primary",
+          "title": "BEA Glossary: Implicit price deflator (IPD)",
+          "url": "https://www.bea.gov/help/glossary/implicit-price-deflator-ipd",
+          "version": "Modified 2018-04-13; inspected 2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Definition paragraph",
+          "evidence": "IPD is 100 times a current-dollar series divided by its corresponding chained-dollar series; not a CPI or an arbitrary fixed-basket price index.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        },
+        {
+          "id": "bea-chain-dollar",
+          "kind": "primary",
+          "title": "BEA Glossary: Chained-dollar estimates",
+          "url": "https://www.bea.gov/help/glossary/chained-dollar-estimates",
+          "version": "Modified 2018-04-25; inspected 2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Definition paragraph",
+          "evidence": "Chained-dollar values scale chain-type quantity indices by the reference-year current-dollar value; components generally are nonadditive outside the reference year.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        },
+        {
+          "id": "bea-ipd-method",
+          "kind": "primary",
+          "title": "BEA NIPA Handbook Chapter 4: Estimating Methods",
+          "url": "https://www.bea.gov/resources/methodologies/nipa-handbook/pdf/chapter-04.pdf",
+          "version": "Updated December 2023; 30-page PDF",
+          "accessed": "2026-11-01",
+          "locator": "Printed 4-26 to 4-27 (PDF pp.26-27), Chained-dollar measures and IPD prose definition",
+          "evidence": "Describes reference-year scaling of chain quantity indices and current-dollar/chained-dollar IPD ratio; IPD is close to corresponding chain price index, not asserted identical in all cases.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        }
+      ],
+      "references": [
+        {
+          "id": "synthetic-uniform-price-change",
+          "inputs": {
+            "N": 660,
+            "R": 550
+          },
+          "expected": 120,
+          "tolerance": 1E-10,
+          "method": "Independent two-good uniform-price construction: reference prices 2 and 5 dollars, reference quantities 100 and 60 (value 500); current quantities 150 and 50 (reference-price value 550). All current prices exactly 1.2 times reference prices, so both Laspeyres and Paasche price relatives, and Fisher, are 1.2 independently of basket substitution. Current prices are 2.4 and 6, giving 360+300=660. A one-link chain anchored to the reference yields real 550 and price level 120. Tolerance floating only.",
+          "provenance": "Curator synthetic uniform-price two-good oracle; not published BEA data. Chain methodology support: chapter 4 and official glossary."
+        },
+        {
+          "id": "reference-year-identity",
+          "inputs": {
+            "N": 500,
+            "R": 500
+          },
+          "expected": 100,
+          "tolerance": 1E-10,
+          "method": "Limiting reference-year identity: current-dollar and chained reference-year value coincide, so the deflator's normalization is 100, not zero.",
+          "provenance": "Curator synthetic reference-year boundary."
+        },
+        {
+          "id": "synthetic-price-decline",
+          "inputs": {
+            "N": 450,
+            "R": 500
+          },
+          "expected": 90,
+          "tolerance": 1E-10,
+          "method": "Independent homogeneous basket with unchanged quantities and every price falling by one tenth; current spending 450 on base basket value 500 implies price level 90. No inflation-rate input is mistaken for an index level.",
+          "provenance": "Curator fixed-quantity, uniform-price-change check."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "N": 500,
+            "R": 0
+          },
+          "reason": "No positive corresponding real level; denominator zero."
+        },
+        {
+          "kind": "domain",
+          "inputs": {
+            "N": 0,
+            "R": 500
+          },
+          "reason": "Zero nominal series is outside the positive-price-index profile, even though algebra would yield zero."
+        }
+      ],
+      "inverse_notes": "N=D*R/100 given D>0,R>0; R=100*N/D given N>0,D>0. Unique positive solutions; denominator 100 fixed and nonzero, D must be positive for the latter direction. Synthetic substitution D=120,R=550 gives N=660; forward 120. At D=100, N=R uniquely for known one of them. Zero D and zero N could otherwise leave R arbitrary, but both are outside original positive-series profile. No inverse solves the underlying commodity basket or price vector; no statistical/counterfactual inference.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "New implicit_price_deflator and paired nominal/chained-series meanings plus reference-year USD/index-point conventions. Preserve monetary price bases; do not relabel D as discount_rate."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

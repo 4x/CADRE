@@ -1,0 +1,357 @@
+{
+  "batch_id": "classical-mechanics-nkin-b01",
+  "created": "2026-11-03",
+  "curator": "native-kin",
+  "deferred": [
+    {
+      "reason": "In scope but capped by this assignment's two-record limit; the signed 1-D form follows from §3.1 Eq 3.3 under constant velocity and would reuse the existing velocity/displacement/duration meanings (likely runtime-ready). Priority continuation if a signed-direction record is needed.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-1/pages/3-1-position-displacement-and-average-velocity"
+      ],
+      "title": "Signed constant-velocity displacement (Δx = v·Δt)"
+    },
+    {
+      "reason": "Source §3.2 Eq 3.6 defines instantaneous speed as |v(t)|, but the scalar grammar has no absolute-value operator; needs an engine extension (abs function). Not formalized rather than approximated.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-1/pages/3-2-instantaneous-velocity-and-speed"
+      ],
+      "title": "Instantaneous speed as the magnitude of velocity (|v(t)|)"
+    }
+  ],
+  "domain": "classical-mechanics",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "Runtime meanings 'distance' and 'average_speed' need registration before either record can project runtime-ready; no runtime_model is included because relabeling onto displacement/speed would be coercion.",
+      "The assignment expected a 'distance' family in the vocabulary snapshot, but the shipped snapshot (kit 2026-10-31.7) contains displacement/position/velocity/speed/duration and no generic path-length meaning; verified by search.",
+      "Shipped kit cannot run its CLI as-is: KIT-MANIFEST omits connected_models/constants.py while curation.py imports it, and uv cannot build its venv in this sandbox; validation was executed with the kit's own modules via a documented shim (kitcli-shim.py) that loads the byte-compatible central constants table — no kit or central file modified."
+    ],
+    "queries": [
+      "How far does a body moving at a constant speed of 4.4 m/s travel in 300 s? (constant-speed-distance, forward)",
+      "What is the average speed of a trip covering 3750 m in 3480 s? (average-speed, forward)"
+    ],
+    "review_notes": "Checks performed: direct inspection of both source sections incl. equations, worked examples, tables, license footer, and citation block on 2026-11-03; bundle AND packed-ZIP validation with the kit validator; all 7 references recomputed independently (exact fractions where applicable); both inverse directions replayed per record (kit solver where meanings allow, exact substitution otherwise) incl. zero/degenerate classification; duplicate search over the 5 existing classical-mechanics records, the snapshot known_model_ids, and this batch. Not performed: global catalog uniqueness beyond the supplied snapshot; legal review of the OpenStax LLM-use permission statement (recorded as observed, no clearance claimed); runtime admission (both records requires-extension by design).",
+    "summary": "Two-record constant-velocity/average-rate coverage batch: (1) constant-speed distance d = s·t (theoretical; reuses speed/duration, proposes distance), (2) average-speed definition s_avg = d/t (definition; reuses duration, proposes distance/average_speed). Both grounded in directly inspected OpenStax University Physics Vol 1 §§3.1–3.2 (Moebs/Ling/Sanny, OpenStax, pub. Sep 19 2016; pages accessed 2026-11-03). 7 numerical references (4 with published-data provenance, 3 independent/constructed incl. boundaries), 4 rejection cases, both inverse directions verified per record (kit solver + exact substitution)."
+  },
+  "kit_version": "2026-10-31.7",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: the speed keeps one constant value over the whole elapsed interval, so the average speed in Eq 3.5 equals that constant speed.",
+        "application profile: one body in one inertial frame over one unbroken interval; the path may be straight or curved because only the traveled path length enters."
+      ],
+      "constants": [],
+      "guards": [
+        "s >= 0",
+        "t >= 0"
+      ],
+      "id": "classical-mechanics--constant-speed-distance",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning 'distance' (total path length, nonnegative scalar, unit m) is not in the runtime-vocabulary snapshot: the snapshot offers signed 'displacement' and 'position' but no generic path-length meaning, and relabeling is forbidden.",
+          "Expression, guards, SI units (m, s, m/s) and the reused 'speed'/'duration' meanings otherwise fit the scalar engine; both inverse views replay in the kit solver (see inverse_notes)."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Duration view: t = d/s needs s > 0 plus the original guards; verified with the kit solver: solve_for t from (s=1.0, d=0.5) returns 0.5. Speed view: s = d/t needs t > 0 plus the original guards; solver-verified: (t=300, d=1320) returns 4.4 and the zero case (t=0.5, d=0) returns 0.0. Degenerate inputs classify honestly: (s=0, d=0) leaves t undetermined (kit solver code 'underdetermined'); (s=0, d=1) is impossible (code 'no_admissible_solution'); symmetrically (t=0, d=0) leaves s undetermined. Do not publish separate rearranged records.",
+      "kind": "theoretical",
+      "limitations": [
+        "Excludes varying speed; for non-constant motion use the average-speed definition record instead.",
+        "Excludes relativistic speeds and cases where only net displacement is known without the path length."
+      ],
+      "references": [
+        {
+          "expected": 0.5,
+          "id": "one-meter-per-second-half-second",
+          "inputs": {
+            "s": 1.0,
+            "t": 0.5
+          },
+          "method": "Source Example 3.2 reports a constant +1.0 m/s segment over 0.5 s with a matching 0.5 m displacement; with no direction change inside the segment, path length equals that displacement, so 1.0 × 0.5 = 0.5 m.",
+          "provenance": "Published worked-example data replayed through the rearranged relation; the source computes velocity from the graph while this check computes distance from the reported speed and time.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.5,
+          "id": "reversed-half-meter-per-second",
+          "inputs": {
+            "s": 0.5,
+            "t": 1.0
+          },
+          "method": "Source Example 3.2 third segment reports velocity -0.5 m/s over 1.0 s; Eq 3.6 gives speed |-0.5| = 0.5 m/s, and 0.5 × 1.0 = 0.5 m matches the reported 0.5 m leg magnitude.",
+          "provenance": "Derived independently from published data: reported velocity converted to speed via the source's own Eq 3.6, then checked against the reported leg displacement magnitude.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1320.0,
+          "id": "cyclist-table-speed-five-minutes",
+          "inputs": {
+            "s": 4.4,
+            "t": 300.0
+          },
+          "method": "Hand arithmetic: 4.4 × 300 = 4.4 × 3 × 100 = 13.2 × 100 = 1320. The 300 s duration is a constructed five-minute trip; the multiplication is counted out rather than copied from the expression print.",
+          "provenance": "Independent derivation combining the source Table 3.1 published cyclist speed (4.4 m/s) with a constructed duration; the source never computes this product.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.0,
+          "id": "zero-speed-boundary",
+          "inputs": {
+            "s": 0.0,
+            "t": 0.5
+          },
+          "method": "A stationary body covers no path: 0.0 × 0.5 = 0. Matches the source Example 3.2 middle segment (0.0 m/s over 0.5 s, zero displacement).",
+          "provenance": "Definitional boundary check consistent with published Example 3.2 data; admitted as the ideal at-rest limit.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "s": 2.0,
+            "t": -1.0
+          },
+          "kind": "domain",
+          "reason": "Negative elapsed time violates the t >= 0 guard; elapsed time cannot run backwards."
+        },
+        {
+          "inputs": {
+            "s": 2.0
+          },
+          "kind": "missing-input",
+          "reason": "Duration omitted: distance is undetermined without the elapsed time."
+        }
+      ],
+      "relationship": {
+        "expression": "s * t",
+        "locator": "§3.2 Speed subsection, Eq 3.5 and Eq 3.6; Example 3.2 constant-slope intervals; Table 3.1 cyclist speed.",
+        "original_equation": "Average speed = total distance / elapsed time (source Eq 3.5), specialized to unchanging speed so that distance = speed × elapsed time.",
+        "output_symbol": "d",
+        "source_id": "openstax-up1-32",
+        "translation_notes": "From Eq 3.5, total distance = average speed × elapsed time. Under the constant-speed assumption the average speed equals the constant instantaneous speed s (Eq 3.6 gives speed as the magnitude of velocity), yielding d = s·t with no unit conversion (SI throughout). Symbols renamed for the scalar grammar: s introduced for the constant speed, t for elapsed time Δt, d for total distance xTotal. Dimensional check: (length/time)·time = length."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "The section presents average speed as total distance divided by elapsed time, states that instantaneous speed is the magnitude of instantaneous velocity, tabulates a cyclist speed of 4.4 m/s, and works a position-graph example whose straight segments carry constant velocities of +1.0, 0.0, and -0.5 m/s over stated intervals with matching reported displacements.",
+          "id": "openstax-up1-32",
+          "kind": "primary",
+          "license": "Page footer 'Reuse and redistribution' statement inspected 2026-11-03: CC Attribution-NonCommercial-ShareAlike (links CC BY-NC-SA 4.0); noncommercial reuse with attribution and share-alike; OpenStax/Rice names and logos excluded; OpenStax additionally states the book may not be used to train LLMs or in generative-AI offerings without prior written permission; commercial use needs approval.",
+          "locator": "Speed subsection: Eq 3.5 (average speed from total distance and elapsed time), Eq 3.6 (instantaneous speed as the magnitude of velocity), Table 3.1 (cyclist 4.4 m/s), Example 3.2 (constant-velocity segments +1.0, 0.0, -0.5 m/s with reported displacements)",
+          "redistribution": "This record redistributes no OpenStax text, figures, or screenshots: only short original paraphrases, factual equation forms with locators, and recomputed/published numbers.",
+          "title": "University Physics Volume 1, Section 3.2: Instantaneous Velocity and Speed (Moebs, Ling, Sanny; OpenStax)",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/3-2-instantaneous-velocity-and-speed",
+          "version": "Web edition as served 2026-11-03; book pub. Sep 19, 2016, Houston, Texas; page footer shows copyright Jun 11, 2026 OpenStax"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "The section defines total distance traveled as the sum of the magnitudes of the individual displacements with a worked 6 m example, and its flyer-delivery example tabulates four legs whose totals are -0.75 km displacement, 58 min elapsed time, and 3.75 km distance.",
+          "id": "openstax-up1-31",
+          "kind": "primary",
+          "license": "Page footer 'Reuse and redistribution' statement inspected 2026-11-03: CC Attribution-NonCommercial-ShareAlike (links CC BY-NC-SA 4.0); noncommercial reuse with attribution and share-alike; OpenStax/Rice names and logos excluded; OpenStax additionally states the book may not be used to train LLMs or in generative-AI offerings without prior written permission; commercial use needs approval.",
+          "locator": "Displacement subsection (total distance as the sum of leg magnitudes, worked as 2+4=6 m); Example 3.1 Delivering Flyers (per-leg table; totals -0.75 km displacement, 58 min elapsed, 3.75 km distance)",
+          "redistribution": "This record redistributes no OpenStax text, figures, or screenshots: only short original paraphrases, factual equation forms with locators, and recomputed/published numbers.",
+          "title": "University Physics Volume 1, Section 3.1: Position, Displacement, and Average Velocity (Moebs, Ling, Sanny; OpenStax)",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/3-1-position-displacement-and-average-velocity",
+          "version": "Web edition as served 2026-11-03; book pub. Sep 19, 2016, Houston, Texas; page footer shows copyright Jun 11, 2026 OpenStax"
+        }
+      ],
+      "summary": "Total path length from an unchanging speed and the elapsed travel time (d = s·t), the constant-speed specialization of the average-speed definition; supports solve_for duration and solve_for speed.",
+      "title": "Distance traveled at constant speed",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same body in one inertial frame over one unbroken interval of constant speed",
+          "definition": "Constant (unchanging) speed of the body: the magnitude of its velocity at every instant of the interval",
+          "dimensions": "length / time",
+          "domain": "Nonnegative finite speed",
+          "quantity_id": "speed",
+          "role": "input",
+          "source_symbol": "introduced s for the constant speed (source prints average speed as s-bar in Eq 3.5 and instantaneous speed as |v(t)| in Eq 3.6; no bare s appears)",
+          "symbol": "s",
+          "unit": "m/s"
+        },
+        {
+          "context": "same body in one inertial frame over one unbroken interval of constant speed",
+          "definition": "Elapsed travel time from the start to the end of the constant-speed interval",
+          "dimensions": "time",
+          "domain": "Nonnegative finite duration",
+          "quantity_id": "duration",
+          "role": "input",
+          "source_symbol": "Δt (source's elapsed-time symbol in Eqs 3.3 and 3.5)",
+          "symbol": "t",
+          "unit": "s"
+        },
+        {
+          "context": "same body in one inertial frame over one unbroken interval of constant speed",
+          "definition": "Total path length traveled during the interval",
+          "dimensions": "length",
+          "domain": "Nonnegative finite distance",
+          "quantity_id": "distance",
+          "role": "output",
+          "source_symbol": "xTotal (source's total-distance symbol in §3.1; §3.2 Eq 3.5 prints 'Total distance')",
+          "symbol": "d",
+          "unit": "m"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: total distance means the full path length (sum of leg magnitudes per §3.1), not the magnitude of net displacement.",
+        "source assumption: elapsed time is the continuous wall-clock span of the trip including rests, as in Example 3.1's 58-minute total."
+      ],
+      "constants": [],
+      "guards": [
+        "d >= 0",
+        "t > 0"
+      ],
+      "id": "classical-mechanics--average-speed",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "New quantity meaning 'distance' (total path length, unit m) is absent from the runtime-vocabulary snapshot; signed 'displacement' is not an acceptable substitute.",
+          "New quantity meaning 'average_speed' (time-averaged rate, unit m/s) is absent; reusing instantaneous 'speed' would erase the instantaneous-vs-averaged distinction the interface rules require.",
+          "Solver verification of the distance view additionally awaits 'distance' registration (see inverse_notes); the duration view already replays in the kit solver."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Distance view: d = s_avg·t holds for all admitted inputs with no extra exclusions; verified by exact substitution (5×20 = 100; (125/116)×3480 = 3750; 0×10 = 0). Duration view: t = d/s_avg needs s_avg > 0 plus the original guards; verified with the kit solver: solve_for t from (d=100, s_avg=5) returns 20.0. Degenerate (d=0, s_avg=0) leaves t undetermined (kit solver code 'underdetermined'). Note: the kit solver cannot machine-verify the distance view yet because its candidate check requires the target port meaning to be registered and 'distance' is pending registration (Port.validate inside the solver's verification step) — the algebra itself is exact, as the rational substitutions show. Do not publish separate rearranged records.",
+      "kind": "definition",
+      "limitations": [
+        "Excludes zero elapsed time, where the quotient is undefined.",
+        "Determines neither direction, velocity, nor displacement; a closed loop has positive average speed with zero average velocity (source §3.2)."
+      ],
+      "references": [
+        {
+          "expected": 1.0775862068965518,
+          "id": "jill-flyers-average-speed",
+          "inputs": {
+            "d": 3750.0,
+            "t": 3480.0
+          },
+          "method": "Example 3.1 publishes leg totals of 3.75 km distance and 58 min time (exact sums of its per-leg table: 0.5+0.5+1.0+1.75 km; 9+9+15+25 min). Converted: 3750 m / 3480 s = 125/116 = 1.0775862068965518 m/s. Exact rational cross-check: (125/116) × 3480 = 3750.",
+          "provenance": "Derived independently from published data: the source never computes Jill's average speed; both inputs are exact sums from the source's own table, combined here via Eq 3.5.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 5.0,
+          "id": "hand-counted-hundred-meters",
+          "inputs": {
+            "d": 100.0,
+            "t": 20.0
+          },
+          "method": "Hand count: twenty seconds at 5 m/s covers 20 × 5 = 100 m, so 100/20 = 5. Constructed inputs; arithmetic done by repeated-addition reasoning, not by copying the expression print.",
+          "provenance": "Independent derivation with constructed inputs; no source passage computes this case.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.0,
+          "id": "zero-distance-boundary",
+          "inputs": {
+            "d": 0.0,
+            "t": 10.0
+          },
+          "method": "A body that travels no path in 10 s has average speed 0/10 = 0. Admitted ideal at-rest boundary.",
+          "provenance": "Definitional boundary check; consistent with the source's treatment of zero-motion segments (Example 3.2 middle interval).",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "d": 100.0,
+            "t": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero elapsed time violates the t > 0 guard; average speed over no time is undefined."
+        },
+        {
+          "inputs": {
+            "d": 100.0
+          },
+          "kind": "missing-input",
+          "reason": "Elapsed time omitted: the quotient cannot be formed."
+        }
+      ],
+      "relationship": {
+        "expression": "d / t",
+        "locator": "§3.2 Speed subsection, Eq 3.5; §3.1 Example 3.1 leg totals supply the derived oracle.",
+        "original_equation": "Average speed = total distance / elapsed time (source Eq 3.5).",
+        "output_symbol": "s_avg",
+        "source_id": "openstax-up1-32",
+        "translation_notes": "Direct transcription of Eq 3.5 into the scalar grammar with SI units (m, s, m/s); no conversion factors. Symbols renamed: d for total distance, t for elapsed time Δt, s_avg for s-bar. Dimensional check: length/time = length/time. The definition applies to any motion, constant or not, which is what distinguishes this record from the constant-speed-distance record."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "The section presents average speed as total distance divided by elapsed time and explains that it differs from the magnitude of average velocity, using a trip that starts and ends at the same place (zero displacement, positive distance) as the contrasting case.",
+          "id": "openstax-up1-32",
+          "kind": "primary",
+          "license": "Page footer 'Reuse and redistribution' statement inspected 2026-11-03: CC Attribution-NonCommercial-ShareAlike (links CC BY-NC-SA 4.0); noncommercial reuse with attribution and share-alike; OpenStax/Rice names and logos excluded; OpenStax additionally states the book may not be used to train LLMs or in generative-AI offerings without prior written permission; commercial use needs approval.",
+          "locator": "Speed subsection: Eq 3.5 (average speed from total distance and elapsed time); round-trip prose distinguishing average speed from the magnitude of average velocity",
+          "redistribution": "This record redistributes no OpenStax text, figures, or screenshots: only short original paraphrases, factual equation forms with locators, and recomputed/published numbers.",
+          "title": "University Physics Volume 1, Section 3.2: Instantaneous Velocity and Speed (Moebs, Ling, Sanny; OpenStax)",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/3-2-instantaneous-velocity-and-speed",
+          "version": "Web edition as served 2026-11-03; book pub. Sep 19, 2016, Houston, Texas; page footer shows copyright Jun 11, 2026 OpenStax"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "The flyer-delivery example tabulates four trip legs with per-leg times and positions and reports the leg totals: 58 minutes of elapsed time and 3.75 km of total distance traveled.",
+          "id": "openstax-up1-31",
+          "kind": "primary",
+          "license": "Page footer 'Reuse and redistribution' statement inspected 2026-11-03: CC Attribution-NonCommercial-ShareAlike (links CC BY-NC-SA 4.0); noncommercial reuse with attribution and share-alike; OpenStax/Rice names and logos excluded; OpenStax additionally states the book may not be used to train LLMs or in generative-AI offerings without prior written permission; commercial use needs approval.",
+          "locator": "Example 3.1 Delivering Flyers: per-leg time/position table and Solution items 3-4 (58 min elapsed, 3.75 km total distance)",
+          "redistribution": "This record redistributes no OpenStax text, figures, or screenshots: only short original paraphrases, factual equation forms with locators, and recomputed/published numbers.",
+          "title": "University Physics Volume 1, Section 3.1: Position, Displacement, and Average Velocity (Moebs, Ling, Sanny; OpenStax)",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/3-1-position-displacement-and-average-velocity",
+          "version": "Web edition as served 2026-11-03; book pub. Sep 19, 2016, Houston, Texas; page footer shows copyright Jun 11, 2026 OpenStax"
+        }
+      ],
+      "summary": "Definition of average speed as total path length over elapsed time (s_avg = d/t); applies to any motion, constant or not, and is distinct from the magnitude of average velocity.",
+      "title": "Average speed from distance and duration",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same body in one inertial frame over one elapsed interval",
+          "definition": "Total path length traveled, including any backtracking",
+          "dimensions": "length",
+          "domain": "Nonnegative finite distance",
+          "quantity_id": "distance",
+          "role": "input",
+          "source_symbol": "xTotal (source's total-distance symbol in §3.1; Eq 3.5 prints 'Total distance')",
+          "symbol": "d",
+          "unit": "m"
+        },
+        {
+          "context": "same body in one inertial frame over one elapsed interval",
+          "definition": "Elapsed time covering the travel, including any rests",
+          "dimensions": "time",
+          "domain": "Positive finite duration",
+          "quantity_id": "duration",
+          "role": "input",
+          "source_symbol": "Δt (source's elapsed-time symbol in Eqs 3.3 and 3.5)",
+          "symbol": "t",
+          "unit": "s"
+        },
+        {
+          "context": "same body in one inertial frame over one elapsed interval",
+          "definition": "Average speed: total distance divided by elapsed time",
+          "dimensions": "length / time",
+          "domain": "Nonnegative finite average speed",
+          "quantity_id": "average_speed",
+          "role": "output",
+          "source_symbol": "s-bar (source's average-speed symbol in Eq 3.5; rendered s_avg for the scalar grammar)",
+          "symbol": "s_avg",
+          "unit": "m/s"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

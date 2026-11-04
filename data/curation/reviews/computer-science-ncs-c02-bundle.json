@@ -1,0 +1,1583 @@
+{
+  "batch_id": "computer-science-ncs-c02",
+  "created": "2026-11-03",
+  "curator": "native-cs",
+  "deferred": [],
+  "domain": "computer-science",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "Rate/byte meanings and units absent from runtime vocabulary (rate vocabulary ships at admission time); these identity records replay only through registry unit scales at staging.",
+      "Batch cannot pass the kit validator's raw-arithmetic reference check by design: an identity expression over cross-unit ports (e.g. N=1 GB -> 1e9 B) never satisfies display-value arithmetic; see review_notes."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical validation attempted with the kit's own validator logic via the repaired scratch copy (see ../curCS-validate-scratch/README-SCRATCH.txt): every record in this batch fails only on raw reference replay (e.g. decimal-gigabyte-to-byte@r2/one-gb-decimal: numerical reference does not match (1)), exactly as the canonical-units decision entails - the engine converts GB->bytes before evaluating, so staging replay passes while raw display-value replay cannot. Schema, grammar, guards, rejection cases, and integration cross-checks are otherwise clean; no other defect found. The shipped curCS-kit cannot run its own tools (ModuleNotFoundError: connected_models.constants). No integration, runtime_model, source, or evidence changes. Not packed: pack requires validation to pass under the current raw checker. Coordinator decision needed on unit-aware reference checks.",
+    "summary": "Correction batch c02 (computer-science native): 12 canonical-identity r2s - brief-1 byte conversions x2 (decimal-gigabyte, binary-gibibyte) and brief-2A rate identities x10 (b04 x3, b05 x4, b07 kilobit/kibibit/gigabyte-rate). Each record changes ONLY relationship.expression to the bare input symbol plus a translation_notes rewrite stating canonical base units with the factor carried by registry unit scales; variables, ports, units, references, guards, constants, and sources are byte-identical to r1."
+  },
+  "kit_version": "2026-10-31.7",
+  "models": [
+    {
+      "assumptions": [
+        "Decimal (SI/IEC) convention: 1 GB = 10^9 B per IEC 60027-2 and IEC 80000-13; binary Gibibyte uses 2^30 and is a separate record.",
+        "Same counting convention for input and output; excludes filesystem overhead."
+      ],
+      "constants": [
+        {
+          "literal": 1000000000,
+          "locator": "Examples section: 1 GB = 10^9 B = 1,000,000,000 B; official-publication section cites IEC 60027-2.",
+          "meaning": "decimal bytes per gigabyte",
+          "source_id": "nist-binary",
+          "unit": "B"
+        }
+      ],
+      "guards": [
+        "N >= 0"
+      ],
+      "id": "computer-science--decimal-gigabyte-to-byte",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings gigabyte_count/byte_count and units GB/B absent from runtime vocabulary."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "N = B/1000000000 needs B. Check: B=400000000000 gives N=400. Negative B rejected by guard via N>=0 mapped back. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Decimal GB only; GiB (2^30) confusion is the documented consumer pitfall and needs the binary record.",
+        "Excludes usable-vs-advertised capacity differences from overhead/formatting."
+      ],
+      "references": [
+        {
+          "expected": 1000000000,
+          "id": "one-gb-decimal",
+          "inputs": {
+            "N": 1
+          },
+          "method": "NIST/IEC definition 1 GB = 10^9 B. Expected keeps the defined value.",
+          "provenance": "Published definition from inspected source (NIST binary-prefix page).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 400000000000,
+          "id": "four-hundred-gb-drive-bytes",
+          "inputs": {
+            "N": 400
+          },
+          "method": "Worked drive example: 400 GB = 400 x 10^9 B.",
+          "provenance": "Published worked example (Gigabyte page 400 GB drive).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-gigabytes",
+          "inputs": {
+            "N": 0
+          },
+          "method": "Boundary: zero gigabytes is zero bytes.",
+          "provenance": "Definitional boundary check.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "N": -1
+          },
+          "kind": "domain",
+          "reason": "Negative gigabyte count violates N >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Gigabyte count N is the asserted input; empty input leaves B undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "N",
+        "locator": "NIST examples section (1 GB = 10^9 B) and Gigabyte page decimal section (1 GB = 1,000,000,000 bytes) with 400 GB drive example.",
+        "original_equation": "bytes = gigabytes x 10^9 (decimal gigabyte definition)",
+        "output_symbol": "B",
+        "source_id": "nist-binary",
+        "translation_notes": "Expression is written in canonical base units (bytes): N arrives already scaled by the GB registry scale, so the projection is the identity and the 1e9 (10^9) factor is carried by the GB/B unit scales (documented in constants and vocabulary evidence), never inlined. Dimensional check: data = data under the stated convention."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States 1 GB = 10^9 B = 1,000,000,000 B vs 1 GiB = 2^30 B, with IEC 60027-2 Second edition 2000-11 provenance.",
+          "id": "nist-binary",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Examples and official-publication sections.",
+          "redistribution": "Short paraphrase only.",
+          "title": "NIST binary prefixes (GB vs GiB values)",
+          "url": "https://physics.nist.gov/cuu/Units/binary.html",
+          "version": "inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines 1 GB as 10^9 bytes (IEC 80000-13) and works the 400 GB -> 372 GiB and 1 TB -> 931 GB display examples.",
+          "id": "wikipedia-gigabyte",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Lead and consumer-confusion sections.",
+          "redistribution": "Short paraphrase only.",
+          "title": "Wikipedia: Gigabyte (decimal definition and examples)",
+          "url": "https://en.wikipedia.org/wiki/Gigabyte",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Decimal gigabyte to byte conversion with explicit SI/IEC constant.",
+      "title": "Decimal gigabyte to byte conversion",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same stored object and decimal convention as B",
+          "definition": "Count of decimal gigabytes",
+          "dimensions": "data",
+          "domain": "Nonnegative finite count; zero admits empty boundary",
+          "quantity_id": "gigabyte_count",
+          "role": "input",
+          "source_symbol": "gigabytes (decimal GB)",
+          "symbol": "N",
+          "unit": "GB"
+        },
+        {
+          "context": "same stored object and decimal convention as N",
+          "definition": "Byte count equivalent of the stated gigabytes",
+          "dimensions": "data",
+          "domain": "Nonnegative finite bytes",
+          "quantity_id": "byte_count",
+          "role": "output",
+          "source_symbol": "bytes (B)",
+          "symbol": "B",
+          "unit": "B"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Binary (IEC) convention: 1 GiB = 2^30 B per IEC 60027-2; decimal GB is the separate b02 record.",
+        "Same convention for input and output; excludes filesystem overhead."
+      ],
+      "constants": [
+        {
+          "literal": 1073741824,
+          "locator": "Examples: 1 GiB = 2^30 B = 1,073,741,824 B; official-publication cites IEC 60027-2.",
+          "meaning": "binary bytes per gibibyte",
+          "source_id": "nist-binary",
+          "unit": "B"
+        }
+      ],
+      "guards": [
+        "N >= 0"
+      ],
+      "id": "computer-science--binary-gibibyte-to-byte",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings gibibyte_count/byte_count and units GiB/B absent from runtime vocabulary."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "N = B/1073741824 needs B. Check: B=2147483648 gives N=2. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Binary GiB only; applying to decimal-GB hardware repeats the documented confusion error.",
+        "Excludes usable-vs-advertised differences from overhead."
+      ],
+      "references": [
+        {
+          "expected": 1073741824,
+          "id": "one-gib-binary",
+          "inputs": {
+            "N": 1
+          },
+          "method": "NIST/IEC definition 1 GiB = 2^30 B.",
+          "provenance": "Published definition (NIST page).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 2147483648,
+          "id": "two-gib-bytes",
+          "inputs": {
+            "N": 2
+          },
+          "method": "Ordinary case 2 x 2^30. Synthetic.",
+          "provenance": "Independent arithmetic check.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-gib",
+          "inputs": {
+            "N": 0
+          },
+          "method": "Boundary: zero gibibytes is zero bytes.",
+          "provenance": "Definitional boundary check.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "N": -1
+          },
+          "kind": "domain",
+          "reason": "Negative count violates N >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Gibibyte count N is required."
+        }
+      ],
+      "relationship": {
+        "expression": "N",
+        "locator": "NIST examples (1 GiB = 2^30 B) and Gigabyte page binary section.",
+        "original_equation": "bytes = gibibytes x 2^30 (binary definition)",
+        "output_symbol": "B",
+        "source_id": "nist-binary",
+        "translation_notes": "Expression is written in canonical base units (bytes): N arrives already scaled by the GiB registry scale, so the projection is the identity and the 2^30 (1073741824) factor is carried by the GiB/B unit scales (documented in constants and vocabulary evidence), never inlined. Dimensional check: data = data under the stated convention."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States 1 GiB = 2^30 B = 1,073,741,824 B vs 1 GB = 10^9 B, IEC 60027-2 Second edition 2000-11.",
+          "id": "nist-binary",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown.",
+          "locator": "Examples and official-publication sections.",
+          "redistribution": "Short paraphrase only.",
+          "title": "NIST binary prefixes (GiB values)",
+          "url": "https://physics.nist.gov/cuu/Units/binary.html",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary gibibyte to byte conversion with explicit IEC constant.",
+      "title": "Binary gibibyte to byte conversion",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same object and binary convention as B",
+          "definition": "Count of binary gibibytes",
+          "dimensions": "data",
+          "domain": "Nonnegative finite count",
+          "quantity_id": "gibibyte_count",
+          "role": "input",
+          "source_symbol": "gibibytes (GiB)",
+          "symbol": "N",
+          "unit": "GiB"
+        },
+        {
+          "context": "same object and binary convention as N",
+          "definition": "Byte equivalent of the stated gibibytes",
+          "dimensions": "data",
+          "domain": "Nonnegative finite bytes",
+          "quantity_id": "byte_count",
+          "role": "output",
+          "source_symbol": "bytes (B)",
+          "symbol": "B",
+          "unit": "B"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Decimal (SI) rate convention: 1 Mbit/s = 10^6 bit/s; binary Mibit/s is a separate record and the two must never be mixed.",
+        "Sustained average rate over the same averaging interval for input and output; peak-vs-sustained distinction stated at use."
+      ],
+      "constants": [
+        {
+          "literal": 1000000,
+          "locator": "Megabit per second section: 1 Mbit/s = 1,000,000 bits per second; conversion table row Mbit/s formula 10^6.",
+          "meaning": "decimal bits per second per megabit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_mbps >= 0"
+      ],
+      "id": "computer-science--decimal-megabit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings megabit_rate/bit_rate and units Mbit/s, bit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_mbps = R_bps/1000000 needs R_bps. Check: 100000000 gives 100. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Decimal Mbit/s only; Mibit/s (2^20) confusion is the documented pitfall and needs the binary record.",
+        "Excludes protocol overhead and peak-vs-sustained differences; asserted rate only, never a measured claim about a real link."
+      ],
+      "references": [
+        {
+          "expected": 100000000,
+          "id": "fast-ethernet-rate",
+          "inputs": {
+            "R_mbps": 100
+          },
+          "method": "Published bit-rate example row: 100 Mbit/s Fast Ethernet = 100,000,000 bit/s. Expected keeps reported value.",
+          "provenance": "Published result from inspected source (Data-rate units bit-rate examples).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 54000000,
+          "id": "wireless-g-rate",
+          "inputs": {
+            "R_mbps": 54
+          },
+          "method": "Published bit-rate example row: 54 Mbit/s 802.11g = 54,000,000 bit/s, materially different scale from 100.",
+          "provenance": "Published result from inspected source (Data-rate units bit-rate examples).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-rate",
+          "inputs": {
+            "R_mbps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary (idle link), not a measurement.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_mbps": -5
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_mbps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_mbps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_mbps",
+        "locator": "Megabit per second section and conversion table Mbit/s row (formula 10^6 bit/s).",
+        "original_equation": "1 Mbit/s = 1,000,000 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_mbps arrives already scaled by the Mbit/s registry scale, so the projection is the identity and the 1e6 (10^6) factor is carried by the Mbit/s/bit/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines 1 Mbit/s as 1,000,000 bit/s and tabulates 100 Mbit/s = 100,000,000 bit/s (Fast Ethernet) and 54 Mbit/s = 54,000,000 bit/s (802.11g).",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Megabit per second section; conversion table; bit-rate examples.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (decimal Mbit/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Decimal megabit-per-second rate scaled to bits per second.",
+      "title": "Decimal megabit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in decimal megabits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "megabit_rate",
+          "role": "input",
+          "source_symbol": "megabit per second (Mbit/s)",
+          "symbol": "R_mbps",
+          "unit": "Mbit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_mbps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Binary (IEC) rate convention: 1 Mibit/s = 2^20 bit/s per IEC 80000-13; decimal Mbit/s (10^6) is a separate record.",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1048576,
+          "locator": "Binary prefixes section and conversion table Mibit/s row: 2^20 = 1,048,576 bit/s.",
+          "meaning": "binary bits per second per mebibit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_mibps >= 0"
+      ],
+      "id": "computer-science--binary-mebibit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings mebibit_rate/bit_rate and unit Mibit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_mibps = R_bps/1048576 needs R_bps. Check: 1048576 gives 1. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Binary Mibit/s only; in data-rate contexts typically only decimal prefixes are used (source Variations note), so assert the convention at use.",
+        "Excludes protocol overhead; asserted rate only."
+      ],
+      "references": [
+        {
+          "expected": 1048576,
+          "id": "one-mebibit-rate",
+          "inputs": {
+            "R_mibps": 1
+          },
+          "method": "Conversion table row: 1 Mibit/s = 1,048,576 bit/s. Expected keeps tabulated value.",
+          "provenance": "Published result from inspected source (Data-rate units conversion table).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 4194304,
+          "id": "four-mebibit-rate",
+          "inputs": {
+            "R_mibps": 4
+          },
+          "method": "Ordinary case 4 * 1048576 = 4194304, materially different scale from the unit row.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-mebibit",
+          "inputs": {
+            "R_mibps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_mibps": -1
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_mibps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_mibps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_mibps",
+        "locator": "Binary prefixes (IEC 80000-13) section and conversion table Mibit/s row (formula 2^20 bit/s).",
+        "original_equation": "1 Mibit/s = 1,048,576 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_mibps arrives already scaled by the Mibit/s registry scale, so the projection is the identity and the 2^20 (1048576) factor is carried by the Mibit/s/bit/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Tabulates 1 Mibit/s as 1,048,576 bit/s (formula 2^20) and notes binary prefixes introduced by IEC 60027-2 Amendment 2 / IEC 80000-13 with SI prefixes meaning only powers of 10.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Binary prefixes (IEC 80000-13) section; conversion table Mibit/s row.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (binary Mibit/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary mebibit-per-second rate scaled to bits per second.",
+      "title": "Binary mebibit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in binary mebibits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "mebibit_rate",
+          "role": "input",
+          "source_symbol": "mebibit per second (Mibit/s)",
+          "symbol": "R_mibps",
+          "unit": "Mibit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_mibps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "One byte (octet) is 8 bits in the data-rate context (source unit-symbol section).",
+        "Sustained average rate over the same averaging interval; protocol overhead excluded per assignment boundary.",
+        "source_symbol: source uses B/s for byte per second and bit/s for bit per second."
+      ],
+      "constants": [
+        {
+          "literal": 8,
+          "locator": "Unit symbol section: one byte consists of 8 bits; conversion table bit/s row formula 1/8 B/s.",
+          "meaning": "bits per byte",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit"
+        }
+      ],
+      "guards": [
+        "R_bps >= 0"
+      ],
+      "id": "computer-science--bit-rate-to-byte-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings bit_rate/byte_rate and units bit/s, B/s absent from runtime vocabulary; output can feed transfer-time rate input once meanings exist (adapter: rate-unit agreement on sustained basis)."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_bps = R_Bps*8 needs R_Bps. Check: 125000 gives 1000000. Negative R_Bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Bit-to-byte grouping only; usable payload throughput needs separate overhead/framing records.",
+        "Sustained-vs-peak basis must match the downstream use; not a measured claim about any real link."
+      ],
+      "references": [
+        {
+          "expected": 125000,
+          "id": "megabit-to-kbytes",
+          "inputs": {
+            "R_bps": 1000000
+          },
+          "method": "Megabit section: 1,000,000 bit/s = 125,000 bytes per second; unit-symbol passage confirms 1 Mbit/s = 0.125 MB/s. Expected keeps reported value.",
+          "provenance": "Published result from inspected source (Data-rate units megabit section).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 1,
+          "id": "eight-bits-one-byte",
+          "inputs": {
+            "R_bps": 8
+          },
+          "method": "Conversion table: 1 byte per second = 8 bits per second, unit-scale case.",
+          "provenance": "Published result from inspected source (Data-rate units conversion table).",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-bitrate",
+          "inputs": {
+            "R_bps": 0
+          },
+          "method": "Boundary: zero bit rate groups to zero byte rate; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_bps": -100
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_bps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_bps is required; empty input leaves R_Bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_bps",
+        "locator": "Unit symbol section (1 byte = 8 bits) and conversion table bit/s row (1 bit/s = 0.125 = 1/8 B/s).",
+        "original_equation": "1 bit/s = 1/8 byte per second",
+        "output_symbol": "R_Bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_bps arrives already scaled by the bit/s registry scale, so the projection is the identity and the 8 (bit grouping) factor is carried by the bit/s/B/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States one byte consists of 8 bits (synonymous with octet); conversion table gives 1 bit/s = 0.125 B/s and 1 Mbit/s = 125,000 B/s = 0.125 MB/s.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Unit symbol section; conversion table bit/s and Mbit/s rows.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (bit/byte grouping)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Bit-per-second rate grouped into byte-per-second rate via 8 bits per byte.",
+      "title": "Bit rate to byte rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_Bps",
+          "definition": "Asserted sustained data rate in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "input",
+          "source_symbol": "bit per second (bit/s)",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Same asserted rate expressed in bytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "byte_rate",
+          "role": "output",
+          "source_symbol": "byte per second (B/s)",
+          "symbol": "R_Bps",
+          "unit": "B/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Decimal (SI) rate convention: 1 Gbit/s = 10^9 bit/s; binary Gibit/s is a separate record.",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1000000000,
+          "locator": "Gigabit per second section: 1 Gbit/s = 1,000,000,000 bits per second; conversion table Gbit/s row formula 10^9.",
+          "meaning": "decimal bits per second per gigabit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_gbps >= 0"
+      ],
+      "id": "computer-science--decimal-gigabit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings gigabit_rate/bit_rate and unit Gbit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_gbps = R_bps/1000000000 needs R_bps. Check: 10000000000 gives 10. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Decimal Gbit/s only; Gibit/s (2^30) is the separate binary record.",
+        "Asserted rate only; excludes overhead and peak-vs-sustained differences."
+      ],
+      "references": [
+        {
+          "expected": 1000000000,
+          "id": "gigabit-ethernet-rate",
+          "inputs": {
+            "R_gbps": 1
+          },
+          "method": "Published rows: 1 Gbit/s Gigabit Ethernet = 1,000,000,000 bit/s. Expected keeps reported value.",
+          "provenance": "Published result from inspected source (Data-rate units bit-rate examples).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 10000000000,
+          "id": "ten-gigabit-rate",
+          "inputs": {
+            "R_gbps": 10
+          },
+          "method": "Published rows: 10 Gbit/s (10 Gigabit Ethernet / USB 10Gbps) = 10,000,000,000 bit/s, different scale.",
+          "provenance": "Published result from inspected source (Data-rate units bit-rate examples).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-gigabit",
+          "inputs": {
+            "R_gbps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_gbps": -2
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_gbps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_gbps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_gbps",
+        "locator": "Gigabit per second section and conversion table Gbit/s row (formula 10^9 bit/s).",
+        "original_equation": "1 Gbit/s = 1,000,000,000 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_gbps arrives already scaled by the Gbit/s registry scale, so the projection is the identity and the 1e9 (10^9) factor is carried by the Gbit/s/bit/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines 1 Gbit/s as 1,000,000,000 bit/s and tabulates 1 Gbit/s = 1,000,000,000 bit/s (Gigabit Ethernet) and 10 Gbit/s = 10,000,000,000 bit/s.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Gigabit per second section; conversion table; bit-rate examples.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (decimal Gbit/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Decimal gigabit-per-second rate scaled to bits per second.",
+      "title": "Decimal gigabit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in decimal gigabits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "gigabit_rate",
+          "role": "input",
+          "source_symbol": "gigabit per second (Gbit/s)",
+          "symbol": "R_gbps",
+          "unit": "Gbit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_gbps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Binary (IEC) rate convention: 1 Gibit/s = 2^30 bit/s per IEC 80000-13; decimal Gbit/s (10^9) is a separate record.",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1073741824,
+          "locator": "Conversion table Gibit/s row: formula 2^30 = 1,073,741,824 bit/s.",
+          "meaning": "binary bits per second per gibibit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_gibps >= 0"
+      ],
+      "id": "computer-science--binary-gibibit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings gibibit_rate/bit_rate and unit Gibit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_gibps = R_bps/1073741824 needs R_bps. Check: 1073741824 gives 1. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Binary Gibit/s only; decimal Gbit/s is the separate record.",
+        "Asserted rate only; excludes overhead."
+      ],
+      "references": [
+        {
+          "expected": 1073741824,
+          "id": "one-gibibit-rate",
+          "inputs": {
+            "R_gibps": 1
+          },
+          "method": "Conversion table row: 1 Gibit/s = 1,073,741,824 bit/s. Expected keeps tabulated value.",
+          "provenance": "Published result from inspected source (Data-rate units conversion table).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 3221225472,
+          "id": "three-gibibit-rate",
+          "inputs": {
+            "R_gibps": 3
+          },
+          "method": "Ordinary case 3 * 1073741824 = 3221225472, different scale from the unit row.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-gibibit",
+          "inputs": {
+            "R_gibps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_gibps": -1
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_gibps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_gibps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_gibps",
+        "locator": "Conversion table Gibit/s row (formula 2^30 bit/s) under binary prefixes IEC 80000-13.",
+        "original_equation": "1 Gibit/s = 1,073,741,824 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_gibps arrives already scaled by the Gibit/s registry scale, so the projection is the identity and the 2^30 (1073741824) factor is carried by the Gibit/s/bit/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Tabulates 1 Gibit/s as 1,073,741,824 bit/s (formula 2^30) under IEC binary prefixes.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Binary prefixes section; conversion table Gibit/s row.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (binary Gibit/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary gibibit-per-second rate scaled to bits per second.",
+      "title": "Binary gibibit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in binary gibibits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "gibibit_rate",
+          "role": "input",
+          "source_symbol": "gibibit per second (Gibit/s)",
+          "symbol": "R_gibps",
+          "unit": "Gibit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_gibps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Decimal (SI) rate convention: 1 Tbit/s = 10^12 bit/s; binary Tibit/s is out of scope for this record.",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1000000000000,
+          "locator": "Terabit per second section: 1 Tbit/s = 1,000,000,000,000 bits per second; conversion table Tbit/s row formula 10^12.",
+          "meaning": "decimal bits per second per terabit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_tbps >= 0"
+      ],
+      "id": "computer-science--decimal-terabit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings terabit_rate/bit_rate and unit Tbit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_tbps = R_bps/1000000000000 needs R_bps. Check: 1000000000000 gives 1. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Decimal Tbit/s only; backbone/submarine-cable class rates, still asserted not measured.",
+        "Excludes overhead and peak-vs-sustained differences."
+      ],
+      "references": [
+        {
+          "expected": 1000000000000,
+          "id": "one-terabit-rate",
+          "inputs": {
+            "R_tbps": 1
+          },
+          "method": "Terabit section and examples row: 1 Tbit/s = 1,000,000,000,000 bit/s. Expected keeps reported value.",
+          "provenance": "Published result from inspected source (Data-rate units terabit section and examples).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 1280000000000,
+          "id": "submarine-cable-rate",
+          "inputs": {
+            "R_tbps": 1.28
+          },
+          "method": "Examples row: SEA-ME-WE 4 submarine cable at 1.28 Tbit/s = 1,280,000,000,000 bit/s, materially different scale.",
+          "provenance": "Published result from inspected source (Data-rate units bit-rate examples).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-terabit",
+          "inputs": {
+            "R_tbps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_tbps": -0.5
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_tbps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_tbps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_tbps",
+        "locator": "Terabit per second section and conversion table Tbit/s row (formula 10^12 bit/s).",
+        "original_equation": "1 Tbit/s = 1,000,000,000,000 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_tbps arrives already scaled by the Tbit/s registry scale, so the projection is the identity and the 1e12 (10^12) factor is carried by the Tbit/s/bit/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines 1 Tbit/s as 1,000,000,000,000 bit/s and tabulates the SEA-ME-WE 4 example at 1.28 Tbit/s.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Terabit per second section; conversion table; bit-rate examples.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (decimal Tbit/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Decimal terabit-per-second rate scaled to bits per second.",
+      "title": "Decimal terabit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in decimal terabits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "terabit_rate",
+          "role": "input",
+          "source_symbol": "terabit per second (Tbit/s)",
+          "symbol": "R_tbps",
+          "unit": "Tbit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_tbps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Decimal (SI) rate convention: 1 MB/s = 10^6 B/s; binary MiB/s is out of scope for this record.",
+        "Sustained average rate over the same averaging interval; 8-bit bytes per the unit-symbol section."
+      ],
+      "constants": [
+        {
+          "literal": 1000000,
+          "locator": "Megabyte per second section: 1 MB/s = 1,000,000 bytes per second; conversion table MB/s row formula 10^6.",
+          "meaning": "decimal bytes per second per megabyte per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "B/s"
+        }
+      ],
+      "guards": [
+        "R_MBps >= 0"
+      ],
+      "id": "computer-science--decimal-megabyte-rate-to-byte-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings megabyte_rate/byte_rate and unit MB/s absent from runtime vocabulary; output can feed transfer-time rate input once meanings exist (adapter: rate-unit agreement on sustained basis)."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_MBps = R_Bps/1000000 needs R_Bps. Check: 60000000 gives 60. Negative R_Bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Decimal MB/s only; MiB/s (2^20) needs its own record.",
+        "Computer-data-interface rates (USB, SATA, PCI) are asserted interface rates, not usable-throughput claims."
+      ],
+      "references": [
+        {
+          "expected": 60000000,
+          "id": "usb2-rate",
+          "inputs": {
+            "R_MBps": 60
+          },
+          "method": "Published interface row: 60 MB/s USB 2.0 High-Speed = 60,000,000 bytes per second. Expected keeps reported value.",
+          "provenance": "Published result from inspected source (Data-rate units interface examples).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 1000000,
+          "id": "one-megabyte-rate",
+          "inputs": {
+            "R_MBps": 1
+          },
+          "method": "Megabyte section definition: 1 MB/s = 1,000,000 bytes per second, unit-scale case.",
+          "provenance": "Published definition from inspected source (Data-rate units megabyte section).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-mbytes",
+          "inputs": {
+            "R_MBps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_MBps": -60
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_MBps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_MBps is required; empty input leaves R_Bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_MBps",
+        "locator": "Megabyte per second section and conversion table MB/s row (formula 10^6 B/s).",
+        "original_equation": "1 MB/s = 1,000,000 bytes per second",
+        "output_symbol": "R_Bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_MBps arrives already scaled by the MB/s registry scale, so the projection is the identity and the 1e6 (10^6) factor is carried by the MB/s/B/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines 1 MB/s as 1,000,000 bytes per second and tabulates 60 MB/s USB 2.0 High-Speed as 60,000,000 bytes per second.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Megabyte per second section; conversion table; interface examples.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (decimal MB/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Decimal megabyte-per-second rate scaled to bytes per second.",
+      "title": "Decimal megabyte rate to byte rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_Bps",
+          "definition": "Asserted sustained data rate in decimal megabytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "megabyte_rate",
+          "role": "input",
+          "source_symbol": "megabyte per second (MB/s)",
+          "symbol": "R_MBps",
+          "unit": "MB/s"
+        },
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_MBps",
+          "definition": "Same asserted rate expressed in bytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "byte_rate",
+          "role": "output",
+          "source_symbol": "bytes per second",
+          "symbol": "R_Bps",
+          "unit": "B/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Decimal (SI) rate convention: 1 kbit/s = 10^3 bit/s; binary Kibit/s is a separate record.",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1000,
+          "locator": "Kilobit per second section: 1 kbit/s = 1,000 bits per second; conversion table kbit/s row formula 10^3.",
+          "meaning": "decimal bits per second per kilobit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_kbps >= 0"
+      ],
+      "id": "computer-science--decimal-kilobit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings kilobit_rate/bit_rate and unit kbit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_kbps = R_bps/1000 needs R_bps. Check: 1411200 gives 1411.2. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Decimal kbit/s only; Kibit/s (2^10) is the separate record.",
+        "Asserted rate only; excludes overhead."
+      ],
+      "references": [
+        {
+          "expected": 1411200,
+          "id": "cd-audio-rate",
+          "inputs": {
+            "R_kbps": 1411.2
+          },
+          "method": "Published audio row: 1411.2 kbit/s CD audio (16-bit x 44.1 kHz x 2ch) = 1,411,200 bit/s. Expected keeps reported value.",
+          "provenance": "Published result from inspected source (Data-rate units audio examples).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 56000,
+          "id": "modem-rate",
+          "inputs": {
+            "R_kbps": 56
+          },
+          "method": "Published networking row: 56 kbit/s modem = 56,000 bit/s, materially different scale.",
+          "provenance": "Published result from inspected source (Data-rate units bit-rate examples).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-kilobit",
+          "inputs": {
+            "R_kbps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_kbps": -8
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_kbps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_kbps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_kbps",
+        "locator": "Kilobit per second section and conversion table kbit/s row (formula 10^3 bit/s).",
+        "original_equation": "1 kbit/s = 1,000 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_kbps arrives already scaled by the kbit/s registry scale, so the projection is the identity and the 1e3 (10^3) factor is carried by the kbit/s/bit/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines 1 kbit/s as 1,000 bits per second and tabulates 1411.2 kbit/s CD audio = 1,411,200 bit/s and 56 kbit/s modem = 56,000 bit/s.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Kilobit per second section; conversion table; audio and bit-rate examples.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (decimal kbit/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Decimal kilobit-per-second rate scaled to bits per second.",
+      "title": "Decimal kilobit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in decimal kilobits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "kilobit_rate",
+          "role": "input",
+          "source_symbol": "kilobit per second (kbit/s)",
+          "symbol": "R_kbps",
+          "unit": "kbit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_kbps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Binary (IEC) rate convention: 1 Kibit/s = 2^10 bit/s; decimal kbit/s (10^3) is a separate record.",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1024,
+          "locator": "Binary prefixes section and conversion table Kibit/s row: 2^10 = 1,024 bit/s.",
+          "meaning": "binary bits per second per kibibit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_kibps >= 0"
+      ],
+      "id": "computer-science--binary-kibibit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings kibibit_rate/bit_rate and unit Kibit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_kibps = R_bps/1024 needs R_bps. Check: 10240 gives 10. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Binary Kibit/s only; decimal kbit/s is the separate record.",
+        "Asserted rate only; excludes overhead."
+      ],
+      "references": [
+        {
+          "expected": 1024,
+          "id": "one-kibibit-rate",
+          "inputs": {
+            "R_kibps": 1
+          },
+          "method": "Conversion table row: 1 Kibit/s = 1,024 bit/s. Expected keeps tabulated value.",
+          "provenance": "Published result from inspected source (Data-rate units conversion table).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 10240,
+          "id": "ten-kibibit-rate",
+          "inputs": {
+            "R_kibps": 10
+          },
+          "method": "Ordinary case 10 * 1024 = 10240, different scale from the unit row.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-kibibit",
+          "inputs": {
+            "R_kibps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_kibps": -1
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_kibps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_kibps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_kibps",
+        "locator": "Conversion table Kibit/s row (formula 2^10 bit/s) under binary prefixes IEC 80000-13.",
+        "original_equation": "1 Kibit/s = 1,024 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_kibps arrives already scaled by the Kibit/s registry scale, so the projection is the identity and the 2^10 (1024) factor is carried by the Kibit/s/bit/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Tabulates 1 Kibit/s as 1,024 bit/s (formula 2^10) under IEC binary prefixes.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Binary prefixes section; conversion table Kibit/s row.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (binary Kibit/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary kibibit-per-second rate scaled to bits per second.",
+      "title": "Binary kibibit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in binary kibibits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "kibibit_rate",
+          "role": "input",
+          "source_symbol": "kibibit per second (Kibit/s)",
+          "symbol": "R_kibps",
+          "unit": "Kibit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_kibps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Decimal (SI) rate convention: 1 GB/s = 8 x 10^9 bit/s per the conversion table; binary GiB/s is out of scope for this record.",
+        "Sustained average rate over the same averaging interval; 8-bit bytes per the unit-symbol section."
+      ],
+      "constants": [
+        {
+          "literal": 8000000000,
+          "locator": "Conversion table GB/s row: formula 8 x 10^9 bit/s; Gigabyte per second section: 8,000,000,000 bits per second.",
+          "meaning": "decimal bits per second per gigabyte per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_GBps >= 0"
+      ],
+      "id": "computer-science--decimal-gigabyte-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings gigabyte_rate/bit_rate and unit GB/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_GBps = R_bps/8000000000 needs R_bps. Check: 10000000000 gives 1.25 (Thunderbolt case below). Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Decimal GB/s only; GiB/s needs its own record.",
+        "Interface rates are asserted rates, not usable-throughput claims."
+      ],
+      "references": [
+        {
+          "expected": 8000000000,
+          "id": "one-gigabyte-rate",
+          "inputs": {
+            "R_GBps": 1
+          },
+          "method": "Gigabyte section and conversion table: 1 GB/s = 8,000,000,000 bits per second. Expected keeps tabulated value.",
+          "provenance": "Published result from inspected source (Data-rate units gigabyte section and table).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 10000000000,
+          "id": "thunderbolt-gigabyte-rate",
+          "inputs": {
+            "R_GBps": 1.25
+          },
+          "method": "Published interface row: Thunderbird/Thunderbolt 10 Gbit/s = 1,250 MB/s = 1.25 GB/s = 10,000,000,000 bit/s, different scale.",
+          "provenance": "Published result from inspected source (Data-rate units interface examples).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-gbytes",
+          "inputs": {
+            "R_GBps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_GBps": -1.25
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_GBps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_GBps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_GBps",
+        "locator": "Gigabyte per second section and conversion table GB/s row (formula 8 x 10^9 bit/s).",
+        "original_equation": "1 GB/s = 8,000,000,000 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_GBps arrives already scaled by the GB/s registry scale, so the projection is the identity and the 8x10^9 (8000000000, 8-bit grouping times decimal giga) factor is carried by the GB/s/bit/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines 1 GB/s as 8,000,000,000 bits per second (8 x 10^9) and tabulates the Thunderbolt 10 Gbit/s = 1,250 MB/s interface row.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Gigabyte per second section; conversion table; interface examples.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (decimal GB/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Decimal gigabyte-per-second rate scaled to bits per second.",
+      "title": "Decimal gigabyte rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in decimal gigabytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "gigabyte_rate",
+          "role": "input",
+          "source_symbol": "gigabyte per second (GB/s)",
+          "symbol": "R_GBps",
+          "unit": "GB/s"
+        },
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_GBps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

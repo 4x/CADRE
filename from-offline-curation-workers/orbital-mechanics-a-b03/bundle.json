@@ -1,0 +1,507 @@
+{
+  "batch_id": "orbital-mechanics-a-b03",
+  "created": "2026-11-03",
+  "curator": "muse-spark",
+  "deferred": [
+    {
+      "reason": "Newtonian two-body form T² = 4π²a³/(G(M1+M2)) combines the §3.3 mass-sum statement with the §13.4 SI derivation; needs a dedicated derivation check. Continuation priority: curate in b04 as the comparable-mass companion to the b01 Kepler record.",
+      "source_urls": [
+        "https://openstax.org/books/astronomy-2e/pages/3-3-newtons-universal-law-of-gravitation",
+        "https://openstax.org/books/university-physics-volume-1/pages/13-4-satellite-orbits-and-energy"
+      ],
+      "title": "Kepler period-squared with comparable masses (queued b04)"
+    },
+    {
+      "reason": "Gravitational potential energy U = −G·M·m/r (Eq. 13.4) is an independently meaningful quantity with its own source equation; needs its own record. Continuation priority: curate in b04 with the Soyuz-lifting oracle.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-1/pages/13-3-gravitational-potential-energy-and-total-energy"
+      ],
+      "title": "Gravitational potential energy of a pair (queued b04)"
+    },
+    {
+      "reason": "Circular-orbit kinetic energy K = G·m·M/(2r) is stated verbatim in §13.4 and is independently meaningful. Continuation priority: curate in b04 with ½·m·v² oracle routes.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-1/pages/13-4-satellite-orbits-and-energy"
+      ],
+      "title": "Circular-orbit kinetic energy (queued b04)"
+    },
+    {
+      "reason": "Areal-velocity / Kepler-second-law rate forms need an angular-momentum-rate framing beyond the scalar quantities curated here; the L = r·p_perp passage was used only for the h² derivation. Continuation priority: none for this lane unless a rate-quantity need arises.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-1/pages/13-5-keplers-laws-of-planetary-motion"
+      ],
+      "title": "Areal velocity (Kepler second-law rate)"
+    }
+  ],
+  "domain": "orbital-mechanics",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "All three records need runtime vocabulary extension: new meanings (mean_motion, specific_angular_momentum_squared, surface_gravity, body_radius) and new units (rad/s, m4/s2); integer powers and one 2π literal only, so no operator extension is needed.",
+      "Duplicate search limited to the supplied catalog-inventory snapshot (building-energy only) and batches b01–b03 of this session; no global uniqueness claimed.",
+      "b04 queue: binary mass-sum Kepler, gravitational potential energy, circular-orbit kinetic energy — all with sources identified above."
+    ],
+    "queries": [],
+    "review_notes": "Self-review completed 2026-11-03: expressions re-derived from cited equations; dimensional checks in translation notes; reference arithmetic pre-computed independently (uv python) then validated by the toolkit; guard/rejection behavior validated by the toolkit. Not performed: independent second-curator review; license-terms fetch for JS-rendered pages (recorded as unknown). Validation: `uv run -m connected_models.curation validate returns/orbital-mechanics-a-b03/bundle.json` passed; packed ZIP re-validated.",
+    "summary": "Batch b03 adds three lane-adjacent records: mean (angular) motion as a 2π/T definition (Tatum's stated relation), circular-orbit specific-angular-momentum-squared derived from L = r·p_perp plus Eq. 13.7, and central mass from surface gravity (Eq. 13.2 rearranged, checked against the text's worked 5.95e24 kg and NASA polar values). All requires-extension, honest squared algebra throughout."
+  },
+  "kit_version": "2026-10-31.6",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: uniform circular motion at constant angular speed, so one revolution (2π radians) takes exactly one period T (Tatum Fig. VIII.3 derivation context).",
+        "application profile: T is elapsed physical time in seconds on the same scale as the output; calendar day-counts must be converted to seconds before use, never inside this record."
+      ],
+      "constants": [
+        {
+          "literal": 6.283185307179586,
+          "locator": "Tatum §8.3: 'the relation between angular speed and period is ω = 2π/P'; double-precision expansion of 2π used in the expression.",
+          "meaning": "two pi (dimensionless radians per revolution)",
+          "source_id": "s-tatum-8-3",
+          "unit": "1"
+        }
+      ],
+      "guards": [
+        "T > 0"
+      ],
+      "id": "orbital-mechanics--mean-motion-from-period",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires vocabulary extension: new meanings mean_motion and orbital_period (or reuse once defined), new unit rad/s (angle per time). No operator extension needed."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Period solves as T = 6.283185307179586/n; substitution check with the ISS mean motion (n = 1.1321055e-3 rad/s) returns T = 5548.9 s against the published 5.55e3 s (0.02%, within oracle rounding). Requires n > 0 beyond the declared output domain. Do not publish the division as a separate record.",
+      "kind": "definition",
+      "limitations": [
+        "Uniform (mean) motion only; osculating angular speed on eccentric orbits varies within a revolution and needs the vis-viva treatment (deferred).",
+        "Output is an angular rate, not a frequency in cycles per unit time; the 2π distinguishes the two — do not drop it."
+      ],
+      "references": [
+        {
+          "expected": 0.0011329394387001477,
+          "id": "iss-mean-motion",
+          "inputs": {
+            "T": 5550.0
+          },
+          "method": "Independent route through trajectory geometry: n = v/r with the published ISS speed 7.67e3 m/s and radius 6.77e6 m (§13.4 example), giving 1.1329394e-3 rad/s. Tolerance 2e-6 (0.18%) covers 3-significant-figure print rounding.",
+          "provenance": "Published speed and radius combined through the v = n·r identity — independent of the 2π/T definition under test.",
+          "tolerance": 2e-06
+        },
+        {
+          "expected": 1.9906683244428402e-07,
+          "id": "earth-mean-motion",
+          "inputs": {
+            "T": 31558118.4
+          },
+          "method": "Independent route: n = v/r with NASA's mean orbital velocity 29.78 km/s and semimajor axis 149.598M km (Earth Fact Sheet) against T = 365.256 d = 31558118.4 s. Tolerance 1e-10 (0.05%) covers near-circular deviation and rounding.",
+          "provenance": "Independent agency determinations combined through the v = n·r identity.",
+          "tolerance": 1e-10
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "T": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero period admits no finite angular speed (division by zero); guard T > 0 rejects it."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "The period is the definition's only input and cannot be assumed."
+        }
+      ],
+      "relationship": {
+        "expression": "6.283185307179586 / T",
+        "locator": "Tatum §8.3: 'the relation between angular speed and period is ω = 2π/P'; used for Earth (P_0) and planet (P_sid) alike.",
+        "original_equation": "ω = 2π/P (angular speed from period).",
+        "output_symbol": "n",
+        "source_id": "s-tatum-8-3",
+        "translation_notes": "Direct transcription with local symbol n for the source ω (documented mapping) and 2π expanded to the double-precision literal 6.283185307179586 (dimensionless). No conversion inlined — coherent with T in seconds and n in rad/s. Dimensional check: 1/T (radians dimensionless). Distinct from cyclic frequency (1/T): the 2π is the point of the record."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "States the relation between angular speed and period as ω = 2π/P and uses it to define sidereal periods (P_sid = 2π/ω) and the synodic relation; Fig. VIII.3 context is circular coplanar motion about the Sun.",
+          "id": "s-tatum-8-3",
+          "kind": "primary",
+          "license": "LibreTexts-hosted open textbook (Jeremy Tatum, Celestial Mechanics). The page license footer is JS-rendered and was not text-extractable on 2026-11-03, so license terms are recorded as unknown.",
+          "locator": "Section 8.3 'Sidereal and Synodic Periods', relation ω = 2π/P.",
+          "redistribution": "This return reproduces no textbook prose or figures — only short original paraphrases, section locators, and numerical values.",
+          "title": "Celestial Mechanics (Tatum), Section 8.3 Sidereal and Synodic Periods",
+          "url": "https://phys.libretexts.org/Bookshelves/Astronomy__Cosmology/Celestial_Mechanics_(Tatum)/08%3A_Planetary_Motions/8.03%3A_Sidereal_and_Synodic_Periods",
+          "version": "LibreTexts edition as posted, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "ISS example (v = 7.67e3 m/s, r = 6.77e6 m, T = 5.55e3 s) used for the independent-route oracle.",
+          "id": "s-uniphys-13-4",
+          "kind": "primary",
+          "license": "OpenStax section pages carry the footer 'Textbook content produced by OpenStax is licensed under a Creative Commons Attribution License' (CC BY; observed via search rendering of the book footer, 2026-11-03). The JS-rendered full terms page was not text-extractable, so exact terms are unconfirmed.",
+          "locator": "§13.4 Example 'International Space Station'.",
+          "redistribution": "Numerical values and locator only; no OpenStax prose reproduced.",
+          "title": "University Physics Volume 1, Section 13.4 Satellite Orbits and Energy",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/13-4-satellite-orbits-and-energy",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Mean orbital velocity 29.78 km/s, semimajor axis 149.598M km and sidereal period 365.256 d used for the Earth oracle.",
+          "id": "s-nasa-earth-fact",
+          "kind": "primary",
+          "license": "U.S. government work (NASA NSSDCA fact sheet); exact page terms not text-extracted.",
+          "locator": "Earth Fact Sheet orbital parameters table.",
+          "redistribution": "Numerical values and locator only; no page prose reproduced.",
+          "title": "NASA NSSDCA Earth Fact Sheet",
+          "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html",
+          "version": "NSSDCA fact sheet as posted (last updated 15 November 2024, DRW), retrieved 2026-11-03"
+        }
+      ],
+      "summary": "Mean (angular) motion from orbital period: one revolution of 2π radians per period.",
+      "title": "Mean motion from orbital period",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same uniform circular trajectory and time scale as T.",
+          "definition": "Mean angular motion: radians swept per unit time at the constant circular rate.",
+          "dimensions": "angle/time",
+          "domain": "Positive finite rate in rad/s.",
+          "quantity_id": "mean_motion",
+          "role": "output",
+          "source_symbol": "ω (introduced local symbol n)",
+          "symbol": "n",
+          "unit": "rad/s"
+        },
+        {
+          "context": "Same uniform circular trajectory and time scale as n.",
+          "definition": "Orbital period: elapsed physical time for one full revolution (same definition as the b02 kinematic record).",
+          "dimensions": "time",
+          "domain": "Positive finite period in s.",
+          "quantity_id": "orbital_period",
+          "role": "input",
+          "source_symbol": "P (source uses P, P_0, P_sid); T used locally for consistency with the b02 records",
+          "symbol": "T",
+          "unit": "s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: circular orbit so the perpendicular velocity component equals the full orbital speed (v_perp = v); the §13.5 passage gives L = r·m·v_perp generally, and circular motion has no radial component.",
+        "derived combination: per-unit-mass angular momentum h = r·v from the §13.5 passage, squared and combined with the §13.4 circular speed v² = G·M/r (Eq. 13.7) to give h² = G·M·r; both parent statements are source-backed, the two-line combination is the curator's derivation and is shown here.",
+        "Central mass M is a supplied input for a stated body and epoch."
+      ],
+      "constants": [
+        {
+          "literal": 6.67e-11,
+          "locator": "§13.4 Examples 'International Space Station' and 'Determining the Mass of Earth' print G = 6.67×10⁻¹¹ N·m²/kg².",
+          "meaning": "Newtonian universal gravitational constant as printed in the source (3 significant figures)",
+          "source_id": "s-uniphys-13-4",
+          "unit": "m3/(kg*s2)"
+        }
+      ],
+      "guards": [
+        "M > 0",
+        "r > 0"
+      ],
+      "id": "orbital-mechanics--circular-orbit-specific-angular-momentum-squared",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires vocabulary extension: new meaning specific_angular_momentum_squared (or reuse once defined), new unit m4/s2. Integer powers only; engine-ready once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Radius solves as r = h2/(6.67e-11*M); substitution check with the (r·v)²-route ISS value (h2 = 2.6962991e21 m⁴/s², M = 5.96e24 kg) returns r = 6.784e6 m against 6.77e6 m (0.2%, within oracle rounding). Mass solves as M = h2/(6.67e-11*r). Requires h2 > 0 beyond the declared output domain. Do not publish rearrangements as separate records.",
+      "kind": "theoretical",
+      "limitations": [
+        "Circular orbits only; on eccentric orbits the (constant) angular momentum is r·v_perp at each point, not r·v, and this record must not be applied there.",
+        "Specific (per-unit-orbiter-mass) quantity; total angular momentum needs the orbiter mass factor and is not this record.",
+        "Ideal two-body motion only; torques, drag and perturbations excluded."
+      ],
+      "references": [
+        {
+          "expected": 2.69629909081e+21,
+          "id": "iss-angular-momentum-squared",
+          "inputs": {
+            "M": 5.96e+24,
+            "r": 6770000.0
+          },
+          "method": "Independent route through the §13.5 angular-momentum passage: h = r·v with the published ISS radius 6.77e6 m and speed 7.67e3 m/s, squared to 2.6962991e21 m⁴/s². Tolerance 1e19 (0.37%) covers 3-significant-figure print rounding.",
+          "provenance": "Source-supported alternate route (separate angular-momentum passage plus published speed), not arithmetic replay of the combined expression.",
+          "tolerance": 1e+19
+        },
+        {
+          "expected": 1.9847278401208834e+31,
+          "id": "earth-angular-momentum-squared",
+          "inputs": {
+            "M": 1.99e+30,
+            "r": 149598000000.0
+          },
+          "method": "Independent route: h = r·v with NASA's semimajor axis 149.598M km and mean velocity 29.78 km/s, squared. Tolerance 1e29 (0.5%) covers near-circular deviation and rounding.",
+          "provenance": "Independent agency determinations combined through the h = r·v identity.",
+          "tolerance": 1e+29
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "M": 5.96e+24,
+            "r": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero radius admits no orbital angular momentum (and divides by zero in the parent speed law); guard r > 0 rejects it."
+        },
+        {
+          "inputs": {
+            "r": 6770000.0
+          },
+          "kind": "missing-input",
+          "reason": "Central mass is required input and is never assumed."
+        }
+      ],
+      "relationship": {
+        "expression": "6.67e-11 * M * r",
+        "locator": "§13.5 'Kepler's Second Law' passage (L = r·p_perp = r·m·v_perp) combined with §13.4 Eq. 13.7 (v² = G·M/r).",
+        "original_equation": "L = r·p_perp = r·m·v_perp (per-unit-mass: h = r·v_perp); v_orbit² = G·M/r (Eq. 13.7).",
+        "output_symbol": "h2",
+        "source_id": "s-uniphys-13-5",
+        "translation_notes": "For circular motion v_perp = v, so h = r·v and h² = r²·v² = r²·(G·M/r) = G·M·r. The two parent equations are transcribed; the substitution is the curator's two-line derivation, labeled here rather than attributed to the source. Output name carries the square (h2). G inlined as the printed literal with constants metadata; no conversion inlined — coherent in base SI units. Dimensional check: (L³/(M·T²))·M·L = L⁴/T²."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Resolves linear momentum into radial and perpendicular components and reduces the angular momentum magnitude to L = r·p_perp = r·m·v_perp, noting angular momentum is conserved under central forces.",
+          "id": "s-uniphys-13-5",
+          "kind": "primary",
+          "license": "OpenStax section pages carry the footer 'Textbook content produced by OpenStax is licensed under a Creative Commons Attribution License' (CC BY; observed via search rendering of the book footer, 2026-11-03). The JS-rendered full terms page was not text-extractable, so exact terms are unconfirmed.",
+          "locator": "§13.5 'Kepler's Second Law' angular-momentum passage (before Fig. 13.21).",
+          "redistribution": "This return reproduces no OpenStax prose, figures, or problem statements — only short original paraphrases, section locators, and numerical values.",
+          "title": "University Physics Volume 1, Section 13.5 Kepler's Laws of Planetary Motion",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/13-5-keplers-laws-of-planetary-motion",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Circular-orbit speed v_orbit = √(GM/r) (Eq. 13.7) with the ISS worked example (v = 7.67e3 m/s at r = 6.77e6 m).",
+          "id": "s-uniphys-13-4",
+          "kind": "primary",
+          "license": "Same OpenStax licensing footer as s-uniphys-13-5; exact terms unconfirmed (JS-rendered).",
+          "locator": "Eq. 13.7 with the Fig. 13.12 derivation and ISS example.",
+          "redistribution": "Short original paraphrase, locator and numerical values only; no OpenStax prose reproduced.",
+          "title": "University Physics Volume 1, Section 13.4 Satellite Orbits and Energy",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/13-4-satellite-orbits-and-energy",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Semimajor axis 149.598×10⁶ km and mean orbital velocity 29.78 km/s used for the Earth oracle.",
+          "id": "s-nasa-earth-fact",
+          "kind": "primary",
+          "license": "U.S. government work (NASA NSSDCA fact sheet); exact page terms not text-extracted.",
+          "locator": "Earth Fact Sheet orbital parameters table.",
+          "redistribution": "Numerical values and locator only; no page prose reproduced.",
+          "title": "NASA NSSDCA Earth Fact Sheet",
+          "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html",
+          "version": "NSSDCA fact sheet as posted (last updated 15 November 2024, DRW), retrieved 2026-11-03"
+        }
+      ],
+      "summary": "Specific angular momentum of a circular orbit with the square explicit: h² = G·M·r.",
+      "title": "Circular-orbit specific-angular-momentum-squared",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same two-body system, central body, and epoch as M and r.",
+          "definition": "Square of the orbiter's specific (per-unit-mass) orbital angular momentum on its circular orbit.",
+          "dimensions": "length^4/time^2",
+          "domain": "Positive finite value in m4/s2.",
+          "quantity_id": "specific_angular_momentum_squared",
+          "role": "output",
+          "source_symbol": "h^2 (introduced; source works with L = r·m·v_perp)",
+          "symbol": "h2",
+          "unit": "m4/s2"
+        },
+        {
+          "context": "Same two-body system and epoch as h2 and r; stated body, never assumed.",
+          "definition": "Mass of the central body that dominates the two-body dynamics (same definition as the b01/b02 central-mass records).",
+          "dimensions": "mass",
+          "domain": "Positive finite mass in kg.",
+          "quantity_id": "central_mass",
+          "role": "input",
+          "source_symbol": "M_E generalized to M",
+          "symbol": "M",
+          "unit": "kg"
+        },
+        {
+          "context": "Same two-body system and epoch as h2 and M.",
+          "definition": "Circular orbit radius measured from the central-body center (same definition as the orbit-radius records).",
+          "dimensions": "length",
+          "domain": "Positive finite radius in m.",
+          "quantity_id": "orbit_radius",
+          "role": "input",
+          "source_symbol": "r",
+          "symbol": "r",
+          "unit": "m"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: near-surface free fall where the separation of centers equals the body radius (r = R_E, Fig. 13.7) and the falling mass m cancels, so surface gravity depends only on the body (Eq. 13.2).",
+        "application profile: g is the measured free-fall acceleration at the surface and R the volumetric-mean-equivalent spherical radius; rotation/apparent-weight corrections are excluded (see limitations)."
+      ],
+      "constants": [
+        {
+          "literal": 6.67e-11,
+          "locator": "§13.2 Example 'Masses of Earth and Moon' prints G = 6.67×10⁻¹¹ N·m²/kg².",
+          "meaning": "Newtonian universal gravitational constant as printed in the source (3 significant figures)",
+          "source_id": "s-uniphys-13-2",
+          "unit": "m3/(kg*s2)"
+        }
+      ],
+      "guards": [
+        "g > 0",
+        "R > 0"
+      ],
+      "id": "orbital-mechanics--central-mass-from-surface-gravity",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires vocabulary extension: new meanings surface_gravity and body_radius (or reuse once defined). Shares central_mass with the dynamical records: gravimetric (g·R²/G) and orbital (4π²a³/G·T²) mass determinations are complementary, not duplicates."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Surface gravity solves as g = 6.67e-11*M/R**2 (Eq. 13.2 itself); substitution check with the text values (M = 5.96e24 kg, R = 6.37e6 m) returns g = 9.797 m/s² against 9.80 m/s². Radius solves as R = sqrt(M*6.67e-11/g) — sqrt halves dimensions correctly. Requires M > 0, g > 0 beyond the declared domains. Do not publish rearrangements as separate records.",
+      "kind": "theoretical",
+      "limitations": [
+        "Spherical, non-rotating idealization: the text notes g varies equator-to-pole (~0.5%) and apparent weight differs under rotation (§13.2); high-precision geodesy needs those corrections, not this record.",
+        "Scoped to the surface radius; the identical altitude form (text's 8.67 m/s² ISS-altitude example) is a different stated context and is not claimed here.",
+        "Requires an independently measured G (Cavendish tradition); before G, no absolute masses were knowable (source significance note)."
+      ],
+      "references": [
+        {
+          "expected": 5.95e+24,
+          "id": "earth-mass-worked",
+          "inputs": {
+            "R": 6370000.0,
+            "g": 9.8
+          },
+          "method": "Published worked result M_E = 5.95e24 kg from the §13.2 example (g = 9.80 m/s², R_E = 6.37e6 m). The 3-significant-figure inputs reproduce the text value; tolerance 2e22 (0.34%) covers print rounding.",
+          "provenance": "Published worked result; checks the rearranged transcription against the source's own computation.",
+          "tolerance": 2e+22
+        },
+        {
+          "expected": 5.9722e+24,
+          "id": "earth-mass-polar-nasa",
+          "inputs": {
+            "R": 6356752.0,
+            "g": 9.832
+          },
+          "method": "NASA polar surface acceleration 9.832 m/s² with polar radius 6356.752 km (Earth Fact Sheet) against the NASA tabulated mass 5.9722e24 kg. Tolerance 2e22 (0.33%) covers the spherical-form approximation on oblate-body values plus rounding.",
+          "provenance": "Independent agency determinations of three separate quantities combined through Eq. 13.2.",
+          "tolerance": 2e+22
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R": 0.0,
+            "g": 9.8
+          },
+          "kind": "domain",
+          "reason": "Zero radius is not a body surface (division by zero in the parent law); guard R > 0 rejects it."
+        },
+        {
+          "inputs": {
+            "R": 6370000.0
+          },
+          "kind": "missing-input",
+          "reason": "Surface gravity is required input; the mass cannot be determined from radius alone."
+        }
+      ],
+      "relationship": {
+        "expression": "g * R ** 2 / 6.67e-11",
+        "locator": "§13.2 Eq. 13.2 (g = GM_E/r²) with Example 'Masses of Earth and Moon' (M_E = g·R_E²/G = 5.95e24 kg).",
+        "original_equation": "g = G·M_E/r² (Eq. 13.2), rearranged to M_E = g·R_E²/G.",
+        "output_symbol": "M",
+        "source_id": "s-uniphys-13-2",
+        "translation_notes": "Exact rearrangement of Eq. 13.2 with r = R at the surface (Fig. 13.7). G inlined as the printed literal with constants metadata; no conversion inlined — coherent in base SI units. Dimensional check: (L/T²)·L²/(L³/(M·T²)) = M. Output reuses the central_mass quantity shared with the orbital records by design (see integration)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Substitutes mg into Newton's law to get g = GM_E/r² (Eq. 13.2), takes r = R_E at the surface, and works M_E = g·R_E²/G = 5.95e24 kg from g = 9.80 m/s² and R_E = 6.37e6 m; notes Earth also accelerates toward the object (neglected for m << M) and that G (Cavendish 1798) made absolute masses knowable.",
+          "id": "s-uniphys-13-2",
+          "kind": "primary",
+          "license": "OpenStax section pages carry the footer 'Textbook content produced by OpenStax is licensed under a Creative Commons Attribution License' (CC BY; observed via search rendering of the book footer, 2026-11-03). The JS-rendered full terms page was not text-extractable, so exact terms are unconfirmed.",
+          "locator": "Eq. 13.2 with Example 'Masses of Earth and Moon'.",
+          "redistribution": "This return reproduces no OpenStax prose, figures, or problem statements — only short original paraphrases, section locators, and numerical values.",
+          "title": "University Physics Volume 1, Section 13.2 Gravitation Near Earth's Surface",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/13-2-gravitation-near-earths-surface",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Polar radius 6356.752 km, surface acceleration at the pole 9.832 m/s², and mass 5.9722×10²⁴ kg used for the polar oracle.",
+          "id": "s-nasa-earth-fact",
+          "kind": "primary",
+          "license": "U.S. government work (NASA NSSDCA fact sheet); exact page terms not text-extracted.",
+          "locator": "Earth Fact Sheet bulk parameters table.",
+          "redistribution": "Numerical values and locator only; no page prose reproduced.",
+          "title": "NASA NSSDCA Earth Fact Sheet",
+          "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html",
+          "version": "NSSDCA fact sheet as posted (last updated 15 November 2024, DRW), retrieved 2026-11-03"
+        }
+      ],
+      "summary": "Central mass from surface free-fall gravity and body radius: the Eq. 13.2 rearrangement.",
+      "title": "Central mass from surface gravity and radius",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same body and measurement epoch as g and R.",
+          "definition": "Mass of the gravitating body (same quantity as the orbital central-mass records; gravimetric determination).",
+          "dimensions": "mass",
+          "domain": "Positive finite mass in kg.",
+          "quantity_id": "central_mass",
+          "role": "output",
+          "source_symbol": "M_E generalized to M",
+          "symbol": "M",
+          "unit": "kg"
+        },
+        {
+          "context": "Same body surface and measurement epoch as M and R.",
+          "definition": "Free-fall gravitational acceleration measured at (or effectively at) the body surface, rotation-corrected true gravity.",
+          "dimensions": "length/time^2",
+          "domain": "Positive finite acceleration in m/s^2.",
+          "quantity_id": "surface_gravity",
+          "role": "input",
+          "source_symbol": "g",
+          "symbol": "g",
+          "unit": "m/s^2"
+        },
+        {
+          "context": "Same body and measurement epoch as M and g.",
+          "definition": "Spherical-equivalent body radius: distance from center of mass to the surface measurement point.",
+          "dimensions": "length",
+          "domain": "Positive finite radius in m.",
+          "quantity_id": "body_radius",
+          "role": "input",
+          "source_symbol": "R_E generalized to R (source uses r = R_E at the surface)",
+          "symbol": "R",
+          "unit": "m"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

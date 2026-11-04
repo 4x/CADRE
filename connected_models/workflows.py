@@ -3,6 +3,7 @@
 from dataclasses import asdict, replace
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -20,11 +21,34 @@ REGISTRY_PATH = Path(".registry/models.sqlite3")
 RUNS_PATH = Path(".runs")
 PACKET_PATH = Path("data/nist-uniform-present-value.json")
 REFERENCE_TOLERANCE = 0.005
+FILL_IN_ENV_VAR = "FILL_IN_ASSUMPTIONS"
+FILL_IN_TRUTHY = {"1", "true", "yes", "on"}
+BASE_PROMPT_FILE = "answer-question.md"
+FILL_IN_PROMPT_FILE = "answer-fill-in-assumptions.md"
+REPAIR_PROMPT_FILE = "answer-repair.md"
+MAX_COMPOSE_ATTEMPTS = 3
 
 
-def live_request(messages: list[dict[str, str]], schema: dict[str, Any], name: str) -> dict[str, Any]:
+def fill_in_assumptions_enabled(cli_flag: bool, environ: dict[str, str] | None = None) -> bool:
+    """Resolve the assumption-filling opt-in from the CLI flag or the environment toggle."""
+    if cli_flag:
+        return True
+    values = environ if environ is not None else os.environ
+    return str(values.get(FILL_IN_ENV_VAR, "")).strip().lower() in FILL_IN_TRUTHY
+
+
+def compose_system_prompt(fill_in_assumptions: bool) -> str:
+    """Build the composer system prompt, appending the fill-in section only when enabled."""
+    prompt = load_prompt(BASE_PROMPT_FILE)
+    if fill_in_assumptions:
+        prompt += "\n\n" + load_prompt(FILL_IN_PROMPT_FILE)
+    return prompt
+
+
+def live_request(messages: list[dict[str, str]], schema: dict[str, Any], name: str,
+                 inference_model: str | None = None) -> dict[str, Any]:
     """Use the same priced adapter and ledger across curator and composer roles."""
-    settings = InferenceSettings.load(Path("inference.toml"))
+    settings = InferenceSettings.load(Path("inference.toml"), inference_model)
     return structured_request(settings, BudgetLedger(Path(".usage/meta.sqlite3"), settings), messages, schema, name)
 
 
@@ -134,10 +158,29 @@ def catalog_card(model: Model) -> dict[str, Any]:
     return card
 
 
-def answer(registry: Registry, question: str) -> dict[str, Any]:
-    """Answer a self-contained question with one parse-and-compose call, then execute."""
+class _TerminalAnswer(ModelError):
+    """A decline needing a human; never repaired by another attempt."""
+
+
+def _reset_attempt(record: dict[str, Any]) -> None:
+    """Clear per-attempt state so a repair round starts from the question."""
+    record.update({"status": "blocked", "outputs": {}, "clarifications": [], "assumptions": []})
+    for key in ("error", "query_inputs", "input_bindings", "proposal", "inference"):
+        record.pop(key, None)
+
+
+def answer(registry: Registry, question: str, fill_in_assumptions: bool = False,
+           inference_model: str | None = None) -> dict[str, Any]:
+    """Answer a self-contained question, repairing machine-rejected proposals.
+
+    The composer gets up to MAX_COMPOSE_ATTEMPTS calls: the first attempt
+    sees the base prompt, and each retry sees the repair prompt plus the
+    prior proposal and its exact machine error. Declines that need a human
+    (ambiguity, needs-input, unresolved) stop the loop immediately.
+    Execution stays deterministic; only the proposal is revised."""
     record: dict[str, Any] = {"run_id": str(uuid4()), "created": datetime.now(timezone.utc).isoformat(),
-        "question": question, "status": "blocked", "outputs": {}, "clarifications": []}
+        "question": question, "status": "blocked", "outputs": {}, "clarifications": [],
+        "fill_in_assumptions": bool(fill_in_assumptions), "assumptions": [], "attempts": []}
     try:
         text(question)
         if len(question) > MAX_QUERY_CHARS:
@@ -147,6 +190,7 @@ def answer(registry: Registry, question: str) -> dict[str, Any]:
             raise ModelError("No eligible models in the registry match an executable request yet.")
         fact_properties = {name: {"type": "string"} for name in ("id", "name", "value", "unit", "quote")}
         fact_properties["value_type"] = {"type": "string", "enum": ["number", "date", "text"]}
+        fact_properties["assumption"] = {"type": "string"}
         graph_schema = {"type": "object", "properties": {
             "id": {"type": "string"}, "outputs": {"type": "array", "items": {"type": "string"}},
             "nodes": {"type": "array", "items": {"type": "object", "properties": {
@@ -159,85 +203,137 @@ def answer(registry: Registry, question: str) -> dict[str, Any]:
             "required": ["id", "nodes", "outputs"], "additionalProperties": False}
         schema = {"type": "object", "properties": {
             "facts": {"type": "array", "items": {"type": "object", "properties": fact_properties,
-                        "required": list(fact_properties), "additionalProperties": False}},
+                        "required": [name for name in fact_properties if name != "assumption"],
+                        "additionalProperties": False}},
             "issues": {"type": "array", "items": {"type": "string"}},
             "status": {"type": "string", "enum": ["proposed", "needs-input", "unresolved"]},
             "graph": graph_schema, "reason": {"type": "string"},
             "clarifications": {"type": "array", "items": {"type": "string"}}},
             "required": ["facts", "issues", "status", "graph", "reason", "clarifications"], "additionalProperties": False}
-        response = live_request([
-            {"role": "system", "content": load_prompt("answer-question.md")},
-            {"role": "user", "content": json.dumps({"question": question, "solver_profile": PROFILE,
-                "models": {key: catalog_card(model) for key, model in models.items()}})}],
-            schema, "AnswerQuestionGrounded")
-        proposal = response["content"]
-        record["proposal"], record["inference"] = proposal, response["audit"]
-        object_fields(proposal, {"facts", "issues", "status", "graph", "reason", "clarifications"})
-        if not isinstance(proposal["facts"], list) or len(proposal["facts"]) > MAX_QUERY_FACTS or not isinstance(proposal["issues"], list):
-            raise ModelError("Answer returned invalid facts or issues.")
-        facts = [validate_fact(raw, question) for raw in proposal["facts"]]
-        if len({fact["id"] for fact in facts}) != len(facts):
-            raise ModelError("Parsed fact identifiers must be unique.")
-        record["query_inputs"] = {"facts": facts, "issues": [text(issue) for issue in proposal["issues"]], "inference": response["audit"]}
-        if record["query_inputs"]["issues"]:
-            record["status"] = "needs-input"
-            record["clarifications"] = record["query_inputs"]["issues"]
-            raise ModelError("Please clarify the conflicting or ambiguous statements in the question.")
-        if not isinstance(proposal["clarifications"], list):
-            raise ModelError("Clarifications must be an array.")
-        record["clarifications"] = [text(item) for item in proposal["clarifications"]]
-        if proposal["status"] != "proposed":
-            record["status"] = "needs-input" if proposal["status"] == "needs-input" else "blocked"
-            raise ModelError(text(proposal["reason"]))
-        if record["clarifications"]:
-            record["status"] = "needs-input"
-            raise ModelError("The proposed graph still has unresolved input questions.")
-        raw_graph = json.dumps(proposal["graph"])
-        if len(raw_graph.encode()) > MAX_RECORD_BYTES:
-            raise ModelError("Proposed graph exceeds size limit.")
-        graph_data = json.loads(raw_graph)
-        object_fields(graph_data, {"id", "nodes", "outputs"})
-        if not isinstance(graph_data["nodes"], list):
-            raise ModelError("Proposed graph nodes must be an array.")
-        facts = {fact["id"]: fact for fact in record["query_inputs"]["facts"]}
-        grounded = []
-        for node in graph_data["nodes"]:
-            object_fields(node, {"id", "model", "bindings"}, {"solve_for", "relation"})
-            if node["model"] not in models or not isinstance(node["bindings"], list):
-                raise ModelError("Proposed node requires an eligible model revision and explicit bindings.")
-            model = models[node["model"]]
-            target = node.get("solve_for") or None
-            node["solve_for"] = target
-            direction = Node(node["id"], model.key, {}, target, node.get("relation", "equal"))
-            inputs, _ = node_ports(direction, model)
-            bindings = {}
-            for binding in node["bindings"]:
-                object_fields(binding, {"input", "source", "ref"})
-                name = text(binding["input"])
-                ref = text(binding["ref"])
-                if name in bindings:
-                    raise ModelError("Composer repeated a binding for the same input.")
-                if name not in inputs:
-                    raise ModelError("Proposed binding targets an undeclared input.")
-                if binding["source"] == "node":
-                    bindings[name] = {"node": ref}
-                    continue
-                if binding["source"] != "fact":
-                    raise ModelError("Composer must bind a query fact or an upstream node, not a literal.")
-                fact_id = ref
-                if fact_id not in facts:
-                    raise ModelError("Composer referenced an unknown query fact; defaults and invented inputs are forbidden.")
-                value = bind_fact(facts[fact_id], inputs[name])
-                bindings[name] = asdict(value)
-                grounded.append({"node": node["id"], "input": name, "fact": fact_id,
-                                 "assigned_port": asdict(inputs[name]), "value": asdict(value),
-                                 "role": "requested-output-target" if name == OUTPUT_BINDING else "known-input"})
-            node["bindings"] = bindings
-        record["input_bindings"] = grounded
-        graph = composition_from_dict(graph_data)
-        record.update(execute(graph, models, admissions))
+        base_user_content = {"question": question, "solver_profile": PROFILE,
+                             "models": {key: catalog_card(model) for key, model in models.items()}}
+        base_system = compose_system_prompt(fill_in_assumptions)
+        prior: tuple[Any, str] | None = None
+        for attempt in range(1, MAX_COMPOSE_ATTEMPTS + 1):
+            _reset_attempt(record)
+            if prior is None:
+                messages = [{"role": "system", "content": base_system},
+                            {"role": "user", "content": json.dumps(base_user_content)}]
+            else:
+                try:
+                    repair_system = base_system + "\n\n" + load_prompt(REPAIR_PROMPT_FILE)
+                except ModelError:
+                    break  # Keep the last attempt's error; repair is unavailable.
+                repair_user = {**base_user_content, "prior_proposal": prior[0], "machine_error": prior[1]}
+                messages = [{"role": "system", "content": repair_system},
+                            {"role": "user", "content": json.dumps(repair_user)}]
+            try:
+                response = live_request(messages, schema, "AnswerQuestionGrounded", inference_model)
+                proposal = response["content"]
+                record["proposal"], record["inference"] = proposal, response["audit"]
+                object_fields(proposal, {"facts", "issues", "status", "graph", "reason", "clarifications"})
+                if not isinstance(proposal["facts"], list) or len(proposal["facts"]) > MAX_QUERY_FACTS or not isinstance(proposal["issues"], list):
+                    raise ModelError("Answer returned invalid facts or issues.")
+                facts = [validate_fact(raw, question, fill_in_assumptions) for raw in proposal["facts"]]
+                if len({fact["id"] for fact in facts}) != len(facts):
+                    raise ModelError("Parsed fact identifiers must be unique.")
+                record["query_inputs"] = {"facts": facts, "issues": [text(issue) for issue in proposal["issues"]], "inference": response["audit"]}
+                if record["query_inputs"]["issues"]:
+                    record["status"] = "needs-input"
+                    record["clarifications"] = record["query_inputs"]["issues"]
+                    raise _TerminalAnswer("Please clarify the conflicting or ambiguous statements in the question.")
+                if not isinstance(proposal["clarifications"], list):
+                    raise ModelError("Clarifications must be an array.")
+                record["clarifications"] = [text(item) for item in proposal["clarifications"]]
+                if proposal["status"] != "proposed":
+                    record["status"] = "needs-input" if proposal["status"] == "needs-input" else "blocked"
+                    raise _TerminalAnswer(text(proposal["reason"]))
+                if record["clarifications"]:
+                    record["status"] = "needs-input"
+                    raise _TerminalAnswer("The proposed graph still has unresolved input questions.")
+                raw_graph = json.dumps(proposal["graph"])
+                if len(raw_graph.encode()) > MAX_RECORD_BYTES:
+                    raise ModelError("Proposed graph exceeds size limit.")
+                graph_data = json.loads(raw_graph)
+                object_fields(graph_data, {"id", "nodes", "outputs"})
+                if not isinstance(graph_data["nodes"], list):
+                    raise ModelError("Proposed graph nodes must be an array.")
+                facts = {fact["id"]: fact for fact in record["query_inputs"]["facts"]}
+                grounded = []
+                for node in graph_data["nodes"]:
+                    object_fields(node, {"id", "model", "bindings"}, {"solve_for", "relation"})
+                    if node["model"] not in models or not isinstance(node["bindings"], list):
+                        raise ModelError("Proposed node requires an eligible model revision and explicit bindings.")
+                    model = models[node["model"]]
+                    target = node.get("solve_for") or None
+                    node["solve_for"] = target
+                    direction = Node(node["id"], model.key, {}, target, node.get("relation", "equal"))
+                    inputs, _ = node_ports(direction, model)
+                    bindings = {}
+                    for binding in node["bindings"]:
+                        object_fields(binding, {"input", "source", "ref"})
+                        name = text(binding["input"])
+                        ref = text(binding["ref"])
+                        if name in bindings:
+                            raise ModelError("Composer repeated a binding for the same input.")
+                        if name not in inputs:
+                            raise ModelError("Proposed binding targets an undeclared input.")
+                        if binding["source"] == "node":
+                            bindings[name] = {"node": ref}
+                            continue
+                        if binding["source"] != "fact":
+                            raise ModelError("Composer must bind a query fact or an upstream node, not a literal.")
+                        fact_id = ref
+                        if fact_id not in facts:
+                            raise ModelError("Composer referenced an unknown query fact; defaults and invented inputs are forbidden.")
+                        value = bind_fact(facts[fact_id], inputs[name])
+                        bindings[name] = asdict(value)
+                        grounded.append({"node": node["id"], "input": name, "fact": fact_id,
+                                         "assigned_port": asdict(inputs[name]), "value": asdict(value),
+                                         "role": "requested-output-target" if name == OUTPUT_BINDING else "known-input"})
+                        if facts[fact_id].get("assumed"):
+                            record["assumptions"].append({"node": node["id"], "input": name, "fact": fact_id,
+                                "value": facts[fact_id]["value"], "unit": facts[fact_id]["unit"],
+                                "quote": facts[fact_id]["quote"], "assumption": facts[fact_id]["assumption"]})
+                    node["bindings"] = bindings
+                record["input_bindings"] = grounded
+                graph = composition_from_dict(graph_data)
+                outcome = execute(graph, models, admissions)
+            except _TerminalAnswer as exc:
+                record["error"] = str(exc)
+                record["attempts"].append({"attempt": attempt, "proposal": record.get("proposal"),
+                                           "error": str(exc), "inference": record.get("inference")})
+                if attempt == 1 or attempt >= MAX_COMPOSE_ATTEMPTS:
+                    break
+                # The question is unchanged since the last proposal, so a
+                # late ambiguity claim is composer confusion until it repeats.
+                prior = (record.get("proposal"), str(exc))
+                continue
+            except (ModelError, ValueError, TypeError, KeyError) as exc:
+                record["error"] = str(exc)
+                record["attempts"].append({"attempt": attempt, "proposal": record.get("proposal"),
+                                           "error": str(exc), "inference": record.get("inference")})
+                if attempt >= MAX_COMPOSE_ATTEMPTS:
+                    break
+                prior = (record.get("proposal"), str(exc))
+                continue
+            if outcome["status"] == "completed":
+                record.update(outcome)
+                record["attempts"].append({"attempt": attempt, "proposal": record.get("proposal"),
+                                           "error": None, "inference": record.get("inference")})
+                break
+            error = outcome.get("error") or "Execution rejected the proposed graph."
+            record["attempts"].append({"attempt": attempt, "proposal": record.get("proposal"),
+                                       "error": error, "inference": record.get("inference")})
+            if attempt >= MAX_COMPOSE_ATTEMPTS:
+                record.update(outcome)
+                break
+            record["error"] = error
+            prior = (record.get("proposal"), error)
     except (ModelError, ValueError, TypeError, KeyError) as exc:
         record["error"] = str(exc)
+    used = [(attempt.get("inference") or {}).get("model") for attempt in record["attempts"]]
+    record["model"] = next((name for name in reversed(used) if name), None)
     path = save_run(record, RUNS_PATH)
     return {**record, "saved_path": str(path)}
 

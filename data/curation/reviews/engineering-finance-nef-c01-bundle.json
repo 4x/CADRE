@@ -1,0 +1,169 @@
+{
+  "batch_id": "engineering-finance-nef-c01",
+  "created": "2026-11-03",
+  "curator": "compat-mortgage",
+  "deferred": [],
+  "domain": "engineering-finance",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "Record remains requires-extension with no runtime projection: r1 gaps carried unchanged; admission replays the unchanged references against the admitted finance vocabulary.",
+      "Duplicate search: this correction batch contains only the r2 of the known spark-b01 r1 record; no catalog inventory was consulted beyond the registry context survey in the scratch dir."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical validation 2026-11-03 with the central package: `validate` on the bundle -> status valid-data-awaiting-review, engineering-finance--level-loan-periodic-payment@r2 requires-extension with 2 arithmetic and 2 rejection checks; `pack` -> engineering-finance-nef-c01-return.zip; `validate` on the ZIP -> valid-data-awaiting-review. Source-fidelity review: r1 sources, evidence, assumptions, limitations, expression, references, guards, and meanings byte-identical; only the briefed mechanical changes applied (output A context +:schedule, r2 bump, translation_notes sentence). Checks not performed: new source inspection (r1 evidence and recommend-admit review stand); no staging, review, or admission (out of scope).",
+    "summary": "Correction batch engineering-finance-nef-c01 (curator compat-mortgage): r2 revision of engineering-finance--level-loan-periodic-payment from batch engineering-finance-spark-b01 r1, implementing exactly the committed correction brief data/curation/corrections/engineering-finance-loan-schedule-context-brief-7.md: output A context gains the :schedule qualifier so the level payment binds to the loan-payment-interest/principal-portion A inputs under exact meaning/context equality; inputs P/i/n keep the loan-level context. This repairs the payment-to-interest and payment-to-principal chains that fail fail-closed on the r1 context mismatch; the recommend-admit reviews stand."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "assumptions": [
+        "Source assumption: equal end-of-period payments with the first payment one full period after disbursement at a fixed per-period rate (UMD end-of-year convention).",
+        "Application profile: fully amortizing loan - the last payment extinguishes principal plus accrued interest; no fees, prepayments, or rate resets.",
+        "i is the effective rate per payment period; convert a quoted nominal APR with the effective-rate record before use."
+      ],
+      "constants": [],
+      "guards": [
+        "P >= 0",
+        "i > 0",
+        "n >= 1"
+      ],
+      "id": "engineering-finance--level-loan-periodic-payment",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Needs new quantity meanings: periodic_payment and periodic_rate (period_count exists but the payment-timing context is new); no current-runtime projection attempted.",
+          "Algebraic inverse-direction twin of the uniform-present-value framing; kept as its own record because the assignment requires the loan-payment direction with explicit end-of-period timing."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "P=A*((1+i)**n-1)/(i*(1+i)**n) needs i>0 and n>=1; checked 329.2 times the UPV factor at 12%/4 gives 999.9 within rounding. Substitution check at n=1: A=P*(1+i) exactly. Solving for i needs iteration and for n a logarithm, both unsupported by the scalar grammar, so those directions are untested. The i-to-0 limit branch A=P/n is a different expression, never a guard relaxation.",
+      "kind": "theoretical",
+      "limitations": [
+        "The zero-rate case i=0 is excluded by guard; its limit branch A=P/n is a separate expression stated here, not substituted silently.",
+        "Beginning-of-period (annuity-due) schedules need the distinct factor with an extra (1+i) multiple and are not covered.",
+        "Solving for the rate or term needs iteration or a logarithm, unsupported by the scalar grammar; closed forms only."
+      ],
+      "references": [
+        {
+          "expected": 329.2,
+          "id": "umd-mortgage-example",
+          "inputs": {
+            "P": 1000,
+            "i": 0.12,
+            "n": 4
+          },
+          "method": "Source prints A=$329.2 for P=$1000, i=12%, n=4 under the explicit statement This is the case of loans (mortgages); recomputation gives 329.234, so tolerance covers the $0.1 rounding.",
+          "provenance": "Published worked example in the UMD tutorial, Equal-Payment-Series Capital-Recovery Factor section",
+          "tolerance": 0.05
+        },
+        {
+          "expected": 193.33,
+          "id": "sixty-payment-dcf-sum",
+          "inputs": {
+            "P": 10000,
+            "i": 0.005,
+            "n": 60
+          },
+          "method": "Expected rounded to cents (exact-form value 193.32802); independently verified by summing the 60 individually discounted payments, which returns the 10000.00 principal, instead of re-evaluating the closed form.",
+          "provenance": "Independent derivation: term-by-term discounted-cash-flow summation from the source end-of-period mechanics",
+          "tolerance": 0.01
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "P": 1000,
+            "i": 0,
+            "n": 4
+          },
+          "kind": "domain",
+          "reason": "Zero periodic rate makes the denominator zero and needs the separate limit branch A=P/n; excluded by i>0."
+        },
+        {
+          "inputs": {
+            "P": 1000,
+            "i": 0.12
+          },
+          "kind": "missing-input",
+          "reason": "Term count n is required; a payment cannot be sized without the number of periods."
+        }
+      ],
+      "relationship": {
+        "expression": "P*i*(1+i)**n/((1+i)**n - 1)",
+        "locator": "UMD tutorial: Equal-Payment-Series Capital-Recovery Factor (derivation equating P[1+i]^n to the uniform-series accumulation; boxed formula; This is the case of loans (mortgages); Example 1 with P=1000, i=12%, n=4 giving A=$329.2).",
+        "original_equation": "A = P * i*[1+i]^n / ([1+i]^n - 1)",
+        "output_symbol": "A",
+        "source_id": "umd-ence202",
+        "translation_notes": "Transcribed verbatim into scalar syntax; only bracket grouping changed. Dimensional check: USD times a dimensionless capital-recovery factor stays USD. Guards i>0 and n>=1 jointly imply the denominator (1+i)^n-1 is positive, preserving the pre-simplification exclusion. End-of-period timing carried from the source convention into the variable definitions. Reference exponents 4 and 60 are within the tooling cap. r2 context alignment: output A carries the :schedule-qualified context, marking it as the amortization-schedule payment consumed by the loan-payment-interest/principal-portion records; inputs P/i/n keep the loan-level context."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Page derives the factor by equating P[1+i]^n with the uniform-series accumulation, prints A=P*i[1+i]^n/([1+i]^n-1), states This is the case of loans (mortgages), and works P=1000/i=12%/n=4 to A=$329.2.",
+          "id": "umd-ence202",
+          "kind": "primary",
+          "license": "Page footer states Copyright (c) 1996-1998, Department of Civil Engineering, University of Maryland; no open-license or terms page found on 2026-11-01.",
+          "locator": "Section Equal-Payment-Series Capital-Recovery Factor, including derivation, mortgage statement, and Example 1.",
+          "redistribution": "No verbatim excerpts stored; only short original paraphrases, formula symbols and computed values.",
+          "title": "Introduction to Engineering Economics (ENCE 202 tutorial, Univ. of Maryland)",
+          "url": "https://user.eng.umd.edu/~austin/ence202.d/economics.html",
+          "version": "Tutorial text as printed; last modified February 1, 1998"
+        }
+      ],
+      "summary": "Level end-of-period payment that amortizes a principal P at a positive per-period rate over n periods.",
+      "title": "Level loan periodic payment (capital recovery) for a positive rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate",
+          "definition": "Financed principal disbursed at time 0",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite principal; zero admits the no-loan boundary",
+          "quantity_id": "present_value",
+          "role": "input",
+          "source_symbol": "P (deposit/principal now)",
+          "symbol": "P",
+          "unit": "USD"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate",
+          "definition": "Effective interest rate per payment period as a decimal fraction",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite decimal; zero excluded (separate limit branch)",
+          "quantity_id": "periodic_rate",
+          "role": "input",
+          "source_symbol": "i (annual rate in source; here per payment period)",
+          "symbol": "i",
+          "unit": "1"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate",
+          "definition": "Number of equal payment periods",
+          "dimensions": "count",
+          "domain": "At least one period; integer-valued counts in use",
+          "quantity_id": "period_count",
+          "role": "input",
+          "source_symbol": "n (number of annual interest periods; here payment periods)",
+          "symbol": "n",
+          "unit": "periods"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate:schedule",
+          "definition": "Level end-of-period payment that fully amortizes the loan",
+          "dimensions": "currency",
+          "domain": "Nonnegative finite payment",
+          "quantity_id": "periodic_payment",
+          "role": "output",
+          "source_symbol": "A (single payment in a series of n equal end-of-period payments)",
+          "symbol": "A",
+          "unit": "USD"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

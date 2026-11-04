@@ -1,0 +1,793 @@
+{
+  "batch_id": "clinical-arithmetic-codex-b02",
+  "created": "2026-11-03",
+  "curator": "codex",
+  "deferred": [
+    {
+      "title": "All renal-clearance inverse views",
+      "reason": "Assignment boundary explicitly requires clearance inversions to be deferred. Forward Cockcroft–Gault and timed-urine definitions are retained in b02; inverse views are not offered or numerically tested. Future owner-authorized scope would need target-specific denominator, domain, statistical-identifiability and population checks; root or approximate inversion must never be substituted.",
+      "source_urls": [
+        "https://www.kidney.org/sites/default/files/441-8491_2202_faqs_aboutgfr_v5.pdf",
+        "https://nordx.testcatalog.org/show/CRCLR"
+      ]
+    },
+    {
+      "title": "Equal subdivision of daily total across administrations",
+      "reason": "Source daily-total allocation is meaningful, but the scalar format has no general integer guard for an arbitrary administration count. Do not silently treat a noninteger count as physically valid or add invented limits merely to pass. Continue assessing a faithful interface; the total dose and count must refer to the same prescribed day and equal allocations. This is distinct from per-time rates.",
+      "source_urls": [
+        "https://openstax.org/books/clinical-nursing-skills/pages/11-2-dosing",
+        "https://opentextbc.ca/nursingnumeracy/chapter/calculating-medication-doses-based-on-weight/"
+      ]
+    },
+    {
+      "title": "Tablet quantity as a second desired-over-have record",
+      "reason": "Same canonical proportional relationship as liquid-medication-prescribed-volume but with discrete-unit output. Keep as alternate source profile/evidence; do not mint a unit-changed clone. Fractional tablet acceptability depends on formulation-specific facts absent from the scalar amount identity.",
+      "source_urls": [
+        "https://opentextbc.ca/nursingnumeracy/chapter/calculating-medication-dosage/"
+      ]
+    },
+    {
+      "title": "Original Cockcroft–Gault article visual inspection and calibration details",
+      "reason": "Original scan https://www.drugtnt.com/ref/RenalDosing/Cockcroft_1976.pdf opened with no extracted text; both browsing screenshot interfaces returned image placeholders without accessible pixels, and shell download was network-blocked. DOI https://doi.org/10.1159/000180580 search rendering was discovery only; direct publisher retrieval failed. Forward equation is instead grounded in the unambiguous NKF official PDF text plus directly inspected PubMed original abstract. Detailed original assay/renal-range/residual review remains a source gap, not invented evidence.",
+      "source_urls": [
+        "https://www.drugtnt.com/ref/RenalDosing/Cockcroft_1976.pdf",
+        "https://doi.org/10.1159/000180580",
+        "https://pubmed.ncbi.nlm.nih.gov/1244564/",
+        "https://www.kidney.org/sites/default/files/441-8491_2202_faqs_aboutgfr_v5.pdf"
+      ]
+    },
+    {
+      "title": "Alternative RCPA measured-clearance source",
+      "reason": "Search discovery indicated a useful formula, but direct inspection returned 403. Not used as supporting evidence; NorDx's directly inspected technical catalog supplies both formula and a published numerical example.",
+      "source_urls": [
+        "https://www.rcpa.edu.au/Manuals/RCPA-Manual/Pathology-Tests/C/Creatinine-clearance",
+        "https://nordx.testcatalog.org/show/CRCLR"
+      ]
+    }
+  ],
+  "domain": "clinical-arithmetic",
+  "example_only": false,
+  "handoff": {
+    "summary": "Second checkpoint: three new relationships (historical Cockcroft–Gault, timed-urine creatinine clearance, liquid prescribed volume) and one r2 correction of b01's body_mass wording. Original r1 remains intact; r2 is the preferred weight-based amount record. No source or clinical approval is inferred.",
+    "gaps": [
+      "All records require clinical vocabulary/unit extensions; no runtime or registry modified. Duplicate comparison limited to supplied 218-record inventory, vocabulary snapshot and own b01/b02 data.",
+      "Original Cockcroft–Gault full-text visual access and concentration calibration endpoints were not established. Its female factor is not represented as clinically validated; arithmetic oracles do not validate empirical prediction.",
+      "NKF and original-article rights were not established; NorDx linked terms restrict source-material reuse. Independent formula/fact curation is not claimed to settle downstream usage rights.",
+      "Assignment-required clearance-inverse deferrals override the protocol's ordinary inverse-example expectation for the two renal records; no inversions are silently approximated."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "Curator self-audit identified that b01/r1's dosing-weight wording could imply ideal/adjusted masses under body_mass; r2 corrects only that scope and metadata, preserving expression/oracles. Prior IDs: clinical-arithmetic--body-mass-index@r1, clinical-arithmetic--weight-based-prescribed-mass@r1, clinical-arithmetic--mean-volumetric-infusion-rate@r1, clinical-arithmetic--gravity-infusion-mean-drop-rate@r1. Primary technical HTML and clear extracted official PDF equation inspected; inaccessible originals are disclosed rather than claimed as read. JSON validation executed successfully using installed kit 2026-10-31.6: 4 records, 10 reference and 10 rejection cases. Final JSON revalidation and packed ZIP validation are recorded in the external checkpoint log. Scientific review, empirical range validation and downstream rights remain pending."
+  },
+  "kit_version": "2026-10-31.6",
+  "models": [
+    {
+      "id": "clinical-arithmetic--weight-based-prescribed-mass",
+      "revision": "r2",
+      "title": "Prescribed drug mass from a per-body-mass amount",
+      "summary": "Self-audit correction of b01/r1: the body_mass input now explicitly means actual measured patient mass only, so ideal or adjusted dosing weights cannot silently bind to that existing meaning. The equation and numerical oracles are unchanged. This is prescribed-amount arithmetic, without selecting or validating a dose.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "D",
+        "expression": "d * w",
+        "original_equation": "amount per administration = amount per kilogram per administration x client body mass",
+        "source_id": "langham-weight",
+        "locator": "Chapter 15, Calculating Weight Based Doses, formula following Sample Exercise 15.2; Sample Exercises 15.1 and 15.3",
+        "translation_notes": "Introduced D, d and w map respectively to mg per administration, amount per dose, and client weight. d is stored as kg of active drug per kg of body mass (unit 1); e.g. 0.2 mg/kg = 2e-7 kg/kg. D is kg. Dimensions: (M_drug/M_body)*M_body=M_drug, physically M; quantity meaning preserves the different mass supports despite cancellation. With the runtime mass base, d is unchanged and D and w acquire the same scale, so expression d*w is canonical without a conversion literal. No frequency or daily total is inferred."
+      },
+      "variables": [
+        {
+          "symbol": "d",
+          "source_symbol": "Introduced d maps to amount per dose per kg in the formula",
+          "role": "input",
+          "quantity_id": "prescribed_drug_mass_per_body_mass",
+          "definition": "Independently specified active-drug mass per body mass for one administration, already normalized to kg/kg.",
+          "unit": "1",
+          "dimensions": "M/M = 1",
+          "context": "Same patient, drug/active-moiety mass basis, independently authorized prescription and one administration. Application profile: actual measured body mass is the independently authorized basis. The prescribed coefficient is per kilogram per administration, not per day or per time. Source examples are pediatric; the arithmetic has no drug-specific clinical validation population.",
+          "domain": "Finite nonnegative; drug, route, age eligibility and selected body-mass convention must already be authorized. Zero is a mathematical no-amount boundary, not a prescription."
+        },
+        {
+          "symbol": "w",
+          "source_symbol": "Introduced w maps to weight of client",
+          "role": "input",
+          "quantity_id": "body_mass",
+          "definition": "Actual measured total body mass of this patient, used only when that is the independently authorized prescription basis.",
+          "unit": "kg",
+          "dimensions": "M",
+          "context": "Same patient, drug/active-moiety mass basis, independently authorized prescription and one administration. Application profile: actual measured body mass is the independently authorized basis. The prescribed coefficient is per kilogram per administration, not per day or per time. Source examples are pediatric; the arithmetic has no drug-specific clinical validation population.",
+          "domain": "Finite strictly positive actual measured body mass; ideal body weight and adjusted dosing-weight constructs are different meanings and are excluded from this input."
+        },
+        {
+          "symbol": "D",
+          "source_symbol": "Introduced D maps to source amount in mg",
+          "role": "output",
+          "quantity_id": "prescribed_drug_mass_per_administration",
+          "definition": "Active-drug mass corresponding to the specified coefficient and body mass for one administration.",
+          "unit": "kg",
+          "dimensions": "M",
+          "context": "Same patient, drug/active-moiety mass basis, independently authorized prescription and one administration. Application profile: actual measured body mass is the independently authorized basis. The prescribed coefficient is per kilogram per administration, not per day or per time. Source examples are pediatric; the arithmetic has no drug-specific clinical validation population.",
+          "domain": "Finite nonnegative arithmetic amount; no therapeutic appropriateness implied."
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "d >= 0",
+        "w > 0"
+      ],
+      "assumptions": [
+        "Source-backed arithmetic: the nursing text multiplies a prescribed per-kilogram per-dose amount by patient mass; examples include children of 14 and 37 kg.",
+        "Application profile: actual measured body mass is the authorized basis; ideal and adjusted dosing weights are excluded. The coefficient, active-moiety basis and patient eligibility remain external. The arithmetic definition asserts no drug-specific validated population.",
+        "Application profile: zero d is admitted solely as the no-drug arithmetic limit; actual administration decisions are excluded."
+      ],
+      "limitations": [
+        "A daily or continuous-rate prescription has different temporal semantics and cannot be bound to d unchanged.",
+        "No maximum-dose, renal, obesity, neonatal, pregnancy or route-specific adjustment is established; the source's illustrative drug orders are numerical examples, not reusable defaults.",
+        "Revision r1's wording about a selected dosing-weight basis was too broad for body_mass; use r2. Original r1 files remain preserved for reconciliation."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "langham-weight",
+          "kind": "primary",
+          "title": "Julia Langham: A Guide to Numeracy in Nursing, Chapter 15",
+          "url": "https://opentextbc.ca/nursingnumeracy/chapter/calculating-medication-doses-based-on-weight/",
+          "version": "Julia Langham; v1.00 (June 28, 2023), live HTML inspected 2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Calculating Weight Based Doses; Sample Exercises 15.1–15.3",
+          "evidence": "Multiplies a prescribed per-kilogram amount by client mass; reports 2.8 mg and 925 mg in two examples.",
+          "license": "Chapter License section: Julia Langham, copyright 2023, CC BY 4.0, except where noted. https://creativecommons.org/licenses/by/4.0/ inspected 2026-11-03. Versioning History https://opentextbc.ca/nursingnumeracy/back-matter/versioning-history/ lists v1.00, June 28, 2023.",
+          "redistribution": "Attribution: Julia Langham, A Guide to Numeracy in Nursing, BCcampus, 2023, CC BY 4.0. Changes: local symbols, coherent unit normalization, original evidence paraphrase and added mathematical checks. No source images or full chapters included; retain attribution, license link and change notice on redistribution. No endorsement claimed."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-child-fourteen-kg",
+          "inputs": {
+            "d": 2e-07,
+            "w": 14
+          },
+          "expected": 2.8e-06,
+          "tolerance": 1e-15,
+          "method": "Published result 2.8 mg converted to 0.0000028 kg; input 0.2 mg/kg becomes 0.0000002 kg/kg. Source examples are pedagogical, not measured outcomes. Exact decimal arithmetic is intended; 1e-15 kg permits numerical representation error only.",
+          "provenance": "Langham Ch.15, Sample Exercise 15.1."
+        },
+        {
+          "id": "published-child-thirty-seven-kg",
+          "inputs": {
+            "d": 2.5e-05,
+            "w": 37
+          },
+          "expected": 0.000925,
+          "tolerance": 1e-12,
+          "method": "Published 925 mg converted to 0.000925 kg, with 25 mg/kg normalized to 0.000025 kg/kg. Distinct nonzero coefficient and mass test the scale. Tolerance 1e-12 kg covers floating arithmetic, not clinical uncertainty.",
+          "provenance": "Langham Ch.15, Sample Exercise 15.3."
+        },
+        {
+          "id": "independent-equal-portions",
+          "inputs": {
+            "d": 1e-05,
+            "w": 12.5
+          },
+          "expected": 0.000125,
+          "tolerance": 1e-12,
+          "method": "Independent synthetic counting check: twelve 10 mg portions plus one half portion total 125 mg. Tolerance 1e-12 kg is arithmetic only.",
+          "provenance": "Curator-created aggregation argument independent of running the stored expression."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "d": 1e-05,
+            "w": 0
+          },
+          "reason": "Patient mass must be positive."
+        },
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "w": 14
+          },
+          "reason": "No mass-per-body-mass amount is specified."
+        }
+      ],
+      "inverse_notes": "Target d: known D>=0 and w>0 give d=D/w, uniquely, with original contexts and guards. Check D=0.000125 kg and w=12.5 kg gives d=0.00001 and forward D=0.000125. D=0 gives d=0 and is admitted as the stated arithmetic boundary. Target w: known D and d>0 give w=D/d and require w>0 (hence D>0). If d=0 and D=0 every positive w satisfies the identity; if d=0 and D>0 none does. This is algebraic inversion of an amount definition, not identification of an appropriate clinical weight or coefficient.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Need prescribed_drug_mass_per_body_mass and prescribed_drug_mass_per_administration meanings. kg and body_mass are present; preserve active-drug versus patient-mass semantics even though d is dimensionless. No dosing recommendation or runtime projection."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "clinical-arithmetic--cockcroft-gault-creatinine-clearance",
+      "revision": "r1",
+      "title": "Historical Cockcroft–Gault estimated creatinine clearance",
+      "summary": "Forward-only transcription of the historical adult estimate. Original abstract: derivation in 249 patients aged 18–92, comparison in 236, correlation 0.83. NKF describes the cohort as 249 white males and the female adjustment as estimated rather than scientifically quantified. This candidate does not recommend a kidney-function equation or a drug dose.",
+      "kind": "empirical",
+      "relationship": {
+        "output_symbol": "C",
+        "expression": "(1 - 0.15 * z) * (140 - a) * w / (432000000000 * sCr)",
+        "original_equation": "eClcr = {((140-age) x weight)/(72 SCr)} x 0.85 if female, with eClcr in mL/min, age in years, weight in kg and SCr in mg/dL",
+        "source_id": "nkf-equation",
+        "locator": "Frequently Asked Questions About GFR Estimates, question 16, printed page 8 (PDF page 8, index 7), displayed equation and following units",
+        "translation_notes": "Introduced C maps to eClcr, a to age's numerical value in years, w to weight, and sCr to SCr. Introduced z is 0 for the source male branch or 1 for its female branch; 1-0.15*z exactly encodes the published 15% reduction, not a fitted continuous sex factor. Age is a numerical year index (unit years, dimensionless in this snapshot), not an elapsed-time input converted to seconds. Serum creatinine is kg/m^3, so 1 mg/dL=0.01 kg/m^3. The source denominator coefficient 72 kg*min*dL/(mg*mL) becomes 432000000000 s in coherent units. With w in the runtime mass base and sCr on the same mass scale, mass cancels and C is m^3/s. Dimensions: (1)*(1)*M/(T*(M L^-3))=L^3 T^-1. The normalized 432000000000 is the dimensional empirical coefficient, not an extra input/output unit conversion. Unit scales alone must convert future mL/min display ports. Unambiguous NKF extracted equation is the authority; original PDF visual inspection was unavailable, so no full-original methods/table inspection is claimed."
+      },
+      "variables": [
+        {
+          "symbol": "a",
+          "source_symbol": "Introduced a maps to age",
+          "role": "input",
+          "quantity_id": "chronological_age_year_index",
+          "definition": "Numerical chronological age in years as required by this historical calibration; not a duration in seconds.",
+          "unit": "years",
+          "dimensions": "1 (numerical year index per snapshot convention)",
+          "context": "Historical adult Cockcroft–Gault creatinine-clearance estimate for the same patient's age, actual measured mass and serum creatinine. Age profile 18–92 years, stable renal function, non-obese/non-malnourished body composition; no pregnancy-specific validation. Original derivation was in men; the female adjustment is a source-stated estimate without equivalent validation. Assay provenance must be supplied outside the scalar record.",
+          "domain": "Finite age index from 18 through 92 inclusive, matching the original abstract's reported derivation ages; this guard does not certify clinical eligibility."
+        },
+        {
+          "symbol": "w",
+          "source_symbol": "Introduced w maps to weight (kg)",
+          "role": "input",
+          "quantity_id": "body_mass",
+          "definition": "Actual measured patient body mass; no ideal/adjusted mass substitution in this profile.",
+          "unit": "kg",
+          "dimensions": "M",
+          "context": "Historical adult Cockcroft–Gault creatinine-clearance estimate for the same patient's age, actual measured mass and serum creatinine. Age profile 18–92 years, stable renal function, non-obese/non-malnourished body composition; no pregnancy-specific validation. Original derivation was in men; the female adjustment is a source-stated estimate without equivalent validation. Assay provenance must be supplied outside the scalar record.",
+          "domain": "Finite strictly positive actual mass in the declared non-extreme body-composition profile."
+        },
+        {
+          "symbol": "sCr",
+          "source_symbol": "SCr; local sCr spelling introduced",
+          "role": "input",
+          "quantity_id": "serum_creatinine_mass_concentration",
+          "definition": "Serum creatinine mass per serum volume, matched to this assessment and documented assay calibration.",
+          "unit": "kg/m^3",
+          "dimensions": "M L^-3",
+          "context": "Historical adult Cockcroft–Gault creatinine-clearance estimate for the same patient's age, actual measured mass and serum creatinine. Age profile 18–92 years, stable renal function, non-obese/non-malnourished body composition; no pregnancy-specific validation. Original derivation was in men; the female adjustment is a source-stated estimate without equivalent validation. Assay provenance must be supplied outside the scalar record.",
+          "domain": "Finite strictly positive. No floor, clipping or empirical inflation. Positive numeric guard is not a validated concentration range; original concentration calibration limits were not established from the inspected abstract."
+        },
+        {
+          "symbol": "z",
+          "source_symbol": "Introduced binary indicator; maps to source male/female branches",
+          "role": "input",
+          "quantity_id": "cockcroft_gault_female_branch_indicator",
+          "definition": "Indicator selecting the source's stated sex branch: 0 male, 1 female. It is a historical formula category, not an inference about gender or contemporary individual physiology.",
+          "unit": "1",
+          "dimensions": "1",
+          "context": "Historical adult Cockcroft–Gault creatinine-clearance estimate for the same patient's age, actual measured mass and serum creatinine. Age profile 18–92 years, stable renal function, non-obese/non-malnourished body composition; no pregnancy-specific validation. Original derivation was in men; the female adjustment is a source-stated estimate without equivalent validation. Assay provenance must be supplied outside the scalar record.",
+          "domain": "Exactly 0 or 1. This record supplies no rule for assigning the category in other populations."
+        },
+        {
+          "symbol": "C",
+          "source_symbol": "eClcr; introduced local C",
+          "role": "output",
+          "quantity_id": "creatinine_clearance",
+          "definition": "Historical algebraic estimate of creatinine clearance, as an effective serum volume per time; not measured GFR and not BSA-indexed.",
+          "unit": "m^3/s",
+          "dimensions": "L^3 T^-1",
+          "context": "Historical adult Cockcroft–Gault creatinine-clearance estimate for the same patient's age, actual measured mass and serum creatinine. Age profile 18–92 years, stable renal function, non-obese/non-malnourished body composition; no pregnancy-specific validation. Original derivation was in men; the female adjustment is a source-stated estimate without equivalent validation. Assay provenance must be supplied outside the scalar record.",
+          "domain": "Positive estimate within the stated algebraic domain, with population/assay-dependent error; no prediction interval is provided."
+        }
+      ],
+      "constants": [
+        {
+          "literal": 140,
+          "meaning": "Historical age intercept for numerical age in years",
+          "unit": "1 (year-index convention)",
+          "source_id": "nkf-equation",
+          "locator": "Q16, printed p8"
+        },
+        {
+          "literal": 0.15,
+          "meaning": "Source female reduction (1-0.15=0.85)",
+          "unit": "1",
+          "source_id": "cg-original-abstract",
+          "locator": "Abstract: 15% reduction"
+        },
+        {
+          "literal": 432000000000,
+          "meaning": "Source empirical denominator 72 normalized from kg*min*dL/(mg*mL) to seconds; mass scales cancel",
+          "unit": "s",
+          "source_id": "nkf-equation",
+          "locator": "Q16 equation and unit definitions; normalization in translation_notes"
+        },
+        {
+          "literal": 72,
+          "meaning": "Original conventional denominator coefficient; documented for provenance, not additionally multiplied in expression",
+          "unit": "kg*min*dL/(mg*mL)",
+          "source_id": "nkf-equation",
+          "locator": "Q16 equation"
+        }
+      ],
+      "guards": [
+        "a >= 18",
+        "a <= 92",
+        "w > 0",
+        "sCr > 0",
+        "z * (z - 1) == 0"
+      ],
+      "assumptions": [
+        "Source facts: original abstract reports the 18–92 derivation age range and correlation 0.83 in comparison with measured creatinine clearance; NKF identifies narrow historical cohort and assay limitations.",
+        "Application profile: restrict to stable renal function and non-extreme body composition; eviQ practice points warn against unstable function, severe malnutrition and obesity. No pregnancy-specific validation is asserted.",
+        "The female branch preserves the source adjustment as an estimate; the original male derivation must not be described as female validation.",
+        "Permitted use is reviewable arithmetic/history for qualified interpretation. Eligibility, assay comparability and use of a renal estimate are external clinical judgments."
+      ],
+      "limitations": [
+        "Correlation 0.83 is a population fit summary, not individual precision or causal accuracy. No residual standard error or confidence interval is invented; the original abstract does not report these or concentration-range endpoints.",
+        "The original non-standardized creatinine-assay era differs from modern IDMS-traceable measurement. No automatic correction factor is supplied.",
+        "NKF currently favors newer race-agnostic eGFR approaches for medication-related decisions; this record preserves the historical relationship without selecting a clinical method. Creatinine clearance and GFR are different quantities.",
+        "No extrapolated age, extreme-mass rule, creatinine floor, obesity adjustment, race coefficient, BSA correction or dosing recommendation is included."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "nkf-equation",
+          "kind": "primary",
+          "title": "National Kidney Foundation: Frequently Asked Questions About GFR Estimates",
+          "url": "https://www.kidney.org/sites/default/files/441-8491_2202_faqs_aboutgfr_v5.pdf",
+          "version": "2022 PDF indicated by document code 441-8491_2202; no later edition asserted",
+          "accessed": "2026-11-03",
+          "locator": "Q16; printed page 8, PDF page index 7; clear extracted equation and units",
+          "evidence": "Displays the historical adult clearance equation with denominator 72 SCr and female factor 0.85.",
+          "license": "No reusable-content license or terms granting redistribution were established for this accessed version; terms unknown. Public availability alone is not legal clearance.",
+          "redistribution": "Includes only original short evidence paraphrases, equations and attributed numerical facts, not a full source document or images. Further redistribution/use rights remain unverified; no endorsement claimed."
+        },
+        {
+          "id": "cg-original-abstract",
+          "kind": "primary",
+          "title": "Cockcroft DW and Gault MH: Prediction of creatinine clearance from serum creatinine",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/1244564/",
+          "version": "Nephron 1976;16(1):31–41, DOI 10.1159/000180580; abstract hosted by PubMed",
+          "accessed": "2026-11-03",
+          "locator": "Abstract only, inspected directly; full original methods and tables were not visually inspected",
+          "evidence": "Reports 249 derivation patients aged 18–92, 236 comparison patients, r=0.83 and a 15% female reduction.",
+          "license": "Original article rights not established from PubMed abstract; terms unknown. Bibliographic hosting does not license the article.",
+          "redistribution": "Includes only original short evidence paraphrases, equations and attributed numerical facts, not a full source document or images. Further redistribution/use rights remain unverified; no endorsement claimed."
+        },
+        {
+          "id": "nkf-limitations",
+          "kind": "primary",
+          "title": "National Kidney Foundation: Cockcroft-Gault Equation for Estimating Creatinine Clearance",
+          "url": "https://www.kidney.org/professionals/kdoqi/cockcroft-gault-equation-estimating-creatinine-clearance",
+          "version": "Live HTML inspected 2026-11-03, cites 2025 publications; no page revision date established",
+          "accessed": "2026-11-03",
+          "locator": "Limitations of the Cockcroft-Gault equation; Limitations of Practice Adaptations",
+          "evidence": "Describes a narrow male derivation cohort, unvalidated female adjustment and assay-era differences.",
+          "license": "No reusable-content license or terms granting redistribution were established for this accessed version; terms unknown. Public availability alone is not legal clearance.",
+          "redistribution": "Includes only original short evidence paraphrases, equations and attributed numerical facts, not a full source document or images. Further redistribution/use rights remain unverified; no endorsement claimed."
+        },
+        {
+          "id": "eviq-scope",
+          "kind": "primary",
+          "title": "Cancer Institute NSW, eviQ: Creatinine Clearance Calculator, ID 3200",
+          "url": "https://www.eviq.org.au/clinical-resources/eviq-calculators/3200-creatinine-clearance-calculator",
+          "version": "Version 3; history includes 2022-10-21 and 2025-03-28",
+          "accessed": "2026-11-03",
+          "locator": "Practice points, first three bullets",
+          "evidence": "Warns that the estimate is inaccurate with unstable renal function and unreliable at extremes of body size.",
+          "license": "Page links Terms and Disclaimer and copyright; their detailed content was not successfully retrieved. Terms unknown for redistribution; do not assume clearance.",
+          "redistribution": "Includes only original short evidence paraphrases, equations and attributed numerical facts, not a full source document or images. Further redistribution/use rights remain unverified; no endorsement claimed."
+        }
+      ],
+      "references": [
+        {
+          "id": "independent-conventional-male-arithmetic",
+          "inputs": {
+            "a": 60,
+            "w": 72,
+            "sCr": 0.01,
+            "z": 0
+          },
+          "expected": 1.3333333333333334e-06,
+          "tolerance": 1e-17,
+          "method": "Independent hand-calculated rational oracle from the printed conventional formula: age difference 80 and weight 72 cancel the printed denominator 72 at serum 1 mg/dL, giving exactly 80 mL/min, then normalize to m^3/s. This is arithmetic reproduction against a separately unit-normalized expression, not independent empirical/source validation. Tolerance covers representation only.",
+          "provenance": "Curator synthetic case; NKF printed formula supplies the conventional equation. No published patient outcome claimed."
+        },
+        {
+          "id": "independent-conventional-female-arithmetic",
+          "inputs": {
+            "a": 40,
+            "w": 60,
+            "sCr": 0.02,
+            "z": 1
+          },
+          "expected": 5.902777777777778e-07,
+          "tolerance": 1e-17,
+          "method": "Independent rational calculation in conventional units: 100*60/(72*2)=125/3 mL/min; the female branch multiplies by 17/20 to yield 425/12 mL/min. Normalize to m^3/s. Materially different age, mass, serum value and branch. Arithmetic-only oracle; no assertion of female clinical validation.",
+          "provenance": "Curator synthetic case derived from the printed source form; 1e-17 m^3/s permits floating representation only."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "a": 60,
+            "w": 72,
+            "sCr": 0,
+            "z": 0
+          },
+          "reason": "Zero serum creatinine makes the historical estimate undefined; no clamping is allowed."
+        },
+        {
+          "kind": "domain",
+          "inputs": {
+            "a": 17,
+            "w": 60,
+            "sCr": 0.01,
+            "z": 0
+          },
+          "reason": "Outside the declared original adult derivation age profile."
+        },
+        {
+          "kind": "domain",
+          "inputs": {
+            "a": 60,
+            "w": 72,
+            "sCr": 0.01,
+            "z": 0.5
+          },
+          "reason": "No interpolation between source sex branches is supported."
+        }
+      ],
+      "inverse_notes": "Forward estimate only. Clearance inversions are explicitly deferred by the assignment; no inverse direction, inverse numerical example or separate inverse model is offered. An algebraic inversion would not establish biological or statistical invertibility. Zero serum creatinine is a forward singularity, and the original age/eligibility guards remain essential. See the batch deferred entry for exact scope of this exclusion.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Need chronological_age_year_index, serum_creatinine_mass_concentration, cockcroft_gault_female_branch_indicator and creatinine_clearance meanings; years is an existing dimensionless year-index unit, not elapsed time. Need kg/m^3 and m^3/s units with consistent mass scales.",
+          "Population/assay eligibility and modern clinical interpretation cannot be established by scalar numeric guards. Original full-text image inspection and detailed calibration range remain review gaps; no additional scientific validity is inferred from arithmetic."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "clinical-arithmetic--timed-urine-creatinine-clearance",
+      "revision": "r1",
+      "title": "Creatinine clearance from a timed urine collection",
+      "summary": "Measurement-derived creatinine clearance from urinary creatinine excretion divided by matched serum concentration. This does not equate creatinine clearance to true glomerular filtration rate or select a clinical action.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "C",
+        "expression": "U * V / (P * t)",
+        "original_equation": "Creatinine Clearance = ((total urine volume / collection time) x urine creatinine) / blood creatinine",
+        "source_id": "nordx-clearance",
+        "locator": "Test CRCLR, Clinical Significance, displayed calculation and 2424 mL/24 h example",
+        "translation_notes": "Introduced U maps to urine creatinine, P to blood/serum creatinine, V to total urine volume and t to collection time. Both concentrations must be of creatinine on the same mass basis. Source mg/dL concentrations are normalized to kg/m^3, volume to m^3 and duration to seconds; no conversion literal is inlined. Mass units cancel even in the runtime's non-SI mass base: (M L^-3)*L^3 / ((M L^-3)*T)=L^3 T^-1. Source's reported 168.3 mL/min is retained as the oracle after conversion; no BSA indexing is in this equation. The no-excretion U=0 limit is admitted algebraically for a positive collected sample; zero collected volume is excluded because an assayed urine specimen is required."
+      },
+      "variables": [
+        {
+          "symbol": "U",
+          "source_symbol": "Introduced U maps to Creatinine, Urine",
+          "role": "input",
+          "quantity_id": "urine_creatinine_mass_concentration",
+          "definition": "Creatinine mass per urine volume in a representative mixed aliquot of the complete timed specimen.",
+          "unit": "kg/m^3",
+          "dimensions": "M L^-3",
+          "context": "Same person's complete timed 24-hour urine collection, its total volume and mixed-specimen creatinine concentration, with matched serum creatinine. Definition from a clinical laboratory test, not a population-fitted renal estimate. Application profile: serum concentration represents the collection interval and complete collection is independently confirmed; no age-specific reference interval is applied.",
+          "domain": "Finite nonnegative; assay validity and detection limits are external. Zero denotes an ideal no-excretion limit, not proof of an assay result."
+        },
+        {
+          "symbol": "V",
+          "source_symbol": "Introduced V maps to Total Volume 24 Hour Urine",
+          "role": "input",
+          "quantity_id": "collected_urine_volume",
+          "definition": "Entire urine volume from the same complete collection, not the small aliquot submitted for assay.",
+          "unit": "m^3",
+          "dimensions": "L^3",
+          "context": "Same person's complete timed 24-hour urine collection, its total volume and mixed-specimen creatinine concentration, with matched serum creatinine. Definition from a clinical laboratory test, not a population-fitted renal estimate. Application profile: serum concentration represents the collection interval and complete collection is independently confirmed; no age-specific reference interval is applied.",
+          "domain": "Finite strictly positive collection volume sufficient for a valid assay specimen."
+        },
+        {
+          "symbol": "P",
+          "source_symbol": "Introduced P maps to Creatinine, Blood (serum)",
+          "role": "input",
+          "quantity_id": "serum_creatinine_mass_concentration",
+          "definition": "Representative serum creatinine mass concentration matched to the collection interval.",
+          "unit": "kg/m^3",
+          "dimensions": "M L^-3",
+          "context": "Same person's complete timed 24-hour urine collection, its total volume and mixed-specimen creatinine concentration, with matched serum creatinine. Definition from a clinical laboratory test, not a population-fitted renal estimate. Application profile: serum concentration represents the collection interval and complete collection is independently confirmed; no age-specific reference interval is applied.",
+          "domain": "Finite strictly positive. Same analyte/mass and compatible assay basis as U."
+        },
+        {
+          "symbol": "t",
+          "source_symbol": "Introduced t maps to Collection Time, Minutes",
+          "role": "input",
+          "quantity_id": "duration",
+          "definition": "Actual continuous elapsed collection duration in seconds; source application is a complete nominal 24-hour collection with actual times recorded.",
+          "unit": "s",
+          "dimensions": "T",
+          "context": "Same person's complete timed 24-hour urine collection, its total volume and mixed-specimen creatinine concentration, with matched serum creatinine. Definition from a clinical laboratory test, not a population-fitted renal estimate. Application profile: serum concentration represents the collection interval and complete collection is independently confirmed; no age-specific reference interval is applied.",
+          "domain": "Finite strictly positive; caller verifies the intended 24-hour collection profile and completeness."
+        },
+        {
+          "symbol": "C",
+          "source_symbol": "Introduced C maps to CRCLR",
+          "role": "output",
+          "quantity_id": "creatinine_clearance",
+          "definition": "Measurement-derived effective serum volume cleared of creatinine per time over the collection interval; not BSA-adjusted.",
+          "unit": "m^3/s",
+          "dimensions": "L^3 T^-1",
+          "context": "Same person's complete timed 24-hour urine collection, its total volume and mixed-specimen creatinine concentration, with matched serum creatinine. Definition from a clinical laboratory test, not a population-fitted renal estimate. Application profile: serum concentration represents the collection interval and complete collection is independently confirmed; no age-specific reference interval is applied.",
+          "domain": "Finite nonnegative; interpretation depends on valid sampling and representative serum concentration."
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "U >= 0",
+        "V > 0",
+        "P > 0",
+        "t > 0"
+      ],
+      "assumptions": [
+        "Source requirements: the laboratory calculation uses total timed urine volume, urine creatinine and blood creatinine; paired specimens and recorded collection interval are required.",
+        "Application profile: serum P is representative over the interval, and urine U is homogeneous in the mixed complete collection; this makes U*V the total excreted creatinine mass.",
+        "Population scope: this is specimen arithmetic, not a fitted age/sex model. No pediatric, pregnancy or disease-specific reference-range validity is claimed; qualified interpretation remains external."
+      ],
+      "limitations": [
+        "Creatinine clearance includes renal handling beyond filtration; it must not silently bind to a GFR quantity.",
+        "Collection incompleteness, nonrepresentative serum, assay interference and mixed timing can invalidate interpretation. Source reference interval is not reproduced as a scientific guard.",
+        "The source laboratory's eGFR panel update is separate from this timed-clearance identity. No race or sex factor is used here."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "nordx-clearance",
+          "kind": "primary",
+          "title": "NorDx Laboratories: CRCLR, Creatinine Clearance, Serum and Urine",
+          "url": "https://nordx.testcatalog.org/show/CRCLR",
+          "version": "Live catalog inspected 2026-11-03; includes effective 2025-06-24 eGFR panel note, not a dated clearance-equation revision",
+          "accessed": "2026-11-03",
+          "locator": "Clinical Significance: calculation and example; Important Note; Specimen Collection and Handling",
+          "evidence": "Gives the timed-volume clearance identity and reports 168.3 mL/min for a complete 2424 mL, 1440 min collection with 200.0 and 2.00 mg/dL concentrations.",
+          "license": "Catalog footer: portions copyright 2026 Mayo Foundation. Linked terms resolve to https://www.mayocliniclabs.com/customer-service/policies, Terms of Use, Intellectual Property Rights (reviewed May 1, 2024), inspected 2026-11-03; restrict source-material copying beyond personal noncommercial use without consent. Applicability to independently authored mathematical facts is not resolved here.",
+          "redistribution": "Includes only original short evidence paraphrases, equations and attributed numerical facts, not a full source document or images. Further redistribution/use rights remain unverified; no endorsement claimed."
+        },
+        {
+          "id": "nkf-distinction",
+          "kind": "primary",
+          "title": "NKF: Cockcroft-Gault equation limitations",
+          "url": "https://www.kidney.org/professionals/kdoqi/cockcroft-gault-equation-estimating-creatinine-clearance",
+          "version": "Live HTML inspected 2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Limitations of the Cockcroft-Gault equation, third bullet",
+          "evidence": "Distinguishes measured creatinine clearance from measured GFR.",
+          "license": "No reusable-content license or terms granting redistribution were established for this accessed version; terms unknown. Public availability alone is not legal clearance.",
+          "redistribution": "Includes only original short evidence paraphrases, equations and attributed numerical facts, not a full source document or images. Further redistribution/use rights remain unverified; no endorsement claimed."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-nordx-collection",
+          "inputs": {
+            "U": 2,
+            "V": 0.002424,
+            "P": 0.02,
+            "t": 86400
+          },
+          "expected": 2.805e-06,
+          "tolerance": 8.33333333334e-10,
+          "method": "Published result 168.3 mL/min converted to m^3/s, not replaced with the recomputed 168.333... . Inputs 200.0 and 2.00 mg/dL become 2 and 0.02 kg/m^3; 2424 mL becomes 0.002424 m^3 and 1440 min becomes 86400 s. Half the reported tenth mL/min, converted to m^3/s, explains tolerance.",
+          "provenance": "NorDx CRCLR Clinical Significance example; published pedagogical calculation, not patient accuracy evidence."
+        },
+        {
+          "id": "independent-excreted-mass-route",
+          "inputs": {
+            "U": 1.2,
+            "V": 0.0012,
+            "P": 0.01,
+            "t": 86400
+          },
+          "expected": 1.6666666666666667e-06,
+          "tolerance": 1e-17,
+          "method": "Independent mass-balance arithmetic: 120 mg/dL in 12 dL urine contains 1440 mg; at 1 mg/dL serum this corresponds to 1440 dL of serum per day, hence 100 mL/min. Normalize to m^3/s. This checks units/conservation independently of evaluating the stored expression, not clinical measurement accuracy.",
+          "provenance": "Curator-constructed 24-hour specimen example, with arithmetic-only tolerance."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "U": 2,
+            "V": 0.002424,
+            "P": 0,
+            "t": 86400
+          },
+          "reason": "Zero serum concentration makes clearance undefined."
+        },
+        {
+          "kind": "domain",
+          "inputs": {
+            "U": 2,
+            "V": 0,
+            "P": 0.02,
+            "t": 86400
+          },
+          "reason": "No positive collected specimen volume exists for the supplied urine assay."
+        },
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "U": 2,
+            "V": 0.002424,
+            "P": 0.02
+          },
+          "reason": "Collection duration is required; nominal day must not be silently substituted."
+        }
+      ],
+      "inverse_notes": "Forward only in this assignment. Clearance inversions are explicitly deferred rather than presented as new records or executable solve directions. No inverse-target examples are asserted under that assignment exception. Original guards and matched complete-collection context remain required. P=0 or t=0 is undefined; a zero U limit with positive P,V,t gives zero forward clearance without supplying an inverse view.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Need urine_creatinine_mass_concentration, serum_creatinine_mass_concentration, collected_urine_volume and creatinine_clearance meanings; kg/m^3, m^3 and m^3/s units. Reuses proposed serum concentration and clearance definitions, with distinct measured-versus-estimated context.",
+          "Complete collection, representative serum and specimen validity require external verification. No runtime projection or clinical approval."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "clinical-arithmetic--liquid-medication-prescribed-volume",
+      "revision": "r1",
+      "title": "Liquid medication volume from prescribed mass and labeled strength",
+      "summary": "Converts an already specified active-drug mass into the corresponding volume of one labeled liquid formulation. It is a proportional amount identity; neither choosing an amount nor deciding to administer it is included.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "V",
+        "expression": "D * Q / H",
+        "original_equation": "Desired Amount / Dose on hand x Volume = Dose (liquid quantity)",
+        "source_id": "langham-liquid",
+        "locator": "Chapter 14, Alternate Formula for Solving Medication Dose Problems; Sample Exercise 14.3",
+        "translation_notes": "Preserve source D and H; introduced Q renames the source stock Volume to avoid collision with introduced output V (source liquid Dose). D,H are active-drug mass in kg, Q,V liquid volume in m^3. Normalize mg to kg and mL to m^3 before reference entry; expression D*Q/H has no conversion coefficient. Dimensions: M*L^3/M=L^3; runtime mass scale cancels. H/Q is constituent active-drug mass concentration, not bulk solution density: the building-energy inventory's generic density relationship concerns total substance mass and is not a compatible unqualified binding. Tablet counts are treated as an alternate desired-over-have profile in deferred notes, not another record created solely by unit spelling."
+      },
+      "variables": [
+        {
+          "symbol": "D",
+          "source_symbol": "D (Desired Amount)",
+          "role": "input",
+          "quantity_id": "prescribed_drug_mass_per_administration",
+          "definition": "Active-drug mass already specified for this single administration on the same labeled active-moiety basis as H.",
+          "unit": "kg",
+          "dimensions": "M",
+          "context": "Same independently authorized single administration, active drug/moiety and homogeneous liquid stock at its labeled concentration. The supplied reference mass H and volume Q describe the same final formulation. Source is nursing calculation education, not age-specific drug validation; patient eligibility and prescription appropriateness are external.",
+          "domain": "Finite nonnegative; zero is the no-amount arithmetic boundary, not a prescribed therapy."
+        },
+        {
+          "symbol": "H",
+          "source_symbol": "H (Dose on hand)",
+          "role": "input",
+          "quantity_id": "labeled_active_drug_reference_mass",
+          "definition": "Mass of the specified active drug contained in stock reference volume Q; not total formulation mass.",
+          "unit": "kg",
+          "dimensions": "M",
+          "context": "Same independently authorized single administration, active drug/moiety and homogeneous liquid stock at its labeled concentration. The supplied reference mass H and volume Q describe the same final formulation. Source is nursing calculation education, not age-specific drug validation; patient eligibility and prescription appropriateness are external.",
+          "domain": "Finite strictly positive labeled reference mass; same moiety/salt-equivalent convention as D."
+        },
+        {
+          "symbol": "Q",
+          "source_symbol": "Introduced Q maps to stock Volume in D/H x Volume",
+          "role": "input",
+          "quantity_id": "labeled_liquid_reference_volume",
+          "definition": "Final liquid formulation volume containing labeled active-drug mass H.",
+          "unit": "m^3",
+          "dimensions": "L^3",
+          "context": "Same independently authorized single administration, active drug/moiety and homogeneous liquid stock at its labeled concentration. The supplied reference mass H and volume Q describe the same final formulation. Source is nursing calculation education, not age-specific drug validation; patient eligibility and prescription appropriateness are external.",
+          "domain": "Finite strictly positive; final homogeneous formulation, not diluent volume before reconstitution."
+        },
+        {
+          "symbol": "V",
+          "source_symbol": "Introduced V maps to liquid Dose/Quantity for dose",
+          "role": "output",
+          "quantity_id": "prescribed_liquid_medication_volume",
+          "definition": "Unrounded liquid volume containing D under the specified stock mass-to-volume proportion.",
+          "unit": "m^3",
+          "dimensions": "L^3",
+          "context": "Same independently authorized single administration, active drug/moiety and homogeneous liquid stock at its labeled concentration. The supplied reference mass H and volume Q describe the same final formulation. Source is nursing calculation education, not age-specific drug validation; patient eligibility and prescription appropriateness are external.",
+          "domain": "Finite nonnegative proportional volume. Device resolution, available stock count and administration decisions are not outputs."
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "D >= 0",
+        "H > 0",
+        "Q > 0"
+      ],
+      "assumptions": [
+        "Source-backed identity: compare desired active-drug amount with the labeled supply amount for the same drug and scale the corresponding liquid quantity.",
+        "Application profile: formulation is homogeneous and concentration remains fixed in the withdrawn portion. D and H have exactly matching active-moiety definitions.",
+        "Population scope: general prescription arithmetic illustrated by nursing exercises; no therapeutic validation for an age, pregnancy state, condition or route is claimed."
+      ],
+      "limitations": [
+        "Does not select a dose, stock strength, dilution, syringe or rounding policy; no clinical limits are inferred from educational examples.",
+        "Cannot use bulk solution density for H/Q, or use added diluent volume as final stock volume when reconstitution changes volume.",
+        "The source includes tablet and liquid examples; this record serializes the liquid-volume interface only and preserves other profiles as overlap notes."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "langham-liquid",
+          "kind": "primary",
+          "title": "Julia Langham: A Guide to Numeracy in Nursing, Chapter 14",
+          "url": "https://opentextbc.ca/nursingnumeracy/chapter/calculating-medication-dosage/",
+          "version": "Julia Langham; v1.00 (June 28, 2023), live HTML inspected 2026-11-03",
+          "accessed": "2026-11-03",
+          "locator": "Alternate Formula; Sample Exercise 14.3; Practice Set 14.2 answer 2",
+          "evidence": "Scales labeled liquid volume by desired mass relative to labeled mass; example gives 0.5 mL and another gives 0.75 mL.",
+          "license": "Chapter License section: Julia Langham, copyright 2023, CC BY 4.0, except where noted. https://creativecommons.org/licenses/by/4.0/ inspected 2026-11-03. Versioning History https://opentextbc.ca/nursingnumeracy/back-matter/versioning-history/ lists v1.00, June 28, 2023.",
+          "redistribution": "Attribution: Julia Langham, A Guide to Numeracy in Nursing, BCcampus, 2023, CC BY 4.0. Changes: local symbols, coherent unit normalization, original evidence paraphrase and added mathematical checks. No source images or full chapters included; retain attribution, license link and change notice on redistribution. No endorsement claimed."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-half-ml",
+          "inputs": {
+            "D": 2.5e-05,
+            "H": 5e-05,
+            "Q": 1e-06
+          },
+          "expected": 5e-07,
+          "tolerance": 1e-16,
+          "method": "Published 0.5 mL normalized to 5e-7 m^3 for prescribed 25 mg and labeled 50 mg/1 mL. Source result preserved; arithmetic-only 1e-16 m^3 tolerance because this is an exact pedagogical proportion, not a measured syringe volume.",
+          "provenance": "Langham Ch.14, Sample Exercise 14.3."
+        },
+        {
+          "id": "published-three-quarter-ml",
+          "inputs": {
+            "D": 1.5e-06,
+            "H": 2e-06,
+            "Q": 1e-06
+          },
+          "expected": 7.5e-07,
+          "tolerance": 1e-16,
+          "method": "Published 0.75 mL normalized to m^3 for 1.5 mg desired and 2 mg per 1 mL supply. Uses the explicit algebra in the answer, not an uninspected label image. Arithmetic-only tolerance.",
+          "provenance": "Langham Ch.14, Practice Set 14.2, answer 2."
+        },
+        {
+          "id": "independent-portion-count",
+          "inputs": {
+            "D": 0.0006,
+            "H": 0.0004,
+            "Q": 5e-06
+          },
+          "expected": 7.5e-06,
+          "tolerance": 1e-16,
+          "method": "Independent synthetic portion argument: one 5 mL portion holds 400 mg and another half portion holds 200 mg, so 600 mg occupies 7.5 mL. Tolerance covers binary arithmetic only.",
+          "provenance": "Curator-constructed stock-portion check, not observed clinical data."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "D": 2.5e-05,
+            "H": 0,
+            "Q": 1e-06
+          },
+          "reason": "Zero stock active-drug amount cannot define the required positive concentration."
+        },
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "D": 2.5e-05,
+            "H": 5e-05
+          },
+          "reason": "Stock reference volume is missing."
+        }
+      ],
+      "inverse_notes": "Target D: V>=0, H>0, Q>0 give D=V*H/Q uniquely. Check V=7.5e-6 m^3, H=0.0004 kg, Q=5e-6 m^3 gives D=0.0006 kg and forward V=7.5e-6. V=0 gives D=0 uniquely. Target H: D>0, Q>0, V>0 give H=D*Q/V>0. Target Q: D>0, H>0, V>0 give Q=V*H/D>0. Retain original guards and formulation context. With D=V=0, H and Q remain underdetermined positive values; with D=0,V>0 there is no solution. With D>0,V=0 no finite positive H,Q can satisfy the identity. Inverting does not authorize changing a prescription or stock formulation.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "Need labeled_active_drug_reference_mass, labeled_liquid_reference_volume and prescribed_liquid_medication_volume meanings and m^3 unit; reuse prescribed_drug_mass_per_administration from b01/r2. No runtime projection.",
+          "Known inventory density relationship uses bulk mass_density rather than active-drug concentration; no duplicate ID is asserted because the quantity definitions differ."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

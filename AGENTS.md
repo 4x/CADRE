@@ -20,7 +20,7 @@ The agent is encouraged to bring up questions for discussion **when direction is
 
 # Safety and permissions
 
-- Access to `.env` files, account numbers, API tokens, and other secrets is normally off-limits unless the human explicitly grants permission.
+- Direct access to `.env` files, account numbers, API tokens, and other secrets is normally off-limits unless the human explicitly grants permission. Running project scripts that normally read .env variables (e.g. for API tokens) is allowed.
 - Do not touch anything outside this repository without explicit permission.
 - Make sure you have permission before destructive actions.
 

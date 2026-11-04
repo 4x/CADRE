@@ -1,0 +1,1591 @@
+{
+  "batch_id": "computer-science-ncs-c03",
+  "created": "2026-11-03",
+  "curator": "native-cs",
+  "deferred": [],
+  "domain": "computer-science",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "Rate/MIPS meanings and units absent from runtime vocabulary (rate vocabulary ships at admission time); these records replay only through registry unit scales at staging.",
+      "Batch cannot pass the kit validator's raw-arithmetic reference check by design (identity expressions over cross-unit ports; MIPS f/CPI likewise replays only through the 1e6 MIPS scale); see review_notes."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical validation attempted with the kit's own validator logic via the repaired scratch copy (see ../curCS-validate-scratch/README-SCRATCH.txt): every record in this batch fails only on raw reference replay (e.g. mips-rating@r2/processor-a-mips: numerical reference does not match (1500000000.0)), exactly as the canonical-units decision entails - staging replay through unit scales passes while raw display-value replay cannot. Schema, grammar, guards, rejection cases, and integration cross-checks are otherwise clean; no other defect found. The shipped curCS-kit cannot run its own tools (ModuleNotFoundError: connected_models.constants). No integration, runtime_model, source, or evidence changes. Not packed: pack requires validation to pass under the current raw checker. Coordinator decision needed on unit-aware reference checks.",
+    "summary": "Correction batch c03 (computer-science native): 12 r2s - brief-2A rate identities x7 (b07 mebibyte, b08 x4, b10 x2), brief-2C mips-rating (expression f/(CPI*1e6) -> f/CPI with output unit 1/s -> MIPS, translation_notes updated), and brief-3 peta/exa rate identities x4. Identity records change ONLY the expression plus translation_notes; references, ports, units, guards, constants, and sources are byte-identical to r1."
+  },
+  "kit_version": "2026-10-31.7",
+  "models": [
+    {
+      "assumptions": [
+        "Binary (IEC) rate convention: 1 MiB/s = 2^20 B/s; decimal MB/s (10^6) is the separate b05 record.",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1048576,
+          "locator": "Conversion table MiB/s row: formula 2^20 = 1,048,576 bytes per second.",
+          "meaning": "binary bytes per second per mebibyte per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "B/s"
+        }
+      ],
+      "guards": [
+        "R_MiBps >= 0"
+      ],
+      "id": "computer-science--binary-mebibyte-rate-to-byte-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings mebibyte_rate/byte_rate and unit MiB/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_MiBps = R_Bps/1048576 needs R_Bps. Check: 8388608 gives 8. Negative R_Bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Binary MiB/s only; decimal MB/s is the separate b05 record and the two must never be mixed.",
+        "Asserted rate only; excludes overhead."
+      ],
+      "references": [
+        {
+          "expected": 1048576,
+          "id": "one-mebibyte-rate",
+          "inputs": {
+            "R_MiBps": 1
+          },
+          "method": "Conversion table row: 1 MiB/s = 1,048,576 bytes per second. Expected keeps tabulated value.",
+          "provenance": "Published result from inspected source (Data-rate units conversion table).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 8388608,
+          "id": "eight-mebibyte-rate",
+          "inputs": {
+            "R_MiBps": 8
+          },
+          "method": "Ordinary case 8 * 1048576 = 8388608, different scale from the unit row.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-mibytes",
+          "inputs": {
+            "R_MiBps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_MiBps": -8
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_MiBps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_MiBps is required; empty input leaves R_Bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_MiBps",
+        "locator": "Conversion table MiB/s row (formula 2^20 B/s) under binary prefixes IEC 80000-13.",
+        "original_equation": "1 MiB/s = 1,048,576 bytes per second",
+        "output_symbol": "R_Bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_MiBps arrives already scaled by the MiB/s registry scale, so the projection is the identity and the 2^20 (1048576) factor is carried by the MiB/s/B/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Tabulates 1 MiB/s as 8,388,608 bit/s = 1,048,576 bytes per second (formula 2^20) under IEC binary prefixes.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Conversion table MiB/s row.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (binary MiB/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary mebibyte-per-second rate scaled to bytes per second.",
+      "title": "Binary mebibyte rate to byte rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_Bps",
+          "definition": "Asserted sustained data rate in binary mebibytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "mebibyte_rate",
+          "role": "input",
+          "source_symbol": "mebibyte per second (MiB/s)",
+          "symbol": "R_MiBps",
+          "unit": "MiB/s"
+        },
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_MiBps",
+          "definition": "Same asserted rate expressed in bytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "byte_rate",
+          "role": "output",
+          "source_symbol": "bytes per second",
+          "symbol": "R_Bps",
+          "unit": "B/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Binary (IEC) rate convention: 1 Tibit/s = 2^40 bit/s; decimal Tbit/s (10^12) is the separate b05 record.",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1099511627776,
+          "locator": "Conversion table Tibit/s row: formula 2^40 = 1,099,511,627,776 bit/s.",
+          "meaning": "binary bits per second per tebibit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_tibps >= 0"
+      ],
+      "id": "computer-science--binary-tebibit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings tebibit_rate/bit_rate and unit Tibit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_tibps = R_bps/1099511627776 needs R_bps. Check: 1099511627776 gives 1. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Binary Tibit/s only; decimal Tbit/s is the separate b05 record.",
+        "Asserted rate only; excludes overhead."
+      ],
+      "references": [
+        {
+          "expected": 1099511627776,
+          "id": "one-tebibit-rate",
+          "inputs": {
+            "R_tibps": 1
+          },
+          "method": "Conversion table row: 1 Tibit/s = 1,099,511,627,776 bit/s. Expected keeps tabulated value.",
+          "provenance": "Published result from inspected source (Data-rate units conversion table).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 2199023255552,
+          "id": "two-tebibit-rate",
+          "inputs": {
+            "R_tibps": 2
+          },
+          "method": "Ordinary case 2 * 1099511627776 = 2199023255552, different scale from the unit row.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-tebibit",
+          "inputs": {
+            "R_tibps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_tibps": -1
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_tibps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_tibps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_tibps",
+        "locator": "Conversion table Tibit/s row (formula 2^40 bit/s) under binary prefixes IEC 80000-13.",
+        "original_equation": "1 Tibit/s = 1,099,511,627,776 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_tibps arrives already scaled by the Tibit/s registry scale, so the projection is the identity and the 2^40 (1099511627776) factor is carried by the Tibit/s/bit/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Tabulates 1 Tibit/s as 1,099,511,627,776 bit/s (formula 2^40) under IEC binary prefixes.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Binary prefixes section; conversion table Tibit/s row.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (binary Tibit/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary tebibit-per-second rate scaled to bits per second.",
+      "title": "Binary tebibit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in binary tebibits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "tebibit_rate",
+          "role": "input",
+          "source_symbol": "tebibit per second (Tibit/s)",
+          "symbol": "R_tibps",
+          "unit": "Tibit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_tibps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Binary (IEC) rate convention: 1 TiB/s = 2^40 B/s; decimal TB/s (10^12) is out of scope for this record.",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1099511627776,
+          "locator": "Conversion table TiB/s row: formula 2^40 = 1,099,511,627,776 bytes per second.",
+          "meaning": "binary bytes per second per tebibyte per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "B/s"
+        }
+      ],
+      "guards": [
+        "R_TiBps >= 0"
+      ],
+      "id": "computer-science--binary-tebibyte-rate-to-byte-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings tebibyte_rate/byte_rate and unit TiB/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_TiBps = R_Bps/1099511627776 needs R_Bps. Check: 2199023255552 gives 2. Negative R_Bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Binary TiB/s only; decimal TB/s needs its own record.",
+        "Asserted rate only; excludes overhead."
+      ],
+      "references": [
+        {
+          "expected": 1099511627776,
+          "id": "one-tebibyte-rate",
+          "inputs": {
+            "R_TiBps": 1
+          },
+          "method": "Conversion table row: 1 TiB/s = 1,099,511,627,776 bytes per second. Expected keeps tabulated value.",
+          "provenance": "Published result from inspected source (Data-rate units conversion table).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 2199023255552,
+          "id": "two-tebibyte-rate",
+          "inputs": {
+            "R_TiBps": 2
+          },
+          "method": "Ordinary case 2 * 1099511627776 = 2199023255552, different scale from the unit row.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-tibytes",
+          "inputs": {
+            "R_TiBps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_TiBps": -2
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_TiBps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_TiBps is required; empty input leaves R_Bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_TiBps",
+        "locator": "Conversion table TiB/s row (formula 2^40 B/s) under binary prefixes IEC 80000-13.",
+        "original_equation": "1 TiB/s = 1,099,511,627,776 bytes per second",
+        "output_symbol": "R_Bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_TiBps arrives already scaled by the TiB/s registry scale, so the projection is the identity and the 2^40 (1099511627776) factor is carried by the TiB/s/B/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Tabulates 1 TiB/s as 8,796,093,022,208 bit/s = 1,099,511,627,776 bytes per second (formula 2^40).",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Conversion table TiB/s row.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (binary TiB/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary tebibyte-per-second rate scaled to bytes per second.",
+      "title": "Binary tebibyte rate to byte rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_Bps",
+          "definition": "Asserted sustained data rate in binary tebibytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "tebibyte_rate",
+          "role": "input",
+          "source_symbol": "tebibyte per second (TiB/s)",
+          "symbol": "R_TiBps",
+          "unit": "TiB/s"
+        },
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_TiBps",
+          "definition": "Same asserted rate expressed in bytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "byte_rate",
+          "role": "output",
+          "source_symbol": "bytes per second",
+          "symbol": "R_Bps",
+          "unit": "B/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Decimal (SI) rate convention: 1 Pbit/s = 10^15 bit/s; binary Pibit/s is out of scope for this record.",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1000000000000000,
+          "locator": "Petabit per second section: 1 Pbit/s = 1,000,000,000,000,000 bits per second; conversion table Pbit/s row formula 10^15.",
+          "meaning": "decimal bits per second per petabit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_pbps >= 0"
+      ],
+      "id": "computer-science--decimal-petabit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings petabit_rate/bit_rate and unit Pbit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_pbps = R_bps/1000000000000000 needs R_bps. Check: 2000000000000000 gives 2. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Decimal Pbit/s only; backbone-aggregate class rates, still asserted not measured.",
+        "Excludes overhead and peak-vs-sustained differences."
+      ],
+      "references": [
+        {
+          "expected": 1000000000000000,
+          "id": "one-petabit-rate",
+          "inputs": {
+            "R_pbps": 1
+          },
+          "method": "Petabit section: 1 Pbit/s = 1,000,000,000,000,000 bits per second. Expected keeps reported value.",
+          "provenance": "Published result from inspected source (Data-rate units petabit section).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 2000000000000000,
+          "id": "two-petabit-rate",
+          "inputs": {
+            "R_pbps": 2
+          },
+          "method": "Ordinary case 2 * 10^15, different scale from the unit definition.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-petabit",
+          "inputs": {
+            "R_pbps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_pbps": -1
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_pbps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_pbps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_pbps",
+        "locator": "Petabit per second section and conversion table Pbit/s row (formula 10^15 bit/s).",
+        "original_equation": "1 Pbit/s = 1,000,000,000,000,000 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_pbps arrives already scaled by the Pbit/s registry scale, so the projection is the identity and the 1e15 (10^15) factor is carried by the Pbit/s/bit/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines 1 Pbit/s as 1,000,000,000,000,000 bits per second with the full decimal-multiple ladder.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Petabit per second section; conversion table Pbit/s row.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (decimal Pbit/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Decimal petabit-per-second rate scaled to bits per second.",
+      "title": "Decimal petabit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in decimal petabits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "petabit_rate",
+          "role": "input",
+          "source_symbol": "petabit per second (Pbit/s)",
+          "symbol": "R_pbps",
+          "unit": "Pbit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_pbps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Decimal (SI) rate convention: 1 TB/s = 10^12 B/s; binary TiB/s is the separate b08 record.",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1000000000000,
+          "locator": "Terabyte per second section: 1 TB/s = 1,000,000,000,000 bytes per second; conversion table TB/s row formula 10^12.",
+          "meaning": "decimal bytes per second per terabyte per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "B/s"
+        }
+      ],
+      "guards": [
+        "R_TBps >= 0"
+      ],
+      "id": "computer-science--decimal-terabyte-rate-to-byte-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings terabyte_rate/byte_rate and unit TB/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_TBps = R_Bps/1000000000000 needs R_Bps. Check: 5000000000000 gives 5. Negative R_Bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Decimal TB/s only; binary TiB/s is the separate b08 record.",
+        "Asserted rate only; excludes overhead."
+      ],
+      "references": [
+        {
+          "expected": 1000000000000,
+          "id": "one-terabyte-rate",
+          "inputs": {
+            "R_TBps": 1
+          },
+          "method": "Terabyte section definition: 1 TB/s = 1,000,000,000,000 bytes per second. Expected keeps defined value.",
+          "provenance": "Published definition from inspected source (Data-rate units terabyte section).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 5000000000000,
+          "id": "five-terabyte-rate",
+          "inputs": {
+            "R_TBps": 5
+          },
+          "method": "Ordinary case 5 * 10^12, different scale from the unit definition.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-tbytes",
+          "inputs": {
+            "R_TBps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_TBps": -5
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_TBps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_TBps is required; empty input leaves R_Bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_TBps",
+        "locator": "Terabyte per second section and conversion table TB/s row (formula 10^12 B/s).",
+        "original_equation": "1 TB/s = 1,000,000,000,000 bytes per second",
+        "output_symbol": "R_Bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_TBps arrives already scaled by the TB/s registry scale, so the projection is the identity and the 1e12 (10^12) factor is carried by the TB/s/B/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines 1 TB/s as 1,000,000,000,000 bytes per second (8 x 10^12 bit/s) with the decimal-multiple ladder.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Terabyte per second section; conversion table TB/s row.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (decimal TB/s definition)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Decimal terabyte-per-second rate scaled to bytes per second.",
+      "title": "Decimal terabyte rate to byte rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_Bps",
+          "definition": "Asserted sustained data rate in decimal terabytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "terabyte_rate",
+          "role": "input",
+          "source_symbol": "terabyte per second (TB/s)",
+          "symbol": "R_TBps",
+          "unit": "TB/s"
+        },
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_TBps",
+          "definition": "Same asserted rate expressed in bytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "byte_rate",
+          "role": "output",
+          "source_symbol": "bytes per second",
+          "symbol": "R_Bps",
+          "unit": "B/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Binary (IEC) rate convention with the published prefix ladder extended: pebi- = 2^50 (binary prefixes section introduces kibi- through exbi- as powers of 2).",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1125899906842624,
+          "locator": "Binary prefixes section: IEC prefixes kibi- through exbi- denote successive powers of 2 (pebi- is the 2^50 step); value verified as 2^50 by exact integer arithmetic in translation notes.",
+          "meaning": "binary bits per second per pebibit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_pibps >= 0"
+      ],
+      "id": "computer-science--binary-pebibit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings pebibit_rate/bit_rate and unit Pibit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_pibps = R_bps/1125899906842624 needs R_bps. Check: 2251799813685248 gives 2. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Value derived from the published prefix ladder, not a tabulated per-unit row; independently verified 2^50 in translation notes.",
+        "Asserted rate only; excludes overhead."
+      ],
+      "references": [
+        {
+          "expected": 1125899906842624,
+          "id": "one-pebibit-rate",
+          "inputs": {
+            "R_pibps": 1
+          },
+          "method": "Prefix-ladder derivation: pebi- is the 2^50 IEC binary step; 2^50 = 1125899906842624 exactly (powers of two are exact).",
+          "provenance": "Independent derivation from published prefix definitions (Data-rate units binary prefixes).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 2251799813685248,
+          "id": "two-pebibit-rate",
+          "inputs": {
+            "R_pibps": 2
+          },
+          "method": "Ordinary case 2 x 2^50, different scale from the unit row.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-pebibit",
+          "inputs": {
+            "R_pibps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_pibps": -1
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_pibps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_pibps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_pibps",
+        "locator": "Binary prefixes (IEC 80000-13) section: pebi- denotes 2^50 within the kibi- to exbi- ladder.",
+        "original_equation": "1 Pibit/s = 2^50 = 1,125,899,906,842,624 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_pibps arrives already scaled by the Pibit/s registry scale, so the projection is the identity and the 2^50 (1125899906842624) factor is carried by the Pibit/s/bit/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Introduces IEC binary prefixes kibi-, mebi-, gibi-, tebi-, pebi-, exbi- as binary multiples (powers of 2) with SI prefixes reserved for powers of 10; tabulated rows verify 2^10 through 2^40 steps.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Binary prefixes (IEC 80000-13) section; Variations (IEC 60027-2 Amendment 2).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (binary prefix ladder)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary pebibit-per-second rate scaled to bits per second.",
+      "title": "Binary pebibit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in binary pebibits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "pebibit_rate",
+          "role": "input",
+          "source_symbol": "pebibit per second (Pibit/s)",
+          "symbol": "R_pibps",
+          "unit": "Pibit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_pibps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Binary (IEC) rate convention with the published prefix ladder extended: exbi- = 2^60 (binary prefixes section introduces kibi- through exbi- as powers of 2).",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1152921504606846976,
+          "locator": "Binary prefixes section: IEC prefixes kibi- through exbi- denote successive powers of 2 (exbi- is the 2^60 step); value verified as 2^60 by exact integer arithmetic in translation notes.",
+          "meaning": "binary bits per second per exbibit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "bit/s"
+        }
+      ],
+      "guards": [
+        "R_eibps >= 0"
+      ],
+      "id": "computer-science--binary-exbibit-rate-to-bit-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings exbibit_rate/bit_rate and unit Eibit/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_eibps = R_bps/1152921504606846976 needs R_bps. Check: 1152921504606846976 gives 1. Negative R_bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Value derived from the published prefix ladder, not a tabulated per-unit row; independently verified 2^60 in translation notes.",
+        "Asserted rate only; excludes overhead. Largest magnitude in this collection; downstream float handling noted."
+      ],
+      "references": [
+        {
+          "expected": 1152921504606846976,
+          "id": "one-exbibit-rate",
+          "inputs": {
+            "R_eibps": 1
+          },
+          "method": "Prefix-ladder derivation: exbi- is the 2^60 IEC binary step; 2^60 = 1152921504606846976 exactly (powers of two are exact in binary floating point).",
+          "provenance": "Independent derivation from published prefix definitions (Data-rate units binary prefixes).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 2305843009213693952,
+          "id": "two-exbibit-rate",
+          "inputs": {
+            "R_eibps": 2
+          },
+          "method": "Ordinary case 2 x 2^60, different scale from the unit row; exact in binary floating point.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 2.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-exbibit",
+          "inputs": {
+            "R_eibps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_eibps": -1
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_eibps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_eibps is required; empty input leaves R_bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_eibps",
+        "locator": "Binary prefixes (IEC 80000-13) section: exbi- denotes 2^60 within the kibi- to exbi- ladder.",
+        "original_equation": "1 Eibit/s = 2^60 = 1,152,921,504,606,846,976 bits per second",
+        "output_symbol": "R_bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_eibps arrives already scaled by the Eibit/s registry scale, so the projection is the identity and the 2^60 (1152921504606846976) factor is carried by the Eibit/s/bit/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Introduces IEC binary prefixes kibi- through exbi- as binary multiples; tabulated rows verify 2^10 through 2^40 steps and the b10 pebibit record extends the ladder to 2^50.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Binary prefixes (IEC 80000-13) section; Variations (IEC 60027-2 Amendment 2).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (binary prefix ladder)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary exbibit-per-second rate scaled to bits per second.",
+      "title": "Binary exbibit rate to bit rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_bps",
+          "definition": "Asserted sustained data rate in binary exbibits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "exbibit_rate",
+          "role": "input",
+          "source_symbol": "exbibit per second (Eibit/s)",
+          "symbol": "R_eibps",
+          "unit": "Eibit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_eibps",
+          "definition": "Same asserted rate expressed in bits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "bit_rate",
+          "role": "output",
+          "source_symbol": "bits per second",
+          "symbol": "R_bps",
+          "unit": "bit/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Same program-fixed CPI convention as the CPU-time record; clock speed is the sustained operating frequency.",
+        "MIPS here is the rate metric (millions of instructions per second), not the ISA name (source warns against the confusion)."
+      ],
+      "constants": [
+        {
+          "literal": 1000000,
+          "locator": "MIPS definition: clock speed divided by (CPI x 10^6); worked examples divide GHz figures by CPI x 10^6.",
+          "meaning": "instructions per million-instructions unit",
+          "source_id": "uvm-perf-metrics",
+          "unit": "1"
+        }
+      ],
+      "guards": [
+        "f >= 0",
+        "CPI > 0"
+      ],
+      "id": "computer-science--mips-rating",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings clock_frequency/effective_cpi/mips_rating absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "f = MIPS*CPI*1000000 needs MIPS; CPI = f/(MIPS*1000000) needs MIPS != 0. Check: MIPS=1500,CPI=2.0 gives f = 3e9. CPI=0 rejected by guard (division by zero). Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "MIPS misleads across ISAs with different instruction complexity (source limitation); valid only for same-ISA or stated-mix comparisons.",
+        "Peak-rate form; sustained throughput needs the CPU-time record with actual IC."
+      ],
+      "references": [
+        {
+          "expected": 1500,
+          "id": "processor-a-mips",
+          "inputs": {
+            "CPI": 2.0,
+            "f": 3000000000
+          },
+          "method": "UVM worked example: 3 GHz / (2.0 x 10^6) = 1500 MIPS. Expected keeps reported value.",
+          "provenance": "Published result from inspected source (UVM MIPS example).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1666.6666667,
+          "id": "processor-b-mips",
+          "inputs": {
+            "CPI": 1.2,
+            "f": 2000000000
+          },
+          "method": "UVM worked example: 2 GHz / (1.2 x 10^6) = 1666.67 MIPS; source rounds display to 1667. Expected keeps exact quotient; tolerance covers display rounding.",
+          "provenance": "Published result from inspected source (UVM MIPS example) with rounding allowance.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-stopped-clock",
+          "inputs": {
+            "CPI": 1.2,
+            "f": 0
+          },
+          "method": "Boundary: zero clock frequency yields zero instruction rate; admitted degenerate boundary (halted clock).",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "CPI": 0,
+            "f": 3000000000
+          },
+          "kind": "domain",
+          "reason": "Zero CPI violates CPI > 0 (division by zero; zero-cycle instructions unphysical)."
+        },
+        {
+          "inputs": {
+            "CPI": 2.0
+          },
+          "kind": "missing-input",
+          "reason": "Clock speed f is required alongside CPI; omitting it leaves MIPS undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "f / CPI",
+        "locator": "MIPS definition and worked examples for processors A (1500 MIPS) and B (1667 MIPS).",
+        "original_equation": "MIPS = clock speed / (CPI x 10^6)",
+        "output_symbol": "MIPS",
+        "source_id": "uvm-perf-metrics",
+        "translation_notes": "Source symbols clock speed -> f (Hz), CPI -> CPI; expression is written in canonical base units and the 1e6 (10^6) factor lives in the MIPS registry scale (documented in constants), never inlined. Check: (1/time)/dimensionless = rate in millions of instructions per second."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines MIPS as clock speed/(CPI x 10^6), works 1500 MIPS (3 GHz, CPI 2.0) and 1667 MIPS (2 GHz, CPI 1.2), and warns MIPS misleads across architectures and must not be confused with the MIPS ISA name.",
+          "id": "uvm-perf-metrics",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "MIPS definition and worked examples; misleading-MIPS warning.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "UVM CS2210: Basic performance metrics (MIPS definition)",
+          "url": "https://www.uvm.edu/~cbcafier/cs2210/content/02_basics_of_architecture/basic_performance_metrics.html",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "MIPS instruction rate from clock speed and effective CPI.",
+      "title": "MIPS rating from clock speed and CPI",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same processor, program mix and operating point as CPI and MIPS",
+          "definition": "Sustained processor clock frequency",
+          "dimensions": "1/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "clock_frequency",
+          "role": "input",
+          "source_symbol": "clock speed",
+          "symbol": "f",
+          "unit": "Hz"
+        },
+        {
+          "context": "same processor, program mix and operating point as f and MIPS",
+          "definition": "Effective average clock cycles per instruction",
+          "dimensions": "dimensionless",
+          "domain": "Positive finite",
+          "quantity_id": "effective_cpi",
+          "role": "input",
+          "source_symbol": "CPI",
+          "symbol": "CPI",
+          "unit": "1"
+        },
+        {
+          "context": "same processor, program mix and operating point as inputs",
+          "definition": "Millions of instructions executed per second of CPU time",
+          "dimensions": "1/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "mips_rating",
+          "role": "output",
+          "source_symbol": "MIPS",
+          "symbol": "MIPS",
+          "unit": "MIPS"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Decimal (SI) rate convention with the published decimal ladder extended: peta- = 10^15 (petabit section works the full 10^3-10^15 ladder).",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1000000000000000,
+          "locator": "Petabit section decimal-multiple ladder (peta- = 10^15 step); value verified as 10^15 by exact integer arithmetic in translation notes.",
+          "meaning": "decimal bytes per second per petabyte per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "B/s"
+        }
+      ],
+      "guards": [
+        "R_PBps >= 0"
+      ],
+      "id": "computer-science--decimal-petabyte-rate-to-byte-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings petabyte_rate/byte_rate and unit PB/s absent from runtime vocabulary; scalar form fits engine once meanings exist."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_PBps = R_Bps/1000000000000000 needs R_Bps. Check: 2000000000000000 gives 2. Negative R_Bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Value derived from the published SI ladder, not a dedicated per-unit section; independently verified 10^15 in translation notes.",
+        "Asserted rate only; excludes overhead."
+      ],
+      "references": [
+        {
+          "expected": 1000000000000000,
+          "id": "one-petabyte-rate",
+          "inputs": {
+            "R_PBps": 1
+          },
+          "method": "SI-ladder derivation: peta- is the 10^15 decimal step; 10^15 = 1000000000000000 exactly.",
+          "provenance": "Independent derivation from published decimal ladder (Data-rate units petabit section).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 2000000000000000,
+          "id": "two-petabyte-rate",
+          "inputs": {
+            "R_PBps": 2
+          },
+          "method": "Ordinary case 2 x 10^15, different scale from the unit definition.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-pbytes",
+          "inputs": {
+            "R_PBps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_PBps": -1
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_PBps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_PBps is required; empty input leaves R_Bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_PBps",
+        "locator": "Petabit per second section decimal-multiple ladder (10^3 through 10^15 steps).",
+        "original_equation": "1 PB/s = 10^15 = 1,000,000,000,000,000 bytes per second",
+        "output_symbol": "R_Bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_PBps arrives already scaled by the PB/s registry scale, so the projection is the identity and the 1e15 (10^15) factor is carried by the PB/s/B/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Works the decimal ladder from kilo- through peta- (1 Pbit/s = 1,000,000,000,000,000 bit/s = 125 terabytes per second) with SI prefixes meaning only powers of 10.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Petabit per second section; Variations (SI powers of 10).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (decimal SI ladder)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Decimal petabyte-per-second rate scaled to bytes per second.",
+      "title": "Decimal petabyte rate to byte rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_Bps",
+          "definition": "Asserted sustained data rate in decimal petabytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "petabyte_rate",
+          "role": "input",
+          "source_symbol": "petabyte per second (PB/s)",
+          "symbol": "R_PBps",
+          "unit": "PB/s"
+        },
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_PBps",
+          "definition": "Same asserted rate expressed in bytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "byte_rate",
+          "role": "output",
+          "source_symbol": "bytes per second",
+          "symbol": "R_Bps",
+          "unit": "B/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Decimal (SI) rate convention: 1 Pbit/s = 10^15 bit/s = 125 x 10^12 B/s per the petabit section.",
+        "Sustained average rate over the same averaging interval; 8-bit bytes per the unit-symbol section."
+      ],
+      "constants": [
+        {
+          "literal": 125000000000000,
+          "locator": "Petabit per second section: 1 Pbit/s = 125,000,000,000,000 bytes per second (125 terabytes per second).",
+          "meaning": "decimal bytes per second per petabit per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "B/s"
+        }
+      ],
+      "guards": [
+        "R_pbps >= 0"
+      ],
+      "id": "computer-science--decimal-petabit-rate-to-byte-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings petabit_rate/byte_rate absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Shares input unit with the b08 petabit-to-bit record; outputs differ (byte vs bit grouping) - no overlap."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_pbps = R_Bps/125000000000000 needs R_Bps. Check: 250000000000000 gives 2. Negative R_Bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Decimal Pbit/s only; backbone-aggregate class rates, still asserted not measured.",
+        "Excludes overhead and peak-vs-sustained differences."
+      ],
+      "references": [
+        {
+          "expected": 125000000000000,
+          "id": "one-petabit-bytes",
+          "inputs": {
+            "R_pbps": 1
+          },
+          "method": "Petabit section: 1 Pbit/s = 125,000,000,000,000 bytes per second. Expected keeps reported value.",
+          "provenance": "Published result from inspected source (Data-rate units petabit section).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 250000000000000,
+          "id": "two-petabit-bytes",
+          "inputs": {
+            "R_pbps": 2
+          },
+          "method": "Ordinary case 2 x 125 x 10^12, different scale from the unit definition.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-pbit-bytes",
+          "inputs": {
+            "R_pbps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_pbps": -1
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_pbps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_pbps is required; empty input leaves R_Bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_pbps",
+        "locator": "Petabit per second section: 1 Pbit/s = 1,000,000,000,000,000 bits per second = 125,000,000,000,000 bytes per second.",
+        "original_equation": "1 Pbit/s = 125,000,000,000,000 bytes per second",
+        "output_symbol": "R_Bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_pbps arrives already scaled by the Pbit/s registry scale, so the projection is the identity and the 10^15/8 (125000000000000, decimal peta with 8-bit grouping) factor is carried by the Pbit/s/B/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Defines 1 Pbit/s as 1,000,000,000,000,000 bits per second and 125,000,000,000,000 bytes per second (125 terabytes per second).",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Petabit per second section.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (decimal Pbit/s byte equivalent)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Decimal petabit-per-second rate grouped into bytes per second.",
+      "title": "Decimal petabit rate to byte rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_Bps",
+          "definition": "Asserted sustained data rate in decimal petabits per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "petabit_rate",
+          "role": "input",
+          "source_symbol": "petabit per second (Pbit/s)",
+          "symbol": "R_pbps",
+          "unit": "Pbit/s"
+        },
+        {
+          "context": "same link, averaging interval and sustained/peak basis as R_pbps",
+          "definition": "Same asserted rate expressed in bytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "byte_rate",
+          "role": "output",
+          "source_symbol": "bytes per second",
+          "symbol": "R_Bps",
+          "unit": "B/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Binary (IEC) rate convention with the published prefix ladder extended: pebi- = 2^50 bytes per unit (same ladder as the b10 pebibit record).",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1125899906842624,
+          "locator": "Binary prefixes ladder: pebi- is the 2^50 step (b10 translation notes verify 2^50 = 1125899906842624 by exact integer arithmetic).",
+          "meaning": "binary bytes per second per pebibyte per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "B/s"
+        }
+      ],
+      "guards": [
+        "R_PiBps >= 0"
+      ],
+      "id": "computer-science--binary-pebibyte-rate-to-byte-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings pebibyte_rate/byte_rate and unit PiB/s absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Shares the 2^50 factor with the b10 pebibit-to-bit record; units differ (bytes vs bits) - no overlap."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_PiBps = R_Bps/1125899906842624 needs R_Bps. Check: 2251799813685248 gives 2. Negative R_Bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Value derived from the published prefix ladder, not a tabulated per-unit row; verified 2^50 in b10 translation notes.",
+        "Asserted rate only; excludes overhead."
+      ],
+      "references": [
+        {
+          "expected": 1125899906842624,
+          "id": "one-pebibyte-rate",
+          "inputs": {
+            "R_PiBps": 1
+          },
+          "method": "Prefix-ladder derivation: pebi- is the 2^50 IEC binary step; exact integer.",
+          "provenance": "Independent derivation from published prefix ladder (Data-rate units binary prefixes; b10 verification).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 2251799813685248,
+          "id": "two-pebibyte-rate",
+          "inputs": {
+            "R_PiBps": 2
+          },
+          "method": "Ordinary case 2 x 2^50, different scale from the unit row.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-pibytes",
+          "inputs": {
+            "R_PiBps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_PiBps": -2
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_PiBps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_PiBps is required; empty input leaves R_Bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_PiBps",
+        "locator": "Binary prefixes (IEC 80000-13) section: pebi- denotes 2^50 (b10 pebibit record verifies the integer).",
+        "original_equation": "1 PiB/s = 2^50 = 1,125,899,906,842,624 bytes per second",
+        "output_symbol": "R_Bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_PiBps arrives already scaled by the PiB/s registry scale, so the projection is the identity and the 2^50 (1125899906842624) factor is carried by the PiB/s/B/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Introduces IEC binary prefixes kibi- through exbi- as binary multiples; tabulated rows verify 2^10 through 2^40 steps and the b10 records extend the ladder to 2^50/2^60 by exact integer arithmetic.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Binary prefixes (IEC 80000-13) section; b10 pebibit translation notes.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (binary prefix ladder)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary pebibyte-per-second rate scaled to bytes per second.",
+      "title": "Binary pebibyte rate to byte rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_Bps",
+          "definition": "Asserted sustained data rate in binary pebibytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "pebibyte_rate",
+          "role": "input",
+          "source_symbol": "pebibyte per second (PiB/s)",
+          "symbol": "R_PiBps",
+          "unit": "PiB/s"
+        },
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_PiBps",
+          "definition": "Same asserted rate expressed in bytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "byte_rate",
+          "role": "output",
+          "source_symbol": "bytes per second",
+          "symbol": "R_Bps",
+          "unit": "B/s"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Binary (IEC) rate convention with the published prefix ladder extended: exbi- = 2^60 bytes per unit (same ladder as the b10 exbibit record).",
+        "Sustained average rate over the same averaging interval for input and output."
+      ],
+      "constants": [
+        {
+          "literal": 1152921504606846976,
+          "locator": "Binary prefixes ladder: exbi- is the 2^60 step (b10 translation notes verify 2^60 = 1152921504606846976 by exact integer arithmetic).",
+          "meaning": "binary bytes per second per exbibyte per second",
+          "source_id": "wikipedia-datarate",
+          "unit": "B/s"
+        }
+      ],
+      "guards": [
+        "R_EiBps >= 0"
+      ],
+      "id": "computer-science--binary-exbibyte-rate-to-byte-rate",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings exbibyte_rate/byte_rate and unit EiB/s absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Shares the 2^60 factor with the b10 exbibit-to-bit record; units differ (bytes vs bits) - no overlap."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "R_EiBps = R_Bps/1152921504606846976 needs R_Bps. Check: 1152921504606846976 gives 1. Negative R_Bps rejected via mapped guard. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Value derived from the published prefix ladder, not a tabulated per-unit row; verified 2^60 in b10 translation notes.",
+        "Asserted rate only; excludes overhead. Largest magnitude in this collection; downstream float handling noted."
+      ],
+      "references": [
+        {
+          "expected": 1152921504606846976,
+          "id": "one-exbibyte-rate",
+          "inputs": {
+            "R_EiBps": 1
+          },
+          "method": "Prefix-ladder derivation: exbi- is the 2^60 IEC binary step; exact in binary floating point (power of two).",
+          "provenance": "Independent derivation from published prefix ladder (Data-rate units binary prefixes; b10 verification).",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 2305843009213693952,
+          "id": "two-exbibyte-rate",
+          "inputs": {
+            "R_EiBps": 2
+          },
+          "method": "Ordinary case 2 x 2^60, different scale; exact in binary floating point.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 2.0
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-eibytes",
+          "inputs": {
+            "R_EiBps": 0
+          },
+          "method": "Boundary: zero asserted rate converts to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "R_EiBps": -1
+          },
+          "kind": "domain",
+          "reason": "Negative asserted rate violates R_EiBps >= 0."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Rate R_EiBps is required; empty input leaves R_Bps undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "R_EiBps",
+        "locator": "Binary prefixes (IEC 80000-13) section: exbi- denotes 2^60 (b10 exbibit record verifies the integer).",
+        "original_equation": "1 EiB/s = 2^60 = 1,152,921,504,606,846,976 bytes per second",
+        "output_symbol": "R_Bps",
+        "source_id": "wikipedia-datarate",
+        "translation_notes": "Expression is written in canonical base units: R_EiBps arrives already scaled by the EiB/s registry scale, so the projection is the identity and the 2^60 (1152921504606846976) factor is carried by the EiB/s/B/s unit scales (documented in constants; dev ships the matching rate vocabulary at admission time), never inlined. Check: information/time preserved."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Introduces IEC binary prefixes kibi- through exbi- as binary multiples; tabulated rows verify 2^10 through 2^40 steps and the b10 records extend the ladder to 2^50/2^60 by exact integer arithmetic.",
+          "id": "wikipedia-datarate",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Binary prefixes (IEC 80000-13) section; b10 exbibit translation notes.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Data-rate units (binary prefix ladder)",
+          "url": "https://en.wikipedia.org/wiki/Data-rate_units",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Binary exbibyte-per-second rate scaled to bytes per second.",
+      "title": "Binary exbibyte rate to byte rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_Bps",
+          "definition": "Asserted sustained data rate in binary exbibytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "exbibyte_rate",
+          "role": "input",
+          "source_symbol": "exbibyte per second (EiB/s)",
+          "symbol": "R_EiBps",
+          "unit": "EiB/s"
+        },
+        {
+          "context": "same interface, averaging interval and sustained/peak basis as R_EiBps",
+          "definition": "Same asserted rate expressed in bytes per second",
+          "dimensions": "information/time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "byte_rate",
+          "role": "output",
+          "source_symbol": "bytes per second",
+          "symbol": "R_Bps",
+          "unit": "B/s"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

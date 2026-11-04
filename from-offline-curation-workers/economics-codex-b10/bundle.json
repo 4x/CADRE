@@ -1,0 +1,250 @@
+{
+  "batch_id": "economics-codex-b10",
+  "created": "2026-11-01",
+  "curator": "codex",
+  "deferred": [
+    {
+      "title": "U-4/U-5 aliases and underutilization source overlap",
+      "reason": "U-6 resolves b05 broader-rate backlog for its broadest union. U-5 coincides only if actual PTER count is zero; U-3 only if marginal attachment and PTER are both zero. U-4 uses discouraged workers rather than all marginal attachment, so cannot substitute a renamed A without a separately declared canonical subset profile. No three near-identical scalar copies or misleading zero substitution submitted. Continue canonical population/subset interface investigation before returning additional rates.",
+      "source_urls": [
+        "https://www.bls.gov/cps/definitions.htm"
+      ]
+    },
+    {
+      "title": "Annual-average U-6 from monthly observations",
+      "reason": "A source-faithful annual rate requires period aggregation/seasonal-adjustment conventions and ratio-of-averages review; monthly reference-week people cannot be summed into unique annual persons. Variable-length time aggregation exceeds this scalar record and remains deferred.",
+      "source_urls": [
+        "https://www.bls.gov/cps/definitions.htm",
+        "https://www.bls.gov/news.release/archives/empsit_11012024.htm"
+      ]
+    }
+  ],
+  "domain": "economics",
+  "example_only": false,
+  "handoff": {
+    "summary": "One final bounded record resolves the broadest CPS underutilization backlog, preserving employed-PTER membership and outside-LF marginal attachment. A smaller defensible checkpoint is used while concluding the sustained session; previous34 records preserved.",
+    "gaps": [
+      "Requires new CPS subgroup/rate meanings and consistent population/period/adjustment metadata; no current-runtime projection.",
+      "Annual-average aggregation and canonical profiles for other underutilization rates remain separate research; no forecast or policy ranking."
+    ],
+    "review_notes": "Primary BLS formula and component definitions directly inspected2026-11-01. Historical2024-11-01 release inspected across A-1,A-8,A-15,A-16 using exclusively October2024 unadjusted columns; rounded expected7.3% retained with propagated rounding bound. Independent synthetic roster and valid LF0/Apositive boundary checked. Ordinary inverse, r6zero and r6one identifiability reviewed. Duplicate comparison limited to supplied scientific inventory/runtime snapshot plus own b01-b09, not global registry. All sources retain actual license/citation facts; toolkit validation logs saved separately. Completed CLI JSON validation valid-data-awaiting-review:4 arithmetic and3 rejection checks passed; packed ZIP subsequently checked with matching manifest checksum.",
+    "connections": [],
+    "queries": []
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "id": "economics--cps-u6-labor-underutilization",
+      "revision": "r1",
+      "title": "CPS U-6 broad labor-underutilization fraction",
+      "summary": "Source-defined union of unemployed, marginally attached and involuntary part-time persons relative to the expanded labor-force denominator. U-6 is distinct from the official unemployment rate; employed underutilization is deliberately included.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "r6",
+        "expression": "(U + A + P) / (LF + A)",
+        "original_equation": "U-6 percent = 100*(unemployed + marginally attached + at work part time for economic reasons)/(civilian labor force + marginally attached).",
+        "source_id": "bls-u6-definition",
+        "locator": "Alternative measures subsection: explicit U-6 calculation, with component definitions",
+        "translation_notes": "Introduced U,LF,A,P,r6 map source named counts and U-6 fractional rate. Remove source percent multiplier100 to serialize fraction. Dimensions (person+person+person)/(person+person)=1. P is already within LF, so denominator LF+A contains P once; numerator's U,A,P are disjoint classifications. Require U+P<=LF, nonnegative inputs and LF+A>0. A is outside LF within same eligible population; membership cannot be proved from aggregate scalar inputs and is a required contextual condition. LF0,A>0 is a valid limiting eligible subgroup: U=P0 gives r6=1, without inventing an LF>0 restriction. U-5 is the same value only in an actually observed population with P0; U-3 only when A=P0. Do not fabricate those zero groups to claim a broader rate equals unemployment."
+      },
+      "variables": [
+        {
+          "symbol": "U",
+          "source_symbol": "Introduced U = total unemployed",
+          "role": "input",
+          "quantity_id": "cps_unemployed_persons",
+          "definition": "CPS unemployed persons, meeting source availability/search or qualifying temporary-layoff criteria, not employed.",
+          "unit": "person",
+          "dimensions": "person",
+          "context": "Same CPS civilian noninstitutional population age16+, geographic/subgroup scope, reference week, source vintage, survey weights and seasonal-adjustment convention. LF=employed+unemployed. A are marginally attached outside LF. P are employed at work part time for economic reasons, inside employed and hence LF, disjoint from U and A. Discouraged workers are a subset of A, not an extra addend. Counts are weighted persons, not jobs or person-flows.",
+          "domain": "Finite nonnegative, U+P<=LF."
+        },
+        {
+          "symbol": "LF",
+          "source_symbol": "Introduced LF = civilian labor force",
+          "role": "input",
+          "quantity_id": "cps_civilian_labor_force",
+          "definition": "CPS employed plus unemployed persons in the same eligible population/reference week.",
+          "unit": "person",
+          "dimensions": "person",
+          "context": "Same CPS civilian noninstitutional population age16+, geographic/subgroup scope, reference week, source vintage, survey weights and seasonal-adjustment convention. LF=employed+unemployed. A are marginally attached outside LF. P are employed at work part time for economic reasons, inside employed and hence LF, disjoint from U and A. Discouraged workers are a subset of A, not an extra addend. Counts are weighted persons, not jobs or person-flows.",
+          "domain": "Finite nonnegative; LF+A strictly positive, U+P<=LF."
+        },
+        {
+          "symbol": "A",
+          "source_symbol": "Introduced A = marginally attached to labor force",
+          "role": "input",
+          "quantity_id": "cps_marginally_attached_persons",
+          "definition": "Persons outside LF who want work, searched during prior12 months or since their last job if more recent, not in last4 weeks, and were available in reference week subject to source temporary-illness rule; includes discouraged workers.",
+          "unit": "person",
+          "dimensions": "person",
+          "context": "Same CPS civilian noninstitutional population age16+, geographic/subgroup scope, reference week, source vintage, survey weights and seasonal-adjustment convention. LF=employed+unemployed. A are marginally attached outside LF. P are employed at work part time for economic reasons, inside employed and hence LF, disjoint from U and A. Discouraged workers are a subset of A, not an extra addend. Counts are weighted persons, not jobs or person-flows.",
+          "domain": "Finite nonnegative, disjoint from LF; compatible eligible population required."
+        },
+        {
+          "symbol": "P",
+          "source_symbol": "Introduced P = at work part time for economic reasons",
+          "role": "input",
+          "quantity_id": "cps_involuntary_part_time_persons",
+          "definition": "Employed persons actually working1-34 hours in reference week for economic reasons; usual part-time workers must want/be available for full-time work; source classification not all usual part-time employed.",
+          "unit": "person",
+          "dimensions": "person",
+          "context": "Same CPS civilian noninstitutional population age16+, geographic/subgroup scope, reference week, source vintage, survey weights and seasonal-adjustment convention. LF=employed+unemployed. A are marginally attached outside LF. P are employed at work part time for economic reasons, inside employed and hence LF, disjoint from U and A. Discouraged workers are a subset of A, not an extra addend. Counts are weighted persons, not jobs or person-flows.",
+          "domain": "Finite nonnegative, a subset of employed persons LF-U."
+        },
+        {
+          "symbol": "r6",
+          "source_symbol": "Introduced r6 = U-6 percent/100",
+          "role": "output",
+          "quantity_id": "cps_u6_underutilization_fraction",
+          "definition": "Broad underutilized-person fraction of LF plus marginal attachment under the BLS U-6 definition.",
+          "unit": "1",
+          "dimensions": "1",
+          "context": "Same CPS civilian noninstitutional population age16+, geographic/subgroup scope, reference week, source vintage, survey weights and seasonal-adjustment convention. LF=employed+unemployed. A are marginally attached outside LF. P are employed at work part time for economic reasons, inside employed and hence LF, disjoint from U and A. Discouraged workers are a subset of A, not an extra addend. Counts are weighted persons, not jobs or person-flows.",
+          "domain": "Finite in[0,1]; not a probability of an individual's future unemployment."
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "U >= 0",
+        "LF >= 0",
+        "A >= 0",
+        "P >= 0",
+        "U + P <= LF",
+        "LF + A > 0"
+      ],
+      "assumptions": [
+        "Source classification: U,A,P are disjoint; P is employed and already included in LF, A is outside LF and includes discouraged workers.",
+        "Source scope: CPS age16+ civilian noninstitutional persons with reference-week/recent-search/actual-hours rules; common weights, period, geography and adjustment convention.",
+        "Application interpretation: use observed classified counts; equation does not classify respondents or perform seasonal adjustment."
+      ],
+      "limitations": [
+        "Not the official U-3 unemployment rate; no forecasts, policy ranking, unemployment-probability or equilibrium claims.",
+        "Scalar aggregate guards cannot verify subgroup membership, eligibility, common survey weights or actual hours/search answers. Rounded observations introduce arithmetic discrepancies separate from survey sampling uncertainty."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "bls-u6-definition",
+          "kind": "primary",
+          "title": "BLS Concepts and Definitions: CPS",
+          "url": "https://www.bls.gov/cps/definitions.htm",
+          "version": "Page last modified2026-05-22; live HTML accessed2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Alternative measures of labor underutilization U-1 through U-6, explicit U-6 formula; Marginally attached; Discouraged workers; At work part time for economic reasons",
+          "evidence": "U-6 counts unemployed, marginally attached and involuntary part-time workers relative to labor force plus marginal attachment. Discouraged people are already within marginal attachment. Involuntary part-time workers are employed; recent hours, availability and economic-reason rules matter.",
+          "license": "https://www.bls.gov/opub/copyright-information.htm, directly inspected2026-11-01: BLS text/data public domain except previously copyrighted illustrations/photos; citation requested, emblem protected separately.",
+          "redistribution": "Original attributed formula and concise evidence paraphrases with minimal table numerics. No source pages, images, third-party illustrations or BLS emblem; no endorsement implied."
+        },
+        {
+          "id": "bls-u6-2024-vintage",
+          "kind": "primary",
+          "title": "BLS Employment Situation: October2024",
+          "url": "https://www.bls.gov/news.release/archives/empsit_11012024.htm",
+          "version": "Archived release2024-11-01, USDL-24-2233; no claim about current revised values",
+          "accessed": "2026-11-01",
+          "locator": "October2024 NOT seasonally adjusted: A-1 TOTAL LF/unemployed third data column; A-8 All industries PTER third data column; A-16 TOTAL marginal attachment second data column; A-15 U-6 third data column",
+          "evidence": "Same archived unadjusted month: LF168569 thousand, unemployed6631, involuntary part-time4246, marginally attached1547. A-15 reports U-6 at7.3 percent. All counts/rates rounded separately; adjusted and unadjusted columns must not be mixed.",
+          "license": "https://www.bls.gov/opub/copyright-information.htm, directly inspected2026-11-01: BLS text/data public domain except previously copyrighted illustrations/photos; citation requested, emblem protected separately.",
+          "redistribution": "Original attributed formula and concise evidence paraphrases with minimal table numerics. No source pages, images, third-party illustrations or BLS emblem; no endorsement implied."
+        }
+      ],
+      "references": [
+        {
+          "id": "published-october-2024-unadjusted",
+          "inputs": {
+            "U": 6631000,
+            "LF": 168569000,
+            "A": 1547000,
+            "P": 4246000
+          },
+          "expected": 0.073,
+          "tolerance": 0.0005101,
+          "method": "Published7.3% retained as expected.073, not replaced by exact replay. Each count rounded nearest1000; numerator bound1500 persons, denominator1000. On denominator170116000, quotient perturbation bounded by (1500+.074*1000)/(170116000-1000)<.00000926; add half.1percentage-point output unit.0005 and round bound upward to.0005101. This checks published rounding consistency, not survey confidence.",
+          "provenance": "https://www.bls.gov/news.release/archives/empsit_11012024.htm, TableA-15 U-6 and TablesA-1/A-8/A-16, all October2024 not seasonally adjusted."
+        },
+        {
+          "id": "independent-expanded-roster",
+          "inputs": {
+            "U": 2,
+            "LF": 10,
+            "A": 2,
+            "P": 3
+          },
+          "expected": 0.5833333333333334,
+          "tolerance": 1E-12,
+          "method": "Independent roster:12 eligible members of expanded labor group, five employed with no PTER classification and seven classified underutilized. Those seven consist of2 unemployed,2 marginally attached and3 employed PTER. Expected is complement1-5/12=7/12 from expanded-roster classification, not another ordering of aggregate formula.",
+          "provenance": "Curator synthetic mutually exclusive CPS-status roster."
+        },
+        {
+          "id": "zero-underutilization",
+          "inputs": {
+            "U": 0,
+            "LF": 8,
+            "A": 0,
+            "P": 0
+          },
+          "expected": 0,
+          "tolerance": 1E-12,
+          "method": "Eight employed people, none in any underutilized status, yield zero fraction with positive denominator. Does not assert actual economy full utilization beyond this definition.",
+          "provenance": "Curator empty-underutilized-union boundary."
+        },
+        {
+          "id": "marginal-only-expanded-group",
+          "inputs": {
+            "U": 0,
+            "LF": 0,
+            "A": 3,
+            "P": 0
+          },
+          "expected": 1,
+          "tolerance": 1E-12,
+          "method": "Three eligible marginally attached people and no LF members form an expanded group all included in numerator; fraction1. LF alone need not be positive because A supplies the denominator.",
+          "provenance": "Curator admissible source-classification boundary."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "U": 2,
+            "LF": 4,
+            "A": 1,
+            "P": 3
+          },
+          "reason": "U and employed PTER would total5 inside a labor force of4, violating the disjoint-subset requirement."
+        },
+        {
+          "kind": "domain",
+          "inputs": {
+            "U": 0,
+            "LF": 0,
+            "A": 0,
+            "P": 0
+          },
+          "reason": "Empty expanded labor group has no U-6 fraction."
+        },
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "U": 2,
+            "LF": 10,
+            "A": 2
+          },
+          "reason": "PTER count missing; cannot substitute all part-time workers or assume zero."
+        }
+      ],
+      "inverse_notes": "Let r6 be known in[0,1]. Additive numerator inverses U=r6*(LF+A)-A-P and P=r6*(LF+A)-A-U are unique with other counts known and original guards retained. LF=(U+A+P)/r6-A requires r6!=0; recovered LF>=U+P and LF+A>0. A=(r6*LF-U-P)/(1-r6) requires r6!=1 and A>=0; retain all guards. Roster substitution r6=7/12,LF10,A2,P3 recovers U2 and forward7/12. Same rate U2,LF10,P3 recovers A2, forward7/12. At r6=1, consistency requires LF=U+P and any A>=0 with LF+A>0 fits, so A unidentified. At r6=0, nonnegative inputs force U=A=P0 and any LF>0 fits; LF unidentified. r6=0 with positive numerator impossible. No roots. Recovery does not identify unobserved individual classifications or establish a causal labor response.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "New cps_marginally_attached_persons, cps_involuntary_part_time_persons and cps_u6_underutilization_fraction meanings; U/LF reuse b05 definitions. Persons unit and survey/classification context require extension.",
+          "Do not add P to denominator or add discouraged people separately to A. All input adjustment conventions must match; b05 seasonally adjusted historical oracle is not bound to this unadjusted example."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

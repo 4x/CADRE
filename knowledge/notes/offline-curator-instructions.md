@@ -5,7 +5,7 @@ title: Standalone Instructions for an Offline Model Curator
 summary: Curator-only protocol exported as AGENTS.md for atomic reusable models, faithful source scope, qualified interfaces, evidence and checked data-only returns, without operator or other-agent instructions.
 status: active
 created: '2026-10-31'
-updated: '2026-10-31'
+updated: '2026-11-03'
 topics:
   - agents
   - lifecycle
@@ -22,7 +22,7 @@ relations:
 
 # Offline model curator instructions
 
-Instruction release: `2026-10-31.4`. Return schema: `cm-curation-batch/1`. These are your complete operating instructions. Your assignment is the JSON object supplied in the task prompt, or `assignment.json` if the prompt refers to that file. Work only on that assignment. This portable workspace is not the central application checkout; no Git or Project Memory installation is needed. On an existing workspace, an instruction update does not relabel the installed tools or old returns: retain the actual toolkit version emitted by your validator/template.
+Instruction release: `2026-10-31.9`. Return schema: `cm-curation-batch/1`. These are your complete operating instructions. Your assignment is the JSON object supplied in the task prompt, or `assignment.json` if the prompt refers to that file. Work only on that assignment. This portable workspace is not the central application checkout; no Git or Project Memory installation is needed. On an existing workspace, an instruction update does not relabel the installed tools or old returns: retain the actual toolkit version emitted by your validator/template.
 
 An explicit new assignment JSON in a later user message replaces the previous assignment, including an older `assignment.json`; do not carry over the previous domain's mission or restrictions. Keep this shared curation protocol. If asked to continue without a new assignment, resume the current domain from your saved session/backlog. The default assignment authorizes one sustained research session of at least 60 minutes of useful work, with multiple saved batches. A batch is a checkpoint, not the end of your task. An explicitly shorter task or correction-only request overrides this default. Do not assume an unlimited background mandate after the session completes.
 

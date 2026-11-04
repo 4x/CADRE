@@ -1,0 +1,452 @@
+{
+  "batch_id": "environmental-accounting-adapters-b01",
+  "created": "2026-11-04",
+  "curator": "envacct bridge curator (native compat-curation subagent)",
+  "deferred": [
+    {
+      "reason": "The GWP20 conversion record emits carbon_dioxide_equivalent in a 20-year-horizon context with no GWP20-horizon total consumer in the registry; horizons are never interchangeable, so those legs need their own brief and consumer, not this batch.",
+      "source_urls": [],
+      "title": "GWP20-horizon bridge legs"
+    },
+    {
+      "reason": "total-co2e-from-gas-family-sum FAM G carries a third consumer context matching no producer; binding it is a separate near-miss for another brief.",
+      "source_urls": [],
+      "title": "Family-sum FAM G leg"
+    },
+    {
+      "reason": "The three emission_mass consumers (emission-intensity, revenue-intensity, pooled-intensity family) each carry distinct contexts matching no producer; out of scope for this chain.",
+      "source_urls": [],
+      "title": "Intensity-consumer E legs"
+    }
+  ],
+  "domain": "environmental-accounting",
+  "example_only": false,
+  "handoff": {
+    "connections": [
+      "emission-mass-from-activity-and-factor@r1 E -> emission-mass-as-greenhouse-gas-mass@r1 E/Mgas -> co2-equivalent-from-gas-mass-and-gwp@r1 Mgas",
+      "co2-equivalent-from-gas-mass-and-gwp@r1 Mco2e -> single-gas-co2e-as-component-a@r1 Mco2e/Ma -> total-co2e-from-two-gas-components@r1 Ma",
+      "co2-equivalent-from-gas-mass-and-gwp@r1 Mco2e -> single-gas-co2e-as-component-b@r1 Mco2e/Mb -> total-co2e-from-two-gas-components@r1 Mb"
+    ],
+    "gaps": [
+      "Independent scientific review of the three adapter records is still required; this batch only passes mechanical validation."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical checks performed: schema/arithmetic/runtime-contract validation via curation validate, pack round-trip, and a read-only port-equality proof against .registry/models.sqlite3 (exact meaning/unit/context equality on all six bridge faces). Not performed: independent scientific review; staging/import explicitly out of scope, registry untouched.",
+    "summary": "Three runtime-ready identity adapters bridging the factor-accounting to GWP100-conversion to two-gas-total chain (brief 12, links 1-2); registry read-only throughout, nothing staged."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "assumptions": [
+        "Bridge scope: the input emission mass is the mass of the stated greenhouse gas emitted by the stated source over the accounting period (the producer output definition already scopes E to a stated greenhouse gas); non-GHG emissions without a GWP are out of scope.",
+        "Horizon/vintage scope: the output mass is supplied to a GWP100 conversion at the stated assessment vintage (AR6 values used in the downstream references); the identity preserves the value only within that downstream scope and performs no horizon or vintage conversion itself.",
+        "Source/scope continuity: emitting source, gas identity, Scope boundary and accounting period pass through unchanged; the EF vintage/applicability qualification on the input face travels with the value."
+      ],
+      "constants": [],
+      "guards": [
+        "E >= 0"
+      ],
+      "id": "environmental-accounting--emission-mass-as-greenhouse-gas-mass",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "Bridge scope: the input emission mass is the mass of the stated greenhouse gas emitted by the stated source over the accounting period (the producer output definition already scopes E to a stated greenhouse gas); non-GHG emissions without a GWP are out of scope.",
+            "Horizon/vintage scope: the output mass is supplied to a GWP100 conversion at the stated assessment vintage (AR6 values used in the downstream references); the identity preserves the value only within that downstream scope and performs no horizon or vintage conversion itself.",
+            "Source/scope continuity: emitting source, gas identity, Scope boundary and accounting period pass through unchanged; the EF vintage/applicability qualification on the input face travels with the value.",
+            "Relabels meaning and context only; asserts no new emission physics, factor calibration, or GWP value.",
+            "Does not convert between gases, horizons (GWP100 versus GWP20), vintages (AR5 versus AR6), or Scope boundaries."
+          ],
+          "expression": "E",
+          "guards": [
+            "E >= 0"
+          ],
+          "id": "environmental-accounting--emission-mass-as-greenhouse-gas-mass",
+          "inputs": {
+            "E": {
+              "context": "same emitting source, gas, Scope boundary, accounting period and EF applicability as inputs",
+              "meaning": "emission_mass",
+              "unit": "kg"
+            }
+          },
+          "output": {
+            "context": "same emitted gas, 100-year horizon and assessment vintage (AR6 values used in references) as Mco2e",
+            "meaning": "greenhouse_gas_mass",
+            "unit": "kg"
+          },
+          "source": "Project derivation bridging emission_mass to greenhouse_gas_mass (adapter brief 12: data/curation/corrections/adapter-envacct-brief-12.md); endpoint keys: environmental-accounting--emission-mass-from-activity-and-factor@r1.runtime1; environmental-accounting--co2-equivalent-from-gas-mass-and-gwp@r1.runtime1; environmental-accounting--total-co2e-from-two-gas-components@r1.runtime1",
+          "version": "r1"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "Identity: E is recovered exactly as Mgas, and Mgas determines E uniquely. Inversion is exact substitution with no numerical conditioning.",
+      "kind": "definition",
+      "limitations": [
+        "Relabels meaning and context only; asserts no new emission physics, factor calibration, or GWP value.",
+        "Does not convert between gases, horizons (GWP100 versus GWP20), vintages (AR5 versus AR6), or Scope boundaries."
+      ],
+      "references": [
+        {
+          "expected": 10.0,
+          "id": "ten-kilogram-identity",
+          "inputs": {
+            "E": 10.0
+          },
+          "method": "Identity replay: the adapter returns its E input unchanged, so 10.0 kg in yields 10.0 kg out by direct substitution.",
+          "provenance": "Project-authored identity check with synthetic values; no external empirical claim.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1250.5,
+          "id": "fractional-mass-identity",
+          "inputs": {
+            "E": 1250.5
+          },
+          "method": "Identity replay: the adapter returns its E input unchanged, so 1250.5 kg in yields 1250.5 kg out by direct substitution.",
+          "provenance": "Project-authored identity check with synthetic values; no external empirical claim.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "E": -1.0
+          },
+          "kind": "domain",
+          "reason": "Negative mass violates the nonnegative-mass accounting profile; removals and sinks need a separate definition."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "The identity has no default mass; an absent input cannot produce a relabeled output."
+        }
+      ],
+      "relationship": {
+        "expression": "E",
+        "locator": "data/curation/corrections/adapter-envacct-brief-12.md link faces; endpoint ports read read-only from .registry/models.sqlite3",
+        "original_equation": "Mgas = E (same emitted mass; GHG-scope relabel, no rescaling)",
+        "output_symbol": "Mgas",
+        "source_id": "envacct-adapter-derivation",
+        "translation_notes": "Identity bridge across a meaning/context face change: input face reproduces the emission-mass producer output port and output face reproduces the co2-equivalent consumer Mgas port, both byte-exact from the registry. Dimensional check: mass = mass. No factor inlined; scope lives in assumptions and contexts."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Project derivation from two admitted registry ports: producer environmental-accounting--emission-mass-from-activity-and-factor@r1.runtime1 output (emission_mass, kg) and consumer environmental-accounting--co2-equivalent-from-gas-mass-and-gwp@r1.runtime1 input Mgas (greenhouse_gas_mass, kg), contexts reproduced byte-exact in this record's variables. The producer output definition already scopes E to a stated greenhouse gas, so the relabel asserts no new physics; see brief link 1.",
+          "id": "envacct-adapter-derivation",
+          "kind": "project-derivation",
+          "license": "Project-authored derivation; no external quotation",
+          "locator": "data/curation/corrections/adapter-envacct-brief-12.md; endpoint registry keys in evidence",
+          "redistribution": "Contains only original bridge-scope sentences and synthetic identity checks",
+          "title": "Project derivation: Emitted mass as greenhouse-gas mass for GWP100 conversion (chain adapter) (adapter brief 12)",
+          "url": null,
+          "version": "adapter brief 12, 2026-11-04"
+        }
+      ],
+      "summary": "Identity bridge: factor-accounted emission mass of the stated greenhouse gas, relabeled to the GHG-mass port consumed by single-gas CO2-equivalent conversion.",
+      "title": "Emitted mass as greenhouse-gas mass for GWP100 conversion (chain adapter)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same emitting source, gas, Scope boundary, accounting period and EF applicability as inputs",
+          "definition": "Mass of stated greenhouse gas emitted by the source over the accounting period, as computed by factor accounting",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg",
+          "quantity_id": "emission_mass",
+          "role": "input",
+          "source_symbol": "Emissions",
+          "symbol": "E",
+          "unit": "kg"
+        },
+        {
+          "context": "same emitted gas, 100-year horizon and assessment vintage (AR6 values used in references) as Mco2e",
+          "definition": "Mass of one stated greenhouse gas emitted over the accounting period, supplied to GWP100 conversion",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg",
+          "quantity_id": "greenhouse_gas_mass",
+          "role": "output",
+          "source_symbol": "emissions of a gas (mass)",
+          "symbol": "Mgas",
+          "unit": "kg"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Bridge scope: the input single-gas CO2e mass, converted at GWP100 for the stated vintage, Scope boundary and period, is the component-A (first gas route) subtotal of the two-gas inventory total.",
+        "Sibling-leg scope: the companion component-B mass is a different gas route converted at the same horizon, vintage, boundary and period; this record binds only the Ma leg, and the Mb leg is bridged by the sibling adapter record in the same batch.",
+        "Additivity scope: the common CO2e unit makes the downstream addition valid only when both legs share horizon, vintage, boundary and period (per the downstream record's source assumption); mixing horizons or vintages across legs is out of scope."
+      ],
+      "constants": [],
+      "guards": [
+        "Mco2e >= 0"
+      ],
+      "id": "environmental-accounting--single-gas-co2e-as-component-a",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "Bridge scope: the input single-gas CO2e mass, converted at GWP100 for the stated vintage, Scope boundary and period, is the component-A (first gas route) subtotal of the two-gas inventory total.",
+            "Sibling-leg scope: the companion component-B mass is a different gas route converted at the same horizon, vintage, boundary and period; this record binds only the Ma leg, and the Mb leg is bridged by the sibling adapter record in the same batch.",
+            "Additivity scope: the common CO2e unit makes the downstream addition valid only when both legs share horizon, vintage, boundary and period (per the downstream record's source assumption); mixing horizons or vintages across legs is out of scope.",
+            "Relabels context only (meaning unchanged); performs no GWP conversion or summation itself.",
+            "Does not reconcile Scopes, periods, or double-counted sources; inherits the downstream sum's boundary."
+          ],
+          "expression": "Mco2e",
+          "guards": [
+            "Mco2e >= 0"
+          ],
+          "id": "environmental-accounting--single-gas-co2e-as-component-a",
+          "inputs": {
+            "Mco2e": {
+              "context": "same stated gas, 100-year horizon, vintage, Scope boundary and period as inputs",
+              "meaning": "carbon_dioxide_equivalent",
+              "unit": "kg"
+            }
+          },
+          "output": {
+            "context": "same horizon (GWP100), vintage, Scope boundary and period as Mb and Mtot",
+            "meaning": "carbon_dioxide_equivalent",
+            "unit": "kg"
+          },
+          "source": "Project derivation bridging carbon_dioxide_equivalent to carbon_dioxide_equivalent (adapter brief 12: data/curation/corrections/adapter-envacct-brief-12.md); endpoint keys: environmental-accounting--emission-mass-from-activity-and-factor@r1.runtime1; environmental-accounting--co2-equivalent-from-gas-mass-and-gwp@r1.runtime1; environmental-accounting--total-co2e-from-two-gas-components@r1.runtime1",
+          "version": "r1"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "Identity: Mco2e is recovered exactly as Ma, and Ma determines Mco2e uniquely. Inversion is exact substitution with no numerical conditioning.",
+      "kind": "definition",
+      "limitations": [
+        "Relabels context only (meaning unchanged); performs no GWP conversion or summation itself.",
+        "Does not reconcile Scopes, periods, or double-counted sources; inherits the downstream sum's boundary."
+      ],
+      "references": [
+        {
+          "expected": 300.0,
+          "id": "ch4-ar6-scale-identity",
+          "inputs": {
+            "Mco2e": 300.0
+          },
+          "method": "Identity replay: the adapter returns its Mco2e input unchanged, so 300.0 kg in yields 300.0 kg out by direct substitution.",
+          "provenance": "Project-authored identity check with synthetic values; no external empirical claim.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 546.0,
+          "id": "n2o-ar6-scale-identity",
+          "inputs": {
+            "Mco2e": 546.0
+          },
+          "method": "Identity replay: the adapter returns its Mco2e input unchanged, so 546.0 kg in yields 546.0 kg out by direct substitution.",
+          "provenance": "Project-authored identity check with synthetic values; no external empirical claim.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Mco2e": -1.0
+          },
+          "kind": "domain",
+          "reason": "Negative mass violates the nonnegative-mass accounting profile; removals and sinks need a separate definition."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "The identity has no default mass; an absent input cannot produce a relabeled output."
+        }
+      ],
+      "relationship": {
+        "expression": "Mco2e",
+        "locator": "data/curation/corrections/adapter-envacct-brief-12.md link faces; endpoint ports read read-only from .registry/models.sqlite3",
+        "original_equation": "Ma = Mco2e (same CO2e mass; component-A relabel, no rescaling)",
+        "output_symbol": "Ma",
+        "source_id": "envacct-adapter-derivation",
+        "translation_notes": "Identity bridge across a context face change: input face reproduces the co2-equivalent producer output port and output face reproduces the two-gas-total Ma port, both byte-exact from the registry. Dimensional check: mass = mass. Mixed component roles across the two legs live in assumptions, never in arithmetic."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Project derivation from two admitted registry ports: producer environmental-accounting--co2-equivalent-from-gas-mass-and-gwp@r1.runtime1 output (carbon_dioxide_equivalent, kg) and consumer environmental-accounting--total-co2e-from-two-gas-components@r1.runtime1 input Ma (carbon_dioxide_equivalent, kg), contexts reproduced byte-exact in this record's variables. Values mirror the upstream reference outputs (300, 546) to document chain intent; see brief link 2 leg A.",
+          "id": "envacct-adapter-derivation",
+          "kind": "project-derivation",
+          "license": "Project-authored derivation; no external quotation",
+          "locator": "data/curation/corrections/adapter-envacct-brief-12.md; endpoint registry keys in evidence",
+          "redistribution": "Contains only original bridge-scope sentences and synthetic identity checks",
+          "title": "Project derivation: Single-gas CO2e mass as two-gas-total component A (chain adapter) (adapter brief 12)",
+          "url": null,
+          "version": "adapter brief 12, 2026-11-04"
+        }
+      ],
+      "summary": "Identity bridge: single-gas CO2e mass converted at GWP100, relabeled to the component-A input port of the two-gas CO2e total.",
+      "title": "Single-gas CO2e mass as two-gas-total component A (chain adapter)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same stated gas, 100-year horizon, vintage, Scope boundary and period as inputs",
+          "definition": "Mass of CO2 that would warm the Earth as much as the stated gas mass over the stated horizon (accounting equivalent only), for one converted gas",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg",
+          "quantity_id": "carbon_dioxide_equivalent",
+          "role": "input",
+          "source_symbol": "CO2 equivalent",
+          "symbol": "Mco2e",
+          "unit": "kg"
+        },
+        {
+          "context": "same horizon (GWP100), vintage, Scope boundary and period as Mb and Mtot",
+          "definition": "CO2-equivalent mass of the first gas route already converted at the stated horizon/vintage",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg",
+          "quantity_id": "carbon_dioxide_equivalent",
+          "role": "output",
+          "source_symbol": "CO2e of gas route A",
+          "symbol": "Ma",
+          "unit": "kg"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Bridge scope: the input single-gas CO2e mass, converted at GWP100 for the stated vintage, Scope boundary and period, is the component-B (second gas route) subtotal of the two-gas inventory total.",
+        "Sibling-leg scope: the companion component-A mass is a different gas route converted at the same horizon, vintage, boundary and period; this record binds only the Mb leg, and the Ma leg is bridged by the sibling adapter record in the same batch.",
+        "Additivity scope: the common CO2e unit makes the downstream addition valid only when both legs share horizon, vintage, boundary and period (per the downstream record's source assumption); mixing horizons or vintages across legs is out of scope."
+      ],
+      "constants": [],
+      "guards": [
+        "Mco2e >= 0"
+      ],
+      "id": "environmental-accounting--single-gas-co2e-as-component-b",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "Bridge scope: the input single-gas CO2e mass, converted at GWP100 for the stated vintage, Scope boundary and period, is the component-B (second gas route) subtotal of the two-gas inventory total.",
+            "Sibling-leg scope: the companion component-A mass is a different gas route converted at the same horizon, vintage, boundary and period; this record binds only the Mb leg, and the Ma leg is bridged by the sibling adapter record in the same batch.",
+            "Additivity scope: the common CO2e unit makes the downstream addition valid only when both legs share horizon, vintage, boundary and period (per the downstream record's source assumption); mixing horizons or vintages across legs is out of scope.",
+            "Relabels context only (meaning unchanged); performs no GWP conversion or summation itself.",
+            "Does not reconcile Scopes, periods, or double-counted sources; inherits the downstream sum's boundary."
+          ],
+          "expression": "Mco2e",
+          "guards": [
+            "Mco2e >= 0"
+          ],
+          "id": "environmental-accounting--single-gas-co2e-as-component-b",
+          "inputs": {
+            "Mco2e": {
+              "context": "same stated gas, 100-year horizon, vintage, Scope boundary and period as inputs",
+              "meaning": "carbon_dioxide_equivalent",
+              "unit": "kg"
+            }
+          },
+          "output": {
+            "context": "same horizon (GWP100), vintage, Scope boundary and period as Ma and Mtot",
+            "meaning": "carbon_dioxide_equivalent",
+            "unit": "kg"
+          },
+          "source": "Project derivation bridging carbon_dioxide_equivalent to carbon_dioxide_equivalent (adapter brief 12: data/curation/corrections/adapter-envacct-brief-12.md); endpoint keys: environmental-accounting--emission-mass-from-activity-and-factor@r1.runtime1; environmental-accounting--co2-equivalent-from-gas-mass-and-gwp@r1.runtime1; environmental-accounting--total-co2e-from-two-gas-components@r1.runtime1",
+          "version": "r1"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "Identity: Mco2e is recovered exactly as Mb, and Mb determines Mco2e uniquely. Inversion is exact substitution with no numerical conditioning.",
+      "kind": "definition",
+      "limitations": [
+        "Relabels context only (meaning unchanged); performs no GWP conversion or summation itself.",
+        "Does not reconcile Scopes, periods, or double-counted sources; inherits the downstream sum's boundary."
+      ],
+      "references": [
+        {
+          "expected": 300.0,
+          "id": "ch4-ar6-scale-identity",
+          "inputs": {
+            "Mco2e": 300.0
+          },
+          "method": "Identity replay: the adapter returns its Mco2e input unchanged, so 300.0 kg in yields 300.0 kg out by direct substitution.",
+          "provenance": "Project-authored identity check with synthetic values; no external empirical claim.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 546.0,
+          "id": "n2o-ar6-scale-identity",
+          "inputs": {
+            "Mco2e": 546.0
+          },
+          "method": "Identity replay: the adapter returns its Mco2e input unchanged, so 546.0 kg in yields 546.0 kg out by direct substitution.",
+          "provenance": "Project-authored identity check with synthetic values; no external empirical claim.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Mco2e": -1.0
+          },
+          "kind": "domain",
+          "reason": "Negative mass violates the nonnegative-mass accounting profile; removals and sinks need a separate definition."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "The identity has no default mass; an absent input cannot produce a relabeled output."
+        }
+      ],
+      "relationship": {
+        "expression": "Mco2e",
+        "locator": "data/curation/corrections/adapter-envacct-brief-12.md link faces; endpoint ports read read-only from .registry/models.sqlite3",
+        "original_equation": "Mb = Mco2e (same CO2e mass; component-B relabel, no rescaling)",
+        "output_symbol": "Mb",
+        "source_id": "envacct-adapter-derivation",
+        "translation_notes": "Identity bridge across a context change: input face reproduces the co2-equivalent producer output port and output face reproduces the two-gas-total Mb port, both byte-exact from the registry. Dimensional check: mass = mass. Mixed component roles across the two legs live in assumptions, never in arithmetic."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-04",
+          "evidence": "Project derivation from two admitted registry ports: producer environmental-accounting--co2-equivalent-from-gas-mass-and-gwp@r1.runtime1 output (carbon_dioxide_equivalent, kg) and consumer environmental-accounting--total-co2e-from-two-gas-components@r1.runtime1 input Mb (carbon_dioxide_equivalent, kg), contexts reproduced byte-exact in this record's variables. Values mirror the upstream reference outputs (300, 546) to document chain intent; see brief link 2 leg B.",
+          "id": "envacct-adapter-derivation",
+          "kind": "project-derivation",
+          "license": "Project-authored derivation; no external quotation",
+          "locator": "data/curation/corrections/adapter-envacct-brief-12.md; endpoint registry keys in evidence",
+          "redistribution": "Contains only original bridge-scope sentences and synthetic identity checks",
+          "title": "Project derivation: Single-gas CO2e mass as two-gas-total component B (chain adapter) (adapter brief 12)",
+          "url": null,
+          "version": "adapter brief 12, 2026-11-04"
+        }
+      ],
+      "summary": "Identity bridge: single-gas CO2e mass converted at GWP100, relabeled to the component-B input port of the two-gas CO2e total.",
+      "title": "Single-gas CO2e mass as two-gas-total component B (chain adapter)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same stated gas, 100-year horizon, vintage, Scope boundary and period as inputs",
+          "definition": "Mass of CO2 that would warm the Earth as much as the stated gas mass over the stated horizon (accounting equivalent only), for one converted gas",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg",
+          "quantity_id": "carbon_dioxide_equivalent",
+          "role": "input",
+          "source_symbol": "CO2 equivalent",
+          "symbol": "Mco2e",
+          "unit": "kg"
+        },
+        {
+          "context": "same horizon (GWP100), vintage, Scope boundary and period as Ma and Mtot",
+          "definition": "CO2-equivalent mass of the second gas route already converted at the stated horizon/vintage",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg",
+          "quantity_id": "carbon_dioxide_equivalent",
+          "role": "output",
+          "source_symbol": "CO2e of gas route B",
+          "symbol": "Mb",
+          "unit": "kg"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

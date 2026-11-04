@@ -6,7 +6,7 @@ import re
 from typing import Any
 
 from .contracts import UNIT_ALIASES, ModelError, Port, UNITS, Value, finite, normalize_unit_spelling
-from .serialization import object_fields, text
+from .serialization import MAX_RECORD_BYTES, object_fields, text
 
 MAX_QUERY_CHARS = 16_384
 MAX_QUERY_FACTS = 64
@@ -24,12 +24,26 @@ def unit_identity(unit: str) -> str:
     return UNIT_ALIASES.get(normalized, normalized)
 
 
-def validate_fact(raw: dict[str, Any], question: str) -> dict[str, Any]:
-    """Preserve literal evidence and reject invented/normalized numeric or date inputs."""
-    object_fields(raw, {"id", "name", "value_type", "value", "unit", "quote"})
-    fact = {key: text(value) for key, value in raw.items()}
-    if fact["quote"] not in question or fact["value"] not in fact["quote"]:
+def validate_fact(raw: dict[str, Any], question: str, fill_in_assumptions: bool = False) -> dict[str, Any]:
+    """Preserve literal evidence and reject invented/normalized numeric or date inputs.
+
+    Assumed facts (non-empty assumption) are accepted only when assumption
+    filling is enabled: their quote must still occur in the question as the
+    implying phrase, but the value need not occur in the quote."""
+    object_fields(raw, {"id", "name", "value_type", "value", "unit", "quote"}, {"assumption"})
+    assumption = raw.get("assumption", "")
+    if not isinstance(assumption, str) or len(assumption) > MAX_RECORD_BYTES:
+        raise ModelError("Fact assumption must be a bounded string.")
+    fact = {key: text(value) for key, value in raw.items() if key != "assumption"}
+    fact["assumption"] = assumption
+    assumed = bool(assumption.strip())
+    if assumed and not fill_in_assumptions:
+        raise ModelError("Assumed values require assumption filling to be enabled for this request.")
+    if fact["quote"] not in question:
         raise ModelError("An extracted value and its exact quote must occur in the question.")
+    if not assumed and fact["value"] not in fact["quote"]:
+        raise ModelError("An extracted value and its exact quote must occur in the question.")
+    fact["assumed"] = assumed
     start = question.index(fact["quote"])
     fact["source_span"] = {"start": start, "end": start + len(fact["quote"])}
     if fact["value_type"] == "number":
@@ -37,17 +51,28 @@ def validate_fact(raw: dict[str, Any], question: str) -> dict[str, Any]:
         if NUMBER_PATTERN.fullmatch(literal) is None:
             raise ModelError("Numeric inputs currently require an explicit digit literal in the query.")
         # Prevent '5' being presented as evidence for a user literal '15' or '0.05'.
-        numeric_mentions = [match.group() for match in NUMBER_PATTERN.finditer(fact["quote"])]
-        if literal not in numeric_mentions:
-            raise ModelError("Extracted numeric literal does not match a complete number in its quote.")
-        mention = next(match for match in NUMBER_PATTERN.finditer(fact["quote"]) if match.group() == literal)
-        tail = fact["quote"][mention.end():]
-        explicit = UNIT_PATTERN.match(tail)
-        source_unit = explicit.group(1) if explicit else None
-        if fact["quote"][:mention.start()].rstrip().endswith("$"):
-            source_unit = "USD/kWh" if re.match(r"\s*/\s*kWh", tail, re.IGNORECASE) else "USD"
-        if source_unit and unit_identity(source_unit) != unit_identity(fact["unit"]):
-            raise ModelError("Extracted unit contradicts the explicit unit next to the number in the question.")
+        # Assumed values are exempt: they are documented implications, not quotations.
+        if not assumed:
+            numeric_mentions = [match.group() for match in NUMBER_PATTERN.finditer(fact["quote"])]
+            if literal not in numeric_mentions:
+                raise ModelError("Extracted numeric literal does not match a complete number in its quote.")
+            mention = next(match for match in NUMBER_PATTERN.finditer(fact["quote"]) if match.group() == literal)
+            tail = fact["quote"][mention.end():]
+            explicit = UNIT_PATTERN.match(tail)
+            source_unit = explicit.group(1) if explicit else None
+            if fact["quote"][:mention.start()].rstrip().endswith("$"):
+                source_unit = "USD/kWh" if re.match(r"\s*/\s*kWh", tail, re.IGNORECASE) else "USD"
+            else:
+                # "Per" phrasing ("15 mg per kg") otherwise misreads as its
+                # numerator prefix ("mg"); retry with "per" squeezed to "/"
+                # and prefer the reading that agrees with the stated unit.
+                squeezed = UNIT_PATTERN.match(re.sub(r"\s+per\s+", "/", tail))
+                squeezed_unit = squeezed.group(1) if squeezed else None
+                if squeezed_unit is not None and (
+                        source_unit is None or unit_identity(squeezed_unit) == unit_identity(fact["unit"])):
+                    source_unit = squeezed_unit
+            if source_unit and unit_identity(source_unit) != unit_identity(fact["unit"]):
+                raise ModelError("Extracted unit contradicts the explicit unit next to the number in the question.")
         try:
             fact["amount"] = finite(float(Decimal(literal.replace(",", ""))), "Query amount")
         except (InvalidOperation, OverflowError) as exc:
@@ -76,6 +101,8 @@ def bind_fact(fact: dict[str, Any], target: Port) -> Value:
     if unit not in UNITS:
         raise ModelError(f"{fact['name']}: unit {fact['unit']} is unspecified or unsupported for execution.")
     evidence = f"Query fact {fact['id']} ({fact['name']}), span {fact['source_span']}: {fact['quote']}"
+    if fact.get("assumed"):
+        evidence += f" [assumed: {fact.get('assumption', '')}]"
     value = Value(fact["amount"], Port(target.meaning, unit, target.context), "user-scenario", evidence)
     value.bind(target)
     return value

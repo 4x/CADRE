@@ -1,0 +1,456 @@
+{
+  "batch_id": "computer-science-availability-b01",
+  "created": "2026-11-03",
+  "curator": "compat-availability",
+  "deferred": [],
+  "domain": "computer-science",
+  "example_only": false,
+  "handoff": {
+    "connections": [
+      "Enabled: computer-science--mtbf-from-mttf-mttr r1 output MTBF (mtbf, h) binds computer-science--inherent-availability-mtbf-mttr r2 input MTBF (same meaning, same unit h, identical context after this revision); no unit conversion.",
+      "Enabled: inherent-availability r1/r2 output A (inherent_availability, 1) binds the inherent-availability-component-scope r1 input Ai (identical meaning/unit/context); the adapter output A (component_availability, 1) binds unavailability-complement r1 input A (identical meaning/unit/context).",
+      "Enabled: unavailability-complement r1 output U (unavailability, 1) binds the unavailability-steady-scope r1 input U (identical meaning/unit/context); the adapter output Us (steady_unavailability, 1) binds annual-downtime-hours r2 input U (identical meaning/unit/context)."
+    ],
+    "gaps": [
+      "All three records are requires-extension with no runtime projection in this research return; admission projects the revised MTBF input context and the two adapter identities against the admitted availability vocabulary.",
+      "Duplicate search limited to the registry orphan survey in the scratch dir (235 models; adapter outputs match only their intended consumer contexts); no catalog inventory was supplied with this correction task.",
+      "Out of scope per brief 13: the failure-rate-reciprocal and operational-availability mtbf near-misses, the 12 remaining series/parallel component_availability consumer ports, and the MTTF/MTTR/reference_year_hours supply gaps."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical validation 2026-11-03 with the central package (uv --cache-dir .uv-cache run --no-env-file --offline -m connected_models.curation): validate on the bundle -> status valid-data-awaiting-review, computer-science--inherent-availability-mtbf-mttr@r2 requires-extension with 3 arithmetic and 2 rejection checks, each adapter r1 requires-extension with 3 arithmetic and 2 rejection checks; pack -> computer-science-availability-b01-return.zip; validate on the ZIP -> valid-data-awaiting-review. Source-fidelity review: r2 sources, evidence, assumptions, limitations, expression, references, guards, and meanings byte-identical to the b06 r1; only the briefed mechanical changes applied (MTBF input context, r2 bump, translation_notes sentence). Adapter records carry project-derivation sources on the endpoint records with no third-party prose. Checks not performed: new source inspection (endpoint evidence and recommend-admit reviews stand); scientific re-review of the adapter scope readings beyond this return; no staging, review, or admission (out of scope).",
+    "summary": "Correction batch computer-science-availability-b01 (curator compat-availability), implementing exactly the committed correction brief data/curation/corrections/adapter-availability-brief-13.md. Link 1: r2 revision of computer-science--inherent-availability-mtbf-mttr from batch computer-science-b06 r1 (consumer-side context alignment: input MTBF adopts the mtbf-from-mttf-mttr output context verbatim). Links 2-3: two new r1 scope-adapter identities (computer-science--inherent-availability-component-scope with Ai->A, computer-science--unavailability-steady-scope with U->Us) whose ports are byte-identical to the registry endpoint ports, bridging the meaning hops no context-r2 can carry. This repairs the MTBF-to-inherent, inherent-to-complement, and complement-to-downtime chains that fail fail-closed on the r1 port mismatches; all endpoint recommend-admit reviews stand."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: inherent availability scope - ideal support environment, includes corrective maintenance downtime, excludes logistics/waiting/administrative and preventive downtime (page Definitions section).",
+        "MTBF and MTTR in consistent time units; steady-state (limiting) availability.",
+        "Component is repairable; one-off/non-repairable elements use the MTTF form instead."
+      ],
+      "constants": [],
+      "guards": [
+        "MTBF > 0",
+        "MTTR >= 0"
+      ],
+      "id": "computer-science--inherent-availability-mtbf-mttr",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings mtbf/mttr/inherent_availability and time units absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "MTBF vs MTTF accounting (repairable vs one-off) must be selected at bind time; see limitations."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "MTBF = A*MTTR/(1-A) needs A != 1; MTTR = MTBF*(1-A)/A needs A != 0. Check: A=0.99998,MTTR=2 gives MTBF = 0.99998*2/0.00002 = 99998 (rounding of 100000). A=1 forces MTTR=0 with MTBF free; A=0 forces MTBF=0 against guard (degenerate never-up). Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Inherent (design-control) scope only; achieved/operational availability with logistics and preventive downtime need separate records.",
+        "MTBF > 0 required: a never-operating (MTBF=0) degenerate has no steady-state availability.",
+        "MTBF/MTTR are estimated inputs with often-high uncertainty (source basic example warns MTTF-class parameters are uncertain); never measured claims about real hardware."
+      ],
+      "references": [
+        {
+          "expected": 0.99998,
+          "id": "input-transducer-ai",
+          "inputs": {
+            "MTBF": 100000,
+            "MTTR": 2
+          },
+          "method": "EventHelix component table: input transducer MTBF 100000 h, MTTR 2 h gives 99.998%. 100000/100002 = 0.99998 exactly to shown digits.",
+          "provenance": "Published result from inspected source (EventHelix component availability table).",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0.9998,
+          "id": "sp-hardware-ai",
+          "inputs": {
+            "MTBF": 10000,
+            "MTTR": 2
+          },
+          "method": "EventHelix component table: signal processor hardware MTBF 10000 h, MTTR 2 h gives 99.98%, different scale. Table shows 99.98% (4 s.f.); exact quotient 10000/10002=0.99980004, tolerance covers display rounding.",
+          "provenance": "Published result from inspected source (EventHelix component availability table).",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 0.9999619483,
+          "id": "sp-software-ai",
+          "inputs": {
+            "MTBF": 2190,
+            "MTTR": 0.0833333333
+          },
+          "method": "EventHelix software row: MTBF ~2190 h, MTTR ~5 min = 5/60 h; 2190/2190.0833333 = 0.99996195 vs reported 99.9962%. Inputs are stated estimates, tolerance covers estimate rounding.",
+          "provenance": "Published result from inspected source (EventHelix component availability table) with unit normalization.",
+          "tolerance": 1e-06
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "MTBF": 10000,
+            "MTTR": -2
+          },
+          "kind": "domain",
+          "reason": "Negative mean repair time violates MTTR >= 0."
+        },
+        {
+          "inputs": {
+            "MTTR": 2
+          },
+          "kind": "missing-input",
+          "reason": "MTBF is required alongside MTTR; omitting it leaves A undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "MTBF / (MTBF + MTTR)",
+        "locator": "Definitions within systems engineering: inherent availability derived as MTBF/(MTBF+MTTR); Representation section ratio form; EventHelix worked-example section states availability is calculated from MTBF/MTTR with the tabulated verifications.",
+        "original_equation": "Ai = MTBF / (MTBF + MTTR)",
+        "output_symbol": "A",
+        "source_id": "wikipedia-availability",
+        "translation_notes": "Source symbols MTBF, MTTR, Ai -> locals MTBF, MTTR, output A. Consistent-unit requirement made explicit (software row needs minutes-to-hours normalization). Check: time/time dimensionless probability. Input MTBF carries the steady-state-scope context shared with computer-science--mtbf-from-mttf-mttr, marking it as the repairable-element accounting MTBF that record computes."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States inherent availability of a repairable element equals MTBF/(MTBF+MTTR); representation section gives A as expected-uptime ratio and A = MTTF/(MTTF+MTTR) = MTTF/MTBF; basic example works MTTF 713940 h with MTTR 1 h.",
+          "id": "wikipedia-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Representation section; Definitions within systems engineering (inherent availability); Basic example.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Availability (inherent availability formula)",
+          "url": "https://en.wikipedia.org/wiki/Availability",
+          "version": "inspected 2026-11-01"
+        },
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Component table verifies the formula on three rows: 100000/2 h -> 99.998%, 10000/2 h -> 99.98%, 2190 h/5 min -> 99.9962% with paired downtime column.",
+          "id": "eventhelix-availability",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Availability Computation Example: Calculating Availability of Individual Components.",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "EventHelix: System Availability (MTBF/MTTR worked example)",
+          "url": "https://www.eventhelix.com/fault-handling/system-reliability-availability/",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Inherent steady-state availability of a repairable element from MTBF and MTTR.",
+      "title": "Inherent availability from MTBF and MTTR",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same element, stated conditions and steady-state scope as inputs",
+          "definition": "Mean time between failures (expected operating time between consecutive failures)",
+          "dimensions": "time",
+          "domain": "Positive finite",
+          "quantity_id": "mtbf",
+          "role": "input",
+          "source_symbol": "MTBF",
+          "symbol": "MTBF",
+          "unit": "h"
+        },
+        {
+          "context": "same element, stated conditions and ideal support environment as MTBF and A",
+          "definition": "Mean time to repair (expected corrective-maintenance downtime per failure)",
+          "dimensions": "time",
+          "domain": "Nonnegative finite, same unit as MTBF",
+          "quantity_id": "mttr",
+          "role": "input",
+          "source_symbol": "MTTR",
+          "symbol": "MTTR",
+          "unit": "h"
+        },
+        {
+          "context": "same element, stated conditions and ideal support environment as inputs",
+          "definition": "Inherent (steady-state, design-scope) availability probability",
+          "dimensions": "dimensionless",
+          "domain": "Interval (0,1]",
+          "quantity_id": "inherent_availability",
+          "role": "output",
+          "source_symbol": "inherent availability (Ai)",
+          "symbol": "A",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Both endpoint definitions describe the same mathematical object: a steady-state probability that the item is operable under stated conditions (inherent record output definition; complement record input A definition).",
+        "The mission instant at which the component availability is read samples the steady state: no burn-in, wear-out trend, or time-varying failure intensity across the evaluation.",
+        "Ideal-support scope carries over: the value counts corrective-maintenance downtime only and excludes logistics/waiting/administrative and preventive downtime.",
+        "Element/item identity: the element whose inherent availability was computed is the item whose mission-instant availability is read; no fleet averaging or cross-item substitution."
+      ],
+      "constants": [],
+      "guards": [
+        "Ai >= 0",
+        "Ai <= 1"
+      ],
+      "id": "computer-science--inherent-availability-component-scope",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "No runtime projection in this research return; admission projects the identity with the two registry-exact ports.",
+          "Duplicate search limited to the registry orphan survey in the scratch dir (13 component_availability consumer ports in 9 contexts; this output matches only the complement A context); no catalog inventory was supplied with this correction task."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Unique inverse Ai = A for A in [0,1]: substitution check A=0.99998 restores Ai=0.99998. Values outside [0,1] map back against the guards (rejected in both directions). No branches or singularities; the inverse inherits the same scope assumptions. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Not for achieved or operational availability: values computed with logistics, administrative, or preventive downtime must not enter this adapter.",
+        "Not for instantaneous or interval availability outside the steady state, and not a license to compose component values across a system (composition additionally needs independence and topology).",
+        "The adapter asserts scope compatibility only; it does not re-verify the upstream MTBF/MTTR estimates, whose uncertainty the inherent record flags as often high."
+      ],
+      "references": [
+        {
+          "expected": 0.99998,
+          "id": "transducer-carry",
+          "inputs": {
+            "Ai": 0.99998
+          },
+          "method": "Identity carries the published EventHelix input-transducer inherent value (100000 h / 2 h row, via the inherent-availability record) unchanged into the component-availability scope; replay checks the carry while scope compatibility is reviewed separately.",
+          "provenance": "Value derived from published data (EventHelix component table via the inherent-availability record); the mapping is the curated scope reading.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.99,
+          "id": "series-scale-carry",
+          "inputs": {
+            "Ai": 0.99
+          },
+          "method": "Identity carries the EventHelix series-table-scale component value 0.99 unchanged; a materially different magnitude from the transducer row.",
+          "provenance": "Constructed check at a published-scale value; the mapping is the curated scope reading.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 1,
+          "id": "perfect-availability-boundary",
+          "inputs": {
+            "Ai": 1
+          },
+          "method": "Limiting identity: a never-down element reads as a surely-operable component.",
+          "provenance": "Limiting identity (boundary case).",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "Ai": 1.2
+          },
+          "kind": "domain",
+          "reason": "Availability above 1 violates Ai <= 1; values outside [0,1] cannot enter the component scope."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Ai is the record's only input; with no value supplied, A is undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "Ai",
+        "locator": "Registry computer-science--inherent-availability-mtbf-mttr@r1.runtime1 output port and computer-science--unavailability-complement@r1.runtime1 input port A; review batches computer-science-b06 and computer-science-b02.",
+        "original_equation": "A = Ai (inherent steady-state availability read as the component availability at the mission instant)",
+        "output_symbol": "A",
+        "source_id": "endpoint-inherent-availability",
+        "translation_notes": "Identity scope mapping, not a unit conversion: both ports are dimensionless probabilities (unit 1), so the expression carries no factor. Local Ai names the inherent-availability output value and local A names the complement input value. Check: dimensionless equals dimensionless. The value-hop justification (an ideal-support steady-state value read at a steady-state mission instant) lives in assumptions/limitations, not in the arithmetic."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: the record computes inherent steady-state availability A=MTBF/(MTBF+MTTR) for one repairable element under stated conditions in an ideal support environment; its output port carries inherent_availability in unit 1 in the ideal-support element context.",
+          "id": "endpoint-inherent-availability",
+          "kind": "project-derivation",
+          "license": "Project-curated record; no third-party prose reused in this adapter.",
+          "locator": "Batch computer-science-b06 bundle record; registry output port.",
+          "redistribution": "Contains only port identifiers and a short original scope paraphrase.",
+          "title": "Project record: Inherent availability from MTBF and MTTR (r1)",
+          "url": null,
+          "version": "computer-science-b06 r1; registry computer-science--inherent-availability-mtbf-mttr@r1.runtime1"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: the record computes steady-state unavailability U=1-A for one item at one mission instant/conditions; its input port A carries component_availability in unit 1 in the mission-instant item context.",
+          "id": "endpoint-complement-input",
+          "kind": "project-derivation",
+          "license": "Project-curated record; no third-party prose reused in this adapter.",
+          "locator": "Batch computer-science-b02 bundle record; registry input port A.",
+          "redistribution": "Contains only port identifiers and a short original scope paraphrase.",
+          "title": "Project record: Unavailability complement (r1)",
+          "url": null,
+          "version": "computer-science-b02 r1; registry computer-science--unavailability-complement@r1.runtime1"
+        }
+      ],
+      "summary": "Scope adapter: an inherent steady-state availability value counts as the component availability at a mission instant under stated steady-state conditions.",
+      "title": "Inherent availability read as component availability",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same element, stated conditions and ideal support environment as inputs",
+          "definition": "Inherent (steady-state, design-scope) availability probability",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "inherent_availability",
+          "role": "input",
+          "source_symbol": "Ai (inherent-availability record output)",
+          "symbol": "Ai",
+          "unit": "1"
+        },
+        {
+          "context": "same item, mission instant and conditions as U",
+          "definition": "Steady-state availability (probability operable)",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "component_availability",
+          "role": "output",
+          "source_symbol": "availability (A)",
+          "symbol": "A",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Both endpoint definitions describe the same mathematical object: a steady-state probability that the item is down under stated conditions (complement record output definition; annual-downtime record input U definition).",
+        "The mission instant samples the steady state, and outages accumulate linearly over the accounting year with no seasonality or planned-outage shaping (the downstream record's stated precondition).",
+        "Item/system identity: the item whose unavailability was computed is the system whose annual downtime is estimated; no fleet averaging or cross-system substitution."
+      ],
+      "constants": [],
+      "guards": [
+        "U >= 0",
+        "U <= 1"
+      ],
+      "id": "computer-science--unavailability-steady-scope",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "No runtime projection in this research return; admission projects the identity with the two registry-exact ports.",
+          "Duplicate search limited to the registry orphan survey in the scratch dir (steady_unavailability has zero producers and one consumer; this output is its first producer and matches it exactly); no catalog inventory was supplied with this correction task."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Unique inverse U = Us for Us in [0,1]: substitution check Us=0.01 restores U=0.01. Values outside [0,1] map back against the guards (rejected in both directions). No branches or singularities; the inverse inherits the same scope assumptions. Algebraic only.",
+      "kind": "definition",
+      "limitations": [
+        "Not for nonstationary failure intensity or shaped maintenance windows; the downstream linear accumulation would misstate such years.",
+        "Expected (average-year) scope only: the carried value must not be read as a prediction for any specific year.",
+        "The adapter asserts scope compatibility only; it does not re-verify the upstream availability estimate."
+      ],
+      "references": [
+        {
+          "expected": 0.01,
+          "id": "series-complement-carry",
+          "inputs": {
+            "U": 0.01
+          },
+          "method": "Identity carries the complement of the EventHelix 99% series value (1 - 0.99 = 0.01 via the complement record) unchanged into the steady-unavailability scope; replay checks the carry while scope compatibility is reviewed separately.",
+          "provenance": "Value derived from published data (EventHelix series table via the complement record); the mapping is the curated scope reading.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.0001,
+          "id": "parallel-complement-carry",
+          "inputs": {
+            "U": 0.0001
+          },
+          "method": "Identity carries the complement of the EventHelix 99.99% two-parallel value (1 - 0.9999) unchanged; a materially different magnitude from the series row.",
+          "provenance": "Value derived from published data (EventHelix parallel table via the complement record); the mapping is the curated scope reading.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "never-down-boundary",
+          "inputs": {
+            "U": 0
+          },
+          "method": "Limiting identity: a never-down item reads as zero steady unavailability.",
+          "provenance": "Limiting identity (boundary case).",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "U": 1.5
+          },
+          "kind": "domain",
+          "reason": "Unavailability above 1 violates U <= 1; values outside [0,1] cannot enter the steady scope."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "U is the record's only input; with no value supplied, Us is undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "U",
+        "locator": "Registry computer-science--unavailability-complement@r1.runtime1 output port and computer-science--annual-downtime-hours@r2.runtime1 input port U; review batches computer-science-b02 and computer-science-ncs-c01.",
+        "original_equation": "Us = U (mission-instant unavailability read as the steady-state unavailability for the accounting year)",
+        "output_symbol": "Us",
+        "source_id": "endpoint-complement-output",
+        "translation_notes": "Identity scope mapping, not a unit conversion: both ports are dimensionless probabilities (unit 1), so the expression carries no factor. Local U names the complement output value and local Us names the annual-downtime input value. Check: dimensionless equals dimensionless. The value-hop justification (a steady-state mission instant read as the accounting-year unavailability) lives in assumptions/limitations, not in the arithmetic."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: the record computes steady-state unavailability U=1-A for one item at one mission instant/conditions; its output port carries unavailability in unit 1 in the mission-instant item context.",
+          "id": "endpoint-complement-output",
+          "kind": "project-derivation",
+          "license": "Project-curated record; no third-party prose reused in this adapter.",
+          "locator": "Batch computer-science-b02 bundle record; registry output port.",
+          "redistribution": "Contains only port identifiers and a short original scope paraphrase.",
+          "title": "Project record: Unavailability complement (r1)",
+          "url": null,
+          "version": "computer-science-b02 r1; registry computer-science--unavailability-complement@r1.runtime1"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Paraphrase: the record estimates expected yearly downtime hours D=U*H from steady-state unavailability; its input port U carries steady_unavailability in unit 1 in the accounting-year system context.",
+          "id": "endpoint-downtime-input",
+          "kind": "project-derivation",
+          "license": "Project-curated record; no third-party prose reused in this adapter.",
+          "locator": "Batch computer-science-ncs-c01 bundle record; registry input port U.",
+          "redistribution": "Contains only port identifiers and a short original scope paraphrase.",
+          "title": "Project record: Annual downtime hours from unavailability (r2)",
+          "url": null,
+          "version": "computer-science-ncs-c01 r2; registry computer-science--annual-downtime-hours@r2.runtime1"
+        }
+      ],
+      "summary": "Scope adapter: a mission-instant unavailability value counts as the steady-state unavailability for the accounting year under stated steady-state conditions.",
+      "title": "Mission-instant unavailability read as steady unavailability",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same item, mission instant and conditions as A",
+          "definition": "Steady-state unavailability (probability not operable)",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "unavailability",
+          "role": "input",
+          "source_symbol": "unavailability (U)",
+          "symbol": "U",
+          "unit": "1"
+        },
+        {
+          "context": "same system, stated conditions and accounting year as D",
+          "definition": "Steady-state unavailability (probability down, 1 minus availability)",
+          "dimensions": "dimensionless",
+          "domain": "Closed interval [0,1]",
+          "quantity_id": "steady_unavailability",
+          "role": "output",
+          "source_symbol": "1 - availability",
+          "symbol": "Us",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

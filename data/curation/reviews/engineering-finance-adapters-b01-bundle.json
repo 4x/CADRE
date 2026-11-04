@@ -1,0 +1,344 @@
+{
+  "batch_id": "engineering-finance-adapters-b01",
+  "created": "2026-11-03",
+  "curator": "compat-finance-adapters",
+  "deferred": [],
+  "domain": "engineering-finance",
+  "example_only": false,
+  "handoff": {
+    "connections": [
+      "F1 enables periodic-rate-from-nominal@r1 -> periodic-rate-for-loan-schedule@r1 -> level-loan-periodic-payment@r2 (i).",
+      "F2 enables fisher-real-rate@r1 -> real-rate-as-unit-frequency-nominal@r1 -> lump-sum-future-value-discrete@r1 (r) at m==1."
+    ],
+    "gaps": [
+      "Scientific review pending: adapter references replay the bridged records' published oracles through the identity; no new empirical oracle exists by construction, and the scope assumptions await brief-11 review.",
+      "Registry reads were read-only on 2026-11-03; no staging, review, or admission was performed."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical validation 2026-11-03 with the central package: `validate` on the bundle JSON -> status valid-data-awaiting-review, both records runtime-ready with contract checks (F1: 2 arithmetic, 2 rejection; F2: 2 arithmetic, 2 rejection); `pack` -> engineering-finance-adapters-b01-return.zip; `validate` on the ZIP -> valid-data-awaiting-review. Port-equality proof (prove_ports.py, registry read-only): all five adapter runtime ports byte-equal their bridged registry ports. Checks not performed: independent scientific review of the scope assumptions (brief-11 review pending); no staging, review, or admission (out of scope).",
+    "summary": "Adapter batch engineering-finance-adapters-b01 (curator compat-finance-adapters): two brief-11 records (data/curation/corrections/adapter-finance-brief-11.md). F1 engineering-finance--periodic-rate-for-loan-schedule carries periodic_rate/1 from the rate-year nominal-conversion context into the fixed-rate loan context (pure identity bridge). F2 engineering-finance--real-rate-as-unit-frequency-nominal carries Fisher real_rate/1 into the lump-sum nominal_rate/1 port, guarded to m==1 via paired m>=1/m<=1 guards. Both records are runtime-ready with project-derivation sources citing both bridged records; references replay the bridged records' published oracles through the identities."
+  },
+  "kit_version": "2026-10-31.9",
+  "models": [
+    {
+      "assumptions": [
+        "The periodic rate per compounding period is numerically identical to the effective rate per loan payment period when the loan payment period coincides with the nominal-rate compounding period; this bridge asserts that coincidence and relabels the context accordingly.",
+        "Scope: the loan-context output feeds only the end-of-period level-payment amortization-schedule family (engineering-finance--level-loan-periodic-payment@r2.runtime1 input i and, through it, the loan-payment-interest/principal-portion schedule splits); annuity-due timing, zero-rate loans, and other schedule families are outside this bridge."
+      ],
+      "constants": [],
+      "guards": [
+        "iper >= 0"
+      ],
+      "id": "engineering-finance--periodic-rate-for-loan-schedule",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "The periodic rate per compounding period is numerically identical to the effective rate per loan payment period when the loan payment period coincides with the nominal-rate compounding period; this bridge asserts that coincidence and relabels the context accordingly.",
+            "Scope: the loan-context output feeds only the end-of-period level-payment amortization-schedule family (engineering-finance--level-loan-periodic-payment@r2.runtime1 input i and, through it, the loan-payment-interest/principal-portion schedule splits); annuity-due timing, zero-rate loans, and other schedule families are outside this bridge.",
+            "Carries no frequency conversion: if the loan payment period differs from the nominal-rate compounding period, convert with the effective-rate record before this bridge.",
+            "The i=0 boundary passes this bridge (0>=0) and is rejected downstream by the loan record's i>0 guard; the A=P/n limit branch stays a separate expression."
+          ],
+          "expression": "iper",
+          "guards": [
+            "iper >= 0"
+          ],
+          "id": "engineering-finance--periodic-rate-for-loan-schedule",
+          "inputs": {
+            "iper": {
+              "context": "same-rate-year:nominal-basis:discrete-compounding",
+              "meaning": "periodic_rate",
+              "unit": "1"
+            }
+          },
+          "output": {
+            "context": "same-loan:end-of-period-level-payments:fixed-rate",
+            "meaning": "periodic_rate",
+            "unit": "1"
+          },
+          "source": "Project-derivation context bridge between registry records engineering-finance--periodic-rate-from-nominal@r1.runtime1 and engineering-finance--level-loan-periodic-payment@r2.runtime1; see record sources.",
+          "version": "r1"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "Identity inverts trivially: iper=i. The i=0 boundary inverts but is rejected downstream by the loan record's i>0 guard.",
+      "kind": "definition",
+      "limitations": [
+        "Carries no frequency conversion: if the loan payment period differs from the nominal-rate compounding period, convert with the effective-rate record before this bridge.",
+        "The i=0 boundary passes this bridge (0>=0) and is rejected downstream by the loan record's i>0 guard; the A=P/n limit branch stays a separate expression."
+      ],
+      "references": [
+        {
+          "expected": 0.015,
+          "id": "umd-monthly-rate",
+          "inputs": {
+            "iper": 0.015
+          },
+          "method": "UMD effective-rate table oracle transcribed in the producer record: 18% nominal compounded monthly gives a 0.015 periodic rate; the identity carries it unchanged into the loan context.",
+          "provenance": "Published table value via the producer record umd-monthly-table reference; bridge arithmetic rechecked (identity).",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.005,
+          "id": "sixty-payment-rate",
+          "inputs": {
+            "iper": 0.005
+          },
+          "method": "Loan-side oracle rate: the level-loan record sixty-payment check prices payments at 0.5% per period; the identity carries 0.005 unchanged out of the rate-year context.",
+          "provenance": "Consumer-side oracle rate via the loan record sixty-payment-dcf-sum reference; bridge arithmetic rechecked (identity).",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "iper": -0.01
+          },
+          "kind": "domain",
+          "reason": "Negative periodic rates are outside the producer range and violate iper>=0; no chain supplies them."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Without the rate-year periodic rate there is no value to relabel into the loan context."
+        }
+      ],
+      "relationship": {
+        "expression": "iper",
+        "locator": "Producer output port and consumer input port quoted verbatim in sources registry-producer-port and registry-consumer-port.",
+        "original_equation": "i_loan = i_per (value unchanged; context relabeled)",
+        "output_symbol": "i",
+        "source_id": "registry-producer-port",
+        "translation_notes": "Pure context bridge: the input value passes through unchanged (expression iper); only the context label changes from the rate-year nominal-basis context to the loan fixed-rate context. Guard iper>=0 mirrors the producer's emitted range (r>=0 over m>=1). The downstream loan record enforces i>0 at its own port. Scope: the loan-context output feeds only the end-of-period level-payment amortization-schedule family; annuity-due, zero-rate, and other schedule families are not supplied."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Registry output port is exactly (meaning periodic_rate, unit 1, context same-rate-year:nominal-basis:discrete-compounding); this record's input iper adopts that triple verbatim. Paired consumer port is (periodic_rate, 1, same-loan:end-of-period-level-payments:fixed-rate) on engineering-finance--level-loan-periodic-payment@r2.runtime1 input i, recorded in source registry-consumer-port.",
+          "id": "registry-producer-port",
+          "kind": "project-derivation",
+          "license": "Project registry data; no external quotation",
+          "locator": "engineering-finance--periodic-rate-from-nominal@r1.runtime1 output port",
+          "redistribution": "Quotes only project registry port identifiers and context strings",
+          "title": "Registry producer port: periodic-rate-from-nominal output",
+          "url": null,
+          "version": "registry 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Registry input port i is exactly (meaning periodic_rate, unit 1, context same-loan:end-of-period-level-payments:fixed-rate); this record's output i adopts that triple verbatim. Paired producer port is (periodic_rate, 1, same-rate-year:nominal-basis:discrete-compounding) on engineering-finance--periodic-rate-from-nominal@r1.runtime1 output, recorded in source registry-producer-port.",
+          "id": "registry-consumer-port",
+          "kind": "project-derivation",
+          "license": "Project registry data; no external quotation",
+          "locator": "engineering-finance--level-loan-periodic-payment@r2.runtime1 input port i",
+          "redistribution": "Quotes only project registry port identifiers and context strings",
+          "title": "Registry consumer port: level-loan-periodic-payment input i",
+          "url": null,
+          "version": "registry 2026-11-03"
+        }
+      ],
+      "summary": "Identity adapter carrying periodic_rate/1 from the rate-year nominal-conversion context into the fixed-rate loan context, so periodic-rate-from-nominal outputs bind to the level-loan-periodic-payment i input under exact meaning/context equality.",
+      "title": "Context bridge: periodic rate from nominal conversion to loan schedule",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-rate-year:nominal-basis:discrete-compounding",
+          "definition": "Periodic interest rate per compounding period from the nominal-rate conversion",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite decimal; mirrors the producer range r>=0 over m>=1",
+          "quantity_id": "periodic_rate",
+          "role": "input",
+          "source_symbol": "i_per (periodic rate per compounding period)",
+          "symbol": "iper",
+          "unit": "1"
+        },
+        {
+          "context": "same-loan:end-of-period-level-payments:fixed-rate",
+          "definition": "Effective interest rate per loan payment period sizing the level-payment schedule",
+          "dimensions": "dimensionless",
+          "domain": "Nonnegative finite decimal; the loan record enforces i>0 at its own port",
+          "quantity_id": "periodic_rate",
+          "role": "output",
+          "source_symbol": "i (rate per loan payment period)",
+          "symbol": "i",
+          "unit": "1"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Validity only at unit compounding frequency: this identity holds only for m==1 (annual compounding), where the nominal annual rate is definitionally the rate per single annual period; at any other frequency the nominal/per-period relation needs the periodic-rate conversion first.",
+        "Price-basis discipline: the carried rate is a real rate, so the downstream lump-sum computation runs on a real (constant-dollar) basis and its P and F are real amounts, per the Fisher record's same-period same-currency context.",
+        "Scope: the investment-context output supplies only the nominal-basis discrete-compounding lump-sum investment family (engineering-finance--lump-sum-future-value-discrete@r1.runtime1 input r at m==1); other investment records and frequencies are outside this bridge."
+      ],
+      "constants": [],
+      "guards": [
+        "m >= 1",
+        "m <= 1"
+      ],
+      "id": "engineering-finance--real-rate-as-unit-frequency-nominal",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [],
+        "runtime_model": {
+          "assumptions": [
+            "Validity only at unit compounding frequency: this identity holds only for m==1 (annual compounding), where the nominal annual rate is definitionally the rate per single annual period; at any other frequency the nominal/per-period relation needs the periodic-rate conversion first.",
+            "Price-basis discipline: the carried rate is a real rate, so the downstream lump-sum computation runs on a real (constant-dollar) basis and its P and F are real amounts, per the Fisher record's same-period same-currency context.",
+            "Scope: the investment-context output supplies only the nominal-basis discrete-compounding lump-sum investment family (engineering-finance--lump-sum-future-value-discrete@r1.runtime1 input r at m==1); other investment records and frequencies are outside this bridge.",
+            "Does not convert between compounding frequencies: m != 1 is rejected, not rescaled.",
+            "Not a nominal/real converter: it relabels a real rate for real-basis investment arithmetic; converting between price bases still needs the Fisher record."
+          ],
+          "expression": "rreal + 0*m",
+          "guards": [
+            "m >= 1",
+            "m <= 1"
+          ],
+          "id": "engineering-finance--real-rate-as-unit-frequency-nominal",
+          "inputs": {
+            "m": {
+              "context": "same-investment:nominal-basis:discrete-compounding",
+              "meaning": "compounding_frequency",
+              "unit": "periods/year"
+            },
+            "rreal": {
+              "context": "same-period:same-currency:exact-fisher",
+              "meaning": "real_rate",
+              "unit": "1"
+            }
+          },
+          "output": {
+            "context": "same-investment:nominal-basis:discrete-compounding",
+            "meaning": "nominal_rate",
+            "unit": "1"
+          },
+          "source": "Project-derivation adapter between registry records engineering-finance--fisher-real-rate@r1.runtime1 and engineering-finance--lump-sum-future-value-discrete@r1.runtime1; see record sources.",
+          "version": "r1"
+        },
+        "status": "runtime-ready"
+      },
+      "inverse_notes": "Identity on the rate inverts as rreal=r at m=1; m is scope-only (0*m contributes nothing) and is fixed at 1 by the guards, so no m-inverse is meaningful.",
+      "kind": "definition",
+      "limitations": [
+        "Does not convert between compounding frequencies: m != 1 is rejected, not rescaled.",
+        "Not a nominal/real converter: it relabels a real rate for real-basis investment arithmetic; converting between price bases still needs the Fisher record."
+      ],
+      "references": [
+        {
+          "expected": 0.03,
+          "id": "nist-real-annual",
+          "inputs": {
+            "m": 1,
+            "rreal": 0.03
+          },
+          "method": "NIST 2023 trio transcribed in the Fisher record gives a 3.0% real rate; at annual compounding the lump-sum nominal rate equals the per-period real rate, carried unchanged.",
+          "provenance": "Published NIST IR 85-3273-38 values via the Fisher record nist-2023-rate-trio reference; bridge arithmetic rechecked (identity at m=1).",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.12,
+          "id": "annual-twelve-percent",
+          "inputs": {
+            "m": 1,
+            "rreal": 0.12
+          },
+          "method": "Lump-sum-side oracle rate: the UMD Example 1 annual case grows at 12% per year with m=1; feeding rreal=0.12 reproduces the r=0.12 annual input unchanged.",
+          "provenance": "Published UMD Example 1 rate via the lump-sum record umd-annual-example reference; bridge arithmetic rechecked (identity at m=1).",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "m": 12,
+            "rreal": 0.05
+          },
+          "kind": "domain",
+          "reason": "Monthly compounding (m=12) violates m<=1: at twelve periods per year the nominal rate is twelve per-period rates, not the per-period rate itself, so the identity does not apply."
+        },
+        {
+          "inputs": {
+            "rreal": 0.05
+          },
+          "kind": "missing-input",
+          "reason": "Without the compounding frequency the unit-frequency scope cannot be established, so the real rate cannot be admitted as nominal."
+        }
+      ],
+      "relationship": {
+        "expression": "rreal + 0*m",
+        "locator": "Fisher output port and lump-sum r/m ports quoted verbatim in sources registry-real-producer and registry-investment-consumer.",
+        "original_equation": "r_nominal = r_real at m = 1 (annual compounding; per-period rate equals nominal rate)",
+        "output_symbol": "r",
+        "source_id": "registry-real-producer",
+        "translation_notes": "At unit compounding frequency the nominal annual rate equals the per-period rate, so the Fisher real rate passes through unchanged as the lump-sum nominal rate (expression rreal + 0*m: identity on the rate, with m present so the guards can confine scope; the m term contributes zero at every m). Guards m>=1 and m<=1 jointly enforce m==1 because each guard is one comparison. No guard on rreal: negative real rates (inflation above nominal) pass through and the lump-sum record's r>=0 guard rejects them fail-closed at its own port."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Registry output port is exactly (meaning real_rate, unit 1, context same-period:same-currency:exact-fisher); this record's input rreal adopts that triple verbatim. Paired consumer ports are (nominal_rate, 1, same-investment:nominal-basis:discrete-compounding) on r and (compounding_frequency, periods/year, same-investment:nominal-basis:discrete-compounding) on m of engineering-finance--lump-sum-future-value-discrete@r1.runtime1, recorded in source registry-investment-consumer.",
+          "id": "registry-real-producer",
+          "kind": "project-derivation",
+          "license": "Project registry data; no external quotation",
+          "locator": "engineering-finance--fisher-real-rate@r1.runtime1 output port",
+          "redistribution": "Quotes only project registry port identifiers and context strings",
+          "title": "Registry producer port: fisher-real-rate output",
+          "url": null,
+          "version": "registry 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Registry input ports are exactly r=(meaning nominal_rate, unit 1, context same-investment:nominal-basis:discrete-compounding) and m=(compounding_frequency, periods/year, same-investment:nominal-basis:discrete-compounding); this record's output r and input m adopt those triples verbatim. Paired producer port is (real_rate, 1, same-period:same-currency:exact-fisher) on engineering-finance--fisher-real-rate@r1.runtime1 output, recorded in source registry-real-producer.",
+          "id": "registry-investment-consumer",
+          "kind": "project-derivation",
+          "license": "Project registry data; no external quotation",
+          "locator": "engineering-finance--lump-sum-future-value-discrete@r1.runtime1 input ports r and m",
+          "redistribution": "Quotes only project registry port identifiers and context strings",
+          "title": "Registry consumer ports: lump-sum-future-value-discrete inputs r and m",
+          "url": null,
+          "version": "registry 2026-11-03"
+        }
+      ],
+      "summary": "Identity-on-the-rate adapter carrying real_rate/1 from the exact-Fisher context into the lump-sum investment nominal-rate port, guarded to unit compounding frequency (m==1) where nominal and per-period rates coincide.",
+      "title": "Adapter: Fisher real rate as lump-sum nominal rate at annual compounding",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same-period:same-currency:exact-fisher",
+          "definition": "Real interest rate per period from the exact Fisher relation",
+          "dimensions": "dimensionless",
+          "domain": "Finite decimal; negative values pass through and the lump-sum record enforces r>=0",
+          "quantity_id": "real_rate",
+          "role": "input",
+          "source_symbol": "r_real (Fisher real rate per period)",
+          "symbol": "rreal",
+          "unit": "1"
+        },
+        {
+          "context": "same-investment:nominal-basis:discrete-compounding",
+          "definition": "Compounding periods per year of the receiving investment; confined to annual compounding",
+          "dimensions": "count per time",
+          "domain": "Exactly 1 (annual compounding); enforced by the paired guards",
+          "quantity_id": "compounding_frequency",
+          "role": "input",
+          "source_symbol": "m (compounding periods per year)",
+          "symbol": "m",
+          "unit": "periods/year"
+        },
+        {
+          "context": "same-investment:nominal-basis:discrete-compounding",
+          "definition": "Nominal interest rate per year for the lump-sum investment, coinciding with the real per-period rate at annual compounding",
+          "dimensions": "dimensionless",
+          "domain": "Finite decimal; the lump-sum record enforces r>=0 at its own port",
+          "quantity_id": "nominal_rate",
+          "role": "output",
+          "source_symbol": "r (nominal rate per year)",
+          "symbol": "r",
+          "unit": "1"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

@@ -163,8 +163,13 @@ def run_section(run: dict[str, Any]) -> str:
     error = f'<p class="error">{label(run["error"])}</p>' if run.get("error") else ""
     questions = "".join(f"<li>{label(item)}</li>" for item in run.get("clarifications", []))
     clarification_section = f"<h3>What needs clarification</h3><ul>{questions}</ul>" if questions else ""
+    def fact_type(fact: dict[str, Any]) -> str:
+        """Mark assumption-filled facts so the report shows what was supplied, not quoted."""
+        if fact.get("assumed"):
+            return f"{fact['value_type']} (assumed: {fact.get('assumption', '')})"
+        return str(fact["value_type"])
     fact_rows = "".join(f'<tr><td>{label(fact["name"])}</td><td>{label(fact["value"])} {label(fact["unit"])}</td>'
-                        f'<td>{label(fact["value_type"])}</td><td>{label(fact["quote"])}</td></tr>'
+                        f'<td>{label(fact_type(fact))}</td><td>{label(fact["quote"])}</td></tr>'
                         for fact in run.get("query_inputs", {}).get("facts", []))
     input_section = ('<h3>Inputs read from your question</h3><table><thead><tr><th>Input</th><th>Value</th><th>Type</th><th>Exact source text</th></tr></thead>'
                      f'<tbody>{fact_rows}</tbody></table>') if fact_rows else ""

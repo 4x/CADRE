@@ -1,0 +1,586 @@
+{
+  "batch_id": "orbital-mechanics-a-b04",
+  "created": "2026-11-03",
+  "curator": "muse-spark",
+  "deferred": [
+    {
+      "reason": "General two-body energy integral v^2 = GM*(2/r - 1/a) would extend an elliptical-energy statement the source explicitly leaves unproved ('we state without proof, as it is beyond the scope of this course'). Curating it would require proving what the source declines to prove. Continuation priority: revisit only with a source that derives the elliptical case.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-1/pages/13-5-keplers-laws-of-planetary-motion"
+      ],
+      "title": "Vis-viva general form (still deferred)"
+    },
+    {
+      "reason": "Escape from the full two-body energy threshold is curated (b02); hyperbolic excess speed and targeting are trajectory applications beyond the closed-form lane. Continuation priority: none for this lane.",
+      "source_urls": [
+        "https://openstax.org/books/university-physics-volume-1/pages/13-3-gravitational-potential-energy-and-total-energy"
+      ],
+      "title": "Hyperbolic-excess / post-escape trajectories"
+    },
+    {
+      "reason": "Roche limits and Hill spheres are perturbation/N-body stability boundaries, excluded by the assignment. Continuation priority: none for this lane.",
+      "source_urls": [],
+      "title": "Roche limit and Hill sphere"
+    }
+  ],
+  "domain": "orbital-mechanics",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "All three records need runtime vocabulary extension: new meanings (binary component masses, gravitational_potential_energy, circular_orbit_kinetic_energy) and reused/new units (kg, J, s^2, m); integer powers and exact small integers only, so no operator extension is needed.",
+      "Duplicate search limited to the supplied catalog-inventory snapshot (building-energy only) and batches b01–b04 of this session; no global uniqueness claimed.",
+      "Lane coverage after b04: 14 models spanning Kepler periods (negligible-mass, binary, kinematic and dynamical velocity-squared, mean motion), circular-orbit energy triple (K, U, E), escape, angular momentum, surface-gravity mass, parallax, and synodic periods. Remaining in-lane work is genuinely deferred (vis-viva needs a deriving source; transfers/perturbations excluded)."
+    ],
+    "queries": [],
+    "review_notes": "Self-review completed 2026-11-03: expressions re-derived from cited equations; dimensional checks in translation notes; reference arithmetic pre-computed independently (uv python) then validated by the toolkit; guard/rejection behavior validated by the toolkit. The Sirius oracle converts the solar-unit worked example to SI with documented scales. Not performed: independent second-curator review; license-terms fetch for JS-rendered pages (recorded as unknown). Validation: `uv run -m connected_models.curation validate returns/orbital-mechanics-a-b04/bundle.json` passed; packed ZIP re-validated.",
+    "summary": "Batch b04 completes the lane's core: the comparable-mass binary Kepler law (SI transcription of the §18.2 mass-sum form, Sirius oracle), gravitational potential energy of a pair (Eq. 13.4, triple-checked including via the published lifting energy), and circular-orbit kinetic energy (stated verbatim in §13.4, checked via ½·m·v²). All requires-extension, integer powers and exact small integers only."
+  },
+  "kit_version": "2026-10-31.6",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: Newtonian two-body mutual revolution about the common center of mass (the §18.5 seesaw passage); both masses enter symmetrically through their sum, with no negligible-mass approximation.",
+        "derived transcription: the §18.2 solar-unit law D³ = (M1+M2)·P² is combined with the §13.4 SI derivation (T = 2π√(r³/GM) squaring to T² = 4π²a³/GM) to give the SI mass-sum form; both parent statements are source-backed and the combination is shown in the translation notes.",
+        "application profile: a is the relative-orbit semi-major axis (orbit of one body with respect to the other, per §18.2); component masses supplied for the stated system and epoch."
+      ],
+      "constants": [
+        {
+          "literal": 39.47841760435743,
+          "locator": "Carried from the §13.4 SI form T² = 4π²a³/(GM) (b01 record); double-precision expansion of 4π².",
+          "meaning": "four pi squared (dimensionless geometric factor from squaring 2π)",
+          "source_id": "s-uniphys-13-4",
+          "unit": "1"
+        },
+        {
+          "literal": 6.67e-11,
+          "locator": "§13.4 Examples 'International Space Station' and 'Determining the Mass of Earth' print G = 6.67×10⁻¹¹ N·m²/kg².",
+          "meaning": "Newtonian universal gravitational constant as printed in the source (3 significant figures)",
+          "source_id": "s-uniphys-13-4",
+          "unit": "m3/(kg*s2)"
+        }
+      ],
+      "guards": [
+        "M1 > 0",
+        "M2 > 0",
+        "a > 0"
+      ],
+      "id": "orbital-mechanics--kepler-third-law-binary-period-squared",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires vocabulary extension: new meanings binary_component_mass (×2 roles distinguished by context, or reuse central_mass/orbiting_mass with a binary context) and reuse of orbital_period_squared/semi_major_axis; new unit s^2. No operator extension needed.",
+          "Shares its output quantity with orbital-mechanics--kepler-third-law-period-squared (negligible-mass limit M2 → 0 recovers the b01 form up to the orbiter's mass); complementary scopes, not duplicates."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Mass sum solves as M1+M2 = 39.47841760435743*a**3/(6.67e-11*T2); substitution check with the Sirius SI numbers (a = 2.992e12 m, T2 = (1.57788e9 s)²) returns 6.365e30 kg = 3.20 solar masses against the worked 3.2. Individual masses are not separately determined by this record (velocities plus orientation needed, per §18.2). Requires T2 > 0 beyond the declared output domain. Do not publish rearrangements as separate records.",
+      "kind": "theoretical",
+      "limitations": [
+        "Two-body mutual revolution only; triple/quadruple hierarchies (Mizar) and perturbed systems excluded.",
+        "Yields only the mass sum; individual masses need relative velocities and orbit orientation (§18.2) — a different determination, not claimed here.",
+        "Ideal Newtonian dynamics; relativistic corrections excluded."
+      ],
+      "references": [
+        {
+          "expected": 2.4897052944e+18,
+          "id": "sirius-binary-period-squared",
+          "inputs": {
+            "M1": 3.968e+30,
+            "M2": 2.4e+30,
+            "a": 2992000000000.0
+          },
+          "method": "Published Sirius worked example (§18.2): separation about 20 AU (= 2.992e12 m via Appendix D 1.496e11 m/AU) and period about 50 yr (= 1.57788e9 s via 365.25 d), mass sum 3.2 solar masses split here as 2.0 + 1.2 (any split summing to 3.2 exercises the sum; component split is not asserted). Expected is the 50 yr period squared. Tolerance 2e17 (8%) bounds the 'about' qualifier on 20 AU (cubically amplified) and 50 yr.",
+          "provenance": "Published worked result converted to SI with documented scales; tests the mass-sum transcription, not arithmetic replay.",
+          "tolerance": 2e+17
+        },
+        {
+          "expected": 995882117760000.0,
+          "id": "earth-sun-binary-consistency",
+          "inputs": {
+            "M1": 1.99e+30,
+            "M2": 5.97e+24,
+            "a": 149600000000.0
+          },
+          "method": "Degenerate-binary consistency check: Sun plus Earth masses with Appendix D separation against the published 365.25 d period squared. Exercises the M1+M2 path where M2 is small but nonzero. Tolerance 5e12 (0.5%) covers Appendix-D rounding and the 0.3% planet-mass inclusion.",
+          "provenance": "Published tabulated data through the mass-sum path; bridges the b01 negligible-mass and binary records.",
+          "tolerance": 5000000000000.0
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "M1": 1.99e+30,
+            "M2": -1000.0,
+            "a": 149600000000.0
+          },
+          "kind": "domain",
+          "reason": "A non-positive component mass is not a gravitating binary; guard M2 > 0 rejects it."
+        },
+        {
+          "inputs": {
+            "M1": 1.99e+30,
+            "a": 149600000000.0
+          },
+          "kind": "missing-input",
+          "reason": "Both component masses enter the sum; neither may be assumed."
+        }
+      ],
+      "relationship": {
+        "expression": "39.47841760435743 * a ** 3 / (6.67e-11 * (M1 + M2))",
+        "locator": "Astronomy 2e §18.2 'Masses from the Orbits of Binary Stars' (D³ = (M1+M2)P² with Sirius worked example) combined with Univ. Phys. §13.4 Eq. 13.8 SI form.",
+        "original_equation": "D³ = (M1+M2)·P² with D in AU, P in years, masses in solar masses (§18.2); T = 2π√(r³/(G·M)) (Eq. 13.8).",
+        "output_symbol": "T2",
+        "source_id": "s-astro-18-2",
+        "translation_notes": "Combined the solar-unit mass-sum law with the SI derivation: squaring Eq. 13.8 and replacing the single mass by the §18.2 sum gives T² = 4π²a³/(G(M1+M2)). The M2 → 0 limit recovers the b01 negligible-mass record exactly, confirming consistency. 4π² expanded to double precision; G inlined as printed; no conversion inlined — coherent in base SI units. Dimensional check: L³/((L³/(M·T²))·M) = T². Output name carries the square (T2)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "States D³ = (M1+M2)P² for mutual revolution (D in AU, P in years, masses in solar masses), explains both stars orbit the center of mass, and works the Sirius example: 20 AU separation, 50 yr period → mass sum 3.2 solar masses; notes individual masses need velocities plus orientation.",
+          "id": "s-astro-18-2",
+          "kind": "primary",
+          "license": "OpenStax section pages carry the footer 'Textbook content produced by OpenStax is licensed under a Creative Commons Attribution License' (CC BY; observed via search rendering of the book footer, 2026-11-03). The JS-rendered full terms page was not text-extractable, so exact terms are unconfirmed.",
+          "locator": "§18.2 subsection 'Masses from the Orbits of Binary Stars' with Sirius example.",
+          "redistribution": "This return reproduces no OpenStax prose, figures, or problem statements — only short original paraphrases, section locators, and numerical values.",
+          "title": "Astronomy 2e, Section 18.2 Measuring Stellar Masses",
+          "url": "https://openstax.org/books/astronomy-2e/pages/18-2-measuring-stellar-masses",
+          "version": "OpenStax Astronomy 2e as posted on openstax.org, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "SI two-body derivation giving T = 2π√(r³/GM) (Eq. 13.8) with G = 6.67e-11, used as the SI parent of the combined form.",
+          "id": "s-uniphys-13-4",
+          "kind": "primary",
+          "license": "Same OpenStax licensing footer as s-astro-18-2; exact terms unconfirmed (JS-rendered).",
+          "locator": "Eq. 13.8 with the Fig. 13.12 derivation.",
+          "redistribution": "Short original paraphrase, locator and numerical values only; no OpenStax prose reproduced.",
+          "title": "University Physics Volume 1, Section 13.4 Satellite Orbits and Energy",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/13-4-satellite-orbits-and-energy",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Mean Earth-Sun distance 149.6M km, 365.25 d period, Earth mass 5.97e24 kg and Sun mass 1.99e30 kg used for the consistency oracle.",
+          "id": "s-uniphys-app-d",
+          "kind": "primary",
+          "license": "Same OpenStax licensing footer as s-astro-18-2; exact terms unconfirmed (JS-rendered).",
+          "locator": "Table D1 and 'Other Data' masses.",
+          "redistribution": "Numerical values and locator only; no OpenStax prose reproduced.",
+          "title": "University Physics Volume 1, Appendix D Astronomical Data",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/d-astronomical-data",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        }
+      ],
+      "summary": "Kepler third law for comparable masses in SI: period-squared from relative semi-major axis and the mass sum.",
+      "title": "Binary-star Kepler period-squared from mass sum (SI)",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same binary system and epoch as M1, M2 and a.",
+          "definition": "Square of the mutual orbital period of the two bodies about their common center of mass.",
+          "dimensions": "time^2",
+          "domain": "Positive finite period-squared in s^2.",
+          "quantity_id": "orbital_period_squared",
+          "role": "output",
+          "source_symbol": "P^2 (introduced square of the source period P)",
+          "symbol": "T2",
+          "unit": "s^2"
+        },
+        {
+          "context": "Same binary system and epoch as T2, M2 and a.",
+          "definition": "Mass of the first binary component.",
+          "dimensions": "mass",
+          "domain": "Positive finite mass in kg.",
+          "quantity_id": "binary_component_mass",
+          "role": "input",
+          "source_symbol": "M1",
+          "symbol": "M1",
+          "unit": "kg"
+        },
+        {
+          "context": "Same binary system and epoch as T2, M1 and a.",
+          "definition": "Mass of the second binary component.",
+          "dimensions": "mass",
+          "domain": "Positive finite mass in kg.",
+          "quantity_id": "binary_component_mass",
+          "role": "input",
+          "source_symbol": "M2",
+          "symbol": "M2",
+          "unit": "kg"
+        },
+        {
+          "context": "Same binary system and epoch as T2, M1 and M2.",
+          "definition": "Semi-major axis of the relative orbit (orbit of one body with respect to the other).",
+          "dimensions": "length",
+          "domain": "Positive finite axis in m.",
+          "quantity_id": "semi_major_axis",
+          "role": "input",
+          "source_symbol": "D (source uses D for the relative semi-major axis)",
+          "symbol": "a",
+          "unit": "m"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: zero of potential at infinite separation (U → 0 as r → ∞), so closer masses have increasingly negative potential energy (§13.3).",
+        "source assumption: point masses with m << M for the stated form, though m is retained symbolically (the form generalizes to any pair separation r).",
+        "Orbiter mass m and central mass M supplied for the stated system and epoch."
+      ],
+      "constants": [
+        {
+          "literal": 6.67e-11,
+          "locator": "§13.3 work integral and Example 'Lifting a Payload' print G = 6.67×10⁻¹¹ N·m²/kg².",
+          "meaning": "Newtonian universal gravitational constant as printed in the source (3 significant figures)",
+          "source_id": "s-uniphys-13-3",
+          "unit": "m3/(kg*s2)"
+        }
+      ],
+      "guards": [
+        "m >= 0",
+        "M > 0",
+        "r > 0"
+      ],
+      "id": "orbital-mechanics--gravitational-potential-energy",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires vocabulary extension: new meaning gravitational_potential_energy (or reuse once defined), new unit J for this port. No operator extension needed.",
+          "Completes the circular-orbit energy triple with the b02 kinetic (K = GmM/2r) and total (E = −GmM/2r) records: U = −GmM/r = 2E = −2K, three independently meaningful quantities sharing one section's derivation."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Orbiter mass solves as m = -U*r/(6.67e-11*M); substitution check with the 2E-route ISS value (U = −5.294601e11 J, r = 6.77e6 m, M = 5.96e24 kg) returns m = 9016.6 kg against 9000 kg (0.2%, within oracle rounding). Separation solves as r = -6.67e-11*M*m/U and requires U < 0 beyond the declared domain. The m = 0 boundary gives U = 0 (no pair, no potential energy).",
+      "kind": "theoretical",
+      "limitations": [
+        "Point-mass (or exterior spherical) form; interior solutions and multipole fields excluded.",
+        "Zero-at-infinity convention is a choice (differences are what matter); do not mix with surface-referenced mgh values without converting.",
+        "Static instantaneous separation; time evolution needs the equations of motion, not this record."
+      ],
+      "references": [
+        {
+          "expected": -529460100000.0,
+          "id": "soyuz-iss-potential",
+          "inputs": {
+            "M": 5.96e+24,
+            "m": 9000.0,
+            "r": 6770000.0
+          },
+          "method": "Independent route through the section's energy identities: U = 2E with E = −½·m·v² from the published ISS speed 7.67e3 m/s (Soyuz mass 9000 kg), giving −5.294601e11 J. Tolerance 2e9 (0.38%) covers 3-significant-figure print rounding.",
+          "provenance": "Source-supported alternate route (total-energy identity plus published speed), not arithmetic replay of Eq. 13.4.",
+          "tolerance": 2000000000.0
+        },
+        {
+          "expected": -5.294484948e+33,
+          "id": "earth-sun-potential",
+          "inputs": {
+            "M": 1.99e+30,
+            "m": 5.97e+24,
+            "r": 149600000000.0
+          },
+          "method": "Independent route: U = 2E with E from NASA's mean orbital velocity 29.78 km/s, giving −5.294484948e33 J. Tolerance 1e31 covers near-circular deviation and rounding.",
+          "provenance": "Independent agency velocity combined with the section's U = 2E identity.",
+          "tolerance": 1e+31
+        },
+        {
+          "expected": -561680000000.0,
+          "id": "soyuz-surface-potential",
+          "inputs": {
+            "M": 5.96e+24,
+            "m": 9000.0,
+            "r": 6370000.0
+          },
+          "method": "Independent route through the published lifting-energy difference: U_surface = U_orbit − ΔU with ΔU = 3.32e10 J (Example 'Lifting a Payload') and U_orbit = −5.2848e11 J from the first route, giving −5.6168e11 J. Tolerance 1e9 covers the 3-significant-figure ΔU and the U_orbit leg.",
+          "provenance": "Source-supported alternate route (separate lifting example plus orbit value), testing a materially different (surface) radius.",
+          "tolerance": 1000000000.0
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "M": 5.96e+24,
+            "m": 9000.0,
+            "r": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero separation is not a mass pair (division by zero); guard r > 0 rejects it."
+        },
+        {
+          "inputs": {
+            "M": 5.96e+24,
+            "r": 6770000.0
+          },
+          "kind": "missing-input",
+          "reason": "Orbiter mass scales the pair energy and cannot be assumed."
+        }
+      ],
+      "relationship": {
+        "expression": "-6.67e-11 * M * m / r",
+        "locator": "§13.3 Eq. 13.4 (U = −GMm/r) with the work-integral derivation and Example 'Lifting a Payload' (ΔU = 3.32e10 J).",
+        "original_equation": "U = −G·M·m/r (Eq. 13.4), with U = 0 at r = ∞.",
+        "output_symbol": "U",
+        "source_id": "s-uniphys-13-3",
+        "translation_notes": "Verbatim transcription of Eq. 13.4. G inlined as the printed literal with constants metadata; no conversion inlined — coherent in base SI units. Dimensional check: (L³/(M·T²))·M·M/L = M·L²/T² (energy). The negative sign is the zero-at-infinity convention, preserved exactly."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Derives U = −GMm/r (Eq. 13.4) from the work integral with U → 0 at infinity, and works the 9000 kg Soyuz lift (ΔU = 3.32e10 J from surface to 400 km).",
+          "id": "s-uniphys-13-3",
+          "kind": "primary",
+          "license": "OpenStax section pages carry the footer 'Textbook content produced by OpenStax is licensed under a Creative Commons Attribution License' (CC BY; observed via search rendering of the book footer, 2026-11-03). The JS-rendered full terms page was not text-extractable, so exact terms are unconfirmed.",
+          "locator": "Eq. 13.4 with the Fig. 13.11 derivation and Example 'Lifting a Payload'.",
+          "redistribution": "This return reproduces no OpenStax prose, figures, or problem statements — only short original paraphrases, section locators, and numerical values.",
+          "title": "University Physics Volume 1, Section 13.3 Gravitational Potential Energy and Total Energy",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/13-3-gravitational-potential-energy-and-total-energy",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "ISS speed 7.67e3 m/s used in the 2E-route oracle; total energy E = −GmM/2r (Eq. 13.9) used as the route identity.",
+          "id": "s-uniphys-13-4",
+          "kind": "primary",
+          "license": "Same OpenStax licensing footer as s-uniphys-13-3; exact terms unconfirmed (JS-rendered).",
+          "locator": "ISS example and Eq. 13.9.",
+          "redistribution": "Short original paraphrase, locator and numerical values only; no OpenStax prose reproduced.",
+          "title": "University Physics Volume 1, Section 13.4 Satellite Orbits and Energy",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/13-4-satellite-orbits-and-energy",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Mean orbital velocity 29.78 km/s used in the Earth-Sun 2E-route oracle.",
+          "id": "s-nasa-earth-fact",
+          "kind": "primary",
+          "license": "U.S. government work (NASA NSSDCA fact sheet); exact page terms not text-extracted.",
+          "locator": "Earth Fact Sheet orbital parameters table.",
+          "redistribution": "Numerical value and locator only; no page prose reproduced.",
+          "title": "NASA NSSDCA Earth Fact Sheet",
+          "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html",
+          "version": "NSSDCA fact sheet as posted (last updated 15 November 2024, DRW), retrieved 2026-11-03"
+        }
+      ],
+      "summary": "Gravitational potential energy of a mass pair with the zero-at-infinity convention.",
+      "title": "Gravitational potential energy of a pair",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same mass pair and epoch as M, m and r.",
+          "definition": "Gravitational potential energy of the pair (zero at infinite separation; negative when bound).",
+          "dimensions": "energy",
+          "domain": "Non-positive finite energy in J (zero only at the m = 0 boundary or infinite separation).",
+          "quantity_id": "gravitational_potential_energy",
+          "role": "output",
+          "source_symbol": "U (Eq. 13.4)",
+          "symbol": "U",
+          "unit": "J"
+        },
+        {
+          "context": "Same mass pair and epoch as U, m and r.",
+          "definition": "Mass of the dominant body of the pair.",
+          "dimensions": "mass",
+          "domain": "Positive finite mass in kg.",
+          "quantity_id": "central_mass",
+          "role": "input",
+          "source_symbol": "M_E generalized to M (source uses M_E, M generally)",
+          "symbol": "M",
+          "unit": "kg"
+        },
+        {
+          "context": "Same mass pair and epoch as U, M and r.",
+          "definition": "Mass of the second body of the pair.",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg; zero admits the no-pair boundary (U = 0).",
+          "quantity_id": "orbiting_mass",
+          "role": "input",
+          "source_symbol": "m",
+          "symbol": "m",
+          "unit": "kg"
+        },
+        {
+          "context": "Same mass pair and epoch as U, M and m.",
+          "definition": "Center-to-center separation of the pair.",
+          "dimensions": "length",
+          "domain": "Positive finite separation in m.",
+          "quantity_id": "orbit_radius",
+          "role": "input",
+          "source_symbol": "r (source uses r1, r2 for separations; r for the pair distance)",
+          "symbol": "r",
+          "unit": "m"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "source assumption: Newtonian circular orbit where gravity supplies the centripetal force; the kinetic term K = ½·m·v² with the circular speed of Eq. 13.7 gives K = G·m·M/(2r) (§13.4 derivation).",
+        "Orbiter mass m and central mass M supplied for the stated system and epoch."
+      ],
+      "constants": [
+        {
+          "literal": 6.67e-11,
+          "locator": "§13.4 Examples 'International Space Station' and 'Determining the Mass of Earth' print G = 6.67×10⁻¹¹ N·m²/kg².",
+          "meaning": "Newtonian universal gravitational constant as printed in the source (3 significant figures)",
+          "source_id": "s-uniphys-13-4",
+          "unit": "m3/(kg*s2)"
+        }
+      ],
+      "guards": [
+        "m >= 0",
+        "M > 0",
+        "r > 0"
+      ],
+      "id": "orbital-mechanics--circular-orbit-kinetic-energy",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Requires vocabulary extension: new meaning circular_orbit_kinetic_energy (or reuse once defined), new unit J for this port. No operator extension needed.",
+          "Completes the circular-orbit energy triple with the potential (U = −GmM/r) and total (E = −GmM/2r) records: K = −E = −U/2, three independently meaningful quantities sharing one section's derivation."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Orbiter mass solves as m = 2*K*r/(6.67e-11*M); substitution check with the ½·m·v²-route ISS value (K = 2.6473005e11 J, r = 6.77e6 m, M = 5.96e24 kg) returns m = 9016.6 kg against 9000 kg (0.2%, within oracle rounding). Radius and central-mass inversions combine K with the speed law and are not separately published. The m = 0 boundary gives K = 0 (no moving mass, no kinetic energy).",
+      "kind": "theoretical",
+      "limitations": [
+        "Uniform circular motion only; varying speed on eccentric orbits needs the vis-viva treatment (deferred).",
+        "Non-relativistic kinetic energy (½·m·v²); speeds approaching c need relativity, excluded here.",
+        "Ideal two-body motion only; thrust, drag and perturbations excluded."
+      ],
+      "references": [
+        {
+          "expected": 264730050000.0,
+          "id": "soyuz-iss-kinetic",
+          "inputs": {
+            "M": 5.96e+24,
+            "m": 9000.0,
+            "r": 6770000.0
+          },
+          "method": "Independent route through the kinetic definition: K = ½·m·v² with the published ISS speed 7.67e3 m/s (Soyuz mass 9000 kg), giving 2.6473005e11 J. Tolerance 1e9 (0.38%) covers 3-significant-figure print rounding.",
+          "provenance": "Published speed combined with the elementary kinetic definition — independent of the G·M/r substitution under test.",
+          "tolerance": 1000000000.0
+        },
+        {
+          "expected": 2.647242474e+33,
+          "id": "earth-sun-kinetic",
+          "inputs": {
+            "M": 1.99e+30,
+            "m": 5.97e+24,
+            "r": 149600000000.0
+          },
+          "method": "Independent route: K = ½·m·v² with NASA's mean orbital velocity 29.78 km/s, giving 2.647242474e33 J. Tolerance 1e31 covers near-circular deviation and rounding.",
+          "provenance": "Independent agency velocity combined with the kinetic definition.",
+          "tolerance": 1e+31
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "M": 5.96e+24,
+            "m": 9000.0,
+            "r": 0.0
+          },
+          "kind": "domain",
+          "reason": "Zero radius is not an orbit (division by zero); guard r > 0 rejects it."
+        },
+        {
+          "inputs": {
+            "M": 5.96e+24,
+            "r": 6770000.0
+          },
+          "kind": "missing-input",
+          "reason": "Orbiter mass scales the kinetic energy and cannot be assumed."
+        }
+      ],
+      "relationship": {
+        "expression": "6.67e-11 * m * M / (2 * r)",
+        "locator": "§13.4 'Energy in Circular Orbits': 'the right side is just twice the kinetic energy, so we have K = ½·m·v² = G·m·M_E/(2r)'.",
+        "original_equation": "K = ½·m·v² = G·m·M/(2r).",
+        "output_symbol": "K",
+        "source_id": "s-uniphys-13-4",
+        "translation_notes": "Verbatim transcription of the stated kinetic-energy form. G inlined as the printed literal with constants metadata; the integer 2 is exact from the ½ kinetic factor (pure arithmetic literal, documented here). No conversion inlined — coherent in base SI units. Dimensional check: (L³/(M·T²))·M·M/L = M·L²/T² (energy)."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Multiplies Newton's law by r to show the right side is twice the kinetic energy, giving K = ½·m·v² = G·m·M_E/(2r), then sums with U for Eq. 13.9.",
+          "id": "s-uniphys-13-4",
+          "kind": "primary",
+          "license": "OpenStax section pages carry the footer 'Textbook content produced by OpenStax is licensed under a Creative Commons Attribution License' (CC BY; observed via search rendering of the book footer, 2026-11-03). The JS-rendered full terms page was not text-extractable, so exact terms are unconfirmed.",
+          "locator": "Subsection 'Energy in Circular Orbits', kinetic-energy statement.",
+          "redistribution": "This return reproduces no OpenStax prose, figures, or problem statements — only short original paraphrases, section locators, and numerical values.",
+          "title": "University Physics Volume 1, Section 13.4 Satellite Orbits and Energy",
+          "url": "https://openstax.org/books/university-physics-volume-1/pages/13-4-satellite-orbits-and-energy",
+          "version": "OpenStax University Physics Volume 1 as posted on openstax.org, retrieved 2026-11-03"
+        },
+        {
+          "accessed": "2026-11-03",
+          "evidence": "Mean orbital velocity 29.78 km/s used in the Earth-Sun kinetic oracle.",
+          "id": "s-nasa-earth-fact",
+          "kind": "primary",
+          "license": "U.S. government work (NASA NSSDCA fact sheet); exact page terms not text-extracted.",
+          "locator": "Earth Fact Sheet orbital parameters table.",
+          "redistribution": "Numerical value and locator only; no page prose reproduced.",
+          "title": "NASA NSSDCA Earth Fact Sheet",
+          "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html",
+          "version": "NSSDCA fact sheet as posted (last updated 15 November 2024, DRW), retrieved 2026-11-03"
+        }
+      ],
+      "summary": "Kinetic energy of a circular orbiter from both masses and the orbit radius.",
+      "title": "Circular-orbit kinetic energy from masses and radius",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "Same two-body system and epoch as m, M and r.",
+          "definition": "Kinetic energy of the orbiter on its uniform circular orbit.",
+          "dimensions": "energy",
+          "domain": "Nonnegative finite energy in J (zero only at the m = 0 boundary).",
+          "quantity_id": "circular_orbit_kinetic_energy",
+          "role": "output",
+          "source_symbol": "K",
+          "symbol": "K",
+          "unit": "J"
+        },
+        {
+          "context": "Same two-body system and epoch as K, M and r.",
+          "definition": "Mass of the negligible-mass orbiter whose kinetic energy is evaluated.",
+          "dimensions": "mass",
+          "domain": "Nonnegative finite mass in kg; zero admits the no-orbiter boundary (K = 0).",
+          "quantity_id": "orbiting_mass",
+          "role": "input",
+          "source_symbol": "m",
+          "symbol": "m",
+          "unit": "kg"
+        },
+        {
+          "context": "Same two-body system and epoch as K, m and r; stated body, never assumed.",
+          "definition": "Mass of the central body that dominates the two-body dynamics (same definition as the central-mass records).",
+          "dimensions": "mass",
+          "domain": "Positive finite mass in kg.",
+          "quantity_id": "central_mass",
+          "role": "input",
+          "source_symbol": "M_E generalized to M",
+          "symbol": "M",
+          "unit": "kg"
+        },
+        {
+          "context": "Same two-body system and epoch as K, m and M.",
+          "definition": "Circular orbit radius measured from the central-body center (same definition as the orbit-radius records).",
+          "dimensions": "length",
+          "domain": "Positive finite radius in m.",
+          "quantity_id": "orbit_radius",
+          "role": "input",
+          "source_symbol": "r",
+          "symbol": "r",
+          "unit": "m"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

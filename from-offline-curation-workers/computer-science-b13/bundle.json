@@ -1,0 +1,788 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.5",
+  "batch_id": "computer-science-b13",
+  "domain": "computer-science",
+  "curator": "muse-spark",
+  "created": "2026-11-01",
+  "example_only": false,
+  "models": [
+    {
+      "assumptions": [
+        "Both legs repairable with constant failure rates in the useful-life period (page: relatively constant failure rate, random failures only).",
+        "Failure means out-of-design-conditions placing the system out of service into repair; scheduled-maintenance takedowns excluded (page failure definition).",
+        "Series logic: either leg failing fails the network; small-interval failure probabilities add (page intuition paragraph)."
+      ],
+      "constants": [],
+      "guards": [
+        "M1 > 0",
+        "M2 > 0"
+      ],
+      "id": "computer-science--series-mtbf-two",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings leg_mtbf/series_mtbf absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Successive application to N legs needs the stated summation form (out of scalar format); this record is the two-leg base case."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "M1 = A*M2/(M2-A) needs M2 != A. Check: A=9090.9090909,M2=10000 gives M1 = 90909090.909/909.0909091 = 100000. A=M2 would force M1 unbounded (leg-2-dominated limit). Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Constant-rate useful-life scope; wear-in/wear-out periods excluded.",
+        "M1=0 degenerate (never-operating leg) excluded by the positivity guard; no steady-state cycle exists.",
+        "Two-leg base case; N-leg summation form needs an aggregation operator."
+      ],
+      "references": [
+        {
+          "expected": 9090.9090909,
+          "id": "transducer-hardware-series",
+          "inputs": {
+            "M1": 100000,
+            "M2": 10000
+          },
+          "method": "Ordinary case at EventHelix component scales: 100000x10000/110000 = 9090.9090909; series MTBF pulled below the weaker leg.",
+          "provenance": "Independent arithmetic check with source-scale inputs.",
+          "tolerance": 1e-06
+        },
+        {
+          "expected": 1095,
+          "id": "equal-legs-series",
+          "inputs": {
+            "M1": 2190,
+            "M2": 2190
+          },
+          "method": "Equal legs halve the MTBF: 2190/2 = 1095, materially different scale.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 500000,
+          "id": "large-equal-series",
+          "inputs": {
+            "M1": 1000000,
+            "M2": 1000000
+          },
+          "method": "Large equal-leg case 1e6/2 = 500000, confirming the halving pattern at scale.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "M1": 0,
+            "M2": 10000
+          },
+          "kind": "domain",
+          "reason": "Zero-MTBF leg violates M1 > 0 (degenerate never-operating leg, no defined series cycle)."
+        },
+        {
+          "inputs": {
+            "M2": 10000
+          },
+          "kind": "missing-input",
+          "reason": "Both leg MTBFs are required; omitting M1 leaves the series MTBF undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "M1 * M2 / (M1 + M2)",
+        "locator": "MTBF and MDT for networks of components: two-component series formula mtbf(c1;c2) = 1/(1/mtbf(c1)+1/mtbf(c2)) = mtbf(c1)*mtbf(c2)/(mtbf(c1)+mtbf(c2)).",
+        "original_equation": "mtbf(c1;c2) = mtbf(c1) x mtbf(c2) / (mtbf(c1) + mtbf(c2))",
+        "output_symbol": "A",
+        "source_id": "wikipedia-mtbf",
+        "translation_notes": "Adopted the simplified product-over-sum form printed on the page. Locals M1,M2; output A (series MTBF). Check: time*time/time = time."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Gives the two-component series MTBF as the reciprocal of summed reciprocal MTBFs, i.e. the product-over-sum form, with the small-probability-addition intuition.",
+          "id": "wikipedia-mtbf",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "MTBF and MDT for networks of components (series formula and intuition paragraph).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Mean time between failures (series network formula)",
+          "url": "https://en.wikipedia.org/wiki/Mean_time_between_failures",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Series-network MTBF from two leg MTBFs under constant failure rates.",
+      "title": "Series-network MTBF for two components",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same network, operating environment and failure definition as M2 and A",
+          "definition": "Mean time between failures of the first series leg",
+          "dimensions": "time",
+          "domain": "Positive finite",
+          "quantity_id": "leg_mtbf",
+          "role": "input",
+          "source_symbol": "mtbf(c1)",
+          "symbol": "M1",
+          "unit": "h"
+        },
+        {
+          "context": "same network, operating environment and failure definition as M1 and A",
+          "definition": "Mean time between failures of the second series leg",
+          "dimensions": "time",
+          "domain": "Positive finite",
+          "quantity_id": "leg_mtbf",
+          "role": "input",
+          "source_symbol": "mtbf(c2)",
+          "symbol": "M2",
+          "unit": "h"
+        },
+        {
+          "context": "same network, operating environment and failure definition as inputs",
+          "definition": "Mean time between failures of the two-leg series network",
+          "dimensions": "time",
+          "domain": "Positive finite, bounded above by min(M1,M2)",
+          "quantity_id": "series_mtbf",
+          "role": "output",
+          "source_symbol": "mtbf(c1;c2)",
+          "symbol": "A",
+          "unit": "h"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Same repairable, constant-rate, useful-life scope and failure definition as the series-MTBF record.",
+        "MDT per leg is the mean down time after a failure of that leg (page MDT definition); MTBF-weighted by failure frequency.",
+        "Series logic: network downtime follows whichever leg failed, weighted by how often each leg fails."
+      ],
+      "constants": [],
+      "guards": [
+        "M1 > 0",
+        "M2 > 0",
+        "D1 >= 0",
+        "D2 >= 0"
+      ],
+      "id": "computer-science--series-mdt-two",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings leg_mdt/series_mdt absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Pairs with the series-MTBF record: together they feed the inherent-availability record for a series network (adapter: consistent MTBF/MDT scope)."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "M1 = M2*(D1-M)/(M-D2) needs M != D2. Check with the mixed-scale reference: M=0.427673,M2=10000,D1=0.0833333333,D2=2 gives M1 = 10000x(0.0833333333-0.427673)/(0.427673-2) = 2190.0. Equal-D legs make M independent of M1 (any split gives D). Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Same constant-rate useful-life scope as the series-MTBF record.",
+        "MDT inputs must match the page's MDT definition (down-after-failure including logistics); mixing MTTR-narrow values changes scope - see the MTBF-page MDT-vs-MTTR note.",
+        "Two-leg base case; N-leg successive application needs iteration support."
+      ],
+      "references": [
+        {
+          "expected": 2.0,
+          "id": "equal-mdt-series",
+          "inputs": {
+            "D1": 2,
+            "D2": 2,
+            "M1": 100000,
+            "M2": 10000
+          },
+          "method": "Equal leg MDTs at EventHelix transducer/hardware scales: (100000x2+10000x2)/110000 = 2.0; series MDT equals the common leg MDT.",
+          "provenance": "Independent arithmetic check with source-scale inputs.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0.427673,
+          "id": "mixed-scale-series-mdt",
+          "inputs": {
+            "D1": 0.0833333333,
+            "D2": 2,
+            "M1": 2190,
+            "M2": 10000
+          },
+          "method": "Mixed software/hardware scales with the 5-minute software MDT normalized to hours: (2190x2+10000x0.0833333333)/12190 = 0.427673; MDT input is a stated estimate, tolerance covers it.",
+          "provenance": "Independent arithmetic check with source-scale inputs.",
+          "tolerance": 1e-05
+        },
+        {
+          "expected": 0,
+          "id": "boundary-no-downtime-mdt",
+          "inputs": {
+            "D1": 0,
+            "D2": 0,
+            "M1": 100000,
+            "M2": 10000
+          },
+          "method": "Boundary: zero leg downtimes give zero network MDT; admitted ideal boundary (instant repair).",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "D1": -1,
+            "D2": 2,
+            "M1": 100000,
+            "M2": 10000
+          },
+          "kind": "domain",
+          "reason": "Negative leg downtime violates D1 >= 0."
+        },
+        {
+          "inputs": {
+            "D2": 2,
+            "M2": 10000
+          },
+          "kind": "missing-input",
+          "reason": "First-leg MTBF and MDT are required alongside the second leg; omitting M1,D1 undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "(M1 * D2 + M2 * D1) / (M1 + M2)",
+        "locator": "MTBF and MDT for networks of components: MDT of two serial components mdt(c1;c2) = (mtbf(c1)*mdt(c2)+mtbf(c2)*mdt(c1))/(mtbf(c1)+mtbf(c2)).",
+        "original_equation": "mdt(c1;c2) = (mtbf(c1) x mdt(c2) + mtbf(c2) x mdt(c1)) / (mtbf(c1) + mtbf(c2))",
+        "output_symbol": "D",
+        "source_id": "wikipedia-mtbf",
+        "translation_notes": "Adopted verbatim in structure. Locals M1,M2,D1,D2; output D (series MDT). Check: (time*time+time*time)/time = time."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Gives the MDT of two serial components as the MTBF-weighted combination of leg MDTs over summed MTBFs.",
+          "id": "wikipedia-mtbf",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "MTBF and MDT for networks of components (serial MDT formula).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Mean time between failures (serial MDT formula)",
+          "url": "https://en.wikipedia.org/wiki/Mean_time_between_failures",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Series-network MDT from leg MTBFs and MDTs.",
+      "title": "Series-network MDT for two components",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same network, environment and MDT definition as M2, D1, D2 and D",
+          "definition": "Mean time between failures of the first series leg",
+          "dimensions": "time",
+          "domain": "Positive finite",
+          "quantity_id": "leg_mtbf",
+          "role": "input",
+          "source_symbol": "mtbf(c1)",
+          "symbol": "M1",
+          "unit": "h"
+        },
+        {
+          "context": "same network, environment and MDT definition as M1, D1, D2 and D",
+          "definition": "Mean time between failures of the second series leg",
+          "dimensions": "time",
+          "domain": "Positive finite",
+          "quantity_id": "leg_mtbf",
+          "role": "input",
+          "source_symbol": "mtbf(c2)",
+          "symbol": "M2",
+          "unit": "h"
+        },
+        {
+          "context": "same network, environment and MDT definition as M1, M2, D2 and D",
+          "definition": "Mean down time after a failure of the first leg",
+          "dimensions": "time",
+          "domain": "Nonnegative finite, same unit as M1",
+          "quantity_id": "leg_mdt",
+          "role": "input",
+          "source_symbol": "mdt(c1)",
+          "symbol": "D1",
+          "unit": "h"
+        },
+        {
+          "context": "same network, environment and MDT definition as M1, M2, D1 and D",
+          "definition": "Mean down time after a failure of the second leg",
+          "dimensions": "time",
+          "domain": "Nonnegative finite, same unit as M2",
+          "quantity_id": "leg_mdt",
+          "role": "input",
+          "source_symbol": "mdt(c2)",
+          "symbol": "D2",
+          "unit": "h"
+        },
+        {
+          "context": "same network, environment and MDT definition as inputs",
+          "definition": "Mean down time of the two-leg series network",
+          "dimensions": "time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "series_mdt",
+          "role": "output",
+          "source_symbol": "mdt(c1;c2)",
+          "symbol": "D",
+          "unit": "h"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Same repairable, constant-rate, useful-life scope and failure definition as the series records.",
+        "application profile: MDTs negligible compared with MTBFs (page states this usually stands in practice); the printed simplification uses PF(c,t) = mdt/mtbf ratios.",
+        "Parallel logic: the network fails iff the surviving leg fails inside the failed leg's repair (vulnerability) window (page intuition paragraph)."
+      ],
+      "constants": [],
+      "guards": [
+        "M1 > 0",
+        "M2 > 0",
+        "D1 >= 0",
+        "D2 >= 0"
+      ],
+      "id": "computer-science--parallel-mtbf-two",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings parallel-network MTBF absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Negligible-MDT approximation must hold at bind time; high-downtime legs need the unapproximated PF form (not scalar-closed here)."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "M1 = A*(D1+D2)/M2 needs M2 != 0 (guarded). Check: A=10512000,D1+D2=2.0833333333,M2=2190 gives M1 = 10512000x2.0833333333/2190 = 10000. D1=D2=0 makes the quotient undefined (instant-repair idealization). Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Valid only under the negligible-MDT approximation the page states; without it the PF-weighted form applies.",
+        "Same constant-rate useful-life scope; common-cause failures excluded (independent legs assumed).",
+        "Both-zero MDTs make the denominator zero: the instant-repair idealization (never-failing network) is guarded out."
+      ],
+      "references": [
+        {
+          "expected": 10512000,
+          "id": "hardware-software-parallel",
+          "inputs": {
+            "D1": 2,
+            "D2": 0.0833333333,
+            "M1": 10000,
+            "M2": 2190
+          },
+          "method": "Hardware/software scales: 10000x2190/(2+0.0833333333) = 21900000/2.0833333333 = 10512000; 5-minute MDT normalized to hours (stated estimate, tolerance covers it).",
+          "provenance": "Independent arithmetic check with source-scale inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 25000000,
+          "id": "symmetric-parallel",
+          "inputs": {
+            "D1": 2,
+            "D2": 2,
+            "M1": 10000,
+            "M2": 10000
+          },
+          "method": "Symmetric case 1e8/4 = 25000000, different scale showing the MDT-sum denominator.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1.0
+        },
+        {
+          "expected": 5000,
+          "id": "small-scale-parallel",
+          "inputs": {
+            "D1": 1,
+            "D2": 1,
+            "M1": 100,
+            "M2": 100
+          },
+          "method": "Small-scale ordinary case 10000/2 = 5000, materially different scale.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-09
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "D1": 0,
+            "D2": 0,
+            "M1": 10000,
+            "M2": 2190
+          },
+          "kind": "domain",
+          "reason": "Both-zero MDTs make the denominator D1+D2 zero (instant-repair idealization outside scope)."
+        },
+        {
+          "inputs": {
+            "D1": 2,
+            "D2": 2
+          },
+          "kind": "missing-input",
+          "reason": "Both leg MTBFs are required alongside the MDTs; omitting M1,M2 undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "M1 * M2 / (D1 + D2)",
+        "locator": "MTBF and MDT for networks of components: parallel formula simplified to mtbf(c1||c2) = mtbf(c1)*mtbf(c2)/(mdt(c1)+mdt(c2)) under negligible MDTs.",
+        "original_equation": "mtbf(c1||c2) = mtbf(c1) x mtbf(c2) / (mdt(c1) + mdt(c2))",
+        "output_symbol": "A",
+        "source_id": "wikipedia-mtbf",
+        "translation_notes": "Adopted the printed simplified form (after the PF substitution equalities). Locals M1,M2,D1,D2; output A (parallel MTBF). Check: time*time/time = time."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Derives the two-component parallel MTBF through the vulnerability-window PF form and simplifies to the MTBF-product over MDT-sum form under negligible MDTs, with the repair-window intuition.",
+          "id": "wikipedia-mtbf",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "MTBF and MDT for networks of components (parallel formula and intuition paragraph).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Mean time between failures (parallel network formula)",
+          "url": "https://en.wikipedia.org/wiki/Mean_time_between_failures",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Parallel-network MTBF from leg MTBFs and MDTs under negligible downtimes.",
+      "title": "Parallel-network MTBF for two components",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same network, environment and failure/repair definitions as M2, D1, D2 and A",
+          "definition": "Mean time between failures of the first parallel leg",
+          "dimensions": "time",
+          "domain": "Positive finite",
+          "quantity_id": "leg_mtbf",
+          "role": "input",
+          "source_symbol": "mtbf(c1)",
+          "symbol": "M1",
+          "unit": "h"
+        },
+        {
+          "context": "same network, environment and failure/repair definitions as M1, D1, D2 and A",
+          "definition": "Mean time between failures of the second parallel leg",
+          "dimensions": "time",
+          "domain": "Positive finite",
+          "quantity_id": "leg_mtbf",
+          "role": "input",
+          "source_symbol": "mtbf(c2)",
+          "symbol": "M2",
+          "unit": "h"
+        },
+        {
+          "context": "same network, environment and failure/repair definitions as M1, M2, D2 and A",
+          "definition": "Mean down time (vulnerability window) of the first leg, negligible vs MTBFs",
+          "dimensions": "time",
+          "domain": "Nonnegative finite, same unit as M1",
+          "quantity_id": "leg_mdt",
+          "role": "input",
+          "source_symbol": "mdt(c1)",
+          "symbol": "D1",
+          "unit": "h"
+        },
+        {
+          "context": "same network, environment and failure/repair definitions as M1, M2, D1 and A",
+          "definition": "Mean down time (vulnerability window) of the second leg, negligible vs MTBFs",
+          "dimensions": "time",
+          "domain": "Nonnegative finite, same unit as M2",
+          "quantity_id": "leg_mdt",
+          "role": "input",
+          "source_symbol": "mdt(c2)",
+          "symbol": "D2",
+          "unit": "h"
+        },
+        {
+          "context": "same network, environment and failure/repair definitions as inputs",
+          "definition": "Mean time between failures of the two-leg parallel network",
+          "dimensions": "time",
+          "domain": "Positive finite",
+          "quantity_id": "parallel_mtbf",
+          "role": "output",
+          "source_symbol": "mtbf(c1||c2)",
+          "symbol": "A",
+          "unit": "h"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Same repairable, constant-rate, useful-life scope and failure definition as the companion network records.",
+        "MDT per leg is the mean down time after a failure of that leg (page MDT definition).",
+        "Parallel logic: network downtime follows overlapping leg outages; product-over-sum form as printed."
+      ],
+      "constants": [],
+      "guards": [
+        "D1 >= 0",
+        "D2 >= 0"
+      ],
+      "id": "computer-science--parallel-mdt-two",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings parallel-network MDT absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Same algebraic shape as the series-MTBF record with MDT quantities; bind deliberately, never interchangeably."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "D1 = M*D2/(D2-M) needs D2 != M. Check: M=0.08,D2=0.0833333333 gives D1 = 0.08x0.0833333333/(0.0833333333-0.08) = 2.0. D2=M would force D1 unbounded. Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Same constant-rate useful-life scope; independent legs assumed.",
+        "Both-zero MDTs make the form 0/0 (instant-repair idealization) and are guarded out.",
+        "Two-leg base case; the page notes the N-leg generalization matches the series-MTBF summation shape (needs aggregation)."
+      ],
+      "references": [
+        {
+          "expected": 0.08,
+          "id": "mixed-mdt-parallel",
+          "inputs": {
+            "D1": 2,
+            "D2": 0.0833333333
+          },
+          "method": "Mixed hardware/software scales: (2x0.0833333333)/(2.0833333333) = 0.08; 5-minute MDT normalized to hours (stated estimate).",
+          "provenance": "Independent arithmetic check with source-scale inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1.0,
+          "id": "equal-mdt-parallel",
+          "inputs": {
+            "D1": 2,
+            "D2": 2
+          },
+          "method": "Equal leg MDTs halve: 4/4 = 1.0, different scale.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-12
+        },
+        {
+          "expected": 0,
+          "id": "boundary-instant-leg",
+          "inputs": {
+            "D1": 0,
+            "D2": 2
+          },
+          "method": "Boundary: an instantly-repaired leg drives network MDT to zero; admitted ideal boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "D1": 0,
+            "D2": 0
+          },
+          "kind": "domain",
+          "reason": "Both-zero MDTs make the form 0/0 (instant-repair idealization outside scope)."
+        },
+        {
+          "inputs": {
+            "D2": 2
+          },
+          "kind": "missing-input",
+          "reason": "Both leg MDTs are required; omitting D1 leaves the parallel MDT undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "D1 * D2 / (D1 + D2)",
+        "locator": "MTBF and MDT for networks of components: MDT of two parallel components mdt(c1||c2) = mdt(c1)*mdt(c2)/(mdt(c1)+mdt(c2)).",
+        "original_equation": "mdt(c1||c2) = mdt(c1) x mdt(c2) / (mdt(c1) + mdt(c2))",
+        "output_symbol": "D",
+        "source_id": "wikipedia-mtbf",
+        "translation_notes": "Adopted verbatim in structure; page notes it is identical in shape to the series-MTBF form. Locals D1,D2; output D (parallel MDT). Check: time*time/time = time."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Gives the MDT of two parallel components as the product-over-sum form, noting it is identical in shape to the series-MTBF formula.",
+          "id": "wikipedia-mtbf",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "MTBF and MDT for networks of components (parallel MDT formula).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Mean time between failures (parallel MDT formula)",
+          "url": "https://en.wikipedia.org/wiki/Mean_time_between_failures",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "Parallel-network MDT from two leg MDTs.",
+      "title": "Parallel-network MDT for two components",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same network, environment and MDT definition as D2 and D",
+          "definition": "Mean down time after a failure of the first parallel leg",
+          "dimensions": "time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "leg_mdt",
+          "role": "input",
+          "source_symbol": "mdt(c1)",
+          "symbol": "D1",
+          "unit": "h"
+        },
+        {
+          "context": "same network, environment and MDT definition as D1 and D",
+          "definition": "Mean down time after a failure of the second parallel leg",
+          "dimensions": "time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "leg_mdt",
+          "role": "input",
+          "source_symbol": "mdt(c2)",
+          "symbol": "D2",
+          "unit": "h"
+        },
+        {
+          "context": "same network, environment and MDT definition as inputs",
+          "definition": "Mean down time of the two-leg parallel network",
+          "dimensions": "time",
+          "domain": "Nonnegative finite",
+          "quantity_id": "parallel_mdt",
+          "role": "output",
+          "source_symbol": "mdt(c1||c2)",
+          "symbol": "D",
+          "unit": "h"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Constant failure rate in the useful-life period (page: middle of the bathtub curve, random failures only, survived setup stresses, end of life not approached).",
+        "Repairable-system MTBF scope (page: MTBF for repairable systems; MTTF for non-repairable).",
+        "Exponential time-to-failure with rate parameter lambda (page mathematical description)."
+      ],
+      "constants": [],
+      "guards": [
+        "L > 0"
+      ],
+      "id": "computer-science--mtbf-failure-rate-reciprocal",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings constant_failure_rate/mtbf absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Connects rate-lane reasoning to the MTBF network records; bind only under the constant-rate scope."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "L = 1/M needs M != 0 (guarded input positivity maps back). Check: M=10000 gives L = 0.0001. M unbounded as L approaches 0 (ultra-reliable limit). Algebraic only; no causal inversion (rate regimes, not interventions).",
+      "kind": "theoretical",
+      "limitations": [
+        "Constant-rate useful-life scope only; the page warns MTBF-based prediction assumes no systematic failures and that the 50%-by-MTBF reading is a fallacy.",
+        "No published numeric oracle on the page for this equation; references are independent checks at source-consistent scales (review_notes).",
+        "Survival-to-MTBF 1/e property needs exp() and is out of format; recorded as deferred context, not a model."
+      ],
+      "references": [
+        {
+          "expected": 10000,
+          "id": "hardware-scale-rate",
+          "inputs": {
+            "L": 0.0001
+          },
+          "method": "Ordinary case at EventHelix hardware scale: 1/0.0001 = 10000 h.",
+          "provenance": "Independent arithmetic check with source-scale inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 50,
+          "id": "higher-rate-case",
+          "inputs": {
+            "L": 0.02
+          },
+          "method": "Higher-rate case 1/0.02 = 50 h, materially different scale.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 1,
+          "id": "unit-rate-identity",
+          "inputs": {
+            "L": 1
+          },
+          "method": "Unit-scale identity: unit failure rate gives unit MTBF.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "L": 0
+          },
+          "kind": "domain",
+          "reason": "Zero failure rate violates L > 0 (reciprocal undefined; never-failing idealization outside scope)."
+        },
+        {
+          "inputs": {},
+          "kind": "missing-input",
+          "reason": "Failure rate L is required; empty input leaves MTBF undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "1 / L",
+        "locator": "Mathematical description: with constant failure rate lambda, MTBF is the expected value of T, given by the reciprocal of the failure rate: MTBF = 1/lambda.",
+        "original_equation": "MTBF = 1 / lambda",
+        "output_symbol": "M",
+        "source_id": "wikipedia-mtbf",
+        "translation_notes": "Source symbol lambda -> L, output MTBF -> M. Check: 1/(1/time) = time."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States that with constant failure rate lambda the time-to-failure is exponential and MTBF, as its expected value, is the reciprocal 1/lambda; useful-life/bathtub-curve scope and repairable-system (MTBF) vs non-repairable (MTTF) scoping.",
+          "id": "wikipedia-mtbf",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Mathematical description (MTBF = 1/lambda); Overview (repairable scope); Application (misuse warnings).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: Mean time between failures (reciprocal rate relation)",
+          "url": "https://en.wikipedia.org/wiki/Mean_time_between_failures",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "MTBF as the reciprocal of the constant failure rate.",
+      "title": "MTBF from constant failure rate",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same system, useful-life period and operating environment as M",
+          "definition": "Constant failure rate (exponential parameter) during useful life",
+          "dimensions": "1/time",
+          "domain": "Positive finite",
+          "quantity_id": "constant_failure_rate",
+          "role": "input",
+          "source_symbol": "failure rate (lambda)",
+          "symbol": "L",
+          "unit": "1/h"
+        },
+        {
+          "context": "same system, useful-life period and operating environment as L",
+          "definition": "Mean time between failures (expected failure-to-failure interval)",
+          "dimensions": "time",
+          "domain": "Positive finite",
+          "quantity_id": "mtbf",
+          "role": "output",
+          "source_symbol": "MTBF",
+          "symbol": "M",
+          "unit": "h"
+        }
+      ]
+    }
+  ],
+  "deferred": [
+    {
+      "title": "N-leg MTBF/MDT summation forms and censored MTBF estimation",
+      "reason": "Continuation priority: N-leg reciprocal-sum generalizations need aggregation operators; censored MTBF estimation needs likelihood maximization - both out of scalar format. Page sections state them exactly.",
+      "source_urls": [
+        "https://en.wikipedia.org/wiki/Mean_time_between_failures"
+      ]
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b13 curates 5 records: two-leg series/parallel MTBF and MDT network formulae plus the MTBF reciprocal rate relation, all from the inspected MTBF networks/mathematical sections.",
+    "gaps": [
+      "New meanings (leg_mtbf, leg_mdt, series/parallel_mtbf/mdt, constant_failure_rate) absent from runtime-vocabulary.json; all requires-extension with null runtime_model.",
+      "Duplicate search limited to catalog-inventory.json snapshot plus b01-b13 batches; global uniqueness not claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "2026-11-01 validate: pending pack-time check; curator text review done; central review pending; terms pages not inspected; reciprocal-rate references are independent checks (no page numbers for that equation)."
+  }
+}

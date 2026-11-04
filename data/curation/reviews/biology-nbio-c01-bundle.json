@@ -1,0 +1,182 @@
+{
+  "batch_id": "biology-nbio-c01",
+  "created": "2026-11-03",
+  "curator": "native-bio",
+  "deferred": [],
+  "domain": "biology",
+  "example_only": false,
+  "handoff": {
+    "connections": [],
+    "gaps": [
+      "Requires-extension vocabulary ships at admission per the correction brief: km2 area unit and island_area, reference_unit_area, fitted_richness_normalization, fitted_slope, species_richness meanings; runtime projection omitted and nothing relabeled to force execution.",
+      "Duplicate search: this correction batch contains only the r2 of the known biology-a-b05 r1 record; no catalog inventory was supplied with this correction kit."
+    ],
+    "queries": [],
+    "review_notes": "Mechanical validation 2026-11-03 with the kit validator logic (run via the documented scratch copy at .runs/review-2026-11-03-corrections/work/curBio-validate-scratch/, see its README): `validate bundle.json` -> status valid-data-awaiting-review, biology--island-species-area-scaling@r2 requires-extension with 2 arithmetic and 2 rejection checks; `pack` -> biology-nbio-c01-return.zip; `validate` on the ZIP -> valid-data-awaiting-review. Source-fidelity review: r1 sources, evidence, assumptions and limitations byte-identical; only the briefed mechanical changes applied (A0 input, ratio expression, A0=1 reference inputs, A0>0 guard, translation notes, gaps naming the shippable vocabulary). Checks not performed: none outstanding for this correction. Notes: (1) the shipped kit cannot execute as-is (connected_models/constants.py is missing from all four correction kits), so runs used byte-identical kit module copies plus a verbatim copy of the repo constants.py; the kit itself was left unmodified. (2) the domain rejection case also gained A0=1 because the validator requires domain rejections to carry exactly the declared input symbols.",
+    "summary": "Correction batch biology-nbio-c01 (curator native-bio): r2 revision of biology--island-species-area-scaling from batch biology-a-b05 r1, implementing exactly the committed correction brief data/curation/corrections/biology-b05-island-normalized-area-brief-4.md: new A0 unit-reference-area input (reference_unit_area, km2), expression c*(A/A0)**z so the fitted variable exponent acts on a dimensionless ratio, A0=1 added to the reference inputs, new guard A0>0, and translation notes stating the dimensionless-ratio basis. This corrects the r1 projection blocker (variable exponent on a dimensional base) identified at review; the recommend-admit review finding stands."
+  },
+  "kit_version": "2026-10-31.7",
+  "models": [
+    {
+      "assumptions": [
+        "source assumption: FITTED empirical regularity, not a derived law: the power model 'provides the best general solution' by comparative model fitting, with NatRich slope z = 0.32 at R2 = 66 percent; residual variation is attributed to isolation, island origins and endemism.",
+        "source assumption: scope is noncumulative island totals (ISAR: 'the number of species occurring within each of a set of islands as a function of the area of each island'), fitted here for native vascular-plant richness across 1,262 islands; area alone is 'almost never sufficient' and the paper reports no upper asymptote.",
+        "source assumption: normalization c is the fitted richness at unit area for the island group (the intercept 'logc (the log-transformed richness of an island of unit area)'); it is an input here, varying by group, not a universal constant."
+      ],
+      "constants": [],
+      "guards": [
+        "c > 0",
+        "A > 0",
+        "A0 > 0"
+      ],
+      "id": "biology--island-species-area-scaling",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Quantity meanings fitted_richness_normalization, island_area, reference_unit_area, fitted_slope and species_richness and the km2 area unit are not in the runtime vocabulary snapshot; the correction brief confirms admission ships them with this r2; runtime projection omitted."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "Island area is recoverable only through the (1/z) power, which needs logarithms/roots outside the scalar profile; no inverse case is tested. The unit-area identity runs both ways: A = 1 gives S = c, and S = c with fixed c implies A = 1. Zero area is excluded by the guard (richness is defined for positive island areas in the ISAR framing).",
+      "kind": "empirical",
+      "limitations": [
+        "A global-average trend, not a per-island predictor: the paper's own data span orders of magnitude around the fit, and extrapolating the all-islands fit underestimates continental richness.",
+        "Not applicable to nested species-accumulation curves, which follow different mathematics (paper's distinction i vs ii).",
+        "The fitted slope is scale- and context-dependent (within-archipelago ~0.23-0.33, provinces ~0.9); applying z = 0.32 outside the global-native-plant scope needs its own fit."
+      ],
+      "references": [
+        {
+          "expected": 1.248,
+          "id": "doubling-area-island-slope",
+          "inputs": {
+            "A": 2,
+            "A0": 1,
+            "c": 1,
+            "z": 0.32
+          },
+          "method": "Constructed from the published fitted slope: 2^0.32 = e^(0.32 ln 2) = e^0.2218 = 1.2483, so doubling area multiplies fitted richness by ~1.25 at the global NatRich slope; expected 1.248 with 0.001 tolerance.",
+          "provenance": "Value derived independently from the published fitted exponent via the doubling construction.",
+          "tolerance": 0.001
+        },
+        {
+          "expected": 1.866,
+          "id": "doubling-area-province-slope",
+          "inputs": {
+            "A": 2,
+            "A0": 1,
+            "c": 1,
+            "z": 0.9
+          },
+          "method": "Constructed from the published province-scale slope (Rosenzweig, quoted as z = c. 0.9): 2^0.9 = e^0.6238 = 1.8661; materially different case showing the steeper province scaling with the same expression.",
+          "provenance": "Value derived independently from the published province-scale exponent via the doubling construction.",
+          "tolerance": 0.001
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "A": 0,
+            "A0": 1,
+            "c": 10,
+            "z": 0.32
+          },
+          "kind": "domain",
+          "reason": "Richness is defined for positive island areas; a zero-area island has no ISAR richness."
+        },
+        {
+          "inputs": {
+            "c": 52,
+            "z": 0.32
+          },
+          "kind": "missing-input",
+          "reason": "Island area A is required; normalization and slope alone do not determine richness."
+        }
+      ],
+      "relationship": {
+        "expression": "c * (A / A0) ** z",
+        "locator": "Matthews et al. PNAS 123(8) (2026) via PMC12933073: 'The oldest and simplest models proposed to describe ISARs are i) the power model, S = cAz, (eqn 1)'; fitted 'logS = logc + z logA (eqn 3)' with slope z and intercept logc defined as above; abstract reports NatRich z = 0.32 at R2 = 66 percent.",
+        "original_equation": "S = c * A^z",
+        "output_symbol": "S",
+        "source_id": "matthews-2026-isar-plants",
+        "translation_notes": "Source symbols S (species number), A (area), c, z preserved as local S, A, c, z; juxtaposition transcribed as *. Unit reference area A0 (1 km2 in the references) introduced so the fitted variable exponent z acts on the dimensionless area ratio A/A0, which is why the fitted power is dimensionally sound: a variable exponent is defined only on a dimensionless base, and the ratio carries no dimensions regardless of the value of z. Dimensional check: fitted normalization c (richness at unit area) times the dimensionless ratio^z gives a species count. Fitted-vs-theoretical status explicit in assumptions: z = 0.32 is the reported fit, not a law."
+      },
+      "revision": "r2",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "Paraphrase: the power model S = cA^z (eqn 1) with log form logS = logc + z logA (eqn 3); slope z is the richness-increase rate and logc the richness at unit area; global native-plant fit z = 0.32, R2 = 66 percent over 1,262 islands; within-archipelago z = 0.23-0.33 vs province z = c. 0.9; no upper asymptote supported; area alone almost never sufficient.",
+          "id": "matthews-2026-isar-plants",
+          "kind": "primary",
+          "license": "Page states Copyright 2026 the Author(s), Published by PNAS, distributed under Creative Commons Attribution-NonCommercial-NoDerivatives License 4.0 (CC BY-NC-ND), verified in the article header on 2026-11-01. Redistribution here is limited to a short original paraphrase and independently computed numbers; no long verbatim quotation.",
+          "locator": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12933073/, Significance, Abstract and 'power model' equation paragraphs (Matthews et al., PNAS 123(8): e2518902123, 2026; PMCID PMC12933073).",
+          "redistribution": "Contains only a short original paraphrase and independently computed numbers; no verbatim quotation of the article.",
+          "title": "Matthews et al. 2026: The global island species-area relationship for plants (PNAS via PMC)",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12933073/",
+          "version": "PNAS 123(8): e2518902123, PMCID PMC12933073, as accessed 2026-11-01"
+        }
+      ],
+      "summary": "Empirical island species-area power scaling with fitted normalization and slope.",
+      "title": "Island species-area power scaling",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same island group and richness survey as A, S and z",
+          "definition": "Fitted normalization: richness at unit area for the island group",
+          "dimensions": "count / length^(2z)",
+          "domain": "Positive finite normalization",
+          "quantity_id": "fitted_richness_normalization",
+          "role": "input",
+          "source_symbol": "c",
+          "symbol": "c",
+          "unit": "count"
+        },
+        {
+          "context": "same island group and richness survey as c, S and z",
+          "definition": "Island area",
+          "dimensions": "length^2",
+          "domain": "Positive finite area",
+          "quantity_id": "island_area",
+          "role": "input",
+          "source_symbol": "A",
+          "symbol": "A",
+          "unit": "km2"
+        },
+        {
+          "context": "same island group and richness survey as A, c, S and z",
+          "definition": "Unit reference area of the island group: the area at which fitted normalization c is evaluated",
+          "dimensions": "length^2",
+          "domain": "Positive finite reference area",
+          "quantity_id": "reference_unit_area",
+          "role": "input",
+          "source_symbol": "introduced A0 for the unit reference area",
+          "symbol": "A0",
+          "unit": "km2"
+        },
+        {
+          "context": "same island group and richness survey as c, A and S",
+          "definition": "Fitted ISAR slope: rate at which richness increases with area",
+          "dimensions": "dimensionless",
+          "domain": "Finite fitted slope; island-scale values near 0.2-0.5, province-scale near 0.9",
+          "quantity_id": "fitted_slope",
+          "role": "input",
+          "source_symbol": "z",
+          "symbol": "z",
+          "unit": "1"
+        },
+        {
+          "context": "same island group and richness survey as inputs",
+          "definition": "Number of native species occurring on the island (noncumulative island total)",
+          "dimensions": "count",
+          "domain": "Nonnegative finite richness",
+          "quantity_id": "species_richness",
+          "role": "output",
+          "source_symbol": "S",
+          "symbol": "S",
+          "unit": "count"
+        }
+      ]
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

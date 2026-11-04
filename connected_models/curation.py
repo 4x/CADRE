@@ -11,7 +11,7 @@ from typing import Any
 from urllib.parse import urlsplit
 import zipfile
 
-from .constants import CONSTANTS, constants_json
+from .constants import CONSTANTS, CONSTANT_DISPLAY_VALUES, constants_json
 from .contracts import DIMENSIONLESS, DIMENSION_AXES, MAX_FAMILY_SIZE, MEANINGS, NUMERICAL_BASIS, UNITS, UNIT_ALIASES, VOCABULARY_PROFILE, ModelError, NumericalError, encode_dimensions, unit_json
 from .curation_schema import DOMAINS, KIT_VERSION, MAX_BATCH_BYTES, SCHEMA, SCHEMA_VERSION, SUPPORTED_KIT_VERSIONS, validate_schema
 from .expressions import SCALAR_FUNCTIONS, check_guard, dimensions, evaluate, guard_dimensions, parse
@@ -160,6 +160,29 @@ def validate_record(item: dict[str, Any], domain: str) -> dict[str, Any]:
     observed_inputs: set[bytes] = set()
     reference_ids: set[str] = set()
     declared = set(inputs) | set(fams)
+    def canonical_replay(case_scalars: dict[str, float], case_families: dict[str, tuple[float, ...]],
+                         expected: float, tolerance: float) -> float | None:
+        """Replay display references through registry scales for canonical-base-unit expressions.
+
+        Returns the display-equivalent result when every unit resolves and the
+        canonical replay fits, else None. Display replay stays first, so this
+        only admits records the current check rejects; staging re-verifies
+        every admission canonically regardless."""
+        out_unit = variables[outputs[0]]["unit"]
+        units = [variables[name]["unit"] for name in case_scalars] + [fams[name]["unit"] for name in case_families]
+        if out_unit not in UNITS or any(unit not in UNITS for unit in units):
+            return None
+        scaled = {name: case_scalars[name] * UNITS[variables[name]["unit"]].scale for name in case_scalars}
+        scaled_families = {name: tuple(value * UNITS[fams[name]["unit"]].scale for value in case_families[name])
+                           for name in case_families}
+        try:
+            result = evaluate(expression, scaled, scaled_families)
+        except ModelError:
+            return None
+        scale = UNITS[out_unit].scale
+        if abs(result - expected * scale) <= tolerance * scale:
+            return result / scale
+        return None
     for case in item["references"]:
         require(case["id"] not in reference_ids, f"{identity}: duplicate reference ID.")
         reference_ids.add(case["id"])
@@ -167,8 +190,11 @@ def validate_record(item: dict[str, Any], domain: str) -> dict[str, Any]:
         require(encoded(case["inputs"]) not in observed_inputs, f"{identity}: numerical references must use distinct inputs.")
         observed_inputs.add(encoded(case["inputs"]))
         scalars, families = split(case["inputs"], "reference")
-        require(all(check_guard(guard, scalars, families) for guard in guards), f"{identity}: reference violates a guard.")
-        actual = evaluate(expression, scalars, families)
+        require(all(check_guard(guard, scalars, families, CONSTANT_DISPLAY_VALUES) for guard in guards), f"{identity}: reference violates a guard.")
+        actual = evaluate(expression, scalars, families, CONSTANT_DISPLAY_VALUES)
+        if abs(actual - case["expected"]) > case["tolerance"]:
+            replayed = canonical_replay(scalars, families, case["expected"], case["tolerance"])
+            actual = replayed if replayed is not None else actual
         require(abs(actual - case["expected"]) <= case["tolerance"], f"{identity}/{case['id']}: numerical reference does not match ({actual}).")
     for case in item["rejection_cases"]:
         if case["kind"] == "missing-input":
@@ -178,9 +204,9 @@ def validate_record(item: dict[str, Any], domain: str) -> dict[str, Any]:
         rejected = False
         try:
             scalars, families = split(case["inputs"], "rejection")
-            rejected = not all(check_guard(guard, scalars, families) for guard in guards)
+            rejected = not all(check_guard(guard, scalars, families, CONSTANT_DISPLAY_VALUES) for guard in guards)
             if not rejected:
-                evaluate(expression, scalars, families)
+                evaluate(expression, scalars, families, CONSTANT_DISPLAY_VALUES)
         except NumericalError:
             raise  # An overflow is not evidence of a scientifically excluded case.
         except ModelError:
@@ -341,7 +367,7 @@ def build_kit(destination: Path, domain: str | None = None, inventory: Path | No
     require(domain is None or domain in DOMAINS, "Unknown curation assignment domain.")
     paths = [Path("pyproject.toml"), Path("uv.lock"), Path("data/curation/example-bundle.json")]
     # Explicit implementation allowlist: do not traverse the repository or carry inference configuration.
-    for name in ("__init__", "contracts", "expressions", "serialization", "solving", "runtime", "registry", "curation_schema", "curation"):
+    for name in ("__init__", "contracts", "constants", "expressions", "serialization", "solving", "runtime", "registry", "curation_schema", "curation"):
         paths.append(Path("connected_models") / f"{name}.py")
     contents = {path.as_posix(): (ROOT / path).read_bytes() for path in paths}
     guide = (ROOT / AGENT_GUIDE).read_text(encoding="utf-8")

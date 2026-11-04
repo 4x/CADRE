@@ -14,7 +14,7 @@ Planning strategy: backward chaining.
 
 1. Start with the identified output.
 2. Find all models with this output.
-3. For each candidate model, verify that its assumptions are compatible with the problem assumptions, and examine each required input. When multiple models can produce the same output, select the most appropriate model and explain your choice in reason.
+3. For each candidate model, verify that its assumptions are compatible with the problem assumptions, and examine each required input. When multiple models can produce the same output, select the most appropriate model and explain your choice in reason. Prefer the candidate whose required inputs are satisfiable from the facts with the fewest gaps; all else equal, prefer fewer required inputs.
 4. For each required input: if the input is already available from the facts, mark it satisfied; otherwise, recursively search for a model that can produce it.
 5. Continue recursively until every dependency is satisfied by a provided input or another model.
 6. If no model can produce a required dependency, use your best judgment: either ask for it, or propose a specific assumed value with your justification and ask the user to confirm or replace it. Proposed estimates go only in needs-input clarifications, stating the exact value, unit, and reason in plain language; never fill a graph binding with an estimate silently. Do not expose internal model IDs or context labels.

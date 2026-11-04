@@ -61,12 +61,30 @@ CURRENT_DENSITY: Dimensions = _dims(0, -2, 0, 0, 0, 1, 0)
 NUMBER_DENSITY: Dimensions = _dims(0, -3, 0, 0, 0, 0, 0)
 MOLAR_MASS: Dimensions = _dims(1, 0, 0, 0, 0, 0, -1)
 INVERSE_LENGTH: Dimensions = _dims(0, -1, 0, 0, 0, 0, 0)
+# Data-quantity convention: byte counts and byte rates are the canonical base
+# (B and B/s at scale 1); one bit is one eighth of a byte everywhere, so every
+# bit-denominated scale carries the /8 explicitly.
+BITS_PER_BYTE = 8
 JOULES_PER_KWH = 3_600_000
 KCAL_IN_JOULES = 4_184
 SECONDS_PER_DAY = 86_400
 BTU_IN_JOULES = 1055.05585262
+# Exact imperial/US-customary definitions (query-3): the inch is exactly
+# 25.4 mm and every other unit below derives from exact definitions.
+METERS_PER_INCH = 0.0254
+METERS_PER_FOOT = 0.3048
+METERS_PER_YARD = 0.9144
+METERS_PER_MILE = 1609.344
+METERS_PER_NAUTICAL_MILE = 1852
+CUBIC_METERS_PER_LITER = 0.001
+CUBIC_METERS_PER_GALLON = 3.785411784e-3  # US liquid gallon, exactly 231 in^3.
+KG_PER_POUND = 0.45359237
+KG_PER_MILLIGRAM = 1e-6
+CUBIC_METERS_PER_DECILITER = 1e-4
+NEWTONS_PER_POUND_FORCE = 4.4482216152605
+WATTS_PER_HORSEPOWER = 550 * METERS_PER_FOOT * NEWTONS_PER_POUND_FORCE  # Mechanical hp.
 KLEIBER_MASS_EXPONENT = Fraction(3, 4)
-VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1+envacct-1+demography-1+orbital-2+circuits-2+waves-1+waves-2+clinical-2"
+VOCABULARY_PROFILE = "cm-vocabulary/mechanics-1+finance-2+economics-5+biology-3+cs-4+be-1+be-2+circuits-1+clinical-1+orbital-1+envacct-1+demography-1+orbital-2+circuits-2+waves-1+waves-2+clinical-2+cs-5+clinical-3+mechanics-2+cs-6+be-3+query-2+query-3+query-4"
 DIMENSION_AXES = ("mass", "length", "time", "currency", "temperature", "current", "amount")
 NUMERICAL_BASIS = f"kWh, m, s, USD, K, A, mol; mass base = {JOULES_PER_KWH} kg"
 
@@ -166,8 +184,36 @@ UNITS = {
     # in the registry scale, never inlined in an expression.
     "Hz": Unit(INVERSE_TIME, 1.0),
     "MIPS": Unit(INVERSE_TIME, 1000000.0),
+    # Building-energy batch (be-3): square metres in the curator spelling
+    # for heat-transfer areas (m^2 stays the sibling spelling elsewhere).
+    "m2": Unit(AREA, 1.0),
     # CS batch (cs-4): per-hour failure rates against the per-second base.
     "1/h": Unit(INVERSE_TIME, 1 / 3600),
+    # CS batch (cs-5): bit counts and decimal/binary bit- and byte-rate units
+    # in curator spellings. Bytes stay the base (B, B/s at 1.0); every bit
+    # scale divides by BITS_PER_BYTE. Decimal kilo..peta are powers of 1000,
+    # binary kibi..exbi powers of 1024, matching the curated r1 factors.
+    "bit": Unit(DIMENSIONLESS, 1 / BITS_PER_BYTE),
+    "bit/s": Unit(INVERSE_TIME, 1 / BITS_PER_BYTE),
+    "kbit/s": Unit(INVERSE_TIME, 1000 / BITS_PER_BYTE),
+    "Kibit/s": Unit(INVERSE_TIME, 1024 / BITS_PER_BYTE),
+    "Mbit/s": Unit(INVERSE_TIME, 1000000 / BITS_PER_BYTE),
+    "Mibit/s": Unit(INVERSE_TIME, 1048576 / BITS_PER_BYTE),
+    "Gbit/s": Unit(INVERSE_TIME, 1000000000 / BITS_PER_BYTE),
+    "Gibit/s": Unit(INVERSE_TIME, 1073741824 / BITS_PER_BYTE),
+    "Tbit/s": Unit(INVERSE_TIME, 1000000000000 / BITS_PER_BYTE),
+    "Tibit/s": Unit(INVERSE_TIME, 1099511627776 / BITS_PER_BYTE),
+    "Pbit/s": Unit(INVERSE_TIME, 1000000000000000 / BITS_PER_BYTE),
+    "Pibit/s": Unit(INVERSE_TIME, 1125899906842624 / BITS_PER_BYTE),
+    "Eibit/s": Unit(INVERSE_TIME, 1152921504606846976 / BITS_PER_BYTE),
+    "MB/s": Unit(INVERSE_TIME, 1000000.0),
+    "MiB/s": Unit(INVERSE_TIME, 1048576.0),
+    "GB/s": Unit(INVERSE_TIME, 1000000000.0),
+    "TB/s": Unit(INVERSE_TIME, 1000000000000.0),
+    "TiB/s": Unit(INVERSE_TIME, 1099511627776.0),
+    "PB/s": Unit(INVERSE_TIME, 1000000000000000.0),
+    "PiB/s": Unit(INVERSE_TIME, 1125899906842624.0),
+    "EiB/s": Unit(INVERSE_TIME, 1152921504606846976.0),
     # Biology batch (biology-3): metabolic power in kcal/day (thermochemical
     # kcal) and its Kleiber normalization per kg^0.75. The normalization unit
     # carries fractional mass power 1 - 3/4; its scale divides the kcal/day
@@ -255,6 +301,41 @@ UNITS = {
     # drop rate is a reciprocal time, in curator spellings.
     "drops/m^3": Unit(NUMBER_DENSITY, 1.0),
     "drops/s": Unit(INVERSE_TIME, 1.0),
+    # Query batch (query-2): international mile and miles-per-hour so
+    # faithful query facts ("30 mph", "100 miles") bind for execution.
+    "mi": Unit(LENGTH, METERS_PER_MILE),
+    "mph": Unit(VELOCITY, METERS_PER_MILE / 3600),
+    # Query batch (query-3): imperial/US-customary lengths, volumes, masses
+    # and their derived rates plus SI liter and thermochemical calories, so
+    # everyday query facts ("12 ft", "2 gal", "150 lb") bind for execution.
+    # All scales derive from the exact constants above; KCAL_IN_JOULES is
+    # the thermochemical calorie already used by kcal/day. Fahrenheit and
+    # Celsius are deliberately absent: absolute readings need an offset
+    # conversion and Unit is ratio-only, so admitting them would silently
+    # misread e.g. 68 degF as a ratio quantity.
+    "in": Unit(LENGTH, METERS_PER_INCH),
+    "ft": Unit(LENGTH, METERS_PER_FOOT),
+    "yd": Unit(LENGTH, METERS_PER_YARD),
+    "nmi": Unit(LENGTH, METERS_PER_NAUTICAL_MILE),
+    "ft/s": Unit(VELOCITY, METERS_PER_FOOT),
+    "kn": Unit(VELOCITY, METERS_PER_NAUTICAL_MILE / 3600),
+    "L": Unit(VOLUME, CUBIC_METERS_PER_LITER),
+    "mL": Unit(VOLUME, CUBIC_METERS_PER_LITER / 1000),
+    "gal": Unit(VOLUME, CUBIC_METERS_PER_GALLON),
+    "qt": Unit(VOLUME, CUBIC_METERS_PER_GALLON / 4),
+    "lb": Unit(MASS, KG_PER_POUND / JOULES_PER_KWH),
+    "oz": Unit(MASS, KG_PER_POUND / 16 / JOULES_PER_KWH),
+    "lbf": Unit(FORCE, NEWTONS_PER_POUND_FORCE / JOULES_PER_KWH),
+    "cal": Unit(ENERGY, (KCAL_IN_JOULES / 1000) / JOULES_PER_KWH),
+    "kcal": Unit(ENERGY, KCAL_IN_JOULES / JOULES_PER_KWH),
+    "hp": Unit(POWER, WATTS_PER_HORSEPOWER / JOULES_PER_KWH),
+    # Query batch (query-4): clinical mass and concentration spellings so
+    # dosing facts ("250 mg", "15 mg per kg", "1.2 mg/dL") bind for
+    # execution. mg/dL is exactly 0.01 kg/m^3.
+    "mg": Unit(MASS, KG_PER_MILLIGRAM / JOULES_PER_KWH),
+    "mg/kg": Unit(DIMENSIONLESS, KG_PER_MILLIGRAM),
+    "dL": Unit(VOLUME, CUBIC_METERS_PER_DECILITER),
+    "mg/dL": Unit(MASS_DENSITY, (KG_PER_MILLIGRAM / CUBIC_METERS_PER_DECILITER) / JOULES_PER_KWH),
 }
 
 
@@ -310,6 +391,61 @@ UNIT_ALIASES = {
     "year": "years",
     "annual-period": "years",
     "annual-periods": "years",
+    # Query batch (query-2): natural spellings for the mile units. Lookup
+    # normalizes first, so "miles per hour" also reaches "miles/hour".
+    "mile": "mi",
+    "miles": "mi",
+    "miles/hour": "mph",
+    "mi/h": "mph",
+    # Query batch (query-3): natural spellings for the imperial batch.
+    # Multiword forms normalize (spaces removed) before lookup, so e.g.
+    # "nautical miles" reaches "nauticalmiles" and "feet per second"
+    # reaches "feet/second".
+    "inch": "in",
+    "inches": "in",
+    "foot": "ft",
+    "feet": "ft",
+    "feet/second": "ft/s",
+    "yard": "yd",
+    "yards": "yd",
+    "nauticalmile": "nmi",
+    "nauticalmiles": "nmi",
+    "knot": "kn",
+    "knots": "kn",
+    "liter": "L",
+    "liters": "L",
+    "litre": "L",
+    "litres": "L",
+    "milliliter": "mL",
+    "milliliters": "mL",
+    "millilitre": "mL",
+    "millilitres": "mL",
+    "ml": "mL",
+    "cc": "mL",
+    "gallon": "gal",
+    "gallons": "gal",
+    "quart": "qt",
+    "quarts": "qt",
+    "pound": "lb",
+    "pounds": "lb",
+    "lbs": "lb",
+    "ounce": "oz",
+    "ounces": "oz",
+    "calorie": "cal",
+    "calories": "cal",
+    "kilocalorie": "kcal",
+    "kilocalories": "kcal",
+    "horsepower": "hp",
+    # Query batch (query-4): clinical spellings. Lookup normalizes first,
+    # so "mg per kg" reaches "mg/kg" and "mg per dl" reaches "mg/dl".
+    "milligram": "mg",
+    "milligrams": "mg",
+    "deciliter": "dL",
+    "deciliters": "dL",
+    "decilitre": "dL",
+    "decilitres": "dL",
+    "dl": "dL",
+    "mg/dl": "mg/dL",
 }
 
 
@@ -810,6 +946,51 @@ MEANINGS = {
     "waist_circumference": LENGTH,
     "waist_to_height_ratio": DIMENSIONLESS,
     "waist_to_hip_ratio": DIMENSIONLESS,
+    # CS batch (cs-5): bit/byte rate and count meanings for the briefed
+    # canonical-identity r2s. Curator quantity IDs adopted verbatim.
+    "bit_rate": INVERSE_TIME,
+    "byte_rate": INVERSE_TIME,
+    "exbibit_rate": INVERSE_TIME,
+    "exbibyte_rate": INVERSE_TIME,
+    "gibibit_rate": INVERSE_TIME,
+    "gibibyte_count": DIMENSIONLESS,
+    "gigabit_rate": INVERSE_TIME,
+    "gigabyte_count": DIMENSIONLESS,
+    "gigabyte_rate": INVERSE_TIME,
+    "kibibit_rate": INVERSE_TIME,
+    "kilobit_rate": INVERSE_TIME,
+    "mebibit_rate": INVERSE_TIME,
+    "megabit_rate": INVERSE_TIME,
+    "megabyte_rate": INVERSE_TIME,
+    "pebibit_rate": INVERSE_TIME,
+    "pebibyte_rate": INVERSE_TIME,
+    "petabit_rate": INVERSE_TIME,
+    "petabyte_rate": INVERSE_TIME,
+    "tebibit_rate": INVERSE_TIME,
+    "tebibyte_rate": INVERSE_TIME,
+    "terabit_rate": INVERSE_TIME,
+    "terabyte_rate": INVERSE_TIME,
+    "mebibyte_rate": INVERSE_TIME,
+    # Clinical batch (clinical-3): the Cockcroft-Gault divisor input meaning
+    # for the r3 (empirical time-valued coefficient, seconds).
+    "cockcroft_gault_divisor": TIME,
+    # Mechanics batch (mechanics-2): path length is unsigned distance, not
+    # signed displacement; averaged rate is average speed, not instantaneous
+    # speed. Curator quantity IDs adopted verbatim.
+    "distance": LENGTH,
+    "average_speed": VELOCITY,
+    # CS batch (cs-6): downtime and reference-year meanings for the
+    # annual-downtime-hours r2.
+    "steady_unavailability": DIMENSIONLESS,
+    "annual_downtime": TIME,
+    "reference_year_hours": TIME,
+    # Building-energy batch (be-3): gray-surface radiative exchange meanings
+    # for the stefan_boltzmann-naming r2. Curator quantity IDs adopted verbatim.
+    "thermal_emissivity": DIMENSIONLESS,
+    "heat_transfer_area": AREA,
+    "absolute_surroundings_temperature": TEMPERATURE,
+    "absolute_surface_temperature": TEMPERATURE,
+    "net_radiative_heat_rate": POWER,
 }
 ORIGINS = frozenset({"fixture", "user-scenario", "observation", "generated", "derived"})
 

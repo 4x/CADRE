@@ -1,10 +1,13 @@
 # Editable LLM prompts
 
-The three system prompts the application sends to the model live here as plain Markdown files, so you can read and tune them without touching code. The scripts load them at request time through `connected_models.inference.load_prompt`.
+The four system prompts the application sends to the model live here as plain Markdown files, so you can read and tune them without touching code. The scripts load them at request time through `connected_models.inference.load_prompt`.
 
 | File | Used by | Request name |
 | --- | --- | --- |
-| `answer-question.md` | `answer`, single call | AnswerQuestionGrounded |
+| `answer-question.md` | `answer`, first attempt | AnswerQuestionGrounded |
+| `answer-fill-in-assumptions.md` | `answer` with fill-in enabled, appended | AnswerQuestionGrounded |
+| `answer-repair.md` | `answer` repair attempts, appended with the machine error | AnswerQuestionGrounded |
+| `direct-answer.md` | `compare` direct route, plain text | DirectAnswer |
 | `offline-model-extraction.md` | `curate` | OfflineModelExtraction |
 
 Each file holds exactly one prompt: the whole file (minus leading/trailing blank lines) becomes the system message. Blank lines separate paragraphs; do not hard-wrap inside a paragraph, since every line break is sent to the model.

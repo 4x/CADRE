@@ -1,0 +1,456 @@
+{
+  "schema_version": "cm-curation-batch/1",
+  "kit_version": "2026-10-31.5",
+  "batch_id": "computer-science-b15",
+  "domain": "computer-science",
+  "curator": "muse-spark",
+  "created": "2026-11-01",
+  "example_only": false,
+  "models": [
+    {
+      "assumptions": [
+        "n fully used drives of equal capacity (page states the assumption explicitly for this level).",
+        "Block-level striping with no mirroring or parity; Usable capacity counts user data only.",
+        "application profile: homogeneous array; mixed-capacity arrays need smallest-disk treatment (see limitations)."
+      ],
+      "constants": [],
+      "guards": [
+        "n >= 2",
+        "C >= 0"
+      ],
+      "id": "computer-science--raid0-usable-capacity",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings disk_count/member_capacity/striped_usable_capacity absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Same algebraic shape as the b01 storage-capacity record with different quantities (array striping vs record counting); documented here, not merged."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "n = U/C needs C != 0; C = U/n needs n != 0 (guarded). Check: U=2000,C=500 gives n = 4. Fractional n maps back against the integer-count domain. Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "No redundancy: any drive failure renders the volume inaccessible (page), so this capacity carries no availability claim - pair with the series-availability lane, not the parallel one.",
+        "Equal-capacity assumption; mixed arrays are limited by the smallest member (min() outside scalar grammar).",
+        "n=1 (single disk) is outside the RAID array definition (two or more devices); spanned single volumes need a separate note."
+      ],
+      "references": [
+        {
+          "expected": 2000,
+          "id": "four-drive-stripe",
+          "inputs": {
+            "C": 500,
+            "n": 4
+          },
+          "method": "Ordinary striped case 4 x 500 = 2000 at per-drive scale.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 4000,
+          "id": "eight-drive-stripe",
+          "inputs": {
+            "C": 500,
+            "n": 8
+          },
+          "method": "Larger stripe 8 x 500 = 4000, materially different scale.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-members",
+          "inputs": {
+            "C": 0,
+            "n": 4
+          },
+          "method": "Boundary: zero-capacity members give zero usable volume; admitted degenerate boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "C": 500,
+            "n": 1
+          },
+          "kind": "domain",
+          "reason": "Single drive violates n >= 2 (RAID coordinates two or more devices)."
+        },
+        {
+          "inputs": {
+            "C": 500
+          },
+          "kind": "missing-input",
+          "reason": "Drive count n is required alongside member capacity; omitting it leaves U undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "n * C",
+        "locator": "Standard levels: RAID 0 block-level striping with no mirroring or parity; with n fully used equal-capacity drives the volume capacity is the total of the n drives' capacities.",
+        "original_equation": "RAID 0 usable capacity = n x (drive capacity)",
+        "output_symbol": "U",
+        "source_id": "wikipedia-raid",
+        "translation_notes": "Source states the total in prose; formalized as the n-fold product. Locals n, C; output U. Check: count x information = information."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States RAID 0 is block-level striping without mirroring/parity, that n fully used equal-capacity drives give the total of the n capacities, and that any single drive failure renders the volume inaccessible.",
+          "id": "wikipedia-raid",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "RAID overview (two-or-more-devices array definition); Standard levels (RAID 0 paragraph).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: RAID (RAID 0 striped capacity)",
+          "url": "https://en.wikipedia.org/wiki/RAID",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "RAID 0 usable capacity as the total of equal member capacities.",
+      "title": "RAID 0 usable capacity",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same homogeneous striped array as C and U",
+          "definition": "Number of member drives in the striped set",
+          "dimensions": "dimensionless",
+          "domain": "Integer greater than or equal to 2",
+          "quantity_id": "disk_count",
+          "role": "input",
+          "source_symbol": "number of drives (n)",
+          "symbol": "n",
+          "unit": "1"
+        },
+        {
+          "context": "same homogeneous striped array as n and U",
+          "definition": "Usable capacity of one fully used member drive",
+          "dimensions": "information",
+          "domain": "Nonnegative finite",
+          "quantity_id": "member_capacity",
+          "role": "input",
+          "source_symbol": "drive capacity",
+          "symbol": "C",
+          "unit": "GB"
+        },
+        {
+          "context": "same homogeneous striped array as inputs",
+          "definition": "Usable volume capacity of the RAID 0 set (no redundancy)",
+          "dimensions": "information",
+          "domain": "Nonnegative finite",
+          "quantity_id": "striped_usable_capacity",
+          "role": "output",
+          "source_symbol": "RAID 0 volume capacity (U)",
+          "symbol": "U",
+          "unit": "GB"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Equal-capacity member drives (same homogeneous-array profile as the RAID 0 record; mixed sizes limited by smallest member).",
+        "Block-level striping with single distributed parity (page); parity consumes exactly one drive's worth of capacity.",
+        "application profile: at least three disks (page minimum); single-drive failure survivable via parity, second concurrent failure loses the array."
+      ],
+      "constants": [],
+      "guards": [
+        "C >= 0",
+        "n >= 3"
+      ],
+      "id": "computer-science--raid5-usable-capacity",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings parity_overhead_usable_capacity absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Loss-of-array on second failure is a reliability property for the availability lane; this record covers capacity only."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "n = U/C + 1 needs C != 0; C = U/(n-1) needs n != 1 (guarded). Check: U=2000,C=500 gives n = 5. Fractional n maps back against the integer-count domain. Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Single-parity scope: large-array rebuild risk (page) is a reliability property outside this capacity record.",
+        "Equal-capacity legs assumed; heterogeneous arrays need smallest-disk treatment (min() out of format).",
+        "Minimum three disks per the page; degraded/rebuild states excluded."
+      ],
+      "references": [
+        {
+          "expected": 1000,
+          "id": "minimum-three-disks",
+          "inputs": {
+            "C": 500,
+            "n": 3
+          },
+          "method": "Minimum configuration: (3-1) x 500 = 1000; one drive's worth reserved for distributed parity.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 2000,
+          "id": "five-disk-array",
+          "inputs": {
+            "C": 500,
+            "n": 5
+          },
+          "method": "Ordinary case (5-1) x 500 = 2000, materially different scale.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-members-r5",
+          "inputs": {
+            "C": 0,
+            "n": 4
+          },
+          "method": "Boundary: zero-capacity members give zero usable volume; admitted degenerate boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "C": 500,
+            "n": 2
+          },
+          "kind": "domain",
+          "reason": "Two disks violate n >= 3 (RAID 5 requires at least three disks)."
+        },
+        {
+          "inputs": {
+            "C": 500
+          },
+          "kind": "missing-input",
+          "reason": "Drive count n is required alongside member capacity; omitting it leaves U undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "(n - 1) * C",
+        "locator": "Standard levels: RAID 5 block-level striping with distributed parity, all drives but one required to operate, minimum three disks.",
+        "original_equation": "RAID 5 usable capacity = (n - 1) x (drive capacity)",
+        "output_symbol": "U",
+        "source_id": "wikipedia-raid",
+        "translation_notes": "Source-backed derivation (not a verbatim source line): 'all drives but one' directly implies one drive's worth of parity across equal members. Labeled derivation here. Check: count x information = information."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States RAID 5 is block-level striping with distributed parity requiring all drives but one, needs at least three disks, and survives a single drive failure via parity while a second concurrent failure loses the array.",
+          "id": "wikipedia-raid",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Standard levels (RAID 5 paragraph).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: RAID (RAID 5 parity capacity)",
+          "url": "https://en.wikipedia.org/wiki/RAID",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "RAID 5 usable capacity reserving one drive's worth for distributed parity.",
+      "title": "RAID 5 usable capacity",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same homogeneous parity array as C and U",
+          "definition": "Number of member drives in the RAID 5 set",
+          "dimensions": "dimensionless",
+          "domain": "Integer greater than or equal to 3",
+          "quantity_id": "disk_count",
+          "role": "input",
+          "source_symbol": "number of disks (n)",
+          "symbol": "n",
+          "unit": "1"
+        },
+        {
+          "context": "same homogeneous parity array as n and U",
+          "definition": "Usable capacity of one fully used member drive",
+          "dimensions": "information",
+          "domain": "Nonnegative finite",
+          "quantity_id": "member_capacity",
+          "role": "input",
+          "source_symbol": "drive capacity",
+          "symbol": "C",
+          "unit": "GB"
+        },
+        {
+          "context": "same homogeneous parity array as inputs",
+          "definition": "Usable volume capacity of the RAID 5 set after single distributed parity",
+          "dimensions": "information",
+          "domain": "Nonnegative finite",
+          "quantity_id": "parity_usable_capacity",
+          "role": "output",
+          "source_symbol": "RAID 5 usable capacity (U)",
+          "symbol": "U",
+          "unit": "GB"
+        }
+      ]
+    },
+    {
+      "assumptions": [
+        "Equal-capacity member drives (same homogeneous-array profile as the RAID 0/5 records).",
+        "Block-level striping with double distributed parity (page); parity consumes exactly two drives' worth of capacity.",
+        "application profile: at least four disks (page minimum); up to two failed drives tolerated."
+      ],
+      "constants": [],
+      "guards": [
+        "C >= 0",
+        "n >= 4"
+      ],
+      "id": "computer-science--raid6-usable-capacity",
+      "integration": {
+        "duplicate_of": [],
+        "gaps": [
+          "Meanings double-parity usable capacity absent from runtime vocabulary; scalar form fits engine once meanings exist.",
+          "Two-drive fault tolerance is an availability property for the availability lane; this record covers capacity only."
+        ],
+        "runtime_model": null,
+        "status": "requires-extension"
+      },
+      "inverse_notes": "n = U/C + 2 needs C != 0; C = U/(n-2) needs n != 2 (guarded). Check: U=2000,C=500 gives n = 6. Fractional n maps back against the integer-count domain. Algebraic only.",
+      "kind": "theoretical",
+      "limitations": [
+        "Double-parity scope only; RAID 5 vs 6 selection trade-offs (rebuild windows, capacity) need the page's reliability discussion, not this record.",
+        "Equal-capacity legs assumed; heterogeneous arrays need smallest-disk treatment.",
+        "Minimum four disks per the page; degraded states excluded."
+      ],
+      "references": [
+        {
+          "expected": 1000,
+          "id": "minimum-four-disks",
+          "inputs": {
+            "C": 500,
+            "n": 4
+          },
+          "method": "Minimum configuration: (4-2) x 500 = 1000; two drives' worth reserved for double distributed parity.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 3000,
+          "id": "eight-disk-array",
+          "inputs": {
+            "C": 500,
+            "n": 8
+          },
+          "method": "Ordinary case (8-2) x 500 = 3000, materially different scale.",
+          "provenance": "Independent arithmetic check with synthetic inputs.",
+          "tolerance": 1e-09
+        },
+        {
+          "expected": 0,
+          "id": "boundary-zero-members-r6",
+          "inputs": {
+            "C": 0,
+            "n": 6
+          },
+          "method": "Boundary: zero-capacity members give zero usable volume; admitted degenerate boundary.",
+          "provenance": "Independent limiting identity.",
+          "tolerance": 1e-12
+        }
+      ],
+      "rejection_cases": [
+        {
+          "inputs": {
+            "C": 500,
+            "n": 3
+          },
+          "kind": "domain",
+          "reason": "Three disks violate n >= 4 (RAID 6 requires a minimum of four disks)."
+        },
+        {
+          "inputs": {
+            "C": 500
+          },
+          "kind": "missing-input",
+          "reason": "Drive count n is required alongside member capacity; omitting it leaves U undetermined."
+        }
+      ],
+      "relationship": {
+        "expression": "(n - 2) * C",
+        "locator": "Standard levels: RAID 6 block-level striping with double distributed parity tolerating up to two failed drives, minimum four disks.",
+        "original_equation": "RAID 6 usable capacity = (n - 2) x (drive capacity)",
+        "output_symbol": "U",
+        "source_id": "wikipedia-raid",
+        "translation_notes": "Source-backed derivation (not a verbatim source line): double distributed parity over equal members reserves two drives' worth. Labeled derivation here. Check: count x information = information."
+      },
+      "revision": "r1",
+      "sources": [
+        {
+          "accessed": "2026-11-01",
+          "evidence": "States RAID 6 is block-level striping with double distributed parity tolerating up to two failed drives, requires a minimum of four disks, and suits larger high-availability arrays.",
+          "id": "wikipedia-raid",
+          "kind": "primary",
+          "license": "Terms not inspected 2026-11-01; rights unknown; see site terms.",
+          "locator": "Standard levels (RAID 6 paragraph).",
+          "redistribution": "Short paraphrase only; no extended quotation.",
+          "title": "Wikipedia: RAID (RAID 6 double-parity capacity)",
+          "url": "https://en.wikipedia.org/wiki/RAID",
+          "version": "inspected 2026-11-01"
+        }
+      ],
+      "summary": "RAID 6 usable capacity reserving two drives' worth for double distributed parity.",
+      "title": "RAID 6 usable capacity",
+      "unresolved": [],
+      "variables": [
+        {
+          "context": "same homogeneous double-parity array as C and U",
+          "definition": "Number of member drives in the RAID 6 set",
+          "dimensions": "dimensionless",
+          "domain": "Integer greater than or equal to 4",
+          "quantity_id": "disk_count",
+          "role": "input",
+          "source_symbol": "number of disks (n)",
+          "symbol": "n",
+          "unit": "1"
+        },
+        {
+          "context": "same homogeneous double-parity array as n and U",
+          "definition": "Usable capacity of one fully used member drive",
+          "dimensions": "information",
+          "domain": "Nonnegative finite",
+          "quantity_id": "member_capacity",
+          "role": "input",
+          "source_symbol": "drive capacity",
+          "symbol": "C",
+          "unit": "GB"
+        },
+        {
+          "context": "same homogeneous double-parity array as inputs",
+          "definition": "Usable volume capacity of the RAID 6 set after double distributed parity",
+          "dimensions": "information",
+          "domain": "Nonnegative finite",
+          "quantity_id": "double_parity_usable_capacity",
+          "role": "output",
+          "source_symbol": "RAID 6 usable capacity (U)",
+          "symbol": "U",
+          "unit": "GB"
+        }
+      ]
+    }
+  ],
+  "deferred": [
+    {
+      "title": "RAID 1 mirror and nested-level usable capacity",
+      "reason": "Continuation priority: mirror usable-equals-member and nested (10/50/60) capacities need member-count parity conventions beyond the three closed forms curated here.",
+      "source_urls": [
+        "https://en.wikipedia.org/wiki/RAID"
+      ]
+    }
+  ],
+  "handoff": {
+    "summary": "Batch b15 curates 3 records: RAID 0 striped, RAID 5 single-parity and RAID 6 double-parity usable capacity from equal member capacities.",
+    "gaps": [
+      "New meanings (disk_count, member_capacity, striped/parity usable capacities) absent from runtime-vocabulary.json; all requires-extension with null runtime_model.",
+      "Duplicate search limited to catalog-inventory.json snapshot plus b01-b15 batches; global uniqueness not claimed."
+    ],
+    "connections": [],
+    "queries": [],
+    "review_notes": "2026-11-01 validate: pending pack-time check; curator text review done; central review pending; terms pages not inspected; RAID 5/6 equations are labeled source-backed derivations from stated parity scope."
+  }
+}

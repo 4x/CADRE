@@ -1,0 +1,524 @@
+{
+  "batch_id": "economics-codex-b09",
+  "created": "2026-11-01",
+  "curator": "codex",
+  "deferred": [
+    {
+      "title": "Additional official evidence for existing Laspeyres/Paasche/Fisher records",
+      "reason": "Statistics Canada Chapter7 sections7.3.1 and Text boxes7.1-7.5 equations7.8-7.10 corroborate economics--fixed-basket-lowe-price-relative@r1 and economics--fisher-bilateral-price-relative@r1. Existing records already preserve L/P basket profiles and Fisher combination. Do not mint clones; future explicit correction/revision may incorporate this alternate HTML evidence and its fruit data. Full arbitrary-basket evaluation still requires vector/reduction support.",
+      "source_urls": [
+        "https://www150.statcan.gc.ca/n1/pub/13-606-g/2016001/article/14622-eng.htm"
+      ]
+    },
+    {
+      "title": "Asset-life depreciation function and PIM calibration",
+      "reason": "Section7.5.1 Eq7.19 specifies D^K=f(S^K_previous,L) and discusses linear/geometric/hyperbolic choices without selecting one universal f or asset-life parameters. Defer any universal scalar depreciation law; next work must inspect an explicitly chosen function's original calibration and scope. The stock balance alone remains coherent without guessing f.",
+      "source_urls": [
+        "https://www150.statcan.gc.ca/n1/pub/13-606-g/2016001/article/14622-eng.htm"
+      ]
+    },
+    {
+      "title": "Current-price capital stock update without revaluation",
+      "reason": "Source explains fixed-price volume balance separately from replacement-cost valuation. Nominal opening stock plus nominal investment less depreciation is incomplete when prices or other asset volumes change. Do not reuse the volume equation as a nominal identity; revaluation and all volume-change terms need a complete separately sourced balance.",
+      "source_urls": [
+        "https://www150.statcan.gc.ca/n1/pub/13-606-g/2016001/article/14622-eng.htm",
+        "https://www.bea.gov/resources/learning-center/definitions-and-introduction-fixed-assets"
+      ]
+    }
+  ],
+  "domain": "economics",
+  "example_only": false,
+  "handoff": {
+    "summary": "Three distinct definitions: gross value added, constant-reference-price fixed-capital stock balance including other disappearance, and mean transaction price for an identical product. No behavior predictions or economic-policy claims. Prior31 records preserved; source-symbol, stock/flow, exceptional-loss, gross/net and identical-product distinctions explicitly reviewed.",
+    "gaps": [
+      "All three need new economic meanings/units and temporal/valuation metadata; no current-runtime projection attempted.",
+      "BEA rights policy is not blanket redistribution clearance. Statistics Canada Open Licence attribution and exceptions recorded; no logos or source attachments included.",
+      "Capital depreciation function/life calibration remains outside this balance. Full heterogeneous price-index calculation needs vector support."
+    ],
+    "review_notes": "Direct primary HTML sources inspected2026-11-01. StatCan Eq7.18 unambiguously transcribed from accessible HTML, avoiding unavailable PDF-image inspection; Eq7.4 checked against its quantity-weighted alternate. Gross value added checked against independent income-component ledgers. Source license/terms pages inspected and adaptation notice included. Reviewed inverse zero cases, nonnegative-stock guard, signed net disposal and explicit flow integration. Duplicate search includes own b01-b08 and supplied dated inventory/runtime snapshot, not a global registry. Validation results saved beside data; candidates require scientific review. Completed CLI JSON validation: valid-data-awaiting-review; 9 reference arithmetic checks and 6 rejection checks passed. Packed ZIP subsequently validated with matching checksums; logs saved beside bundle.",
+    "connections": [],
+    "queries": []
+  },
+  "kit_version": "2026-10-31.5",
+  "models": [
+    {
+      "id": "economics--gross-value-added",
+      "revision": "r1",
+      "title": "Current-price gross value added from industry output",
+      "summary": "Industry contribution to GDP from gross output less intermediate inputs. The residual includes labor compensation, net production taxes and gross operating surplus, rather than representing firm profit.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "VA",
+        "expression": "GO - II",
+        "original_equation": "Value added = gross output - intermediate inputs.",
+        "source_id": "bea-value-added",
+        "locator": "Glossary opening definition and equivalent income components",
+        "translation_notes": "Introduced GO,II,VA label the source prose quantities. Currency-currency=currency on a common current-price interval basis. Gross means before consumption of fixed capital; do not replace GO with final sales or II with total expenses. Same price/boundary conventions are essential; no claim that incompatible tax valuations cancel automatically. Nonnegative ordinary GO and II are an explicit application profile, not a restriction on the signed residual VA. Output may be negative if intermediate consumption exceeds output. Named value-added definition is distinct from b06 economic profit, which subtracts explicit and opportunity costs."
+      },
+      "variables": [
+        {
+          "symbol": "GO",
+          "source_symbol": "Introduced GO = gross output",
+          "role": "input",
+          "quantity_id": "industry_gross_output_current_price",
+          "definition": "Gross value of industry production for both final and intermediate uses during the period.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same industry/sector, domestic production boundary, accounting interval, source vintage, current-price USD scale and compatible industry-account valuation conventions. GO is gross production, including intermediate sales; II is corresponding intermediate consumption, not labor compensation or fixed-asset acquisitions. This is a period flow, not capital wealth.",
+          "domain": "Finite nonnegative ordinary gross-production profile."
+        },
+        {
+          "symbol": "II",
+          "source_symbol": "Introduced II = intermediate inputs",
+          "role": "input",
+          "quantity_id": "industry_intermediate_inputs_current_price",
+          "definition": "Current value of goods and purchased services consumed as intermediate production inputs under the source accounts.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same industry/sector, domestic production boundary, accounting interval, source vintage, current-price USD scale and compatible industry-account valuation conventions. GO is gross production, including intermediate sales; II is corresponding intermediate consumption, not labor compensation or fixed-asset acquisitions. This is a period flow, not capital wealth.",
+          "domain": "Finite nonnegative ordinary intermediate-consumption profile; excludes compensation and capital formation."
+        },
+        {
+          "symbol": "VA",
+          "source_symbol": "Introduced VA = gross value added",
+          "role": "output",
+          "quantity_id": "gross_value_added_current_price",
+          "definition": "Signed industry contribution to domestic product before economic depreciation, using matching industry-account valuation.",
+          "unit": "USD",
+          "dimensions": "currency",
+          "context": "Same industry/sector, domestic production boundary, accounting interval, source vintage, current-price USD scale and compatible industry-account valuation conventions. GO is gross production, including intermediate sales; II is corresponding intermediate consumption, not labor compensation or fixed-asset acquisitions. This is a period flow, not capital wealth.",
+          "domain": "Finite signed; may be zero or negative, with no invented profitability restriction."
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "GO >= 0",
+        "II >= 0"
+      ],
+      "assumptions": [
+        "Source definition: use gross output and intermediate consumption for the same industry-account boundary and period.",
+        "Application profile: nonnegative ordinary output and intermediate-consumption amounts, retaining the signed difference."
+      ],
+      "limitations": [
+        "Not revenue less all expenses, economic profit, net value added or a stock valuation.",
+        "Inputs require compatible accounts/tax valuations; no model for computing intermediate consumption or deflating components is supplied."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "bea-value-added",
+          "kind": "primary",
+          "title": "BEA Glossary: Value added",
+          "url": "https://www.bea.gov/help/glossary/value-added",
+          "version": "Live BEA glossary inspected2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Opening definition and alternative income-component representation",
+          "evidence": "An industry's contribution to GDP equals its gross output less intermediate inputs, or equivalently compensation plus net production/import taxes plus gross operating surplus. Gross value added includes depreciation within gross operating surplus and is not profit.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        },
+        {
+          "id": "bea-gross-output",
+          "kind": "primary",
+          "title": "BEA Glossary: Gross output (GO)",
+          "url": "https://www.bea.gov/help/glossary/gross-output-go",
+          "version": "Modified2019-09-30; inspected2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Opening definition",
+          "evidence": "Gross output measures an industry's production sold both for final use and as intermediate inputs to other industries; aggregate gross output therefore differs from GDP.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        },
+        {
+          "id": "bea-intermediate-inputs",
+          "kind": "primary",
+          "title": "BEA Glossary: Intermediate inputs",
+          "url": "https://www.bea.gov/help/glossary/intermediate-inputs",
+          "version": "Modified2018-04-13; inspected2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Opening definition",
+          "evidence": "Intermediate inputs comprise goods and services used in production rather than sold as final demand. Source lists energy, materials, and purchased services; they are not all production expenses.",
+          "license": "https://www.bea.gov/help/faq/600 (guidelines, modified 2025-09-23), inspected 2026-11-01: direct citations appreciated and no implication of endorsement. https://www.bea.gov/about/policies-and-information inspected same date; no comprehensive redistribution license established from those pages; terms otherwise unknown.",
+          "redistribution": "Original concise formalization with attribution; no PDF or screenshot included. No endorsement or universal redistribution permission inferred from agency status."
+        }
+      ],
+      "references": [
+        {
+          "id": "independent-income-components",
+          "inputs": {
+            "GO": 1000,
+            "II": 400
+          },
+          "expected": 600,
+          "tolerance": 1E-10,
+          "method": "Independent income-side ledger: employee compensation350, net production/import taxes50 and gross operating surplus200 sum600. Separately compiled production ledger records output1000 and intermediate consumption400. Expected is income-side sum, not a second evaluation of GO-II.",
+          "provenance": "Curator synthetic balanced industry production/income accounts; alternative identity supported by BEA value-added glossary."
+        },
+        {
+          "id": "negative-value-added",
+          "inputs": {
+            "GO": 500,
+            "II": 600
+          },
+          "expected": -100,
+          "tolerance": 1E-10,
+          "method": "Independent income-side ledger with compensation200, net taxes20, gross operating surplus-320 gives-100. The production account separately records500 gross output and600 intermediate use. Negative surplus makes negative VA consistent without clipping.",
+          "provenance": "Curator synthetic signed-surplus account, using BEA alternative income definition."
+        },
+        {
+          "id": "zero-intermediate-inputs",
+          "inputs": {
+            "GO": 75,
+            "II": 0
+          },
+          "expected": 75,
+          "tolerance": 1E-12,
+          "method": "Boundary identity: with no intermediate consumption, all gross output is gross value added; labor and capital compensation can still be present.",
+          "provenance": "Curator source-definition boundary."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "GO": 100,
+            "II": -1
+          },
+          "reason": "Negative intermediate consumption outside declared ordinary nonnegative profile."
+        },
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "GO": 100
+          },
+          "reason": "Intermediate consumption unavailable; cannot substitute total cost or zero."
+        }
+      ],
+      "inverse_notes": "GO=VA+II and II=GO-VA are unique with the other two known; no denominator or roots. Require recovered GO,II>=0, while VA remains signed. Check VA600,II400 recovers GO1000 and forward600; GO500,VA-100 recovers II600 and forward-100. At VA0, GO=II>=0, and either known amount determines the other. VA alone leaves both inputs underdetermined, including the zero case. Inversion does not determine account classification.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "New industry gross-output, intermediate-consumption and gross-value-added meanings. Currency-only binding to profit or final expenditure would be semantically invalid."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "economics--constant-price-fixed-capital-stock-balance",
+      "revision": "r1",
+      "title": "Fixed-capital stock balance in common reference prices",
+      "summary": "One-period Laspeyres-volume capital-stock reconciliation including investment, economic depreciation and other disappearance. It is an accounting balance with supplied components, not a depreciation calibration or a forecast.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "K1",
+        "expression": "K0 + I - D - O",
+        "original_equation": "S^K(t) = S^K(t-1) + I^K(t) - D^K(t) - O^K(t).",
+        "source_id": "statcan-capital-stock",
+        "locator": "Section7.5.1 equation(7.18) and component/time/volume definitions",
+        "translation_notes": "Local K0 maps S^K(t-1), K1 maps S^K(t), I maps I^K(t), D maps D^K(t), O maps O^K(t). CAD_ref denotes reference-price monetary representation of volume, with the same reference period for every term; source K is a volume superscript, not a price index or physical unit. Dimensions reference_currency+reference_currency-reference_currency-reference_currency=reference_currency. Integrated investment/consumption/disappearance amounts can be added to stock changes, while rates require integration first. I remains signed for net acquisitions less disposals; a declaration of net versus gross acquisition convention must match this account. Application profile treats D and O as nonnegative removals and requires a nonnegative closing stock; unrepresented other appearances/reclassifications must be absent or accounted separately before using this restricted four-component balance. No revaluation term occurs because all terms share fixed reference prices; current-price and historical-cost stock updates are outside scope."
+      },
+      "variables": [
+        {
+          "symbol": "K0",
+          "source_symbol": "S^K(t-1)",
+          "role": "input",
+          "quantity_id": "fixed_capital_net_stock_reference_price",
+          "definition": "Opening net fixed-capital stock volume in the selected fixed reference-price valuation.",
+          "unit": "CAD_ref",
+          "dimensions": "reference_currency",
+          "context": "Same fixed-capital asset population, ownership/sector/geographic boundary, contiguous period (t-1,t], and one common fixed reference-price Laspeyres valuation in CAD_ref. K0,K1 are endpoint stock volumes expressed at reference prices. I,D,O are integrated period amounts on that same basis, not instantaneous rates, annualized flows or current-price CFC. Economic depreciation D includes normal deterioration/obsolescence/ordinary accidental damage; O is separately classified other disappearance, avoiding double counting.",
+          "domain": "Finite nonnegative; same surviving asset population and scope as closing stock."
+        },
+        {
+          "symbol": "I",
+          "source_symbol": "I^K(t)",
+          "role": "input",
+          "quantity_id": "fixed_capital_investment_reference_price",
+          "definition": "Integrated investment volume over the interval in the source-compatible acquisitions/disposals convention.",
+          "unit": "CAD_ref",
+          "dimensions": "reference_currency",
+          "context": "Same fixed-capital asset population, ownership/sector/geographic boundary, contiguous period (t-1,t], and one common fixed reference-price Laspeyres valuation in CAD_ref. K0,K1 are endpoint stock volumes expressed at reference prices. I,D,O are integrated period amounts on that same basis, not instantaneous rates, annualized flows or current-price CFC. Economic depreciation D includes normal deterioration/obsolescence/ordinary accidental damage; O is separately classified other disappearance, avoiding double counting.",
+          "domain": "Finite signed; negative net acquisitions allowed only with a consistent asset balance and nonnegative K1."
+        },
+        {
+          "symbol": "D",
+          "source_symbol": "D^K(t)",
+          "role": "input",
+          "quantity_id": "fixed_capital_consumption_reference_price",
+          "definition": "Integrated economic depreciation volume for normal deterioration, obsolescence and ordinary accidental damage.",
+          "unit": "CAD_ref",
+          "dimensions": "reference_currency",
+          "context": "Same fixed-capital asset population, ownership/sector/geographic boundary, contiguous period (t-1,t], and one common fixed reference-price Laspeyres valuation in CAD_ref. K0,K1 are endpoint stock volumes expressed at reference prices. I,D,O are integrated period amounts on that same basis, not instantaneous rates, annualized flows or current-price CFC. Economic depreciation D includes normal deterioration/obsolescence/ordinary accidental damage; O is separately classified other disappearance, avoiding double counting.",
+          "domain": "Finite nonnegative removal; not tax/book depreciation or current-price CFC."
+        },
+        {
+          "symbol": "O",
+          "source_symbol": "O^K(t)",
+          "role": "input",
+          "quantity_id": "fixed_capital_other_disappearance_reference_price",
+          "definition": "Integrated other disappearance volume, such as exceptional catastrophe loss, excluded from D.",
+          "unit": "CAD_ref",
+          "dimensions": "reference_currency",
+          "context": "Same fixed-capital asset population, ownership/sector/geographic boundary, contiguous period (t-1,t], and one common fixed reference-price Laspeyres valuation in CAD_ref. K0,K1 are endpoint stock volumes expressed at reference prices. I,D,O are integrated period amounts on that same basis, not instantaneous rates, annualized flows or current-price CFC. Economic depreciation D includes normal deterioration/obsolescence/ordinary accidental damage; O is separately classified other disappearance, avoiding double counting.",
+          "domain": "Finite nonnegative removal in this profile; positive appearances and sector reclassifications need separate accounting."
+        },
+        {
+          "symbol": "K1",
+          "source_symbol": "S^K(t)",
+          "role": "output",
+          "quantity_id": "fixed_capital_net_stock_reference_price",
+          "definition": "Closing net fixed-capital stock volume on the same reference-price basis and asset/ownership boundary.",
+          "unit": "CAD_ref",
+          "dimensions": "reference_currency",
+          "context": "Same fixed-capital asset population, ownership/sector/geographic boundary, contiguous period (t-1,t], and one common fixed reference-price Laspeyres valuation in CAD_ref. K0,K1 are endpoint stock volumes expressed at reference prices. I,D,O are integrated period amounts on that same basis, not instantaneous rates, annualized flows or current-price CFC. Economic depreciation D includes normal deterioration/obsolescence/ordinary accidental damage; O is separately classified other disappearance, avoiding double counting.",
+          "domain": "Finite nonnegative under account-consistency guard; a negative stock signals incompatible flow inputs."
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "K0 >= 0",
+        "D >= 0",
+        "O >= 0",
+        "K0 + I - D - O >= 0"
+      ],
+      "assumptions": [
+        "Source equation: all components are Laspeyres volume measures; stock endpoints bracket the exact period over which flows accumulate.",
+        "Source classification: consumption of fixed capital is economic depreciation, while other disappearance includes separately classified exceptional loss.",
+        "Application profile: nonnegative stock and removals, with no omitted positive appearances or reclassifications; signed investment follows matching acquisition/disposal convention."
+      ],
+      "limitations": [
+        "Does not estimate D, choose an asset life/depreciation function, predict investment or infer catastrophe losses.",
+        "Cannot apply directly to mixed historical prices, nominal/current-price balances or independently chained nonadditive measures; revaluation and omitted volume changes need separate accounts."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "statcan-capital-stock",
+          "kind": "primary",
+          "title": "Statistics Canada: Chapter7 Price and volume measures",
+          "url": "https://www150.statcan.gc.ca/n1/pub/13-606-g/2016001/article/14622-eng.htm",
+          "version": "User Guide: Canadian System of Macroeconomic Accounts, catalogue13-606-G, 2016; HTML date modified2024-04-12, inspected2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Section7.5.1, equation(7.18) and immediately following definitions; distinction from historical-cost/tax depreciation",
+          "evidence": "The fixed-capital volume balance adds period investment to opening stock and subtracts economic depreciation and other disappearance, including exceptional weather losses. All four components have the superscript K denoting Laspeyres volume measures.",
+          "license": "Statistics Canada Open Licence, https://www.statcan.gc.ca/en/terms-conditions/open-licence and ownership section https://www.statcan.gc.ca/en/terms-conditions, directly inspected 2026-11-01. Covers agency-owned publications and adaptations, including commercial reuse, subject to accuracy, attribution, no endorsement, privacy, third-party and official-symbol exceptions; no warranty.",
+          "redistribution": "Adapted from Statistics Canada, User Guide: Canadian System of Macroeconomic Accounts, Chapter 7 Price and volume measures, 2016 edition, page modified 2024-04-12. This does not constitute an endorsement by Statistics Canada of this product. No source pages, graphics or logos returned."
+        }
+      ],
+      "references": [
+        {
+          "id": "independent-surviving-cohorts",
+          "inputs": {
+            "K0": 100,
+            "I": 25,
+            "D": 10,
+            "O": 20
+          },
+          "expected": 95,
+          "tolerance": 1E-12,
+          "method": "Independent cohort enumeration: opening cohorts A70,B30; normal decline7 and3 leaves A63,B27; separately identified catastrophe removes20 from B, leaving7; new investment cohort25 survives fully. Closing inventory63+7+25=95, independently assembled by surviving cohorts rather than reordering aggregate balance.",
+          "provenance": "Curator synthetic fixed-reference CAD asset-cohort ledger; no empirical depreciation rate claimed."
+        },
+        {
+          "id": "net-disposal-cohort",
+          "inputs": {
+            "K0": 100,
+            "I": -30,
+            "D": 5,
+            "O": 0
+          },
+          "expected": 65,
+          "tolerance": 1E-12,
+          "method": "Independent surviving-asset inventory: opening asset A30 sold intact and removed from this ownership boundary; asset B70 suffers normal decline5 and closes65. No other assets remain. Signed investment-30 reflects the disposal; closing65 independently counted.",
+          "provenance": "Curator synthetic ownership-consistent asset-disposal ledger."
+        },
+        {
+          "id": "fully-consumed-boundary",
+          "inputs": {
+            "K0": 10,
+            "I": 0,
+            "D": 10,
+            "O": 0
+          },
+          "expected": 0,
+          "tolerance": 1E-12,
+          "method": "Admitted accounting boundary: the sole opening asset is fully economically consumed by the end of the interval, with no replacement or exceptional loss; closing asset stock is zero.",
+          "provenance": "Curator boundary, not a zero-lifetime approximation."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "K0": 10,
+            "I": 0,
+            "D": 8,
+            "O": 3
+          },
+          "reason": "Would remove more fixed-capital volume than available and imply negative closing stock."
+        },
+        {
+          "kind": "missing-input",
+          "inputs": {
+            "K0": 10,
+            "I": 0,
+            "D": 1
+          },
+          "reason": "Other disappearance missing; cannot silently assume absent catastrophic or other removals."
+        }
+      ],
+      "inverse_notes": "Unique additive inverses with the other four quantities known: K0=K1-I+D+O; I=K1-K0+D+O; D=K0+I-O-K1; O=K0+I-D-K1. No division or root; retain K0,K1,D,O>=0, signed I and compatible account classifications. Cohort case K195,K0100,D10,O20 gives I25; forward95. Net-disposal case K165,K0100,D5,O0 gives I-30; forward65. At K1=0 the balance K0+I=D+O is nonsingular for a single unknown, but without separate D/O measurements it cannot allocate ordinary versus exceptional loss. Zero opening stock is allowed when current-period investment supplies nonnegative closing stock/removals.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "New fixed-reference CAD volume and capital-account meanings. b03 current-price consumption_of_fixed_capital cannot bind to D without a separately supported valuation conversion; endpoint stock quantity repeats with different time context.",
+          "Source's Eq7.19 depreciation function f and average-life calibration are not executable inputs here; they are deferred, not filled with guessed constants."
+        ],
+        "duplicate_of": []
+      }
+    },
+    {
+      "id": "economics--identical-product-mean-transaction-price",
+      "revision": "r1",
+      "title": "Quantity-weighted mean price of an identical product",
+      "summary": "Average observed transaction unit value defined by total transaction value over corresponding total quantity. Prices may differ between transactions, while the product and additive quantity unit remain identical.",
+      "kind": "definition",
+      "relationship": {
+        "output_symbol": "pbar",
+        "expression": "V / Q",
+        "original_equation": "P_bar = V_bar/Q_bar = sum_i p_i q_i / sum_i q_i.",
+        "source_id": "statcan-unit-value",
+        "locator": "Section7.2 equation(7.4), with aggregate definitions(7.2),(7.3)",
+        "translation_notes": "Local pbar,V,Q map source barred P,V,Q. Vector sums are not evaluated by this scalar model: V and Q must be independently aggregated over the same transaction set. Dimensions CAD/U=currency U^-1. Source supports the weighted-mean interpretation only for identical products; adding heterogeneous quantities would destroy it. Application profile nonnegative transaction quantities and prices admits free transactions, excludes net-return/negative-weight aggregates. This named mean price is not a new solve direction of a constant-price revenue equation: individual transaction prices can differ and output is the quantity-weighted aggregate."
+      },
+      "variables": [
+        {
+          "symbol": "V",
+          "source_symbol": "V_bar",
+          "role": "input",
+          "quantity_id": "identical_product_transaction_value",
+          "definition": "Total actual value of the identical-product transactions in the declared interval and valuation basis.",
+          "unit": "CAD",
+          "dimensions": "currency",
+          "context": "Same set of actual transactions in one identical, quality-consistent product/service, common additive physical unit and CAD transaction valuation/boundary, across the declared observation interval. V aggregates transaction values and Q aggregates matching purchased/sold quantities; each transaction quantity is nonnegative and Q>0. This is a quantity-weighted transaction mean, not average production cost, a quoted fixed price, or an index spanning different products.",
+          "domain": "Finite nonnegative in nonnegative-price transaction profile."
+        },
+        {
+          "symbol": "Q",
+          "source_symbol": "Q_bar",
+          "role": "input",
+          "quantity_id": "identical_product_transacted_quantity",
+          "definition": "Total additive quantity of the identical product across exactly the transactions counted in V.",
+          "unit": "unit",
+          "dimensions": "U",
+          "context": "Same set of actual transactions in one identical, quality-consistent product/service, common additive physical unit and CAD transaction valuation/boundary, across the declared observation interval. V aggregates transaction values and Q aggregates matching purchased/sold quantities; each transaction quantity is nonnegative and Q>0. This is a quantity-weighted transaction mean, not average production cost, a quoted fixed price, or an index spanning different products.",
+          "domain": "Finite strictly positive, with nonnegative component transaction quantities."
+        },
+        {
+          "symbol": "pbar",
+          "source_symbol": "P_bar",
+          "role": "output",
+          "quantity_id": "quantity_weighted_mean_transaction_price",
+          "definition": "Observed transaction-price mean weighted by corresponding transacted quantities.",
+          "unit": "CAD/unit",
+          "dimensions": "currency U^-1",
+          "context": "Same set of actual transactions in one identical, quality-consistent product/service, common additive physical unit and CAD transaction valuation/boundary, across the declared observation interval. V aggregates transaction values and Q aggregates matching purchased/sold quantities; each transaction quantity is nonnegative and Q>0. This is a quantity-weighted transaction mean, not average production cost, a quoted fixed price, or an index spanning different products.",
+          "domain": "Finite nonnegative; zero if all positive-quantity transactions are free."
+        }
+      ],
+      "constants": [],
+      "guards": [
+        "V >= 0",
+        "Q > 0"
+      ],
+      "assumptions": [
+        "Source restriction: all transactions pertain to an identical product with an additive common quantity unit.",
+        "Application profile: nonnegative quantities and prices, same currency/transaction valuation, no net-return or negative-weight aggregation."
+      ],
+      "limitations": [
+        "Not an aggregate price level for heterogeneous goods, average unit production cost or a forecast selling price.",
+        "Changes in transaction composition can change this average; a comparison over time requires identical quality and appropriately matched scope, and is not automatically a pure-price index."
+      ],
+      "unresolved": [],
+      "sources": [
+        {
+          "id": "statcan-unit-value",
+          "kind": "primary",
+          "title": "Statistics Canada: Chapter7 Price and volume measures",
+          "url": "https://www150.statcan.gc.ca/n1/pub/13-606-g/2016001/article/14622-eng.htm",
+          "version": "User Guide: Canadian System of Macroeconomic Accounts, catalogue13-606-G, 2016; HTML date modified2024-04-12, inspected2026-11-01",
+          "accessed": "2026-11-01",
+          "locator": "Section7.2, equations(7.2)-(7.4), identical-product restriction and quantity-weighted price definition",
+          "evidence": "For transactions in an identical product, aggregate price is total transaction value divided by total quantity, equivalently the quantity-weighted mean transaction price. Noncommensurable products require index methods instead.",
+          "license": "Statistics Canada Open Licence, https://www.statcan.gc.ca/en/terms-conditions/open-licence and ownership section https://www.statcan.gc.ca/en/terms-conditions, directly inspected 2026-11-01. Covers agency-owned publications and adaptations, including commercial reuse, subject to accuracy, attribution, no endorsement, privacy, third-party and official-symbol exceptions; no warranty.",
+          "redistribution": "Adapted from Statistics Canada, User Guide: Canadian System of Macroeconomic Accounts, Chapter 7 Price and volume measures, 2016 edition, page modified 2024-04-12. This does not constitute an endorsement by Statistics Canada of this product. No source pages, graphics or logos returned."
+        }
+      ],
+      "references": [
+        {
+          "id": "independent-weighted-prices",
+          "inputs": {
+            "V": 10,
+            "Q": 4
+          },
+          "expected": 2.5,
+          "tolerance": 1E-12,
+          "method": "Independent quantity-share route: three units at2 CAD and one at4 have shares.75,.25; mean .75*2+.25*4=2.5. Aggregate invoices separately give V6+4=10,Q3+1=4. Oracle uses source-supported weighted-price representation, not re-evaluating V/Q.",
+          "provenance": "Curator synthetic invoice/quantity-share ledger."
+        },
+        {
+          "id": "mixed-free-paid-transactions",
+          "inputs": {
+            "V": 12,
+            "Q": 4
+          },
+          "expected": 3,
+          "tolerance": 1E-12,
+          "method": "Independent weighted-price route: two identical units free and two at6 have shares.5,.5, giving0*.5+6*.5=3; invoice value12 and quantity4 are aggregated separately.",
+          "provenance": "Curator synthetic alternative-price ledger, no tax/quality differences."
+        },
+        {
+          "id": "all-free-boundary",
+          "inputs": {
+            "V": 0,
+            "Q": 4
+          },
+          "expected": 0,
+          "tolerance": 1E-12,
+          "method": "Each of four observed identical units has zero price, so every positive quantity weight multiplies zero. Average zero is defined because quantity is positive.",
+          "provenance": "Curator free-transaction boundary."
+        }
+      ],
+      "rejection_cases": [
+        {
+          "kind": "domain",
+          "inputs": {
+            "V": 0,
+            "Q": 0
+          },
+          "reason": "Empty/zero-quantity aggregate has no transaction mean; zero value does not resolve it."
+        },
+        {
+          "kind": "domain",
+          "inputs": {
+            "V": -1,
+            "Q": 4
+          },
+          "reason": "Negative aggregate value outside declared nonnegative-price profile."
+        }
+      ],
+      "inverse_notes": "V=pbar*Q for pbar>=0,Q>0, unique. Q=V/pbar requires pbar>0,V>0 to recover a positive quantity; retain the identical transaction-set context. Check pbar2.5,Q4 recovers V10; V10,pbar2.5 recovers Q4, forward2.5. At pbar=V=0 any Q>0 fits; pbar0,V>0 is inconsistent. If V0,pbar>0, inversion gives excluded Q0. Inversion does not recover the distribution of individual transaction prices or a causal price/quantity relation.",
+      "integration": {
+        "status": "requires-extension",
+        "runtime_model": null,
+        "gaps": [
+          "New CAD and mean-transaction-price meanings, with transaction quantity distinct from produced quantity. Same dimensions as unit cost do not justify binding those meanings."
+        ],
+        "duplicate_of": []
+      }
+    }
+  ],
+  "schema_version": "cm-curation-batch/1"
+}

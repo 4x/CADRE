@@ -116,6 +116,24 @@ class QueryTests(unittest.TestCase):
                 "sells for $50 per unit",
             )
 
+    def test_fx_quote_phrasing_reads_usd_per_eur(self) -> None:
+        """'1.12 dollars per euro' agrees with USD per EUR instead of misreading as USD."""
+        for literal, unit, quote in (
+            ("1.12", "USD per EUR", "1.12 dollars per euro"),
+            ("1.12", "USD per EUR", "1.12 dollar per euro"),
+            ("1.12", "USD per EUR", "1.12 USD/EUR"),
+            ("1.12", "USD per EUR", "1.12 USD per EUR"),
+            ("1.12", "price_currency_per_base_currency", "EUR/USD at 1.12"),
+        ):
+            with self.subTest(quote=quote):
+                fact = validate_fact(self.fact(literal, unit, quote), quote)
+                self.assertEqual(fact["unit"], unit)
+        with self.assertRaisesRegex(ModelError, "unit contradicts"):
+            validate_fact(
+                self.fact("1.12", "EUR", "1.12 dollars per euro"),
+                "1.12 dollars per euro",
+            )
+
     def test_ambiguous_question_is_saved_without_composition(self) -> None:
         """Conflicting user statements need clarification; no preset fills the gap."""
         with scratch_directory() as folder:

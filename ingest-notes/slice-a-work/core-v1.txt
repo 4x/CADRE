@@ -1,0 +1,458 @@
+##### BATCH financial-analysis-cfa-l3-v1-b01
+##### financial-analysis--grinold-kroner-equity-expected-return rev=r1 kind=theoretical
+EXPR: dy + (gE - gS) + gPE
+ORIG: E(Re) ? D/P + (%?E ? %?S) + %?P/E
+NOTES: Source expresses rates as percentages; record uses decimal form (unit 1), so 2% is 0.02 with no conversion factor in the expression. dy is dividend yield D/P; gE total earnings growth %?E; gS shares-outstanding growth %?S (negative under net buybacks); gPE P/E repricing %?P/E. The ? reflects approximation, not a fitted residual. Dimensional check: all terms dimensionless rates, sum is a dimensionless rate.
+REF income-plus-growth-plus-repricing: exp=0.075 tol=1e-09 method=[Direct substitution: 0.02 + (0.04 ? (?0.01)) + 0.005 = 0.075. Independently constructed arithmetic check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REF zero-boundary: exp=0 tol=1e-09 method=[All-zero inputs give zero expected return by direct substitution.] prov=[Definitional boundary check; not an empirical validation]
+REJ missing-input: inputs={"dy": 0.02, "gE": 0.04} -- Repricing return and share-change terms are required inputs; a partial input set cannot determine ERe.
+GUARDS: 
+VARS: dy/input/1/dimensionless def=[Dividend yield: current dividends per share divided by price, in decimal form] ; gE/input/1/dimensionless def=[Expected percentage change in total earnings over the horizon, in decimal form] ; gS/input/1/dimensionless def=[Expected percentage change in shares outstanding; negative under net share repurchases, in decimal form] ; gPE/input/1/dimensionless def=[Expected percentage change in the price-to-earnings ratio (repricing return), in decimal form] ; ERe/output/1/dimensionless def=[Expected equity market return over the horizon, in decimal form]
+ASSUME: The decomposition applies to a broad equity market over the stated forecast horizon with consistent timing of yield, growth, and repricing terms. | Source assumption: repurchases are captured through the change in shares outstanding, so (gE ? gS) is EPS growth.
+LIMIT: Approximate identity (source uses ?); compounding interactions between components over long horizons are not modeled. | Excludes taxes, fees, and implementation shortfall; not investment advice.
+INV: Linear in each input: dy = ERe ? (gE ? gS) ? gPE; gE = ERe ? dy + gS ? gPE; gS = gE ? (ERe ? dy ? gPE); gPE = ERe ? dy ? (gE ? gS). No singularities (no division). Substitution check: ERe=0.075 with dy=0.02, gE=0.04, gS=?0.01 recovers gPE=0.005. Algebraic inversion only; causal interpretation of repricing is not established by inversion.
+UNRES: 
+
+##### financial-analysis--real-estate-long-run-expected-return-cap-rate rev=r1 kind=theoretical
+EXPR: cap + gNOI
+ORIG: E(Rre) = Cap rate + NOI growth rate
+NOTES: Source expresses rates as percentages; record uses decimal form (unit 1) with no conversion factor inlined. Cap rate is current-period NOI divided by property value. Long-run steady-state NOI growth is reasonably close to GDP growth per the source. Dimensional check: dimensionless + dimensionless = dimensionless rate.
+REF published-9pt3-solution: exp=0.093 tol=1e-09 method=[Source's stated inputs (4.70% cap rate, 4.60% NOI growth) converted to decimals and added: 0.047 + 0.046 = 0.093.] prov=[Published result: LM2 Solutions (printed p. 129) gives E(Rre) = 4.70% + 4.60% = 9.30%]
+REF constructed-mid-yield: exp=0.075 tol=1e-09 method=[Direct substitution: 0.055 + 0.02 = 0.075. Independently constructed arithmetic check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REJ missing-input: inputs={"cap": 0.05} -- NOI growth rate is a required input; cap rate alone cannot determine expected return.
+GUARDS: 
+VARS: cap/input/1/dimensionless def=[Capitalization rate: current-period net operating income divided by property value, in decimal form] ; gNOI/input/1/dimensionless def=[Constant long-run steady-state growth rate of net operating income, in decimal form] ; ERre/output/1/dimensionless def=[Long-run expected (required) rate of return on commercial real estate, in decimal form]
+ASSUME: Source assumption: NOI grows at a constant rate in perpetuity (Gordon growth applied to property). | Steady-state horizon; anticipated cap-rate change is zero over the long run.
+LIMIT: Long-run steady state only; finite-horizon repricing from cap-rate change requires the companion cap-rate-change record. | A portion of operating income may be reinvested, so the cap rate is not strictly a cash flow yield (per source note).
+INV: Linear inverses: cap = ERre ? gNOI; gNOI = ERre ? cap. No singularities. Substitution check: ERre=0.093 with gNOI=0.046 recovers cap=0.047. Inversion is algebraic; Gordon-model growth-below-discount validity still applies. Do not publish rearrangements as separate records.
+UNRES: 
+
+##### financial-analysis--real-estate-finite-horizon-expected-return-cap-rate-change rev=r1 kind=theoretical
+EXPR: cap + gNOI - dcap
+ORIG: E(Rre) = Cap rate + NOI growth rate ? %?Cap rate
+NOTES: Source expresses rates as percentages; record uses decimal form (unit 1). dcap is the relative (percentage) change in the cap rate over the horizon, e.g. (5.5?5.7)/5.7 ? ?0.035. A falling cap rate (negative dcap) raises expected return via price appreciation. Analogous to Grinold-Kroner repricing but with no share-buyback term, per source. Dimensional check: all dimensionless rates.
+REF published-industrial-11pt7: exp=0.117 tol=1e-09 method=[Source's stated rounded inputs: 5.7% cap, 1% + 1.5% = 2.5% NOI growth, (5.5?5.7)/5.7 ? ?3.5% cap change; 0.057 + 0.025 ? (?0.035) = 0.117.] prov=[Published result: LM2 Solutions (printed p. 134) gives 5.7% + 2.5% ? (?3.5%) = 11.7%, with inputs as rounded by the source]
+REF rising-cap-rate-drag: exp=0.07 tol=1e-09 method=[Direct substitution: 0.06 + 0.03 ? 0.02 = 0.07; a rising cap rate drags on return. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REJ missing-input: inputs={"cap": 0.057, "gNOI": 0.025} -- Anticipated cap-rate change is required for the finite-horizon form; without it only the long-run form applies.
+GUARDS: 
+VARS: cap/input/1/dimensionless def=[Capitalization rate at the start of the horizon: current-period NOI divided by property value, in decimal form] ; gNOI/input/1/dimensionless def=[Expected NOI growth rate over the horizon (nominal; real growth plus inflation where split), in decimal form] ; dcap/input/1/dimensionless def=[Anticipated relative change in the cap rate over the horizon (end minus start, divided by start), in decimal form] ; ERre/output/1/dimensionless def=[Expected rate of return on commercial real estate over the finite horizon, in decimal form]
+ASSUME: Finite horizon over which the cap rate moves from its starting level to the anticipated ending level. | NOI growth and cap-rate change are stated consistently (nominal terms) for the same horizon.
+LIMIT: Uses the source's additive approximation of NOI growth (real plus inflation) and rounded cap-rate change; exact compounding is not modeled. | No buyback-equivalent term exists for property (per source); do not force the equity Grinold-Kroner record onto real estate.
+INV: Linear inverses: cap = ERre ? gNOI + dcap; gNOI = ERre ? cap + dcap; dcap = cap + gNOI ? ERre. No singularities. Substitution check: ERre=0.117, cap=0.057, gNOI=0.025 recovers dcap=?0.035. Algebraic only; forecasting the cap-rate change itself is outside this record.
+UNRES: 
+
+##### financial-analysis--mean-variance-utility-certainty-equivalent-decimal rev=r1 kind=theoretical
+EXPR: ERm - 0.5 * lam * sig ** 2
+ORIG: Um = E(Rm) ? 0.005 ? ?m? (percent form); = E(Rm) ? 0.5 ? ?m? in decimals
+NOTES: Source Eq. 1 uses 0.005 because E(Rm) and ?m are entered as percentages with % signs omitted (e.g. 10.0, 20). Record uses decimal form (unit 1), so the scale factor is 0.5 per the source's own decimal restatement: 0.10 ? 0.5(2)(0.04) = 0.06. The 0.5 is a pure arithmetic scaling literal explained here, not an inlined unit conversion. Dimensional check: dimensionless ? (dimensionless ? dimensionless?) = dimensionless.
+REF published-decimal-example: exp=0.06 tol=1e-09 method=[Source's decimal restatement: 0.10 ? 0.5(2)(0.04) = 0.06. Direct substitution matches.] prov=[Published result: LM4 text, printed p. 200 (PDF p. 210)]
+REF published-allocation-c: exp=0.05 tol=1e-09 method=[Example 1 allocation C (5.25% return, 5% volatility, ?=2) converted to decimals: 0.0525 ? 0.5?2?0.0025 = 0.05, matching the published UC = 5.0%.] prov=[Published result: LM4 Example 1, printed p. 207 (PDF p. 217), with documented percent-to-decimal conversion]
+REJ domain: inputs={"ERm": 0.1, "lam": -2, "sig": 0.2} -- Negative risk aversion contradicts the stated risk-averse penalty framing (guard lam >= 0); risk-seeking preferences need a different model.
+REJ missing-input: inputs={"ERm": 0.1, "lam": 2} -- Volatility is a required input; expected return and risk aversion alone cannot determine utility.
+GUARDS: lam >= 0 | sig >= 0
+VARS: ERm/input/1/dimensionless def=[Expected return of asset mix m over the single-period horizon, in decimal form] ; lam/input/1/dimensionless def=[Investor risk aversion coefficient: rate at which the investor forgoes expected return for less variance] ; sig/input/1/dimensionless def=[Expected standard deviation of return for asset mix m, in decimal form] ; Um/output/1/dimensionless def=[Investor utility (certainty-equivalent return) of asset mix m, in decimal form]
+ASSUME: Single-period mean?variance framework: utility depends only on expected return and variance of the asset mix. | Source assumption: decimal inputs use the 0.5 scaling; percent inputs would use 0.005 with % signs omitted.
+LIMIT: Captures only mean?variance preferences; skewness, kurtosis, and non-variance risk notions (e.g. shortfall probability) are excluded ? the source pairs this with a separate safety-first ratio. | The risk aversion coefficient must be estimated separately; the equation does not determine it.
+INV: ERm = Um + 0.5?lam?sig? always; lam = 2?(ERm ? Um)/sig? requires sig ? 0 (if sig = 0 then Um = ERm and lam is undetermined); sig = sqrt(2?(ERm ? Um)/lam) requires lam > 0 and ERm ? Um. Substitution check: Um=0.06, lam=2, sig=0.2 recovers ERm=0.10. Algebraic only; risk aversion is estimated, not caused, by inversion.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v1-b02
+##### financial-analysis--singer-terhaar-risk-premium-blend rev=r1 kind=theoretical
+EXPR: phi * RPiG + (1 - phi) * RPiS
+ORIG: RPi = ? RPiG + (1 ? ?) RPiS
+NOTES: Source expresses rates as percentages; record uses decimal form (unit 1) with no conversion factor inlined. phi is the degree of global integration (1 = fully integrated). Component premiums RPiG (Eq. 4) and RPiS (Eq. 5) are curated as separate companion records. Dimensional check: dimensionless weights times dimensionless premiums, sum is a dimensionless premium.
+REF published-german-shares: exp=0.03927 tol=1e-06 method=[Source inputs (3.57% integrated, 5.95% segmented, phi 0.85) in decimals: 0.85?0.0357 + 0.15?0.0595 = 0.03927, matching published 3.93% to stated rounding.] prov=[Published result: LM2 worked example, printed p. 89 (PDF p. 99)]
+REF published-german-bonds: exp=0.01155 tol=1e-06 method=[Source inputs (1.05% integrated, 1.75% segmented, phi 0.85) in decimals: 0.85?0.0105 + 0.15?0.0175 = 0.01155, matching published 1.16% to stated rounding.] prov=[Published result: LM2 worked example, printed p. 89 (PDF p. 99)]
+REJ domain: inputs={"phi": 1.2, "RPiG": 0.0357, "RPiS": 0.0595} -- Integration degree above 1 violates the closed-interval domain (guard phi <= 1); extrapolation beyond full integration needs a different model.
+REJ missing-input: inputs={"phi": 0.85, "RPiG": 0.0357} -- Segmented-market premium is a required input; the blend cannot be formed from the integrated component alone.
+GUARDS: phi >= 0 | phi <= 1
+VARS: phi/input/1/dimensionless def=[Degree to which the asset's market is globally integrated, from 0 (fully segmented) to 1 (fully integrated)] ; RPiG/input/1/dimensionless def=[Risk premium under full global integration (global-CAPM component, Eq. 4), in decimal form] ; RPiS/input/1/dimensionless def=[Risk premium under complete segmentation (asset as its own market, Eq. 5), in decimal form] ; RPi/output/1/dimensionless def=[Final Singer-Terhaar risk premium estimate for asset i, in decimal form; expected return adds the risk-free rate]
+ASSUME: The analyst supplies phi as a judgment about integration (source suggests 0.75?0.90 for developed, 0.50?0.75 for emerging markets as starting points). | Source assumption: pragmatic implementation sets all Sharpe ratios equal to the global Sharpe ratio.
+LIMIT: phi is a judgmental input, not estimated by the model; results are sensitive to it. | A more complex variant allowing within-country asset-class integration (per source footnote 14) is outside this record.
+INV: Linear in each premium: RPiG = (RPi ? (1?phi)?RPiS)/phi requires phi ? 0; RPiS = (RPi ? phi?RPiG)/(1?phi) requires phi ? 1; phi = (RPi ? RPiS)/(RPiG ? RPiS) requires distinct components. Boundary phi=0 (fully segmented) and phi=1 (fully integrated) are admissible and collapse to one component. Algebraic only; phi remains a judgment, not an estimated quantity.
+UNRES: 
+
+##### financial-analysis--capm-beta-correlation-volatility rev=r1 kind=theoretical
+EXPR: rho * sigi / sigm
+ORIG: ?i,M = Cov(Ri, RM) / Var(RM) = ?i,M (?i / ?M)
+NOTES: Curated form is the second equality of Eq. 3 (correlation form), which uses only volatilities and correlation rather than covariance/variance moments. sigi and sigm must share the same return-volatility units (unit 1, decimal form). Dimensional check: dimensionless correlation times ratio of two identical volatility dimensions = dimensionless beta.
+REF published-beta-example: exp=0.771428571 tol=1e-06 method=[Corroborating source's worked example recomputed: 0.6 ? 0.18/0.14 = 0.7714 (source rounds to 0.77).] prov=[Published result: AnalystPrep beta article Example 1, with documented rounding]
+REF perfect-tracking-boundary: exp=1 tol=1e-09 method=[Perfectly correlated equal volatilities give beta 1 by direct substitution. Independently constructed boundary check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REJ domain: inputs={"rho": 0.6, "sigi": 0.18, "sigm": 0} -- Zero market volatility makes beta undefined (guard sigm > 0); a degenerate constant market needs a different treatment.
+GUARDS: sigm > 0 | sigi >= 0
+VARS: rho/input/1/dimensionless def=[Correlation between asset i returns and market portfolio returns] ; sigi/input/1/dimensionless def=[Standard deviation of asset i returns, in decimal form] ; sigm/input/1/dimensionless def=[Standard deviation of market portfolio returns, in decimal form] ; beta/output/1/dimensionless def=[Asset i sensitivity to the market portfolio (CAPM beta)]
+ASSUME: Asset and market volatilities are estimated over the same window and in consistent return units. | Source assumption (CAPM framing): beta measures sensitivity to the stated market portfolio.
+LIMIT: Point estimate conditional on the estimation window; sampling error in correlation and volatilities is not modeled here. | The covariance/variance moment form (first equality of Eq. 3) is an equivalent restatement, not a separate record.
+INV: rho = beta?sigm/sigi requires sigi ? 0; sigi = beta?sigm/rho requires rho ? 0; sigm = rho?sigi/beta requires beta ? 0. The covariance form ? = Cov/Var is an equivalent restatement of the same relationship, not a separate model. Algebraic only; correlation is estimated, not caused, by inversion.
+UNRES: 
+
+##### financial-analysis--building-block-fixed-income-expected-return rev=r1 kind=definition
+EXPR: rf + tp + cp + lp
+ORIG: Required return = one-period default-free rate + term premium + credit premium + liquidity premium
+NOTES: Source states the four components in prose (premiums compensate interest-rate/duration, credit, and illiquidity risk); record formalizes the stated sum. Decimal form (unit 1) with no conversion factor. Dimensional check: sum of four dimensionless rates.
+REF published-corporate-bond: exp=0.033 tol=1e-09 method=[Source's stated inputs (1%, 1%, 0.75%, 0.55%) in decimals: 0.01 + 0.01 + 0.0075 + 0.0055 = 0.033.] prov=[Published result: LM2 Solutions Q1 (printed p. 129) gives 3.3% for the 10-year corporate bond]
+REF published-one-year-gov: exp=0.01 tol=1e-09 method=[Source's 1-year government bond: 1 + 0 = 1%, i.e. 0.01 + 0 + 0 + 0 = 0.01.] prov=[Published result: LM2 Solutions Q1 (printed p. 129) gives 1%]
+REJ missing-input: inputs={"rf": 0.01, "tp": 0.01} -- Credit and liquidity premiums are required components; a partial sum misstates the defined required return.
+GUARDS: 
+VARS: rf/input/1/dimensionless def=[One-period (short-term) default-free rate matching the forecast horizon, in decimal form] ; tp/input/1/dimensionless def=[Additional expected return for duration/interest-rate risk, in decimal form] ; cp/input/1/dimensionless def=[Additional expected return for bearing default losses beyond expected loss levels, in decimal form] ; lp/input/1/dimensionless def=[Additional expected return for illiquidity, in decimal form] ; ER/output/1/dimensionless def=[Building-block required/expected return for the fixed-income asset class, in decimal form]
+ASSUME: Premiums are stated consistently (same horizon, same compounding) and only the short-term default-free rate is potentially observable; the rest are estimated. | Forecast horizons much longer than the short instrument need the source's maturity-matching adjustment (outside this sum).
+LIMIT: Premiums are embedded in yield spreads but do not equal observed spreads (per source); estimating them is outside this definitional sum. | In extreme cases (e.g. negative policy rates) the source advises normalizing the short rate or raising a premium rather than using the raw observation.
+INV: Linear in each component: rf = ER ? tp ? cp ? lp, and symmetrically for each premium. No singularities. Algebraic only; decomposing an observed spread into these premiums requires additional structure per the source.
+UNRES: 
+
+##### financial-analysis--net-exports-saving-investment-identity rev=r1 kind=definition
+EXPR: (S - I) + TS
+ORIG: (X ? M) = (S ? I) + (T ? G)
+NOTES: TS is introduced for the source symbol (T ? G) and defined as the government surplus. All amounts are levels in the same domestic currency unit over the same accounting period. Dimensional check: currency ? currency + currency = currency. Record uses USD as the single-currency unit label; the identity holds in any single currency.
+REF surplus-with-trade-surplus: exp=100 tol=1e-09 method=[Direct substitution: (1200 ? 1150) + 50 = 100. Independently constructed arithmetic check in a single currency unit.] prov=[Independent arithmetic check constructed for this record; no observed national-accounts data claimed]
+REF balanced-accounts-zero: exp=0 tol=1e-09 method=[Balanced private saving/investment with balanced budget gives zero net exports by substitution.] prov=[Definitional boundary check; not an empirical validation]
+REJ missing-input: inputs={"S": 1200, "I": 1150} -- Government surplus is a required term of the identity; private saving gap alone cannot determine net exports.
+GUARDS: 
+VARS: S/input/USD/currency def=[Domestic private saving (excess of private saving over the stated period)] ; I/input/USD/currency def=[Domestic private investment spending over the stated period] ; TS/input/USD/currency def=[Government surplus: tax revenue minus government spending over the stated period; negative when in deficit] ; NX/output/USD/currency def=[Net exports: exports minus imports over the stated period]
+ASSUME: Standard national income accounting with consistent period, economy, and a single currency unit throughout. | Net exports is the dominant current-account component in the source's framing; the identity itself is exact by construction.
+LIMIT: Accounting identity only: it constrains joint movements but does not establish causation between saving, fiscal balance, and trade. | Reversing all signs gives the capital-account mirror statement (per source); that restatement is not a separate record.
+INV: Linear in each term: S = NX + I ? TS; I = S + TS ? NX; TS = NX ? S + I. No singularities. Algebraic only; the identity does not identify which component adjusts when another changes.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v1-b03
+##### financial-analysis--singer-terhaar-integrated-risk-premium rev=r1 kind=theoretical
+EXPR: rho * sigi * SRgm
+ORIG: RPiG = ?i,GM RPGM = ?i,GM ?i (RPGM / ?GM)
+NOTES: Curated form is the rightmost equality of Eq. 4, using the global Sharpe ratio SRgm = RPGM/?GM directly as an input. Decimal form (unit 1). The middle beta form is an equivalent restatement, not a separate record. Dimensional check: dimensionless ? dimensionless ? dimensionless = dimensionless premium.
+REF published-german-shares-integrated: exp=0.0357 tol=1e-06 method=[Source inputs in decimals: 0.70 ? 0.17 ? 0.30 = 0.0357, matching published 3.57%.] prov=[Published result: LM2 worked example, printed p. 89 (PDF p. 99)]
+REF published-german-bonds-integrated: exp=0.0105 tol=1e-06 method=[Source inputs in decimals: 0.50 ? 0.07 ? 0.30 = 0.0105, matching published 1.05%.] prov=[Published result: LM2 worked example, printed p. 89 (PDF p. 99)]
+REJ missing-input: inputs={"rho": 0.7, "sigi": 0.17} -- Global Sharpe ratio is a required input; correlation and volatility alone cannot price the integrated premium.
+GUARDS: sigi >= 0
+VARS: rho/input/1/dimensionless def=[Correlation of asset i with the global market portfolio] ; sigi/input/1/dimensionless def=[Volatility of asset i, in decimal form] ; SRgm/input/1/dimensionless def=[Global market Sharpe ratio: global risk premium per unit of global market risk, in decimal form] ; RPiG/output/1/dimensionless def=[Risk premium for asset i under full global integration, in decimal form]
+ASSUME: Full integration: a single global market portfolio prices every asset via the CAPM. | Source assumption: pragmatic implementation sets compensation for non-diversifiable risk equal in every market (all Sharpe ratios equal the global one).
+LIMIT: Fully-integrated component only; partial integration requires the blend record from batch b02. | Correlation and volatilities are estimated inputs with sampling error not modeled here.
+INV: rho = RPiG/(sigi?SRgm) requires sigi?SRgm ? 0; sigi = RPiG/(rho?SRgm) requires rho?SRgm ? 0; SRgm = RPiG/(rho?sigi) requires rho?sigi ? 0. Zero correlation gives zero integrated premium (full diversification). Algebraic only; correlation is estimated, not caused, by inversion.
+UNRES: 
+
+##### financial-analysis--singer-terhaar-segmented-risk-premium rev=r1 kind=theoretical
+EXPR: sigi * SRiS
+ORIG: RPiS = 1 ? RPiS = 1 ? ?i (RPiS / ?i)
+NOTES: Curated form is the informative second equality of Eq. 5 (the first is an identity conveying no information, per the source). Decimal form (unit 1). Dimensional check: dimensionless ? dimensionless = dimensionless premium.
+REF published-german-shares-segmented: exp=0.0595 tol=1e-06 method=[Source inputs in decimals: 0.17 ? 0.35 = 0.0595, matching published 5.95%.] prov=[Published result: LM2 worked example, printed p. 89 (PDF p. 99)]
+REF published-german-bonds-segmented: exp=0.0175 tol=1e-06 method=[Source inputs in decimals: 0.07 ? 0.25 = 0.0175, matching published 1.75%.] prov=[Published result: LM2 worked example, printed p. 89 (PDF p. 99)]
+REJ missing-input: inputs={"sigi": 0.17} -- Segmented-market Sharpe ratio is a required input; volatility alone cannot determine the segmented premium.
+GUARDS: sigi >= 0
+VARS: sigi/input/1/dimensionless def=[Volatility (risk) of asset i, in decimal form] ; SRiS/input/1/dimensionless def=[Sharpe ratio (compensation per unit of risk) in the segmented market, in decimal form] ; RPiS/output/1/dimensionless def=[Risk premium for asset i under complete segmentation, in decimal form]
+ASSUME: Complete segmentation: each asset class in each country is priced in isolation (? = ? = 1 with itself). | The segmented Sharpe ratio is supplied by analyst judgment (source example uses 0.35 for German shares, 0.25 for German bonds).
+LIMIT: Fully-segmented component only; partial integration requires the blend record from batch b02. | Under segmentation the required premium could in principle be any value (per source); the volatility-times-Sharpe split is a framing, not a measurement.
+INV: sigi = RPiS/SRiS requires SRiS ? 0; SRiS = RPiS/sigi requires sigi ? 0. Zero volatility gives zero premium regardless of Sharpe ratio. Algebraic only; the segmented Sharpe ratio is judgmental per the source.
+UNRES: 
+
+##### financial-analysis--pension-surplus-market-value-less-liabilities rev=r1 kind=definition
+EXPR: MV - PVL
+ORIG: Surplus = Market value (assets) ? Present value (liabilities)
+NOTES: Both inputs are money levels at the same valuation date in the same currency; source works in USD billions. Negative surplus is underfunding. Dimensional check: currency ? currency = currency.
+REF published-lowtech-base-case: exp=0.239 tol=1e-09 method=[Source's USD-billion inputs: 2.500 ? 2.261 = 0.239, matching published US$0.239bn at the 4% discount rate.] prov=[Published result: LM4 LOWTECH example, printed p. 239 (PDF p. 249)]
+REF published-lowtech-low-rate: exp=-0.539 tol=0.001 method=[At the 2% discount rate the source reports surplus ?US$0.539bn on US$2.5bn assets, implying PVL 3.039bn; 2.5 ? 3.039 = ?0.539. Tolerance covers the source's rounded liability value.] prov=[Published result: LM4 LOWTECH example at 2% discount rate, printed p. 239 (PDF p. 249)]
+REJ missing-input: inputs={"MV": 2.5} -- Present value of liabilities is required; assets alone cannot determine funded status.
+GUARDS: 
+VARS: MV/input/USD/currency def=[Market value of the assets available against the liabilities at the valuation date] ; PVL/input/USD/currency def=[Present value of liability cash flows at the stated discount rate and valuation date] ; S/output/USD/currency def=[Surplus (funded status amount): positive when overfunded, negative when underfunded]
+ASSUME: Assets and liabilities are valued at the same date; liabilities use the stated discount rate assumption. | Source assumption: liability discount rates follow regulation/tradition and are highly assumption-dependent.
+LIMIT: Highly sensitive to the discount rate (source: 4% gives +0.239bn, 2% gives ?0.539bn for LOWTECH); the rate choice is outside this definitional record. | Money-amount form; the companion funding-ratio record gives the percentage form.
+INV: MV = S + PVL; PVL = MV ? S. No singularities. Substitution check: S=0.239 with PVL=2.261 recovers MV=2.500. Algebraic only; the economically substantive inverse (choice of discount rate) is outside this record.
+UNRES: 
+
+##### financial-analysis--pension-funding-ratio-assets-over-liabilities rev=r1 kind=definition
+EXPR: MV / PVL
+ORIG: Funding ratio = Market value (assets) / Present value (liabilities)
+NOTES: Pure ratio of two money levels in the same currency; result is dimensionless (unit 1). Fully funded at 1, overfunded above 1, underfunded below 1, per source. Dimensional check: currency/currency = dimensionless.
+REF published-lowtech-overfunded: exp=1.1057 tol=0.0001 method=[Source inputs: 2.5/2.261 = 1.10570, matching published 1.1057 (about 10.6% overfunded) to stated rounding.] prov=[Published result: LM4 LOWTECH example, printed p. 239 (PDF p. 249)]
+REF published-lowtech-underfunded: exp=0.8226 tol=0.001 method=[At the 2% discount rate the source reports funding ratio 0.8226 on US$2.5bn assets (implied PVL 3.039bn); 2.5/3.039 = 0.82264. Tolerance covers the rounded liability value.] prov=[Published result: LM4 LOWTECH example at 2% discount rate, printed p. 239 (PDF p. 249)]
+REJ domain: inputs={"MV": 2.5, "PVL": 0} -- Zero liability present value makes the ratio undefined (guard PVL > 0); a plan with no liabilities needs no funding measure.
+GUARDS: PVL > 0
+VARS: MV/input/USD/currency def=[Market value of the assets available against the liabilities at the valuation date (same definition as surplus record)] ; PVL/input/USD/currency def=[Present value of liability cash flows at the stated discount rate and valuation date (same definition as surplus record)] ; FR/output/1/dimensionless def=[Funding ratio: 1 fully funded, above 1 overfunded, below 1 underfunded]
+ASSUME: Assets and liabilities valued at the same date with the stated discount rate, same basis as the surplus record.
+LIMIT: Ratio form suppresses the money scale of over/underfunding; pair with the surplus record for absolute amounts. | Discount-rate sensitivity is inherited from the liability present value and is outside this definitional record.
+INV: MV = FR?PVL; PVL = MV/FR requires FR ? 0 (FR = 0 with MV > 0 is inadmissible since PVL > 0). Substitution check: FR=1.1057 with PVL=2.261 recovers MV?2.500. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v1-b04
+##### financial-analysis--surplus-optimization-objective-decimal rev=r1 kind=theoretical
+EXPR: ERs - 0.5 * lam * sigS ** 2
+ORIG: UmLR = E(Rs,m) ? 0.005 ? ??(Rs,m) (percent form); = E(Rs,m) ? 0.5 ? ??(Rs,m) in decimals
+NOTES: Source Eq. 2 uses 0.005 with percentage inputs (same convention as asset-only Eq. 1); record uses decimal form so the scale factor is 0.5, consistent with the source's own decimal restatement for Eq. 1. The 0.5 is a pure arithmetic scaling literal. Surplus return Rs,m = (change in asset value ? change in liability value)/(initial asset value). Dimensional check: dimensionless throughout.
+REF analogous-decimal-check: exp=0.07 tol=1e-09 method=[Direct substitution: 0.08 ? 0.5?2?0.01 = 0.07. Independently constructed check of the decimal scaling.] prov=[Independent arithmetic check constructed for this record; no observed plan data claimed]
+REF zero-volatility-boundary: exp=0.05 tol=1e-09 method=[Zero surplus volatility gives utility equal to expected surplus return by substitution.] prov=[Definitional boundary check; not an empirical validation]
+REJ domain: inputs={"ERs": 0.08, "lam": -1, "sigS": 0.1} -- Negative risk aversion contradicts the stated penalty framing (guard lam >= 0).
+REJ missing-input: inputs={"ERs": 0.08, "lam": 2} -- Surplus-return volatility is required; expected surplus return and risk aversion alone cannot determine the objective.
+GUARDS: lam >= 0 | sigS >= 0
+VARS: ERs/input/1/dimensionless def=[Expected surplus return for asset mix m over the horizon, in decimal form] ; lam/input/1/dimensionless def=[Investor risk aversion coefficient penalizing surplus-return volatility (same meaning as asset-only record)] ; sigS/input/1/dimensionless def=[Surplus-return volatility (standard deviation of surplus return) for mix m, in decimal form] ; UmLR/output/1/dimensionless def=[Surplus objective value (certainty equivalent of surplus return) for mix m, in decimal form]
+ASSUME: Surplus return is defined over the chosen horizon as asset change minus liability change per initial asset value; liability return captures time value plus expected discount-rate and cash-flow changes. | Single-period mean?variance framing applied to surplus rather than assets alone.
+LIMIT: Same algebraic form as the asset-only utility record (batch b01) but distinct scope; see integration gaps ? not a duplicate. | Correlation between assets and liabilities must be estimated (expanded matrix); estimation error is outside this record.
+INV: ERs = UmLR + 0.5?lam?sigS? always; lam = 2?(ERs ? UmLR)/sigS? requires sigS ? 0; sigS = sqrt(2?(ERs ? UmLR)/lam) requires lam > 0 and ERs ? UmLR. Substitution check: UmLR=0.07, lam=2, sigS=0.1 recovers ERs=0.08. Algebraic only.
+UNRES: 
+
+##### financial-analysis--safety-first-ratio rev=r1 kind=definition
+EXPR: (ERp - RL) / sigp
+ORIG: [E(RP) ? RL] / ?P
+NOTES: Decimal form (unit 1); RL is the threshold (minimum acceptable) return over the same horizon. Under a normal return assumption the ratio is the z-score-like distance whose maximization minimizes shortfall probability P(RP < RL). Dimensional check: (dimensionless ? dimensionless)/dimensionless = dimensionless.
+REF published-allocation-a: exp=0.25 tol=1e-09 method=[Source's allocation A in decimals: (0.10 ? 0.05)/0.20 = 0.25, matching published (10% ? 5%)/20% = 0.25.] prov=[Published result: LM4 Example 1, printed p. 207 (PDF p. 217)]
+REF published-allocation-b: exp=0.2 tol=1e-09 method=[Source's allocation B in decimals: (0.07 ? 0.05)/0.10 = 0.20, matching published (7% ? 5%)/10% = 0.20.] prov=[Published result: LM4 Example 1, printed p. 207 (PDF p. 217)]
+REJ domain: inputs={"ERp": 0.1, "RL": 0.05, "sigp": 0} -- Zero volatility makes the ratio undefined (guard sigp > 0); a risk-free payoff meeting the threshold needs no shortfall ranking.
+GUARDS: sigp > 0
+VARS: ERp/input/1/dimensionless def=[Expected return of the portfolio over the horizon, in decimal form (same meaning as utility record)] ; RL/input/1/dimensionless def=[Minimum acceptable (threshold) return that must be achieved, e.g. to avoid invading capital, in decimal form] ; sigp/input/1/dimensionless def=[Standard deviation of portfolio return over the horizon, in decimal form] ; SFR/output/1/dimensionless def=[Safety-first ratio: threshold-excess return per unit of volatility; higher means lower shortfall probability under normality]
+ASSUME: Returns are approximately normal over the horizon, so the ratio maps to the probability of exceeding the threshold. | Threshold RL is fixed for the decision (e.g. 5% to avoid invading capital in the source example).
+LIMIT: Under non-normal returns the ratio still ranks threshold-excess per unit volatility but no longer maps exactly to shortfall probability. | Complements, not replaces, the utility objective: allocations A and B in the source share utility 6% but differ in SFR.
+INV: ERp = RL + SFR?sigp always; RL = ERp ? SFR?sigp always; sigp = (ERp ? RL)/SFR requires SFR ? 0 (zero excess with positive volatility gives SFR = 0, leaving sigp undetermined). Substitution check: SFR=0.25, RL=0.05, sigp=0.2 recovers ERp=0.10. Algebraic only; threshold choice is a preference, not an estimated quantity.
+UNRES: 
+
+##### financial-analysis--arch-conditional-variance-one-lag rev=r1 kind=theoretical
+EXPR: gam + alpha * sig2t1 + beta * eta2t
+ORIG: ?t? = ? + ? ?t?1? + ? ?t?
+NOTES: Source presents this as one of the simplest, heavily used forms of the ARCH class (rearranged second line shows the shock term ?t? ? ?t?1?). ?t is the mean-zero unexpected return component. Unconditional variance ?/(1 ? ? ? ?) is a derived identity, not separately curated. Dimensional check: variance + dimensionless?variance + dimensionless?(return?) ? all variance-dimensioned in decimal-squared units.
+REF published-shock-example: exp=0.000434 tol=1e-09 method=[Source inputs (?t = 0.03 so ?t? = 0.0009): 0.000002 + 0.9?0.0004 + 0.08?0.0009 = 0.000434, matching published ?t? = 0.000434 (? = 2.0833%).] prov=[Published result: LM2 ARCH example, printed p. 111 (PDF p. 121)]
+REF published-no-shock-example: exp=0.000394 tol=1e-09 method=[No-shock case ?t? = ?t?1? = 0.0004: 0.000002 + 0.9?0.0004 + 0.08?0.0004 = 0.000394, matching published ? = 1.9849% (sqrt(0.000394) = 0.019849).] prov=[Published result: LM2 ARCH example no-shock comparison, printed p. 111 (PDF p. 121)]
+REJ domain: inputs={"gam": 2e-06, "alpha": 0.9, "sig2t1": 0.0004, "beta": 0.2, "eta2t": 0.0009} -- alpha + beta = 1.1 violates the stationarity guard (alpha + beta < 1); non-stationary persistence needs a different specification.
+GUARDS: gam >= 0 | alpha >= 0 | beta >= 0 | alpha + beta < 1
+VARS: gam/input/1/dimensionless def=[Nonnegative baseline constant of the variance recursion, in decimal-variance units] ; alpha/input/1/dimensionless def=[Persistence weight on prior-period variance (memory/clustering strength)] ; sig2t1/input/1/dimensionless def=[Estimated variance at time t?1, in decimal-variance units] ; beta/input/1/dimensionless def=[Loading of the current squared shock onto variance] ; eta2t/input/1/dimensionless def=[Squared unexpected return component in period t (mean-zero shock squared), in decimal-variance units] ; sig2t/output/1/dimensionless def=[Conditional variance in period t, in decimal-variance units]
+ASSUME: Parameters are nonnegative with alpha + beta below 1 (stationarity, finite unconditional variance ?/(1 ? ? ? ?)), per source. | ?t is mean-zero conditional on time t?1 information; shock sign does not matter (squared).
+LIMIT: One-lag, single-asset form only; multi-asset VCV extensions need many more parameters (per source, Engle 2002 class handles large matrices). | Estimation of ?, ?, ? themselves is outside this update record.
+INV: gam = sig2t ? alpha?sig2t1 ? beta?eta2t always; alpha = (sig2t ? gam ? beta?eta2t)/sig2t1 requires sig2t1 ? 0; beta = (sig2t ? gam ? alpha?sig2t1)/eta2t requires eta2t ? 0. Substitution check: sig2t=0.000434 with gam=0.000002, alpha=0.9, sig2t1=0.0004 recovers beta=0.08 given eta2t=0.0009. Algebraic only; parameter estimation is outside this record.
+UNRES: 
+
+##### financial-analysis--risk-parity-equal-risk-contribution rev=r1 kind=definition
+EXPR: wi * covi
+ORIG: wi ? Cov(ri, rp) = (1/n) ?p?
+NOTES: Record's expression is the left-hand risk contribution RCi = wi?Covi; the defining condition equates it to ?p?/n, checked in references. Equivalent to the volatility-share form RCi/?p = ?p/n (each asset carries 1/n of total risk): multiply through by ?p. Dimensional check: dimensionless weight ? variance-dimensioned covariance = variance-dimensioned contribution, compared against variance/n.
+REF published-four-class-check: exp=0.0625 tol=1e-09 method=[Equal-weight illustration of the published case: 0.25 ? 0.25 = 0.0625, matching the published (1/4 ? 25%) = 6.25% per-class contribution.] prov=[Published result with constructed weight/covariance split: LM4 Solutions Q7, printed p. 297 (PDF p. 307)]
+REF constructed-unequal-weights: exp=0.05 tol=1e-09 method=[Direct substitution: 0.5 ? 0.1 = 0.05; equals ?p?/n with ?p? = 0.2, n = 4. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed portfolio data claimed]
+REJ missing-input: inputs={"wi": 0.25} -- Asset?portfolio covariance is required; the weight alone cannot determine the risk contribution.
+GUARDS: wi >= 0 | covi >= 0
+VARS: wi/input/1/dimensionless def=[Fraction of portfolio money in asset i (weights sum to 1)] ; covi/input/1/dimensionless def=[Covariance of asset i return with the portfolio return, in decimal-variance units] ; RCi/output/1/dimensionless def=[Asset i's total contribution to portfolio variance; equals ?p?/n under risk parity]
+ASSUME: Long-only, fully invested portfolio (weights sum to 1); contributions are nonnegative in this case. | Covariances estimated over a consistent window for all assets.
+LIMIT: Condition defines the allocation implicitly; solving weights requires optimization (per source, constrained weights summing to 100%). | Ignores expected returns by construction (per source critique); leverage/scale to investor risk appetite is a separate step.
+INV: wi = RCi/covi requires covi ? 0; covi = RCi/wi requires wi ? 0. The parity condition itself (RCi = ?p?/n for all i) is an allocation constraint solved by optimization, not by single-equation inversion. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v1-b05
+##### financial-analysis--taylor-rule-nominal-policy-rate rev=r1 kind=theoretical
+EXPR: rN + pie + 0.5 * (g - gT) + 0.5 * (pie - piT)
+ORIG: i* = rneutral + ?e + 0.5 (?e ? ?trend) + 0.5 (?e ? ?target)
+NOTES: Decimal form (unit 1); source works in percentages. The 0.5 weights are the rule's fixed response coefficients (pure arithmetic literals), not conversions. The PDF uses a growth-rate gap (expected vs trend GDP growth); the corroborating Fed statement uses an output-level gap ? the 0.5/0.5 response structure is identical. Dimensional check: all terms dimensionless rates.
+REF published-6pt25-example: exp=0.0625 tol=1e-09 method=[Source inputs in decimals: 0.0225 + 0.03 + 0.5?(0.035?0.025) + 0.5?(0.03?0.02) = 0.0625, matching published 6.25%.] prov=[Published result: LM1 Taylor rule example, printed p. 39 (PDF p. 49)]
+REF neutral-on-target-boundary: exp=0.04 tol=1e-09 method=[On-target growth and inflation give neutral real rate plus target inflation: 0.02 + 0.02 + 0 + 0 = 0.04. Independently constructed boundary check.] prov=[Independent arithmetic check constructed for this record; no observed policy data claimed]
+REJ missing-input: inputs={"rN": 0.0225, "pie": 0.03, "g": 0.035} -- Trend growth and inflation target are required; without both gaps the rule cannot be evaluated.
+GUARDS: 
+VARS: rN/input/1/dimensionless def=[Neutral real policy rate targeted when growth is at trend and inflation on target, in decimal form] ; pie/input/1/dimensionless def=[Expected inflation rate over the policy horizon, in decimal form] ; g/input/1/dimensionless def=[Expected real GDP growth rate, in decimal form] ; gT/input/1/dimensionless def=[Trend (potential) real GDP growth rate, in decimal form] ; piT/input/1/dimensionless def=[Central bank inflation target, in decimal form] ; istar/output/1/dimensionless def=[Taylor-rule target nominal short-term policy rate, in decimal form]
+ASSUME: Policymaker reaction function with fixed 0.5 response coefficients on both gaps, per the source's generic illustration. | Inputs are the central bank's own trend/neutral/expectation judgments, which are not objectively observable (per source).
+LIMIT: Illustrative rule, not a mechanical prescription: substantial judgment remains in every input (per source). | Growth-gap variant as stated in the PDF; level output-gap variants (e.g. the Fed's statement) are companion forms, not separately curated here.
+INV: Linear in each input: rN = istar ? pie ? 0.5(g?gT) ? 0.5(pie?piT), and symmetrically for others; no singularities. Substitution check: istar=0.0625 with pie=0.03, gaps 0.01 each recovers rN=0.0225. Algebraic only; none of the inputs is objectively observable per the source.
+UNRES: 
+
+##### financial-analysis--age-based-equity-allocation-120-minus-age rev=r1 kind=empirical
+EXPR: 120 - age
+ORIG: 120 ? Age = Percentage allocated to stocks
+NOTES: Heuristic rule of thumb with no theoretic basis (per source). 120 is the heuristic intercept in percentage points and age is in years; the output reads as a percentage (e.g. 95 means 95%). Both treated as plain counts; no conversion factor is inlined. Dimensional note: heuristic mixes an age count with a percent-points intercept by construction ? documented here, not hidden.
+REF published-25-year-old: exp=95 tol=1e-09 method=[Source's example: 120 ? 25 = 95, matching published 95% stocks.] prov=[Published result: LM4 heuristic section, printed p. 272 (PDF p. 282)]
+REF published-76-year-old: exp=44 tol=1e-09 method=[Direct substitution: 120 ? 76 = 44. (The PDF's nearby 24% figure for the 2005 vintage sits on the 100-minus-age line: 100 ? 76 = 24; this reference checks the 120-variant formula itself.)] prov=[Independent arithmetic check constructed for this record; PDF vintage comparison on printed p. 272 noted]
+REJ domain: inputs={"age": 130} -- Age above 120 gives a negative equity share under the heuristic (guard age <= 120); outside the rule's stated scope.
+GUARDS: age >= 0 | age <= 120
+VARS: age/input/years/time def=[Investor age in years] ; weq/output/percent/dimensionless def=[Heuristic equity allocation in percent (e.g. 95 means 95% in stocks, remainder in fixed income)]
+ASSUME: Application profile: age-driven risk-tolerance glide path; equity share falls linearly with age. | Remainder is implicitly fixed income (per source: age-based stock vs fixed-income split).
+LIMIT: Source explicitly notes no theoretic basis; cousins 100-minus-age and 125-minus-age exist and would be separate records. | May be too conservative for the young (no fixed income needed with emergency fund) and misses sequence-of-returns nuances near retirement (per corroborating source).
+INV: age = 120 ? weq always; no singularities. Substitution check: weq=95 recovers age=25. Algebraic only; the rule infers a hidden age-driven risk tolerance, not an estimated quantity.
+UNRES: 
+
+##### financial-analysis--one-over-n-equal-weight rev=r1 kind=definition
+EXPR: 1 / N
+ORIG: wi = 1/N for each of N assets
+NOTES: wi is the common weight of every asset; N is the count of available assets. Decimal form (unit 1). Dimensional check: dimensionless count reciprocal = dimensionless weight.
+REF four-asset-split: exp=0.25 tol=1e-09 method=[Direct substitution: 1/4 = 0.25. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed portfolio data claimed]
+REF single-asset-boundary: exp=1 tol=1e-09 method=[Single eligible asset takes the whole portfolio: 1/1 = 1. Boundary check.] prov=[Definitional boundary check; not an empirical validation]
+REJ domain: inputs={"N": 0} -- Zero assets makes the weight undefined (guard N >= 1); an empty universe needs no allocation rule.
+GUARDS: N >= 1
+VARS: N/input/1/dimensionless def=[Number of assets available for investment at the rebalancing date] ; wi/output/1/dimensionless def=[Common portfolio weight allocated to each asset]
+ASSUME: Calendar rebalancing to equal weighting (e.g. quarterly, per source); all assets treated as indistinguishable in mean, volatility, and correlation. | N is the count of eligible assets at that rebalancing date.
+LIMIT: Sidesteps estimation error but is in principle dominated by optimizations exploiting true return differences (per source empirical discussion). | Equal capital is not equal risk; pair with the risk-parity record, not as a substitute.
+INV: N = 1/wi; no singularities for admissible wi > 0. Substitution check: wi=0.25 recovers N=4. Algebraic only; N is a universe count, not an estimated quantity.
+UNRES: 
+
+##### financial-analysis--shrinkage-vcv-element-weighted-average rev=r1 kind=definition
+EXPR: w * vs + (1 - w) * vt
+ORIG: vest = w ? vsample + (1 ? w) ? vtarget (per element, same weights)
+NOTES: Formalizes the source's prose: each element of the final shrinkage VCV estimate is a weighted average of the corresponding sample and target elements with the same weights on all elements. Decimal form (unit 1); w is the weight on the sample matrix. Dimensional check: dimensionless weight times variance-dimensioned elements = variance-dimensioned estimate.
+REF equal-weight-blend: exp=0.03 tol=1e-09 method=[Direct substitution: 0.5?0.04 + 0.5?0.02 = 0.03. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REF full-sample-boundary: exp=0.04 tol=1e-09 method=[Full weight on the sample recovers the sample element: 1?0.04 + 0?0.02 = 0.04. Boundary check.] prov=[Definitional boundary check; not an empirical validation]
+REJ domain: inputs={"w": 1.5, "vs": 0.04, "vt": 0.02} -- Weight above 1 violates the averaging domain (guard w <= 1); extrapolation beyond the target is not shrinkage.
+GUARDS: w >= 0 | w <= 1
+VARS: w/input/1/dimensionless def=[Weight placed on the sample VCV element (analyst-chosen; 1 ? w goes to the target)] ; vs/input/1/dimensionless def=[Sample variance/covariance matrix element from historical data, in decimal-variance units] ; vt/input/1/dimensionless def=[Target (prior-knowledge) VCV matrix element, e.g. from a factor model, in decimal-variance units] ; vest/output/1/dimensionless def=[Final shrinkage VCV estimate for the element: biased but lower mean-squared error than the sample element]
+ASSUME: Same weights applied to every element of the matrix (per source). | Application profile: analyst chooses w trading sample noise against target plausibility; a factor-model VCV is a reasonable target candidate (per source).
+LIMIT: Scalar element form only; full-matrix shrinkage with cross-element consistency is outside this record. | Shrinkage is biased by construction; improvement is in mean-squared error, not unbiasedness.
+INV: w = (vest ? vt)/(vs ? vt) requires vs ? vt; vs = (vest ? (1?w)?vt)/w requires w ? 0; vt = (vest ? w?vs)/(1?w) requires w ? 1. Boundary w=0 (pure target) and w=1 (pure sample) leave one source undetermined. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v1-b06
+##### financial-analysis--capm-security-market-line-expected-return rev=r1 kind=theoretical
+EXPR: rf + beta * MRP
+ORIG: E[Ri] = rf + ?i,mkt ? (market risk premium); e.g. 6.62% = 2.5% + 1.03 (4%)
+NOTES: Decimal form (unit 1). MRP is the market risk premium E[Rm] ? rf over the same horizon. Used in the PDF to impute reverse-optimized expected returns from market betas (global market premium 4%, rf 2.5%). Dimensional check: dimensionless throughout.
+REF published-uk-large-cap: exp=0.0662 tol=1e-06 method=[Source inputs in decimals: 0.025 + 1.03?0.04 = 0.0662, matching published 6.62% to stated rounding.] prov=[Published result: LM4 Exhibit 12, printed p. 218 (PDF p. 228)]
+REF published-analystprep-13pct: exp=0.13 tol=1e-09 method=[Corroborating source's worked example: 5% + 1.6?(10% ? 5%) = 13%, in decimals 0.05 + 1.6?0.05 = 0.13.] prov=[Published result: AnalystPrep beta/CAPM article Example 2]
+REJ missing-input: inputs={"rf": 0.025, "beta": 1.03} -- Market risk premium is required; the risk-free rate and beta alone cannot price the asset.
+GUARDS: 
+VARS: rf/input/1/dimensionless def=[Risk-free rate over the horizon, in decimal form] ; beta/input/1/dimensionless def=[Asset sensitivity to the market portfolio (same meaning as batch b02 beta record)] ; MRP/input/1/dimensionless def=[Expected market return in excess of the risk-free rate, in decimal form] ; ERi/output/1/dimensionless def=[CAPM-implied expected return of asset i, in decimal form]
+ASSUME: Single-period CAPM equilibrium: every asset priced by its market beta with one market portfolio and one risk-free rate. | Source application: market-capitalization weights proxy the market portfolio; rf 2.5% and MRP 4% in the worked exhibit.
+LIMIT: Equilibrium pricing assumption; deviations are the subject of the Black?Litterman views step (deferred full mathematics). | The risk-premium-only form RPi = ??RPM is embedded here (ERi ? rf); not a separate record.
+INV: rf = ERi ? beta?MRP; beta = (ERi ? rf)/MRP requires MRP ? 0; MRP = (ERi ? rf)/beta requires beta ? 0. Cash (beta = 0) gives ERi = rf with MRP undetermined. Substitution check: ERi=0.0662, rf=0.025, MRP=0.04 recovers beta=1.03. Algebraic only.
+UNRES: 
+
+##### financial-analysis--rebalancing-corridor-lower-bound rev=r1 kind=definition
+EXPR: w - d
+ORIG: Lower bound = target weight ? tolerance (e.g. 50% ? 5% = 45%)
+NOTES: Decimal form (unit 1). d is the one-sided band half-width in the same weight units (percentage points as decimals). Companion to the upper-bound record. Dimensional check: dimensionless ? dimensionless = dimensionless weight.
+REF published-domestic-equities: exp=0.45 tol=1e-09 method=[Source's corridor 50% ? 5%: 0.50 ? 0.05 = 0.45, matching published 45% lower edge.] prov=[Published result: LM4 Example 12, printed p. 279 (PDF p. 289)]
+REF published-intl-equities: exp=0.135 tol=1e-09 method=[Source's corridor 15% ? 1.5%: 0.15 ? 0.015 = 0.135, matching the stated band.] prov=[Published result: LM4 Example 12, printed p. 279 (PDF p. 289)]
+REJ missing-input: inputs={"w": 0.5} -- Band half-width is required; the target alone does not define a corridor.
+GUARDS: w >= 0 | d >= 0
+VARS: w/input/1/dimensionless def=[Strategic target weight of the asset class, in decimal form] ; d/input/1/dimensionless def=[One-sided tolerance band half-width around target, in decimal weight form] ; L/output/1/dimensionless def=[Lower corridor edge; drift below it triggers rebalancing review]
+ASSUME: Symmetric band around the strategic target; corridor stated as target ? tolerance. | Band widths reflect the committee's risk/transaction-cost tradeoff for that asset class.
+LIMIT: Hitting the edge prompts review, not a mechanical trade: the source distinguishes rebalancing to target vs to corridor limits (cost vs alignment). | Optimal multi-period, multi-asset rebalancing is an unsolved problem (per source); this bounds only the single-asset corridor.
+INV: w = L + d; d = w ? L requires w ? L. Substitution check: L=0.45 with d=0.05 recovers w=0.50. Algebraic only; the choice of band width is a policy judgment.
+UNRES: 
+
+##### financial-analysis--rebalancing-corridor-upper-bound rev=r1 kind=definition
+EXPR: w + d
+ORIG: Upper bound = target weight + tolerance (e.g. 50% + 5% = 55%)
+NOTES: Decimal form (unit 1); mirror of the lower-bound record. Dimensional check: dimensionless + dimensionless = dimensionless weight.
+REF published-domestic-equities: exp=0.55 tol=1e-09 method=[Source's corridor 50% ? 5%: 0.50 + 0.05 = 0.55, matching published 55% upper edge.] prov=[Published result: LM4 Example 12, printed p. 279 (PDF p. 289)]
+REF published-domestic-bonds: exp=0.385 tol=1e-09 method=[Source's corridor 35% ? 3.5%: 0.35 + 0.035 = 0.385, matching the stated band.] prov=[Published result: LM4 Example 12, printed p. 279 (PDF p. 289)]
+REJ missing-input: inputs={"w": 0.35} -- Band half-width is required; the target alone does not define a corridor.
+GUARDS: w >= 0 | d >= 0
+VARS: w/input/1/dimensionless def=[Strategic target weight of the asset class, in decimal form (same definition as lower-bound record)] ; d/input/1/dimensionless def=[One-sided tolerance band half-width around target, in decimal weight form (same definition as lower-bound record)] ; U/output/1/dimensionless def=[Upper corridor edge; drift above it triggers rebalancing review]
+ASSUME: Symmetric band around the strategic target, same basis as the lower-bound record.
+LIMIT: Same review-not-trade and unsolved-multi-period caveats as the lower-bound record. | Rebalancing to target vs to corridor limits trades alignment against transaction costs, especially for illiquid assets (per source).
+INV: w = U ? d; d = U ? w requires U ? w. Substitution check: U=0.55 with d=0.05 recovers w=0.50. Algebraic only.
+UNRES: 
+
+##### financial-analysis--surplus-return-change-over-initial-assets rev=r1 kind=definition
+EXPR: (dA - dL) / A0
+ORIG: Surplus return = (Change in asset value ? Change in liability value) / (Initial asset value)
+NOTES: Money changes and initial assets must share one currency unit (USD label stands in for the single domestic unit; no conversion). Decimal output (unit 1). Dimensional check: (currency ? currency)/currency = dimensionless.
+REF constructed-surplus-gain: exp=0.04 tol=1e-09 method=[Direct substitution in USD billions: (0.2 ? 0.1)/2.5 = 0.04. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed plan data claimed]
+REF matched-changes-zero: exp=0 tol=1e-09 method=[Perfectly hedged changes give zero surplus return: (0.15 ? 0.15)/2.5 = 0. Boundary check.] prov=[Definitional boundary check; not an empirical validation]
+REJ domain: inputs={"dA": 0.2, "dL": 0.1, "A0": 0} -- Zero initial assets make normalization undefined (guard A0 > 0); an unfunded start needs a different funding measure.
+GUARDS: A0 > 0
+VARS: dA/input/USD/currency def=[Change in market value of assets over the horizon] ; dL/input/USD/currency def=[Change in present value of liabilities over the horizon (time value plus discount-rate and cash-flow changes)] ; A0/input/USD/currency def=[Market value of assets at the start of the horizon (normalization base)] ; Rs/output/1/dimensionless def=[Surplus return over the horizon, in decimal form]
+ASSUME: Asset and liability changes measured over the same horizon with consistent valuation bases. | Normalization is per initial assets (not per initial surplus), per the source definition.
+LIMIT: Expectation and volatility of Rs feed the surplus-optimization objective; estimating them (including asset?liability correlation) is outside this definitional record. | Source assumption: normalization is per initial assets (not per initial surplus); the accessible corroboration confirms the assets-minus-liabilities surplus concept while the exact normalization wording is PDF-specific.
+INV: dA = Rs?A0 + dL; dL = dA ? Rs?A0; A0 = (dA ? dL)/Rs requires Rs ? 0 (zero surplus return with nonzero changes leaves scale undetermined). Substitution check: Rs=0.04, dL=0.1, A0=2.5 recovers dA=0.2. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v1-b07
+##### financial-analysis--credit-spread-expected-loss-plus-premium rev=r1 kind=definition
+EXPR: EL + CP
+ORIG: credit spread = expected default losses + credit premium
+NOTES: Formalizes the source's embedding statement (both components embedded in spreads) as the additive decomposition, confirmed by the corroborating summary. Decimal form (unit 1). Recovering the split from spreads alone requires imposed structure (per source: default-free rates, default probabilities, recovery rates). Dimensional check: dimensionless + dimensionless = dimensionless spread.
+REF illustrative-investment-grade: exp=0.0125 tol=1e-09 method=[Direct substitution: 0.005 + 0.0075 = 0.0125. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed spread data claimed]
+REF zero-expected-loss-boundary: exp=0.01 tol=1e-09 method=[With no expected losses the spread equals the premium alone. Boundary check.] prov=[Definitional boundary check; not an empirical validation]
+REJ missing-input: inputs={"EL": 0.005} -- Credit premium is required; expected losses alone do not determine the spread.
+GUARDS: EL >= 0
+VARS: EL/input/1/dimensionless def=[Compensation for the expected level of default losses, in decimal form] ; CP/input/1/dimensionless def=[Additional expected return for bearing default-loss risk beyond expected losses, in decimal form (same meaning as building-block record)] ; spread/output/1/dimensionless def=[Observed credit spread embedding both components, in decimal form]
+ASSUME: Additive embedding: the spread is the sum of the two compensations over the same horizon and bond universe.
+LIMIT: Decomposition is not identified from spreads alone; structural or reduced-form credit models (per source) are needed to split them. | Cyclical and supply effects move spreads without changing the decomposition logic.
+INV: EL = spread ? CP; CP = spread ? EL; no singularities. Substitution check: spread=0.0125 with CP=0.0075 recovers EL=0.005. Algebraic only; splitting an observed spread needs imposed model structure per the source.
+UNRES: 
+
+##### financial-analysis--age-based-equity-allocation-100-minus-age rev=r1 kind=empirical
+EXPR: 100 - age
+ORIG: 100 ? Age = Percentage allocated to stocks
+NOTES: Heuristic rule of thumb with no theoretic basis (per source). 100 is the heuristic intercept in percentage points; age in years; output reads as a percentage. Same unit treatment as the b05 120-age record. Dimensional note: heuristic mixing documented, not hidden.
+REF published-76-year-old: exp=24 tol=1e-09 method=[Source's 2005-vintage application: 100 ? 76 = 24, matching published 24% equity.] prov=[Published result: LM4 heuristic exhibit discussion, printed p. 272 (PDF p. 282)]
+REF published-age-30: exp=70 tol=1e-09 method=[Corroborating source's worked example: 100 ? 30 = 70% stocks.] prov=[Published result: justETF Academy article example]
+REJ domain: inputs={"age": 110} -- Age above 100 gives a negative equity share under this variant (guard age <= 100); longer horizons use the 120 variant.
+GUARDS: age >= 0 | age <= 100
+VARS: age/input/years/time def=[Investor age in years (same meaning as 120-age record)] ; weq/output/percent/dimensionless def=[Heuristic equity allocation in percent (same meaning as 120-age record)]
+ASSUME: Application profile: older, more conservative glide path than the 120 variant; remainder in fixed income.
+LIMIT: Same no-theoretic-basis caveat as the 120 variant; contemporary research suggests it may be too bond-heavy (per corroborating source). | Distinct named variant, not a duplicate of the 120-age record; the 125-age cousin is deferred for lack of independent corroboration.
+INV: age = 100 ? weq always; no singularities. Substitution check: weq=24 recovers age=76. Algebraic only.
+UNRES: 
+
+##### financial-analysis--arch-unconditional-variance rev=r1 kind=theoretical
+EXPR: gam / (1 - alpha - beta)
+ORIG: Unconditional expected value of the variance = ? / (1 ? ? ? ?)
+NOTES: Derived steady state of the b04 one-lag recursion (set ?t? = ?t?1? = ?t?-expectation = V and solve). Decimal-variance units (unit 1). Requires alpha + beta below 1 for a finite positive value. Dimensional check: variance-dimensioned constant over dimensionless persistence gap.
+REF published-daily-1pct: exp=0.0001 tol=1e-09 method=[Source inputs: 0.000002/(1 ? 0.9 ? 0.08) = 0.000002/0.02 = 0.0001, matching published 0.0001 (sqrt = 1% daily).] prov=[Published result: LM2 ARCH example, printed p. 111 (PDF p. 121)]
+REF constructed-moderate-persistence: exp=0.0001 tol=1e-09 method=[Direct substitution: 0.00001/(1 ? 0.8 ? 0.1) = 0.0001. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REJ domain: inputs={"gam": 2e-06, "alpha": 0.9, "beta": 0.1} -- alpha + beta = 1.0 violates the stationarity guard (alpha + beta < 1); the long-run variance does not exist at unit persistence.
+GUARDS: gam >= 0 | alpha >= 0 | beta >= 0 | alpha + beta < 1
+VARS: gam/input/1/dimensionless def=[Nonnegative baseline constant of the variance recursion, in decimal-variance units (same meaning as update record)] ; alpha/input/1/dimensionless def=[Persistence weight on prior-period variance (same meaning as update record)] ; beta/input/1/dimensionless def=[Loading of the current squared shock onto variance (same meaning as update record)] ; V/output/1/dimensionless def=[Long-run (unconditional) variance the forecasts revert to, in decimal-variance units]
+ASSUME: Covariance-stationary process: persistence below 1 so the steady state exists and forecasts converge to it.
+LIMIT: Fragile in estimation: tiny denominator when persistence nears 1 makes V highly sensitive to parameter error (per corroborating source); the formula is exact given parameters, the parameters are not. | Companion to (not duplicate of) the b04 one-lag update record, which describes transitions rather than the anchor.
+INV: gam = V?(1 ? alpha ? beta) always; alpha = 1 ? beta ? gam/V requires V ? 0; beta likewise. Zero baseline with positive V is inadmissible (needs gam > 0 unless V = 0). Substitution check: V=0.0001, alpha=0.9, beta=0.08 recovers gam=0.000002. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v1-b08
+##### financial-analysis--fx-building-block-exchange-rate-expectation rev=r1 kind=theoretical
+EXPR: (rd - rf) + (Termd - Termf) + (Creditd - Creditf) + (Equityd - Equityf) + (Liquidd - Liquidf)
+ORIG: E(%?Sd/f) = (rd ? rf) + (Termd ? Termf) + (Creditd ? Creditf) + (Equityd ? Equityf) + (Liquidd ? Liquidf)
+NOTES: PDF prints percentages; record uses decimal form per session convention (1.25% as 0.0125). Each parenthesized differential is domestic minus foreign for one portfolio segment (money market through private assets). UIP is the special case where only the first term matters. Dimensional check: dimensionless + dimensionless terms = dimensionless expected change.
+REF published-depreciation-example: exp=0.0125 tol=1e-09 method=[Source's worked example in decimal form: (0.01?0) + (0?0.0025) + (0.005?0) = 0.0125, matching published 1.25%.] prov=[Published result: LM2 FX example, printed p. 102 (PDF p. 112)]
+REF constructed-mixed-differentials: exp=0.025 tol=1e-09 method=[Direct substitution: 0.02 + 0 + 0.01 ? 0.005 + 0 = 0.025. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REJ missing-input: inputs={"rd": 0.01, "rf": 0.0} -- All five differentials are required; the rate gap alone is only the UIP special case, not Equation 9.
+GUARDS: 
+VARS: rd/input/1/dimensionless def=[Domestic nominal short-term interest rate, in decimal form] ; rf/input/1/dimensionless def=[Foreign nominal short-term interest rate, in decimal form] ; Termd/input/1/dimensionless def=[Domestic term premium, in decimal form] ; Termf/input/1/dimensionless def=[Foreign term premium, in decimal form] ; Creditd/input/1/dimensionless def=[Domestic credit premium, in decimal form] ; Creditf/input/1/dimensionless def=[Foreign credit premium, in decimal form] ; Equityd/input/1/dimensionless def=[Domestic equity premium, in decimal form] ; Equityf/input/1/dimensionless def=[Foreign equity premium, in decimal form] ; Liquidd/input/1/dimensionless def=[Domestic liquidity premium, in decimal form] ; Liquidf/input/1/dimensionless def=[Foreign liquidity premium, in decimal form] ; E_dS/output/1/dimensionless def=[Expected percentage change in the exchange rate (domestic per foreign unit), in decimal form; positive means expected domestic depreciation]
+ASSUME: Perfect capital mobility equalizes risk-adjusted expected returns across the two currency portfolios at the forecast horizon. | Each premium differential is measured over the same horizon and comparable segments.
+LIMIT: Long-run phase relationship (Phase 3 of the overshooting mechanism); short-run flows and overshooting can move the spot rate the opposite way. | Carry-trade evidence shows UIP (the first-term-only special case) predicts poorly; the premium terms carry the explanatory load.
+INV: Any one differential is recoverable as E_dS minus the other four (e.g., rd ? rf = E_dS ? other differentials); no singularities. Substitution check: E_dS=0.0125 with the other differentials (0, ?0.0025, 0.005, 0, 0) recovers rd?rf=0.01. Algebraic only.
+UNRES: 
+
+##### financial-analysis--after-tax-expected-return rev=r1 kind=definition
+EXPR: rpt * (1 - t)
+ORIG: rat = rpt(1 ? t)
+NOTES: PDF prints percentages; record uses decimal form per session convention (3% as 0.03). Single blended expected tax rate; the dividend/cap-gain split (PDF Eq2) is deferred for lack of independent corroboration. Dimensional check: dimensionless ? dimensionless = dimensionless return.
+REF published-bond-example: exp=0.018 tol=1e-09 method=[Source's bond example: 0.03 ? (1 ? 0.40) = 0.018, matching published 1.80%.] prov=[Published result: LM5 after-tax example, printed p. 325 (PDF p. 335)]
+REF published-hy-bond-exhibit: exp=0.03 tol=1e-09 method=[Exhibit 6 cross-check: HY bonds 5.0% pre-tax at 40% tax ? 3.0% after-tax.] prov=[Published result: LM5 Exhibit 6, printed p. 328 (PDF p. 338)]
+REJ domain: inputs={"rpt": 0.03, "t": 1.0} -- A 100% tax rate is outside the modeling domain (guard t < 1); the scaling is defined for partial tax rates.
+GUARDS: t >= 0 | t < 1
+VARS: rpt/input/1/dimensionless def=[Expected pre-tax (gross) return, in decimal form] ; t/input/1/dimensionless def=[Expected tax rate applied to the return, in decimal form] ; rat/output/1/dimensionless def=[Expected after-tax return, in decimal form]
+ASSUME: Single blended expected rate captures the tax drag (interest-like treatment); mixed dividend/cap-gain streams need the PDF's split form.
+LIMIT: Approximation for modeling: ignores holding-period effects on capital-gains realization and embedded gains (per source footnotes). | Losses are muted symmetrically by the same factor (capital-loss benefit assumed realizable).
+INV: rpt = rat/(1 ? t) requires t ? 1; t = 1 ? rat/rpt requires rpt ? 0. Substitution check: rat=0.018, t=0.40 recovers rpt=0.03. Algebraic only.
+UNRES: 
+
+##### financial-analysis--after-tax-standard-deviation rev=r1 kind=definition
+EXPR: sig_pt * (1 - t)
+ORIG: ?at = ?pt(1 ? t)
+NOTES: ?at/?pt ASCII aliases for the PDF's subscripted sigmas. Same (1 ? t) factor as the return scaling (shared t meaning). Correlations are unaffected (after-tax co-movements equal pre-tax). Dimensional check: dimensionless ? dimensionless = dimensionless dispersion.
+REF published-ig-volatility: exp=0.024 tol=1e-09 method=[Exhibit 6: IG bonds 4.0% pre-tax at 40% tax ? 2.4% after-tax: 0.04 ? 0.6 = 0.024.] prov=[Published result: LM5 Exhibit 6, printed p. 328 (PDF p. 338)]
+REF published-equity-volatility: exp=0.15 tol=1e-09 method=[Exhibit 6: equity 20.0% pre-tax at 25% tax ? 15.0% after-tax: 0.20 ? 0.75 = 0.15.] prov=[Published result: LM5 Exhibit 6, printed p. 328 (PDF p. 338)]
+REJ domain: inputs={"sig_pt": -0.04, "t": 0.4} -- Standard deviation cannot be negative (guard sig_pt >= 0).
+GUARDS: sig_pt >= 0 | t >= 0 | t < 1
+VARS: sig_pt/input/1/dimensionless def=[Expected pre-tax standard deviation, in decimal form] ; t/input/1/dimensionless def=[Expected tax rate, in decimal form (same meaning as after-tax return record)] ; sig_at/output/1/dimensionless def=[Expected after-tax standard deviation, in decimal form]
+ASSUME: Tax truncates both tails proportionally (lower highs, higher lows), so dispersion scales linearly with the same factor as the mean.
+LIMIT: Correlations assumed unchanged; joint tail behavior under asymmetric tax codes may deviate. | Same modeling approximation as the return scaling (ignores realization timing).
+INV: sig_pt = sig_at/(1 ? t) requires t ? 1; t = 1 ? sig_at/sig_pt requires sig_pt ? 0. Substitution check: sig_at=0.024, t=0.40 recovers sig_pt=0.04. Algebraic only.
+UNRES: 
+
+##### financial-analysis--after-tax-rebalancing-range rev=r1 kind=definition
+EXPR: Rpt / (1 - t)
+ORIG: Rat = Rpt/(1 ? t)
+NOTES: Wider after-tax range follows from muted after-tax volatility: larger pre-tax moves are needed to match the risk change of the tax-exempt range. Decimal form (10% as 0.10). Dimensional check: dimensionless / dimensionless = dimensionless range.
+REF published-50pct-equity-example: exp=0.1333333333 tol=1e-09 method=[Source's example: 0.10/(1 ? 0.25) = 0.13333, matching published 13.3% (37%?63% band).] prov=[Published result: LM5 rebalancing example, printed p. 329 (PDF p. 339)]
+REF constructed-20pct-tax: exp=0.1 tol=1e-09 method=[Direct substitution: 0.08/(1 ? 0.20) = 0.10. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REJ domain: inputs={"Rpt": 0.1, "t": 1.0} -- A 100% tax rate makes the divisor zero (guard t < 1); the gross-up is defined for partial tax rates.
+GUARDS: Rpt > 0 | t >= 0 | t < 1
+VARS: Rpt/input/1/dimensionless def=[Pre-tax (tax-exempt-investor) rebalancing range deviation, in decimal form] ; t/input/1/dimensionless def=[Expected tax rate on the asset's returns, in decimal form (same meaning as after-tax records)] ; Rat/output/1/dimensionless def=[After-tax (taxable-investor) rebalancing range deviation for the same risk constraint, in decimal form]
+ASSUME: Ranges are compared from the same gross-return perspective for an equivalent risk constraint. | Correlations unchanged after tax, so the widening comes only through the volatility scaling.
+LIMIT: Wider ranges reduce trading and taxable gains but let the allocation drift further; the trade-off depends on owner circumstances (per source). | Mean-reversion beliefs can argue for tighter bands, opposing the tax-widening (per curriculum context).
+INV: Rpt = Rat?(1 ? t) always; t = 1 ? Rpt/Rat requires Rat ? 0. Substitution check: Rat=0.13333, t=0.25 recovers Rpt=0.10. Algebraic only.
+UNRES: 
+
+##### financial-analysis--after-tax-account-value rev=r1 kind=definition
+EXPR: vpt * (1 - ti)
+ORIG: vat = vpt(1 ? ti)
+NOTES: Partnership view: the investor owns (1 ? ti) of the account, the government owns ti. Tax-deferred assets grow at pre-tax rates (inputs unadjusted); only the value is haircut. ti is the expected income tax rate at distribution, distinct from the return-drag t. Dimensional check: currency ? dimensionless = currency value.
+REF published-tda-partnership-equivalence: exp=0.7 tol=1e-09 method=[Corroborating source's worked equivalence: $1 pre-tax TDA ? $0.70 after-tax funds at 30%: 1.0 ? (1 ? 0.30) = 0.70.] prov=[Published result: Reichenstein & Meyer (2013) partnership example]
+REF constructed-ira-balance: exp=375000.0 tol=1e-06 method=[Direct substitution: 500000 ? (1 ? 0.25) = 375000, mirroring the Kitces IRA-withdrawal arithmetic. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed account data claimed]
+REJ domain: inputs={"vpt": 500000.0, "ti": 1.0} -- A 100% distribution tax rate is outside the modeling domain (guard ti < 1).
+GUARDS: vpt >= 0 | ti >= 0 | ti < 1
+VARS: vpt/input/1/dimensionless def=[Pre-tax market value of assets in the tax-deferred account, in currency units] ; ti/input/1/dimensionless def=[Expected income tax rate upon distribution, in decimal form] ; vat/output/1/dimensionless def=[After-tax value of the tax-deferred assets, in currency units]
+ASSUME: Distribution is taxable as modeled (no basis recovery, no penalty, no bequest step-up in this approximation). | Tax-deferred assets use pre-tax return and risk inputs in the optimization; the value haircut carries the tax adjustment.
+LIMIT: As-if-sold-today approximation: ignores discounting the liability to a future sale date (alternatives in Horan/Al Zaman, Turvey et al. per source). | Tax-exempt accounts need no adjustment; this equation is for tax-deferred accounts only.
+INV: vpt = vat/(1 ? ti) requires ti ? 1; ti = 1 ? vat/vpt requires vpt ? 0. Substitution check: vat=0.70, ti=0.30 recovers vpt=1.0. Algebraic only.
+UNRES: 

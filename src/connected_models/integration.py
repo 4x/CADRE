@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import re
 import sqlite3
 import zipfile
 from dataclasses import asdict
@@ -15,21 +16,69 @@ from .registry import Registry
 from .runtime import validate_model
 from .serialization import text
 
+RIGHTS_WAIVER_ASSUMPTION = (
+    "TEMPORARY RIGHTS WAIVER (owner-ordered): licensing clearance waived "
+    "for local use; all scientific checks passed and reference replay "
+    "passed. Withdraw to reverse."
+)
+
+_WAIVER_DIRTY_BLOCKER = re.compile(r"supersede|duplicate|withdraw", re.IGNORECASE)
+
+
+def rights_only_waivable(item: dict[str, Any]) -> bool:
+    """Decide whether a needs-revision record is blocked only on licensing.
+
+    Strict allowlist: a needs-revision verdict, every scientific check
+    passed, rights-provenance failed, and no supersession, duplication, or
+    withdrawal blocker. Anything else — including rights merely
+    not-checked — is not waivable.
+    """
+    if item.get("recommendation") != "needs-revision":
+        return False
+    checks = item.get("checks")
+    if not isinstance(checks, dict) or not checks:
+        return False
+    for name, check in checks.items():
+        status = check.get("status") if isinstance(check, dict) else None
+        if name == "rights-provenance":
+            if status != "failed":
+                return False
+        elif status != "passed":
+            return False
+    return not any(
+        isinstance(blocker, str) and _WAIVER_DIRTY_BLOCKER.search(blocker)
+        for blocker in item.get("blockers", [])
+    )
+
 
 def project_record(
-    bundle: dict[str, Any], report: dict[str, Any], model_id: str, version: str
+    bundle: dict[str, Any],
+    report: dict[str, Any],
+    model_id: str,
+    version: str,
+    relax_rights: bool = False,
 ) -> dict[str, Any]:
-    """Retain unchanged research and audit evidence while deriving a runtime interface."""
+    """Retain unchanged research and audit evidence while deriving a runtime interface.
+
+    With relax_rights=True, a needs-revision record whose only failed check
+    is rights-provenance may project; the waiver is stamped into the
+    projection evidence and model assumptions. Default False preserves the
+    recommend-admit requirement. Vocabulary, dimension, guard, reference,
+    and revision gates apply either way.
+    """
     validate_review(bundle, report)
     text(version)
     original = next((item for item in bundle["models"] if item["id"] == model_id), None)
     require(original is not None, "Model ID not found in this batch.")
     assert original is not None
     review = next(item for item in report["models"] if item["id"] == model_id)
-    require(
-        review["recommendation"] == "recommend-admit",
-        "Scientific reviewer did not recommend this record for admission.",
-    )
+    waived = False
+    if review["recommendation"] != "recommend-admit":
+        require(
+            relax_rights and rights_only_waivable(review),
+            "Scientific reviewer did not recommend this record for admission.",
+        )
+        waived = True
     require(
         not bundle["example_only"],
         "Teaching examples cannot become runtime projections.",
@@ -75,6 +124,7 @@ def project_record(
             original["assumptions"]
             + original["limitations"]
             + [f"Audited permitted use: {review['permitted_use']}"]
+            + ([RIGHTS_WAIVER_ASSUMPTION] if waived else [])
         ),
         "candidate",
         {
@@ -89,7 +139,7 @@ def project_record(
         all(Registry.verify_reference(model, check) for check in checks),
         "Runtime projection failed reference replay.",
     )
-    return {
+    payload = {
         "model": json.loads(json.dumps(asdict(model))),
         "intake_blockers": [],
         "checks": checks,
@@ -108,15 +158,31 @@ def project_record(
             },
         },
     }
+    if waived:
+        payload["evidence"]["projection"]["rights_waiver"] = {
+            "relaxed": True,
+            "failed_check": "rights-provenance",
+            "reviewer": report["reviewer"],
+            "note": (
+                "Owner-ordered temporary waiver of licensing clearance; "
+                "all scientific checks passed. Reversible via a withdrawn review."
+            ),
+        }
+    return payload
 
 
 def stage_projection(
-    source: Path, review_path: Path, model_id: str, version: str, registry: Registry
+    source: Path,
+    review_path: Path,
+    model_id: str,
+    version: str,
+    registry: Registry,
+    relax_rights: bool = False,
 ) -> dict[str, Any]:
     """Stage reviewed technical payload without publishing it or changing the original."""
     public_path(review_path, {".json"})
     payload = project_record(
-        load_bundle(source), load_bundle(review_path), model_id, version
+        load_bundle(source), load_bundle(review_path), model_id, version, relax_rights
     )
     candidate_id = registry.propose(payload)
     return {
@@ -135,6 +201,15 @@ def main() -> int:
     parser.add_argument("model_id")
     parser.add_argument("--version", required=True)
     parser.add_argument("--registry", type=Path, default=REGISTRY)
+    parser.add_argument(
+        "--relax-rights",
+        action="store_true",
+        help=(
+            "Temporarily waive rights-provenance clearance for records whose "
+            "scientific checks all pass (default off). Waived projections are "
+            "stamped; reverse with a withdrawn review."
+        ),
+    )
     args = parser.parse_args()
     try:
         print(
@@ -145,6 +220,7 @@ def main() -> int:
                     args.model_id,
                     args.version,
                     Registry(args.registry),
+                    args.relax_rights,
                 ),
                 indent=2,
             )

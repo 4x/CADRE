@@ -1,0 +1,174 @@
+{
+    "batch_id":  "predmark-kelly-b01",
+    "created":  "2026-11-04",
+    "curator":  "predmark",
+    "deferred":  [
+
+                 ],
+    "domain":  "financial-analysis",
+    "example_only":  false,
+    "handoff":  {
+                    "connections":  [
+
+                                    ],
+                    "gaps":  [
+                                 "Kelly-side vocabulary (kelly_net_odds, kelly_wealth_fraction) needs a registry review before this record can project; the win-probability port reuses bernoulli_success_probability."
+                             ],
+                    "queries":  [
+                                    "A bet wins with probability 0.6 at even money. What fraction of wealth does the Kelly criterion stake?"
+                                ],
+                    "review_notes":  "Single-record batch. General (b*p-q)/b form from a live-inspected Stanford-hosted derivation (even-money f=q-p maximum, 5-to-1 f=(5q-p)/5 case, edge-over-odds rule) with two published worked oracles. No license statement on the source page; recorded honest-unknown.",
+                    "summary":  "Kelly optimal wealth fraction for a simple win-or-lose bet from win probability and net odds."
+                },
+    "kit_version":  "2026-11-04.1",
+    "models":  [
+                   {
+                       "assumptions":  [
+                                           "Source assumption: a simple bet that either pays net odds and returns the stake or forfeits the stake.",
+                                           "The criterion maximizes expected logarithmic wealth over repeated identical bets at known probability and odds."
+                                       ],
+                       "constants":  [
+
+                                     ],
+                       "guards":  [
+                                      "p \u003e= 0",
+                                      "p \u003c= 1",
+                                      "odds \u003e 0"
+                                  ],
+                       "id":  "financial-analysis--kelly-optimal-fraction-simple-bet",
+                       "integration":  {
+                                           "duplicate_of":  [
+
+                                                            ],
+                                           "gaps":  [
+                                                        "New meanings kelly_net_odds and kelly_wealth_fraction (both dimensionless) need registry review; bernoulli_success_probability reuses existing vocabulary."
+                                                    ],
+                                           "runtime_model":  null,
+                                           "status":  "requires-extension"
+                                       },
+                       "inverse_notes":  "p = (f*odds+1)/(odds+1) requires the result in [0,1]; the die case recovers (0.04*5+1)/6 = 0.2. odds = (1-p)/(p-f) requires p\u003ef for positive odds; at p=f the odds are unidentified (any odds give the same zero edge). At p=1 the fraction is exactly 1 (bet everything on a sure thing); the source Sure Thing section agrees. No f\u003e=0 guard is imposed: a zero or negative fraction is the valid no-bet signal, documented in limitations.",
+                       "kind":  "theoretical",
+                       "limitations":  [
+                                           "A zero or negative fraction means no edge: bet nothing rather than staking a negative amount.",
+                                           "Full Kelly assumes exactly known probabilities and repeatable bets; estimation error and ruin constraints favor fractional Kelly in practice.",
+                                           "Simultaneous or correlated bets need a portfolio treatment absent here."
+                                       ],
+                       "references":  [
+                                          {
+                                              "expected":  0.2,
+                                              "id":  "published-coin",
+                                              "inputs":  {
+                                                             "odds":  1.0,
+                                                             "p":  0.6
+                                                         },
+                                              "method":  "Published: the source bets 20 percent of wealth on the 60-percent-heads even-money coin (f = q-p = 0.6-0.4).",
+                                              "provenance":  "Stanford-hosted Kelly notes, Biased Coin section.",
+                                              "tolerance":  1E-09
+                                          },
+                                          {
+                                              "expected":  0.04,
+                                              "id":  "published-die",
+                                              "inputs":  {
+                                                             "odds":  5.0,
+                                                             "p":  0.2
+                                                         },
+                                              "method":  "Published: the source bets 4 percent on the die showing 6 with probability 0.2 at 5-to-1 (f = (5*0.2-0.8)/5).",
+                                              "provenance":  "Stanford-hosted Kelly notes, Loaded Dice section.",
+                                              "tolerance":  1E-09
+                                          },
+                                          {
+                                              "expected":  0.0,
+                                              "id":  "no-edge-zero",
+                                              "inputs":  {
+                                                             "odds":  1.0,
+                                                             "p":  0.5
+                                                         },
+                                              "method":  "Zero edge at a fair even-money coin gives a zero fraction: bet nothing.",
+                                              "provenance":  "Curator-constructed independent numerical check; no empirical validation claimed.",
+                                              "tolerance":  1E-09
+                                          }
+                                      ],
+                       "rejection_cases":  [
+                                               {
+                                                   "inputs":  {
+                                                                  "odds":  0.0,
+                                                                  "p":  0.6
+                                                              },
+                                                   "kind":  "domain",
+                                                   "reason":  "Nonpositive odds violate odds\u003e0; division by zero odds is undefined."
+                                               },
+                                               {
+                                                   "inputs":  {
+                                                                  "p":  0.6
+                                                              },
+                                                   "kind":  "missing-input",
+                                                   "reason":  "odds is required; no value is inferred from other inputs."
+                                               }
+                                           ],
+                       "relationship":  {
+                                            "output_symbol":  "f",
+                                            "expression":  "(odds * p - (1 - p)) / odds",
+                                            "locator":  "Biased Coin (f = q-p maximum), Loaded Dice (f = (5q-p)/5 with one-dollar expected profit 5q-p), Risk versus reward (bet edge/odds)",
+                                            "original_equation":  "f = edge/odds with edge = b*q-p (source notation); instantiated f=(5q-p)/5 for the die case and f=q-p for the even-money coin case",
+                                            "source_id":  "stanford-kelly",
+                                            "translation_notes":  "Source q (win probability) maps to p and source p (loss probability) to the introduced complement (1-p); net odds b maps to odds. The general (b*p-(1-p))/b is the source edge/odds rule with the die-case expected-profit form 5q-p generalized from b=5; the coin case f=q-p is the b=1 instance. Dimensionless throughout."
+                                        },
+                       "revision":  "r1",
+                       "sources":  [
+                                       {
+                                           "accessed":  "2026-11-04",
+                                           "evidence":  "Maximizing long-run log-wealth growth gives f=q-p at even money and f=(5q-p)/5 at 5-to-1; the general rule bets edge over odds where edge is expected profit per unit staked; worked fractions 0.2 (coin) and 0.04 (die).",
+                                           "id":  "stanford-kelly",
+                                           "kind":  "primary",
+                                           "license":  "Terms unknown: no copyright or license statement found on the page; no redistribution permission inferred from accessibility.",
+                                           "locator":  "Biased Coin (f = q-p maximum), Loaded Dice (f = (5q-p)/5 with one-dollar expected profit 5q-p), Risk versus reward (bet edge/odds)",
+                                           "redistribution":  "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted.",
+                                           "title":  "The Kelly Criterion (Ben Lynn, Stanford-hosted probability notes)",
+                                           "url":  "https://theory.stanford.edu/~blynn/pr/kelly.html",
+                                           "version":  "Author-hosted notes, live page inspected 2026-11-04"
+                                       }
+                                   ],
+                       "summary":  "For a simple win-or-lose bet with win probability p and net odds b (profit per unit staked), the fraction of wealth maximizing long-run logarithmic growth is (b*p-(1-p))/b; zero or negative means no bet.",
+                       "title":  "Kelly optimal wealth fraction for a simple bet",
+                       "unresolved":  [
+
+                                      ],
+                       "variables":  [
+                                         {
+                                             "context":  "Same simple bet, bankroll, net-odds quote and repeated-trial framing",
+                                             "definition":  "Win probability of the simple bet as a decimal fraction",
+                                             "dimensions":  "dimensionless",
+                                             "domain":  "0\u003c=value\u003c=1",
+                                             "quantity_id":  "bernoulli_success_probability",
+                                             "role":  "input",
+                                             "source_symbol":  "q",
+                                             "symbol":  "p",
+                                             "unit":  "1"
+                                         },
+                                         {
+                                             "context":  "Same simple bet, bankroll, net-odds quote and repeated-trial framing",
+                                             "definition":  "Net odds: profit per unit staked on a win, with the stake returned separately; 5 means 5-to-1",
+                                             "dimensions":  "dimensionless",
+                                             "domain":  "Positive",
+                                             "quantity_id":  "kelly_net_odds",
+                                             "role":  "input",
+                                             "source_symbol":  "introduced b (net odds)",
+                                             "symbol":  "odds",
+                                             "unit":  "1"
+                                         },
+                                         {
+                                             "context":  "Same simple bet, bankroll, net-odds quote and repeated-trial framing",
+                                             "definition":  "Optimal fraction of current wealth to stake; nonpositive means bet nothing",
+                                             "dimensions":  "dimensionless",
+                                             "domain":  "Finite real scalar",
+                                             "quantity_id":  "kelly_wealth_fraction",
+                                             "role":  "output",
+                                             "source_symbol":  "introduced f (wealth fraction)",
+                                             "symbol":  "f",
+                                             "unit":  "1"
+                                         }
+                                     ]
+                   }
+               ],
+    "schema_version":  "cm-curation-batch/1"
+}

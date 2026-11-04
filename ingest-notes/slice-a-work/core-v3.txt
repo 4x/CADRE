@@ -1,0 +1,391 @@
+##### BATCH financial-analysis-cfa-l3-v3-b01
+##### financial-analysis--portfolio-weighted-return-sum rev=r1 kind=theoretical
+EXPR: sum(W)
+ORIG: R = sum w_i R_i (Eq1); B = sum W_i B_i (Eq2)
+NOTES: Family W holds precomputed w_i x R_i (or W_i x B_i) products (multiplication documented here as the per-element construction; no elementwise family arithmetic in the grammar). Decimals (unit 1).
+REF published-portfolio-return-oracle: exp=0.101 tol=1e-09 method=[0.09-0.009+0.02 = 0.101, reported as 10.1%.] prov=[Published result: LM1 Exhibit 2, printed p. 11 (PDF p. 19)]
+REF published-benchmark-return-oracle: exp=0.082 tol=1e-09 method=[0.05-0.004+0.036 = 0.082, reported as 8.2%.] prov=[Published result: LM1 Exhibit 2, printed p. 11 (PDF p. 19)]
+REJ missing-input: inputs={} -- With no bound products there is nothing to sum; an empty family cannot produce a total return.
+GUARDS: 
+VARS: W/family/1/dimensionless def=[Sector weight times sector return, decimal] ; tot/output/1/dimensionless def=[Portfolio (Eq1) or benchmark (Eq2) total return, decimal]
+ASSUME: Weights and returns contemporaneous; weights sum to 100% (leverage via negative weights if present).
+LIMIT: Single-period, single-currency accounting identity; compounding across periods is geometric, not this sum.
+INV: No algebraic inverse for single elements without fixing the rest. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bhb-allocation-contribution rev=r1 kind=theoretical
+EXPR: (w-bw)*b
+ORIG: A_i = (w_i - W_i) B_i (Eq3)
+NOTES: Decimals throughout. Positive (negative) values add (subtract) from excess return.
+REF published-healthcare-allocation-oracle: exp=-0.002 tol=1e-09 method=[(0.3-0.2)x(-0.02) = -0.002, reported as -0.2%.] prov=[Published result: LM1 allocation detail, printed p. 12 (PDF p. 20)]
+REF published-financials-allocation-oracle: exp=-0.012 tol=1e-09 method=[(0.2-0.3)x0.12 = -0.012, reported as -1.2%.] prov=[Published result: LM1 allocation detail, printed p. 12 (PDF p. 20)]
+REJ missing-input: inputs={"w": 0.3, "bw": 0.2} -- Benchmark sector return is structurally required; the weight tilt alone has no return scale.
+GUARDS: 
+VARS: w/input/1/dimensionless def=[Portfolio weight of the sector, decimal] ; bw/input/1/dimensionless def=[Benchmark weight of the sector, decimal] ; b/input/1/dimensionless def=[Benchmark return of the sector, decimal] ; a/output/1/dimensionless def=[Contribution to allocation of the sector, decimal]
+ASSUME: Single-period, single-currency; benchmark return contemporaneous with weights.
+LIMIT: BHB quirk documented in the PDF: overweighting a positive-return sector always reads positive even when the sector trails the overall benchmark; the BF sibling corrects this.
+INV: b = a/(w-bw) requires w != bw. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bhb-allocation-total rev=r1 kind=theoretical
+EXPR: sum(A)
+ORIG: A = sum A_i (Eq4)
+NOTES: Family A holds precomputed sector A_i values (computed by the sibling contribution record). Decimals.
+REF published-exhibit-2-allocation-total: exp=-0.014 tol=1e-09 method=[0.0-0.002-0.012 = -0.014, reported as -1.4%.] prov=[Published result: LM1 Eq4 total, printed p. 12 (PDF p. 20)]
+REF published-example-3-allocation-total: exp=0.002 tol=1e-09 method=[0.00+0.05+0.15 = 0.20% as reported.] prov=[Published result: LM1 Example 3, printed p. 14 (PDF p. 22)]
+REJ missing-input: inputs={} -- With no bound contributions there is nothing to sum.
+GUARDS: 
+VARS: A/family/1/dimensionless def=[Sector contribution to allocation, decimal] ; atot/output/1/dimensionless def=[Total portfolio allocation effect, decimal]
+ASSUME: Sector contributions from one consistent BHB decomposition.
+LIMIT: Additive only within a single period; multi-period totals require smoothing (geometric attribution compounds instead).
+INV: No algebraic inverse for single elements without fixing the rest. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bhb-selection-contribution rev=r1 kind=theoretical
+EXPR: bw*(r-b)
+ORIG: S_i = W_i (R_i - B_i) (Eq5)
+NOTES: Decimals throughout.
+REF published-energy-selection-oracle: exp=0.04 tol=1e-09 method=[0.5x(0.18-0.10) = 0.04, reported as 4.0%.] prov=[Published result: LM1 selection detail, printed p. 12 (PDF p. 20)]
+REF published-financials-selection-oracle: exp=-0.006 tol=1e-09 method=[0.3x(0.10-0.12) = -0.006, reported as -0.6%.] prov=[Published result: LM1 selection detail, printed p. 13 (PDF p. 21)]
+REJ missing-input: inputs={"bw": 0.5, "r": 0.18} -- Benchmark sector return is structurally required; the return gap cannot be formed without it.
+GUARDS: 
+VARS: bw/input/1/dimensionless def=[Benchmark weight of the sector, decimal] ; r/input/1/dimensionless def=[Portfolio return of the sector, decimal] ; b/input/1/dimensionless def=[Benchmark return of the sector, decimal] ; s/output/1/dimensionless def=[Contribution to selection of the sector, decimal]
+ASSUME: Single-period, single-currency; benchmark weight scales the within-sector return gap.
+LIMIT: Selection here is within-sector only; allocation-interaction is the separate Eq7 sibling.
+INV: b = r - s/bw requires bw != 0. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bhb-selection-total rev=r1 kind=theoretical
+EXPR: sum(S)
+ORIG: S = sum S_i (Eq6)
+NOTES: Family S holds precomputed sector S_i values. Decimals.
+REF published-exhibit-2-selection-total: exp=0.032 tol=1e-09 method=[0.04-0.002-0.006 = 0.032, reported as 3.2%.] prov=[Published result: LM1 Eq6 total, printed p. 13 (PDF p. 21)]
+REF published-example-3-selection-total: exp=-0.0014 tol=1e-09 method=[0.48-0.30-0.32 = -0.14% as reported.] prov=[Published result: LM1 Example 3, printed p. 14 (PDF p. 22)]
+REJ missing-input: inputs={} -- With no bound contributions there is nothing to sum.
+GUARDS: 
+VARS: S/family/1/dimensionless def=[Sector contribution to selection, decimal] ; stot/output/1/dimensionless def=[Total portfolio selection effect, decimal]
+ASSUME: Sector contributions from one consistent BHB decomposition.
+LIMIT: Additive only within a single period (same smoothing caveat as allocation totals).
+INV: No algebraic inverse for single elements without fixing the rest. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v3-b02
+##### financial-analysis--bhb-interaction-contribution rev=r1 kind=theoretical
+EXPR: (w-bw)*(r-b)
+ORIG: I_i = (w_i - W_i)(R_i - B_i) (Eq7)
+NOTES: Decimals throughout. Positive when the tilt and the selection gap share a sign.
+REF published-healthcare-interaction-oracle: exp=-0.001 tol=1e-09 method=[(0.3-0.2)x(-0.03+0.02) = -0.001, reported as -0.1%.] prov=[Published result: LM1 interaction detail, printed p. 13 (PDF p. 21)]
+REF published-financials-interaction-oracle: exp=0.002 tol=1e-09 method=[(0.2-0.3)x(0.10-0.12) = 0.002, reported as 0.2%.] prov=[Published result: LM1 interaction detail, printed p. 13 (PDF p. 21)]
+REJ missing-input: inputs={"w": 0.3, "bw": 0.2, "r": -0.03} -- Benchmark sector return is structurally required; the gap cannot be formed without it.
+GUARDS: 
+VARS: w/input/1/dimensionless def=[Portfolio weight of the sector, decimal] ; bw/input/1/dimensionless def=[Benchmark weight of the sector, decimal] ; r/input/1/dimensionless def=[Portfolio return of the sector, decimal] ; b/input/1/dimensionless def=[Benchmark return of the sector, decimal] ; v/output/1/dimensionless def=[Contribution to interaction of the sector, decimal]
+ASSUME: Single-period, single-currency BHB decomposition.
+LIMIT: Interaction is often small but completes the arithmetic identity R-B = A+S+I.
+INV: Four inputs; solving for any one requires the other three and v != 0 handling per case. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bhb-interaction-total rev=r1 kind=theoretical
+EXPR: sum(V)
+ORIG: I = sum I_i (Eq8)
+NOTES: Family V holds precomputed sector I_i values. Decimals.
+REF published-exhibit-2-interaction-total: exp=0.001 tol=1e-09 method=[0.0-0.001+0.002 = 0.001, reported as 0.1%.] prov=[Published result: LM1 Eq8 total, printed p. 13 (PDF p. 21)]
+REF published-example-3-interaction-total: exp=0.0002 tol=1e-09 method=[0.00+0.10-0.08 = 0.02% as reported.] prov=[Published result: LM1 Example 3, printed p. 14 (PDF p. 22)]
+REJ missing-input: inputs={} -- With no bound contributions there is nothing to sum.
+GUARDS: 
+VARS: V/family/1/dimensionless def=[Sector contribution to interaction, decimal] ; vtot/output/1/dimensionless def=[Total portfolio interaction effect, decimal]
+ASSUME: Sector contributions from one consistent BHB decomposition.
+LIMIT: Additive only within a single period.
+INV: No algebraic inverse for single elements without fixing the rest. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bf-allocation-contribution rev=r1 kind=theoretical
+EXPR: (w-bw)*(b-tb)
+ORIG: A_i = (w_i - W_i)(B_i - B) (Eq10); portfolio-level allocation BS-B = sum (w_i - W_i) B_i (Eq9)
+NOTES: tb is the total benchmark return B. Decimals. Portfolio-level total equals the BHB allocation total (PDF Eq10 note).
+REF published-healthcare-bf-oracle: exp=-0.0102 tol=1e-09 method=[(0.3-0.2)x(-0.02-0.082) = -0.0102, reported as -1.02%.] prov=[Published result: LM1 BF revision, printed p. 16 (PDF p. 24)]
+REF published-fund2-sa-bf-oracle: exp=0.001964 tol=1e-06 method=[(0.2038-0.1882)x(0.3526-0.2267) = 0.00196364, reported as 0.1964% (0.20%). Tolerance covers publication rounding.] prov=[Published result: LM1 Fund 2 solution, printed p. 79 (PDF p. 87)]
+REJ missing-input: inputs={"w": 0.3, "bw": 0.2, "b": -0.02} -- Total benchmark return is structurally required; the opportunity-cost correction cannot be formed without it.
+GUARDS: 
+VARS: w/input/1/dimensionless def=[Portfolio weight of the sector, decimal] ; bw/input/1/dimensionless def=[Benchmark weight of the sector, decimal] ; b/input/1/dimensionless def=[Benchmark return of the sector, decimal] ; tb/input/1/dimensionless def=[Total benchmark return, decimal] ; a/output/1/dimensionless def=[BF contribution to allocation of the sector, decimal]
+ASSUME: Single-period, single-currency; total benchmark return contemporaneous.
+LIMIT: Corrects the BHB overweight-positive-return quirk by netting the opportunity cost of not holding the overall benchmark.
+INV: tb = b - a/(w-bw) requires w != bw. Algebraic only.
+UNRES: 
+
+##### financial-analysis--carhart-factor-contribution rev=r1 kind=theoretical
+EXPR: d*F
+ORIG: Contribution = (sensitivity difference) x (factor return), from R_p - R_f = a_p + b_p1 RMRF + b_p2 SMB + b_p3 HML + b_p4 WML + E_p (Eq11)
+NOTES: d is the portfolio-minus-benchmark sensitivity to the factor; F is the factor return. Decimals. Summing contributions over factors gives the factor-tilt return (2.12% in Exhibit 5, 6.96% for Fund 1).
+REF published-exhibit-5-hml-oracle: exp=0.0204 tol=1e-09 method=[0.40x0.051 = 0.0204, reported as 2.04% (98.4% of active).] prov=[Published result: LM1 Exhibit 5, printed p. 18 (PDF p. 26)]
+REF published-fund1-hml-oracle: exp=0.02016 tol=1e-09 method=[-0.21x-0.096 = 0.02016, reported as 2.02%.] prov=[Published result: LM1 Fund 1 table, printed p. 74 (PDF p. 82)]
+REJ missing-input: inputs={"d": 0.4} -- Factor return is structurally required; sensitivity without a factor payoff has no return scale.
+GUARDS: 
+VARS: d/input/1/dimensionless def=[Portfolio-minus-benchmark sensitivity to the factor, decimal] ; F/input/1/dimensionless def=[Return of the factor over the period, decimal] ; c/output/1/dimensionless def=[Contribution of the factor to active return, decimal]
+ASSUME: Sensitivities from one consistent factor regression; benchmark must fit the mandate for attribution meaning.
+LIMIT: Single-factor slice only; total active return adds security selection (alpha-like remainder) per Exhibit 5 (2.12% + -0.05% = 2.07%). Momentum WML defined per PDF (past-year winners minus losers).
+INV: F = c/d requires d != 0; d = c/F requires F != 0. Algebraic only.
+UNRES: 
+
+##### financial-analysis--arithmetic-excess-return rev=r1 kind=theoretical
+EXPR: r-b
+ORIG: Excess return = R - B
+NOTES: Decimals. The identity decomposed by all attribution siblings (BHB: R-B = A+S+I).
+REF published-simple-excess-oracle: exp=0.02 tol=1e-09 method=[0.0524-0.0324 = 0.02, reported as 2.00%.] prov=[Published result: LM1 simple example, printed p. 10 (PDF p. 18)]
+REF published-exhibit-2-excess-oracle: exp=0.019 tol=1e-09 method=[0.101-0.082 = 0.019, reported as 1.9% (190 bps).] prov=[Published result: LM1 Exhibit 2 check, printed p. 12 (PDF p. 20)]
+REJ missing-input: inputs={"r": 0.0524} -- Benchmark return is structurally required; outperformance has no meaning without the benchmark.
+GUARDS: 
+VARS: r/input/1/dimensionless def=[Portfolio return over the period, decimal] ; b/input/1/dimensionless def=[Benchmark return over the same period, decimal] ; e/output/1/dimensionless def=[Arithmetic excess return, decimal]
+ASSUME: Single period, same currency, contemporaneous measurement.
+LIMIT: Arithmetic difference does not compound across periods; geometric excess (dividing by the benchmark wealth ratio) is the multi-period alternative noted in the PDF.
+INV: b = r - e; r = e + b. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v3-b03
+##### financial-analysis--sortino-ratio rev=r1 kind=theoretical
+EXPR: (rp-rt)/sd
+ORIG: SR_D = (E(r_p) - r_T)/sigma_D, ex post (r_p - r_T)/sigma_D_hat (Eqs 22-23)
+NOTES: rp is mean portfolio return, rt the MAR/target, sd the target semi-standard deviation (computed by the sibling semivariance record, then square-rooted). Decimals.
+REF published-example-12-sortino-oracle: exp=0.875 tol=0.005 method=[(0.10-0.03)/0.08 = 0.875, reported as 0.88.] prov=[Published result: LM1 Example 12 Q1, printed p. 54 (PDF p. 62)]
+REF published-exhibit-16-sortino-oracle: exp=0.6515 tol=0.005 method=[(0.06-0.04)/0.0307 = 0.6515, reported as approximately 0.65.] prov=[Published result: LM1 Exhibit 16, printed p. 53 (PDF p. 61)]
+REJ missing-input: inputs={"rp": 0.1, "rt": 0.03} -- Downside deviation is structurally required; without it the ratio has no risk scale.
+REJ domain: inputs={"rp": 0.1, "rt": 0.03, "sd": 0.0} -- Guard sd > 0 violated; zero downside deviation makes the ratio undefined.
+GUARDS: sd > 0
+VARS: rp/input/1/dimensionless def=[Mean portfolio return, decimal] ; rt/input/1/dimensionless def=[Minimum acceptable (target) return, decimal] ; sd/input/1/dimensionless def=[Target semi-standard deviation, decimal] ; sr/output/1/dimensionless def=[Sortino ratio, decimal]
+ASSUME: MAR fixed for the measurement; sd from downside-only deviations below the MAR.
+LIMIT: Investor-specific MAR makes cross-sectional comparison difficult; not a risk premium (return above minimum, per PDF).
+INV: sd = (rp-rt)/sr requires sr != 0 (used in reverse by practice Q3: (8.20-5.00)/0.87 = 3.68%). Algebraic only.
+UNRES: 
+
+##### financial-analysis--target-semivariance rev=r1 kind=theoretical
+EXPR: sum(M)/n
+ORIG: sigma_D^2 = sum min(r_t - r_T, 0)^2 / N (Eq24 without the 1/2 power)
+NOTES: Family M holds precomputed squared shortfalls (squaring documented here as the per-element construction). Record outputs the semivariance; sigma_D = sqrt(output) per Eq24 (sqrt(0.00094) = 3.07%, sqrt(0.001) = 3.16%). Decimals.
+REF published-exhibit-16-semivariance-oracle: exp=0.00094 tol=1e-09 method=[Sum = 0.0094; 0.0094/10 = 0.00094 (sqrt = 3.07% as reported).] prov=[Published result: LM1 Exhibit 16, printed p. 54 (PDF p. 62)]
+REF published-q5-semivariance-oracle: exp=0.001 tol=1e-09 method=[Sum = 0.004; 0.004/4 = 0.001 (sqrt = 3.16% as reported).] prov=[Published result: LM1 Example 12 Q5 solution, printed p. 56 (PDF p. 64)]
+REJ missing-input: inputs={"M": [0.0025]} -- Period count is structurally required; the mean over an unknown number of periods is undefined.
+REJ domain: inputs={"M": [0.0025], "n": 0} -- Guard n >= 1 violated; averaging over zero periods is undefined.
+GUARDS: n >= 1
+VARS: M/family/1/dimensionless def=[Squared below-target deviation, decimal-squared] ; n/input/1/dimensionless def=[Number of periods averaged] ; sv/output/1/dimensionless def=[Target semivariance, decimal-squared]
+ASSUME: MAR fixed across the series; only below-target deviations enter (above-target contribute 0).
+LIMIT: Grammar has no sqrt: the PDF's Eq24 standard deviation is the documented sqrt inverse. Annualization of multi-period inputs follows the source convention.
+INV: sigma_D = sqrt(sv) is the documented Eq24 inverse (3.07%, 3.16% verified). No algebraic inverse for single elements. Substitution check: Q3 inputs give sv = (0.032/0.87)^2.
+UNRES: 
+
+##### financial-analysis--upside-capture rev=r1 kind=theoretical
+EXPR: rm/rb
+ORIG: UC(m,B,t) = R(m,t)/R(B,t) if R(B,t) >= 0
+NOTES: Geometric-average-period returns in the PDF oracles; ratio in decimal (72.8% = 0.728). Above (below) 100% suggests outperformance (underperformance).
+REF published-exhibit-18-uc-oracle: exp=0.7286 tol=0.001 method=[0.51%/0.70% = 0.7286, reported as 72.8%.] prov=[Published result: LM1 Exhibit 18, printed p. 58 (PDF p. 66)]
+REF published-example-13-uc-oracle: exp=1.1848 tol=0.005 method=[5.45%/4.60% = 1.1848, reported as 118%.] prov=[Published result: LM1 Example 13, printed p. 65 (PDF p. 73)]
+REJ missing-input: inputs={"rm": 0.0051} -- Benchmark return is structurally required; capture has no meaning without the market leg.
+REJ domain: inputs={"rm": 0.0051, "rb": 0.0} -- Guard rb > 0 violated; capture against a flat benchmark is undefined.
+GUARDS: rb > 0
+VARS: rm/input/1/dimensionless def=[Manager return for the up-market span, decimal] ; rb/input/1/dimensionless def=[Benchmark return for the same span, decimal] ; uc/output/1/dimensionless def=[Upside capture ratio, decimal]
+ASSUME: Up-market span only (benchmark return nonnegative); opposite-sign returns yield negative ratios (informative, per PDF).
+LIMIT: Geometric-average formulation in the source exhibits; single-period point ratios share the form but the oracles are span averages.
+INV: rb = rm/uc requires uc != 0. Algebraic only.
+UNRES: 
+
+##### financial-analysis--downside-capture rev=r1 kind=theoretical
+EXPR: rm/rb
+ORIG: DC(m,B,t) = R(m,t)/R(B,t) if R(B,t) < 0
+NOTES: Below (above) 100% suggests outperformance (underperformance) in down markets. The PDF's -100% example (manager +1% vs market -1%) is cited as supporting evidence.
+REF published-exhibit-18-dc-oracle: exp=0.5983 tol=0.001 method=[-0.70%/-1.17% = 0.5983, reported as 59.8%.] prov=[Published result: LM1 Exhibit 18, printed p. 58 (PDF p. 66)]
+REF published-example-13-dc-oracle: exp=1.0299 tol=0.005 method=[-5.51%/-5.35% = 1.0299, reported as 103%.] prov=[Published result: LM1 Example 13, printed p. 65 (PDF p. 73)]
+REJ missing-input: inputs={"rm": -0.007} -- Benchmark return is structurally required; capture has no meaning without the market leg.
+REJ domain: inputs={"rm": -0.007, "rb": 0.0} -- Guard rb < 0 violated; a flat benchmark is neither an up nor a down market.
+GUARDS: rb < 0
+VARS: rm/input/1/dimensionless def=[Manager return for the down-market span, decimal] ; rb/input/1/dimensionless def=[Benchmark return for the same span, decimal] ; dc/output/1/dimensionless def=[Downside capture ratio, decimal]
+ASSUME: Down-market span only (benchmark return negative).
+LIMIT: Same span-average caveat as the upside leg.
+INV: rb = rm/dc requires dc != 0. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v3-b04
+##### financial-analysis--capture-ratio rev=r1 kind=theoretical
+EXPR: uc/dc
+ORIG: CR(m,B,t) = UC(m,B,t)/DC(m,B,t)
+NOTES: Inputs are the leg ratios (decimals); output decimal (121.7% = 1.217).
+REF published-exhibit-18-cr-oracle: exp=1.2178 tol=0.001 method=[0.728571/0.598291 = 1.2178, reported as 121.7% (publication rounds the legs first).] prov=[Published result: LM1 Exhibit 18, printed p. 58 (PDF p. 66)]
+REF published-example-13-cr-oracle: exp=1.1504 tol=0.005 method=[1.1848/1.0299 = 1.1504, reported as 115%.] prov=[Published result: LM1 Example 13, printed p. 65 (PDF p. 73)]
+REJ missing-input: inputs={"uc": 0.728571} -- Downside capture is structurally required; asymmetry needs both legs.
+GUARDS: 
+VARS: uc/input/1/dimensionless def=[Upside capture ratio, decimal] ; dc/input/1/dimensionless def=[Downside capture ratio, decimal] ; cr/output/1/dimensionless def=[Capture ratio, decimal]
+ASSUME: Both legs from one consistent comparison (same spans/method).
+LIMIT: Threshold reading only (above/below 1); magnitude comparisons across managers need matched spans.
+INV: dc = uc/cr requires cr != 0. Algebraic only.
+UNRES: 
+
+##### financial-analysis--gain-to-offset-loss rev=r1 kind=theoretical
+EXPR: L/(1-L)
+ORIG: g = L/(1-L): lose L of 1, hold 1-L, need L/(1-L) to recover
+NOTES: L is the loss fraction (decimal); output the required gain fraction (decimal). Source-backed derivation from the two published statements.
+REF published-ex13-gain-oracle: exp=0.1111 tol=0.005 method=[0.10/0.90 = 0.1111, reported as 11%.] prov=[Published result: LM1 Example 13 Q1 solution, printed p. 64 (PDF p. 72)]
+REF published-fifty-percent-anchor: exp=1.0 tol=1e-09 method=[0.50/0.50 = 1.0, stated as a 100% gain to reverse a 50% decline.] prov=[Published result: LM1 drawdown discussion, printed p. 60 (PDF p. 68)]
+REJ missing-input: inputs={} -- Loss fraction is structurally required; nothing to recover from otherwise.
+REJ domain: inputs={"L": 1.0} -- Guard L < 1 violated; a 100% loss leaves no base to grow.
+GUARDS: L < 1
+VARS: L/input/1/dimensionless def=[Fractional loss from peak, decimal] ; g/output/1/dimensionless def=[Fractional gain on the reduced base needed to recover, decimal]
+ASSUME: Frictionless recovery (no fees, taxes, or contributions); single loss-then-gain round trip.
+LIMIT: Total-loss (L = 1) is unrecoverable and guarded out; partial recovery paths need not follow this closed form.
+INV: L = g/(1+g). Algebraic only.
+UNRES: 
+
+##### financial-analysis--maximum-drawdown rev=r1 kind=theoretical
+EXPR: (v-vp)/vp
+ORIG: Maximum DD(m,t) = min([V(m,t) - V(m,t*)]/V(m,t*), 0), t > t*
+NOTES: v is the trough value (index level), vp the prior peak; output negative fraction. Inputs as index levels (1 + cumulative return). The PDF's min(...,0) floor is enforced by the v <= vp guard.
+REF published-covid-max-dd-oracle: exp=-0.196 tol=0.001 method=[(0.8933-1.111)/1.111 = -0.19595, reported as -19.60%. Index levels from cumulative returns (-10.67% trough, +11.10% peak).] prov=[Published result: LM1 Exhibit 20, printed p. 60 (PDF p. 68)]
+REF published-covid-jan-dd-oracle: exp=-0.0004 tol=0.0001 method=[(1.1105-1.111)/1.111 = -0.00045, reported as -0.04%.] prov=[Published result: LM1 Exhibit 20, printed p. 60 (PDF p. 68)]
+REJ missing-input: inputs={"v": 0.8933} -- Peak value is structurally required; drawdown is always relative to a peak.
+REJ domain: inputs={"v": 1.12, "vp": 1.111} -- Guard v <= vp violated; a value above the peak is a new high, not a drawdown.
+GUARDS: v <= vp
+VARS: v/input/1/dimensionless def=[Portfolio value (index level) at the trough, in currency units] ; vp/input/1/dimensionless def=[Prior peak portfolio value (index level), in currency units] ; dd/output/1/dimensionless def=[Maximum drawdown, decimal (negative or zero)]
+ASSUME: trough after the peak (t > t*); values as contemporaneous index levels.
+LIMIT: Single episode statistic; duration/recovery phasing (7 months/4 months in the source) is descriptive, not part of this formula. New highs reset the peak.
+INV: vp = v/(1+dd) requires dd != -1. Algebraic only.
+UNRES: 
+
+##### financial-analysis--style-return-component rev=r1 kind=theoretical
+EXPR: b-m
+ORIG: S = B - M
+NOTES: Decimals. Positive when the style benchmark beats the broad market.
+REF published-courtland-style-oracle: exp=-0.027 tol=1e-09 method=[-0.055+0.028 = -0.027, reported as -2.7%.] prov=[Published result: LM1 Example 11 Q1, printed p. 44 (PDF p. 52)]
+REF published-kuti-style-oracle: exp=0.019 tol=1e-09 method=[0.051-0.032 = 0.019, reported as 1.9%.] prov=[Published result: LM1 Example 11 Q2, printed p. 44 (PDF p. 52)]
+REJ missing-input: inputs={"b": -0.055} -- Market return is structurally required; style is defined against the broad market.
+GUARDS: 
+VARS: b/input/1/dimensionless def=[Style benchmark return, decimal] ; m/input/1/dimensionless def=[Broad market index return, decimal] ; s/output/1/dimensionless def=[Return due to manager style, decimal]
+ASSUME: Benchmark consistent with the manager's style; market is the broad index.
+LIMIT: Decomposition accounting only; style-vs-skill inference needs the correlation conditions in the PDF.
+INV: m = b - s; b = s + m. Algebraic only.
+UNRES: 
+
+##### financial-analysis--active-management-return rev=r1 kind=theoretical
+EXPR: p-b
+ORIG: A = P - B
+NOTES: Decimals. Positive when the account beats its style benchmark.
+REF published-courtland-active-oracle: exp=0.002 tol=1e-09 method=[-0.053+0.055 = 0.002, reported as 0.2%.] prov=[Published result: LM1 Example 11 Q1, printed p. 44 (PDF p. 52)]
+REF published-kuti-active-oracle: exp=0.005 tol=1e-09 method=[0.056-0.051 = 0.005, reported as 0.5%.] prov=[Published result: LM1 Example 11 Q2, printed p. 44 (PDF p. 52)]
+REJ missing-input: inputs={"p": -0.053} -- Benchmark return is structurally required; active return is defined against it.
+GUARDS: 
+VARS: p/input/1/dimensionless def=[Account (portfolio) return, decimal] ; b/input/1/dimensionless def=[Style benchmark return, decimal] ; a/output/1/dimensionless def=[Return due to active management, decimal]
+ASSUME: Benchmark consistent with the manager's style.
+LIMIT: Same decomposition-accounting scope as the style sibling.
+INV: b = p - a; p = a + b. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v3-b05
+##### financial-analysis--performance-fee-sharing-leg rev=r1 kind=theoretical
+EXPR: base+share*(active-base)
+ORIG: Billed fee = base fee + sharing x (active return - base fee), within [base, maximum]
+NOTES: Linear leg only (no min/max in the grammar); floor at base and cap at maximum are documented limits, not part of this expression. Decimals.
+REF published-fee-100bp-oracle: exp=0.004 tol=1e-09 method=[0.0025+0.2x(0.01-0.0025) = 0.004, reported as 0.40%.] prov=[Published result: LM2 Exhibit 8, printed p. 113 (PDF p. 121)]
+REF published-fee-200bp-oracle: exp=0.006 tol=1e-09 method=[0.0025+0.2x(0.02-0.0025) = 0.006, reported as 0.60%.] prov=[Published result: LM2 Exhibit 8, printed p. 113 (PDF p. 121)]
+REJ missing-input: inputs={"base": 0.0025, "share": 0.2} -- Active return is structurally required; the sharing leg scales with realized activeness.
+GUARDS: 
+VARS: base/input/1/dimensionless def=[Base (minimum) fee, decimal] ; share/input/1/dimensionless def=[Sharing rate on active return beyond base, decimal] ; active/input/1/dimensionless def=[Active return for the period, decimal] ; fee/output/1/dimensionless def=[Billed fee inside the sharing range, decimal]
+ASSUME: Active return inside the sharing range (base <= active <= cap kink); single annual period.
+LIMIT: Piecewise floor/cap excluded: below base the fee is the base (call floor); beyond 2.75% here the fee is the 0.75% maximum.
+INV: active = base + (fee-base)/share requires share != 0. Algebraic only.
+UNRES: 
+
+##### financial-analysis--net-active-return rev=r1 kind=theoretical
+EXPR: active-fee
+ORIG: Net active return = active return - billed fee
+NOTES: Decimals. Both oracles from Exhibit 8 Panel B.
+REF published-net-100bp-oracle: exp=0.006 tol=1e-09 method=[0.01-0.004 = 0.006, reported as 0.60%.] prov=[Published result: LM2 Exhibit 8, printed p. 113 (PDF p. 121)]
+REF published-net-200bp-oracle: exp=0.014 tol=1e-09 method=[0.02-0.006 = 0.014, reported as 1.40%.] prov=[Published result: LM2 Exhibit 8, printed p. 113 (PDF p. 121)]
+REJ missing-input: inputs={"active": 0.01} -- Billed fee is structurally required; net-of-fee has no meaning without the fee.
+GUARDS: 
+VARS: active/input/1/dimensionless def=[Gross active return for the period, decimal] ; fee/input/1/dimensionless def=[Fee billed for the period, decimal] ; net/output/1/dimensionless def=[Active return net of fees, decimal]
+ASSUME: Fee contemporaneous with the active return; single period.
+LIMIT: Subtraction only; fee-drag compounding across periods is not modeled here.
+INV: fee = active - net; active = net + fee. Algebraic only.
+UNRES: 
+
+##### financial-analysis--fee-schedule-kink rev=r1 kind=theoretical
+EXPR: base+(fee-base)/share
+ORIG: a* = base + (fee - base)/share
+NOTES: Source-backed derivation from the sharing-leg equation solved for active return. Decimals. Breakeven: fee = standard 0.50% gives 1.50%; cap: fee = maximum 0.75% gives 2.75%.
+REF published-breakeven-oracle: exp=0.015 tol=1e-09 method=[0.0025+(0.005-0.0025)/0.2 = 0.015, reported as breakeven 1.50%.] prov=[Published result: LM2 Exhibit 8, printed p. 113 (PDF p. 121)]
+REF published-cap-kink-oracle: exp=0.0275 tol=1e-09 method=[0.0025+(0.0075-0.0025)/0.2 = 0.0275, matching the stated 2.75% cap point.] prov=[Published result: LM2 Exhibit 8, printed p. 113 (PDF p. 121)]
+REJ missing-input: inputs={"base": 0.0025, "fee": 0.005} -- Sharing rate is structurally required; the kink location scales inversely with it.
+REJ domain: inputs={"base": 0.0025, "fee": 0.005, "share": 0.0} -- Guard share > 0 violated; with no sharing the fee never reaches higher levels.
+GUARDS: share > 0
+VARS: base/input/1/dimensionless def=[Base (minimum) fee, decimal] ; fee/input/1/dimensionless def=[Stated fee level (standard or maximum), decimal] ; share/input/1/dimensionless def=[Sharing rate on active return beyond base, decimal] ; astar/output/1/dimensionless def=[Active return reaching the fee level, decimal]
+ASSUME: Fee level attainable under the schedule (standard fee inside the sharing range; maximum at the cap kink).
+LIMIT: No performance fee below base (floor) and no fee growth beyond the cap are represented here; this record locates the kinks only.
+INV: Inverse is the sharing-leg record itself (fee = base + sharex(astar-base)). Algebraic only.
+UNRES: 
+
+##### financial-analysis--monthly-net-return rev=r1 kind=theoretical
+EXPR: g-mf/12
+ORIG: net_m = gross_m - MF/12
+NOTES: Monthly accrual of the annual management fee (division by 12 formalizes the PDF's end-of-month accrual). Decimals. Performance-fee columns follow different accounting (accrual balance) and are not this record.
+REF published-month1-mf05-oracle: exp=0.0196 tol=0.0001 method=[0.02-0.005/12 = 0.0195833, reported as 1.96%.] prov=[Published result: LM2 Exhibit 10, printed p. 116 (PDF p. 124)]
+REF published-month2-mf05-oracle: exp=0.0296 tol=0.0001 method=[0.03-0.005/12 = 0.0295833, reported as 2.96%.] prov=[Published result: LM2 Exhibit 10, printed p. 116 (PDF p. 124)]
+REJ missing-input: inputs={"g": 0.02} -- Management fee is structurally required; the accrual cannot be formed without the rate.
+GUARDS: 
+VARS: g/input/1/dimensionless def=[Monthly gross return, decimal] ; mf/input/1/dimensionless def=[Annual management fee rate, decimal] ; net/output/1/dimensionless def=[Monthly return net of management-fee accrual, decimal]
+ASSUME: End-of-month accrual of 1/12 of the annual fee; MF-only columns (no performance fee in the month).
+LIMIT: First-order accrual (no intra-month compounding of the fee); management fee shifts the level without changing volatility (PDF note).
+INV: mf = 12x(g-net). Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v3-b06
+##### financial-analysis--subperiod-twr rev=r1 kind=theoretical
+EXPR: (v1-v0)/v0
+ORIG: r_t = (V1 - V0)/V0 (Eq1)
+NOTES: Values include cash and accrued income; decimals. The same equation prices each sub-period in the intra-period valuation method.
+REF published-subperiod-1-oracle: exp=-0.01 tol=1e-09 method=[(99,000-100,000)/100,000 = -0.01, reported as -1.00%.] prov=[Published result: LM3 valuation example, printed p. 152 (PDF p. 160)]
+REF published-ex3-subperiod-1-oracle: exp=0.02 tol=1e-09 method=[(102,000-100,000)/100,000 = 0.02, part of the 8.00% true TWR.] prov=[Published result: LM3 Exhibit 3, printed p. 155 (PDF p. 163)]
+REJ missing-input: inputs={"v1": 99000.0} -- Beginning value is structurally required; the return has no scale without it.
+REJ domain: inputs={"v1": 99000.0, "v0": 0.0} -- Guard v0 > 0 violated; division by a zero beginning value is undefined.
+GUARDS: v0 > 0
+VARS: v1/input/1/dimensionless def=[Ending portfolio value including cash and accrued income, in currency units] ; v0/input/1/dimensionless def=[Beginning portfolio value including cash and accrued income, in currency units] ; r/output/1/dimensionless def=[Time-weighted return for the (sub-)period, decimal]
+ASSUME: No external cash flows within the (sub-)period; valuation per composite policy.
+LIMIT: Single-period only; multi-period totals require geometric linking (sibling record).
+INV: v0 = v1/(1+r) requires r != -1. Algebraic only.
+UNRES: 
+
+##### financial-analysis--geometric-linking-twr rev=r1 kind=theoretical
+EXPR: (1+a)*(1+b)-1
+ORIG: r_twr = (1 + r_t,1) x (1 + r_t,2) - 1 (Eq2, two-sub-period form)
+NOTES: Fixed two-sub-period form (the PDF's Eq2 generalizes to n sub-periods; three-period Q1 total 16.36% is cited as supporting evidence). Decimals.
+REF published-february-link-oracle: exp=0.0676 tol=0.0001 method=[(1.0433)x(1.0233)-1 = 0.067629, reported as 6.76%.] prov=[Published result: LM3 practice Q4 solution, printed p. 187 (PDF p. 195)]
+REF published-march-link-oracle: exp=0.048 tol=0.0001 method=[(1.0266)x(1.0208)-1 = 0.047954, reported as 4.80%.] prov=[Published result: LM3 practice Q4 solution, printed p. 187 (PDF p. 195)]
+REJ missing-input: inputs={"a": 0.0433} -- Both sub-period returns are structurally required; linking a single leg is not a total return.
+GUARDS: 
+VARS: a/input/1/dimensionless def=[TWR of the first sub-period, decimal] ; b/input/1/dimensionless def=[TWR of the second sub-period, decimal] ; twr/output/1/dimensionless def=[Geometrically linked TWR for the full period, decimal]
+ASSUME: Sub-period returns from intra-period valuation at each large cash flow; GIPS requires geometric (multiplicative) linking.
+LIMIT: Two-sub-period closed form only; three or more sub-periods extend the product (Q1: 16.36% over Jan/Feb/Mar). Returns compound, never add.
+INV: No single-input inverse; solving for one leg requires the other and the total. Algebraic only.
+UNRES: 
+
+##### financial-analysis--modified-dietz-return rev=r1 kind=theoretical
+EXPR: (v1-v0-cf)/(v0+cf*w)
+ORIG: r_ModDietz = (V1 - V0 - CF)/(V0 + sum CF_i x w_i) (Eq3, single-flow form)
+NOTES: Single-net-flow closed form (CF = sum of signed flows; w = day weight from Eq4). Decimals. Multi-flow sums extend the denominator additively.
+REF published-ex2-dietz-oracle: exp=0.0051 tol=0.0001 method=[550/(100,000+8,333.33) = 0.0050769, reported as 0.51%.] prov=[Published result: LM3 Exhibit 2, printed p. 154 (PDF p. 162)]
+REF published-ex3-dietz-oracle: exp=0.0793 tol=0.0001 method=[8,588/108,333.33 = 0.079276, reported as 7.93%.] prov=[Published result: LM3 Exhibit 3, printed p. 155 (PDF p. 163)]
+REJ missing-input: inputs={"v1": 110550.0, "v0": 100000.0, "cf": 10000.0} -- Day weight is structurally required; undated flows cannot be day-weighted.
+GUARDS: 
+VARS: v1/input/1/dimensionless def=[Ending portfolio value, in currency units] ; v0/input/1/dimensionless def=[Beginning portfolio value, in currency units] ; cf/input/1/dimensionless def=[Net external cash flow (signed), in currency units] ; w/input/1/dimensionless def=[Day-weight of the flow (proportion of period held), decimal] ; r/output/1/dimensionless def=[Modified Dietz estimated return, decimal]
+ASSUME: No valuation at the flow date (else use true TWR); flows assumed end-of-day per PDF note.
+LIMIT: Estimate, not true TWR (10 bp gap in the worked example: 0.51% vs 0.41%); accuracy degrades with large flows in volatile markets (Exhibits 2-4).
+INV: w = ((v1-v0-cf)/r - v0)/cf requires r != 0 and cf != 0. Algebraic only.
+UNRES: 
+
+##### financial-analysis--composite-asset-weighted-return rev=r1 kind=theoretical
+EXPR: sum(R)
+ORIG: r_C = sum r_pi x (V_0,pi/sum V_0,pi) (Eq7); alternate weights V_pi/sum V_pi (Eq8)
+NOTES: Family R holds precomputed r_pi x w_pi products (multiplication documented here as the per-element construction). Decimals. Eq7 (beginning assets) and Eq8 (plus weighted cash flows) share this form with different weights.
+REF published-beginning-assets-oracle: exp=0.0065 tol=0.0001 method=[Sum = 0.00652492, reported as 0.65%.] prov=[Published result: LM3 Exhibit 6, printed p. 161 (PDF p. 169)]
+REF published-weighted-flows-oracle: exp=0.0062 tol=0.0001 method=[Sum = 0.00621268, reported as 0.62%.] prov=[Published result: LM3 Exhibit 6, printed p. 162 (PDF p. 170)]
+REJ missing-input: inputs={} -- With no bound products there is nothing to sum; an empty composite has no return.
+GUARDS: 
+VARS: R/family/1/dimensionless def=[Portfolio return times its composite weight, decimal] ; rc/output/1/dimensionless def=[Asset-weighted composite return, decimal]
+ASSUME: Weights from one consistent method (Eq7 or Eq8) summing to 100%; portfolio returns contemporaneous.
+LIMIT: Weighting frequency matters: less-frequent asset-weighting misstates aggregate performance (PDF note). Arithmetic shared with portfolio-of-sectors sums; distinct GIPS equation and oracles (see gaps).
+INV: No algebraic inverse for single elements without fixing the rest. Algebraic only.
+UNRES: 

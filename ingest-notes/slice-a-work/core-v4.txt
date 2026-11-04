@@ -1,0 +1,360 @@
+##### BATCH financial-analysis-cfa-l3-v4-b01
+##### financial-analysis--covered-call-max-gain rev=r1 kind=theoretical
+EXPR: (x-s)+c
+ORIG: Maximum gain = (X - S0) + c0
+NOTES: Decimals. The PDF's ITM example subtracts depreciation, which is the same signed form.
+REF published-max-gain-oracle: exp=6.55 tol=1e-09 method=[(30.00-25.00)+1.55 = 6.55.] prov=[Published result: LM1 in-text question 1 answer C, printed p. 18 (PDF p. 26)]
+REF published-itm-max-gain-oracle: exp=2.0 tol=1e-09 method=[(45-50)+7 = 2.] prov=[Published result: LM1 ITM covered-call example, printed p. 17 (PDF p. 25)]
+REJ missing-input: inputs={"x": 30.0, "s": 25.0} -- Premium received is structurally required; without it there is no covered-call gain.
+GUARDS: 
+VARS: x/input/1/dimensionless def=[Call exercise (strike) price, in currency units] ; s/input/1/dimensionless def=[Stock price when the covered call is opened, in currency units] ; c/input/1/dimensionless def=[Call premium received, in currency units] ; g/output/1/dimensionless def=[Maximum gain at expiration, in currency units]
+ASSUME: European-style exercise at expiration; long stock plus one short call, same expiry.
+LIMIT: Maximum only; profit below the strike is lower; transaction costs ignored.
+INV: c = g-(x-s). Algebraic only.
+UNRES: 
+
+##### financial-analysis--covered-call-breakeven rev=r1 kind=theoretical
+EXPR: s-c
+ORIG: Breakeven price = S0 - c0
+NOTES: Decimals. The PDF notes breakeven and maximum loss coincide for a covered call.
+REF published-breakeven-oracle: exp=14.4 tol=1e-09 method=[15.84-1.44 = 14.40.] prov=[Published result: LM1 covered-call text, printed p. 17 (PDF p. 25)]
+REF published-izd-breakeven-oracle: exp=91.26 tol=1e-09 method=[93.93-2.67 = 91.26.] prov=[Published result: LM1 practice-problem solution 2, printed p. 78 (PDF p. 86)]
+REJ missing-input: inputs={"s": 15.84} -- Premium received is structurally required; breakeven is defined by the cushion it provides.
+GUARDS: 
+VARS: s/input/1/dimensionless def=[Stock price when the covered call is opened, in currency units] ; c/input/1/dimensionless def=[Call premium received, in currency units] ; b/output/1/dimensionless def=[Stock price at expiration with zero profit, in currency units]
+ASSUME: Long stock plus one short call, same expiry; premium cushions the downside one-for-one.
+LIMIT: Expiration only; American-style early exercise and dividends ignored.
+INV: c = s-b. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bull-call-spread-breakeven rev=r1 kind=theoretical
+EXPR: xl+cl-ch
+ORIG: Breakeven ST* = XL + cL - cH
+NOTES: Decimals. XL < XH; cL > cH so the spread has positive cost.
+REF published-alt1-breakeven-oracle: exp=16.13 tol=1e-09 method=[15+1.64-0.51 = 16.13.] prov=[Published result: LM1 Exhibit 17 Alternative 1, printed p. 34 (PDF p. 42)]
+REF published-alt2-breakeven-oracle: exp=16.46 tol=1e-09 method=[16+0.97-0.51 = 16.46.] prov=[Published result: LM1 Exhibit 17 Alternative 2, printed p. 34 (PDF p. 42)]
+REJ missing-input: inputs={"xl": 15.0, "cl": 1.64} -- Premium of the written call is structurally required; net cost defines the breakeven.
+GUARDS: 
+VARS: xl/input/1/dimensionless def=[Lower (long-call) strike price, in currency units] ; cl/input/1/dimensionless def=[Premium paid for the lower-strike call, in currency units] ; ch/input/1/dimensionless def=[Premium received for the higher-strike call, in currency units] ; b/output/1/dimensionless def=[Underlying price at expiration with zero profit, in currency units]
+ASSUME: European-style calls, same expiry and underlying; spread opened at a net debit.
+LIMIT: Expiration only; the breakeven lies between the strikes when cost is below the strike width.
+INV: ch = xl+cl-b. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bull-call-spread-max-profit rev=r1 kind=theoretical
+EXPR: (xh-xl)-(cl-ch)
+ORIG: Maximum profit = (XH - XL) - (cL - cH)
+NOTES: Decimals. Realized when the underlying closes at or above the higher strike.
+REF published-alt1-maxprofit-oracle: exp=0.87 tol=1e-09 method=[(17-15)-(1.64-0.51) = 0.87.] prov=[Published result: LM1 Exhibit 17 Alternative 1, printed p. 34 (PDF p. 42)]
+REF published-alt2-maxprofit-oracle: exp=0.54 tol=1e-09 method=[(17-16)-(0.97-0.51) = 0.54.] prov=[Published result: LM1 Exhibit 17 Alternative 2, printed p. 34 (PDF p. 42)]
+REJ missing-input: inputs={"xh": 17.0, "xl": 15.0, "cl": 1.64} -- Both leg premiums are structurally required; net cost defines the maximum.
+GUARDS: 
+VARS: xh/input/1/dimensionless def=[Higher (short-call) strike price, in currency units] ; xl/input/1/dimensionless def=[Lower (long-call) strike price, in currency units] ; cl/input/1/dimensionless def=[Premium paid for the lower-strike call, in currency units] ; ch/input/1/dimensionless def=[Premium received for the higher-strike call, in currency units] ; p/output/1/dimensionless def=[Maximum profit at expiration, in currency units]
+ASSUME: European-style calls, same expiry and underlying; spread opened at a net debit.
+LIMIT: Maximum only, at ST >= XH; transaction costs ignored.
+INV: No single-input inverse without fixing the other three. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bull-call-spread-max-loss rev=r1 kind=theoretical
+EXPR: cl-ch
+ORIG: Maximum loss = cL - cH (spread cost)
+NOTES: Decimals. Realized when the underlying closes at or below the lower strike.
+REF published-alt1-maxloss-oracle: exp=1.13 tol=1e-09 method=[1.64-0.51 = 1.13.] prov=[Published result: LM1 Exhibit 17 Alternative 1, printed p. 34 (PDF p. 42)]
+REF published-alt2-maxloss-oracle: exp=0.46 tol=1e-09 method=[0.97-0.51 = 0.46.] prov=[Published result: LM1 Exhibit 17 Alternative 2, printed p. 34 (PDF p. 42)]
+REJ missing-input: inputs={"cl": 1.64} -- Both leg premiums are structurally required; the loss is their net.
+GUARDS: 
+VARS: cl/input/1/dimensionless def=[Premium paid for the lower-strike call, in currency units] ; ch/input/1/dimensionless def=[Premium received for the higher-strike call, in currency units] ; l/output/1/dimensionless def=[Maximum loss at expiration, in currency units]
+ASSUME: European-style calls, same expiry and underlying; spread opened at a net debit.
+LIMIT: Maximum loss only; equals the initial outlay, realized at ST <= XL.
+INV: ch = cl-l. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v4-b02
+##### financial-analysis--bear-put-spread-breakeven rev=r1 kind=theoretical
+EXPR: xh-ph+pl
+ORIG: Breakeven = XH - (pH - pL)
+NOTES: Decimals. XH > XL; pH > pL so the spread has positive cost.
+REF published-ex18-breakeven-oracle: exp=15.5 tol=1e-09 method=[16-1.96+1.46 = 15.50.] prov=[Published result: LM1 Exhibit 18, printed p. 36 (PDF p. 44)]
+REF published-strategy6-breakeven-oracle: exp=28.5 tol=1e-09 method=[31.00-(3.00-0.50) = 28.50.] prov=[Published result: LM1 practice-problem solution 7, printed p. 79 (PDF p. 87)]
+REJ missing-input: inputs={"xh": 16.0, "ph": 1.96} -- Premium of the written put is structurally required; net cost defines the breakeven.
+GUARDS: 
+VARS: xh/input/1/dimensionless def=[Higher (long-put) strike price, in currency units] ; ph/input/1/dimensionless def=[Premium paid for the higher-strike put, in currency units] ; pl/input/1/dimensionless def=[Premium received for the lower-strike put, in currency units] ; b/output/1/dimensionless def=[Underlying price at expiration with zero profit, in currency units]
+ASSUME: European-style puts, same expiry and underlying; spread opened at a net debit.
+LIMIT: Expiration only; the breakeven lies between the strikes when cost is below the strike width.
+INV: pl = ph-(xh-b). Algebraic only.
+UNRES: 
+
+##### financial-analysis--bear-put-spread-max-loss rev=r1 kind=theoretical
+EXPR: ph-pl
+ORIG: Maximum loss = pH - pL (spread net cost; V0 = pH - pL)
+NOTES: Decimals. Realized when the underlying closes at or above the higher strike.
+REF published-ex18-maxloss-oracle: exp=0.5 tol=1e-09 method=[1.96-1.46 = 0.50.] prov=[Published result: LM1 Exhibit 18, printed p. 36 (PDF p. 44)]
+REF published-strategy6-maxloss-oracle: exp=2.5 tol=1e-09 method=[3.00-0.50 = 2.50.] prov=[Published result: LM1 practice-problem solution 7, printed p. 79 (PDF p. 87)]
+REJ missing-input: inputs={"ph": 1.96} -- Both leg premiums are structurally required; the loss is their net.
+GUARDS: 
+VARS: ph/input/1/dimensionless def=[Premium paid for the higher-strike put, in currency units] ; pl/input/1/dimensionless def=[Premium received for the lower-strike put, in currency units] ; l/output/1/dimensionless def=[Maximum loss at expiration, in currency units]
+ASSUME: European-style puts, same expiry and underlying; spread opened at a net debit.
+LIMIT: Maximum loss only; equals the initial outlay, realized at ST >= XH.
+INV: pl = ph-l. Algebraic only.
+UNRES: 
+
+##### financial-analysis--collar-flat-region-profit rev=r1 kind=theoretical
+EXPR: k-s-p+c
+ORIG: Profit = X1 - S0 - p0 + c0 at/below the put strike; X2 - S0 - p0 + c0 at/above the call strike
+NOTES: Decimals. K is the binding strike (X1 floor region, X2 cap region); p0/c0 are put cost/call receipt.
+REF published-floor-profit-oracle: exp=2.98 tol=1e-09 method=[15-12-1.46+1.44 = 2.98.] prov=[Published result: LM1 Exhibits 23-24, printed p. 44 (PDF p. 52)]
+REF published-cap-profit-oracle: exp=4.98 tol=1e-09 method=[Placeholder replaced below.] prov=[Published result: LM1 Exhibits 23-24, printed p. 44 (PDF p. 52)]
+REJ missing-input: inputs={"k": 15.0, "s": 12.0, "p": 1.46} -- Call receipt is structurally required; net premium defines the flat profit.
+GUARDS: 
+VARS: k/input/1/dimensionless def=[Strike binding in the flat region (put strike X1 or call strike X2), in currency units] ; s/input/1/dimensionless def=[Stock purchase price, in currency units] ; p/input/1/dimensionless def=[Put premium paid, in currency units] ; c/input/1/dimensionless def=[Call premium received, in currency units] ; pf/output/1/dimensionless def=[Terminal profit in the flat region, in currency units]
+ASSUME: Long stock plus long put (X1) plus short call (X2), X2 > X1, same expiry; evaluated in a flat region.
+LIMIT: Flat regions only; between the strikes profit rises one-for-one with the stock.
+INV: No single-input inverse without fixing the other three. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v4-b03
+##### financial-analysis--swap-duration-notional rev=r1 kind=theoretical
+EXPR: ((mt-mp)/ms)*v
+ORIG: NS = [(MDURT - MDURP)/MDURS] x (MVP) (Eq1)
+NOTES: Decimals. Negative MDURS (pay-fixed) gives positive notional when reducing duration.
+REF published-example2-ns-oracle: exp=25000000.0 tol=1.0 method=[[(4.50-5.50)/(-2.00)] x 50,000,000 = 25,000,000.] prov=[Published result: LM2 Example 2, printed p. 88 (PDF p. 96)]
+REF published-solution12-ns-oracle: exp=101529298.13 tol=1.0 method=[[(5.0000-7.8000)/(-2.4848)] x 90,100,000 = 101,529,298.13.] prov=[Published result: LM2 solution 12, printed p. 135 (PDF p. 143)]
+REJ missing-input: inputs={"mt": 4.5, "mp": 5.5, "ms": -2.0} -- Portfolio scale is structurally required; duration gaps do not size notionals.
+GUARDS: 
+VARS: mt/input/1/dimensionless def=[Target modified duration of the combined portfolio, in years] ; mp/input/1/dimensionless def=[Current portfolio modified duration, in years] ; ms/input/1/dimensionless def=[Swap modified duration from the payer perspective, in years] ; v/input/1/dimensionless def=[Market value of the bond portfolio, in currency units] ; ns/output/1/dimensionless def=[Required swap notional principal, in currency units]
+ASSUME: Flat curve with parallel shifts; perfect substitution between portfolio and swap; duration approximation.
+LIMIT: Duration estimate only; convexity and non-parallel moves ignored.
+INV: No single-input inverse without fixing the other three. Algebraic only.
+UNRES: 
+
+##### financial-analysis--portfolio-basis-point-value rev=r1 kind=theoretical
+EXPR: m*v*0.0001
+ORIG: BPVP = MDURP x 0.01% x MVP (Eq5)
+NOTES: Decimals; 0.01% encoded as 0.0001. Money-duration-per-basis-point form.
+REF published-ex5-bpvp-oracle: exp=47054.45 tol=0.01 method=[9.50 x 0.0001 x 49,531,000 = 47,054.45.] prov=[Published result: LM2 Example 5, printed p. 93 (PDF p. 101)]
+REF published-rossi-bpvp-oracle: exp=96750.0 tol=0.01 method=[6.45 x 0.0001 x 150,000,000 = 96,750.] prov=[Published result: LM2 Rossi solution, printed p. 116 (PDF p. 124)]
+REJ missing-input: inputs={"m": 9.5} -- Market value is structurally required; duration alone gives no value sensitivity.
+GUARDS: 
+VARS: m/input/1/dimensionless def=[Portfolio modified duration, in years] ; v/input/1/dimensionless def=[Portfolio market value, in currency units] ; bp/output/1/dimensionless def=[Value change per 1 bp yield move, in currency units]
+ASSUME: Small parallel yield shifts; duration-linear approximation.
+LIMIT: Linear estimate only; convexity and curve twists ignored.
+INV: v = bp/(m*0.0001) requires m != 0. Algebraic only.
+UNRES: 
+
+##### financial-analysis--target-basis-point-value rev=r1 kind=theoretical
+EXPR: m*v*0.0001
+ORIG: BPVT = MDURT x 0.01% x MVP (Eq4)
+NOTES: Decimals; shares the BPV arithmetic with BPVP but distinct target-exposure meaning and equation number.
+REF published-ex6-bpvt-oracle: exp=42101.35 tol=0.01 method=[8.50 x 0.0001 x 49,531,000 = 42,101.35.] prov=[Published result: LM2 Example 6, printed p. 94 (PDF p. 102)]
+REF published-grant-bpvt-oracle: exp=3424.0 tol=1.0 method=[9.5 x 0.0001 x 3,604,000 = 3,423.8, reported as 3,424.] prov=[Published result: LM2 Grant solution, printed p. 117 (PDF p. 125)]
+REJ missing-input: inputs={"m": 8.5} -- Exposure value is structurally required; duration alone gives no value sensitivity.
+GUARDS: 
+VARS: m/input/1/dimensionless def=[Target modified duration, in years] ; v/input/1/dimensionless def=[Market value of the exposure being sized, in currency units] ; bt/output/1/dimensionless def=[Target value change per 1 bp yield move, in currency units]
+ASSUME: Small parallel yield shifts; duration-linear approximation.
+LIMIT: Linear estimate only; applies to the sized exposure, not the current portfolio.
+INV: v = bt/(m*0.0001) requires m != 0. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bpv-futures-hedge-count rev=r1 kind=theoretical
+EXPR: ((t-p)/c)*cf
+ORIG: BPVHR = [(BPVT - BPVP)/BPVCTD] x CF (Eq9; Eq8 when BPVT = 0)
+NOTES: Decimals; fractional contracts rounded to whole contracts in practice (-36.26 to -36; 25.06 to 25).
+REF published-ex6-bpvhr-oracle: exp=-36.26 tol=0.01 method=[[(42,101.35-47,054.50)/84.63] x 0.619489 = -36.2579, reported as -36.26.] prov=[Published result: LM2 Example 6, printed p. 95 (PDF p. 103)]
+REF published-grant-bpvhr-oracle: exp=25.06 tol=0.01 method=[[(3,424-0)/84.63] x 0.619489 = 25.0636, reported as 25.06.] prov=[Published result: LM2 Grant solution, printed p. 117 (PDF p. 125)]
+REJ missing-input: inputs={"t": 42101.35, "p": 47054.5, "c": 84.63} -- Conversion factor is structurally required; CTD units must convert to futures units.
+REJ domain: inputs={"t": 42101.35, "p": 47054.5, "c": 0.0, "cf": 0.619489} -- Guard c != 0 violated; a zero CTD sensitivity cannot size a hedge.
+GUARDS: 
+VARS: t/input/1/dimensionless def=[Target value change per 1 bp, in currency units] ; p/input/1/dimensionless def=[Current portfolio value change per 1 bp, in currency units] ; c/input/1/dimensionless def=[CTD bond value change per 1 bp, in currency units] ; cf/input/1/dimensionless def=[CTD conversion factor, decimal] ; n/output/1/dimensionless def=[Signed number of futures contracts, decimal]
+ASSUME: CTD bond tracks the futures; small parallel shifts; duration-linear BPVs.
+LIMIT: Fractional result must be rounded; CTD changes and convexity make hedges imperfect.
+INV: No single-input inverse without fixing the other three. Algebraic only.
+UNRES: 
+
+##### financial-analysis--equity-futures-count rev=r1 kind=theoretical
+EXPR: ((t-s)/f)*(v/k)
+ORIG: Nf = [(betaT - betaS)/betaf] x (S/F)
+NOTES: Decimals; fractional contracts rounded in practice (-123.57 to -124 sold; 5.82 to 6 bought).
+REF published-grant-nf-oracle: exp=-123.57 tol=0.01 method=[[(0.0-1.2)/1.0] x (3,604,000/35,000) = -123.5657, reported as -123.57.] prov=[Published result: LM2 Grant solution, printed p. 117 (PDF p. 125)]
+REF published-monatize-nf-oracle: exp=5.82 tol=0.01 method=[[(1.00-0)/1.00] x (4,800,000/825,000) = 5.8182, reported as 5.82.] prov=[Published result: LM2 solution 4, printed p. 133 (PDF p. 141)]
+REJ missing-input: inputs={"t": 0.0, "s": 1.2, "f": 1.0, "v": 3604000.0} -- Contract value is structurally required; exposure value alone gives no contract count.
+REJ domain: inputs={"t": 0.0, "s": 1.2, "f": 0.0, "v": 3604000.0, "k": 35000.0} -- Guard f != 0 violated; a zero-beta future cannot adjust beta.
+GUARDS: 
+VARS: t/input/1/dimensionless def=[Target beta of the exposure, decimal] ; s/input/1/dimensionless def=[Current beta of the exposure (0 for cash), decimal] ; f/input/1/dimensionless def=[Beta of the futures contract, decimal] ; v/input/1/dimensionless def=[Market value of the exposure being adjusted, in currency units] ; k/input/1/dimensionless def=[Value of one futures contract, in currency units] ; n/output/1/dimensionless def=[Signed number of index futures contracts, decimal]
+ASSUME: Futures beta stable; market-value weights proxy the beta adjustment linearly.
+LIMIT: Fractional result must be rounded; beta estimates drift.
+INV: No single-input inverse without fixing the other four. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v4-b04
+##### financial-analysis--domestic-currency-return rev=r1 kind=theoretical
+EXPR: (1+f)*(1+x)-1
+ORIG: RDC = (1 + RFC)(1 + RFX) - 1 (Eq1)
+NOTES: Decimals. RFX uses the domestic currency as price currency (direct quote).
+REF published-eurozone-bond-oracle: exp=0.155 tol=1e-09 method=[(1.10)(1.05)-1 = 0.155.] prov=[Published result: LM3 text, printed p. 149 (PDF p. 157)]
+REF published-nguyen-australia-oracle: exp=0.092 tol=1e-09 method=[(1.04)(1.05)-1 = 0.092.] prov=[Published result: LM3 Nguyen example, printed p. 196 (PDF p. 204)]
+REJ missing-input: inputs={"f": 0.1} -- Both legs are structurally required; compounding a single leg is not a domestic return.
+GUARDS: 
+VARS: f/input/1/dimensionless def=[Foreign-currency asset return, decimal] ; x/input/1/dimensionless def=[Appreciation of foreign currency against domestic, decimal] ; d/output/1/dimensionless def=[Domestic-currency return, decimal]
+ASSUME: RFX measured with domestic as price currency; single period.
+LIMIT: Single asset only; portfolios weight individual RDC values.
+INV: No single-input inverse without fixing the other leg. Algebraic only.
+UNRES: 
+
+##### financial-analysis--futures-principal-invoice rev=r1 kind=theoretical
+EXPR: (s/100)*c*z
+ORIG: Principal invoice amount = (Futures settlement price/100) x CF x $100,000 (Eq2)
+NOTES: Decimals. No accrued interest in the worked example (dirty price equals clean).
+REF published-bond-a-invoice-oracle: exp=120342.64 tol=0.01 method=[143.47/100 x 0.8388 x 100,000 = 120,342.636, reported as 120,342.64.] prov=[Published result: LM2 Example 4, printed p. 91 (PDF p. 99)]
+REF published-bond-b-invoice-oracle: exp=127444.4 tol=0.01 method=[143.47/100 x 0.8883 x 100,000 = 127,444.401, reported as 127,444.40.] prov=[Published result: LM2 Example 4, printed p. 91 (PDF p. 99)]
+REJ missing-input: inputs={"s": 143.47, "c": 0.8388} -- Contract size is structurally required; points times factor gives no cash amount.
+GUARDS: 
+VARS: s/input/1/dimensionless def=[Futures settlement price, in index points] ; c/input/1/dimensionless def=[Bond conversion factor, decimal] ; z/input/1/dimensionless def=[Contract size, in currency units] ; a/output/1/dimensionless def=[Cash received on delivery, in currency units]
+ASSUME: Physical delivery of the chosen bond; invoice in contract currency.
+LIMIT: Excludes accrued interest handling; cheapest-to-deliver choice is separate (delivery gain/loss comparison).
+INV: No single-input inverse without fixing the other two. Algebraic only.
+UNRES: 
+
+##### financial-analysis--riskfree-asset-currency-risk rev=r1 kind=theoretical
+EXPR: (1+r)*s
+ORIG: sigma(RDC) = (1 + RFC) x sigma(RFX) for sigma(RFC) = 0 (Nguyen results A/B)
+NOTES: Decimals. Exact (not approximate) because the asset leg has zero variance. Specialization of Eq5 with sigma(RFC) = 0.
+REF published-australia-risk-oracle: exp=0.083 tol=0.001 method=[(1.04) x 8% = 8.32%, reported to one decimal as 8.3%.] prov=[Published result: LM3 Nguyen result A, printed p. 197 (PDF p. 205)]
+REF published-nz-risk-oracle: exp=0.106 tol=1e-09 method=[(1.06) x 10% = 10.6%.] prov=[Published result: LM3 Nguyen result B, printed p. 197 (PDF p. 205)]
+REJ missing-input: inputs={"r": 0.04} -- FX volatility is structurally required; scaling nothing gives no risk.
+GUARDS: 
+VARS: r/input/1/dimensionless def=[Known foreign-currency asset return, decimal] ; s/input/1/dimensionless def=[Standard deviation of exchange-rate moves, decimal] ; v/output/1/dimensionless def=[Standard deviation of domestic-currency return, decimal]
+ASSUME: Foreign-currency asset return known (risk-free); FX volatility estimated.
+LIMIT: Risk-free-asset case only; risky assets need the full variance decomposition (sibling record).
+INV: s = v/(1+r) requires r != -1. Algebraic only.
+UNRES: 
+
+##### financial-analysis--two-asset-domestic-variance rev=r1 kind=theoretical
+EXPR: w1*w1*v1+w2*w2*v2+2*w1*w2*s1*s2*r
+ORIG: s2(RDC) = w1^2 s2(R1) + w2^2 s2(R2) + 2 w1 w2 s(R1) s(R2) rho(R1,R2) (Eq4, risk-free-asset application)
+NOTES: Decimals. Inputs s1/s2 are standard deviations; v1/v2 their squares as stated. Negative weights allowed (long-short).
+REF published-equal-weight-variance-oracle: exp=0.008 tol=0.0005 method=[0.25x0.006889+0.25x0.011236+2x0.25x0.083x0.106x0.85 = 0.0082704, reported as 0.8%.] prov=[Published result: LM3 Nguyen example, printed p. 197 (PDF p. 205)]
+REF published-longshort-variance-oracle: exp=0.003 tol=0.0005 method=[0.006889+0.011236-2x0.083x0.106x0.85 = 0.0031684, reported as 0.3%.] prov=[Published result: LM3 Nguyen example, printed p. 197 (PDF p. 205)]
+REJ missing-input: inputs={"w1": 0.5, "v1": 0.006889, "w2": 0.5, "v2": 0.011236, "s1": 0.083, "s2": 0.106} -- Correlation is structurally required; without co-movement there is no portfolio variance.
+GUARDS: 
+VARS: w1/input/1/dimensionless def=[Portfolio weight of the first foreign asset, decimal] ; v1/input/1/dimensionless def=[Domestic-currency return variance of the first asset, decimal] ; w2/input/1/dimensionless def=[Portfolio weight of the second foreign asset, decimal] ; v2/input/1/dimensionless def=[Domestic-currency return variance of the second asset, decimal] ; s1/input/1/dimensionless def=[Domestic-currency return volatility of the first asset, decimal] ; s2/input/1/dimensionless def=[Domestic-currency return volatility of the second asset, decimal] ; r/input/1/dimensionless def=[Correlation between the two domestic-currency returns, decimal] ; p/output/1/dimensionless def=[Portfolio domestic-currency return variance, decimal]
+ASSUME: Two foreign assets; weights sum to one in the funded case; inputs contemporaneous estimates.
+LIMIT: Two-asset closed form only; more assets need the full double sum.
+INV: No single-input inverse without fixing the other six. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v4-b05
+##### financial-analysis--trs-net-settlement rev=r1 kind=theoretical
+EXPR: e+f
+ORIG: Net payment on the swap = (signed equity-leg receipt) + (fixed-leg receipt)
+NOTES: Currency units. Equity receipt is negative when the investor pays a positive equity return.
+REF published-bull-net-oracle: exp=-1200000.0 tol=0.01 method=[-1,500,000 + 300,000 = -1,200,000.] prov=[Published result: LM2 TRS Scenario 1, printed p. 101 (PDF p. 109)]
+REF published-bear-net-oracle: exp=1800000.0 tol=0.01 method=[1,500,000 + 300,000 = 1,800,000.] prov=[Published result: LM2 TRS Scenario 2, printed p. 101 (PDF p. 109)]
+REJ missing-input: inputs={"e": -1500000.0} -- Fixed receipt is structurally required; a single leg is not a settlement.
+GUARDS: 
+VARS: e/input/1/dimensionless def=[Signed equity-leg cash flow (negative when paying), in currency units] ; f/input/1/dimensionless def=[Fixed-leg cash flow for the period, in currency units] ; n/output/1/dimensionless def=[Net swap settlement receipt, in currency units]
+ASSUME: Single netted settlement of the two legs; day-counted fixed accrual taken as given.
+LIMIT: Settlement arithmetic only; leg accruals (equity return, fixed day count) are separate.
+INV: f = n-e. Algebraic only.
+UNRES: 
+
+##### financial-analysis--trs-hedged-portfolio-pnl rev=r1 kind=theoretical
+EXPR: p+n
+ORIG: P&L on the net position = (P&L on the stock portfolio) + (net payment on the swap)
+NOTES: Currency units. Partial hedge: 70% exposure retained, 30% swapped.
+REF published-bull-combined-oracle: exp=3800000.0 tol=0.01 method=[5,000,000 - 1,200,000 = 3,800,000.] prov=[Published result: LM2 TRS Scenario 1, printed p. 101 (PDF p. 109)]
+REF published-bear-combined-oracle: exp=-3200000.0 tol=0.01 method=[-5,000,000 + 1,800,000 = -3,200,000.] prov=[Published result: LM2 TRS Scenario 2, printed p. 101 (PDF p. 109)]
+REJ missing-input: inputs={"p": 5000000.0} -- Swap settlement is structurally required; portfolio P&L alone is unhedged.
+GUARDS: 
+VARS: p/input/1/dimensionless def=[Underlying portfolio profit and loss, in currency units] ; n/input/1/dimensionless def=[Swap net settlement receipt, in currency units] ; h/output/1/dimensionless def=[Combined profit and loss, in currency units]
+ASSUME: Swap overlays the same equity market as the portfolio; single scenario.
+LIMIT: Scenario arithmetic only; hedge effectiveness over time is separate.
+INV: n = h-p. Algebraic only.
+UNRES: 
+
+##### financial-analysis--partial-hedge-blended-return rev=r1 kind=theoretical
+EXPR: w*r+(1-w)*f
+ORIG: Return = w x r + (1 - w) x f (0.7 x 5% + 0.3 x [2%/2] check)
+NOTES: Decimals. f is the period (here semiannual) fixed rate, not the annualized quote.
+REF published-bull-blend-oracle: exp=0.038 tol=1e-09 method=[0.7 x 5% + 0.3 x [2%/2] = 0.035 + 0.003 = 3.8%.] prov=[Published result: LM2 TRS check, printed p. 101 (PDF p. 109)]
+REF published-bear-blend-oracle: exp=-0.032 tol=1e-09 method=[0.7 x -5% + 0.3 x [2%/2] = -0.035 + 0.003 = -3.2%.] prov=[Published result: LM2 TRS check, printed p. 101 (PDF p. 109)]
+REJ missing-input: inputs={"w": 0.7, "r": 0.05} -- Period fixed rate is structurally required; equity alone gives no blend.
+GUARDS: 
+VARS: w/input/1/dimensionless def=[Weight of retained equity exposure, decimal] ; r/input/1/dimensionless def=[Equity market return for the period, decimal] ; f/input/1/dimensionless def=[Fixed rate earned on the swapped weight for the period, decimal] ; b/output/1/dimensionless def=[Blended portfolio return, decimal]
+ASSUME: Swapped weight earns the fixed rate; single period; weights sum to one.
+LIMIT: Check identity only; assumes the swap exactly converts the swapped weight to fixed.
+INV: No single-input inverse without fixing the other two. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v4-b06
+##### financial-analysis--fx-quote-conversion rev=r1 kind=theoretical
+EXPR: d/q
+ORIG: Foreign amount = (domestic-currency sum) / (P/B quote)
+NOTES: Currency units. Quote in price currency per one unit of base; division inverts the price.
+REF published-forward-leg-oracle: exp=2795169.95 tol=1.0 method=[2,500,000/0.8944 = 2,795,169.946, reported as 2,795,169.95.] prov=[Published result: LM3 solution 33 step 1, printed p. 236 (PDF p. 244)]
+REF published-spot-leg-oracle: exp=2816901.41 tol=1.0 method=[2,500,000/0.8875 = 2,816,901.408, reported as 2,816,901.41.] prov=[Published result: LM3 solution 33 step 2, printed p. 236 (PDF p. 244)]
+REJ missing-input: inputs={"d": 2500000.0} -- Quote is structurally required; a sum alone converts to nothing.
+GUARDS: 
+VARS: d/input/1/dimensionless def=[Sum in the price currency, in currency units] ; q/input/1/dimensionless def=[Exchange quote in price currency per base unit, decimal] ; f/output/1/dimensionless def=[Amount in the base currency, in currency units]
+ASSUME: Single conversion at the quoted (bid or offer) side; quote and sum in matching currencies.
+LIMIT: Conversion only; bid/offer choice and hedge rebalancing are separate.
+INV: q = d/f requires f != 0. Algebraic only.
+UNRES: 
+
+##### financial-analysis--semiannual-interest-accrual rev=r1 kind=theoretical
+EXPR: n*r*t
+ORIG: Interest = Notional x rate x 180/360 (Example 7 periodic flows)
+NOTES: Currency units; decimals. t is the 180/360 semiannual year fraction (0.5).
+REF published-swap-receipt-oracle: exp=450000.0 tol=0.01 method=[50,000,000 x 1.80% x 180/360 = 450,000.] prov=[Published result: LM2 Example 7 flow (A), printed p. 97 (PDF p. 105)]
+REF published-bank-loan-oracle: exp=650000.0 tol=0.01 method=[50,000,000 x (1.95%+0.65%) x 180/360 = 650,000.] prov=[Published result: LM2 Example 7 loan payment, printed p. 97 (PDF p. 105)]
+REJ missing-input: inputs={"n": 50000000.0, "r": 0.018} -- Year fraction is structurally required; a rate alone accrues over no stated time.
+GUARDS: 
+VARS: n/input/1/dimensionless def=[Notional principal, in currency units] ; r/input/1/dimensionless def=[Applicable semiannual reference-plus-spread rate, decimal] ; t/input/1/dimensionless def=[Year fraction for the accrual period, decimal] ; i/output/1/dimensionless def=[Interest for the period, in currency units]
+ASSUME: Simple (uncompounded) accrual for the stated period; rate already includes spreads/basis.
+LIMIT: Single-period accrual only; compounding across periods is separate.
+INV: No single-input inverse without fixing the other two. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v4-b07
+##### financial-analysis--implied-ffe-rate rev=r1 kind=theoretical
+EXPR: 1-F/100
+ORIG: Fed funds futures contract price = 100 - Expected FFE rate (Eq. 17)
+NOTES: Percent-quoted futures price F in IMM index points; output decimal rate (unit 1). Division by 100 converts points to decimal; translation note, not a fitted coefficient.
+REF published-okyung-implied-oracle: exp=0.021 tol=0.0001 method=[100 - 97.90 = 2.10%, reported as the expected average FFE rate.] prov=[Published result: Okyung inferring-expectations example solution 1, LM2 printed p. 121 (PDF p. 129)]
+REF published-eom-implied-oracle: exp=0.0195 tol=0.0001 method=[100 - 98.05 = 1.95%, reported after the EOM-bias price lift.] prov=[Published result: EOM-bias follow-on, LM2 printed p. 122 (PDF p. 130)]
+REF published-ko-implied-oracle: exp=0.02825 tol=0.0001 method=[100 - 97.175 = 2.825%, reported as the Ko Q24 implied rate.] prov=[Published result: Ko practice problem 24 solution, LM2 printed pp. 138-139 (PDF pp. 146-147)]
+REJ missing-input: inputs={} -- Futures price is structurally required; no quotation exists without it.
+GUARDS: 
+VARS: F/input/1/dimensionless def=[Fed funds futures contract price, IMM index points] ; r/output/1/dimensionless def=[Market-implied average effective federal funds rate, decimal]
+ASSUME: IMM/CBOT quotation convention: the contract price is quoted as 100 minus the expected average effective federal funds (FFE) rate for the contract month.
+LIMIT: Quotation identity only; says nothing about the predictive power of the implied rate for actual FOMC action.
+INV: F = 100*(1-r). Substitution check: r=0.021 gives F=97.90. Algebraic only.
+UNRES: 
+
+##### financial-analysis--fomc-hike-probability rev=r1 kind=theoretical
+EXPR: (r_impl-r_cur)/(r_new-r_cur)
+ORIG: P(hike) = (Effective FFE implied by futures - Current FFE) / (FFE assuming hike - Current FFE) (Eq. 18)
+NOTES: All rates decimal (unit 1); midpoints of the stated target ranges. Output is a probability in [0,1] under the two-outcome framing, not a frequency.
+REF published-okyung-probability-oracle: exp=0.9 tol=0.005 method=[(2.10 - 1.875)/(2.125 - 1.875) = 0.90, reported as the 25 bp hike probability.] prov=[Published result: Okyung inferring-expectations example solution 2, LM2 printed p. 121 (PDF p. 129)]
+REF published-eom-probability-oracle: exp=0.3 tol=0.005 method=[(1.950 - 1.875)/0.25 = 0.30, reported after the EOM-bias price lift.] prov=[Published result: EOM-bias follow-on, LM2 printed p. 122 (PDF p. 130)]
+REF published-ko-probability-oracle: exp=0.8 tol=0.005 method=[(2.825 - 2.625)/(2.875 - 2.625) = 0.80, reported as the Ko Q24 hike probability.] prov=[Published result: Ko practice problem 24 solution, LM2 printed pp. 138-139 (PDF pp. 146-147)]
+REJ missing-input: inputs={"r_cur": 0.01875, "r_impl": 0.021} -- Post-move rate is structurally required; no probability exists without the assumed hike level.
+GUARDS: 
+VARS: r_impl/input/1/dimensionless def=[Futures-implied average effective federal funds rate, decimal] ; r_cur/input/1/dimensionless def=[Current federal funds rate (target-range midpoint), decimal] ; r_new/input/1/dimensionless def=[Federal funds rate assuming the hike (next target-range midpoint), decimal] ; P/output/1/dimensionless def=[Market-implied probability of the one-step hike, decimal]
+ASSUME: Two-outcome framing: the rate either stays at the current target-range midpoint or moves one 25 bp increment; current and post-move rates are target-range midpoints.
+LIMIT: Ignores term premiums, end-of-month bias, and meeting-day weighting; the simplified three-action probabilities need not sum to 1 in practice.
+INV: r_impl = P*(r_new-r_cur)+r_cur. Substitution: 0.90*(0.02125-0.01875)+0.01875 = 0.021. Singular when r_new == r_cur; untested direction. Algebraic only.
+UNRES: 
+
+##### financial-analysis--stir-futures-locked-rate rev=r1 kind=theoretical
+EXPR: r_cash+(f_unwind-f_init)/100
+ORIG: Effective rate = cash-market rate +/- futures price change in rate points (Example 3 lock-in; Q10 solution)
+NOTES: Rates decimal (unit 1); futures prices in IMM index points. Division by 100 converts the point change to decimal rate; translation note, not a fitted coefficient. Long-hedge and short-hedge legs share one signed form.
+REF published-foundation-locked-oracle: exp=0.024 tol=0.0001 method=[2.10% + (97.90 - 97.60) = 2.10% + 0.30% = 2.40%; matches $157,500 deposit interest plus $22,500 futures profit = $180,000.] prov=[Published result: LM2 Example 3, printed pp. 88-89 (PDF pp. 96-97)]
+REF published-bridge-loan-locked-oracle: exp=0.0195 tol=0.0001 method=[2.70% + (97.30 - 98.05) = 2.70% - 0.75% = 1.95% effective loan rate.] prov=[Published result: LM2 practice problem 10 solution, printed p. 135 (PDF p. 143)]
+REJ missing-input: inputs={"f_init": 97.6, "r_cash": 0.021} -- Unwind price is structurally required; the futures gain cannot be formed without it.
+GUARDS: 
+VARS: r_cash/input/1/dimensionless def=[Realized cash-market rate on the deposit or loan, decimal] ; f_init/input/1/dimensionless def=[Interest-rate futures price at hedge initiation, IMM index points] ; f_unwind/input/1/dimensionless def=[Interest-rate futures price at hedge unwind, IMM index points] ; r_eff/output/1/dimensionless def=[Effective locked rate after the futures gain or loss, decimal]
+ASSUME: IMM index convention: one futures price point equals one rate percentage point, so the signed price change converts directly to a rate change. | Hedge sized so the futures gain offsets the cash-rate move over the same accrual window (30 contracts on the $30M deposit; full notional on the bridge loan).
+LIMIT: Ex-post decomposition of one realized rate path; basis risk, margin flows, and day-count subtleties are excluded.
+INV: r_cash = r_eff-(f_unwind-f_init)/100. Substitution on Example 3: 0.024-0.003 = 0.021. Algebraic only.
+UNRES: 

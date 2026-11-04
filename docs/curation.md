@@ -70,4 +70,15 @@ The first query-time step extracts a domain-independent list of typed facts (num
 
 If the question omits required inputs, the result is `needs-input` with specific clarification questions and no calculated answer. Asking only for annual operating costs does not require an investment amount, horizon or discount rate. Unsupported model coverage remains `blocked`, with parsed inputs retained. This currently uses a self-contained follow-up question rather than persistent conversational state. Generated estimates stay out of silent bindings; the scoped consent for implied values is the fill-in opt-in above, and source curation never runs inline.
 
+## Temporary rights waiver (default off)
+
+`connected_models.integration` accepts `--relax-rights` for records whose
+review verdict is needs-revision with every scientific check passed and only
+rights-provenance failed. Guard-trap (`blocked`) verdicts, unverified checks,
+supersession/duplication blockers, vocabulary, dimension, guard, reference,
+and revision-collision gates all still refuse. Waived projections are stamped
+in the projection evidence and model assumptions, and owner `review` decisions
+on them should carry waiver notes. Reverse with a `withdrawn` review. This is
+a temporary local-use bypass, not a substitute for corrected r2 revisions.
+
 The parser is not tied to heating names: it can retain a number of apples, a birth date, or a person's name. Executing date/text operations or a new domain still requires suitable stored models and runtime support; the current engine is scalar numeric and the catalog holds 228 eligible models across heating, finance, economics, biology, computer science, mechanics, building energy, circuits, clinical arithmetic, demography, environmental accounting, orbital mechanics, and waves-and-optics. Executable numbers currently require explicit digit literals (commas and decimal/exponent forms are supported). Percentages remain in percent until the unit layer converts them. Exact quotes and numeric checks do not prove perfect semantic interpretation; the report exposes the selected fact-to-port assignments for inspection.

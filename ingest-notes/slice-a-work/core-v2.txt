@@ -1,0 +1,442 @@
+##### BATCH financial-analysis-cfa-l3-v2-b01
+##### financial-analysis--herfindahl-hirschman-index rev=r1 kind=definition
+EXPR: sum(W)
+ORIG: HHI = ? w_i?
+NOTES: Family W holds the precomputed squared weights w_i? (squaring documented here as the per-element construction; no elementwise family arithmetic exists in the grammar, so elements are bound as squared values). Decimal weights (unit 1); the 0?10,000 antitrust scale is the same sum over percentage weights and is not mixed in. Dimensional check: dimensionless sum.
+REF published-50-stock-index: exp=0.03889 tol=1e-09 method=[Source Exhibit 12 squared weights (top-five plus aggregated bottom-45) summed: 0.00792+0.00640+0.00423+0.00348+0.00281+0.01405 = 0.03889, matching published HHI.] prov=[Published result: LM1 Exhibit 12, printed p. 33 (PDF p. 43)]
+REF published-nasdaq100-sum: exp=0.0404 tol=1e-09 method=[Source's reported NASDAQ 100 squared-weight total 0.0404, entered as its two published group subtotals (top-five 0.38? concentrated portion 0.04 plus remainder 0.0004); sum reproduces the published total.] prov=[Published result: LM1 NASDAQ discussion, printed p. 32 (PDF p. 42); grouping is presentational, arithmetic is exact]
+REJ missing-input: inputs={} -- No constituent weights supplied; the sum is undefined on an empty family.
+GUARDS: 
+VARS: W/family/1/dimensionless def=[Squared portfolio weight of each constituent, in decimal-weight units] ; hhi/output/1/dimensionless def=[Herfindahl-Hirschman concentration index on the decimal-weight scale (1/n for equal weights, 1.0 for a single holding)]
+ASSUME: Fully invested long-only weights summing to 1;decimal-weight scale (percentage-scale HHIs must be divided by 10,000 first, per corroborating source).
+LIMIT: Weight-based concentration only; ignores correlations, sectors, volatility and liquidity (per corroborating source). | Family size capped at 256 elements; broader indexes must be pre-aggregated. | Antitrust application uses market shares of firms rather than portfolio weights; same arithmetic, different context.
+INV: No scalar inverse: the sum does not identify individual weights. Forward-only; family inverse views are not supported.
+UNRES: 
+
+##### financial-analysis--effective-number-of-stocks rev=r1 kind=definition
+EXPR: 1 / hhi
+ORIG: Effective number of stocks = 1/HHI
+NOTES: Decimal-weight HHI only; a 0?10,000-scale HHI converts as 10,000/HHI (per corroborating source). Result is a unitless equivalent count, need not be whole. Dimensional check: dimensionless reciprocal.
+REF published-50-stock-index: exp=25.71 tol=0.01 method=[Source: 1/0.03889 = 25.714, reported as 25.71 (?26). Tolerance covers rounding of the published HHI to 5 decimals.] prov=[Published result: LM1 example solution, printed p. 33 (PDF p. 43)]
+REF published-nasdaq100: exp=24.75 tol=0.01 method=[Source: 1/0.0404 = 24.752, reported as 24.75 (?25). Tolerance covers rounding of the published sum to 4 decimals.] prov=[Published result: LM1 NASDAQ discussion, printed p. 32 (PDF p. 42)]
+REJ domain: inputs={"hhi": 0.0} -- Zero concentration index is inadmissible (guard hhi > 0); every invested portfolio has positive HHI.
+GUARDS: hhi > 0
+VARS: hhi/input/1/dimensionless def=[Herfindahl-Hirschman index on the decimal-weight scale (same meaning as HHI record output)] ; n_eff/output/1/dimensionless def=[Number of equal-weighted holdings with the same weight-based concentration]
+ASSUME: Fully invested long-only portfolio; decimal-weight HHI scale.
+LIMIT: Equivalent-count interpretation only; actual holding count and diversification benefit differ (per source: 100 stocks ? ~25 equal-weighted). | Not a count of independent risk sources; ignores correlations.
+INV: hhi = 1/n_eff always; n_eff ? 0 required. Substitution check: n_eff=25.71 recovers hhi=0.03889 within rounding. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bond-current-yield rev=r1 kind=definition
+EXPR: coupon / price
+ORIG: Coupon income (or Current yield) = Annual coupon payment/Current bond price
+NOTES: Assumes no reinvestment income (per source). Decimal form: 2.83% as 0.0283. Yield-income component of rolling yield (separate record). Dimensional check: currency / currency = dimensionless yield.
+REF published-sterling-bond: exp=0.0283 tol=0.0001 method=[Source: 2.75/97.12 = 0.028314, reported as 2.83%. Tolerance covers rounding of published inputs/output to 2 decimals.] prov=[Published result: LM2 coupon-income example, printed p. 69 (PDF p. 79)]
+REF published-aschel-fund: exp=0.031 tol=0.0001 method=[Source solutions: 3.63/117.00 = 0.031026, reported as 0.0310 (3.10%). Tolerance covers rounding.] prov=[Published result: LM2 solutions, printed p. 100 (PDF p. 110)]
+REJ domain: inputs={"coupon": 2.75, "price": 0.0} -- Zero price is inadmissible (guard price > 0); yield per unit of price is undefined.
+GUARDS: coupon >= 0 | price > 0
+VARS: coupon/input/1/dimensionless def=[Bond's annual coupon payment, in currency units] ; price/input/1/dimensionless def=[Bond's current market (clean) price, in the same currency units as coupon] ; cy/output/1/dimensionless def=[Current yield: annual income per unit of price, in decimal form]
+ASSUME: No reinvestment income included (per source); accrued interest conventions follow the quoted clean price.
+LIMIT: Income-only snapshot: ignores pull-to-par, reinvestment and price changes (per corroborating source's shortcomings section). | Zero-coupon bonds have zero current yield by construction.
+INV: coupon = cy?price always; price = coupon/cy requires cy ? 0 (zero-coupon boundary excluded). Substitution check: cy=0.0283, price=97.12 recovers coupon=2.748 within rounding. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bond-rolldown-return rev=r1 kind=definition
+EXPR: (p_end - p_begin) / p_begin
+ORIG: Rolldown return = (Bond price end-of-horizon ? Bond price beginning-of-horizon)/Bond price beginning-of-horizon
+NOTES: Unchanged-curve isolation: revalue the aged bond at the horizon on the starting curve; coupon income stays separate (rolling-yield record). Decimal form. Dimensional check: currency difference / currency = dimensionless return.
+REF published-aschel-rolldown: exp=-0.0256 tol=0.0001 method=[Source solutions: (114?117)/117 = ?0.025641, reported as ?0.0256 (?2.56%). Tolerance covers rounding.] prov=[Published result: LM2 solutions, printed p. 100 (PDF p. 110)]
+REF constructed-discount-aging: exp=0.05 tol=1e-09 method=[Direct substitution: (105?100)/100 = 0.05. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REJ domain: inputs={"p_begin": 0.0, "p_end": 114.0} -- Zero starting price is inadmissible (guard p_begin > 0); a percentage change off zero is undefined.
+GUARDS: p_begin > 0 | p_end > 0
+VARS: p_begin/input/1/dimensionless def=[Bond price at the start of the horizon, in currency units] ; p_end/input/1/dimensionless def=[Revalued bond price at the horizon (aged, same curve), in the same currency units] ; rr/output/1/dimensionless def=[Rolldown return over the horizon from curve-aging only, in decimal form (signed; negative toward higher-yield points)]
+ASSUME: Yield curve unchanged over the horizon; zero interest-rate volatility in the revaluation (per source). | Prices are same-convention (both clean or both dirty) at the two dates.
+LIMIT: Isolates the aging effect only; realized return also reflects coupon, curve shifts, spread and currency changes. | Premium bonds show losses and discount bonds gains toward par even on a flat curve (pull-to-par). | First-order duration approximation (?ModDur ? ?yield) is an alternative route, not this record's definition.
+INV: p_end = p_begin?(1 + rr) always; p_begin = p_end/(1 + rr) requires rr ? ?1. Substitution check: rr=?0.0256, p_begin=117 recovers p_end=114.005 within rounding. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bond-rolling-yield rev=r1 kind=definition
+EXPR: ci + rr
+ORIG: Rolling yield = Coupon income + Rolldown return
+NOTES: Both inputs in decimal form (unit 1). Named static-curve combination; excludes benchmark-yield, spread and currency views (separate E(R) components). Dimensional check: dimensionless + dimensionless = dimensionless yield.
+REF published-sterling-rolling: exp=0.03 tol=1e-09 method=[Source's rounded components: 2.83% + 0.17% = 3.00% exactly on published rounded inputs.] prov=[Published result: LM2 rolling-yield example, printed p. 69 (PDF p. 79)]
+REF published-aschel-rolling: exp=0.0054 tol=1e-09 method=[Source solutions: 3.10% ? 2.56% = 0.54% exactly on published rounded inputs.] prov=[Published result: LM2 solutions, printed p. 100 (PDF p. 110)]
+REJ missing-input: inputs={"ci": 0.0283} -- Rolldown component is required; coupon income alone is the current yield, not the rolling yield.
+GUARDS: 
+VARS: ci/input/1/dimensionless def=[Coupon (current-yield) income component, in decimal form (same meaning as current-yield record output)] ; rr/input/1/dimensionless def=[Rolldown price-change component, in decimal form (same meaning as rolldown record output)] ; ry/output/1/dimensionless def=[Rolling yield over the horizon on a static curve, in decimal form]
+ASSUME: Static yield curve (and spreads) over the horizon; no reinvestment income in the coupon component (per source solutions).
+LIMIT: Partial expected return only: benchmark-yield, spread and currency views add further signed components in the full E(R) decomposition. | Approximate decomposition that ignores taxes (per source).
+INV: ci = ry ? rr; rr = ry ? ci; no singularities. Substitution check: ry=0.03, rr=0.0017 recovers ci=0.0283. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v2-b02
+##### financial-analysis--bond-price-change-duration-convexity rev=r1 kind=theoretical
+EXPR: -md * dy + 0.5 * cx * dy ** 2
+ORIG: E(?Price based on views of yields) = (?ModDur ? ?Yield) + [? ? Convexity ? (?Yield)?]
+NOTES: First-order Taylor (duration) plus second-order (convexity) terms of the price?yield curve; for embedded options use effective duration/convexity (per source). 0.5 is the Taylor-series constant (pure arithmetic literal). Decimal form throughout. Dimensional check: (1 ? dimensionless) + (dimensionless ? dimensionless) = dimensionless fractional change.
+REF published-smith-rate-view: exp=-0.0096 tol=0.0001 method=[Source: (?3.70 ? 0.0026) + [0.5 ? 18 ? (0.0026)?] = ?0.009559, reported as ?0.0096. Tolerance covers rounding.] prov=[Published result: LM2 Smith example, printed pp. 69?70 (PDF pp. 79?80)]
+REF constructed-rate-decline: exp=0.0515 tol=1e-09 method=[Direct substitution: ?5.0?(?0.01) + 0.5?30?0.0001 = 0.05 + 0.0015 = 0.0515. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REJ missing-input: inputs={"md": 3.7, "dy": 0.0026} -- Convexity term is required; duration alone is the first-order estimate, not this second-order approximation.
+GUARDS: 
+VARS: md/input/1/dimensionless def=[Modified (or effective, for embedded options) duration] ; dy/input/1/dimensionless def=[Expected change in yield to maturity, in decimal form (signed)] ; cx/input/1/dimensionless def=[Convexity statistic on the same scaling as the duration (raw, undivided) so the ??C?(?y)? term is consistent] ; dP/output/1/dimensionless def=[Expected fractional price change from the yield view, in decimal form (signed)]
+ASSUME: Yield shift is modest so the second-order expansion summarizes the price?yield curve (per source limitations). | Convexity scaling matches the duration measure (raw statistic; vendor-divided-by-100 figures must be rescaled first, per source scaling note).
+LIMIT: Approximation only: duration and convexity alone summarize the curve (per source); large shifts and curve-shape changes escape it. | Assumes reinvestment at YTM and ignores richness/cheapness and financing effects (per source).
+INV: Quadratic in dy: dy = [md ? sqrt(md? + 2?cx?dP)]/cx for cx ? 0; linear solve md = (0.5?cx?dy? ? dP)/dy requires dy ? 0. Substitution check: dP=?0.0096, md=3.7, cx=18 recovers dy=0.0026 via the negative root within rounding. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bond-spread-price-change rev=r1 kind=theoretical
+EXPR: -msd * ds + 0.5 * cx * ds ** 2
+ORIG: E(?Price based on views of yield spreads) = (?ModSpreadDur ? ?Spread) + [? ? Convexity ? (?Spread)?]
+NOTES: Same two-term structure as the benchmark-yield record with spread duration in place of modified duration (per source: idiosyncratic credit-migration impacts computed the same way). 0.5 is the Taylor-series constant. Decimal form. Dimensional check matches the sibling record.
+REF published-smith-spread-view: exp=0.0037 tol=1e-05 method=[Source: [?3.70 ? (?0.0010)] + [0.5 ? 18 ? (?0.0010)?] = 0.003709, reported as 0.37%. Tolerance covers rounding.] prov=[Published result: LM2 Smith example, printed pp. 69?70 (PDF pp. 79?80)]
+REF constructed-spread-widening: exp=-0.076 tol=1e-09 method=[Direct substitution: ?4.0?0.02 + 0.5?20?0.0004 = ?0.08 + 0.004 = ?0.076. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REJ missing-input: inputs={"msd": 3.7, "ds": -0.001} -- Convexity term is required; spread duration alone is the first-order estimate, not this second-order approximation.
+GUARDS: 
+VARS: msd/input/1/dimensionless def=[Modified spread duration: approximate percentage price effect per unit spread change] ; ds/input/1/dimensionless def=[Expected change in credit spread, in decimal form (signed; negative = tightening)] ; cx/input/1/dimensionless def=[Convexity statistic on the same scaling as the duration (same meaning as sibling record)] ; dP/output/1/dimensionless def=[Expected fractional price change from the spread view, in decimal form (signed)]
+ASSUME: Market (non-idiosyncratic) spread view; issuer-specific migration uses the same computation (per source). | Same modest-shift and scaling assumptions as the benchmark-yield sibling.
+LIMIT: Duration-times-spread (DTS) proportionality refinement for wide credit spectrum is outside this record (noted as related, not recorded). | Same approximation limits as the sibling record.
+INV: Quadratic in ds with the same branch structure as the sibling record; msd = (0.5?cx?ds? ? dP)/ds requires ds ? 0. Substitution check: dP=0.0037, msd=3.7, cx=18 recovers ds=?0.001 within rounding. Algebraic only.
+UNRES: 
+
+##### financial-analysis--fixed-income-expected-return-build rev=r1 kind=definition
+EXPR: ci + rr + dpy + dps + fx
+ORIG: E(R) ? Coupon income +/? Rolldown return +/? E(?Price: benchmark yield) +/? E(?Price: spreads) +/? E(currency value changes)
+NOTES: Approximate additive build (per source); each signed input is computed by its own record or view. Decimal form. Dimensional check: five dimensionless terms sum to a dimensionless return.
+REF published-smith-total: exp=0.0191 tol=1e-09 method=[Source's rounded components: 2.83 + 0.17 ? 0.96 + 0.37 ? 0.50 = 1.91, exact on published rounded inputs.] prov=[Published result: LM2 Exhibit 12, printed p. 70 (PDF p. 80)]
+REF constructed-domestic-only: exp=0.037 tol=1e-09 method=[Direct substitution: 0.04 + 0.005 ? 0.01 + 0.002 + 0 = 0.037. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REJ missing-input: inputs={"ci": 0.0283, "rr": 0.0017, "dpy": -0.0096} -- All five signed components are required; omitting spread and currency views understates the decomposition.
+GUARDS: 
+VARS: ci/input/1/dimensionless def=[Coupon (current-yield) income component, in decimal form] ; rr/input/1/dimensionless def=[Rolldown price-change component, in decimal form] ; dpy/input/1/dimensionless def=[Benchmark-yield-view price change (duration-convexity estimate), in decimal form] ; dps/input/1/dimensionless def=[Spread-view price change (spread duration-convexity estimate), in decimal form] ; fx/input/1/dimensionless def=[Expected currency gain or loss, in decimal form (negative = home-currency loss)] ; er/output/1/dimensionless def=[Total expected fixed-income return, in decimal form]
+ASSUME: Additive approximation; ignores taxes and assumes reinvestment at YTM (per source limitations).
+LIMIT: Components estimated with very different precision: coupon income is easy, yield/spread/currency views are normally qualitative or model-based (per source). | dpy and dps share one quantity meaning but are distinct view inputs; both are required.
+INV: Any one component is recoverable as er minus the other four; no singularities. Substitution check: er=0.0191 with the other four published inputs recovers fx=?0.005. Algebraic only.
+UNRES: 
+
+##### financial-analysis--levered-portfolio-return rev=r1 kind=theoretical
+EXPR: ri + (vb / ve) * (ri - rb)
+ORIG: rP = rI + (VB/VE)(rI ? rB); equivalently rP = [rI(VE + VB) ? VB?rB]/VE
+NOTES: Records the decomposed form (leverage effect isolated); the fractional form is the same identity rearranged. Decimal form. Dimensional check: dimensionless + (currency/currency ? dimensionless) = dimensionless return.
+REF published-aschel-levered: exp=0.0771 tol=0.0001 method=[Source: 0.062 + (42/94.33)(0.062 ? 0.028) = 0.077138, reported as 7.71%. Tolerance covers rounding.] prov=[Published result: LM2 solutions, printed p. 100 (PDF p. 110)]
+REF constructed-positive-carry: exp=0.105 tol=1e-09 method=[Direct substitution: 0.08 + 0.5?0.05 = 0.105. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REJ domain: inputs={"ri": 0.062, "vb": 42.0, "ve": 0.0, "rb": 0.028} -- Zero equity is inadmissible (guard ve > 0); return per unit of equity is undefined.
+GUARDS: ve > 0 | vb >= 0
+VARS: ri/input/1/dimensionless def=[Return on the invested funds, in decimal form] ; vb/input/1/dimensionless def=[Amount borrowed (leverage), in currency units] ; ve/input/1/dimensionless def=[Portfolio equity (invested capital), in the same currency units as vb] ; rb/input/1/dimensionless def=[Borrowing rate (cost of borrowing), in decimal form] ; rp/output/1/dimensionless def=[Return on the levered portfolio (per unit of equity), in decimal form]
+ASSUME: Borrowing cost is a single certain rate over the period; no margin calls or financing frictions modeled.
+LIMIT: Sign of the leverage term follows rI ? rB: leverage amplifies losses when invested return trails borrowing cost (per source). | Unlevered boundary (vb = 0) recovers rp = ri by construction.
+INV: ri = (rp?ve + vb?rb)/(ve + vb) requires ve + vb ? 0; rb = ri ? (rp ? ri)?ve/vb requires vb ? 0 and ri known; vb/ve ratio recoverable given ri, rb, rp. Substitution check: rp=0.0771, vb=42, ve=94.33, rb=0.028 recovers ri=0.062 within rounding. Algebraic only.
+UNRES: 
+
+##### financial-analysis--repo-dollar-interest rev=r1 kind=definition
+EXPR: P * r * (days / 360)
+ORIG: Dollar interest = Principal amount ? Repo rate ? (Term of repo in days/360)
+NOTES: 360 is the Actual/360 money-market day-count literal (pure arithmetic literal, not a unit conversion). Rate in decimal form (5% as 0.05); days is a dimensionless day count. Dimensional check: currency ? dimensionless ? (count/count) = currency interest.
+REF published-overnight-repo: exp=2083.33 tol=0.01 method=[Source: 15,000,000 ? 0.05 ? (1/360) = 2083.333, reported as EUR2,083.33. Tolerance covers rounding.] prov=[Published result: LM2 repo example, printed p. 73 (PDF p. 83)]
+REF published-calculator-crosscheck: exp=1458.33 tol=0.01 method=[Corroborating source's worked calculator example: 10,000,000 ? 0.0525 ? (1/360) = 1458.333, reported as $1,458.33.] prov=[Published result: Ryan O'Connell repo calculator example]
+REJ missing-input: inputs={"P": 15000000.0, "r": 0.05} -- Term in days is required; principal and rate alone do not determine time-proportional interest.
+GUARDS: P >= 0 | days >= 0
+VARS: P/input/1/dimensionless def=[Cash principal of the repo, in currency units] ; r/input/1/dimensionless def=[Annualized repo rate, in decimal form (signed to admit negative-rate regimes)] ; days/input/1/dimensionless def=[Term of the repo measured in days (dimensionless count, Actual leg of Actual/360)] ; I/output/1/dimensionless def=[Repo interest amount (repurchase minus sale price), in the same currency units as P]
+ASSUME: Actual/360 day-count convention and simple interest with no intra-term compounding (per corroborating source). | Single fixed term; rolled overnight repos reapply per roll.
+LIMIT: Convention-specific: 365-day or other day-count regimes need their own literal (not recorded). | Haircuts affect fundable principal, not this interest arithmetic.
+INV: P = I/(r?(days/360)) requires r ? 0 and days ? 0; r = I/(P?(days/360)) requires P ? 0 and days ? 0; days = 360?I/(P?r) requires P?r ? 0. Zero-day boundary gives zero interest. Substitution check: I=2083.33, r=0.05, days=1 recovers P=15,000,000 within rounding. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v2-b03
+##### financial-analysis--after-tax-fvif-accrual rev=r1 kind=theoretical
+EXPR: (1 + R * (1 - tx)) ** T
+ORIG: FVIFT = [1 + R(1 ? tx)]^T
+NOTES: Variable exponent T on a dimensionless base (allowed). Decimal rates; T is a dimensionless year count. Distinct from plain FVIF by the embedded annual tax drag (overlap note in integration). Dimensional check: dimensionless base to a count power = dimensionless factor.
+REF published-kozlowska-accrual: exp=2.97357 tol=1e-05 method=[Source: [1 + 0.07?0.80]^20 = 1.056^20 = 2.9735696, reported as factor 2.97357 (EUR297,357). Tolerance covers rounding.] prov=[Published result: LM4 Kozlowska case, printed p. 257 (PDF p. 267)]
+REF published-low-return-variant: exp=1.87756 tol=1e-05 method=[Source Q4 variant: [1 + 0.04?0.80]^20 = 1.032^20 = 1.8775609, reported as factor 1.87756 (EUR187,756). Tolerance covers rounding.] prov=[Published result: LM4 purchasing-power case, printed p. 264 (PDF p. 274)]
+REJ domain: inputs={"R": 0.07, "tx": 1.0, "T": 20.0} -- A 100% annual tax rate is outside the modeling domain (guard tx < 1).
+GUARDS: R > -1 | tx >= 0 | tx < 1 | T >= 0
+VARS: R/input/1/dimensionless def=[Pretax annual return, in decimal form] ; tx/input/1/dimensionless def=[Uniform annual tax rate on investment income, in decimal form] ; T/input/1/dimensionless def=[Investment horizon in years (dimensionless count)] ; fvif/output/1/dimensionless def=[After-tax accumulation factor per unit of currency invested]
+ASSUME: Single uniform tax rate on the full return; after-tax proceeds reinvested at the same pretax return R (per source).
+LIMIT: Compounds the tax drag: the gain share consumed exceeds the nominal rate over long horizons (per source Exhibit 25). | No inflation adjustment (see inflation-adjusted sibling); no realization timing within the horizon.
+INV: R = (fvif**(1/T) ? 1)/(1 ? tx) requires T ? 0 and tx ? 1; tx = 1 ? (fvif**(1/T) ? 1)/R requires R ? 0, T ? 0. T = 0 gives fvif = 1 (no time, no accumulation). Substitution check: fvif=2.97357, tx=0.2, T=20 recovers R=0.07 within rounding. Algebraic only.
+UNRES: 
+
+##### financial-analysis--after-tax-fvif-deferred-gains rev=r1 kind=theoretical
+EXPR: (1 + R) ** T * (1 - tcg) + tcg
+ORIG: FVIFCG = (1 + R)^T(1 ? tCG) + tCG
+NOTES: The +tCG term returns the tax on the untaxed cost of the initial unit (per source). Variable exponent on dimensionless base. Decimal rates. Dimensional check: dimensionless throughout.
+REF published-kozlowska-deferral: exp=3.2958 tol=0.0001 method=[Source: 1.07^20 ? 0.80 + 0.20 = 3.2957476, reported as factor 3.2958 (EUR329,576). Tolerance covers rounding.] prov=[Published result: LM4 Kozlowska deferral case, printed p. 259 (PDF pp. 269?270)]
+REF constructed-moderate-case: exp=1.471671 tol=1e-06 method=[Direct substitution: 1.05^10 ? 0.75 + 0.25 = 1.47167097. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REJ domain: inputs={"R": 0.07, "T": 20.0, "tcg": 1.0} -- A 100% liquidation tax rate is outside the modeling domain (guard tcg < 1).
+GUARDS: R > -1 | T >= 0 | tcg >= 0 | tcg < 1
+VARS: R/input/1/dimensionless def=[Pretax annual return, in decimal form (same meaning as accrual sibling)] ; T/input/1/dimensionless def=[Investment horizon in years (same meaning as accrual sibling)] ; tcg/input/1/dimensionless def=[Capital-gains tax rate applied once at liquidation, in decimal form] ; fvif/output/1/dimensionless def=[After-tax accumulation factor per unit invested under gains deferral]
+ASSUME: Full pretax compounding with a single liquidation tax on the gain; cost basis equals the initial unit (B = 1; see basis sibling for B < 1).
+LIMIT: Deferred tax drag is a fixed percentage of gains regardless of horizon (per source) ? the deferral advantage, not a flaw, but the record does not value interim liquidity. | Single rate and horizon; graduated holding-period rates need extension.
+INV: tcg = ((1+R)^T ? fvif)/((1+R)^T ? 1) requires (1+R)^T ? 1; R and T jointly identified only up to the pretax factor. Substitution check: fvif=3.2958, R=0.07, T=20 recovers tcg=0.20 within rounding. Algebraic only.
+UNRES: 
+
+##### financial-analysis--after-tax-fvif-cost-basis rev=r1 kind=theoretical
+EXPR: (1 + R) ** T * (1 - tcg) + tcg * B
+ORIG: FVIFCG,B = (1 + R)^T(1 ? tCG) + tCGB
+NOTES: Generalizes the deferred-gains sibling: tCG?B is the after-tax basis (B = 1 recovers Eq3 exactly). B is a proportion of current market value. Dimensional check: dimensionless throughout.
+REF published-kozlowska-basis: exp=3.2558 tol=0.0001 method=[Source: 1.07^20 ? 0.80 + 0.20 ? 0.80 = 3.2557476, reported as factor 3.2558 (EUR325,575). Tolerance covers rounding.] prov=[Published result: LM4 Kozlowska basis case, printed p. 262 (PDF p. 272)]
+REF constructed-half-basis: exp=1.346671 tol=1e-06 method=[Direct substitution: 1.62889463 ? 0.75 + 0.25 ? 0.5 = 1.34667097. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REJ domain: inputs={"R": 0.07, "T": 20.0, "tcg": 0.2, "B": 1.5} -- Basis above market value (B > 1) is outside this record's scope (guard B <= 1); loss positions need separate treatment.
+GUARDS: R > -1 | T >= 0 | tcg >= 0 | tcg < 1 | B >= 0 | B <= 1
+VARS: R/input/1/dimensionless def=[Pretax annual return, in decimal form (same meaning as siblings)] ; T/input/1/dimensionless def=[Investment horizon in years (same meaning as siblings)] ; tcg/input/1/dimensionless def=[Capital-gains tax rate at liquidation, in decimal form (same meaning as sibling)] ; B/input/1/dimensionless def=[Cost basis as a proportion of current market value (1 = basis equals market)] ; fvif/output/1/dimensionless def=[After-tax accumulation factor per unit of current market value with embedded basis liability]
+ASSUME: Single liquidation at the horizon; basis proportion measured against current market value (per source).
+LIMIT: As-if-held-to-horizon: interim realization or step-up at bequest changes the liability (not modeled). | B above 1 (loss position) is excluded; loss-harvest value needs a separate record.
+INV: B = (fvif ? (1+R)^T(1 ? tcg))/tcg requires tcg ? 0; tcg = ((1+R)^T ? fvif)/((1+R)^T ? B) requires (1+R)^T ? B. Substitution check: fvif=3.2558, R=0.07, T=20, tcg=0.2 recovers B=0.80 within rounding. Algebraic only.
+UNRES: 
+
+##### financial-analysis--after-tax-fvif-inflation-adjusted rev=r1 kind=theoretical
+EXPR: ((1 + R * (1 - tx)) / (1 + infl)) ** T
+ORIG: FVIFt,infl = [(1 + R(1 ? tx))/(1 + infl)]^T
+NOTES: Numerator is the accrual sibling's per-period factor; denominator is the inflation adjustment. Variable exponent on dimensionless base. Dimensional check: dimensionless ratio to a count power.
+REF published-no-tax-real: exp=2.1411 tol=0.002 method=[Source: [1.07/1.03]^20 computed by the text as 1.0388^20 = 2.1411 (EUR214,110). True-base value 2.1426; tolerance covers the published 4-decimal rounding of the base.] prov=[Published result: LM4 Kozlowska inflation case Q1, printed p. 263 (PDF p. 273)]
+REF published-taxed-real: exp=1.645 tol=0.002 method=[Source: [1.056/1.03]^20 computed by the text as 1.0252^20 = 1.6450 (EUR164,500). True-base value 1.6465; tolerance covers the published 4-decimal rounding of the base.] prov=[Published result: LM4 Kozlowska inflation case Q2, printed p. 263 (PDF p. 273)]
+REJ missing-input: inputs={"R": 0.07, "tx": 0.2, "T": 20.0} -- Inflation rate is required; without it this collapses to the nominal accrual sibling.
+GUARDS: R > -1 | tx >= 0 | tx < 1 | T >= 0
+VARS: R/input/1/dimensionless def=[Nominal pretax annual return, in decimal form (same meaning as siblings)] ; tx/input/1/dimensionless def=[Uniform annual tax rate, in decimal form (same meaning as accrual sibling)] ; infl/input/1/dimensionless def=[Annual inflation rate, in decimal form] ; T/input/1/dimensionless def=[Investment horizon in years (same meaning as siblings)] ; fvif/output/1/dimensionless def=[After-tax inflation-adjusted accumulation factor per unit invested]
+ASSUME: Taxes levied on nominal appreciation and inflation adjustment applied to the after-tax nominal factor (per source: taxes paid in nominal terms).
+LIMIT: Single constant inflation rate; consumption-basket shifts over the life cycle are not modeled. | Accrual-tax leg only; the deferred-gains inflation form (Eq6) is the companion record.
+INV: infl = (1 + R(1 ? tx))/fvif**(1/T) ? 1 requires T ? 0 and fvif > 0; tx and R jointly identified only up to the after-tax numerator. Substitution check: fvif=1.645, R=0.07, tx=0.2, T=20 recovers infl=0.03 within rounding. Algebraic only.
+UNRES: 
+
+##### financial-analysis--after-tax-fvif-deferred-gains-inflation rev=r1 kind=theoretical
+EXPR: ((1 + R) ** T * (1 - tcg) + tcg * B) / (1 + infl) ** T
+ORIG: FVIFCG,B,infl = [(1 + R)^T(1 ? tCG) + tCGB]/(1 + infl)^T
+NOTES: Numerator is the basis sibling's nominal factor; denominator deflates by inflation. Variable exponents on dimensionless bases. Dimensional check: dimensionless over dimensionless.
+REF published-low-basis-real: exp=1.8027 tol=0.0001 method=[Source: [1.07^20 ? 0.80 + 0.16]/1.03^20 = 3.2557476/1.8061112 = 1.8027482, reported as 1.8027 (EUR180,270). Tolerance covers rounding.] prov=[Published result: LM4 purchasing-power case Q1, printed pp. 264?265 (PDF pp. 274?275)]
+REF published-full-basis-real: exp=1.8248 tol=0.0001 method=[Source: [1.07^20 ? 0.80 + 0.20]/1.03^20 = 3.2957476/1.8061112 = 1.8247711, reported as 1.8248 (EUR182,480). Tolerance covers rounding.] prov=[Published result: LM4 purchasing-power case Q2, printed p. 265 (PDF p. 275)]
+REJ missing-input: inputs={"R": 0.07, "T": 20.0, "tcg": 0.2, "B": 0.8} -- Inflation rate is required; without it this collapses to the nominal basis sibling.
+GUARDS: R > -1 | T >= 0 | tcg >= 0 | tcg < 1 | B >= 0 | B <= 1
+VARS: R/input/1/dimensionless def=[Nominal pretax annual return, in decimal form (same meaning as siblings)] ; T/input/1/dimensionless def=[Investment horizon in years (same meaning as siblings)] ; tcg/input/1/dimensionless def=[Capital-gains tax rate at liquidation, in decimal form (same meaning as sibling)] ; B/input/1/dimensionless def=[Cost basis as a proportion of current market value (same meaning as sibling)] ; infl/input/1/dimensionless def=[Annual inflation rate, in decimal form (same meaning as sibling)] ; fvif/output/1/dimensionless def=[After-tax inflation-adjusted accumulation factor per unit of market value under gains deferral with basis B]
+ASSUME: Taxes levied on nominal appreciation while purchasing power is the objective (per source: inflation exacerbates the tax erosion).
+LIMIT: Single constant inflation and single liquidation; interim consumption or partial sales need extension.
+INV: B = (fvif?(1+infl)^T ? (1+R)^T(1 ? tcg))/tcg requires tcg ? 0; other directions mirror the nominal basis sibling with the inflation deflator carried through. Substitution check: fvif=1.8027 with the Q1 inputs recovers B=0.80 within rounding. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v2-b04
+##### financial-analysis--tax-drag-proportion rev=r1 kind=definition
+EXPR: (fvpt - fvat) / (fvpt - p)
+ORIG: Tax drag = (Pretax future value ? After-tax future value)/(Pretax future value ? Initial investment)
+NOTES: Inputs are accumulations/FVs (outputs of the FVIF siblings scaled by principal); td exceeds the nominal rate under accrual compounding and equals the rate under pure deferral (per source). Decimal form. Dimensional check: currency / currency = dimensionless share.
+REF published-davids-drag: exp=0.4371 tol=0.0001 method=[Corroborating source: 383,490.66/877,271.27 = 0.4371456, reported as 43.7%. Tolerance covers rounding.] prov=[Published result: AnalystPrep John Davids example]
+REF published-kozlowska-accrual-drag: exp=0.3123 tol=0.0001 method=[Source: 89,611/286,968 = 0.3122522, reported as 31%. Tolerance covers rounding.] prov=[Published result: LM4 Kozlowska accrual case, printed p. 257 (PDF p. 267)]
+REJ domain: inputs={"fvpt": 100000.0, "fvat": 100000.0, "p": 100000.0} -- No gains exist (guard fvpt > p violated); the consumed share of zero gains is undefined.
+GUARDS: fvpt > p | fvat >= p | fvat <= fvpt
+VARS: fvpt/input/1/dimensionless def=[Pretax future accumulation, in currency units] ; fvat/input/1/dimensionless def=[After-tax future accumulation, in currency units] ; p/input/1/dimensionless def=[Initial amount invested, in the same currency units] ; td/output/1/dimensionless def=[Proportion of potential pretax gains consumed by taxes, in decimal form]
+ASSUME: Same gross return path with and without taxes; the comparison isolates the tax effect (per source case studies).
+LIMIT: Ex post attribution, not a forward rate: the share depends on horizon and return (per source Exhibit 25). | Adverse cases (after-tax below principal) fall outside the guarded domain.
+INV: fvat = fvpt ? td?(fvpt ? p) always; fvpt = (fvat ? td?p)/(1 ? td) requires td ? 1. Substitution check: td=0.4371 with Davids inputs recovers fvat=643,780.61 within rounding. Algebraic only.
+UNRES: 
+
+##### financial-analysis--human-capital-present-value rev=r1 kind=theoretical
+EXPR: sum(H)
+ORIG: HC0 = ? p(st)?w_{t?1}(1 + g_t)/(1 + r_f + y)^t
+NOTES: Family H holds the precomputed per-year summands h_t = p(st)?w_{t?1}(1+g_t)/(1+r_f+y)^t (currency present values; no elementwise family arithmetic in the grammar, so elements bind as computed values). Mortality weighting p(st), wage growth g_t and occupational-risk-adjusted discount r_f+y documented here. Dimensional check: sum of currency values.
+REF published-five-year-first-three: exp=708346.0 tol=1.0 method=[Corroborating source's year-1..3 PV column: 241,856 + 236,069 + 230,421 = 708,346. Tolerance covers whole-unit rounding of published pounds.] prov=[Published result: AnalystPrep human-capital valuation table (first three PVs)]
+REF published-five-year-last-two: exp=444433.0 tol=1.0 method=[Corroborating source's year-4..5 PV column: 224,907 + 219,526 = 444,433 (with the first-three sum gives the published ?1,152,779 total). Tolerance covers whole-unit rounding.] prov=[Published result: AnalystPrep human-capital valuation table (last two PVs)]
+REJ missing-input: inputs={} -- No per-year summands supplied; the lifetime sum is undefined on an empty family.
+GUARDS: 
+VARS: H/family/1/dimensionless def=[Each year's survival-probability-weighted labor income discounted at the occupational-risk-adjusted rate, in currency units] ; hc0/output/1/dimensionless def=[Human capital: mortality-weighted net present value of future labor income, in currency units]
+ASSUME: Actuarial survival probabilities from mortality tables; wage growth and occupational-risk premium y fixed over the horizon (per source). | Working life of N years; post-retirement pension values are separate (per source discussion).
+LIMIT: Inputs are hard to estimate in practice (per source); the record formalizes the model, not the calibration. | Family size capped at 60 elements; longer horizons must be pre-aggregated. | Reference checks exercise aggregation of precomputed summands; the full 40-year Taylor evaluation (EUR636,156) is cited as evidence, not replayed element-by-element.
+INV: No scalar inverse: the sum does not identify individual years. Forward-only; family inverse views are not supported.
+UNRES: 
+
+##### financial-analysis--domestic-currency-return-compounding rev=r1 kind=definition
+EXPR: (1 + rfc) * (1 + rfx) - 1
+ORIG: RDC = (1 + RFC)(1 + RFX) ? 1
+NOTES: Single-asset form recorded (the portfolio form is the weight-weighted sum of the same per-asset construction). Decimal form. Falls back to PDF-only provenance: no independent accessible corroboration found after textbook/curriculum-note searches. Dimensional check: dimensionless product minus one.
+REF constructed-foreign-gain-home-loss: exp=0.0584 tol=1e-09 method=[Direct substitution: 1.08 ? 0.98 ? 1 = 0.0584. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REF constructed-dual-gain: exp=0.0815 tol=1e-09 method=[Direct substitution: 1.05 ? 1.03 ? 1 = 0.0815. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed market data claimed]
+REJ missing-input: inputs={"rfc": 0.08} -- Currency move is required; the foreign-asset return alone is not the domestic return.
+GUARDS: rfc > -1 | rfx > -1
+VARS: rfc/input/1/dimensionless def=[Return on the foreign-currency asset in its own currency, in decimal form] ; rfx/input/1/dimensionless def=[Percentage change of the domestic currency versus the foreign currency (positive when the foreign currency strengthens), in decimal form] ; rdc/output/1/dimensionless def=[Return in domestic (functional) currency terms, in decimal form]
+ASSUME: Single period; no hedging overlay (hedged proceeds follow interest parity, not this record).
+LIMIT: First-order approximation RDC ? RFC + RFX drops the cross term; this record keeps it. | Portfolio form needs position weights summing to 1 (stated but not separately recorded).
+INV: rfc = (1 + rdc)/(1 + rfx) ? 1 requires rfx ? ?1; rfx = (1 + rdc)/(1 + rfc) ? 1 requires rfc ? ?1. Substitution check: rdc=0.0584, rfx=?0.02 recovers rfc=0.08. Algebraic only.
+UNRES: No accessible corroboration found after reasonable searches (textbook treatments state the economics without the formula; accessible hits were same-curriculum copies); formula verified only against the owner PDF, which reviewers cannot open.
+
+##### financial-analysis--balance-sheet-identity rev=r1 kind=definition
+EXPR: A - L
+ORIG: A = L + E
+NOTES: Records the solved form E = A ? L of the stated identity (algebraically identical; rearrangement documented, not a new model). Currency units throughout. Dimensional check: currency ? currency = currency equity.
+REF constructed-solvent-bank: exp=100.0 tol=1e-09 method=[Direct substitution: 1000 ? 900 = 100. Identity check constructed for this record.] prov=[Independent arithmetic check constructed for this record; no observed balance-sheet data claimed]
+REF constructed-high-leverage: exp=50.0 tol=1e-09 method=[Direct substitution: 1000 ? 950 = 50 (5% equity-to-assets, the high-leverage row of the source's Exhibit 22/23 frame).] prov=[Independent arithmetic check constructed for this record, calibrated to the source's exhibit leverage grid]
+REJ missing-input: inputs={"A": 1000.0} -- Liabilities are required; assets alone do not determine residual equity.
+GUARDS: A >= 0 | L >= 0
+VARS: A/input/1/dimensionless def=[Market (economic) value of the institution's assets, in currency units] ; L/input/1/dimensionless def=[Market (economic) value of contractual claims, in the same currency units] ; E/output/1/dimensionless def=[Residual equity (shareholder/member capitalization), in the same currency units]
+ASSUME: Current market (economic) values, which need not coincide with GAAP/IFRS/regulatory values (per source).
+LIMIT: Identity, not a behavioral model: it constrains but does not determine any side. | Off-balance-sheet and franchise values outside the stated A/L scope are excluded.
+INV: A = E + L; L = A ? E; no singularities. Substitution check: E=100, L=900 recovers A=1000. Algebraic only.
+UNRES: 
+
+##### financial-analysis--balance-sheet-change-identity rev=r1 kind=definition
+EXPR: dA - dL
+ORIG: ?A = ?L + ?E
+NOTES: Records the solved form ?E = ?A ? ?L of the stated change identity. Applies to market-value changes, earnings effects, asset sales and capital-structure changes (per source). Dimensional check: currency ? currency = currency change.
+REF constructed-asset-impairment: exp=-10.0 tol=1e-09 method=[Direct substitution: ?10 ? 0 = ?10 (asset loss with unchanged liabilities falls entirely on equity).] prov=[Independent arithmetic check constructed for this record; no observed balance-sheet data claimed]
+REF constructed-joint-move: exp=10.0 tol=1e-09 method=[Direct substitution: 30 ? 20 = 10. Independently constructed check.] prov=[Independent arithmetic check constructed for this record; no observed balance-sheet data claimed]
+REJ missing-input: inputs={"dA": -10.0} -- Liability change is required; the equity impact of an asset move depends on the liability co-move.
+GUARDS: 
+VARS: dA/input/1/dimensionless def=[Change in market value of assets, in currency units (signed)] ; dL/input/1/dimensionless def=[Change in market value of liabilities, in the same currency units (signed)] ; dE/output/1/dimensionless def=[Change in equity capitalization, in the same currency units (signed)]
+ASSUME: Same market-value basis and interval on all three changes.
+LIMIT: Identity only: decomposing a change into asset vs liability drivers needs the leverage-weighted forms (Eqs 3?4, queued next). | Signed changes can mask offsetting gross flows.
+INV: dA = dE + dL; dL = dA ? dE; no singularities. Substitution check: dE=?10, dL=0 recovers dA=?10. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v2-b05
+##### financial-analysis--bank-leverage-change-eq3 rev=r1 kind=theoretical
+EXPR: daa*lev - dll*le
+ORIG: (dA/A)(A/E) = (dL/L)(L/E) + dE/E
+NOTES: Solved for dE/E so the record outputs the equity change. Decimals throughout (unit 1). By Eq1 (A = L + E over E), le = lev - 1 when inputs are consistent; the record keeps both leverage inputs independently auditable instead of enforcing this.
+REF published-exhibit-23-oracle: exp=-0.04 tol=1e-09 method=[Exhibit 23 row: 0*5 - 0.01*4 = -0.04, reported as -4.0%.] prov=[Published result: LM5 Exhibit 23, printed p. 377 (PDF p. 387)]
+REF published-exhibit-22-oracle: exp=-0.05 tol=1e-09 method=[Exhibit 22 row: -0.01*5 - 0*4 = -0.05, reported as -5.0%.] prov=[Published result: LM5 Exhibit 22, printed p. 376 (PDF p. 386)]
+REJ missing-input: inputs={"daa": -0.01, "lev": 5.0, "le": 4.0} -- Each input is structurally required; a missing input cannot be defaulted without silently assuming away balance-sheet or market moves.
+GUARDS: 
+VARS: daa/input/1/dimensionless def=[Percentage change in market value of assets, decimal] ; lev/input/1/dimensionless def=[Leverage ratio, assets to equity, decimal] ; dll/input/1/dimensionless def=[Percentage change in value of liabilities, decimal] ; le/input/1/dimensionless def=[Liabilities-to-equity ratio, decimal] ; dee/output/1/dimensionless def=[Percentage change in shareholder equity value, decimal]
+ASSUME: Market-value inputs; E = A - L identity holds (per corroborated source).
+LIMIT: First-order accounting decomposition only: small overall changes over short intervals; no convexity, embedded options, or non-parallel moves (PDF footnote 10). Book-value leverage misstates the magnification.
+INV: dll = (daa*lev - dee)/le requires le != 0; daa = (dee + dll*le)/lev requires lev != 0. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bank-equity-change-eq4 rev=r1 kind=theoretical
+EXPR: daa*lev - dll*(lev-1)
+ORIG: dE/E = (dA/A)(A/E) - (dL/L)((A/E) - 1)
+NOTES: Eq3 with L/E = A/E - 1 substituted (Eq1 divided by E). Decimals throughout. This is the form the PDF divides by dy to reach Eq6/Eq8.
+REF published-exhibit-22-oracle: exp=-0.05 tol=1e-09 method=[Exhibit 22 row: -0.01*5 - 0*4 = -0.05, reported as -5.0%.] prov=[Published result: LM5 Exhibit 22, printed p. 376 (PDF p. 386)]
+REF published-exhibit-23-oracle: exp=-0.04 tol=1e-09 method=[Exhibit 23 row: 0*5 - 0.01*4 = -0.04, reported as -4.0%.] prov=[Published result: LM5 Exhibit 23, printed p. 377 (PDF p. 387)]
+REJ missing-input: inputs={"daa": -0.01, "lev": 5.0} -- Each input is structurally required; a missing input cannot be defaulted without silently assuming away balance-sheet or market moves.
+GUARDS: 
+VARS: daa/input/1/dimensionless def=[Percentage change in market value of assets, decimal] ; lev/input/1/dimensionless def=[Leverage ratio, assets to equity, decimal] ; dll/input/1/dimensionless def=[Percentage change in value of liabilities, decimal] ; dee/output/1/dimensionless def=[Percentage change in shareholder equity value, decimal]
+ASSUME: Market-value inputs; L/E = A/E - 1 used (follows from A = L + E).
+LIMIT: Same first-order scope as Eq3. Single leverage input: inconsistent L/E cannot be represented - use the Eq3 record when L and E stay separate.
+INV: dll = (daa*lev - dee)/(lev - 1) requires lev != 1 (unleveraged case has no separate liability term). Algebraic only.
+UNRES: 
+
+##### financial-analysis--modified-duration-eq7 rev=r1 kind=theoretical
+EXPR: (0-dur*dr)
+ORIG: DW* = -(dW/W)/dr
+NOTES: Solved for the value change dW/W = -DW**dr; written (0-dur*dr) for grammar safety. Duration plays the years role only via dr in decimals: years x decimal yield change = decimal value change.
+REF published-example-7-q2-oracle: exp=-0.04665 tol=1e-09 method=[0 - 9.33*0.005 = -0.04665, reported as -4.67%.] prov=[Published result: LM5 Example 7 Q2, printed p. 379 (PDF p. 389)]
+REF published-wikipedia-zero-coupon-oracle: exp=-0.0071425 tol=1e-06 method=[0 - 2.857*0.0025 = -0.0071425 (-0.714%), consistent with the page's stated approximately -0.71%.] prov=[Published result: Wikipedia Duration (finance) worked example]
+REJ missing-input: inputs={"dur": 9.33} -- Each input is structurally required; a missing input cannot be defaulted without silently assuming away balance-sheet or market moves.
+GUARDS: 
+VARS: dur/input/1/dimensionless def=[Modified duration of the value, in years] ; dr/input/1/dimensionless def=[Change in yield, decimal] ; dww/output/1/dimensionless def=[Approximate percentage change in value, decimal]
+ASSUME: Small parallel yield shift; cash flows independent of rates.
+LIMIT: First-order only; breaks for large moves, non-parallel shifts, and rate-dependent cash flows (embedded options). PDF footnote 10 reiterates convexity/options are not captured.
+INV: dr = (0 - dww)/dur = -dww/dur requires dur != 0; dur = -dww/dr requires dr != 0. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bank-equity-duration-eq8 rev=r1 kind=theoretical
+EXPR: lev*da - (lev-1)*dl*sens
+ORIG: DE* = (A/E)*DA* - ((A/E) - 1)*DL**(di/dy)
+NOTES: Inputs as decimals except durations in years; output years. Oracle 1 uses the PDF's rounded leverage 11.11 (= 1/0.09); arithmetic gives 9.32975 vs published 9.33 (tolerance covers rounding).
+REF published-example-7-q1-oracle: exp=9.33 tol=0.001 method=[11.11*2 - 10.11*1.5*0.85 = 9.32975, reported as 9.33.] prov=[Published result: LM5 Example 7 Q1, printed p. 379 (PDF p. 389)]
+REF published-example-7-q4-oracle: exp=6.03 tol=0.01 method=[10*1.75 - 9*1.5*0.85 = 6.025, reported as 6.03.] prov=[Published result: LM5 Example 7 Q4, printed p. 380 (PDF p. 390)]
+REJ missing-input: inputs={"lev": 11.11, "da": 2.0, "dl": 1.5} -- Each input is structurally required; a missing input cannot be defaulted without silently assuming away balance-sheet or market moves.
+GUARDS: 
+VARS: lev/input/1/dimensionless def=[Leverage ratio, assets to equity, decimal] ; da/input/1/dimensionless def=[Modified duration of assets, in years] ; dl/input/1/dimensionless def=[Modified duration of liabilities, in years] ; sens/input/1/dimensionless def=[Sensitivity of liability-yield change to asset-yield change, decimal] ; de/output/1/dimensionless def=[Modified duration of equity, in years]
+ASSUME: Small parallel asset-yield shift; constant di/dy sensitivity; market-value durations.
+LIMIT: Inherits Eq4/Eq7 scope: no convexity or embedded options. Liability durations and the sensitivity ratio are hard to estimate (behavioral maturities, surrenders).
+INV: sens = (lev*da - de)/((lev-1)*dl) requires lev != 1 and dl != 0. Algebraic only.
+UNRES: 
+
+##### financial-analysis--bank-equity-volatility-eq9 rev=r1 kind=theoretical
+EXPR: lev**2*sa**2 + (lev-1)**2*sl**2 - 2*lev*(lev-1)*rho*sa*sl
+ORIG: sig(dE/E)^2 = (A/E)^2*sig(dA/A)^2 + ((A/E)-1)^2*sig(dL/L)^2 - 2*(A/E)*((A/E)-1)*rho*sig(dA/A)*sig(dL/L)
+NOTES: Record outputs the variance exactly as Eq9 is stated (unit 1, decimal-squared); sigma = sqrt(output) per Example 8 (sqrt(0.06) = 24.5%, sqrt(0.038125) = 19.5%, sqrt(0.025225) = 15.9% for Q3). The PDF's footnote 12 states the Var(aX+bY) property used to transform Eq4 into Eq9. Rho bounded [-1,1] by correlation definition.
+REF published-example-8-q1-oracle: exp=0.06 tol=1e-09 method=[25*0.0025 + 16*0.000625 - 2*5*4*0.25*0.05*0.025 = 0.06; sqrt = 24.5% as reported.] prov=[Published result: LM5 Example 8 Q1, printed p. 385 (PDF p. 395)]
+REF published-example-8-q2-oracle: exp=0.038125 tol=1e-09 method=[16*0.0025 + 9*0.000625 - 2*4*3*0.25*0.05*0.025 = 0.038125; sqrt = 19.5% as reported.] prov=[Published result: LM5 Example 8 Q2, printed p. 385 (PDF p. 395)]
+REJ missing-input: inputs={"lev": 5.0, "sa": 0.05, "sl": 0.025} -- Each input is structurally required; a missing input cannot be defaulted without silently assuming away balance-sheet or market moves.
+GUARDS: 
+VARS: lev/input/1/dimensionless def=[Leverage ratio, assets to equity, decimal] ; sa/input/1/dimensionless def=[Standard deviation of asset percentage value changes, decimal] ; sl/input/1/dimensionless def=[Standard deviation of liability percentage value changes, decimal] ; rho/input/1/dimensionless def=[Correlation between asset and liability percentage value changes] ; vare/output/1/dimensionless def=[Variance of shareholder equity percentage value changes, decimal-squared]
+ASSUME: Eq4 linear structure with constant leverage weights and stable volatilities/correlation; standard deviations share one horizon.
+LIMIT: Correlations break down in turbulent markets (PDF: divergence raises equity volatility dramatically at high leverage). Exhibit 26 curves are graphical context, not a formula.
+INV: sigma = sqrt(vare) is the documented inverse (Example 8). No algebraic inverse for single inputs without fixing the rest. Substitution check: Q3 inputs give 0.025225, sqrt = 15.9% as published.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v2-b06
+##### financial-analysis--quoted-bid-ask-spread rev=r1 kind=theoretical
+EXPR: ask-bid
+ORIG: Quoted spread = ask - bid (inside spread = lowest ask - highest bid)
+NOTES: Currency units on both inputs and output (unit 1 by pack convention); decimals throughout.
+REF published-example-1a-oracle: exp=0.12 tol=1e-09 method=[10.24-10.12 = 0.12 as reported.] prov=[Published result: LM6 Example 1 solution, printed p. 418 (PDF p. 428)]
+REF published-light-inside-spread-oracle: exp=0.04 tol=1e-09 method=[17.19-17.15 = 0.04 (answer A) as reported.] prov=[Published result: LM6 Q1 solution, printed p. 450 (PDF p. 460)]
+REJ missing-input: inputs={"ask": 10.24} -- Each input is structurally required; a missing quote, price, size, or count cannot be defaulted without inventing market data.
+GUARDS: 
+VARS: ask/input/1/dimensionless def=[Ask (offer) price, in currency units] ; bid/input/1/dimensionless def=[Bid price, in currency units] ; qs/output/1/dimensionless def=[Quoted bid-ask spread, in currency units]
+ASSUME: Both quotes from the same market snapshot (inside spread uses best ask/best bid).
+LIMIT: Quoted spread only; price improvement, size effects, and market impact are captured by effective-spread siblings, not here.
+INV: ask = qs + bid; bid = ask - qs. Algebraic only.
+UNRES: 
+
+##### financial-analysis--effective-spread-buy rev=r1 kind=theoretical
+EXPR: 2*(trade-(ask+bid)/2)
+ORIG: Effective spread (buy) = 2 x (Trade price - Midpoint of market at order entry)
+NOTES: Midquote = (ask+bid)/2 at order-entry time; x2 converts the per-share cost into the spread statistic. Currency units (unit 1); decimals.
+REF published-q4-trade-1-oracle: exp=0.03 tol=1e-09 method=[2x(25.20-(25.20+25.17)/2) = 0.03 as reported.] prov=[Published result: LM6 Q4 solution, printed p. 450 (PDF p. 460)]
+REF published-byyp-trade-1-oracle: exp=0.05 tol=1e-09 method=[2x(41.50-(41.50+41.45)/2) = 0.05 as reported.] prov=[Published result: LM6 Q13 solution, printed p. 452 (PDF p. 462)]
+REJ missing-input: inputs={"trade": 25.2, "ask": 25.2} -- Each input is structurally required; a missing quote, price, size, or count cannot be defaulted without inventing market data.
+GUARDS: 
+VARS: trade/input/1/dimensionless def=[Execution price, in currency units] ; ask/input/1/dimensionless def=[Ask price when the order was entered, in currency units] ; bid/input/1/dimensionless def=[Bid price when the order was entered, in currency units] ; es/output/1/dimensionless def=[Buy-side effective spread, in currency units]
+ASSUME: Quotes are those prevailing at order-entry time, not at fill time.
+LIMIT: Per-fill estimate; splitting large orders across time (market impact, delay) is not captured here - see implementation-shortfall discussion deferred in gaps. Price improvement yields spreads below quoted; outside-quote fills yield spreads above quoted.
+INV: trade = es/2 + (ask+bid)/2. Algebraic only; quotes are market data, not solved for.
+UNRES: 
+
+##### financial-analysis--effective-spread-sell rev=r1 kind=theoretical
+EXPR: 2*((ask+bid)/2-trade)
+ORIG: Effective spread (sell) = 2 x (Midpoint of market at order entry - Trade price)
+NOTES: Mirror of the buy branch with the distance reversed. Currency units (unit 1); decimals. Example 1 sell oracles: 2x(10.18-10.15) = 0.06 (price improvement beats quoted 0.12); 2x(10.165-10.11) = 0.11 (equals quoted); 2x(10.12-10.01) = 0.22 (walked the book, exceeds quoted 0.14).
+REF published-example-1a-sell-oracle: exp=0.06 tol=1e-09 method=[Midquote (10.12+10.24)/2 = 10.18; 2x(10.18-10.15) = 0.06 as reported.] prov=[Published result: LM6 Example 1 solution, printed p. 418 (PDF p. 428)]
+REF published-example-1c-sell-oracle: exp=0.22 tol=1e-09 method=[Midquote (10.05+10.19)/2 = 10.12; 2x(10.12-10.01) = 0.22 as reported.] prov=[Published result: LM6 Example 1 solution, printed p. 418 (PDF p. 428)]
+REJ missing-input: inputs={"trade": 10.15, "ask": 10.24} -- Each input is structurally required; a missing quote, price, size, or count cannot be defaulted without inventing market data.
+GUARDS: 
+VARS: trade/input/1/dimensionless def=[Execution price, in currency units] ; ask/input/1/dimensionless def=[Ask price when the order was entered, in currency units] ; bid/input/1/dimensionless def=[Bid price when the order was entered, in currency units] ; es/output/1/dimensionless def=[Sell-side effective spread, in currency units]
+ASSUME: Quotes are those prevailing at order-entry time (average fill price used for multi-price fills, per Example 1 third trade).
+LIMIT: Per-fill estimate; same large-order limitations as the buy branch.
+INV: trade = (ask+bid)/2 - es/2. Algebraic only.
+UNRES: 
+
+##### BATCH financial-analysis-cfa-l3-v2-b07
+##### financial-analysis--volume-weighted-average-price rev=r1 kind=theoretical
+EXPR: sum(D)/q
+ORIG: VWAP = total dollar volume / total number of shares traded
+NOTES: Family D holds precomputed pxq per trade (multiplication documented here as the per-element construction; no elementwise family arithmetic in the grammar). Currency/quantity units collapse to currency (unit 1 by pack convention).
+REF published-day-vwap-oracle: exp=10.0946 tol=0.0001 method=[131,230/13,000 = 10.0946153, reported as 10.0946.] prov=[Published result: LM6 Example 1 Q4, printed p. 419 (PDF p. 429)]
+REF published-trade-vwap-oracle: exp=10.068 tol=1e-09 method=[100,680/10,000 = 10.068 as reported.] prov=[Published result: LM6 Example 1 Q4, printed p. 419 (PDF p. 429)]
+REJ missing-input: inputs={"D": [20300.0]} -- Total quantity is structurally required; VWAP of dollar volumes without the share count is undefined.
+REJ domain: inputs={"D": [100.0], "q": 0.0} -- Guard q > 0 violated; division by zero quantity is undefined.
+GUARDS: q > 0
+VARS: D/family/1/dimensionless def=[Dollar volume of each trade (price times quantity), in currency units] ; q/input/1/dimensionless def=[Total number of shares traded in the set] ; vwap/output/1/dimensionless def=[Volume-weighted average price, in currency units]
+ASSUME: All trades in one consistent set (day benchmark or single order); prices and quantities contemporaneous.
+LIMIT: Equal weighting by value only; VWAP benchmark can equal trade VWAP (bias toward zero) when evaluated trades dominate the benchmark or trade at the market rate (PDF warning).
+INV: q = sum(D)/vwap requires vwap != 0. Algebraic only.
+UNRES: 
+
+##### financial-analysis--vwap-transaction-cost-sell rev=r1 kind=theoretical
+EXPR: size*(bench-trade)
+ORIG: VWAP transaction cost estimate (sell) = Trade size x (VWAP benchmark - Trade VWAP)
+NOTES: Inputs in currency units, size in shares; output currency (unit 1). Oracle 1 uses exact VWAPs (131230/13000, 100680/10000); tolerance covers the PDF's rounded-input note.
+REF published-example-1-vwap-cost-oracle: exp=266.15 tol=0.01 method=[10,000x(10.09461538-10.068) = 266.1538, reported as 266.15.] prov=[Published result: LM6 Example 1 Q4, printed p. 419 (PDF p. 429)]
+REF published-analystprep-sell-cost-oracle: exp=210.0 tol=1e-09 method=[6,000x(12.225-12.19) = 210 as reported (midquote (12.23+12.22)/2 = 12.225).] prov=[Published result: AnalystPrep sell Trade X]
+REJ missing-input: inputs={"size": 6000.0, "bench": 12.225} -- Each input is structurally required; a missing quote, price, size, or count cannot be defaulted without inventing market data.
+GUARDS: 
+VARS: size/input/1/dimensionless def=[Number of shares in the evaluated order] ; bench/input/1/dimensionless def=[Benchmark VWAP over the measurement interval, in currency units] ; trade/input/1/dimensionless def=[Average fill price of the evaluated order, in currency units] ; cost/output/1/dimensionless def=[Estimated implicit cost, in currency units (negative means the order beat the benchmark)]
+ASSUME: Benchmark interval surrounds the order's fills; trade VWAP from the same fills as the VWAP record.
+LIMIT: Inherits VWAP bias: zero when the order dominates the benchmark regardless of market impact (PDF warning). Positive cost means the sale underperformed the benchmark.
+INV: bench = cost/size + trade requires size != 0. Algebraic only.
+UNRES: 
+
+##### financial-analysis--average-effective-spread rev=r1 kind=theoretical
+EXPR: sum(S)/n
+ORIG: Average effective spread = (sum of per-trade effective spreads) / number of trades
+NOTES: Family S holds precomputed per-trade effective spreads (buy or sell, computed by sibling records); n is the count. Currency units (unit 1).
+REF published-example-1-average-oracle: exp=0.13 tol=1e-09 method=[(0.06+0.11+0.22)/3 = 0.13 as reported.] prov=[Published result: LM6 Example 1 solutions, printed p. 418 (PDF p. 428)]
+REF published-q4-average-oracle: exp=0.04 tol=1e-09 method=[(0.03+0.03+0.06)/3 = 0.04 as reported.] prov=[Published result: LM6 Q4 solution, printed p. 450 (PDF p. 460)]
+REJ missing-input: inputs={"S": [0.06]} -- Fill count is structurally required; the mean over an unknown number of fills is undefined.
+REJ domain: inputs={"S": [0.06], "n": 0} -- Guard n >= 1 violated (single spread bound but zero fills declared); averaging over zero fills is undefined.
+GUARDS: n >= 1
+VARS: S/family/1/dimensionless def=[Effective spread of each fill, in currency units] ; n/input/1/dimensionless def=[Count of fills averaged] ; avg/output/1/dimensionless def=[Mean effective spread, in currency units]
+ASSUME: All elements are effective spreads of fills of one order (same direction); equal weighting.
+LIMIT: Simple mean over fills, not size-weighted; a large fill counts the same as a small one.
+INV: n = sum(S)/avg requires avg != 0. Algebraic only.
+UNRES: 

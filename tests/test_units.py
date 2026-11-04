@@ -65,6 +65,27 @@ class UnitRegistryTests(unittest.TestCase):
         self.assertEqual(_unit_group(" ohm m"), "ohm m")
         self.assertIsNone(UNIT_PATTERN.match(" furlongs"))
 
+    def test_fx_quote_aliases_resolve_to_usd_per_eur(self) -> None:
+        """Natural FX phrasings reach the USD-per-EUR quote; pair order stays unbound."""
+        self.assertEqual(UNITS["USD per EUR"].scale, 1.0)
+        self.assertEqual(UNITS["USD per EUR"].dimensions, UNITS["1"].dimensions)
+        for spelling in (
+            "USD per EUR",
+            "dollar/euro",
+            "dollars/euro",
+            "usd/eur",
+            "dollar per euro",
+            "dollars per euro",
+            "Dollars per Euro",
+            "USD/EUR",
+        ):
+            with self.subTest(spelling=spelling):
+                self.assertEqual(unit_identity(spelling), "USD per EUR")
+        self.assertEqual(_unit_group(" dollars/euro"), "dollars/euro")
+        self.assertEqual(unit_identity("EUR/USD"), "eur/usd")
+        self.assertNotIn("eur/usd", UNITS)
+        self.assertNotIn("eur/usd", UNIT_ALIASES)
+
     def test_mile_units_bind_with_exact_scales(self) -> None:
         """Faithful mph/mile facts execute; the mile is exactly 1609.344 m."""
         self.assertEqual(UNITS["mi"].scale, 1609.344)

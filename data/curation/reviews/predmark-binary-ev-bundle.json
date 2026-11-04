@@ -1,0 +1,226 @@
+{
+    "batch_id":  "predmark-binary-ev-b01",
+    "created":  "2026-11-04",
+    "curator":  "predmark",
+    "deferred":  [
+                     {
+                         "reason":  "Covered-interest-parity forward F = S*(1+rd*T)/(1+rf*T) is already curated and admitted as financial-analysis--fx-forward-covered-interest-parity-simple-accrual@r1 (reviewed simple-accrual form with spot\u003e0 and positive-gross-factor guards). No renamed clone is minted; the predmark FX-forward coverage reuses that record plus the admitted outright-forward, premium-over-spot and implied-expected-spot siblings.",
+                         "source_urls":  [
+                                             "https://www.bis.org/publ/work651.pdf"
+                                         ],
+                         "title":  "Covered-interest-parity forward (not re-curated)"
+                     }
+                 ],
+    "domain":  "financial-analysis",
+    "example_only":  false,
+    "handoff":  {
+                    "connections":  [
+
+                                    ],
+                    "gaps":  [
+                                 "Payoff-side vocabulary (binary_contract_payoff) needs a registry review before this record can project; probability, discount-rate, period-count and present-value ports reuse existing meanings."
+                             ],
+                    "queries":  [
+                                    "A binary contract pays $100 if event E occurs and nothing otherwise. The event probability is 0.6, the per-period discount rate is 5 percent, and settlement is in 2 periods. What is the fair value?"
+                                ],
+                    "review_notes":  "Single-record batch. Combines two live-inspected OpenStax sources (expected value plus single-sum present value); both record CC BY-NC-SA 4.0 as inspected 2026-11-04. CIP overlap recorded in deferred, not re-curated.",
+                    "summary":  "Discounted fair value of a binary-event contract from win probability, fixed payoff, discount rate and horizon."
+                },
+    "kit_version":  "2026-11-04.1",
+    "models":  [
+                   {
+                       "assumptions":  [
+                                           "Source assumption: the contract pays the fixed payoff on event occurrence and zero otherwise (binary payoff).",
+                                           "The discount rate and period count share the same compounding frequency, and the binary event resolves by settlement."
+                                       ],
+                       "constants":  [
+
+                                     ],
+                       "guards":  [
+                                      "p \u003e= 0",
+                                      "p \u003c= 1",
+                                      "payoff \u003e= 0",
+                                      "1 + rate \u003e 0",
+                                      "periods \u003e= 0"
+                                  ],
+                       "id":  "financial-analysis--binary-event-discounted-fair-value",
+                       "integration":  {
+                                           "duplicate_of":  [
+
+                                                            ],
+                                           "gaps":  [
+                                                        "New meaning binary_contract_payoff (MONEY payoff on event occurrence) needs registry review; bernoulli_success_probability, discount_rate, period_count and present_value reuse existing vocabulary."
+                                                    ],
+                                           "runtime_model":  null,
+                                           "status":  "requires-extension"
+                                       },
+                       "inverse_notes":  "payoff = fair*(1+rate)**periods/p requires p\u003e0 with all other guards retained; the half-probability case recovers 9523.81*1.05/0.5 = 20000.00 within source rounding. p = fair*(1+rate)**periods/payoff requires payoff\u003e0 and the result must satisfy 0\u003c=p\u003c=1; a result outside [0,1] signals inconsistent books, not a valid probability. At p=0 the fair value is 0 for any payoff, so payoff is unidentified. Rate and horizon inversions need logarithmic forms outside the scalar-inverse scope and are documented by hand only.",
+                       "kind":  "theoretical",
+                       "limitations":  [
+                                           "Not a market price: ignores risk premia, credit and counterparty risk, fees, taxes and liquidity.",
+                                           "Single binary event only; multi-outcome or path-dependent payoffs need a different relationship.",
+                                           "The win probability is an input belief or estimate; the record does not calibrate it."
+                                       ],
+                       "references":  [
+                                          {
+                                              "expected":  60.0,
+                                              "id":  "binary-no-discount",
+                                              "inputs":  {
+                                                             "p":  0.6,
+                                                             "payoff":  100.0,
+                                                             "periods":  0.0,
+                                                             "rate":  0.05
+                                                         },
+                                              "method":  "Zero horizon applies no discounting: 0.6*100+0.4*0 = 60 independently of the stated rate.",
+                                              "provenance":  "Curator-constructed independent numerical check; no empirical validation claimed.",
+                                              "tolerance":  1E-09
+                                          },
+                                          {
+                                              "expected":  9523.81,
+                                              "id":  "published-pv-leg-halved",
+                                              "inputs":  {
+                                                             "p":  0.5,
+                                                             "payoff":  20000.0,
+                                                             "periods":  1.0,
+                                                             "rate":  0.05
+                                                         },
+                                              "method":  "Published PV leg: the source reports $20,000 at 5 percent for one period discounts to $19,047.62; a 50 percent binary claim on the same proceeds is half, $9,523.81. Tolerance 0.01 covers the source cent rounding.",
+                                              "provenance":  "OpenStax Principles of Finance, section 7.4, equation 7.33.",
+                                              "tolerance":  0.01
+                                          },
+                                          {
+                                              "expected":  231.38,
+                                              "id":  "published-bond-leg-certain",
+                                              "inputs":  {
+                                                             "p":  1.0,
+                                                             "payoff":  1000.0,
+                                                             "periods":  30.0,
+                                                             "rate":  0.05
+                                                         },
+                                              "method":  "Published PV leg at certainty: the source reports a $1,000 face at 5 percent over 30 periods costs $231.38 today; a certain (p=1) binary claim matches the certain payoff. Tolerance 0.01 covers the source cent rounding.",
+                                              "provenance":  "OpenStax Principles of Finance, section 7.4, equation 7.34.",
+                                              "tolerance":  0.01
+                                          }
+                                      ],
+                       "rejection_cases":  [
+                                               {
+                                                   "inputs":  {
+                                                                  "p":  1.2,
+                                                                  "payoff":  100.0,
+                                                                  "periods":  1.0,
+                                                                  "rate":  0.05
+                                                              },
+                                                   "kind":  "domain",
+                                                   "reason":  "Win probability above one violates p\u003c=1; no fair value is computed."
+                                               },
+                                               {
+                                                   "inputs":  {
+                                                                  "p":  0.5,
+                                                                  "periods":  1.0,
+                                                                  "rate":  0.05
+                                                              },
+                                                   "kind":  "missing-input",
+                                                   "reason":  "payoff is required; no value is inferred from other inputs."
+                                               }
+                                           ],
+                       "relationship":  {
+                                            "output_symbol":  "fair",
+                                            "expression":  "p * payoff / (1 + rate) ** periods",
+                                            "locator":  "Section 7.4, present value equation 7.32, PV = FV x 1/(1+r)^n, with single-period and multiple-period worked examples",
+                                            "original_equation":  "Fair = p*X/(1+r)^n (expected value mu = sum(x*P(x)) specialized to a binary payoff, discounted by PV = FV/(1+r)^n with FV = p*X)",
+                                            "source_id":  "openstax-present-value",
+                                            "translation_notes":  "Binary specialization of the sourced expectation: p*X+(1-p)*0 = p*X, a dimensionless-weighted USD amount. The sourced PV equation then discounts that expected payoff with FV := p*X; USD over a dimensionless growth factor stays USD. At periods=0 the undiscounted p*X recovers exactly. No day-count conversion is embedded; rate and periods must share their frequency."
+                                        },
+                       "revision":  "r1",
+                       "sources":  [
+                                       {
+                                           "accessed":  "2026-11-04",
+                                           "evidence":  "The mean of a discrete probability function is its expected value: multiply each value of the random variable by its probability and add the products.",
+                                           "id":  "openstax-expected-value",
+                                           "kind":  "primary",
+                                           "license":  "CC BY-NC-SA 4.0: the page states \u0027This book uses the Creative Commons Attribution-NonCommercial-ShareAlike License, http://creativecommons.org/licenses/by-nc-sa/4.0/\u0027 and the footer states \u0027Except where otherwise noted, textbooks on this site are licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 (CC BY NC-SA) license\u0027; inspected 2026-11-04.",
+                                           "locator":  "Section 4.2, mean of a discrete probability function mu = sum(x*P(x)) and NOTE box",
+                                           "redistribution":  "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted.",
+                                           "title":  "Introductory Statistics 2e",
+                                           "url":  "https://openstax.org/books/introductory-statistics-2e/pages/4-2-mean-or-expected-value-and-standard-deviation",
+                                           "version":  "OpenStax Introductory Statistics 2e, live page inspected 2026-11-04"
+                                       },
+                                       {
+                                           "accessed":  "2026-11-04",
+                                           "evidence":  "Present value reverses growth: PV equals future value times 1/(1+r)^n, where r is the discount rate and n the period count; worked $20,000 at 5 percent for one period gives $19,047.62.",
+                                           "id":  "openstax-present-value",
+                                           "kind":  "primary",
+                                           "license":  "CC BY-NC-SA 4.0: the page states \u0027This book uses the Creative Commons Attribution-NonCommercial-ShareAlike License, http://creativecommons.org/licenses/by-nc-sa/4.0/\u0027 and the footer states \u0027Except where otherwise noted, textbooks on this site are licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 (CC BY NC-SA) license\u0027; inspected 2026-11-04.",
+                                           "locator":  "Section 7.4, present value equation 7.32, PV = FV x 1/(1+r)^n, with single-period and multiple-period worked examples",
+                                           "redistribution":  "No source pages or long passages included; equation-level formalization and original paraphrase only; no broader redistribution rights asserted.",
+                                           "title":  "Principles of Finance",
+                                           "url":  "https://openstax.org/books/principles-finance/pages/7-4-applications-of-tvm-in-finance",
+                                           "version":  "OpenStax Principles of Finance, live page inspected 2026-11-04"
+                                       }
+                                   ],
+                       "summary":  "A binary contract paying a fixed amount if the event occurs is worth its win probability times the payoff, discounted at the per-period rate over the settlement horizon; zero is paid on loss.",
+                       "title":  "Discounted fair value of a binary-event contract",
+                       "unresolved":  [
+
+                                      ],
+                       "variables":  [
+                                         {
+                                             "context":  "Same binary event, contract terms, payoff currency, settlement date, discount-rate basis and compounding frequency",
+                                             "definition":  "Probability that the binary event occurs (Bernoulli success), as a decimal fraction",
+                                             "dimensions":  "dimensionless",
+                                             "domain":  "0\u003c=value\u003c=1",
+                                             "quantity_id":  "bernoulli_success_probability",
+                                             "role":  "input",
+                                             "source_symbol":  "P(x)",
+                                             "symbol":  "p",
+                                             "unit":  "1"
+                                         },
+                                         {
+                                             "context":  "Same binary event, contract terms, payoff currency, settlement date, discount-rate basis and compounding frequency",
+                                             "definition":  "Fixed amount paid at settlement if the event occurs; zero is paid otherwise",
+                                             "dimensions":  "currency",
+                                             "domain":  "Nonnegative",
+                                             "quantity_id":  "binary_contract_payoff",
+                                             "role":  "input",
+                                             "source_symbol":  "introduced X (binary payoff)",
+                                             "symbol":  "payoff",
+                                             "unit":  "USD"
+                                         },
+                                         {
+                                             "context":  "Same binary event, contract terms, payoff currency, settlement date, discount-rate basis and compounding frequency",
+                                             "definition":  "Per-period discount rate in decimal form matching the settlement horizon",
+                                             "dimensions":  "dimensionless",
+                                             "domain":  "1+rate positive",
+                                             "quantity_id":  "discount_rate",
+                                             "role":  "input",
+                                             "source_symbol":  "r",
+                                             "symbol":  "rate",
+                                             "unit":  "1"
+                                         },
+                                         {
+                                             "context":  "Same binary event, contract terms, payoff currency, settlement date, discount-rate basis and compounding frequency",
+                                             "definition":  "Number of compounding periods until settlement",
+                                             "dimensions":  "dimensionless",
+                                             "domain":  "Nonnegative",
+                                             "quantity_id":  "period_count",
+                                             "role":  "input",
+                                             "source_symbol":  "n",
+                                             "symbol":  "periods",
+                                             "unit":  "periods"
+                                         },
+                                         {
+                                             "context":  "Same binary event, contract terms, payoff currency, settlement date, discount-rate basis and compounding frequency",
+                                             "definition":  "Fair value today: present value of the probability-weighted payoff",
+                                             "dimensions":  "currency",
+                                             "domain":  "Nonnegative",
+                                             "quantity_id":  "present_value",
+                                             "role":  "output",
+                                             "source_symbol":  "introduced Fair (PV of p*X)",
+                                             "symbol":  "fair",
+                                             "unit":  "USD"
+                                         }
+                                     ]
+                   }
+               ],
+    "schema_version":  "cm-curation-batch/1"
+}

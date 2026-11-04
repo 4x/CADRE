@@ -29,6 +29,8 @@ flowchart LR
 
 It returns an annual operating cost of **1200 USD**. Every run saves its complete model definitions, input bindings, provenance and intermediate results under `.runs/`; earlier runs are preserved. `report` exports a self-contained HTML page with the question, facts, calculation steps, sources and reviews; opening it makes no API calls. These are illustrative inputs, not household measurements or purchasing advice.
 
+**Who benefits:** this running example is Dana's story — a homeowner weighing a quoted 10000 USD heat-pump retrofit. The full impact scenario (named beneficiary, inputs, model connections, execution, results, and the pessimistic revision that flips the decision) is in [Impact](docs/impact.md): annual saving 2400 USD, 10-year NPV 8532.16 USD at 5% real, primary fit to "Build for Your World".
+
 The `answer` command accepts only a self-contained question: put assumptions, numbers, units and requested outputs in its text. It has no performance, tariff or investment options and uses only what the question states. The present-value model currently requires a positive discount rate and an integer horizon from 1 to 100 years. Performance must represent seasonal whole-system delivered heat divided by electricity use; a single temperature's COP rating is insufficient. Maintenance, cooling benefits, replacements, incentives, tariff escalation and uncertainty propagation are excluded from the initial heating models.
 
 ### Demo
@@ -46,7 +48,7 @@ Then open http://127.0.0.1:8000/ in a browser: ask questions, watch the model gr
 uv run pytest -q
 ```
 
-183 offline tests, no network calls. Details and the static gates (ruff, mypy strict): [docs/setup.md](docs/setup.md#test).
+217 offline tests, no network calls. Details and the static gates (ruff, mypy strict): [docs/setup.md](docs/setup.md#test).
 
 ## Implementation status
 
@@ -72,6 +74,7 @@ from-offline-curation-workers/ preserved worker returns (see ABOUT.md there)
 
 ## Docs
 
+- [Impact](docs/impact.md) — who benefits, problem-statement fit, worked scenario
 - [Demo guide](docs/demo.md) — web UI, SKILL, video recording
 - [Demo video plan](docs/demo-video.md) — 3-minute shot list
 - [MCP server](docs/mcp.md) — agent tools over stdio

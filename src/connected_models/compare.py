@@ -168,7 +168,13 @@ def compare(
     if len(question) > MAX_QUERY_CHARS:
         raise ModelError("Question is too long.")
     started = time.perf_counter()
-    grounded = answer(registry, question, fill_in_assumptions, inference_model)
+    grounded = answer(
+        registry,
+        question,
+        fill_in_assumptions,
+        inference_model,
+        direct_fallback=False,
+    )
     grounded_latency = time.perf_counter() - started
     try:
         started = time.perf_counter()

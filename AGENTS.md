@@ -2,14 +2,6 @@
 
 Connected Models (aka **CADRE**: **C**omposable **A**tomic **D**eterministic **R**egistry **E**ngine) connects reusable quantitative models across domains: one model's output can supply another's input, replacing arbitrary assumptions with explicit, traceable dependencies. It enables people and AI agents to compose and execute models to answer quantitative questions, explore scenarios, and support decisions.
 
-## Goal
-
-**Optimize for Meta Hackathon** using the [Judging Rubric](JudgingRubric.md).
-
-Find, refine, and present use cases in which CADRE will shine and beat bare LLM.
-
-Fix any bugs, add important capabilities, and plan demo to highlight features.
-
 # Agent conduct
 
 ## Make life easy for human developer and user

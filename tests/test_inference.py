@@ -17,6 +17,28 @@ from connected_models.inference import (
 )
 
 
+class ReasoningEffortTests(unittest.TestCase):
+    """The REASONING variable overrides the TOML effort for every call."""
+
+    def test_toml_effort_used_without_override(self) -> None:
+        """Empty REASONING means the TOML effort stands."""
+        with patch.dict("os.environ", {"REASONING": ""}):
+            settings = InferenceSettings.load(Path("inference.toml"))
+        self.assertEqual(settings.reasoning_effort, "low")
+
+    def test_reasoning_override_beats_toml(self) -> None:
+        """REASONING=high survives stripped and lowercased."""
+        with patch.dict("os.environ", {"REASONING": " High "}):
+            settings = InferenceSettings.load(Path("inference.toml"))
+        self.assertEqual(settings.reasoning_effort, "high")
+
+    def test_unknown_reasoning_fails_closed(self) -> None:
+        """Unlisted efforts refuse to load instead of hitting the API."""
+        with patch.dict("os.environ", {"REASONING": "ultra"}):
+            with self.assertRaises(ModelError):
+                InferenceSettings.load(Path("inference.toml"))
+
+
 class ModelSelectionTests(unittest.TestCase):
     """One override point feeds composer, repair, direct, and curator calls."""
 

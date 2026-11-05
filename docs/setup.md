@@ -1,6 +1,6 @@
 # Setup and running
 
-Requires uv and Python 3.12 or newer (`.python-version` pins 3.14 for development). No third-party runtime packages are required. Answering a question uses live inference and needs `META_API_KEY` in the environment (see below); inspection, reports, tests and curation tools run offline. Copy [.env.example](../.env.example) to `.env` for the full variable list with defaults.
+Requires uv and Python 3.12 or newer (`.python-version` pins 3.14 for development). No third-party runtime packages are required. Answering a question uses live inference and needs `META_API_KEY` in the environment (see below); inspection, reports, tests and curation tools run offline. Copy [.env.example](../.env.example) to `.env` for the full variable list with defaults. The CLI reads `.env` from the working directory by default (absent variables only; explicit exports always win), so `uv run connected-models answer ...` needs no `--env-file` flag. Pass `--no-dotenv` before the command to skip `.env` entirely (uv's own `--no-env-file` only stops uv from loading files; it cannot stop the CLI's fallback).
 
 ```powershell
 uv sync
@@ -14,7 +14,7 @@ Run commands from the repo root. Runtime state (`.runs/`, `.registry/`, `.usage/
 
 ## Meta inference setup
 
-The public settings in `inference.toml` select `muse-spark-1.3` in Standard mode and a $150 application-wide ceiling. The adapter uses the [Meta API route documented for coding agents](https://dev.meta.ai/docs/coding-agents). Model selection precedence is `--model` flag, then the `LLM` environment variable, then `inference.toml`; every name must have researched rates in `MODEL_PRICING` or loading fails closed. `answer` and `compare` accept `--model`; the battery runner accepts `--models a,b` to sweep entries across models. The ledger attributes settled spend per model (`usage` shows `by_model`); rows recorded before attribution read as `unattributed`.
+The public settings in `inference.toml` select `muse-spark-1.3` in Standard mode and a $150 application-wide ceiling. The adapter uses the [Meta API route documented for coding agents](https://dev.meta.ai/docs/coding-agents). Model selection precedence is `--model` flag, then the `LLM` environment variable, then `inference.toml`; every name must have researched rates in `MODEL_PRICING` or loading fails closed. `answer` and `compare` accept `--model`; the battery runner accepts `--models a,b` to sweep entries across models. Set `REASONING` to `minimal`, `low`, `medium` or `high` to override the `inference.toml` effort for every call; anything else fails closed. The ledger attributes settled spend per model (`usage` shows `by_model`); rows recorded before attribution read as `unattributed`.
 
 The application accepts `META_API_KEY` from its process environment. Launch a bounded connection check with:
 

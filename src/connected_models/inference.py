@@ -21,6 +21,8 @@ from uuid import uuid4
 from .contracts import ModelError
 
 MODEL_VARIABLE = "LLM"
+REASONING_VARIABLE = "REASONING"
+REASONING_EFFORTS = frozenset({"minimal", "low", "medium", "high"})
 # Researched per-million-token rates (input, output); the ledger refuses to
 # price anything else. Add a row with verified rates before selecting a new
 # model through the LLM environment variable or inference.toml.
@@ -111,6 +113,9 @@ class InferenceSettings:
             override = os.environ.get(MODEL_VARIABLE, "").strip()
             if override:
                 data = _apply_priced_model(data, override, MODEL_VARIABLE)
+        effort = os.environ.get(REASONING_VARIABLE, "").strip().lower()
+        if effort:
+            data["reasoning_effort"] = effort
         try:
             settings = cls(
                 data["model"],
@@ -123,6 +128,8 @@ class InferenceSettings:
             )
             settings.validate()
             return settings
+        except ModelError:
+            raise
         except (KeyError, TypeError, ValueError, ArithmeticError) as exc:
             raise ModelError("Invalid public inference configuration.") from exc
 
@@ -139,8 +146,12 @@ class InferenceSettings:
             raise ModelError(
                 f"Rates differ from the verified {self.model} price; reverify before sending."
             )
-        if self.reasoning_effort not in {"minimal", "low", "medium", "high"}:
-            raise ModelError("Unsupported reasoning effort setting.")
+        if self.reasoning_effort not in REASONING_EFFORTS:
+            known = ", ".join(sorted(REASONING_EFFORTS))
+            raise ModelError(
+                f"Unsupported reasoning effort {self.reasoning_effort!r}; "
+                f"use one of: {known}."
+            )
         if (
             not self.total_budget_usd.is_finite()
             or not Decimal(0) < self.total_budget_usd <= APPROVED_BUDGET_USD

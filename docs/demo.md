@@ -29,10 +29,16 @@ so it is useful before any inference:
 - **What if** revises the run's direct inputs with sliders and shows a
   before/after delta table. Revisions are offline and preserve the original.
 - **Recent runs** reopens any saved run without recomputing.
+- **Models** browses every eligible model by domain and search text,
+  with an auto-generated input-to-output diagram, expression, guards,
+  source, and review per model. Fully offline.
+- **Models** browses every eligible model by domain and search text, with
+  an auto-generated input-to-output diagram, expression, guards, source,
+  and review per model. Fully offline.
 
 API surface (all JSON): `GET /api/demo`, `GET /api/runs`,
-`GET /api/run/<id>`, `POST /api/answer`, `POST /api/revise`,
-`GET /api/report/<id>` (standalone evidence HTML).
+`GET /api/run/<id>`, `GET /api/models`, `POST /api/answer`,
+`POST /api/revise`, `GET /api/report/<id>` (standalone evidence HTML).
 
 ## Demo seed (offline)
 

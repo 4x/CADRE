@@ -50,9 +50,12 @@ class ServeTests(unittest.TestCase):
             'id="ask-btn"',
             'id="graph"',
             'id="revise"',
+            'id="model-list"',
+            'id="model-graph"',
             "/api/answer",
             "/api/revise",
             "/api/run/",
+            "/api/models",
         ):
             self.assertIn(hook, page)
 
@@ -100,6 +103,48 @@ class ServeTests(unittest.TestCase):
                 self.assertEqual(revised["status"], "completed")
                 self.assertNotEqual(revised["run_id"], run_id)
                 self.assertEqual(revised["outputs"]["upgrade-cost"]["amount"], 1800)
+            finally:
+                server.shutdown()
+                thread.join(timeout=10)
+                server.server_close()
+
+    def test_http_models_endpoint_browses_catalog(self) -> None:
+        """The served catalog carries browsable metadata per eligible model."""
+        with scratch_directory() as workspace:
+            runs = Path(workspace)
+            registry = Registry(runs / "models.sqlite3")
+            seed_demo(registry, runs)
+            server = create_server(
+                ServerConfig(runs / "models.sqlite3", runs), "127.0.0.1", 0
+            )
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            try:
+                base = f"http://127.0.0.1:{server.server_port}"
+                catalog = read_json(base + "/api/models")
+                self.assertEqual(catalog["count"], len(catalog["models"]))
+                self.assertGreater(len(catalog["models"]), 0)
+                keys = [entry["key"] for entry in catalog["models"]]
+                self.assertEqual(keys, sorted(keys))
+                entry = catalog["models"][0]
+                for field in (
+                    "key",
+                    "id",
+                    "domain",
+                    "version",
+                    "title",
+                    "inputs",
+                    "output",
+                    "expression",
+                    "guards",
+                    "source",
+                    "assumptions",
+                ):
+                    self.assertIn(field, entry)
+                self.assertIn("meaning", entry["output"])
+                self.assertIn("unit", entry["output"])
+                for port in entry["inputs"]:
+                    self.assertIn("meaning", port)
             finally:
                 server.shutdown()
                 thread.join(timeout=10)

@@ -16,10 +16,10 @@ Requires uv and Python 3.12 or newer. Live questions need `META_API_KEY` in the 
 
 ```powershell
 uv sync
-uv run --env-file .env connected-models answer 'Delivered heat is 12000 kWh. Heat pump seasonal performance is 3. Tariff is 0.30 USD/kWh. What is the annual operating cost?'
+uv run connected-models answer 'Delivered heat is 12000 kWh. Heat pump seasonal performance is 3. Tariff is 0.30 USD/kWh. What is the annual operating cost?'
 uv run --no-env-file connected-models inspect RUN_ID
 uv run --no-env-file connected-models report RUN_ID
-uv run --env-file .env connected-models compare 'YOUR QUESTION'
+uv run connected-models compare 'YOUR QUESTION'
 uv run --no-env-file connected-models usage
 ```
 
@@ -47,7 +47,7 @@ It returns **1200 USD**. Every run saves its complete model definitions, input b
 Four ways in, same engine underneath:
 
 - **CLI** — `answer`, `compare`, `inspect`, `report`, `revise`, `replay`, `scenarios`, `curate`, `review`. Scriptable, pipe-friendly, fully offline except inference calls.
-- **Web UI** — `connected-models serve --port 8000`, then open http://127.0.0.1:8000/: ask questions, watch the model graph animate, revise scenarios with sliders. One bundled file, standard library only, no external requests. Guide: [docs/demo.md](docs/demo.md).
+- **Web UI** — `connected-models serve --port 8000`, then open http://127.0.0.1:8000/ in a browser: ask questions, watch the model graph animate, revise scenarios with sliders, and browse every reviewed model with auto-generated input-to-output diagrams. One bundled file, standard library only, no external requests. Guide: [docs/demo.md](docs/demo.md).
 - **Agent skill** — Muse sessions invoke `/connected-models` to answer quantitative questions through composed reviewed models instead of prose arithmetic.
 - **MCP server** — any MCP client registers `connected-models mcp` as a stdio server and calls the same tools agents use. Details: [docs/mcp.md](docs/mcp.md).
 

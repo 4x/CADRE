@@ -168,7 +168,9 @@ class CompareTests(unittest.TestCase):
             patch("connected_models.compare.save_run", return_value="c.json"),
         ):
             record = compare(registry, "How far?", False, "probe-m")
-        grounded_call.assert_called_once_with(registry, "How far?", False, "probe-m")
+        grounded_call.assert_called_once_with(
+            registry, "How far?", False, "probe-m", direct_fallback=False
+        )
         direct_call.assert_called_once_with("How far?", "probe-m")
         self.assertEqual(record["model"], "probe-m")
 

@@ -358,3 +358,41 @@ class RegistryTests(unittest.TestCase):
                     run = answer(registry, "Calculate savings.")
                 self.assertEqual(run["status"], "blocked")
                 self.assertFalse(run["outputs"])
+
+
+class DisplayMetadataTests(unittest.TestCase):
+    """Eligible models carry human-readable titles and definitions for display."""
+
+    def test_predmark_bundle_projects_display_metadata(self) -> None:
+        """Titles, summaries and variable definitions survive admission."""
+        from connected_models.integration import project_record
+
+        reviews = (
+            Path(__file__).resolve().parent.parent / "data" / "curation" / "reviews"
+        )
+        bundle = json.loads(
+            (reviews / "predmark-kelly-bundle.json").read_text(encoding="utf-8")
+        )
+        report = json.loads(
+            (reviews / "predmark-kelly-review.json").read_text(encoding="utf-8")
+        )
+        model_id = "financial-analysis--kelly-optimal-fraction-simple-bet"
+        payload = project_record(bundle, report, model_id, "r1.runtime1")
+        with scratch_directory() as folder:
+            registry = Registry(Path(folder) / "registry.sqlite3")
+            candidate = registry.propose(payload)
+            self.assertFalse(registry.candidate(candidate)["diagnostics"])
+            registry.review(candidate, "test-reviewer", "Test-only admission.")
+            cards = registry.display_metadata()
+        self.assertEqual(len(cards), 1)
+        key, card = next(iter(cards.items()))
+        self.assertTrue(key.startswith(model_id))
+        self.assertEqual(
+            card["title"], "Kelly optimal wealth fraction for a simple bet"
+        )
+        self.assertIn("logarithmic growth", card["summary"])
+        self.assertEqual(
+            card["definitions"]["p"],
+            "Win probability of the simple bet as a decimal fraction",
+        )
+        self.assertIn("simple-bet Kelly fraction", card["permitted_use"])

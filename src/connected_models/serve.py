@@ -1,8 +1,9 @@
 """Local web demo over the standard library only: ask, animate, revise.
 
-The server exposes saved runs and the offline revision machinery as JSON,
-plus one live endpoint that runs the normal `answer` workflow. No third-party
-packages, no external requests, no inference on page load.
+The server exposes saved runs, the model catalog, and the offline revision
+machinery as JSON, plus one live endpoint that runs the normal `answer`
+workflow. No third-party packages, no external requests, no inference on
+page load.
 """
 
 from __future__ import annotations
@@ -135,6 +136,70 @@ def latest_demo_runs(directory: Path) -> dict[str, dict[str, Any] | None]:
     return {name: found.get(name) for name in DEMO_QUESTIONS}
 
 
+def port_card(name: str, port: Any) -> dict[str, Any]:
+    """Project one port declaration to its browsable meaning and unit."""
+    return {
+        "name": name,
+        "meaning": port.meaning,
+        "unit": port.unit,
+        "context": port.context,
+    }
+
+
+def model_card(
+    key: str,
+    model: Any,
+    admission: dict[str, Any],
+    display: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Project one eligible model to its browsable metadata and evidence."""
+    domain = key.split("--")[0] if "--" in key else "legacy"
+    display = display or {}
+    definitions = display.get("definitions") or {}
+    output = port_card("output", model.output)
+    output["definition"] = definitions.get(display.get("output_symbol") or "", "")
+    return {
+        "key": key,
+        "id": model.id,
+        "domain": domain,
+        "version": model.version,
+        "title": display.get("title") or "",
+        "summary": display.get("summary") or "",
+        "permitted_use": display.get("permitted_use") or "",
+        "inputs": [
+            {
+                **port_card(name, port),
+                "definition": definitions.get(name) or port.meaning,
+            }
+            for name, port in model.inputs.items()
+        ],
+        "families": [
+            {**port_card(name, family.port), "max_size": family.max_size}
+            for name, family in model.families.items()
+        ],
+        "output": output,
+        "expression": model.expression,
+        "guards": list(model.guards),
+        "source": model.source,
+        "assumptions": list(model.assumptions),
+        "reviewer": admission.get("reviewer"),
+        "reviewed": admission.get("reviewed"),
+    }
+
+
+def list_models(registry_path: Path) -> dict[str, Any]:
+    """List every eligible model with browsable metadata, keyed and sorted."""
+    registry = Registry(registry_path)
+    models, admissions = registry.snapshot()
+    display = registry.display_metadata()
+    cards = [
+        model_card(key, models[key], admissions.get(key, {}), display.get(key))
+        for key in models
+    ]
+    cards.sort(key=lambda card: card["key"])
+    return {"models": cards, "count": len(cards)}
+
+
 def load_run(run_id: str, directory: Path) -> dict[str, Any]:
     """Read one saved run or raise the HTTP error the handler should report."""
     try:
@@ -211,11 +276,13 @@ class DemoHandler(BaseHTTPRequestHandler):
         return parsed
 
     def do_GET(self) -> None:
-        """Route page, run, demo, and report reads."""
+        """Route page, run, demo, model, and report reads."""
         try:
             path = urlsplit(self.path).path
             if path in {"/", "/index.html"}:
                 self._send_html(load_page())
+            elif path == "/api/models":
+                self._send_json(list_models(self.config.registry_path))
             elif path == "/api/demo":
                 self._send_json(
                     {
@@ -270,7 +337,7 @@ class DemoHandler(BaseHTTPRequestHandler):
         if not isinstance(fill_in, bool):
             raise HttpError(400, "fill_in_assumptions must be true or false.")
         registry = Registry(self.config.registry_path)
-        return answer(registry, question.strip(), fill_in)
+        return answer(registry, question.strip(), fill_in, direct_fallback=True)
 
     def _revise(self, body: dict[str, Any]) -> dict[str, Any]:
         """Revise one saved run's inputs or model revisions, offline."""

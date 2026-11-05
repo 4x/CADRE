@@ -227,3 +227,57 @@ class Registry:
                         "reviewed": review[4],
                     }
         return models, admissions
+
+    def display_metadata(self) -> dict[str, dict[str, Any]]:
+        """Map eligible model keys to human-readable display metadata.
+
+        The runtime model carries only machine identifiers; the narrative
+        (bundle title/summary, per-variable definitions, review permitted
+        use) survives in the admitted candidate evidence. Missing pieces
+        degrade to empty strings so display never breaks composition.
+        """
+        cards: dict[str, dict[str, Any]] = {}
+        with closing(sqlite3.connect(self.path)) as db, db:
+            db.execute("BEGIN")
+            keys = db.execute("SELECT key, candidate FROM models").fetchall()
+            payloads = {
+                row[0]: row[1]
+                for row in db.execute("SELECT id, payload FROM candidates").fetchall()
+            }
+            latest: dict[str, str] = {}
+            for candidate_id, decision in db.execute(
+                "SELECT candidate, decision FROM reviews ORDER BY rowid"
+            ).fetchall():
+                latest[candidate_id] = decision
+        for key, candidate_id in keys:
+            if latest.get(candidate_id) != "accepted":
+                continue
+            try:
+                payload = json.loads(payloads.get(candidate_id) or "{}")
+            except ValueError:
+                continue
+            evidence = payload.get("evidence") or {}
+            record = evidence.get("record") or {}
+            review = evidence.get("scientific_review") or {}
+            model_id = key.rsplit("@", 1)[0]
+            review_item: dict[str, Any] = next(
+                (
+                    item
+                    for item in review.get("models", [])
+                    if item.get("id") == model_id
+                ),
+                {},
+            )
+            cards[key] = {
+                "title": record.get("title") or "",
+                "summary": record.get("summary") or "",
+                "definitions": {
+                    variable.get("symbol"): variable.get("definition") or ""
+                    for variable in record.get("variables", [])
+                    if variable.get("symbol")
+                },
+                "output_symbol": (record.get("relationship") or {}).get("output_symbol")
+                or "",
+                "permitted_use": review_item.get("permitted_use") or "",
+            }
+        return cards

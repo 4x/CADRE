@@ -3,6 +3,7 @@
 import argparse
 import json
 import logging
+import os
 import sqlite3
 from pathlib import Path
 from uuid import UUID
@@ -49,9 +50,53 @@ def is_missing_run_file(exc: BaseException) -> bool:
     ).endswith(".json")
 
 
+def load_dotenv(path: Path | None = None) -> dict[str, str]:
+    """Fill absent process variables from a `.env` file, defaulting to CWD.
+
+    Only variables missing from the environment are set, so explicit
+    exports and uv-loaded files always win. Blank lines, `#` comments,
+    and malformed lines are ignored; values may be single- or
+    double-quoted and keep any inner `=` signs. A missing or unreadable
+    file is a no-op, and only the exact `.env` name in one directory is
+    ever read (no parent-directory search).
+    """
+    target = path if path is not None else Path.cwd() / ".env"
+    try:
+        text = target.read_text(encoding="utf-8")
+    except OSError:
+        return {}
+    loaded: dict[str, str] = {}
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+        name, _, value = stripped.partition("=")
+        name = name.strip()
+        if name.startswith("export "):
+            name = name[len("export ") :].strip()
+        if (
+            not name
+            or not (name[0].isalpha() or name[0] == "_")
+            or not all(char.isalnum() or char == "_" for char in name)
+        ):
+            continue
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        if name not in os.environ:
+            os.environ[name] = value
+            loaded[name] = value
+    return loaded
+
+
 def main() -> int:
     """Run a selected operation and report useful errors without exposing secrets."""
     parser = argparse.ArgumentParser(description="Connected Models prototype")
+    parser.add_argument(
+        "--no-dotenv",
+        action="store_true",
+        help="Skip loading ./.env; process environment and uv-loaded files still apply.",
+    )
     commands = parser.add_subparsers(dest="command", required=True)
     demo = commands.add_parser(
         "demo", help="Run a synthetic heating scenario; no inference calls"
@@ -200,6 +245,8 @@ def main() -> int:
         help="Maximum scenarios to propose (1 to 5)",
     )
     args = parser.parse_args()
+    if not args.no_dotenv:
+        load_dotenv()
     for run_id in command_run_ids(args):
         try:
             UUID(run_id)
@@ -391,6 +438,7 @@ def main() -> int:
                     fill_in_assumptions_enabled(args.fill_in_assumptions),
                     args.model,
                     retrieval=args.retrieval,
+                    direct_fallback=True,
                 )
                 print(
                     json.dumps(
@@ -404,12 +452,23 @@ def main() -> int:
                                 "clarifications",
                                 "solve_diagnostic",
                                 "error",
+                                "fallback",
                                 "saved_path",
                             )
                         },
                         indent=2,
                     )
                 )
+                fallback = record.get("fallback") or {}
+                if fallback:
+                    print(f"Grounded route {record['status']}: {fallback['reason']}")
+                    if fallback.get("direct_text"):
+                        print(
+                            "Plain-LLM answer (ungrounded; no reviewed models behind it):"
+                        )
+                        print(fallback["direct_text"][:2000])
+                    elif fallback.get("error"):
+                        print(f"Direct route also failed: {fallback['error']}")
                 return 0 if record["status"] == "completed" else 1
             return 0
         manifest = execute(

@@ -397,6 +397,38 @@ def _reset_attempt(record: dict[str, Any]) -> None:
         record.pop(key, None)
 
 
+def grounded_fallback(
+    question: str, record: dict[str, Any], inference_model: str | None
+) -> dict[str, Any]:
+    """Answer directly when the grounded route cannot, stating its reason first.
+
+    The direct text is labeled ungrounded so callers show it as the bare
+    model's answer, never as an executed result. The import stays local
+    because compare imports answer at module load.
+    """
+    parts = [f"grounded route {record.get('status')}"]
+    if record.get("error"):
+        parts.append(str(record["error"]))
+    for item in (record.get("clarifications") or [])[:3]:
+        if isinstance(item, str):
+            parts.append(item)
+        elif isinstance(item, dict):
+            parts.append(str(item.get("question") or item.get("text") or item))
+    reason = "; ".join(parts)
+    try:
+        from .compare import direct_answer
+
+        direct = direct_answer(question, inference_model)
+        return {
+            "reason": reason,
+            "direct_text": direct.get("direct_text", ""),
+            "model": (direct.get("inference") or {}).get("model"),
+            "error": direct.get("error"),
+        }
+    except (ModelError, OSError, ValueError) as exc:
+        return {"reason": reason, "direct_text": "", "model": None, "error": str(exc)}
+
+
 def answer(
     registry: Registry,
     question: str,
@@ -406,6 +438,7 @@ def answer(
     retrieval_k: int = SEED_K,
     retrieval_cap: int = RETRIEVAL_CAP,
     allow_llm_steps: bool | None = None,
+    direct_fallback: bool = False,
 ) -> dict[str, Any]:
     """Answer a self-contained question, repairing machine-rejected proposals.
 
@@ -413,7 +446,11 @@ def answer(
     sees the base prompt, and each retry sees the repair prompt plus the
     prior proposal and its exact machine error. Declines that need a human
     (ambiguity, needs-input, unresolved) stop the loop immediately.
-    Execution stays deterministic; only the proposal is revised."""
+    Execution stays deterministic; only the proposal is revised. With
+    direct_fallback, a non-completed run additionally carries a labeled
+    plain-LLM answer after the stated grounded reason, so the caller never
+    performs worse than the bare model. The compare harness passes False
+    to keep its grounded side pure."""
     record: dict[str, Any] = {
         "run_id": str(uuid4()),
         "created": datetime.now(UTC).isoformat(),
@@ -1010,6 +1047,8 @@ def answer(
             prior = (record.get("proposal"), error)
     except (ModelError, ValueError, TypeError, KeyError) as exc:
         record["error"] = str(exc)
+    if record["status"] != "completed" and direct_fallback:
+        record["fallback"] = grounded_fallback(question, record, inference_model)
     used = [
         (attempt.get("inference") or {}).get("model") for attempt in record["attempts"]
     ]
